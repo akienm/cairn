@@ -1,0 +1,64 @@
+[
+  {
+    "claim": "proof test_reading_declaration.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-18T08:54:28",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  pass  test_started_is_stamped_on_the_first_write_and_never_moves\n  pass  test_drain_drains_and_hold_holds_under_stamp_read\n  pass  test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home\n  pass  test_inside_the_declared_frequency_raises_nothing\n  pass  test_undeclared_raises_no_reader_and_never_overdue\n5 teeth: 5 pass, 0 fail",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_started_is_stamped_on_the_first_write_and_never_moves",
+        "test_drain_drains_and_hold_holds_under_stamp_read",
+        "test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home",
+        "test_inside_the_declared_frequency_raises_nothing",
+        "test_undeclared_raises_no_reader_and_never_overdue"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "cc0e5f4599358bc26b9f8460d2805ea3bfa5530ba3f7c263bf8fbc4ceb32aeae",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/data_recorder/__init__.py",
+        "cairn/tools/data_recorder/data_recorder.py",
+        "cairn/tools/data_recorder/probes/reading_is_declared_and_current.py",
+        "cairn/tools/data_recorder/proofs/test_reading_declaration.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1101612-6q3xhsb1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 178757001,
+          "disk_bytes": 192237568,
+          "entries": 5632,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

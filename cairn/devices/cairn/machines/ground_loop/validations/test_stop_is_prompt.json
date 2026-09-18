@@ -2,7 +2,7 @@
   {
     "claim": "proof test_stop_is_prompt.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-16T19:35:32",
+    "date": "2026-09-18T08:37:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "8c9868a11384a0254cb76fd72662d523ca13fb7ede668f65d4c2671fe9a1834f",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "f42908f8e174628172571f097cc571825f9024f81e71302acb54e2be388deddd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -54,49 +58,61 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2911842-6rgt2q2f/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1019118-gmdth8a3/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 28,
+          "count": 46,
           "paths": [
             "devices/cairn/0/last_known.json",
+            "devices/cairn/0/machines/counting_block/probe_ack.json",
+            "devices/cairn/0/machines/counting_block/raised.json",
+            "devices/cairn/0/machines/counting_block/table.json",
             "devices/cairn/0/machines/ground_loop/probes/device_column_history.jsonl",
             "devices/cc/0/last_known.json",
             "devices/cc/0/memory_series.jsonl",
-            "devices/charter/0/last_known.json",
+            "devices/charter/0/tools/data_recorder/inbound/reading.json",
             "devices/charter/0/tools/data_recorder/inbound/records.jsonl",
             "devices/codemother/0/last_known.json",
+            "devices/codemother/0/tools/charter/inbound/reading.json",
+            "devices/codemother/0/tools/charter/inbound/records.jsonl",
+            "devices/codemother/0/tools/data_recorder/inbound/reading.json",
             "devices/codemother/0/tools/data_recorder/inbound/records.jsonl",
             "devices/harbor_master/0/last_known.json",
+            "devices/harbor_master/0/tools/data_recorder/inbound/reading.json",
             "devices/harbor_master/0/tools/data_recorder/inbound/records.jsonl",
             "devices/inference_domain/0/last_known.json",
+            "devices/inference_domain/0/tools/data_recorder/inbound/reading.json",
             "devices/inference_domain/0/tools/data_recorder/inbound/records.jsonl",
             "devices/librarian/0/last_known.json",
+            "devices/press_office/0/tools/data_recorder/inbound/reading.json",
             "devices/press_office/0/tools/data_recorder/inbound/records.jsonl",
             "devices/tester/0/last_known.json",
+            "devices/tester/0/tools/data_recorder/inbound/reading.json",
             "devices/tester/0/tools/data_recorder/inbound/records.jsonl",
             "devices/trouble/0/last_known.json",
+            "folders/press_office/data/reading.json",
             "folders/press_office/data/records.jsonl",
-            "logs/bus/0/20260917.013523.298625.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260917.013523.584705.BusDevice.transit_table_ensured.json",
-            "logs/ground_loop/0/20260917.013444.827766.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop/0/20260917.013444.853246.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop/0/20260917.013448.741487.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop/0/20260917.013521.006593.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop/0/20260917.013527.512635.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop/0/20260917.013530.192941.DiscoveredShim.delivery_backlog_drained.json",
-            "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20260917.013523.247406.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20260918.143707.210795.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.143707.596683.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.143708.246801.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.143708.628126.BusDevice.transit_table_ensured.json",
+            "logs/data_recorder/0/20260918.143556.516527.data_recorder.raise_trouble.json",
+            "logs/data_recorder/0/20260918.143556.516527.data_recorder.reconcile_troubles.json",
+            "logs/data_recorder/0/20260918.143623.761483.data_recorder.raise_trouble.json",
+            "logs/data_recorder/0/20260918.143623.761483.data_recorder.reconcile_troubles.json",
+            "logs/ground_loop/0/20260918.143623.430126.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260918.143623.462270.DiscoveredShim.delivery_backlog_drained.json",
+            "logs/ground_loop/0/20260918.143627.369037.DiscoveredShim.delivery_backlog_drained.json"
           ],
-          "elided": 0
+          "elided": 6
         },
         "scratch": {
           "measured": true,
-          "bytes": 140001031,
-          "disk_bytes": 151928832,
-          "entries": 4970,
+          "bytes": 179371391,
+          "disk_bytes": 192925696,
+          "entries": 5657,
           "builds": 1,
-          "reuses": 15
+          "reuses": 22
         }
       }
     },

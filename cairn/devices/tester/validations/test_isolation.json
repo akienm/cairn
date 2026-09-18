@@ -2,13 +2,13 @@
   {
     "claim": "proof test_isolation.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T03:37:33",
+    "date": "2026-09-18T08:44:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 180.5MB disk, 5409 entries, live root read 1x this process",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 377, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 370, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 317, in test_the_seal_evidence_carries_what_it_cost\n    assert cost[\"disk_bytes\"] < 150_000_000, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: the per-proof sandbox is 180MB — ticket 1c4ae8f053fe's falsifier is under 150MB (it was ~850MB across two copies before 2026-09-08)",
+      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  sealed: 1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=green  seal=sealed\n  PASS  test_run_proof_under_netns_when_available\n  abs seal=sealed  rel seal=sealed\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: 192.2MB disk, 5632 entries, live root read 1x this process",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 377, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 370, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 317, in test_the_seal_evidence_carries_what_it_cost\n    assert cost[\"disk_bytes\"] < 150_000_000, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: the per-proof sandbox is 192MB — ticket 1c4ae8f053fe's falsifier is under 150MB (it was ~850MB across two copies before 2026-09-08)",
       "teeth_green": [
         "test_no_isolation_is_honestly_open",
         "test_the_four_seal_verdicts_are_measured_not_assumed",
@@ -32,7 +32,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c0bc8990f6c35061c4f7579725640d9c83fd744dcf548125f10aff5485573318",
+      "source_fingerprint": "fa4e1687fe1c5b8e9f249e71ac2a54d5f44e32e8b4dc66b1c6262beef86240a3",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,33 +56,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-76799-j9g4eyix/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1019118-4zc5kqb0/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/tester/0/20260918.093722.657536.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.093725.166207.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.093727.730801.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.093730.157321.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.093732.632902.TesterDevice.run_proof.json"
+            "logs/tester/0/20260918.144405.260913.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.144407.088876.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.144408.861701.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.144410.703240.TesterDevice.run_proof.json",
+            "logs/tester/0/20260918.144412.428992.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 167442555,
-          "disk_bytes": 180486144,
-          "entries": 5416,
+          "bytes": 178749499,
+          "disk_bytes": 192249856,
+          "entries": 5639,
           "builds": 1,
-          "reuses": 55
+          "reuses": 60
         }
       },
       "reseal_ladder": {
         "proof_sha256": "fc7f1171f1d549d8548730fe871db6d2ee26ac3ed44687aadcc7a3bc0af7bc87",
         "opened": "2026-09-17T22:38:43",
-        "last_red": "2026-09-18T03:37:33",
-        "passes": 3,
+        "last_red": "2026-09-18T08:44:13",
+        "passes": 4,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
         "ruling": null

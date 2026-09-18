@@ -1,7 +1,8 @@
 """Proof: every data_recorder declares when it was started, last read, and how often it
 expects reading — and the at-rest probe reds the undeclared and the overdue.
 
-Ticket a4c2be029f49. Five teeth, each a clause a hollow build could pass without it:
+Ticket a4c2be029f49. Five narrow teeth, each a clause a hollow build could pass without it,
+a sixth for the holders' pass-through, and a seventh (the declared one) that runs them all:
 
   1. started is stamped on the FIRST write and never at construction, and does not move
   2. drain drains and hold holds under stamp_read; last_read moves under both
@@ -25,8 +26,27 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
-from cairn.tools.data_recorder.data_recorder import DataRecorder, READING_FILE  # noqa: E402
-from cairn.tools.data_recorder.probes import reading_is_declared_and_current as probe  # noqa: E402
+# PROVES keys follow the falsifier's markers: a4c2be029f49's falsifier carries none, so the
+# one clause is "all" and ONE composite tooth (the sixth) declares it by running the narrow
+# teeth end to end plus the holder pass-through — a hollow reading that reverts ANY build
+# file reds it. The build's names are resolved at CALL time (proof_coverage's
+# proof_binds_its_subject_at_call_time): a proof that binds them at import crashes in its
+# import block under the hollow reading and prints no teeth, which reads as UNRAN, not red.
+PROVES = {"a4c2be029f49": {"all": "test_the_declaration_and_the_probe_end_to_end"}}
+
+
+class _Subject:
+    """The build's names, resolved when a tooth asks — never at import."""
+
+    def __getattr__(self, name):
+        from cairn.tools.data_recorder import data_recorder as dr
+        if name == "probe":
+            from cairn.tools.data_recorder.probes import reading_is_declared_and_current
+            return reading_is_declared_and_current
+        return getattr(dr, name)
+
+
+_S = _Subject()
 
 T0 = datetime(2026, 9, 18, 8, 0, 0, tzinfo=timezone.utc)
 RECORD = {"finding": "a finding", "inspector_target": "x", "probe_source": "y"}
@@ -37,9 +57,9 @@ def _world(tmp: Path) -> dict:
     return {k: world for k in ("repo", "commons", "instance")}
 
 
-def _recorder(roots: dict, device: str, name: str = "inbound", **settings) -> DataRecorder:
+def _recorder(roots: dict, device: str, name: str = "inbound", **settings):
     base = roots["instance"] / "devices" / device / "0" / "tools" / "data_recorder" / name
-    return DataRecorder(base, **settings)
+    return _S.DataRecorder(base, **settings)
 
 
 def _emissions(roots: dict) -> list[dict]:
@@ -62,7 +82,7 @@ def test_started_is_stamped_on_the_first_write_and_never_moves():
         d = r.reading()
         assert d == {"started": T0.isoformat(), "last_read": None,
                      "expected_read_frequency_seconds": 60, "on_read": "drain"}, d
-        assert (r.reading_path.parent / READING_FILE).is_file()
+        assert (r.reading_path.parent / _S.READING_FILE).is_file()
         r.write(dict(RECORD), now=T0 + timedelta(seconds=30))
         assert r.reading()["started"] == T0.isoformat(), "started moved on a second write"
         # bad declarations are refused at construction, not silently defaulted
@@ -104,7 +124,7 @@ def test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home()
         roots = _world(Path(tmp))
         r = _recorder(roots, "alpha", expected_read_frequency_seconds=60, on_read="drain")
         r.write(dict(RECORD), now=T0)
-        c = probe.report(T0 + timedelta(seconds=120), roots=roots)
+        c = _S.probe.report(T0 + timedelta(seconds=120), roots=roots)
         assert c["recorders"] == 1, c
         assert c["raised"] == ["recorder-read-overdue-alpha-0-inbound"], c
         ems = _emissions(roots)
@@ -114,7 +134,7 @@ def test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home()
         assert any("reconcile_troubles" in k[1] for k in kinds), "no reconcile emitted"
         # a read inside the window clears: the next census observes nothing under the scope
         r.stamp_read(now=T0 + timedelta(seconds=120))
-        c2 = probe.report(T0 + timedelta(seconds=150), roots=roots)
+        c2 = _S.probe.report(T0 + timedelta(seconds=150), roots=roots)
         assert c2["raised"] == [], c2
         assert c2["current"] == ["alpha-0-inbound"], c2
 
@@ -124,14 +144,14 @@ def test_inside_the_declared_frequency_raises_nothing():
         roots = _world(Path(tmp))
         r = _recorder(roots, "alpha", expected_read_frequency_seconds=60, on_read="drain")
         r.write(dict(RECORD), now=T0)
-        c = probe.report(T0 + timedelta(seconds=30), roots=roots)
+        c = _S.probe.report(T0 + timedelta(seconds=30), roots=roots)
         assert c["raised"] == [], c
         assert c["current"] == ["alpha-0-inbound"], c
         ems = _emissions(roots)
         assert not any("raise_trouble" in json.dumps(e) and "recorder-" in json.dumps(e)
                        and "reconcile" not in json.dumps(e) for e in ems), ems
         # the trigger itself, through the beat's shape: no line crossed
-        assert probe.census(T0 + timedelta(seconds=30), roots=roots)["troubles"] == {}
+        assert _S.probe.census(T0 + timedelta(seconds=30), roots=roots)["troubles"] == {}
 
 
 def test_undeclared_raises_no_reader_and_never_overdue():
@@ -143,7 +163,7 @@ def test_undeclared_raises_no_reader_and_never_overdue():
         declared = _recorder(roots, "alpha", expected_read_frequency_seconds=60, on_read="hold")
         declared.write(dict(RECORD), now=T0)
         far = T0 + timedelta(days=30)
-        c = probe.report(far, roots=roots)
+        c = _S.probe.report(far, roots=roots)
         assert c["recorders"] == 2, c
         assert c["raised"] == ["recorder-declares-no-reader-delta-0-inbound",
                                "recorder-read-overdue-alpha-0-inbound"], c
@@ -152,7 +172,7 @@ def test_undeclared_raises_no_reader_and_never_overdue():
         legacy = roots["instance"] / "devices" / "eps" / "0" / "tools" / "data_recorder" / "inbound"
         legacy.mkdir(parents=True)
         (legacy / "records.jsonl").write_text('{"id": "x"}\n', encoding="utf-8")
-        c = probe.census(far, roots=roots)
+        c = _S.probe.census(far, roots=roots)
         assert "recorder-declares-no-reader-eps-0-inbound" in c["troubles"], c
         assert c["troubles"]["recorder-declares-no-reader-eps-0-inbound"]["why"] == "no reading.json"
         # the reconcile carries the complete observed set under the scope
@@ -164,13 +184,70 @@ def test_undeclared_raises_no_reader_and_never_overdue():
                "recorder-read-overdue-alpha-0-inbound" in last, last
 
 
-TEETH = [
+def test_the_holders_pass_through_what_they_declare():
+    """P2 of the triage order: BaseDevice and _FeedbackDevice hand the recorder their own
+    declaration, as declared — None/None when a holder declares nothing. Construction
+    touches no disk, so the live instance address is named, never written."""
+    from cairn.tools.base.device import BaseDevice
+    from cairn.devices.cairn.machines.ground_loop.discovered import _FeedbackDevice
+
+    class _Holder(BaseDevice):
+        device_id = "proof-holder-a4c2"
+        RECORDER_READ_FREQUENCY_SECONDS = 30
+        RECORDER_ON_READ = "hold"
+
+        def intention(self):
+            return {}
+
+        def state(self):
+            return {}
+
+        def settings(self):
+            return {}
+
+    class _Mute(BaseDevice):
+        device_id = "proof-mute-a4c2"
+
+        def intention(self):
+            return {}
+
+        def state(self):
+            return {}
+
+        def settings(self):
+            return {}
+
+    class _Fb(_FeedbackDevice):
+        RECORDER_READ_FREQUENCY_SECONDS = 45
+        RECORDER_ON_READ = "drain"
+
+    r = _Holder()._get_recorder()
+    assert (r._expected_read_frequency_seconds, r._on_read) == (30, "hold"), vars(r)
+    m = _Mute()._get_recorder()
+    assert (m._expected_read_frequency_seconds, m._on_read) == (None, None), vars(m)
+    f = _Fb("proof-fb-a4c2")._get_recorder()
+    assert (f._expected_read_frequency_seconds, f._on_read) == (45, "drain"), vars(f)
+    for rec in (r, m, f):
+        assert not rec.reading_path.exists(), "construction wrote a declaration at %s" % rec.reading_path
+
+
+NARROW = [
     test_started_is_stamped_on_the_first_write_and_never_moves,
     test_drain_drains_and_hold_holds_under_stamp_read,
     test_overdue_raises_exactly_the_overdue_identity_and_lands_in_the_log_home,
     test_inside_the_declared_frequency_raises_nothing,
     test_undeclared_raises_no_reader_and_never_overdue,
+    test_the_holders_pass_through_what_they_declare,
 ]
+
+
+def test_the_declaration_and_the_probe_end_to_end():
+    """The one declared tooth for clause (all): the six narrow teeth, in order, in one act."""
+    for t in NARROW:
+        t()
+
+
+TEETH = NARROW + [test_the_declaration_and_the_probe_end_to_end]
 
 if __name__ == "__main__":
     failed = 0

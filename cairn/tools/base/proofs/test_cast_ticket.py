@@ -302,10 +302,12 @@ def main() -> int:
         for name in PROVES["23089d52d805"].values():
             if name not in FAILURES:
                 check(name, False, f"aborted: {type(exc).__name__}: {exc}")
-    if FAILURES:
-        for name in PROVES["23089d52d805"].values():
-            if name not in FAILURES:
-                check(name, False, "a tooth inside it failed")
+    # THE COMPOSITE IS PRINTED ON BOTH OUTCOMES. The hollow reading takes the declared teeth
+    # from the PASS lines at HEAD; a composite that only ever printed on failure read as
+    # "not green at HEAD" and made every reversion unreadable (measured 2026-09-18).
+    for name in PROVES["23089d52d805"].values():
+        if name not in FAILURES:
+            check(name, not FAILURES, "a tooth inside it failed" if FAILURES else "")
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     for f in FAILURES:
         print(f"  - {f}")

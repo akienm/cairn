@@ -2,7 +2,7 @@
   {
     "claim": "proof test_design_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:59:12",
+    "date": "2026-09-18T11:16:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -60,7 +60,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "05de2d2db9f244438251bc43218affc63cdde648bf9767988f757d2f0ceea8da",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "c383db5b1048dec7e219021c86fd17bd04cd85d1f69ee5fdf6055894f58f7576",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -86,6 +90,7 @@
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/threshold_census.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
         "cairn/tools/chain/__init__.py",
@@ -106,7 +111,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-2prk4rdl/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1513791-54jexts1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -115,11 +120,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 182506427,
+          "disk_bytes": 196235264,
+          "entries": 5752,
           "builds": 1,
-          "reuses": 177
+          "reuses": 46
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_learning_block.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:50:27",
+    "date": "2026-09-18T11:13:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green  test_finding_round_trips_with_closed_strata\n  green  test_green_and_red_have_equal_durability\n  green  test_hex_only_via_the_seam\n  green  test_hollow_contract_is_refused\n  green  test_module_imports_no_inference_client\n  green  test_nothing_resident_in_the_module\n  green  test_pending_findings_rule\n  green  test_recordverdict_shell_door\n  green  test_refusal_and_pass_are_both_traced_and_input_untouched\n  green  test_shell_door_traces_and_refuses\n  green  test_the_door_records_every_check_it_ran_not_only_the_lacks\n  green  test_traced_wire_green_and_red_and_reraise\n  green  test_two_lacks_one_refusal_all_named\n  green  test_typed_write_round_trips\n  green  test_typeless_write_is_refused_and_writes_nothing\n  green  test_untagged_and_invented_strata_are_refused_naming_the_bullet\n  green  test_verdict_conforms_to_the_stores_v0_shape\n  green  test_verdict_without_finding_or_words_is_refused\n\n40/40 teeth green",
+      "returncode": 1,
+      "stdout_tail": "  green  test_nothing_resident_in_the_module\n  green  test_pending_findings_rule\n  RED    test_recordverdict_shell_door: recordverdict refused — 2 findings stand at the gate; an ambiguous act is never guessed. Name the one you judge (block name or id prefix):\n  [b1] ae68798ed126  2026-08-01T12:00:00\n      · (code) alpha\n  [b2] b1ccc8e07283  2026-08-01T12:00:01\n      · (code) beta\n\n  green  test_refusal_and_pass_are_both_traced_and_input_untouched\n  green  test_shell_door_traces_and_refuses\n  green  test_the_door_records_every_check_it_ran_not_only_the_lacks\n  green  test_traced_wire_green_and_red_and_reraise\n  green  test_two_lacks_one_refusal_all_named\n  green  test_typed_write_round_trips\n  green  test_typeless_write_is_refused_and_writes_nothing\n  green  test_untagged_and_invented_strata_are_refused_naming_the_bullet\n  green  test_verdict_conforms_to_the_stores_v0_shape\n  green  test_verdict_without_finding_or_words_is_refused\n\n39/40 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_door_pass_trace_carries_what_was_proved",
@@ -39,7 +39,6 @@
         "test_module_imports_no_inference_client",
         "test_nothing_resident_in_the_module",
         "test_pending_findings_rule",
-        "test_recordverdict_shell_door",
         "test_refusal_and_pass_are_both_traced_and_input_untouched",
         "test_shell_door_traces_and_refuses",
         "test_the_door_records_every_check_it_ran_not_only_the_lacks",
@@ -51,12 +50,18 @@
         "test_verdict_conforms_to_the_stores_v0_shape",
         "test_verdict_without_finding_or_words_is_refused"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_recordverdict_shell_door"
+      ],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "c1ceac5b1e001676aae2760a479387f316b639ae484527940c35968aeacabb5d",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "e1338139a3444558f85add04d872c62448a56c35ee6fdb9eec3539a34f71f6db",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -84,7 +89,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-xfhzshv5/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1513791-1rk6fuxb/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -93,12 +98,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 182506427,
+          "disk_bytes": 196235264,
+          "entries": 5752,
           "builds": 1,
-          "reuses": 103
+          "reuses": 15
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "62627ceebb3cb1cbfbe97b62e0b746a4facdbf3064434ee73d34995955b74645",
+        "opened": "2026-09-18T11:13:50",
+        "last_red": "2026-09-18T11:13:50",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-learning-block",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

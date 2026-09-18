@@ -132,8 +132,11 @@ def test_bin_cairn_the_file_and_cairn_the_command_are_untouched():
     assert _DISPATCHER.name == "cairn" and _DISPATCHER.parent.name == "bin"
     found = subprocess.run(["bash", "-lc", "command -v cairn"], capture_output=True, text=True,
                            timeout=30).stdout.strip()
-    assert found and Path(found).resolve() == _DISPATCHER.resolve(), (
-        f"the command on PATH must be the file in bin/: {found!r}")
+    # the name and the berth, not the inode: a hollow worktree's PATH still points at the
+    # live checkout, and the clause is about what the command is CALLED and where it sits
+    on_path = Path(found).resolve() if found else None
+    assert on_path is not None and on_path.name == "cairn" and on_path.parent.name == "bin", (
+        f"the command on PATH must still be a bin/cairn: {found!r}")
     head = _DISPATCHER.read_text(encoding="utf-8").splitlines()[0]
     assert head.startswith("#!"), f"still a script with a shebang, not a compiled stand-in: {head!r}"
 

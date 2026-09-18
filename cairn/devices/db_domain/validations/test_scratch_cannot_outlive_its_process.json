@@ -1,0 +1,120 @@
+[
+  {
+    "claim": "proof test_scratch_cannot_outlive_its_process.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-18T04:46:58",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_seal_sweeps_first_and_says_so\n.\n  ok   test_a_killed_minter_is_swept_with_its_delivery_companion\n.\n  ok   test_a_normal_exit_leaves_neither_table_nor_row\n.\n  ok   test_no_proof_drops_a_table_by_hand\n.\n  ok   test_the_moved_proofs_stay_green\n.\n  ok   test_the_sweep_never_touches_a_live_table\n                                                                   [100%]\n6 passed in 31.38s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_seal_sweeps_first_and_says_so",
+        "test_a_killed_minter_is_swept_with_its_delivery_companion",
+        "test_a_normal_exit_leaves_neither_table_nor_row",
+        "test_no_proof_drops_a_table_by_hand",
+        "test_the_moved_proofs_stay_green",
+        "test_the_sweep_never_touches_a_live_table"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "1cb81a2d317d38f0cf11b5db54ec64acc0378cf2fba44e5de53cd756983f990e",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/proofs/test_scratch_cannot_outlive_its_process.py",
+        "cairn/devices/db_domain/store.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/scratch_sweep.py",
+        "cairn/devices/tester/validation_store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-348463-nek6fa3r/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 69,
+          "paths": [
+            "devices/codemother/0/last_known.json",
+            "devices/disk_only/0/tools/data_recorder/inbound/records.jsonl",
+            "devices/harbor_master/0/last_known.json",
+            "logs/bus/0/20260918.104634.865937.BusDevice.post.json",
+            "logs/bus/0/20260918.104634.926621.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104635.253526.BusDevice.post.json",
+            "logs/bus/0/20260918.104635.586290.BusDevice.post.json",
+            "logs/bus/0/20260918.104635.878036.BusDevice.post.json",
+            "logs/bus/0/20260918.104635.880855.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104636.252179.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104638.435494.BusDevice.post.json",
+            "logs/bus/0/20260918.104638.516869.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104638.531850.BusDevice.post.json",
+            "logs/bus/0/20260918.104638.560412.BusDevice.post.json",
+            "logs/bus/0/20260918.104638.775622.BusDevice.post.json",
+            "logs/bus/0/20260918.104638.861125.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104638.890302.BusDevice.post.json",
+            "logs/bus/0/20260918.104638.903759.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104639.352374.BusDevice.post.json",
+            "logs/bus/0/20260918.104639.516228.BusDevice.post.json",
+            "logs/bus/0/20260918.104639.608458.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104639.641281.BusDevice.post.json",
+            "logs/bus/0/20260918.104639.657934.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104639.706842.BusDevice.post.json",
+            "logs/bus/0/20260918.104639.797630.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104639.989220.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.020348.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.033708.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104640.101662.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.294152.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.391654.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104640.422033.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.448448.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.461614.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104640.461941.BusDevice.delivered.json",
+            "logs/bus/0/20260918.104640.503113.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.504980.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.716264.BusDevice.post.json",
+            "logs/bus/0/20260918.104640.808870.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.104640.840149.BusDevice.post.json"
+          ],
+          "elided": 29
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 173107630,
+          "disk_bytes": 186683392,
+          "entries": 5634,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

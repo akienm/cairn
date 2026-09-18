@@ -21,9 +21,12 @@ from cairn.tools.operator_inbox.inbox import (
     QUESTIONS_DIR,
     INTENTIONS_DIR,
     TERMINAL_STATES,
-    cursor_of,
-    status_label,
 )
+
+# The reader's own label derivation (cursor_of, status_label, with_derived_phase) is bound
+# at CALL time inside the tooth that checks it — 3feb201c84ea added those names, and a
+# proof that binds them at import cannot reach its first tooth under a hollow reading.
+PROVES = {"3feb201c84ea": {"1": "test_tickets_match_independent_read"}}
 
 
 def test_troubles_match_independent_read():
@@ -67,6 +70,7 @@ def test_questions_match_independent_read():
 
 
 def test_tickets_match_independent_read():
+    from cairn.tools.operator_inbox.inbox import cursor_of, status_label, with_derived_phase
     result = read_tickets()
     independent_count = 0
     if TICKETS_DIR.exists():
@@ -90,7 +94,6 @@ def test_tickets_match_independent_read():
     # with the DERIVED in-process phase overlaid (ruling 2026-09-08: in-process is runtime
     # state, never stored, so the file says :waiting while a live sail says :in-process —
     # found red 2026-09-15 with ticket fb988505c5cb's own voyage in flight).
-    from cairn.tools.operator_inbox.inbox import with_derived_phase
     for r in result["records"]:
         own = json.loads(Path(r["source"]).read_text())["workflow_and_state"]
         assert r["label"] == status_label(with_derived_phase(cursor_of(own), r["id"])), \

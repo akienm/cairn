@@ -38,20 +38,55 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.transitions import TERMINAL_STATES                      # noqa: E402
-from cairn.tools.operator_inbox.inbox import (                                 # noqa: E402
-    UNPARSED,
-    format_inbox,
-    format_summary,
-    read_tickets,
-)
-from cairn.devices.codemother.dashboard import format_dashboard                # noqa: E402
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
-from cairn.devices.cairn.machines.harbor_master.register import register      # noqa: E402
+# The subject — the one reader and the three reports over it — is bound at CALL time
+# (``_world()``), never at import: this build added the reader's names, so a hollow
+# reading takes them away, and a proof that binds them at import cannot reach its first
+# tooth (proof_binds_its_subject_at_call_time). Nothing below names the subject at
+# module level.
+
+PROVES = {"3feb201c84ea": {
+    "1": "test_fixture_one_label_per_id_across_all_three",
+    "2": "test_fixture_headers_sum_with_no_other",
+    "3": "test_source_one_label_deriving_function_no_private_cursor_regex",
+    "4": "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
+    "5": "test_live_every_open_ticket_carries_owning_intention",
+    "6": "test_fixture_prose_standing_is_a_finding_not_a_status",
+    "7": "test_crossing_patch_reloads_the_ticket_not_the_target",
+}}
 
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
 _GROUP = re.compile(r"^\s*(\S+) \((\d+)\):$")
 _COMMONS = _REPO_ROOT.parent / "CairnCommons"
+
+# The four readers clause (3) greps — one label-deriving function among them, in the inbox.
+_READERS = (
+    "cairn/tools/operator_inbox/inbox.py",
+    "cairn/devices/codemother/dashboard.py",
+    "cairn/devices/cairn/machines/harbor_master/register.py",
+    "cairn/devices/cairn/machines/harbor_master/device.py",
+)
+# The five components whose history standing is prose: on the map only as a finding line.
+_PROSE_STANDING = ("cc", "diagnostic_inspector", "system_rackmount", "sudo_relay", "charter")
+
+
+class _world:
+    """The subject, bound when a tooth asks for it."""
+
+    def __init__(self):
+        from cairn.tools.base.transitions import TERMINAL_STATES
+        from cairn.tools.operator_inbox import inbox
+        from cairn.devices.codemother.dashboard import format_dashboard
+        from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+        from cairn.devices.cairn.machines.harbor_master.register import register
+        self.TERMINAL_STATES = TERMINAL_STATES
+        self.is_stage_token = inbox.is_stage_token
+        self.UNPARSED = inbox.UNPARSED
+        self.format_inbox = inbox.format_inbox
+        self.format_summary = inbox.format_summary
+        self.read_tickets = inbox.read_tickets
+        self.format_dashboard = format_dashboard
+        self.HarborMasterDevice = HarborMasterDevice
+        self.register = register
 
 
 # --- the fixture -------------------------------------------------------------
@@ -109,7 +144,7 @@ def _build_fixture(root: Path) -> tuple[Path, Path]:
     return tickets, cairn_root
 
 
-def _stub_data(tickets_dir: Path) -> dict:
+def _stub_data(w: _world, tickets_dir: Path) -> dict:
     """The inbox's data dict with every lane but tickets stubbed empty — the tickets
     lane is the real reader over the fixture."""
     return {
@@ -119,18 +154,18 @@ def _stub_data(tickets_dir: Path) -> dict:
         "lap": {"items": [], "count": 0, "error": None},
         "questions": {"open": [], "count": 0},
         "design": {},
-        "tickets": read_tickets(tickets_dir=tickets_dir),
+        "tickets": w.read_tickets(tickets_dir=tickets_dir),
         "intentions": {"count": 0, "items": []},
         "ideas": {"count": 0, "items": []},
     }
 
 
-def _render_three(tickets_dir: Path, cairn_root: Path) -> tuple[str, str, str, HarborMasterDevice]:
-    data = _stub_data(tickets_dir)
-    inbox = format_inbox(data)
-    dash = format_dashboard(data, tickets_dir=tickets_dir)
-    dev = HarborMasterDevice()
-    dev._fleet_cache = register(cairn_root=cairn_root, tickets_dir=tickets_dir)
+def _render_three(w: _world, tickets_dir: Path, cairn_root: Path) -> tuple[str, str, str, object]:
+    data = _stub_data(w, tickets_dir)
+    inbox = w.format_inbox(data)
+    dash = w.format_dashboard(data, tickets_dir=tickets_dir)
+    dev = w.HarborMasterDevice()
+    dev._fleet_cache = w.register(cairn_root=cairn_root, tickets_dir=tickets_dir)
     fleet = dev._filter_fleet(dev._fleet_cache, "open")
     return inbox, dash, dev._render_fleet_map(fleet), dev
 
@@ -181,9 +216,10 @@ def _header_counts(summary: str) -> dict[str, int]:
 # --- fixture teeth ------------------------------------------------------------
 
 def test_fixture_one_label_per_id_across_all_three():
+    w = _world()
     with tempfile.TemporaryDirectory() as td:
         tickets_dir, cairn_root = _build_fixture(Path(td))
-        inbox, dash, hmap, _ = _render_three(tickets_dir, cairn_root)
+        inbox, dash, hmap, _ = _render_three(w, tickets_dir, cairn_root)
         i_rows, d_rows, m_rows = _rows(inbox), _rows(dash), _rows(hmap)
         # the dashboard and the open map list every non-terminal ticket — the same set
         assert set(d_rows) == _NON_TERMINAL, f"dashboard rows {sorted(d_rows)}"
@@ -198,19 +234,20 @@ def test_fixture_one_label_per_id_across_all_three():
         assert d_rows["aa0000000004"] == "WATCHME:waiting"
         assert d_rows["aa0000000005"] == "WATCHME"
         assert d_rows["aa0000000002"] == "TICKETME:waiting"
-        assert d_rows["aa0000000007"] == UNPARSED, "a prose cursor is loud (Law 7), never hidden"
+        assert d_rows["aa0000000007"] == w.UNPARSED, "a prose cursor is loud (Law 7), never hidden"
         assert "aa0000000006" not in m_rows and "aa0000000006" not in d_rows, \
             "a PROVED ticket is not an open one on any surface"
         assert "PROVED (1)" in dash, "the dashboard counts the done ticket under DONE"
 
 
 def test_fixture_headers_sum_with_no_other():
+    w = _world()
     with tempfile.TemporaryDirectory() as td:
         tickets_dir, cairn_root = _build_fixture(Path(td))
-        data = _stub_data(tickets_dir)
-        inbox, dash, hmap, _ = _render_three(tickets_dir, cairn_root)
-        header = _header_counts(format_summary(data))
-        assert "other" not in format_summary(data).lower(), format_summary(data)
+        data = _stub_data(w, tickets_dir)
+        inbox, dash, hmap, _ = _render_three(w, tickets_dir, cairn_root)
+        header = _header_counts(w.format_summary(data))
+        assert "other" not in w.format_summary(data).lower(), w.format_summary(data)
         assert sum(header.values()) == len(_NON_TERMINAL) == data["tickets"]["total_not_done"]
         dash_groups = _groups(dash)
         map_groups = _groups(hmap, "OPEN — by status:", "IN PORT — by component:")
@@ -218,13 +255,14 @@ def test_fixture_headers_sum_with_no_other():
             f"the three headers disagree:\n inbox {header}\n dash  {dash_groups}\n map   {map_groups}")
         # priority order is the one order, on every surface
         assert list(header) == list(dash_groups) == list(map_groups)
-        assert list(header)[0] == "THINKME" and list(header)[-1] == UNPARSED
+        assert list(header)[0] == "THINKME" and list(header)[-1] == w.UNPARSED
 
 
 def test_fixture_prose_standing_is_a_finding_not_a_status():
+    w = _world()
     with tempfile.TemporaryDirectory() as td:
         tickets_dir, cairn_root = _build_fixture(Path(td))
-        _, _, hmap, dev = _render_three(tickets_dir, cairn_root)
+        _, _, hmap, dev = _render_three(w, tickets_dir, cairn_root)
         assert "FINDING: tools/fx_widget history standing is prose: Built and proved" in hmap, hmap
         # the prose never becomes a group header on the map
         assert not any(g.startswith("Built") for g in _groups(hmap)), hmap
@@ -241,9 +279,10 @@ def test_fixture_prose_standing_is_a_finding_not_a_status():
 
 
 def test_crossing_patch_reloads_the_ticket_not_the_target():
+    w = _world()
     with tempfile.TemporaryDirectory() as td:
         tickets_dir, cairn_root = _build_fixture(Path(td))
-        _, _, before, dev = _render_three(tickets_dir, cairn_root)
+        _, _, before, dev = _render_three(w, tickets_dir, cairn_root)
         assert _rows(before)["aa0000000002"] == "TICKETME:waiting"
         # the ticket crosses to BUILDME and, as every crossing does, lands at :waiting
         path = next(tickets_dir.glob("aa0000000002-*.json"))
@@ -253,7 +292,7 @@ def test_crossing_patch_reloads_the_ticket_not_the_target():
         dev._patch_fleet({"component": "cairn/tools/fx_widget", "from": "TICKETME",
                           "to": "BUILDME", "direction": "forward", "ticket": "aa0000000002"})
         after = dev._render_fleet_map(dev._filter_fleet(dev._fleet_cache, "open"))
-        fresh = {r["id"]: r["label"] for r in read_tickets(tickets_dir=tickets_dir)["records"]}
+        fresh = {r["id"]: r["label"] for r in w.read_tickets(tickets_dir=tickets_dir)["records"]}
         assert _rows(after)["aa0000000002"] == fresh["aa0000000002"] == "BUILDME:waiting", (
             "the cache wore the bare target (or the stale label) while the inbox wore the phase")
         # the in-port berth shows the same object, so it moved too
@@ -263,11 +302,18 @@ def test_crossing_patch_reloads_the_ticket_not_the_target():
 
 # --- live teeth: the real world, the real three reports ----------------------
 
+def _live_map(w: _world) -> str:
+    dev = w.HarborMasterDevice()
+    return dev._handle_show({"id": "proof", "sender": "proof", "to": "harbor_master",
+                             "verb": "show", "body": {"what": "map", "args": ["open"]}})["text"]
+
+
 def test_live_one_label_per_id_across_the_three_reports():
-    live = {r["id"]: r["label"] for r in read_tickets()["records"]}
+    w = _world()
+    live = {r["id"]: r["label"] for r in w.read_tickets()["records"]}
     assert live, "no live tickets — a green here would be hollow"
-    dash = format_dashboard()
-    dev = HarborMasterDevice()
+    dash = w.format_dashboard()
+    dev = w.HarborMasterDevice()
     hmap = dev._handle_show({"id": "proof", "sender": "proof", "to": "harbor_master",
                              "verb": "show", "body": {"what": "map", "args": ["open"]}})["text"]
     d_rows, m_rows = _rows(dash), _rows(hmap)
@@ -278,7 +324,7 @@ def test_live_one_label_per_id_across_the_three_reports():
     divergent = [(tid, live[tid], d_rows[tid], m_rows[tid]) for tid in live
                  if not (live[tid] == d_rows[tid] == m_rows[tid])]
     assert not divergent, f"one ticket, two statuses, live: {divergent[:10]}"
-    assert all(lbl.split(":")[0] not in TERMINAL_STATES for lbl in live.values())
+    assert all(lbl.split(":")[0] not in w.TERMINAL_STATES for lbl in live.values())
     print(f"    (live: {len(live)} open tickets, one label each across dashboard + map)")
 
 
@@ -300,12 +346,103 @@ def test_live_akienupdate_reports_agree():
     print(f"    (akienupdate: {len(shared)} ids on 2+ reports, all agree)")
 
 
+# --- clauses (3), (4), (5): the source, the live map, the live corpus -----------
+
+def test_source_one_label_deriving_function_no_private_cursor_regex():
+    """(3) over the four readers: exactly one function derives a label from a cursor, and it
+    is the inbox's; the cursor is parsed only through transitions.parse_workflow; no private
+    cursor regex (a pattern that knows the bracket, the -ME suffix or the :phase) anywhere
+    among them."""
+    import ast
+    derivers: list[str] = []
+    parsers: list[str] = []
+    private_regex: list[str] = []
+    cursor_shape = re.compile(r"\\\[|ME\b|:\(|\[A-Z\]\[A-Z_\]|waiting|PROVED|BUILDME")
+    for rel in _READERS:
+        src = (_REPO_ROOT / rel).read_text(encoding="utf-8")
+        tree = ast.parse(src)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name in ("status_label", "cursor_of"):
+                derivers.append(f"{rel}::{node.name}")
+            if isinstance(node, ast.Call):
+                fn = node.func
+                name = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", "")
+                if name == "parse_workflow":
+                    parsers.append(f"{rel}:{node.lineno}")
+                if isinstance(fn, ast.Attribute) and getattr(fn.value, "id", "") == "re" \
+                        and fn.attr in ("compile", "match", "search", "findall", "fullmatch"):
+                    pat = node.args[0].value if node.args and isinstance(node.args[0], ast.Constant) else ""
+                    if isinstance(pat, str) and cursor_shape.search(pat):
+                        private_regex.append(f"{rel}:{node.lineno} {pat!r}")
+    assert derivers == ["cairn/tools/operator_inbox/inbox.py::cursor_of",
+                        "cairn/tools/operator_inbox/inbox.py::status_label"], (
+        f"the label is derived in ONE place, the inbox: {derivers}")
+    assert parsers and all(p.startswith("cairn/tools/operator_inbox/inbox.py:") for p in parsers), (
+        f"the cursor is parsed only by the inbox's reader (through transitions.parse_workflow): {parsers}")
+    assert not private_regex, f"a private cursor regex outside transitions.parse_workflow: {private_regex}"
+    # the other three readers reach the label only by importing it from the inbox
+    for rel in _READERS[1:]:
+        assert "operator_inbox" in (_REPO_ROOT / rel).read_text(encoding="utf-8"), \
+            f"{rel} does not read through the inbox"
+
+
+def test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary():
+    """(4) + (6) live: on the open map every row under a status group carries a date and a
+    12-hex id; every status group name is a stage token of transitions' vocabulary (or the
+    one loud UNPARSED); and the five prose-standing components appear only as a FINDING line
+    naming the prose, never as a berth or a status group."""
+    w = _world()
+    hmap = _live_map(w)
+    head, _, rest = hmap.partition("OPEN — by status:")
+    by_status, _, in_port = rest.partition("IN PORT — by component:")
+    assert head.strip().startswith("Fleet:") and by_status.strip() and in_port.strip(), hmap[:400]
+    bad_rows = [l for l in by_status.splitlines()
+                if l.strip() and not _GROUP.match(l) and not _ROW.match(l)]
+    assert not bad_rows, f"map rows without a date + ticket id: {bad_rows[:5]}"
+    groups = _groups(by_status)
+    assert groups, "the open map has no status groups — a green here would be hollow"
+    stray = [g for g in groups if not (w.is_stage_token(g) or g == w.UNPARSED)]
+    assert not stray, f"a status group outside transitions' stage vocabulary: {stray}"
+    port_rows = [l for l in in_port.splitlines() if _ROW.match(l)]
+    assert len(port_rows) == sum(groups.values()), (
+        f"the in-port rows ({len(port_rows)}) are the open rows ({sum(groups.values())}) regrouped")
+    # (6): the prose-standing components berth no group and no row on the map — the only
+    # line naming them as a component is the finding that names the prose
+    port_groups = _groups(in_port)
+    for comp in _PROSE_STANDING:
+        berthed = [g for g in port_groups if re.search(rf"(^|/){comp}$", g)]
+        assert not berthed, f"{comp} berths a lane on the map instead of a finding line: {berthed}"
+        named = [l for l in hmap.splitlines()
+                 if re.search(rf"(devices|machines|tools)/{comp}\b", l)]
+        for l in named:
+            assert l.startswith("FINDING:") and "history standing is prose" in l, (
+                f"{comp} appears on the map other than as a finding line: {l!r}")
+    print(f"    (live map: {sum(groups.values())} rows, groups {list(groups)})")
+
+
+def test_live_every_open_ticket_carries_owning_intention():
+    """(5) live: every non-terminal ticket names its owning charter — the component lane
+    berths nobody as 'unassigned'."""
+    w = _world()
+    records = w.read_tickets()["records"]
+    assert records, "no live tickets — a green here would be hollow"
+    unowned = [r["id"] for r in records if r["owning_component"] == "unassigned"]
+    assert not unowned, f"open tickets naming no owning_intention: {unowned}"
+    hmap = _live_map(w)
+    in_port = hmap.partition("IN PORT — by component:")[2]
+    assert "unassigned (" not in in_port, "the map still berths an unassigned lane"
+    print(f"    (live: {len(records)} open tickets, every one owned)")
+
+
 if __name__ == "__main__":
     checks = [
         test_fixture_one_label_per_id_across_all_three,
         test_fixture_headers_sum_with_no_other,
         test_fixture_prose_standing_is_a_finding_not_a_status,
         test_crossing_patch_reloads_the_ticket_not_the_target,
+        test_source_one_label_deriving_function_no_private_cursor_regex,
+        test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary,
+        test_live_every_open_ticket_carries_owning_intention,
         test_live_one_label_per_id_across_the_three_reports,
         test_live_akienupdate_reports_agree,
     ]

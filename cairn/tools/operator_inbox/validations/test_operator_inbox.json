@@ -2,12 +2,12 @@
   {
     "claim": "proof test_operator_inbox.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-17T23:02:37",
+    "date": "2026-09-17T23:37:52",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_adjudication_shows_berth_and_skill\n.\n  ok   test_format_uses_operator_not_akien\n.\n  ok   test_format_summary_carries_ticket_breakdown\n.\n  ok   test_show_artifact_unknown_id\n.\n  ok   test_show_artifact_known_prefix\n.\n  ok   test_read_lap_empty\n.\n  ok   test_read_lap_surfaces_unresolved\n.\n  ok   test_gather_all_includes_lap\n.\n  ok   test_the_lane_probe_is_armed_and_measures_a_scratch_world\n                                                [100%]\n25 passed in 3.56s",
+      "stdout_tail": ".\n  ok   test_adjudication_shows_berth_and_skill\n.\n  ok   test_format_uses_operator_not_akien\n.\n  ok   test_format_summary_carries_ticket_breakdown\n.\n  ok   test_show_artifact_unknown_id\n.\n  ok   test_show_artifact_known_prefix\n.\n  ok   test_read_lap_empty\n.\n  ok   test_read_lap_surfaces_unresolved\n.\n  ok   test_gather_all_includes_lap\n.\n  ok   test_the_lane_probe_is_armed_and_measures_a_scratch_world\n                                               [100%]\n26 passed in 7.98s",
       "stderr_tail": "",
       "teeth_green": [
         "test_troubles_match_independent_read",
@@ -21,6 +21,7 @@
         "test_ideas_match_independent_read",
         "test_intentions_match_independent_read",
         "test_the_dead_from_idea_rule_is_gone",
+        "test_inbox_and_dashboard_print_the_same_open_idea_and_intention_counts",
         "test_format_produces_output",
         "test_section_order_is_ruled",
         "test_troubles_render_under_a_cc_owned_lane_after_the_operators_sections",
@@ -41,7 +42,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0d08cf95e69ef2679f82232f9799453fb9dd5baaa84420102ea77ab6454e2c44",
+      "source_fingerprint": "144301036853b80cc9257fd2c34d6fa764ff3aa76ebf22bc4c6674136befa6cd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -49,6 +50,8 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/dashboard.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/store.py",
         "cairn/devices/tester/__init__.py",
@@ -93,73 +96,32 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3398790-iraeyuod/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3545716-fml8047c/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 10,
+          "count": 11,
           "paths": [
-            "logs/bus/0/20260918.050233.544337.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050233.899344.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050234.177273.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050234.490337.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050234.793100.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050235.071099.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050235.381398.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050235.694777.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050236.044403.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20260918.050236.464694.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260918.053744.705154.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053745.405578.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053746.115000.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053746.712662.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053747.284305.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053747.884357.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053748.436286.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053749.055374.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053749.676650.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053750.439407.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20260918.053751.340306.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 151922190,
-          "disk_bytes": 164245504,
-          "entries": 5131,
+          "bytes": 154505182,
+          "disk_bytes": 167014400,
+          "entries": 5207,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "3feb201c84ea": {
-          "cairn/tools/operator_inbox/inbox.py": [
-            "test_crossing_patch_reloads_the_ticket_not_the_target",
-            "test_fixture_headers_sum_with_no_other",
-            "test_fixture_one_label_per_id_across_all_three",
-            "test_fixture_prose_standing_is_a_finding_not_a_status",
-            "test_live_every_open_ticket_carries_owning_intention",
-            "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
-            "test_source_one_label_deriving_function_no_private_cursor_regex",
-            "test_tickets_match_independent_read"
-          ],
-          "cairn/devices/codemother/dashboard.py": [
-            "test_crossing_patch_reloads_the_ticket_not_the_target",
-            "test_fixture_headers_sum_with_no_other",
-            "test_fixture_one_label_per_id_across_all_three",
-            "test_fixture_prose_standing_is_a_finding_not_a_status",
-            "test_live_every_open_ticket_carries_owning_intention",
-            "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary"
-          ],
-          "cairn/devices/cairn/machines/harbor_master/register.py": [
-            "test_crossing_patch_reloads_the_ticket_not_the_target",
-            "test_fixture_headers_sum_with_no_other",
-            "test_fixture_one_label_per_id_across_all_three",
-            "test_fixture_prose_standing_is_a_finding_not_a_status",
-            "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
-            "test_source_one_label_deriving_function_no_private_cursor_regex"
-          ],
-          "cairn/devices/cairn/machines/harbor_master/device.py": [
-            "test_crossing_patch_reloads_the_ticket_not_the_target",
-            "test_fixture_headers_sum_with_no_other",
-            "test_fixture_one_label_per_id_across_all_three",
-            "test_fixture_prose_standing_is_a_finding_not_a_status",
-            "test_live_every_open_ticket_carries_owning_intention",
-            "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
-            "test_source_one_label_deriving_function_no_private_cursor_regex"
-          ],
-          "cairn/devices/cairn/machines/harbor_master/intention+why.json": [
-            "test_fixture_prose_standing_is_a_finding_not_a_status"
-          ]
         }
       }
     },

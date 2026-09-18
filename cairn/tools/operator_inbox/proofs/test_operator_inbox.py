@@ -26,7 +26,17 @@ from cairn.tools.operator_inbox.inbox import (
 # The reader's own label derivation (cursor_of, status_label, with_derived_phase) is bound
 # at CALL time inside the tooth that checks it — 3feb201c84ea added those names, and a
 # proof that binds them at import cannot reach its first tooth under a hollow reading.
-PROVES = {"3feb201c84ea": {"1": "test_tickets_match_independent_read"}}
+PROVES = {
+    "3feb201c84ea": {"1": "test_tickets_match_independent_read"},
+    # 3ed960cc402e — an idea past idea is not an open idea (Akien 2026-09-07)
+    "3ed960cc402e": {
+        "1": "test_read_ideas_reports_only_the_open_one",
+        "2": "test_read_intentions_reports_only_the_one_without_a_ticket",
+        "3": "test_ideas_match_independent_read",
+        "4": "test_the_dead_from_idea_rule_is_gone",
+        "5": "test_inbox_and_dashboard_print_the_same_open_idea_and_intention_counts",
+    },
+}
 
 
 def test_troubles_match_independent_read():
@@ -234,6 +244,33 @@ def test_the_dead_from_idea_rule_is_gone():
     src = (Path(__file__).resolve().parents[1] / "inbox.py").read_text()
     assert "_acted_on_idea_ids" not in src
     assert 'get("provenance"' not in src
+
+
+def test_inbox_and_dashboard_print_the_same_open_idea_and_intention_counts():
+    """3ed960cc402e clause (5): the inbox and the codemother dashboard print the same
+    open-idea count and the same open-intention count — one reader, two surfaces. Read
+    over the live commons; the invariant is agreement, never a snapshot of the number."""
+    import re
+    from cairn.devices.codemother.dashboard import format_dashboard
+    data = gather_all()
+    inbox, dash, summary = format_inbox(data), format_dashboard(data), format_summary(data)
+
+    def one(pattern, text, where):
+        hits = re.findall(pattern, text, re.M)
+        assert len(hits) == 1, f"{where}: expected one match for {pattern!r}, got {hits}"
+        return int(hits[0])
+
+    inbox_ideas = one(r"^-- IDEAS \((\d+) open, not yet at intent; \d+ moved on\)", inbox, "inbox")
+    inbox_intents = one(r"^-- INTENTIONS \((\d+) open, no ticket yet; \d+ moved on\)", inbox, "inbox")
+    dash_ideas = one(r"^  IDEAS: (\d+) open \(not yet at intent; \d+ moved on\)", dash, "dashboard")
+    dash_intents = one(r"^  INTENTIONS: (\d+) open \(no ticket yet; \d+ moved on\)", dash, "dashboard")
+    assert inbox_ideas == dash_ideas == data["ideas"]["count"], (inbox_ideas, dash_ideas)
+    assert inbox_intents == dash_intents == data["intentions"]["count"], (inbox_intents, dash_intents)
+    assert f"{data['intentions']['count']} open intention(s)" in summary, summary
+    assert f"{data['ideas']['count']} open idea(s)" in summary, summary
+    # the ruled section order carries intentions between tickets and ideas, and the
+    # rendered inbox honours it — before this tooth the section was ruled and never printed
+    assert 0 < inbox.find("  TICKETS (") < inbox.find("-- INTENTIONS (") < inbox.find("-- IDEAS ("), inbox
 
 
 def test_format_produces_output():

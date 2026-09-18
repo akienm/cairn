@@ -601,6 +601,7 @@ def format_summary(data: dict) -> str:
     else:
         parts.append(f"{tickets['total_not_done']} tickets")
 
+    parts.append(f"{data['intentions']['count']} open intention(s)")
     parts.append(f"{ideas['count']} open idea(s)")
     return " | ".join(parts)
 
@@ -736,6 +737,18 @@ def format_inbox(data: dict) -> str:
     state_parts = [f"{label} ({len(ids)})" for label, ids in by_label.items() if ids]
     lines.append(f"  TICKETS ({tickets['total_not_done']} not done): "
                  + " | ".join(state_parts))
+
+    # INTENTIONS — the ruled order (SECTION_ORDER) has carried this section since
+    # 2026-09-15 and nothing rendered it: the OPEN intentions, an I-*.md no ticket cites
+    # (ticket 3ed960cc402e, Akien 2026-09-07), the same reader the dashboard prints from.
+    lines.append("")
+    lines.append(_section_line(
+        f"INTENTIONS ({intentions['count']} open, no ticket yet; "
+        f"{intentions.get('moved_on', 0)} moved on)"))
+    lines.append("")
+    for stem in intentions["items"]:
+        lines.append(f"    {stem}")
+    lines.append("")
 
     # IDEAS
     lines.append("")

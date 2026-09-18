@@ -44,6 +44,23 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.system_word import canon, fold, fold_flags, fold_head, is_word, pick  # noqa: E402
 
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
+
+# Ticket e3cf75c6dc8f's falsifier numbers nine clauses; each names the one tooth that
+# drives it (proof_coverage reads this out of the AST — memory: proves-keys-follow-the-
+# falsifier-markers). Clause (1) names two paths; the device path is the deeper one.
+PROVES = {
+    "e3cf75c6dc8f": {
+        "1": "test_the_real_harbor_master_takes_uppercase_show_map_open",
+        "2": "test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag",
+        "3": "test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix",
+        "4": "test_learning_block_takes_uppercase_recordverdict_and_signal",
+        "5": "test_ground_loop_takes_uppercase_help_and_status_word",
+        "6": "test_base_device_show_and_shim_verb_fold",
+        "7": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
+        "8": "test_tester_cli_takes_uppercase_flags",
+        "9": "test_bin_cairn_the_file_and_cairn_the_command_are_untouched",
+    },
+}
 _CODEMOTHER = _REPO_ROOT / "cairn" / "devices" / "codemother" / "0" / "bin" / "codemother"
 
 
@@ -106,6 +123,19 @@ def _stub(dir_: str, name: str, body: str) -> None:
 def _cairn(*args: str, **env: str) -> subprocess.CompletedProcess:
     return subprocess.run([str(_DISPATCHER), *args], capture_output=True, text=True,
                           env={**os.environ, **env}, timeout=60)
+
+
+def test_bin_cairn_the_file_and_cairn_the_command_are_untouched():
+    """Clause (9): the folding landed INSIDE the dispatcher — the file is still bin/cairn,
+    still executable, and ``cairn`` on PATH is that same file, not a wrapper beside it."""
+    assert _DISPATCHER.is_file() and os.access(_DISPATCHER, os.X_OK), _DISPATCHER
+    assert _DISPATCHER.name == "cairn" and _DISPATCHER.parent.name == "bin"
+    found = subprocess.run(["bash", "-lc", "command -v cairn"], capture_output=True, text=True,
+                           timeout=30).stdout.strip()
+    assert found and Path(found).resolve() == _DISPATCHER.resolve(), (
+        f"the command on PATH must be the file in bin/: {found!r}")
+    head = _DISPATCHER.read_text(encoding="utf-8").splitlines()[0]
+    assert head.startswith("#!"), f"still a script with a shebang, not a compiled stand-in: {head!r}"
 
 
 def test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim():

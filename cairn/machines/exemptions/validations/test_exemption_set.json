@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_exemption_set.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-17T22:42:23",
+    "caller": "cairn test",
+    "date": "2026-09-17T22:53:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\n  ok   justification.py imports no inference path\n  ok   the sieve is registered under its own name\n  ok   the sieve lives in the inspector, not in a device\n  ok     test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\ntest_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n  ok   PROBE is a frozen Probe\n  ok   it carries a carry and an enough\n  ok   and a why that says what silence would mean\n  FAIL it is quiet over today's corpus  ['cairn/tools/base/probes/the_durability_lane_refuses.py']\n  ok   because every swept site is declared or acknowledged\n  ok   and its quiet carry still reports both counts\n  ok   it fires the moment a site is neither declared nor acknowledged\n  ok   and names the offending path in what it carries\n  ok   and its finding says which of the two things went wrong\n  FAIL and it is quiet again once the acknowledgement is restored  \n  ok   enough never clears — the corpus never stops growing sites\n  FAIL   test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n\n46 passed, 2 failed",
+      "returncode": 0,
+      "stdout_tail": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\n  ok   justification.py imports no inference path\n  ok   the sieve is registered under its own name\n  ok   the sieve lives in the inspector, not in a device\n  ok     test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\ntest_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n  ok   PROBE is a frozen Probe\n  ok   it carries a carry and an enough\n  ok   and a why that says what silence would mean\n  ok   it is quiet over today's corpus\n  ok   because every swept site is declared or acknowledged\n  ok   and its quiet carry still reports both counts\n  ok   it fires the moment a site is neither declared nor acknowledged\n  ok   and names the offending path in what it carries\n  ok   and its finding says which of the two things went wrong\n  ok   and it is quiet again once the acknowledgement is restored\n  ok   enough never clears — the corpus never stops growing sites\n  ok     test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n\n48 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
         "an absent set reds",
@@ -61,23 +61,22 @@
         "PROBE is a frozen Probe",
         "it carries a carry and an enough",
         "and a why that says what silence would mean",
+        "it is quiet over today's corpus",
         "because every swept site is declared or acknowledged",
         "and its quiet carry still reports both counts",
         "it fires the moment a site is neither declared nor acknowledged",
         "and names the offending path in what it carries",
         "and its finding says which of the two things went wrong",
-        "enough never clears — the corpus never stops growing sites"
-      ],
-      "teeth_red": [
-        "it is quiet over today's corpus  ['cairn/tools/base/probes/the_durability_lane_refuses.py']",
         "and it is quiet again once the acknowledgement is restored",
+        "enough never clears — the corpus never stops growing sites",
         "test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "94f38afe49415200a9f45a3c19d2a0a297e1dac3312b5e6eb2e5aa3124e2434a",
+      "source_fingerprint": "a34ddff07f00895fd0247fae81f26a358c10b50b5edbc4abcc4030b2eb6fe2b5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -122,7 +121,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3296162-t49616pn/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3363772-s47o60bv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -131,21 +130,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 150881131,
-          "disk_bytes": 163082240,
-          "entries": 5077,
+          "bytes": 151557696,
+          "disk_bytes": 163807232,
+          "entries": 5101,
           "builds": 1,
-          "reuses": 24
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "118a30c16793a87325b381f36a6c269592140f952d78b21498b033d5bdd2ff93",
-        "opened": "2026-09-17T22:42:23",
-        "last_red": "2026-09-17T22:42:23",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-exemptions",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

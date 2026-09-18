@@ -46,6 +46,13 @@ _ACKNOWLEDGED = {
     "cairn/devices/cairn/machines/harbor_master/probes/clearance_actually_gates.py":
         "_EXEMPT_IN = 4 is a ratio threshold the probe compares against, not a "
         "place any check declines to run",
+    # measured 2026-09-17: the durability-lane watch (ticket c2460ae6c3d1) reads
+    # transitions.py's *_ROSTER names looking for its lane — it is a watch FOR
+    # exemptions, and names the roster only to red if one ever lists it
+    "cairn/tools/base/probes/the_durability_lane_refuses.py":
+        "_CLEARANCE_EXEMPT_ROSTER / _EXEMPT_ROSTER are the roster names the probe "
+        "reads to detect its lane being switched off, not a place any check "
+        "declines to run",
 }
 
 

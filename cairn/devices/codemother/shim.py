@@ -136,6 +136,7 @@ class CodeMotherDevice(BaseDevice):
             "commit": self._handle_commit,
             "question": self._handle_question,
             "charter": self._handle_charter,
+            "feedback": self._handle_feedback,
         }
 
     # --- the door she fires -------------------------------------------------
@@ -426,6 +427,38 @@ class CodeMotherDevice(BaseDevice):
             out["read"] = recorder.read()[-want:]
         out["records"] = len(recorder.read())
         return out
+
+    def _handle_feedback(self, envelope: dict) -> dict:
+        """A post-build reflection from /sail (ticket 68f563403c8f): ``body.reflection`` is
+        the packet ``skills/sail/reflection.py`` shaped, and it lands as ONE record in the
+        held charter backpack — the same inbound the ``charter`` verb writes — under
+        ``metadata.type == "feedback"`` so ``ingest.ingest_reflections`` picks it up.
+
+        The verb judges only what a receiver must: a dict with an explicit boolean
+        ``at_par`` (the sender's door already refused everything else, and a packet that
+        skipped that door still cannot land a silent one here). It never re-opens the build
+        and never answers the sender with more than the receipt."""
+        from cairn.tools.instanceizer.instanceizer import load
+        body = envelope.get("body", {}) or {}
+        packet = body.get("reflection")
+        if not isinstance(packet, dict):
+            return {"accepted": False, "verb": "feedback", "device": self.device_id,
+                    "why": "body.reflection is not a dict — a reflection is a packet, not prose"}
+        if not isinstance(packet.get("at_par"), bool):
+            return {"accepted": False, "verb": "feedback", "device": self.device_id,
+                    "why": "reflection.at_par is not an explicit true/false — silence is refused"}
+        ensure_charter_instance()
+        recorder = load(charter_instance())
+        flags = sum(1 for f in (packet.get("findings") or []) if isinstance(f, dict) and f.get("kind") == "flag")
+        ticket = packet.get("ticket", "?")
+        written = recorder.write({
+            "probe_source": envelope.get("sender", "unknown"),
+            "inspector_target": "codemother/0/tools/charter",
+            "finding": f"{ticket}: at par" if packet["at_par"] else f"{ticket}: below par ({flags} flag(s))",
+            "metadata": {"type": "feedback"},
+            "reflection": packet})
+        return {"accepted": True, "verb": "feedback", "device": self.device_id,
+                "written": written, "records": len(recorder.read())}
 
     def _handle_commit(self, envelope: dict) -> dict:
         from cairn.devices.codemother.watch import on_commit

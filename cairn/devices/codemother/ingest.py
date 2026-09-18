@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from cairn.devices.codemother.types import negative, PatternType, PatternSignal
+from cairn.devices.codemother.types import negative, positive, PatternType, PatternSignal
 from cairn.devices.codemother.project import ensure_project, save_type
 
 
@@ -55,6 +55,44 @@ def ingest_memory_files(memory_dir: str | Path) -> list[PatternType]:
             tags=("cc-feedback", "memory-file"),
         ))
 
+    return types
+
+
+def ingest_reflections(records: list[dict]) -> list[PatternType]:
+    """Turn /sail's post-build reflections (ticket 68f563403c8f) into pattern types.
+
+    ``records`` are data_recorder records as the held charter backpack returns them; the
+    ones that count carry ``metadata.type == "feedback"`` and a dict ``reflection`` (the
+    ``feedback`` verb on the shim writes exactly that). A below-par reflection becomes ONE
+    negative type whose why is its flags; an at-par one becomes ONE positive type — the
+    "packet was fine" data point codemother needs to know what is working. Both are tagged
+    ``cc-feedback`` like the memory-file types above, because that is what they are: CC's
+    own record of what its upstream got right and wrong.
+    """
+    types: list[PatternType] = []
+    for rec in records or []:
+        if not isinstance(rec, dict):
+            continue
+        meta = rec.get("metadata") or {}
+        packet = rec.get("reflection")
+        if (meta.get("type") if isinstance(meta, dict) else None) != "feedback" or not isinstance(packet, dict):
+            continue
+        ticket = str(packet.get("ticket", "?"))
+        findings = [f for f in (packet.get("findings") or []) if isinstance(f, dict)]
+        flags = [f for f in findings if f.get("kind") == "flag"]
+        praise = [f for f in findings if f.get("kind") == "praise"]
+        signals = tuple(PatternSignal(description=f"{f.get('artifact')}.{f.get('field')}: {f.get('text')}")
+                        for f in (flags if packet.get("at_par") is False else praise))
+        if packet.get("at_par") is False:
+            why = "; ".join(f"{f.get('artifact')}.{f.get('field')}: {f.get('text')} — would change: "
+                            f"{f.get('would_change')}" for f in flags) or "below par, no flag named"
+            types.append(negative(name=f"reflection:{ticket}", why=why, signals=signals,
+                                  source=f"cc-reflection:{ticket}", tags=("cc-feedback", "reflection")))
+        else:
+            why = "at par" + ("; " + "; ".join(f"{f.get('artifact')}.{f.get('field')}: {f.get('text')}"
+                                             for f in praise) if praise else "")
+            types.append(positive(name=f"reflection:{ticket}", why=why, signals=signals,
+                                  source=f"cc-reflection:{ticket}", tags=("cc-feedback", "reflection", "at-par")))
     return types
 
 

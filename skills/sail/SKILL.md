@@ -169,6 +169,35 @@ reading takes the subject away, so PROVEME reds it by line
 (`proof_binds_its_subject_at_call_time`, in proof_coverage) before hollow spends its
 budget to say UNRAN; move the import inside the tooth or inside `main()`.
 
+## 3b. Reflect on the packet — before PROVEME (ticket 68f563403c8f)
+
+The build is proven and still in hand; after /compact it is gone. Look BACK at the
+prebuild packet — the chart chain, the ticket, the intention — and answer three
+questions. This is about the packet, never about the build: a finding that would
+change this build's code is a second build and goes to a new ticket.
+
+1. **Was the packet at par** with what the build needed? `at_par: true` or `false`,
+   said out loud. *"No feedback, the packet was fine"* is `true` with no findings —
+   a complete, POSITIVE answer (the at-par data point codemother needs to know what
+   is working), not a skip. Silence is refused, because silence is what a step that
+   never fired looks like.
+2. **Name the artifact and field** for anything worth saying: `{artifact: chart|
+   ticket|intention, field: <e.g. survey.holdings, ticket.how>, kind: praise|flag,
+   text}` — praise is as welcome as a flag; a flag also says `would_change`.
+3. **What did the packet cost you** — extra tool calls, minutes, re-reads
+   (`cost_estimate`), and the `stratum` (`code|tree`) the lesson belongs to.
+
+Write the packet (`skills/sail/reflection.py` carries the shape as `SHAPE`) and fire:
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.sail.reflection <scratchpad>/reflection.json
+```
+
+The door refuses a hollow packet naming every lack and sends nothing; a passing one
+rides the bus to **codemother** (verb `feedback`, one record in her held charter
+backpack), never back to CC — self-review accumulating in the reviewer is the ceiling
+this step is built past.
+
 ## 4. Journal PROVEME, then seal
 
 Cross PROVEME through the chokepoint (the build gate fires there — a red is a

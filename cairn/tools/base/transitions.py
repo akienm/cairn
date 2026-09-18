@@ -2560,3 +2560,162 @@ def set_phase(
     if history_path and state_path:
         projector.append_entry(history_path, state_path, dict(record))
     return new_str
+
+
+# ---------------------------------------------------------------------------------------
+# THE CASTING DOOR (ticket 23089d52d805, 2026-09-18) — the one way a ticket ENTERS the
+# store. ``set_phase`` above is the phase door and refuses a ticket the world does not
+# hold, which is load-bearing (a typo'd id must not silently mint a ticket) — so creation
+# is a SECOND door beside it, not an extension of it (D1: it lives here, beside its
+# sibling; whether the two split out of this module is a later question).
+#
+# What it judges, and refuses with EVERY lack named in one pass (D2-D4): the required
+# field set below (measured >=73/77 of the 308 tickets cast since 2026-09-01 carry each of
+# them — the template CairnCommons/tickets/_charter+why.json called an IOU is the set this
+# door retires), an id of twelve lowercase hex that nothing in the store already holds, a
+# workflow string ``parse_workflow`` accepts, a sorted berth on disk whose answers match
+# the doc's class and workflow, and an intent berth on disk — or a ``none, because <X>``
+# whose X the build inspector's ``reason_has_referent`` can check. On refusal nothing is
+# written and nothing is journaled.
+#
+# What it writes (D5): the doc through ``artifact.write(verb="cast")`` — so the journal
+# line the artifact door leaves (``sha_before == "absent"``, the caller's cgroup class, and
+# this function's own frame in the stack) IS the who/when record of the cast. There is no
+# second ledger to drift from it; the sweep (cairn/tools/base/cast.py) and the WATCHME
+# probe (probes/the_casting_door_has_callers.py) read exactly that line back.
+# ---------------------------------------------------------------------------------------
+
+_CAST_REQUIRED: tuple[str, ...] = (
+    "id", "title", "date", "owner", "owning_intention", "intention", "why", "traces_to",
+    "how", "falsifier", "node_class", "workflow_and_state", "watchme", "sorted_berth",
+    "intent_berth",
+)
+
+_CAST_ID = re.compile(r"^[0-9a-f]{12}$")
+
+
+class CastRefused(IllegalTransition):
+    """A cast the door would not admit. ``lacks`` carries every lack found — one pass, so
+    fixing one cannot merely earn the right to be refused for the next. Nothing was
+    written and nothing was journaled."""
+
+    def __init__(self, lacks: list[str]):
+        self.lacks = list(lacks)
+        super().__init__(
+            "cast_ticket refused (%d lack%s): %s. Nothing was written."
+            % (len(self.lacks), "" if len(self.lacks) == 1 else "s", "; ".join(self.lacks)))
+
+
+def _slug(title: str) -> str:
+    """Lower-case the title, collapse every run outside [a-z0-9] to one '-', trim, cap 80."""
+    s = re.sub(r"[^a-z0-9]+", "-", str(title).lower()).strip("-")
+    return s[:80].rstrip("-")
+
+
+def _blank(v: object) -> bool:
+    return v is None or (isinstance(v, str) and not v.strip())
+
+
+def _berth_lacks(doc: dict) -> list[str]:
+    """The berth checks (D4 d): the sorted berth must exist and be THIS cast's; the intent
+    berth must exist unless it carries a judgeable exemption. Paths resolve as given."""
+    lacks: list[str] = []
+    sb = doc.get("sorted_berth")
+    if not _blank(sb):
+        p = Path(str(sb))
+        if not p.is_file():
+            lacks.append(f"sorted_berth {sb!r} is not an existing file")
+        else:
+            try:
+                berth = json.loads(p.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as e:
+                berth = None
+                lacks.append(f"sorted_berth {sb!r} is not JSON ({e})")
+            if isinstance(berth, dict):
+                if berth.get("skill") != "sorted":
+                    lacks.append(f"sorted_berth {sb!r} is not a sorted firing "
+                                 f"(skill={berth.get('skill')!r})")
+                ans = berth.get("answers") if isinstance(berth.get("answers"), dict) else {}
+                if ans.get("workflow") != doc.get("workflow_and_state"):
+                    lacks.append("sorted_berth's answers.workflow differs from the doc's "
+                                 "workflow_and_state")
+                if ans.get("node_class") != doc.get("node_class"):
+                    lacks.append("sorted_berth's answers.node_class differs from the doc's "
+                                 "node_class")
+            elif berth is not None:
+                lacks.append(f"sorted_berth {sb!r} does not hold a JSON object")
+    ib = doc.get("intent_berth")
+    if not _blank(ib):
+        text = str(ib)
+        if text.startswith("none, because "):
+            # Lazy on purpose, same boot-order law as the entry gate: the inspector is
+            # imported only at a cast, never at this module's load.
+            from cairn.machines.build_inspector.inspector import reason_has_referent
+            if not reason_has_referent(text[len("none, because "):]):
+                lacks.append(f"intent_berth exemption {text!r} names no resolvable referent")
+        elif not Path(text).is_file():
+            lacks.append(f"intent_berth {text!r} is not an existing file and is not a "
+                         "'none, because <X>' exemption")
+    return lacks
+
+
+def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Path:
+    """Cast ``doc`` into the store as ``<tickets_dir>/<id>-<slug>.json``, or refuse it
+    with every lack named. Returns the path written.
+
+    ``tickets_dir`` defaults to the live store (``_TICKETS``); a proof hands it a scratch
+    one — the artifact door then journals under whichever root ``set_diagnostic_roots``
+    says that directory belongs to.
+
+    Touches no key of ``doc`` but ``cast``, which it stamps with today's ISO date only when
+    absent (a caster that already dated the cast keeps its date)."""
+    if not isinstance(doc, dict):
+        raise CastRefused(["the cast is not a JSON object"])
+    tickets_dir = _TICKETS if tickets_dir is None else Path(tickets_dir)
+    lacks: list[str] = []
+
+    # (a) the required set — absent, None or a blank string is a lack; extras are allowed
+    for key in _CAST_REQUIRED:
+        if _blank(doc.get(key)):
+            lacks.append(f"required field {key!r} is absent or blank")
+
+    # (b) the id — twelve lowercase hex, and nothing in the store holds it yet
+    tid = doc.get("id")
+    target: Path | None = None
+    if not _blank(tid):
+        tid = str(tid)
+        if not _CAST_ID.match(tid):
+            lacks.append(f"id {tid!r} is not twelve lowercase hex")
+        else:
+            held = [p.name for p in
+                    [tickets_dir / f"{tid}.json", *tickets_dir.glob(f"{tid}-*.json")]
+                    if p.is_file()]
+            if held:
+                lacks.append(f"id {tid!r} is already held by {held}")
+            target = tickets_dir / f"{tid}-{_slug(doc.get('title') or '')}.json"
+            if target.is_file() and target.name not in held:
+                lacks.append(f"target {target.name} already exists")
+
+    # (c) the workflow — the chokepoint's own parser, so this door cannot hold a second
+    # opinion about what a malformed string is
+    wf = doc.get("workflow_and_state")
+    if not _blank(wf):
+        try:
+            parse_workflow(str(wf))
+        except MalformedWorkflow as e:
+            lacks.append(f"workflow_and_state does not parse: {e}")
+
+    # (d) the berths
+    lacks.extend(_berth_lacks(doc))
+
+    if lacks:
+        raise CastRefused(lacks)
+    assert target is not None
+
+    if _blank(doc.get("cast")):
+        doc["cast"] = datetime.now().date().isoformat()
+    from cairn.tools.artifact import artifact as door
+    body = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+    door.write(target, body, verb="cast",
+               why=f"cast_ticket: {doc['id']} {doc['title']} by {actor}")
+    return target

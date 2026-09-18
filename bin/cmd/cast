@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# cairn cast — the casting door: cast a ticket through transitions.cast_ticket, or --sweep the backlog (ticket 23089d52d805).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/../.." && pwd)"
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [[ -r "$BOOTSTRAP" ]]; then
+  # shellcheck source=/dev/null
+  source "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO"
+exec "$PY" -m cairn.tools.base.cast "$@"

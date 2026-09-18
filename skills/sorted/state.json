@@ -1,17 +1,173 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "skill@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(sorted-door-refusals) -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-casting-door-has-callers) -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'sorted-becomes-a-learning-block'",
-    "emission_gate": "clean — WATCHME(sorted-door-refusals) emitted the probe berthed at skills/sorted/probes/sorted_door_refusals.py (ticket 'sorted-becomes-a-learning-block')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260803T111618-cb223877e5ae.json",
-    "ticket": "sorted-becomes-a-learning-block",
-    "note": "/sorted IS A LEARNING BLOCK — tenant #2, and the template claim is CASHED: the seam is byte-identical to HEAD while the cast became a refusable packet (contract in the charter, semantic judges in door.py composing the chokepoint's own class/workflow physics, the judgeable-referent floor with ONE implementation and two mouths, the third addend in the entry gate). The door's first live firing cast chart-doors-refuse-in-one-pass. Census at install: 76 tickets, 0 carrying sorted_berth, 30 at-or-before BUILDME — the named exemption was forced by measurement, as it was for tenant #1. The watch is armed and honestly unfalsified: day-one passes=1, refusals=0 — the vacuity question stays open BY MEASUREMENT, the correct state.",
-    "at": "2026-08-03T11:16:38",
-    "seq": 3
+    "entry_gate": "clean — a berthed chart chain claims ticket '23089d52d805', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'sorted' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'sorted' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "23089d52d805",
+          "component": "sorted",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '23089d52d805' is cast",
+        "actual": "named ticket '23089d52d805' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "23089d52d805",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/23089d52d805-casting-rides-a-door.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "23089d52d805",
+    "note": "casting rides a door: cast_ticket beside set_phase in transitions.py judges the 15-field set, the id, the workflow and both berths and refuses with every lack named in one pass, writing nothing; on pass it writes through the artifact door with verb cast so the journal line is the who/when record. cairn/tools/base/cast.py + bin/cmd/cast are the CLI and the never-failing sweep (307 hex-id tickets: 289 pre_door, 18 journaled_beside, 0 unjournaled, 0 through_the_door); the WATCHME probe the_casting_door_has_callers counts arrivals since the landing and is enough at ten consecutive door-casts across three days with nothing beside; proof test_cast_ticket over a scratch commons, 30 teeth green twice bare; SKILL.md step 5 fires cairn cast, the sorted charter and the store charter name the door, watchme_spec's CASTING HAS NO CHOKEPOINT residue is paid.",
+    "fingerprint": "e2d6960cdfd24cbcca382ed4a2d90a5eb40027a41a6cb22ff94445c599051329",
+    "at": "2026-09-18T11:04:42",
+    "seq": 4
   },
   "window": [
     {
@@ -62,7 +218,177 @@
       "note": "/sorted IS A LEARNING BLOCK — tenant #2, and the template claim is CASHED: the seam is byte-identical to HEAD while the cast became a refusable packet (contract in the charter, semantic judges in door.py composing the chokepoint's own class/workflow physics, the judgeable-referent floor with ONE implementation and two mouths, the third addend in the entry gate). The door's first live firing cast chart-doors-refuse-in-one-pass. Census at install: 76 tickets, 0 carrying sorted_berth, 30 at-or-before BUILDME — the named exemption was forced by measurement, as it was for tenant #1. The watch is armed and honestly unfalsified: day-one passes=1, refusals=0 — the vacuity question stays open BY MEASUREMENT, the correct state.",
       "at": "2026-08-03T11:16:38",
       "seq": 3
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> WATCHME(the-casting-door-has-callers) -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '23089d52d805', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'sorted' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'sorted' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "23089d52d805",
+            "component": "sorted",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '23089d52d805' is cast",
+          "actual": "named ticket '23089d52d805' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "23089d52d805",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/23089d52d805-casting-rides-a-door.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "23089d52d805"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "23089d52d805"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "23089d52d805"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "23089d52d805"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "23089d52d805"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "ticket": "23089d52d805",
+      "note": "casting rides a door: cast_ticket beside set_phase in transitions.py judges the 15-field set, the id, the workflow and both berths and refuses with every lack named in one pass, writing nothing; on pass it writes through the artifact door with verb cast so the journal line is the who/when record. cairn/tools/base/cast.py + bin/cmd/cast are the CLI and the never-failing sweep (307 hex-id tickets: 289 pre_door, 18 journaled_beside, 0 unjournaled, 0 through_the_door); the WATCHME probe the_casting_door_has_callers counts arrivals since the landing and is enough at ten consecutive door-casts across three days with nothing beside; proof test_cast_ticket over a scratch commons, 30 teeth green twice bare; SKILL.md step 5 fires cairn cast, the sorted charter and the store charter name the door, watchme_spec's CASTING HAS NO CHOKEPOINT residue is paid.",
+      "fingerprint": "e2d6960cdfd24cbcca382ed4a2d90a5eb40027a41a6cb22ff94445c599051329",
+      "at": "2026-09-18T11:04:42",
+      "seq": 4
     }
   ],
-  "count": 4
+  "count": 5
 }

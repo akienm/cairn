@@ -181,17 +181,36 @@ on the ticket's `questions` in the same act (ticket bc7b64626405). The BUILDME
 lane already counts berth-bound questions, so an unrebound question still holds
 the crossing — the rebind is what makes the ticket show it.
 
-**The filing itself rides the artifact door** (since 2026-09-13, ticket
-`30531f6e1c5d`): a ticket is a record of truth, so write it with
-`cairn artifact write CairnCommons/tickets/<id>-<slug>.json --verb cast --why '<why>' --from <file>`
-(or `cairn.tools.artifact.artifact.write(path, content, verb="cast", why=...)`).
-A `write_text`/heredoc at a record path is refused at PreToolUse by
-`bin/cmd/artifactgate` and, if it somehow lands, at commit by `cairn artifact
-check`. Later edits to the ticket (measured_at_build, chart_claim, a cursor the
-harbor moved) go the same way — verb `cast`; a cursor moved by `clearance.clear`
-is written back through the door in the same act. A change you cannot route
-through a door is a **hand edit**: `cairn artifact hand-edit <path> --why '<why>'`
-parks it for Akien and the record stays at its journaled bytes until he approves.
+**The filing itself rides the casting door** (since 2026-09-18, ticket
+`23089d52d805`; the artifact door beneath it since 2026-09-13, ticket `30531f6e1c5d`).
+A ticket is a record of truth and it ENTERS the store through exactly one judge,
+`cairn.tools.base.transitions.cast_ticket`. Assemble the fields as JSON in your
+scratchpad — the caster mints the id (twelve lowercase hex, `openssl rand -hex 6`) and
+carries every required field: `id`, `title`, `date`, `owner`, `owning_intention`,
+`intention`, `why`, `traces_to`, `how`, `falsifier`, `node_class`,
+`workflow_and_state`, `watchme`, `sorted_berth`, `intent_berth` (the decision lines,
+`questions`, `chart_claim` and the rest ride along as extras) — then fire:
+
+    cairn cast <scratchpad>/ticket_fields.json --actor cc
+
+The door refuses with **every** lack named in one pass and writes nothing: a blank
+required field, an id the store already holds, a `workflow_and_state` that
+`parse_workflow` rejects, a `sorted_berth` that is not this cast's firing (its
+`answers.workflow` and `answers.node_class` must match the doc), an `intent_berth`
+that is neither a file nor a `none, because <X>` with a resolvable referent. On pass it
+prints the path it wrote (`CairnCommons/tickets/<id>-<slug>.json`, the slug derived
+from the title) and stamps `cast` with today's date. The artifact door's journal line —
+verb `cast`, `sha_before` absent, this function's own frame in the stack — IS the
+who/when record of the cast; `cairn cast --sweep` reads it back, and the WATCHME
+probe `the_casting_door_has_callers` counts what still arrives beside it. A
+`write_text`/heredoc at a record path is refused at PreToolUse by `bin/cmd/artifactgate`
+and, if it somehow lands, at commit by `cairn artifact check`. Later edits to the
+ticket (measured_at_build, chart_claim, a cursor the harbor moved) ride the artifact
+door — `cairn artifact write <path> --verb cast --why '<why>' --from <file>` — a cursor
+moved by `clearance.clear` is written back through it in the same act. A change you
+cannot route through a door is a **hand edit**: `cairn artifact hand-edit <path> --why
+'<why>'` parks it for Akien and the record stays at its journaled bytes until he
+approves.
 
 **Write-through the model.** If what you filed is a *model source* — a homeless
 intention in `intentions-not-beside-code/`, or a beside-code `intention+why.json` charter —

@@ -35,12 +35,14 @@ entry-gate stone already paid for once: A CHECK THAT RETRO-REDS EVERY OPEN BOAT 
 THAT GETS DISABLED. Measured twice now — the second time on 2026-08-03, when the scrub sweep
 retagged 50 cast tickets to v2 in one act and this rule redded all 50.
 
-STILL AN IOU AT ONE END, and it is named rather than papered over: CASTING HAS NO
-CHOKEPOINT. ``/sorted`` files a ticket by writing a file; nothing refuses the write. So this
-module is the RULE in machine-readable form plus a runnable sweep, and it becomes physics
-where a door already opens the ticket — the WATCHME emission gate (piece c-i). Until casting
-itself rides a door, "the spec is required AT TICKETING" is enforced one step late, and Law
-4 says that makes it a tracked debt, not a resting state.
+THE IOU AT THE CASTING END IS PAID (2026-09-18, ticket 23089d52d805): casting rides
+``transitions.cast_ticket``, which refuses a ticket lacking its ``watchme`` field (among
+the fifteen required) with every lack named in one pass and writes nothing. So "the spec
+is required AT TICKETING" is now physics at the store's entrance rather than one step late.
+What this module still is: the RULE in machine-readable form plus the runnable sweep over
+the backlog cast before that door existed, and the WATCHME emission gate (piece c-i) that
+judges the spec's SHAPE — cast_ticket judges presence, not shape, so a present-but-
+malformed spec still reds here and not at the cast.
 
     python3 cairn/tools/base/proofs/test_watchme_spec.py          # exit 0 = green
     python3 -m cairn.tools.base.watchme_spec                      # sweep every filed ticket

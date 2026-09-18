@@ -950,5 +950,297 @@
     "fingerprint": "614289001012c89a4f93df5715dbb02b6746d16063e34761e9eacbbc6e8481f5",
     "at": "2026-09-18T11:37:19",
     "seq": 6
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-casting-door-has-callers) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '23089d52d805'; stones pushed: cairn ahead=0 dirty=114, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/tools/base/proofs/test_cast_ticket.py'] (seal 2026-09-18T11:29:23, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the-casting-door-has-callers) emitted the probe berthed at cairn/tools/base/probes/the_casting_door_has_callers.py (ticket '23089d52d805')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260918T113041-dcb8104ff475.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(the-casting-door-has-callers) crossing",
+        "actual": "a cast ticket for the WATCHME(the-casting-door-has-callers) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "23089d52d805",
+          "watch_object": "the-casting-door-has-callers",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/23089d52d805-casting-rides-a-door.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '23089d52d805' carries a watchme spec for 'the-casting-door-has-callers'",
+        "actual": "ticket '23089d52d805' carries a watchme spec for 'the-casting-door-has-callers'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "23089d52d805",
+          "watch_object": "the-casting-door-has-callers",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "23089d52d805",
+          "watch_object": "the-casting-door-has-callers",
+          "berth": "cairn/tools/base/probes/the_casting_door_has_callers.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'sorted' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'sorted' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "23089d52d805",
+          "component": "sorted",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '23089d52d805' is cast",
+        "actual": "named ticket '23089d52d805' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "23089d52d805",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/23089d52d805-casting-rides-a-door.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "23089d52d805"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "23089d52d805",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "b88b023d4d4af113299cf0067f4fd240acb40412",
+              "upstream": "b88b023d4d4af113299cf0067f4fd240acb40412",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 114,
+              "root": "/home/akien/dev/src/cairn/skills/sorted",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "593e7dd14d3d077813b05750c048e089ea2e6bd0",
+              "upstream": "593e7dd14d3d077813b05750c048e089ea2e6bd0",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'sorted' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'sorted' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "sorted",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/tools/base/proofs/test_cast_ticket.py stands in proven-space",
+        "actual": "cairn/tools/base/proofs/test_cast_ticket.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_cast_ticket.py",
+          "named": [
+            "cairn/tools/base/proofs/test_cast_ticket.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/tools/base/proofs/test_cast_ticket.py's seal at '2026-09-18T11:29:23'",
+        "actual": "the witness dates cairn/tools/base/proofs/test_cast_ticket.py's seal at '2026-09-18T11:29:23'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/base/proofs/test_cast_ticket.py",
+          "named": [
+            "cairn/tools/base/proofs/test_cast_ticket.py"
+          ],
+          "seal": "2026-09-18T11:29:23",
+          "claimed": "2026-09-18T11:29:23"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket '23089d52d805' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "23089d52d805"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/tools/base/proofs/test_cast_ticket.py"
+    ],
+    "proven_seal_date": "2026-09-18T11:29:23",
+    "delegated": false,
+    "ticket": "23089d52d805",
+    "note": "WATCHME(the-casting-door-has-callers) -> [PROVED] crossed on skills/sorted — cast_ticket beside set_phase in transitions.py is the one way a ticket enters the store (15 fields judged, every lack named in one pass, written through the artifact door with verb cast so the journal line is the who/when); cairn cast and the sweep classify the 307-ticket backlog 289 pre_door / 18 journaled_beside / 0 through_the_door at the landing; SKILL.md step 5 fires cairn cast; the probe the_casting_door_has_callers watches for arrivals beside the door and is enough at ten consecutive door-casts across three days. Proof test_cast_ticket 33 teeth green twice bare, sealed under netns, hollow 7 measured 0 hollow; verdict-20260918T113041-dcb8104ff475 3 pass, 5 confirmed. The voyage freezes here as the skill's history.",
+    "fingerprint": "31410bee5f1efbc68a5ec0ba89b29e5a0307290d253b13d865d0fde29b0728b2",
+    "at": "2026-09-18T11:38:19",
+    "seq": 7
   }
 ]

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_stale_restart.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T00:12:40",
+    "date": "2026-09-18T01:35:43",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "ddb9649400b59c75d794fedc69e4e593056b6532a0cbf4e15316767019642952",
+      "source_fingerprint": "e37df369b538e4b07fbe2e573196c345afe6d93e4c101b04a618becc9ef9db42",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,24 +56,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3660414-3qouiezn/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3912269-_ndq36vf/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 4,
           "paths": [
-            "logs/ground_loop/0/20260918.061239.439992.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260918.061239.591470.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20260918.061239.592732.GroundLoopDevice.discovered.json"
+            "logs/ground_loop/0/20260918.073541.595535.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260918.073541.877841.GroundLoopDevice.discovered.json",
+            "logs/ground_loop/0/20260918.073541.917923.GroundLoopDevice.discovered.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 156193919,
-          "disk_bytes": 168783872,
-          "entries": 5237,
+          "bytes": 161007095,
+          "disk_bytes": 173748224,
+          "entries": 5303,
           "builds": 1,
-          "reuses": 14
+          "reuses": 26
         }
       }
     },

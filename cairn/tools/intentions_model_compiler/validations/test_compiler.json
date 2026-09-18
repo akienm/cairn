@@ -2,13 +2,13 @@
   {
     "claim": "proof test_compiler.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-13T10:10:27",
+    "date": "2026-09-18T01:55:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\n  PASS  test_verify_catches_a_drifted_copy\n  PASS  test_verify_catches_a_missing_copy\n  PASS  test_verify_catches_an_extra_file\n  PASS  test_verify_ignores_underscore_prefixed_files\n  PASS  test_verify_does_not_write\n  PASS  test_verify_reports_green_over_a_clean_lab\n  PASS  test_verify_on_the_real_repo\ngreen — intentions_model_compiler (15 teeth): the copier (byte-identical, reaches both trees, removes stale, overwrites drift, collision raises, store charter untouched, deterministic) + verify_lab (catches drift/missing/extra, ignores _-prefixed, never writes, green on clean lab, green on the real repo)",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\n  PASS  test_verify_catches_a_drifted_copy\n  PASS  test_verify_catches_a_missing_copy\n  PASS  test_verify_catches_an_extra_file\n  PASS  test_verify_ignores_underscore_prefixed_files\n  PASS  test_verify_does_not_write\n  PASS  test_verify_reports_green_over_a_clean_lab",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n  File \"<frozen runpy>\", line 286, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 291, in <module>\n    raise SystemExit(_main())\n                     ^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 280, in _main\n    check()\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 255, in test_verify_on_the_real_repo\n    assert v[\"ok\"], (\n           ~^^^^^^\nAssertionError: the real lab drifts from its sources: drifted=[], missing=[{'lab_name': 'cairn-devices-codemother-0-tools-charter--intention+why.json', 'source': '/home/akien/dev/src/cairn/cairn/devices/codemother/0/tools/charter/intention+why.json'}], extra=[]",
       "teeth_green": [
         "test_a_copy_is_byte_identical_to_its_source",
         "test_every_charter_in_the_repo_is_copied_not_just_the_package",
@@ -23,15 +23,14 @@
         "test_verify_catches_an_extra_file",
         "test_verify_ignores_underscore_prefixed_files",
         "test_verify_does_not_write",
-        "test_verify_reports_green_over_a_clean_lab",
-        "test_verify_on_the_real_repo"
+        "test_verify_reports_green_over_a_clean_lab"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "9d7df4909838a091ba93a3f863b9bf580a5485159f46f52310d22eaed54170be",
+      "source_fingerprint": "a8e89e9a62ed4d53769a5814397c362f0579748519becd5328f17692c81b2cb5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -51,7 +50,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2193259-wx2wiyp3/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3912269-8ezcbfpv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,12 +59,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 131221536,
-          "disk_bytes": 142589952,
-          "entries": 4722,
+          "bytes": 161004579,
+          "disk_bytes": 173731840,
+          "entries": 5297,
           "builds": 1,
-          "reuses": 0
+          "reuses": 160
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "67ad2be444199e797266d08e8be2d2bd8e423f8677ca17bab5201b45dadc3642",
+        "opened": "2026-09-18T01:55:19",
+        "last_red": "2026-09-18T01:55:19",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-intentions-model-compiler",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

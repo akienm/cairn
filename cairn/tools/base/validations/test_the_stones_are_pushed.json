@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_stones_are_pushed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-17T22:42:34",
+    "date": "2026-09-18T01:54:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.81s",
+      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.48s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
@@ -17,7 +17,7 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "3c85b2182b4f5b17ab19f7e62437de38e6a268ecc552f9c446855c893f74e437",
+      "source_fingerprint": "6dea86b499876d9f89a64326a4f5fdbeb0947c4808a8e86fd6071c557d48c5cb",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -79,40 +79,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3296162-0jakheuv/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3912269-zh12gpa6/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/bus/0/20260918.044233.390384.BusDevice.post.json",
-            "logs/bus/0/20260918.044233.419834.BusDevice.post.json",
-            "logs/bus/0/20260918.044233.461919.BusDevice.post.json",
-            "logs/charter/0/20260918.044233.360890.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260918.044233.419477.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20260918.044233.461558.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20260918.075400.463042.BusDevice.post.json",
+            "logs/bus/0/20260918.075400.482201.BusDevice.post.json",
+            "logs/bus/0/20260918.075400.507773.BusDevice.post.json",
+            "logs/charter/0/20260918.075400.444976.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260918.075400.481960.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20260918.075400.507537.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 150883581,
-          "disk_bytes": 163106816,
-          "entries": 5087,
+          "bytes": 161007029,
+          "disk_bytes": 173756416,
+          "entries": 5307,
           "builds": 1,
-          "reuses": 26
-        }
-      },
-      "hollow": {
-        "c2460ae6c3d1": {
-          "cairn/tools/base/transitions.py": [
-            "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
-          ],
-          "cairn/tools/base/probes/the_durability_lane_refuses.py": [
-            "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
-          ],
-          "skills/commit/intention+why.json": [
-            "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
-          ]
+          "reuses": 139
         }
       }
     },

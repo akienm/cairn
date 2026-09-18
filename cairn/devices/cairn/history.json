@@ -3479,5 +3479,297 @@
     "fingerprint": "bc4b8974d21898ac56e8619275b3c20202d229840752adfee308c64bbd0a6c27",
     "at": "2026-09-18T09:13:24",
     "seq": 15
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(declared-cadence-discriminates) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'a4c2be029f49'; stones pushed: cairn ahead=0 dirty=1, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/tools/data_recorder/proofs/test_reading_declaration.py'] (seal 2026-09-18T09:11:38, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(declared-cadence-discriminates) emitted the probe berthed at cairn/tools/data_recorder/probes/declared_cadence_discriminates.py (ticket 'a4c2be029f49')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260918T091249-510b0fa9d9a7.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(declared-cadence-discriminates) crossing",
+        "actual": "a cast ticket for the WATCHME(declared-cadence-discriminates) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a4c2be029f49",
+          "watch_object": "declared-cadence-discriminates",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a4c2be029f49-every-datarecorder-declares-when-it-was-started-last-read-and-how-often-it-expects-reading.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'a4c2be029f49' carries a watchme spec for 'declared-cadence-discriminates'",
+        "actual": "ticket 'a4c2be029f49' carries a watchme spec for 'declared-cadence-discriminates'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a4c2be029f49",
+          "watch_object": "declared-cadence-discriminates",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "a4c2be029f49",
+          "watch_object": "declared-cadence-discriminates",
+          "berth": "cairn/tools/data_recorder/probes/declared_cadence_discriminates.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'cairn' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'cairn' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "a4c2be029f49",
+          "component": "cairn",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'a4c2be029f49' is cast",
+        "actual": "named ticket 'a4c2be029f49' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "a4c2be029f49",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/a4c2be029f49-every-datarecorder-declares-when-it-was-started-last-read-and-how-often-it-expects-reading.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "a4c2be029f49"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "a4c2be029f49",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "71a868c27a4335fef5751f049773c8ad7b87da99",
+              "upstream": "71a868c27a4335fef5751f049773c8ad7b87da99",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 1,
+              "root": "/home/akien/dev/src/cairn/cairn/devices/cairn",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "bf06a90d007065c824d5e5f649b910261958a89c",
+              "upstream": "bf06a90d007065c824d5e5f649b910261958a89c",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'cairn' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'cairn' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "cairn",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/tools/data_recorder/proofs/test_reading_declaration.py stands in proven-space",
+        "actual": "cairn/tools/data_recorder/proofs/test_reading_declaration.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/data_recorder/proofs/test_reading_declaration.py",
+          "named": [
+            "cairn/tools/data_recorder/proofs/test_reading_declaration.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/tools/data_recorder/proofs/test_reading_declaration.py's seal at '2026-09-18T09:11:38'",
+        "actual": "the witness dates cairn/tools/data_recorder/proofs/test_reading_declaration.py's seal at '2026-09-18T09:11:38'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/tools/data_recorder/proofs/test_reading_declaration.py",
+          "named": [
+            "cairn/tools/data_recorder/proofs/test_reading_declaration.py"
+          ],
+          "seal": "2026-09-18T09:11:38",
+          "claimed": "2026-09-18T09:11:38"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket 'a4c2be029f49' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "a4c2be029f49"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/tools/data_recorder/proofs/test_reading_declaration.py"
+    ],
+    "proven_seal_date": "2026-09-18T09:11:38",
+    "delegated": false,
+    "ticket": "a4c2be029f49",
+    "note": "every DataRecorder now declares when it was started, last read and how often it expects reading (reading.json beside records.jsonl; started on the first write, last_read on stamp_read, the two settings from the holder — undeclared is red, there is no invented default); stamp_read drains or holds as declared; BaseDevice and _FeedbackDevice pass their declaration through; the at-rest probe reading_is_declared_and_current raises recorder-declares-no-reader / recorder-read-overdue per recorder and reconciles the scope on the beat; the watch declared-cadence-discriminates counts the read population toward three under two frequencies. Proof test_reading_declaration: 8 teeth on a frozen clock, sealed green under netns, hollow 5 files 0 hollow; verdict-20260918T091249-510b0fa9d9a7 3/3 pass, 5/5 confirmed. Twenty decision lines and six rehearsal passes (the last two CLEAN) carried the cheapest reader to the same tree.",
+    "fingerprint": "77c8c301e2db4f8031e6bc8eff13e13852f378ab9949dc32c890337081e96f1b",
+    "at": "2026-09-18T09:14:11",
+    "seq": 16
   }
 ]

@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# cairn cc restart — relaunch THIS Claude Code session, or stand up a new one.
+#
+# THE ADDRESS IS THE POINT, and it was a correction (Akien, 2026-09-22): this verb
+# first landed as the flat `cairn restart`, which is the wrong name for it. `cairn
+# restart` is the SYSTEM's restart -- bus, web server, the shims, the ground loop --
+# and squatting that name for "relaunch the CC process" would leave two very
+# different acts wearing one word. Restarting a CC session is the cc device's own
+# business, so it berths in the cc device's bin and is reached as `cairn cc restart`.
+#
+# WHY THIS EXISTS: a CC session cannot restart itself. It is an exec'd process with
+# nothing behind it, so "pick up the new build" has always meant a human at the
+# keyboard pressing Ctrl-D. That is fine in Silver City and useless from Taos.
+#
+# Two answers, and they are for different situations:
+#
+#   THE LOOP (now|fresh|onexit) — superclaude no longer execs claude; it re-enters
+#   itself as an inner loop that holds the terminal and reads flag files when CC
+#   exits (the ground loop's exact pattern). So CC can ask to come back, and the
+#   loop is what brings it back. Only works when a loop is actually holding this
+#   session -- see `status`. It CLOSES this conversation and reopens it.
+#
+#   THE SPAWN (spawn) — a second instance, detached in tmux, announcing itself on
+#   remote control as <host>_cc_<N>. Nothing dies: the new one is reachable from
+#   claude.ai BEFORE the old one goes away. This is the one that works when nobody
+#   is near the machine, and it is the safe default for a remote operator.
+#
+# Usage:
+#   cairn cc restart status        what is holding this session, what flags stand
+#   cairn cc restart now           relaunch with --continue (same conversation)
+#   cairn cc restart fresh         relaunch with a clean conversation
+#   cairn cc restart onexit        arm the flag only; relaunch whenever CC next exits
+#   cairn cc restart spawn [N]     new detached instance N (default: next free)
+#   cairn cc restart standdown     never relaunch (wins; not consumed)
+#   cairn cc restart clear         withdraw any standing request
+#
+# INSTANCE ADDRESSING IS NOT HERE YET. The natural address for instance 1 is
+# `cairn cc.1 restart`, and the dispatcher cannot read it -- bin/cairn resolves
+# `<device>/0/bin` with the 0 hard-coded (bin/cairn:152). Until that lands, the
+# instance is an argument: `cairn cc restart spawn 1`. Ticketed separately.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+REPO="$(cd "$HERE/../../../../.." && pwd)"
+LAUNCHER="$REPO/launchers/superclaude"
+
+RESTART="COMMAND_RESTART.flag"
+FRESH="COMMAND_RESTART_FRESH.flag"
+STANDDOWN="COMMAND_DO_NOT_RESTART.flag"
+
+HOME_DIR="${SUPERCLAUDE_FLAGS_HOME:-}"
+
+_stamp() { date +%Y%m%dT%H%M%S; }
+
+# Consume by MOVING, never deleting: instance-space has no undo (the deletegate's
+# reason), and the moved copies are the history of what was asked and when.
+_retire() {
+  [[ -e "$HOME_DIR/$1" ]] || return 0
+  mkdir -p "$HOME_DIR/consumed" 2>/dev/null || true
+  mv -f -- "$HOME_DIR/$1" "$HOME_DIR/consumed/$1.withdrawn.$(_stamp)" 2>/dev/null || true
+}
+
+# THE LOOP PID IS THE GUARD. Without a live loop, killing CC is a hang-up with no
+# relaunch -- exactly the failure this command must never cause.
+_loop_pid() {
+  [[ -n "$HOME_DIR" && -r "$HOME_DIR/loop.pid" ]] || return 1
+  local pid; pid="$(cat "$HOME_DIR/loop.pid" 2>/dev/null)"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null && { printf '%s\n' "$pid"; return 0; }
+  return 1
+}
+
+_cc_pid() {
+  local loop; loop="$(_loop_pid)" || return 1
+  local child; child="$(pgrep -P "$loop" 2>/dev/null | head -1)"
+  [[ -n "$child" ]] && { printf '%s\n' "$child"; return 0; }
+  return 1
+}
+
+_no_loop_note() {
+  cat >&2 <<'NOTE'
+cairn cc restart: no inner loop is holding this session.
+
+This session was launched by a superclaude that still exec'd claude (every session
+started before the restart loop landed), so there is nothing behind CC to bring it
+back. Killing it now would just end it.
+
+  - To get onto a new build from here:   cairn cc restart spawn
+    (a second instance, detached, reachable on remote control -- nothing dies)
+  - Sessions launched from now on will have the loop, and `now` will work.
+NOTE
+}
+
+cmd_status() {
+  echo "instance flags home: ${HOME_DIR:-<unset -- launched without the restart loop>}"
+  local loop cc
+  if loop="$(_loop_pid)"; then
+    echo "inner loop:          HOLDING (pid $loop)"
+    if cc="$(_cc_pid)"; then echo "claude under it:     pid $cc"
+    else echo "claude under it:     none found"; fi
+  else
+    echo "inner loop:          NONE -- this session cannot relaunch itself"
+  fi
+  echo "claude on disk:      $(claude --version 2>/dev/null || echo '?')"
+  if [[ -n "$HOME_DIR" && -d "$HOME_DIR" ]]; then
+    local standing=""
+    for f in "$RESTART" "$FRESH" "$STANDDOWN"; do
+      [[ -e "$HOME_DIR/$f" ]] && standing="$standing $f"
+    done
+    echo "standing signals:   ${standing:-  none}"
+    local n; n="$(ls "$HOME_DIR/consumed" 2>/dev/null | wc -l)"
+    echo "restarts on record:  $n"
+  fi
+  echo "tmux sessions:       $(tmux ls 2>/dev/null | tr '\n' ' ' || echo 'no tmux server')"
+}
+
+cmd_arm() {  # $1 = flag file, $2 = whether to kill now
+  if [[ -z "$HOME_DIR" ]]; then _no_loop_note; return 1; fi
+  mkdir -p "$HOME_DIR" 2>/dev/null || true
+  _retire "$STANDDOWN"   # asking for a restart withdraws a standing refusal
+  touch "$HOME_DIR/$1" || { echo "cairn cc restart: could not arm $1" >&2; return 1; }
+  echo "armed: $1"
+  if [[ "${2:-no}" != "now" ]]; then
+    echo "CC will relaunch the next time it exits."
+    return 0
+  fi
+  local cc
+  if ! cc="$(_cc_pid)"; then _no_loop_note; return 1; fi
+  echo "ending claude (pid $cc) -- the loop will bring it back in a moment."
+  kill -TERM "$cc" 2>/dev/null || { echo "cairn cc restart: kill refused" >&2; return 1; }
+}
+
+cmd_spawn() {
+  local n="${1:-}"
+  if [[ -z "$n" ]]; then
+    n=1
+    while tmux has-session -t "cairn_cc_$n" 2>/dev/null; do n=$((n+1)); done
+  fi
+  local host; host="$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')"
+  local log="$HOME/.cairn/logs/superclaude_spawn_${n}.log"
+  mkdir -p "$(dirname "$log")" 2>/dev/null || true
+  echo "spawning instance $n, detached in tmux (session cairn_cc_$n)"
+  echo "it will announce itself on remote control as: ${host}_cc_${n}"
+  ( setsid "$LAUNCHER" --tmux "--instance=$n" >>"$log" 2>&1 </dev/null & ) >/dev/null 2>&1
+  local waited=0
+  while [[ $waited -lt 30 ]]; do
+    if tmux has-session -t "cairn_cc_$n" 2>/dev/null; then
+      echo "up: tmux session cairn_cc_$n exists"
+      echo "pick it up on claude.ai as ${host}_cc_${n}, or attach here: tmux attach -t cairn_cc_$n"
+      echo "log: $log"
+      return 0
+    fi
+    sleep 1; waited=$((waited+1))
+  done
+  echo "cairn cc restart: no tmux session after ${waited}s -- see $log" >&2
+  return 1
+}
+
+case "${1:-status}" in
+  status)      cmd_status ;;
+  now)         cmd_arm "$RESTART" now ;;
+  fresh)       cmd_arm "$FRESH" now ;;
+  onexit)      cmd_arm "$RESTART" ;;
+  spawn)       cmd_spawn "${2:-}" ;;
+  standdown)   [[ -n "$HOME_DIR" ]] || { _no_loop_note; exit 1; }
+               mkdir -p "$HOME_DIR"; _retire "$RESTART"; _retire "$FRESH"
+               touch "$HOME_DIR/$STANDDOWN"
+               echo "stood down: this session will not be relaunched when it exits." ;;
+  clear)       [[ -n "$HOME_DIR" ]] || { _no_loop_note; exit 1; }
+               _retire "$RESTART"; _retire "$FRESH"; _retire "$STANDDOWN"
+               echo "cleared: no standing restart request." ;;
+  -h|--help|help) sed -n '2,45p' "$(readlink -f "${BASH_SOURCE[0]}")" | sed 's/^# \{0,1\}//' ;;
+  *)           echo "cairn cc restart: unknown verb '$1'" >&2
+               echo "try: cairn cc restart status | now | fresh | onexit | spawn [N] | standdown | clear" >&2
+               exit 2 ;;
+esac

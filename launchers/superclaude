@@ -43,6 +43,75 @@
 # directive is to always reach Claude Code so it can help rebuild a broken box.
 set -uo pipefail
 
+# -- INNER MODE: THE RESTART LOOP --------------------------------------------
+# The launcher used to `exec` claude, so the moment CC was gone the launcher was
+# gone too and there was nothing left to relaunch it. It no longer execs: it
+# re-enters ITSELF in inner mode as the process that holds the terminal, and that
+# process is the one that outlives a CC exit and starts the next one.
+#
+# THE FLAGS ARE THE GROUND LOOP'S PATTERN, deliberately (ground_loop/__main__.py:51):
+# a permanent MENU of zero-byte files in <home>/flags/ so `ls` documents what is
+# available, and an ACTIVE SIGNAL is a zero-byte copy in <home> itself. Presence is
+# the whole protocol -- no parsing, no daemon, three stats at a CC exit.
+#
+#   COMMAND_RESTART.flag        relaunch with --continue (same conversation, new
+#                               build/model) -- one-shot, consumed on use
+#   COMMAND_RESTART_FRESH.flag  relaunch with a clean conversation -- one-shot
+#   COMMAND_DO_NOT_RESTART.flag never relaunch; WINS over both, and is NOT
+#                               consumed (a standing state, not a request)
+#
+# A one-shot is consumed by MOVING it to consumed/<flag>.<stamp>, never by deleting
+# it: instance-space has no undo (the deletegate's whole reason), and the moved
+# copies are then the restart history -- what asked for a relaunch, and when.
+#
+# No flag at all = the old behaviour exactly: CC exits, the launcher exits. That is
+# the default, so nothing about an ordinary Ctrl-D changes.
+if [[ "${SUPERCLAUDE_INNER:-0}" == "1" ]]; then
+  _sc_home="${SUPERCLAUDE_INNER_HOME:?inner mode needs SUPERCLAUDE_INNER_HOME}"
+  _sc_bin="${CLAUDE_BIN:-claude}"
+  # Unset so a CC session that shells out cannot accidentally re-enter inner mode.
+  unset SUPERCLAUDE_INNER SUPERCLAUDE_INNER_HOME
+  # ...but EXPORT the home under a name inner mode does not trigger on, because the
+  # session itself is the main caller: `cairn restart` writes a flag, and its presence
+  # in the environment is also the only honest way for a session to know an inner loop
+  # is holding its terminal at all (an exec'd session -- every one before this change --
+  # has no loop behind it, and asking one to restart itself would just kill it).
+  export SUPERCLAUDE_FLAGS_HOME="$_sc_home"
+  _sc_consume() {
+    mkdir -p "$_sc_home/consumed" 2>/dev/null || true
+    mv -f -- "$_sc_home/$1" "$_sc_home/consumed/$1.$(date +%Y%m%dT%H%M%S)" 2>/dev/null || true
+  }
+  _sc_base=("$@")
+  _sc_argv=("${_sc_base[@]}")
+  _sc_rc=0
+  # THE LOOP'S OWN PID IS THE PROOF THAT A LOOP EXISTS. `cairn restart --now` will not
+  # kill a CC session unless it can see this pid alive and find CC as its child -- an
+  # exec'd session (every one launched before this change) has no loop behind it, and
+  # killing one would be a hang-up, not a restart.
+  printf '%s\n' "$$" > "$_sc_home/loop.pid" 2>/dev/null || true
+  while true; do
+    "$_sc_bin" ${_sc_argv[@]+"${_sc_argv[@]}"}
+    _sc_rc=$?
+    # DO_NOT_RESTART is read FIRST and is terminal: a box being taken down must be
+    # able to say so once and have it hold, even against a restart already asked for.
+    [[ -e "$_sc_home/COMMAND_DO_NOT_RESTART.flag" ]] && break
+    if [[ -e "$_sc_home/COMMAND_RESTART_FRESH.flag" ]]; then
+      _sc_consume COMMAND_RESTART_FRESH.flag
+      _sc_argv=("${_sc_base[@]}")
+      continue
+    fi
+    if [[ -e "$_sc_home/COMMAND_RESTART.flag" ]]; then
+      _sc_consume COMMAND_RESTART.flag
+      # Rebuilt from the BASE argv every time, never appended to the previous round:
+      # a second restart must not carry two --continue flags.
+      _sc_argv=("${_sc_base[@]}" --continue)
+      continue
+    fi
+    break
+  done
+  exit $_sc_rc
+fi
+
 # ── FILE DEFAULT — edit THIS ONE LINE to flip the built-in default ───────────
 # Applies only when neither the environment nor the command line decides.
 #   0 = no file constraint  → unconstrained (1M) when the env is silent  [big-design default]
@@ -68,6 +137,14 @@ superclaude — Cairn's Claude Code launcher.
     --tmux          launch CC inside a tmux session instead of foreground.
                     The shim can detect idle and inject commands. Override with
                     CAIRN_SUPERCLAUDE_TMUX=1 in the environment.
+
+  Restart flags -- presence-based, in $HOME/.cairn/launchers/superclaude/<N>/
+  (the permanent menu is the flags/ subfolder; an active signal is a copy one
+  level up, exactly as the ground loop does it):
+    COMMAND_RESTART.flag        on CC exit, relaunch with --continue (one-shot)
+    COMMAND_RESTART_FRESH.flag  on CC exit, relaunch clean (one-shot)
+    COMMAND_DO_NOT_RESTART.flag never relaunch; wins, and is not consumed
+    (no flag) CC exits, the launcher exits -- the unchanged default
 
   Launcher-only:
     --instance=N    launch as instance N (default 0). Each instance gets its own
@@ -214,6 +291,20 @@ fi
 
 # ── assemble the launch ──────────────────────────────────────────────────────
 claude_bin="${CLAUDE_BIN:-claude}"
+
+# THE FLAGS HOME -- instance-space, per instance, never in git. The MENU is created
+# on every launch so `ls` always shows the three; an ACTIVE signal is a copy one
+# level up (the ground loop's exact shape).
+_sc_self="$(readlink -f "${BASH_SOURCE[0]}")"
+_sc_flags_home="${HOME}/.cairn/launchers/superclaude/${instance}"
+mkdir -p "$_sc_flags_home/flags" 2>/dev/null || true
+for _sc_f in COMMAND_RESTART.flag COMMAND_RESTART_FRESH.flag COMMAND_DO_NOT_RESTART.flag; do
+  touch "$_sc_flags_home/flags/$_sc_f" 2>/dev/null || true
+done
+# What actually launches at every site below: this script, in inner mode, holding
+# the terminal so it can relaunch CC. The argv assembled next is CC's, untouched.
+_sc_inner=(env "SUPERCLAUDE_INNER=1" "SUPERCLAUDE_INNER_HOME=$_sc_flags_home" \
+           "CLAUDE_BIN=$claude_bin" "$_sc_self")
 set -- \
   --name "$session" \
   --remote-control "$session" \
@@ -481,6 +572,7 @@ if [[ "$dry_run" -eq 1 ]]; then
     printf ' %q' "$@"
     echo
   else
+    printf '# flags home: %s\n' "$_sc_flags_home"
     printf 'exec %s' "$claude_bin"
     printf ' %q' "$@"
     echo
@@ -515,9 +607,9 @@ if [[ "$tmux_mode" -eq 1 ]]; then
       -p MemoryHigh="$_sc_mem_high" \
       -p MemoryMax="$_sc_mem_max" \
       -p MemorySwapMax="$_sc_mem_swap" \
-      -- tmux new-session -d -s "$_sc_tmux_session" "$claude_bin" "$@" \; attach-session -t "$_sc_tmux_session"
+      -- tmux new-session -d -s "$_sc_tmux_session" "${_sc_inner[@]}" "$@" \; attach-session -t "$_sc_tmux_session"
   fi
-  exec tmux new-session -s "$_sc_tmux_session" "$claude_bin" "$@"
+  exec tmux new-session -s "$_sc_tmux_session" "${_sc_inner[@]}" "$@"
 fi
 
 # ── THE SESSION RUNS IN ITS OWN CGROUP (measured 2026-08-18) ────────────────
@@ -553,11 +645,11 @@ if [[ -z "${SUPERCLAUDE_NO_SCOPE:-}" ]] \
     -p MemoryHigh="$_sc_mem_high" \
     -p MemoryMax="$_sc_mem_max" \
     -p MemorySwapMax="$_sc_mem_swap" \
-    -- "$claude_bin" "$@"
+    -- "${_sc_inner[@]}" "$@"
 fi
 if [[ -n "${SUPERCLAUDE_NO_SCOPE:-}" ]]; then
   _sc_log "scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)"
 else
   _sc_log "scope: unavailable (no systemd-run, or the probe failed) — launching unbounded (a runaway session can still take the terminal)"
 fi
-exec "$claude_bin" "$@"
+exec "${_sc_inner[@]}" "$@"

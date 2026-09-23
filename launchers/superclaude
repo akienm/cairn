@@ -583,6 +583,18 @@ fi
 # ── clean slate: clear the terminal so the session opens without debris ─────
 clear 2>/dev/null || true
 
+# THE THREE MEMORY LIMITS ARE ASSIGNED HERE, ABOVE BOTH SPENDERS -- and that is a
+# measured red, not a tidy-up (2026-09-23): they used to be assigned below, after the
+# tmux block, while the tmux block already spent them. Under `set -u` that is fatal,
+# so `cairn cc restart spawn` died with `_sc_mem_high: unbound variable` before tmux
+# was ever reached -- printing a spawn message, then a 30s wait, then a session that
+# does not exist. The foreground path never saw it, because it runs after the
+# assignments. A variable read above its assignment is a hang-up waiting for the one
+# caller who takes the other branch.
+_sc_mem_high="${SUPERCLAUDE_MEM_HIGH:-6G}"
+_sc_mem_max="${CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE:-${SUPERCLAUDE_MEM_MAX:-8G}}"
+_sc_mem_swap="${SUPERCLAUDE_MEM_SWAP:-1G}"
+
 # ── TMUX MODE: headless CC in a tmux session ────────────────────────────────
 # When --tmux is set (or CAIRN_SUPERCLAUDE_TMUX=1), CC runs inside a tmux session
 # instead of foreground. The session name is cairn_cc_<instance>. The shim can then
@@ -633,9 +645,7 @@ fi
 #
 # GUARDED, under the prime directive: if systemd-run is missing or the probe fails we exec
 # Claude exactly as before. SUPERCLAUDE_NO_SCOPE=1 opts out; the three limits are env-tunable.
-_sc_mem_high="${SUPERCLAUDE_MEM_HIGH:-6G}"
-_sc_mem_max="${CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE:-${SUPERCLAUDE_MEM_MAX:-8G}}"
-_sc_mem_swap="${SUPERCLAUDE_MEM_SWAP:-1G}"
+# (the three are assigned above the tmux block -- that branch spends them first)
 if [[ -z "${SUPERCLAUDE_NO_SCOPE:-}" ]] \
    && command -v systemd-run >/dev/null 2>&1 \
    && systemd-run --user --scope --quiet -- true >/dev/null 2>&1; then

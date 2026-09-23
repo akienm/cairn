@@ -1,0 +1,31 @@
+{
+  "component": "skill:/restart",
+  "role": "charter",
+  "schema_version": "v0 - skill-charter shape, as skills/saveslate/intention+why.json",
+  "axis": "utility",
+  "what": "/restart is the skill CC fires on itself when the session should come back on a new build. It runs three steps in a fixed order and no other. (1) MEASURE: `cairn cc restart status`, and the captured text is handed to skills/restart/selector.py, whose branch() returns exactly one of two words -- `now` when a line reads `inner loop: HOLDING (pid N)`, meaning a loop is behind this session and ending CC is safe, and `spawn` for everything else, meaning nothing behind this session may be killed so a second instance is stood up beside it. The branch is code rather than prose because a branch condition that lives only in prose is a branch nobody can red. (2) SAVE: /saveslate, fired as a skill so its door can verify the live git heads; any refusal aborts the restart outright. (3) HAND OFF: `cairn cc restart now` (which ends this conversation and lets the loop reopen it) or `cairn cc restart spawn` (which kills nothing and reports the new instance's tmux session and remote-control name).",
+  "why": "Today the act is three commands a tired operator has to remember in the right order, and the order is the whole safety of it: measure, save, then relaunch. Getting it wrong in the other order is a session that ends with nothing written down. Akien, 2026-09-22: 'cairn restart and cairn cc.x restart and slash restart. We only need to have you around to supervise the process the first time.' The skill is the third name, and it is the one CC types.",
+  "invoke": "/restart (from inside a CC session, when the session should come back on a new build)",
+  "state": "v0 - first cast 2026-09-22 under ticket 15b80c0c393c, the third of Akien's three names",
+  "writes_to": "nothing of its own: it fires /saveslate, which writes CairnCommons/slates/ through its door, and cairn cc restart, which writes flags under $HOME/.cairn/launchers/superclaude/<instance>/",
+  "input_contract": {},
+  "relation_to_memory": "none of its own; the continuity it preserves is the slate's",
+  "how_it_learns": "By the probe at cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py: a restart with no slate behind it is the signal, and it says the skill step was not enough and physics is owed",
+  "traces_to": [
+    "Law 1 - the resolver is spent on the novel: the order of the three steps is settled knowledge, and a skill is how it stops being re-derived at the keyboard every time.",
+    "Law 7 - errors are loud at diagnostic surfaces: a slate refusal aborts the restart and is printed verbatim, never collapsed into a shorter slate or a quiet retry."
+  ],
+  "owner": "CC owns the skill and gates writes to it; Akien ratifies changes",
+  "proof": "skills/restart/proofs/test_restart_selector.py",
+  "provenance": "Born 2026-09-22 from idea 9e4e8f7cc609 and intent 2dc4e498ad80; cast as 15b80c0c393c",
+  "filed_edges": [
+    "UNMEASURED: that `claude --continue` restores enough of the conversation that a relaunched session can pick the work up where it left off.",
+    "UNMEASURED: that `cairn cc restart status` is fresh enough to act on -- it reads a pid file and a live process, and both can change between the read and the relaunch."
+  ],
+  "learns": "It does not; the probe learns for it",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
+}

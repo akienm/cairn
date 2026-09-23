@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # cairn — the single entry point into the system.
 #
-#   cairn <device> [verb] [args...]
+#   cairn <device>[.<instance>] [verb] [args...]
 #
 # Resolves through the FILESYSTEM — no registry, no config (Law 4: physics, not policy).
 # The dispatch:
@@ -10,10 +10,20 @@
 #   cairn librarian learn "X"    →  ~/.cairn/devices/librarian/0/bin/learn "X"
 #   cairn superclaude            →  ~/.cairn/devices/superclaude/0/bin/superclaude
 #   cairn akien show myissues    →  ~/.cairn/devices/akien/0/bin/show myissues
+#   cairn cc.1 restart           →  ~/.cairn/devices/cc/1/bin/restart
+#
+# THE INSTANCE IS PART OF THE ADDRESS, and it is written with a dot (Akien, 2026-09-22:
+# "wouldn't it be `cairn cc.x restart`?" — ticket 55fc9263bf5a). The segment was never
+# optional in the roots (`devices/<device>/<instance>/` in both, and a singleton is
+# instance 0, not an exemption — CLAUDE.md); until this landed the dispatcher was the one
+# place that could not say it, with the 0 hard-coded. A bare `cairn <device>` still
+# resolves to instance 0 — by DEFAULT, not by a second code path: the default is set once,
+# before the split, and the split overwrites it when a dot is there to overwrite it with.
 #
 # The instance-space bin/ is (usually) a symlink to class-space:
-#   ~/.cairn/devices/<dev>/0/bin  →  ~/dev/src/cairn/cairn/devices/<dev>/0/bin
-# so the code lives once in git and customization is "unlink, copy, have fun."
+#   ~/.cairn/devices/<dev>/<instance>/bin  →  ~/dev/src/cairn/cairn/devices/<dev>/0/bin
+# so the code lives once in git and customization is "unlink, copy, have fun." Class-space
+# has ONE bin per device, not one per instance: instance 1 links the same scripts.
 #
 # VERB DEFAULTS TO DEVICE NAME: `cairn librarian` is shorthand for `cairn librarian librarian`
 # — the self-named launcher script. Every device with a bin/ has one.
@@ -148,10 +158,32 @@ _floor
 # THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim
 # (ruled 2026-09-07: system words are case-insensitive when Akien types them; his free
 # text is never touched — cairn/tools/system_word is the rule's one address).
+#
+# FOLD FIRST, THEN SPLIT, and the order is not incidental: `CC.1` and `cc.1` have to be
+# one address, and splitting first would leave the device half unfolded on one branch and
+# folded on the other. Folding the whole token is safe because the instance half is
+# digits, which fold to themselves.
 device="${1,,}"; shift
+typed="$device"          # the token AS TYPED (folded), for the refusals that must echo it
 
-# --- device dispatch: ~/.cairn/devices/<device>/0/bin/<verb> ---
-device_bin="$INSTANCE_ROOT/$device/0/bin"
+# --- the instance comes off the device token; 0 is the DEFAULT, not a second path ---
+instance=0
+case "$device" in
+  *.*) instance="${device#*.}"; device="${device%%.*}" ;;
+esac
+
+# A non-numeric instance is its OWN refusal, and it fires BEFORE the folder lookup: a typo
+# in the instance must not come back as a missing device, which is the one wrong answer
+# this branch can give (Law 7 — the diagnostic surface names the real lack).
+case "$instance" in
+  ''|*[!0-9]*)
+    echo "cairn $typed: instance must be a number, got: ${instance:-<empty>}" >&2
+    exit 127
+    ;;
+esac
+
+# --- device dispatch: ~/.cairn/devices/<device>/<instance>/bin/<verb> ---
+device_bin="$INSTANCE_ROOT/$device/$instance/bin"
 
 if [ -d "$device_bin" ]; then
   if [ $# -eq 0 ]; then
@@ -181,13 +213,41 @@ if [ -d "$device_bin" ]; then
   exec "$target" "$@"
 fi
 
+# --- a device we HAVE, at an instance we do not: refuse by name -------------
+# The shape is bin/cairn's own unknown-verb refusal, one rung up: say what was asked for,
+# then list what there is, one per line, on stderr, exit 127. A device that exists and an
+# instance that does not is a different lack from "no such device", and collapsing the two
+# is how `cairn cc.7 restart` would read as "cc isn't a device" (Law 7).
+if [ -d "$INSTANCE_ROOT/$device" ]; then
+  inst_found=0
+  for d in "$INSTANCE_ROOT/$device"/*/bin; do
+    [ -d "$d" ] || continue
+    inst_found=1
+  done
+  if [ "$inst_found" -eq 1 ]; then
+    echo "cairn $typed: no such instance: $instance" >&2
+    echo "instances for $device:" >&2
+    for d in "$INSTANCE_ROOT/$device"/*/bin; do
+      [ -d "$d" ] || continue
+      echo "  $(basename "$(dirname "$d")")" >&2
+    done
+    exit 127
+  fi
+fi
+
 # --- legacy fallback: bin/cmd/<verb> (transitional) ---
-legacy_target="$LEGACY_CMD_DIR/$device"
-if [ -f "$legacy_target" ] && [ -x "$legacy_target" ]; then
-  exec "$legacy_target" "$@"
+# Only for an UNDOTTED token: `cairn foo.1` asked for an instance of a device, and the
+# legacy verbs have no instances to ask for.
+if [ "$typed" = "$device" ]; then
+  legacy_target="$LEGACY_CMD_DIR/$device"
+  if [ -f "$legacy_target" ] && [ -x "$legacy_target" ]; then
+    exec "$legacy_target" "$@"
+  fi
 fi
 
 # --- nothing matched ---
-echo "cairn: no such device or command: $device" >&2
+# The token AS TYPED, dot and all: the operator gets back what they typed, not the half of
+# it this script happened to keep.
+echo "cairn: no such device or command: $typed" >&2
 _usage
 exit 127

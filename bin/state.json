@@ -5,7 +5,7 @@
     "standing": "BUILDME",
     "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket '0853294fe972', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
+    "entry_gate": "clean — a berthed chart chain claims ticket '55fc9263bf5a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
@@ -75,7 +75,7 @@
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "BUILDME",
-          "ticket": "0853294fe972",
+          "ticket": "55fc9263bf5a",
           "component": "bin",
           "exempt": false,
           "roster": []
@@ -85,14 +85,14 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket '0853294fe972' is cast",
-        "actual": "named ticket '0853294fe972' is cast",
+        "expected": "named ticket '55fc9263bf5a' is cast",
+        "actual": "named ticket '55fc9263bf5a' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
           "target": "BUILDME",
-          "ticket": "0853294fe972",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/0853294fe972-cairn-checks-the-floor-before-it-resolves.json"
+          "ticket": "55fc9263bf5a",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/55fc9263bf5a-the-dispatcher-resolves-an-instance-address.json"
         }
       },
       {
@@ -105,7 +105,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "0853294fe972"
+          "ticket": "55fc9263bf5a"
         }
       },
       {
@@ -118,7 +118,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "0853294fe972"
+          "ticket": "55fc9263bf5a"
         }
       },
       {
@@ -131,29 +131,45 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "0853294fe972"
+          "ticket": "55fc9263bf5a"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "55fc9263bf5a"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "55fc9263bf5a"
         }
       }
     ],
-    "checks_proved": 8,
-    "cleared_by": "CC",
+    "checks_proved": 10,
     "actor": "CC",
-    "proven_by": "bin/proofs/test_cairn_command.py",
-    "proven_seal_date": "2026-09-07T14:27:23",
-    "delegated": false,
-    "ticket": "0853294fe972",
-    "validation": "/home/akien/dev/src/cairn/bin/proofs/validations/test_cairn_command.json",
-    "fingerprint": "0394c363bf73f4ebc59c7f21de634be8afc2a0e44c353f545b27461a2b6b0ada",
-    "at": "2026-09-07T14:27:35",
-    "seq": 5
+    "ticket": "55fc9263bf5a",
+    "note": "the dispatcher learns an instance address, built at bin's own address under D1..D7 on the ticket and validate-20260922T200235-f706f1a79b60: the device token folds through cairn.tools.system_word FIRST and only then splits on the dot, so `CC.1` and `cc.1` are one address; a bare `cairn <device> <verb>` keeps resolving to instance 0 by DEFAULT rather than by a second code path, and the exhaustive regression tooth drives every device the fixture root holds and FAILS on an empty enumeration; a known device at an unknown instance refuses the way bin/cairn:166-176 already refuses an unknown verb -- the token as typed, the instances that do exist listed one per line, stderr, exit 127 -- and a non-numeric instance is its own refusal fired BEFORE the folder lookup so a typo cannot read as a missing device.",
+    "fingerprint": "26b420255f6723b15acc3a4876eb80ccc0f2d2b8d407726d6f5b6bad5107e74f",
+    "at": "2026-09-22T20:32:39",
+    "seq": 6
   },
   "window": [
-    {
-      "at": "2026-07-23",
-      "standing": "A set -e exit-code bug found by the proof at build (the usage-lister's trailing && echo short-circuited to exit 1 before reaching exit 127/2, carrying the wrong loud-fail code) was fixed by making the lister always return 0, then re-proven.",
-      "gate": "reworked",
-      "seq": 1
-    },
     {
       "at": "2026-07-23",
       "standing": "BUILT and PROVEN — green bare and sealed under the tester with VALIDATION persisted beside-code: `cairn compile` runs the compiler end to end, an unknown name exits 127 with a legible message, no args exits 2 with the command list, and argv reaches the subcommand verbatim with the exit code propagated.",
@@ -420,7 +436,177 @@
       "fingerprint": "0394c363bf73f4ebc59c7f21de634be8afc2a0e44c353f545b27461a2b6b0ada",
       "at": "2026-09-07T14:27:35",
       "seq": 5
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '55fc9263bf5a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'bin' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'bin' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "55fc9263bf5a",
+            "component": "bin",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '55fc9263bf5a' is cast",
+          "actual": "named ticket '55fc9263bf5a' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "55fc9263bf5a",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/55fc9263bf5a-the-dispatcher-resolves-an-instance-address.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "actor": "CC",
+      "ticket": "55fc9263bf5a",
+      "note": "the dispatcher learns an instance address, built at bin's own address under D1..D7 on the ticket and validate-20260922T200235-f706f1a79b60: the device token folds through cairn.tools.system_word FIRST and only then splits on the dot, so `CC.1` and `cc.1` are one address; a bare `cairn <device> <verb>` keeps resolving to instance 0 by DEFAULT rather than by a second code path, and the exhaustive regression tooth drives every device the fixture root holds and FAILS on an empty enumeration; a known device at an unknown instance refuses the way bin/cairn:166-176 already refuses an unknown verb -- the token as typed, the instances that do exist listed one per line, stderr, exit 127 -- and a non-numeric instance is its own refusal fired BEFORE the folder lookup so a typo cannot read as a missing device.",
+      "fingerprint": "26b420255f6723b15acc3a4876eb80ccc0f2d2b8d407726d6f5b6bad5107e74f",
+      "at": "2026-09-22T20:32:39",
+      "seq": 6
     }
   ],
-  "count": 6
+  "count": 7
 }

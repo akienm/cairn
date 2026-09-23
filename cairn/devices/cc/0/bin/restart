@@ -35,9 +35,16 @@
 #   cairn cc restart clear         withdraw any standing request
 #
 # INSTANCE ADDRESSING IS NOT HERE YET. The natural address for instance 1 is
-# `cairn cc.1 restart`, and the dispatcher cannot read it -- bin/cairn resolves
-# `<device>/0/bin` with the 0 hard-coded (bin/cairn:152). Until that lands, the
-# instance is an argument: `cairn cc restart spawn 1`. Ticketed separately.
+# `cairn cc.1 restart` (Akien's own words, 2026-09-22), and the dispatcher cannot
+# read it -- bin/cairn resolves `<device>/0/bin` with the 0 hard-coded
+# (bin/cairn:152). Until that lands, the instance is an argument:
+# `cairn cc restart spawn 1`. Ticket 55fc9263bf5a carries the fix.
+#
+# AND THE SYSTEM'S OWN RESTART IS NOT THIS ONE. `cairn restart` brings down the
+# bus, the web server, the shims and the ground loop and brings them back; this
+# verb relaunches one Claude Code process and nothing beneath it. Two different
+# acts may not wear one word (Akien, 2026-09-22), which is why this one berths
+# at the cc device's address. Ticket 3264ef726e35 carries the system's.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"

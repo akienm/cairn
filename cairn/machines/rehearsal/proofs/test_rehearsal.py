@@ -46,6 +46,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
@@ -279,7 +280,8 @@ def test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record
         assert [e["verb"] for e in w.journal()] == ["rehearse", "cast"]
         # the next read names the step by the decision it now has — the loop converges on ids
         rec = R.rehearse(TID, reader=Stub([CLEAN_TREE_WIRED]), **_kw(w))
-        assert rec["clean"] and rec["gaps"] == [] and rec["pass"] == 2, rec
+        # the decide reset the count (open-8b95d8bb20c5, "Reset it fully."), so this is pass 1
+        assert rec["clean"] and rec["gaps"] == [] and rec["pass"] == 1, rec
         doc = json.loads(w.ticket.read_text())
         assert doc["rehearsal"] == rec["record"], doc.get("rehearsal")
         live = R._sha(w.ticket.read_bytes())
@@ -386,6 +388,20 @@ def test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_no
         assert stub.calls == 3 * (R.PASS_CAP + 1), "after the answer the reader reads again"
         assert rec.get("pass") == 1 and "question" not in rec, rec
         assert len(Q.open_for(TID, root=w.commons / "questions")) == 0, "no second question"
+        # a gap disposed with --decide is new input too, and resets FULLY (open-8b95d8bb20c5,
+        # Akien 2026-09-23: "Reset it fully.") — else the CLI's own "dispose each: --decide,
+        # then rehearse again" is unreachable at the cap. Run to the cap once more, decide.
+        time.sleep(1.1)   # the answer reset is stamped to the second; step past it
+        while R.passes_since_clean(TID, w.commons) < R.PASS_CAP:
+            R.rehearse(TID, reader=stub, **_kw(w))
+        time.sleep(1.1)
+        entry = R.decide(TID, WIRE, "the widget is wired in bin/widget.sh", by="the proof", root=w.commons)
+        assert entry.get("at"), "a decide line carries when it was made, or it can reset nothing"
+        assert R.passes_since_clean(TID, w.commons) == 0, "a --decide resets the cap fully"
+        wired = Stub([{"nodes": t["nodes"] + [_node("D3")]} for t in GAPPY_TREES])
+        rec = R.rehearse(TID, reader=wired, **_kw(w))
+        assert wired.calls == 3 and rec.get("pass") == 1 and "question" not in rec, rec
+        assert len(Q.open_for(TID, root=w.commons / "questions")) == 0, "a decide opens no question"
     finally:
         w.close()
 
@@ -420,6 +436,9 @@ def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the
     assert "D<n>" in text and "unlisted:" in text, "the prompt teaches the step vocabulary"
     assert "exactly\n  one node" in text or "exactly one node" in text.replace("\n  ", " "), "one node per decision, always"
     assert "unlisted" in R.GAP_KINDS
+    # open-a57cdd7cf3c1 (Akien 2026-09-23): the reader judges each decision against the whole
+    # list — a piece another decision settles is settled, and a later decision governs
+    assert "against the WHOLE list" in text and "the later one governs" in text, "the whole-list rule"
 
 
 # 7 ------------------------------------------------------------------------

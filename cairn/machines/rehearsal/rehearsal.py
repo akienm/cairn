@@ -400,13 +400,30 @@ def _last_answer_at(ticket: str, root: Path | str | None) -> datetime | None:
     return max(stamps) if stamps else None
 
 
+def _last_decide_at(ticket: str, root: Path | str | None) -> datetime | None:
+    """When a gap was last disposed as a decision line on the ticket (``decide``), or None.
+    Decisions written before 2026-09-23 carry no ``at`` and reset nothing."""
+    tk = ticket_file(ticket, root)
+    stamps = []
+    for d in decision_ids_and_text(tk):
+        if d.get("source") == "rehearsal" and d.get("at"):
+            try:
+                stamps.append(datetime.fromisoformat(str(d["at"])))
+            except ValueError:
+                continue
+    return max(stamps) if stamps else None
+
+
 def passes_since_clean(ticket: str, root: Path | str | None = None) -> int:
-    """Unclean passes in a row — since the last clean record, or since Akien ANSWERED the
-    question the cap opened, whichever is later. The answer is the new input the next passes
-    run on, so the loop starts over at zero; without this reset the cap re-fires forever after
-    the answer (measured 2026-09-17 on a705346aa75c: five unclean passes, one question, and
-    ``answer it, then rehearse again`` — the CLI's own line — would have opened a second)."""
-    reset = _last_answer_at(ticket, root)
+    """Unclean passes in a row — since the last clean record, since Akien ANSWERED the
+    question the cap opened, or since a gap was last disposed with ``--decide``, whichever is
+    latest. Each is new input the next passes run on, so the loop starts over at zero; without
+    the answer reset the cap re-fires forever after the answer (measured 2026-09-17 on
+    a705346aa75c), and without the decide reset the CLI's own ``dispose each: ... --decide``
+    then ``rehearse again`` is unreachable at pass 5 (open-8b95d8bb20c5, Akien 2026-09-23:
+    *"Reset it fully."*)."""
+    resets = [t for t in (_last_answer_at(ticket, root), _last_decide_at(ticket, root)) if t]
+    reset = max(resets) if resets else None
     n = 0
     for _, doc in records_for(ticket, root):
         if doc.get("clean"):
@@ -527,7 +544,8 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     have = doc.get("decisions")
     have = list(have) if isinstance(have, list) else []
     n = 1 + max((d.get("n", 0) for d in have if isinstance(d, dict)), default=0)
-    entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step.strip(), "source": "rehearsal"}
+    entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step.strip(), "source": "rehearsal",
+             "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     have.append(entry)
     doc["decisions"] = have
     _write_ticket(tk, doc, why=f"rehearsal gap at '{step.strip()}' decided by {by.strip()}: D{n}")

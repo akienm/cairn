@@ -39,6 +39,13 @@ order a builder would take them. For each node:
 
 ## Rules
 
+- **Judge each decision against the WHOLE list, not alone.** A builder reads the entire
+  ticket before building any step, and so do you. If what a step needs is said in ANOTHER
+  decision — earlier or later — the step `builds_as_written`; that is not an assumption.
+  When a later decision supersedes or sharpens an earlier one, the later one governs, and
+  the earlier step builds as the later one says. `builds_under_assumption` means the WHOLE
+  ticket leaves the piece unsaid, never that it is said somewhere other than this step.
+  (Akien, 2026-09-23, open-a57cdd7cf3c1: the reader judges the whole decision list.)
 - Stay inside the text. Do not use anything you believe about the world beyond it.
 - One step per node; do not merge steps to shorten the list, do not split one to lengthen it.
 - Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings

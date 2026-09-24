@@ -1,0 +1,62 @@
+[
+  {
+    "claim": "proof test_restart_selector.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-23T18:25:30",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok  (a) a held session selects now\n  ok  (b) an unheld session selects spawn\n  ok  (c) empty status selects spawn\n  ok  (d) garbled status selects spawn\n  ok  (e) the word HOLDING in another line does not select now\n  ok  (f) a lowercase holding still selects now\n  ok  (range) every input answers with one of the two words, and none raises\n  ok   test_only_holding_selects_the_session_ending_verb\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "(a) a held session selects now",
+        "(b) an unheld session selects spawn",
+        "(c) empty status selects spawn",
+        "(d) garbled status selects spawn",
+        "(e) the word HOLDING in another line does not select now",
+        "(f) a lowercase holding still selects now",
+        "(range) every input answers with one of the two words, and none raises",
+        "test_only_holding_selects_the_session_ending_verb"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "b3b06393bccdd41d031931bea9123c8b66437147c69c22b2e803c11e3e033596",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "skills/restart/proofs/test_restart_selector.py",
+        "skills/restart/selector.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2922799-w_h56z6u/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 196114840,
+          "disk_bytes": 210427904,
+          "entries": 6030,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

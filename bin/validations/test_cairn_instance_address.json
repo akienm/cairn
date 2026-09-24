@@ -1,0 +1,64 @@
+[
+  {
+    "claim": "proof test_cairn_instance_address.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-23T18:25:28",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 25 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 25 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "(a) a dotted address reaches the named instance, 0 and 1 alike",
+        "test_a_dotted_address_reaches_the_named_instance",
+        "a non-numeric instance refuses as an instance, never as a missing device",
+        "test_a_non_numeric_instance_is_its_own_refusal",
+        "(c) an absent instance names the instances that exist, and is not a missing device",
+        "test_an_absent_instance_names_the_instances_that_exist",
+        "args after the two resolved tokens ride verbatim and unfolded",
+        "test_args_after_the_address_ride_verbatim",
+        "(b) all 25 mirrored devices still resolve instance 0, byte for byte",
+        "test_every_bare_address_still_resolves_instance_zero",
+        "the token folds BEFORE it splits, so CC.1 and cc.1 are one address",
+        "test_the_address_folds_before_it_splits",
+        "the legacy fallback answers an undotted token only",
+        "test_the_dot_gates_the_legacy_fallback",
+        "test_the_instance_is_part_of_the_address"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "a8c9b43bd42bdce851513d434299522e71ede6e5a7e957e6404c32e272e06baa",
+      "fingerprint_closure": [
+        "bin/proofs/test_cairn_instance_address.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2922799-53eu7j_s/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 196114840,
+          "disk_bytes": 210427904,
+          "entries": 6030,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

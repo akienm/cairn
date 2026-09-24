@@ -1,22 +1,23 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
     "entry_gate": "clean — a berthed chart chain claims ticket '55fc9263bf5a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proof_gate": "clean — proof named: bin/proofs/test_cairn_instance_address.py",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -35,64 +36,35 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
             "DROPPED",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'bin' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'bin' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "55fc9263bf5a",
-          "component": "bin",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket '55fc9263bf5a' is cast",
-        "actual": "named ticket '55fc9263bf5a' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "55fc9263bf5a",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/55fc9263bf5a-the-dispatcher-resolves-an-instance-address.json"
         }
       },
       {
@@ -159,25 +131,34 @@
           "findings": [],
           "ticket": "55fc9263bf5a"
         }
+      },
+      {
+        "identity": "the_proveme_crossing_names_its_proof",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_proof_named",
+        "expected": "the PROVEME crossing of ticket '55fc9263bf5a' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket '55fc9263bf5a' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_proof_named",
+        "values": {
+          "ticket": "55fc9263bf5a",
+          "named": [
+            "bin/proofs/test_cairn_instance_address.py"
+          ],
+          "since_buildme": []
+        }
       }
     ],
-    "checks_proved": 10,
+    "checks_proved": 9,
     "actor": "CC",
     "ticket": "55fc9263bf5a",
-    "note": "the dispatcher learns an instance address, built at bin's own address under D1..D7 on the ticket and validate-20260922T200235-f706f1a79b60: the device token folds through cairn.tools.system_word FIRST and only then splits on the dot, so `CC.1` and `cc.1` are one address; a bare `cairn <device> <verb>` keeps resolving to instance 0 by DEFAULT rather than by a second code path, and the exhaustive regression tooth drives every device the fixture root holds and FAILS on an empty enumeration; a known device at an unknown instance refuses the way bin/cairn:166-176 already refuses an unknown verb -- the token as typed, the instances that do exist listed one per line, stderr, exit 127 -- and a non-numeric instance is its own refusal fired BEFORE the folder lookup so a typo cannot read as a missing device.",
-    "fingerprint": "26b420255f6723b15acc3a4876eb80ccc0f2d2b8d407726d6f5b6bad5107e74f",
-    "at": "2026-09-22T20:32:39",
-    "seq": 6
+    "note": "bin/proofs/test_cairn_instance_address.py stands green twice bare over a fixture instance root that MIRRORS the live device population -- whatever stands under ~/.cairn/devices at run time, every one at instance 0, each driven and each asserted to print its own instance-0 path EXACTLY, with an empty enumeration failing rather than passing vacuously -- plus the fixture device fixture_instance_address standing at instances 0 AND 1 with a different script at each, so a dispatcher that read the dot and resolved 0 anyway prints the wrong path and trips. The declared tooth is the composite test_the_instance_is_part_of_the_address, because the ticket's proves_red numbers no clauses and proof_coverage.clauses therefore reads the single clause `all`; the same clause bodies are driven a second time one tooth apiece so a red says WHICH clause broke. Measured hollow: HEAD's dispatcher answers `cairn fixture_instance_address.1 verb` with `no such device or command` and exit 127.",
+    "proven_by": "bin/proofs/test_cairn_instance_address.py",
+    "fingerprint": "fd03ba2e5667d3efe260eabddbe29c40c4343a1be8a2c035b1360d6169c5f09f",
+    "at": "2026-09-23T18:25:22",
+    "seq": 7
   },
   "window": [
-    {
-      "at": "2026-07-23",
-      "standing": "BUILT and PROVEN — green bare and sealed under the tester with VALIDATION persisted beside-code: `cairn compile` runs the compiler end to end, an unknown name exits 127 with a legible message, no args exits 2 with the command list, and argv reaches the subcommand verbatim with the exit code propagated.",
-      "gate": "proven",
-      "proof": "proofs/test_cairn_command.py",
-      "validation": "validations/test_cairn_command.json",
-      "seq": 2
-    },
     {
       "at": "2026-07-24",
       "standing": "BERTHED — cairn-command's ticket voyage froze into this history and CairnCommons/tickets/cairn-command.json migrated out of the open lane beside its code (the physical berth Akien directed; Law 5 — intent, voyage, proofs share the address). berth-pending -> 0 for this boat.",
@@ -606,7 +587,166 @@
       "fingerprint": "26b420255f6723b15acc3a4876eb80ccc0f2d2b8d407726d6f5b6bad5107e74f",
       "at": "2026-09-22T20:32:39",
       "seq": 6
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '55fc9263bf5a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proof_gate": "clean — proof named: bin/proofs/test_cairn_instance_address.py",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "55fc9263bf5a"
+          }
+        },
+        {
+          "identity": "the_proveme_crossing_names_its_proof",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_proof_named",
+          "expected": "the PROVEME crossing of ticket '55fc9263bf5a' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "actual": "the PROVEME crossing of ticket '55fc9263bf5a' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_proof_named",
+          "values": {
+            "ticket": "55fc9263bf5a",
+            "named": [
+              "bin/proofs/test_cairn_instance_address.py"
+            ],
+            "since_buildme": []
+          }
+        }
+      ],
+      "checks_proved": 9,
+      "actor": "CC",
+      "ticket": "55fc9263bf5a",
+      "note": "bin/proofs/test_cairn_instance_address.py stands green twice bare over a fixture instance root that MIRRORS the live device population -- whatever stands under ~/.cairn/devices at run time, every one at instance 0, each driven and each asserted to print its own instance-0 path EXACTLY, with an empty enumeration failing rather than passing vacuously -- plus the fixture device fixture_instance_address standing at instances 0 AND 1 with a different script at each, so a dispatcher that read the dot and resolved 0 anyway prints the wrong path and trips. The declared tooth is the composite test_the_instance_is_part_of_the_address, because the ticket's proves_red numbers no clauses and proof_coverage.clauses therefore reads the single clause `all`; the same clause bodies are driven a second time one tooth apiece so a red says WHICH clause broke. Measured hollow: HEAD's dispatcher answers `cairn fixture_instance_address.1 verb` with `no such device or command` and exit 127.",
+      "proven_by": "bin/proofs/test_cairn_instance_address.py",
+      "fingerprint": "fd03ba2e5667d3efe260eabddbe29c40c4343a1be8a2c035b1360d6169c5f09f",
+      "at": "2026-09-23T18:25:22",
+      "seq": 7
     }
   ],
-  "count": 7
+  "count": 8
 }

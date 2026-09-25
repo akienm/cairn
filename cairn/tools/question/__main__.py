@@ -3,6 +3,8 @@ question.py; this file only parses and prints.
 
   cairn question open --ticket <id> "<question>" --why "<what it blocks>" [--born-of <qid>]
   cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
+  cairn question answer <qid> "<the finding>" --measured <record> --spawned none
+                                                   a measurement settles it (Law 9); never recorded as his
   cairn question rebind <ticket-id>                questions bound to the ticket's intent berth → the id
   cairn question list [<ticket>]                   open questions (all), or one ticket's whole tree
   cairn question show <qid>
@@ -38,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("words")
     a.add_argument("--spawned", action="append", dest="spawned",
                    help="'none', or a question this answer bore (repeatable); required")
+    a.add_argument("--measured", help="the record on disk that settles it — answered_by reads "
+                   "'measurement: <record>', never Akien")
     rb = sub.add_parser("rebind")
     rb.add_argument("ticket")
     ls = sub.add_parser("list")
@@ -55,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
             spawned = args.spawned
             if spawned is not None:
                 spawned = [] if [fold(x) for x in spawned] == ["none"] else spawned
-            rec = Q.answer(args.qid, args.words, spawned=spawned)
+            rec = Q.answer(args.qid, args.words, spawned=spawned, measured=args.measured)
             print(f"answered: {rec['id']} ({rec['answered_by']})")
             for f in rec["spawned"]:
                 print(f"  spawned: {f}")

@@ -46,6 +46,7 @@ accepted and the class rides the record and the journal (his answer to open-6903
 
     cairn question open --ticket <id> "<question>" --why "<what it blocks>" [--born-of <qid>]
     cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
+    cairn question answer <qid> "<the finding>" --measured <record> --spawned none
     cairn question rebind <ticket-id>        questions bound to the ticket's intent berth → the id
     cairn question list [<ticket>]           open questions; for one ticket, its whole tree
 """
@@ -182,9 +183,17 @@ def open_question(ticket: str, question: str, why_it_blocks: str, *,
 
 
 def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None = None,
-           spawned_why: str | None = None, root: Path | str | None = None) -> dict:
+           spawned_why: str | None = None, measured: str | None = None,
+           root: Path | str | None = None) -> dict:
     """Record his answer verbatim, and what it spawned; open each spawned question born of
     this one on the same ticket.
+
+    ``measured`` is the OTHER answerer: a record on disk that settles the question. Law 9
+    (ruling 2026-08-15): *"anything settled by measurment trumps approvals by even me"* —
+    so a measurement closes a question without his gate, and the record says so:
+    ``answered_by`` reads ``measurement: <record>``, never "Akien", and ``words`` are the
+    finding in the recorder's words, not his. The record must exist when the answer is
+    written — a citation of nothing is a claim, not a measurement (Law 3).
 
     ``spawned`` is REQUIRED: ``[]`` records that the answer bore nothing; a list of questions
     opens each and records their ids. None is refused — an answer that does not say what it
@@ -200,6 +209,10 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
                      "— an answer says what it spawned, or it is not recorded")
     elif any(not (isinstance(q, str) and q.strip().endswith("?")) for q in spawned):
         lacks.append("spawned: each entry is a question and ends with '?'")
+    if measured is not None and not (isinstance(measured, str) and measured.strip()
+                                     and Path(measured).expanduser().is_file()):
+        lacks.append(f"measured: {measured!r} is not a record on disk — a measurement "
+                     "answers by citing what it read")
     if lacks:
         raise Refused("answer refused — " + "; ".join(lacks))
     record = read(qid, root)
@@ -214,13 +227,16 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
                               born_of=record["id"], source=record.get("source"), root=root)
         born.append(child["id"])
     record.pop("follow_ups", None)  # pre-2026-09-14 records
+    by = f"measurement: {measured}" if measured else "Akien"
     record.update({
         "resolved": True, "answer": words.strip(),
-        "answered_by": f"Akien, recorded by caller class {who['class']}",
+        "answered_by": f"{by}, recorded by caller class {who['class']}",
         "answered_at": _now(), "spawned": born,
     })
+    if measured:
+        record["measured"] = measured
     _write(_path(record["id"], root), record, verb="answer",
-           why=f"Akien answered {record['id']}" +
+           why=f"{'a measurement' if measured else 'Akien'} answered {record['id']}" +
                (f"; spawned {len(born)} question(s)" if born else "; spawned none"))
     return record
 

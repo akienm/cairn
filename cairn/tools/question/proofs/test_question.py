@@ -18,6 +18,10 @@ that run in a subprocess — the BUILDME entry gate and the CLI):
   5. the two sieves take an answered question id as same-act evidence and refuse an
      unanswered one and a cite of neither.
 
+Ticket c62df2454322 adds one composite tooth: a measurement answers under its own name
+(``answered_by: measurement: <record>``, never Akien — Law 9), a citation of no record is
+refused, and the CLI's ``--measured`` reaches the same path.
+
 The subject is bound at CALL time so a reverted world reds every declared tooth by name
 rather than crashing the reader.
 """
@@ -57,6 +61,9 @@ PROVES = {
     "bc7b64626405": {
         "2": "test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
         "cli": "test_the_cli_opens_answers_and_lists",
+    },
+    "c62df2454322": {
+        "all": "test_a_measurement_answers_under_its_own_name",
     },
 }
 
@@ -204,6 +211,49 @@ def teeth_door(tmp: Path) -> None:
           f"show={r_show.returncode} bad={r_bad.returncode} {r_open.stderr[-200:]}{r_ans.stderr[-200:]}")
 
 
+def teeth_measured(tmp: Path) -> None:
+    """c62df2454322 — a measurement answers under its own name. Runs after teeth_door, over
+    the same scratch world (the roots teeth_door set still stand)."""
+    print("THE MEASURED ANSWER — Law 9, never recorded as his")
+    commons = tmp / "CairnCommons"
+    qdir = commons / "questions"
+    record = tmp / "measured_record_for_the_question_proof.json"
+    record.write_text('{"clean": true}\n', encoding="utf-8")
+    # (a) a measured answer resolves, names its record, keeps the class suffix last
+    q = Q.open_question(TICKET, "does the scratch record settle this?", "a measurement answers it",
+                        root=qdir)
+    ans = Q.answer(q["id"], "the record reads clean", spawned=[], measured=str(record), root=qdir)
+    by = ans.get("answered_by") or ""
+    journal = A.read_journal(commons)
+    aentry = next((e for e in reversed(journal) if e.get("verb") == "answer"), {})
+    ok_a = (Q.read(q["id"], root=qdir).get("resolved") is True
+            and by.startswith(f"measurement: {record}") and by.rsplit(" ", 1)[-1] in ("cc", "akien", "gate")
+            and "Akien" not in by and ans.get("measured") == str(record)
+            and "a measurement answered" in json.dumps(aentry))
+    # (b) a citation of no record is refused, and nothing resolves
+    q2 = Q.open_question(TICKET, "does a missing record settle this?", "it must not", root=qdir)
+    refused = False
+    try:
+        Q.answer(q2["id"], "cites nothing", spawned=[], measured=str(tmp / "does_not_exist.json"), root=qdir)
+    except Q.Refused:
+        refused = True
+    ok_b = refused and not Q.read(q2["id"], root=qdir).get("resolved")
+    # (c) the CLI reaches the same path
+    env = _env(qdir)
+    cli = [str(REPO / "bin" / "cairn"), "question"]
+    r_open = subprocess.run(cli + ["open", "--ticket", TICKET, "does the cli measure too?",
+                                   "--why", "his shell reaches it"],
+                            capture_output=True, text=True, env=env, timeout=120)
+    cid = next((tok for tok in r_open.stdout.split() if tok.startswith("open-")), "")
+    r_ans = subprocess.run(cli + ["answer", cid, "the record reads clean", "--measured", str(record),
+                                  "--spawned", "none"], capture_output=True, text=True, env=env, timeout=120)
+    r_show = subprocess.run(cli + ["show", cid], capture_output=True, text=True, env=env, timeout=120)
+    ok_c = bool(cid) and r_ans.returncode == 0 and "measurement: " in r_show.stdout
+    check(PROVES["c62df2454322"]["all"], ok_a and ok_b and ok_c,
+          f"(a)={ok_a} by={by[:60]!r} (b) refused={refused} unresolved={ok_b} "
+          f"(c) answer={r_ans.returncode} show_measured={'measurement: ' in r_show.stdout} {r_ans.stderr[-160:]}")
+
+
 def teeth_retirement() -> None:
     print("THE RETIREMENT — rulings are questions now")
     r = subprocess.run([str(REPO / "bin" / "cairn"), "ruling", "open", "/dev/null"],
@@ -265,7 +315,7 @@ def teeth_beside() -> None:
 
 
 def _red_every_declared_tooth(reason: str) -> None:
-    for name in PROVES[TICKET].values():
+    for name in {n for teeth in PROVES.values() for n in teeth.values()}:
         if name not in FAILURES:
             check(name, False, reason)
 
@@ -285,6 +335,10 @@ def main() -> int:
         with tempfile.TemporaryDirectory(prefix="cairn-question-proof-") as d:
             try:
                 teeth_door(Path(d))
+                try:
+                    teeth_measured(Path(d))
+                except Exception as exc:  # noqa: BLE001 — reds ITS tooth only, never the rest
+                    check(PROVES["c62df2454322"]["all"], False, f"aborted: {exc!r}"[:160])
             finally:
                 A.set_diagnostic_roots(None)
         teeth_retirement()

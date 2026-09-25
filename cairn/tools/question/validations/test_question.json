@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_question.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-18T11:15:48",
+    "caller": "cairn test",
+    "date": "2026-09-24T19:29:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-138b86abef69'] child_born_of=open-5e04464a8770\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-1055939db17a is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-a056d14f7ac8' list=0 answer=0 show=0 bad=2 \nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
+      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-888f3a0ec61b'] child_born_of=open-4ed3cec303b9\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-01a1cedc260c is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-753a9a4e64cd' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-zvqjszs1/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True \nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
@@ -16,6 +16,7 @@
         "test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
         "test_an_answered_question_is_same_act_evidence_for_the_sieves",
         "test_the_cli_opens_answers_and_lists",
+        "test_a_measurement_answers_under_its_own_name",
         "test_ruling_open_is_retired_and_no_skill_opens_one",
         "test_the_charter_stands_beside_the_code_and_names_this_proof",
         "test_the_probe_is_armed_with_carry_and_enough"
@@ -29,7 +30,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "215075c3fe4727bd1fd004d54c72a3589ef1f9e0d2eeceadd527532639a10d3e",
+      "source_fingerprint": "ab086b79fc239c60e200d142ff3b75f42bccc8457a23fe7d19424d77e5399a79",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -81,22 +82,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1513791-r5tp8nk1/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3079954-284jjj7q/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/bus/0/20260918.171546.678116.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20260925.012916.922560.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 182506738,
-          "disk_bytes": 196239360,
-          "entries": 5755,
+          "bytes": 196499816,
+          "disk_bytes": 210898944,
+          "entries": 6059,
           "builds": 1,
-          "reuses": 42
+          "reuses": 0
         }
       }
     },

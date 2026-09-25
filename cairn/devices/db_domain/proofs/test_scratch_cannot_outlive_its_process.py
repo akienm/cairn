@@ -8,6 +8,9 @@ falsifier markers):
 (1) the tester's seal sweeps first and the seal's evidence carries what it dropped, by name
     (``scratch_sweep``), the CLI prints the count, and ``run_proof`` REFUSES to seal without
     a sweep — a seal that says nothing about the sweep is refused, not recorded as zero;
+    and the ONE-TIME sweep that cleared the leak (migrate_scratch_sweep.py), driven over a
+    fake connection, drops nothing without --drop, never a LIVE name with it, and refuses
+    outright when any nonce pid is alive;
 (2) a minter killed with SIGKILL after minting (a forked child that never reaches its
     ``finally``) leaves its table AND the ``_delivery`` companion the bus registered, and
     the next ``sweep_scratch()`` drops both — gone from pg_tables and from both registries;
@@ -132,6 +135,77 @@ def _tiny_proof(dirpath: Path) -> Path:
     return p
 
 
+class _FakeConn:
+    """A connection the one-time sweep can plan and drop over without a database: pg_tables
+    answers ``tables``, and every composed statement (a DROP or a registry DELETE) is kept
+    so the tooth can read exactly what the sweep would have done."""
+
+    def __init__(self, tables: list[str]) -> None:
+        self.tables, self.composed, self._last = sorted(tables), [], ""
+
+    def cursor(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc) -> None:
+        return None
+
+    def execute(self, stmt, params=None) -> None:
+        if isinstance(stmt, str):
+            self._last = stmt
+        else:
+            self.composed.append(repr(stmt))
+        self.rowcount = 0
+
+    def fetchall(self):
+        return [(t,) for t in self.tables]
+
+    def fetchone(self):
+        return ("0 bytes",)
+
+    def close(self) -> None:
+        return None
+
+
+def _the_one_time_sweep_keeps_the_live_set_and_refuses_a_live_pid() -> None:
+    """Clause (1)'s one-time sweep (migrate_scratch_sweep.py), driven over a fake connection
+    so it can never drop a real table: without --drop it drops nothing; with --drop it drops
+    the nonced and the unnamed but never a LIVE name; and a nonce whose pid is alive refuses
+    the whole run, --drop or not — a scratch table of a live process is not a leak."""
+    import contextlib
+    import io
+    import types
+    from cairn.devices.db_domain import migrate_scratch_sweep as mig
+    live = sorted(mig.LIVE)[:3]
+    dead_nonced, unnamed = f"leak_{_dead_pid()}_123456", "fixture_without_nonce"
+    alive_nonced = f"leak_{os.getpid()}_123456"
+
+    def drive(tables: list[str], argv: list[str]) -> tuple[int, _FakeConn, str]:
+        conn = _FakeConn(tables)
+        fake = types.SimpleNamespace(connect=lambda: conn, process_start=store.process_start,
+                                     _REGISTRY=store._REGISTRY)
+        real, mig.store = mig.store, fake
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = mig.main(argv)
+        finally:
+            mig.store = real
+        return code, conn, out.getvalue()
+
+    code, conn, out = drive([*live, dead_nonced, unnamed], [])
+    assert code == 0 and conn.composed == [] and "dry run" in out, (code, conn.composed, out)
+    code, conn, out = drive([*live, dead_nonced, unnamed], ["--drop"])
+    dropped = [c for c in conn.composed if "DROP" in c]
+    assert code == 0 and len(dropped) == 2, (code, conn.composed)
+    assert any(repr(dead_nonced) in c for c in dropped) and any(repr(unnamed) in c for c in dropped), dropped
+    assert not any(repr(n) in c for c in conn.composed for n in live), "the one-time sweep touched a LIVE name"
+    code, conn, out = drive([*live, dead_nonced, alive_nonced], ["--drop"])
+    assert code == 2 and conn.composed == [] and "REFUSING" in out, (code, conn.composed, out)
+
+
 # --- the teeth --------------------------------------------------------------------------
 
 def test_a_seal_sweeps_first_and_says_so() -> None:
@@ -168,6 +242,8 @@ def test_a_seal_sweeps_first_and_says_so() -> None:
         line = next((ln for ln in r.stdout.splitlines() if ln.strip().startswith("swept ")), None)
         assert line and table in line and "1 scratch table(s)" in line, r.stdout
     assert table not in _pg_tables() and not store.is_scratch(table)
+    # and the ONE-TIME sweep clause (1) counts after: the migration that cleared the leak
+    _the_one_time_sweep_keeps_the_live_set_and_refuses_a_live_pid()
     print("ok test_a_seal_sweeps_first_and_says_so")
 
 

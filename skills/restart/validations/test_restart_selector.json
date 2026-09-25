@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_restart_selector.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-24T21:41:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-24T21:42:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok  (a) a held session selects now\n  ok  (b) an unheld session selects spawn\n  ok  (c) empty status selects spawn\n  ok  (d) garbled status selects spawn\n  ok  (e) the word HOLDING in another line does not select now\n  ok  (f) a lowercase holding still selects now\n  ok  (range) every input answers with one of the two words, and none raises\n  ok   test_only_holding_selects_the_session_ending_verb\nGREEN",
+      "stdout_tail": "  ok  (a) a held session selects now\n  ok  (b) an unheld session selects spawn\n  ok  (c) empty status selects spawn\n  ok  (d) garbled status selects spawn\n  ok  (e) the word HOLDING in another line does not select now\n  ok  (f) a lowercase holding still selects now\n  ok  (range) every input answers with one of the two words, and none raises\n  ok  (g) the skill orders measure, save, hand off; aborts on refusal; spawn kills nothing\n  ok  (h) the charter parses and names its owner and its proof\n  ok  (i) the WATCHME probe is a Probe carrying why, carry and enough\n  ok   test_only_holding_selects_the_session_ending_verb\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "(a) a held session selects now",
@@ -17,6 +17,9 @@
         "(e) the word HOLDING in another line does not select now",
         "(f) a lowercase holding still selects now",
         "(range) every input answers with one of the two words, and none raises",
+        "(g) the skill orders measure, save, hand off; aborts on refusal; spawn kills nothing",
+        "(h) the charter parses and names its owner and its proof",
+        "(i) the WATCHME probe is a Probe carrying why, carry and enough",
         "test_only_holding_selects_the_session_ending_verb"
       ],
       "teeth_red": [],
@@ -28,10 +31,16 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b3b06393bccdd41d031931bea9123c8b66437147c69c22b2e803c11e3e033596",
+      "source_fingerprint": "a99bb8ada9ce15ead7bb6501a9cfc05a6b05e3610499c6f904490d6f3fc6b16b",
       "fingerprint_closure": [
         "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cc/__init__.py",
+        "cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "skills/restart/proofs/test_restart_selector.py",
@@ -39,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3480424-zvna1b08/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3485698-h1xr7zky/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -48,7 +57,7 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 198731280,
+          "bytes": 198732831,
           "disk_bytes": 213250048,
           "entries": 6107,
           "builds": 1,

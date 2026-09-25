@@ -1,0 +1,54 @@
+[
+  {
+    "claim": "proof test_cairn_floor.py passes under python3",
+    "caller": "tester",
+    "date": "2026-09-24T21:46:48",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "ok test_bin_cairn_names_the_venv\nok test_present_floor_lays_nothing\nok test_down_db_refuses_named_and_never_resolves\nok test_happy_path_costs_under_10ms  (with floor 4.6ms, without 4.6ms, delta -0.0ms, n=15 interleaved)\nok test_absent_venv_is_laid_then_answers  (laid + answered in 8s)\ntest_cairn_floor: green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_bin_cairn_names_the_venv",
+        "test_present_floor_lays_nothing",
+        "test_down_db_refuses_named_and_never_resolves",
+        "test_happy_path_costs_under_10ms",
+        "test_absent_venv_is_laid_then_answers"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "skipped": "the caller sealed nothing and swept nothing"
+      },
+      "source_fingerprint": "916e2dc344ece2b5c430e90698273e8bb69207446db02b70e296c4d164a73e5d",
+      "fingerprint_closure": [
+        "bin/proofs/test_cairn_floor.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3499638-ugwyttzb/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 199551784,
+          "disk_bytes": 214151168,
+          "entries": 6139,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "unsealing_because": "the standing netns seal (2026-09-24, CC) was cut by mistake on this proof's FIRST seal: test_absent_venv_is_laid_then_answers lays a fresh venv through launchers/bootstrap.sh, whose pip install needs the network, so under netns it reds with 'psycopg2 MISSING' — a measurement of the seal, not of the floor. Run bare the same day it is green (laid + answered in 8s). This proof's honest isolation is none."
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

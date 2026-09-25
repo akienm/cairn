@@ -20,7 +20,8 @@ that run in a subprocess — the BUILDME entry gate and the CLI):
 
 Ticket c62df2454322 adds one composite tooth: a measurement answers under its own name
 (``answered_by: measurement: <record>``, never Akien — Law 9), a citation of no record is
-refused, and the CLI's ``--measured`` reaches the same path.
+refused, the CLI's ``--measured`` reaches the same path, and the charter's invoke line
+names it.
 
 The subject is bound at CALL time so a reverted world reds every declared tooth by name
 rather than crashing the reader.
@@ -249,9 +250,17 @@ def teeth_measured(tmp: Path) -> None:
                                   "--spawned", "none"], capture_output=True, text=True, env=env, timeout=120)
     r_show = subprocess.run(cli + ["show", cid], capture_output=True, text=True, env=env, timeout=120)
     ok_c = bool(cid) and r_ans.returncode == 0 and "measurement: " in r_show.stdout
-    check(PROVES["c62df2454322"]["all"], ok_a and ok_b and ok_c,
+    # (d) the charter names the path it describes (Law 5) — its invoke line carries the
+    # keyword and the flag, so a charter reverted to before the build reds here
+    try:
+        invoke = json.loads((Path(__file__).resolve().parents[1] / "intention+why.json").read_text())["invoke"]
+    except (OSError, ValueError, KeyError):
+        invoke = ""
+    ok_d = "measured=None" in invoke and "--measured" in invoke
+    check(PROVES["c62df2454322"]["all"], ok_a and ok_b and ok_c and ok_d,
           f"(a)={ok_a} by={by[:60]!r} (b) refused={refused} unresolved={ok_b} "
-          f"(c) answer={r_ans.returncode} show_measured={'measurement: ' in r_show.stdout} {r_ans.stderr[-160:]}")
+          f"(c) answer={r_ans.returncode} show_measured={'measurement: ' in r_show.stdout} {r_ans.stderr[-160:]} "
+          f"(d) charter_names_it={ok_d}")
 
 
 def teeth_retirement() -> None:

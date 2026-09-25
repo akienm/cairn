@@ -11,17 +11,36 @@ It answers (a), (b), (c) and (d) correctly and fails (e), because a tmux line ca
 the word HOLDING in another position is not a loop holding this session — and reading
 it as one is a hang-up.
 
+The same composite tooth also holds the three files the selector is useless without, each
+read so its absence reds here (the 2026-09-24 hollow reading found all three unchecked):
+(g) SKILL.md orders MEASURE -> SAVE -> HAND OFF, aborts on any slate refusal, and says the
+spawn branch kills nothing; (h) the charter parses and names its owner and its proof; (i)
+the WATCHME probe is a Probe carrying both carry and enough. The selector is reached at call
+time, not import time, so a build reverted to before selector.py reds a tooth instead of
+crashing the proof before its first check.
+
 Run bare: ``python3 skills/restart/proofs/test_restart_selector.py``.
 """
 
 from __future__ import annotations
 
+import importlib
+import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+_SKILL = Path(__file__).resolve().parents[1]
+_ROOT = _SKILL.parents[1]
+sys.path.insert(0, str(_SKILL))
+sys.path.insert(1, str(_ROOT))
 
-import selector  # noqa: E402 — the sibling module, reached the way skills/saveslate's proof reaches door
+
+def _selector():
+    """The sibling module, resolved at call time: a build without it reds, never crashes."""
+    try:
+        return importlib.import_module("selector")
+    except ImportError as exc:
+        raise AssertionError(f"skills/restart/selector.py is not importable: {exc!r}") from exc
 
 PROVES = {"15b80c0c393c": {"all": "test_only_holding_selects_the_session_ending_verb"}}
 
@@ -59,6 +78,7 @@ _GARBLED = "\udcff\udcfe binary-ish nonsense with no structure at all ☃"
 
 
 def test_only_holding_selects_the_session_ending_verb() -> None:
+    selector = _selector()
     assert selector.branch(_HELD) == "now", "(a) a HOLDING loop line must select now"
     print("  ok  (a) a held session selects now")
 
@@ -83,6 +103,34 @@ def test_only_holding_selects_the_session_ending_verb() -> None:
     for text in (_HELD, _UNHELD, "", _GARBLED, _WORD_ELSEWHERE, _HELD_LOWER):
         assert selector.branch(text) in (selector.NOW, selector.SPAWN)
     print("  ok  (range) every input answers with one of the two words, and none raises")
+
+    skill_md = _SKILL / "SKILL.md"
+    assert skill_md.is_file(), "(g) skills/restart/SKILL.md is absent"
+    text = skill_md.read_text(encoding="utf-8")
+    steps = [text.find(h) for h in ("## 1. MEASURE", "## 2. SAVE", "## 3. HAND OFF")]
+    assert -1 not in steps and steps == sorted(steps), f"(g) the steps are not MEASURE, SAVE, HAND OFF in order: {steps}"
+    assert "A refusal ABORTS the restart" in text, "(g) the skill does not abort on a slate refusal"
+    assert "Nothing dies." in text, "(g) the skill does not say the spawn branch kills nothing"
+    print("  ok  (g) the skill orders measure, save, hand off; aborts on refusal; spawn kills nothing")
+
+    charter = _SKILL / "intention+why.json"
+    try:
+        c = json.loads(charter.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise AssertionError(f"(h) the charter does not parse: {exc!r}") from exc
+    assert c.get("owner") and c.get("proof") == "skills/restart/proofs/test_restart_selector.py", (
+        "(h) the charter does not name its owner and this proof")
+    print("  ok  (h) the charter parses and names its owner and its proof")
+
+    try:
+        probe_mod = importlib.import_module("cairn.devices.cc.probes.a_restart_leaves_a_slate_behind_it")
+        from cairn.tools.base.probe import Probe
+    except ImportError as exc:
+        raise AssertionError(f"(i) the WATCHME probe is not importable: {exc!r}") from exc
+    pr = probe_mod.PROBE
+    assert isinstance(pr, Probe) and pr.carry and pr.enough and pr.why, (
+        "(i) the probe is not a Probe carrying why, carry and enough")
+    print("  ok  (i) the WATCHME probe is a Probe carrying why, carry and enough")
 
 
 def main() -> int:

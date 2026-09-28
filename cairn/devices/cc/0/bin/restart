@@ -20,8 +20,8 @@
 #   loop is what brings it back. Only works when a loop is actually holding this
 #   session -- see `status`. It CLOSES this conversation and reopens it.
 #
-#   THE SPAWN (spawn) — a second instance, detached in tmux, announcing itself on
-#   remote control as <host>_cc_<N>. Nothing dies: the new one is reachable from
+#   THE SPAWN (spawn) — a second instance in its own desktop window (tmux only
+#   with --tmux), announcing itself on remote control as <host>_cc_<N>. Nothing dies: the new one is reachable from
 #   claude.ai BEFORE the old one goes away. This is the one that works when nobody
 #   is near the machine, and it is the safe default for a remote operator.
 #
@@ -30,7 +30,8 @@
 #   cairn cc restart now           relaunch with --continue (same conversation)
 #   cairn cc restart fresh         relaunch with a clean conversation
 #   cairn cc restart onexit        arm the flag only; relaunch whenever CC next exits
-#   cairn cc restart spawn [N]     new detached instance N (default: next free)
+#   cairn cc restart spawn [N] [--tmux]  new instance N in a window (default: next free);
+#                                  --tmux: detached in tmux instead, only when asked
 #   cairn cc restart standdown     never relaunch (wins; not consumed)
 #   cairn cc restart clear         withdraw any standing request
 #
@@ -92,7 +93,7 @@ started before the restart loop landed), so there is nothing behind CC to bring 
 back. Killing it now would just end it.
 
   - To get onto a new build from here:   cairn cc restart spawn
-    (a second instance, detached, reachable on remote control -- nothing dies)
+    (a second instance in its own window, reachable on remote control -- nothing dies)
   - Sessions launched from now on will have the loop, and `now` will work.
 NOTE
 }
@@ -136,29 +137,87 @@ cmd_arm() {  # $1 = flag file, $2 = whether to kill now
   kill -TERM "$cc" 2>/dev/null || { echo "cairn cc restart: kill refused" >&2; return 1; }
 }
 
+# A SPAWN OPENS A WINDOW; TMUX ONLY WHEN ASKED (Akien, 2026-09-28): "It should never
+# launch in t-mux unless I specify that." Spawn used to hard-code --tmux, so every
+# spawned session ran detached with no window anywhere -- he sat down at the machine
+# and there was nothing to see. Now it opens a desktop terminal running superclaude in
+# the foreground, exactly as if he had typed it; `spawn [N] --tmux` is the explicit ask
+# for the old detached shape. Missing a display or a terminal is a loud refusal, never
+# a quiet fall back to tmux -- a fallback would be the same unasked-for tmux again.
+_instance_alive() {  # a live inner loop OR a tmux session already holds instance $1
+  local pid; pid="$(cat "$HOME/.cairn/launchers/superclaude/$1/loop.pid" 2>/dev/null)"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null && return 0
+  tmux has-session -t "cairn_cc_$1" 2>/dev/null
+}
+
+_display_env() {  # the desktop's DISPLAY/WAYLAND_DISPLAY, from here or the user manager
+  [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && return 0
+  local line
+  while IFS= read -r line; do
+    case "$line" in DISPLAY=*|WAYLAND_DISPLAY=*|XAUTHORITY=*|XDG_RUNTIME_DIR=*) export "$line" ;; esac
+  done < <(systemctl --user show-environment 2>/dev/null)
+  [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]
+}
+
+_terminal() {  # CAIRN_SUPERCLAUDE_TERMINAL, else the first desktop terminal installed
+  local t
+  for t in ${CAIRN_SUPERCLAUDE_TERMINAL:-} konsole gnome-terminal x-terminal-emulator; do
+    command -v "$t" >/dev/null 2>&1 && { printf '%s\n' "$t"; return 0; }
+  done
+  return 1
+}
+
 cmd_spawn() {
-  local n="${1:-}"
+  local n="" want_tmux=0 a
+  for a in "$@"; do
+    case "$a" in --tmux) want_tmux=1 ;; *) n="$a" ;; esac
+  done
   if [[ -z "$n" ]]; then
     n=1
-    while tmux has-session -t "cairn_cc_$n" 2>/dev/null; do n=$((n+1)); done
+    while _instance_alive "$n"; do n=$((n+1)); done
   fi
   local host; host="$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')"
   local log="$HOME/.cairn/logs/superclaude_spawn_${n}.log"
   mkdir -p "$(dirname "$log")" 2>/dev/null || true
-  echo "spawning instance $n, detached in tmux (session cairn_cc_$n)"
+  local t0; t0="$(date +%s)"
+  if [[ "$want_tmux" -eq 1 ]]; then
+    echo "spawning instance $n, detached in tmux (session cairn_cc_$n) -- asked for with --tmux"
+    ( setsid "$LAUNCHER" --tmux "--instance=$n" >>"$log" 2>&1 </dev/null & ) >/dev/null 2>&1
+  else
+    local term
+    if ! _display_env; then
+      echo "cairn cc restart: no desktop display to open a window on (DISPLAY/WAYLAND_DISPLAY unset here and in the user manager)." >&2
+      echo "  nothing was spawned. For a detached session, ask for it: cairn cc restart spawn $n --tmux" >&2
+      return 1
+    fi
+    if ! term="$(_terminal)"; then
+      echo "cairn cc restart: no desktop terminal found (tried: ${CAIRN_SUPERCLAUDE_TERMINAL:-} konsole gnome-terminal x-terminal-emulator)." >&2
+      echo "  nothing was spawned. Set CAIRN_SUPERCLAUDE_TERMINAL, or ask for tmux: cairn cc restart spawn $n --tmux" >&2
+      return 1
+    fi
+    echo "spawning instance $n in a new $term window"
+    case "$term" in
+      gnome-terminal) ( setsid "$term" -- "$LAUNCHER" "--instance=$n" >>"$log" 2>&1 </dev/null & ) >/dev/null 2>&1 ;;
+      *)              ( setsid "$term" -e "$LAUNCHER" "--instance=$n" >>"$log" 2>&1 </dev/null & ) >/dev/null 2>&1 ;;
+    esac
+  fi
   echo "it will announce itself on remote control as: ${host}_cc_${n}"
-  ( setsid "$LAUNCHER" --tmux "--instance=$n" >>"$log" 2>&1 </dev/null & ) >/dev/null 2>&1
-  local waited=0
+  # UP means a loop that started AFTER this spawn -- a loop.pid left by an earlier
+  # life of instance N must not read as this one arriving.
+  local waited=0 pidf="$HOME/.cairn/launchers/superclaude/$n/loop.pid"
   while [[ $waited -lt 30 ]]; do
-    if tmux has-session -t "cairn_cc_$n" 2>/dev/null; then
-      echo "up: tmux session cairn_cc_$n exists"
-      echo "pick it up on claude.ai as ${host}_cc_${n}, or attach here: tmux attach -t cairn_cc_$n"
-      echo "log: $log"
-      return 0
+    if [[ "$want_tmux" -eq 1 ]] && tmux has-session -t "cairn_cc_$n" 2>/dev/null; then
+      echo "up: tmux session cairn_cc_$n exists -- attach: tmux attach -t cairn_cc_$n"
+      echo "log: $log"; return 0
+    fi
+    if [[ -r "$pidf" && "$(stat -c %Y "$pidf" 2>/dev/null || echo 0)" -ge "$t0" ]] \
+       && kill -0 "$(cat "$pidf" 2>/dev/null)" 2>/dev/null; then
+      echo "up: instance $n loop is holding (pid $(cat "$pidf")) in its window"
+      echo "log: $log"; return 0
     fi
     sleep 1; waited=$((waited+1))
   done
-  echo "cairn cc restart: no tmux session after ${waited}s -- see $log" >&2
+  echo "cairn cc restart: instance $n did not come up after ${waited}s -- see $log" >&2
   return 1
 }
 
@@ -167,7 +226,7 @@ case "${1:-status}" in
   now)         cmd_arm "$RESTART" now ;;
   fresh)       cmd_arm "$FRESH" now ;;
   onexit)      cmd_arm "$RESTART" ;;
-  spawn)       cmd_spawn "${2:-}" ;;
+  spawn)       shift; cmd_spawn "$@" ;;
   standdown)   [[ -n "$HOME_DIR" ]] || { _no_loop_note; exit 1; }
                mkdir -p "$HOME_DIR"; _retire "$RESTART"; _retire "$FRESH"
                touch "$HOME_DIR/$STANDDOWN"

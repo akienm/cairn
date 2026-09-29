@@ -2,16 +2,15 @@
   {
     "claim": "proof test_deviceness.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T11:14:20",
+    "date": "2026-09-29T13:47:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok  test_a_calibre_shaped_member_is_a_device\n  ok  test_discovery_arms_the_probe_with_no_hand_registration\n  ok  test_inheritance_alone_is_not_device_ness\n  ok  test_the_enough_condition_is_reachable\n  ok  test_the_live_axes_are_reported_as_invariants_never_as_a_snapshot\n  ok  test_the_predicate_composes_discovery_rather_than_re_deriving_it\n  ok  test_the_probe_fires_at_arming_and_names_names\n  ok  test_the_unbuilt_half_is_declared_not_omitted\n\ngreen",
+      "returncode": 1,
+      "stdout_tail": "  ok  test_a_calibre_shaped_member_is_a_device\n  RED test_discovery_arms_the_probe_with_no_hand_registration: import failures: [{'file': '/home/akien/dev/src/cairn/cairn/tools/base/probes/a_threshold_without_provenance_is_refusable.py', 'lack': \"import raised ImportError: cannot import name 'Threshold' from 'cairn.tools.base.probe' (/home/akien/dev/src/cairn/cairn/tools/base/probe.py)\"}]\n  ok  test_inheritance_alone_is_not_device_ness\n  ok  test_the_enough_condition_is_reachable\n  ok  test_the_live_axes_are_reported_as_invariants_never_as_a_snapshot\n  ok  test_the_predicate_composes_discovery_rather_than_re_deriving_it\n  ok  test_the_probe_fires_at_arming_and_names_names\n  ok  test_the_unbuilt_half_is_declared_not_omitted\n\n1 RED",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_calibre_shaped_member_is_a_device",
-        "test_discovery_arms_the_probe_with_no_hand_registration",
         "test_inheritance_alone_is_not_device_ness",
         "test_the_enough_condition_is_reachable",
         "test_the_live_axes_are_reported_as_invariants_never_as_a_snapshot",
@@ -19,7 +18,9 @@
         "test_the_probe_fires_at_arming_and_names_names",
         "test_the_unbuilt_half_is_declared_not_omitted"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_discovery_arms_the_probe_with_no_hand_registration"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -28,7 +29,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b20bdac74e1d195e6ae751287f8aca4c3495076ef461a4dfcb46367b8fcac40b",
+      "source_fingerprint": "263b459c59c5b5261bd807facd8ce9101cb1934b0c0e725511dd5b0b464df760",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -90,7 +91,6 @@
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/shim.py",
-        "cairn/tools/base/threshold_census.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/validation.py",
         "cairn/tools/cairnmap/__init__.py",
@@ -123,7 +123,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1513791-9pqpemu8/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4032055-kllxgand/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -134,12 +134,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 182507023,
-          "disk_bytes": 196239360,
-          "entries": 5753,
+          "bytes": 211896998,
+          "disk_bytes": 226803712,
+          "entries": 6277,
           "builds": 1,
           "reuses": 20
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "931d911b112a4bd6a32be5b4ab5f33e62b2680c9e00c569e633103640a61c5ae",
+        "opened": "2026-09-23T12:30:34",
+        "last_red": "2026-09-29T13:47:53",
+        "passes": 3,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

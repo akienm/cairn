@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# cairn librarian ask "<question?>" — the one path CC takes to a question (ticket cd8096f9eeca).
+# Answers from what Akien already said, by meaning; escalates to the operator inbox only when
+# nothing on record covers it. The logic lives in cairn/devices/librarian/ask.py.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m cairn.devices.librarian.ask "$@"

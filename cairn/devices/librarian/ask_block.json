@@ -1,0 +1,46 @@
+{
+  "block": "librarian-ask",
+  "question": "which answer Akien already gave settles this question — or must it reach him?",
+  "input_contract": {
+    "question": "a run that cannot say what was asked cannot be adjudicated (CP3)",
+    "floor": "the resolution threshold the walk was judged against — visible in every run (Law 3)"
+  },
+  "candidates": [
+    {
+      "name": "nothing_on_record",
+      "why": "the standing candidate every run carries, so a walk that returned nothing still has a loser with a named killer — it provides nothing and is always rejected",
+      "provides": {
+        "not_refuted": false,
+        "clears_floor": false,
+        "source_kind": "none"
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "name": "is_not_refuted",
+      "why": "an answer retired as wrong never settles anything again",
+      "source": "cairn/devices/librarian/trees.py refute",
+      "requires": {
+        "not_refuted": true
+      }
+    },
+    {
+      "name": "clears_the_floor",
+      "why": "equivalent by meaning is a measurement with its threshold visible; below the floor the walk found a neighbour, not the question",
+      "source": "cairn/devices/librarian/loop.py RESOLUTION_FLOOR",
+      "requires": {
+        "clears_floor": true
+      }
+    },
+    {
+      "name": "carries_his_answer",
+      "why": "only an answered question record is an answer — an LLM-minted node is structure for the future, never the reply (ticket cd8096f9eeca D6)",
+      "source": "ticket cd8096f9eeca",
+      "requires": {
+        "source_kind": "answered_question"
+      }
+    }
+  ],
+  "escalation": "operator"
+}

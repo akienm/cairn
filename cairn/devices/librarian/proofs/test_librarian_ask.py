@@ -1,5 +1,5 @@
 """Proof for librarian/ask.py — `cairn librarian ask "<question>"`, the one path CC takes to
-a question (ticket cd8096f9eeca). Written and run RED before any of the build landed (D10,
+a question (ticket cd8096f9eeca). Written and run RED before any of the build landed (D12,
 Akien 2026-09-29: "prove THEN work THEN prove the final state").
 
 Teeth a hollow ask could not pass:
@@ -16,6 +16,8 @@ Teeth a hollow ask could not pass:
   - STRUCTURE THAT ISN'T HIS ANSWER NEVER WINS: an LLM-minted node that clears the floor on
     a later crossing is killed by the block (source_kind), and a refuted answer is killed
     (not_refuted) — both escalate.
+  - HIS ANSWER DOES NOT DECAY: with the decay horizon forced past, an answered record still
+    resolves with no generate — decay is for mints, and a faded answer would re-ask him.
   - THE RUN IS A STATE LOG: every ask's trace answers the learning block's five questions.
   - TEST OUTPUT CARRIES THE TESTING MARK (Akien 2026-09-28, ticket 71d1bbfa98b0): every node
     this proof folds and every question it opens says it came from testing.
@@ -32,6 +34,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -63,6 +66,11 @@ MINTQ = "When does the away verb's clearance end?"
 MINT = "The away verb clears CC to use everything until 06:00 local time."
 REFUTER = "Akien 2026-09-29: the Hex answer on record was recorded against the wrong question."
 JUNK = "This junk fixture node explains nothing about the request at all."
+# a withdrawn record, in the corpus's own convention (open-ee4a67728294, open-bcca3badf4ae):
+# the answer field says it is NOT his words, so it is never an answer
+Q_VOID = "Is the  breakage fixed inside this voyage?"
+A_VOID = ("VOID — not Akien's words: CC's shell expanded the backticked command name before "
+          "the door saw the text. Re-asked whole as the spawned follow-up.")
 
 VEC = {
     Q_SEAL: [1, 0, 0, 0, 0], PARA_SEAL: [0.97, 0.2, 0, 0, 0],
@@ -127,6 +135,7 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
                                 "parked": tmp / "parked"})
         _answered(qdir, "open-000000000a01", Q_SEAL, A_SEAL)
         _answered(qdir, "open-000000000a02", Q_HEX, A_HEX)
+        _answered(qdir, "open-000000000a0f", Q_VOID, A_VOID)
         dev = LibrarianDevice()
         dev.set_diagnostic_receiver(None)
         kw = dict(table=table, questions_root=qdir, ledger_path=tmp / "learned.json",
@@ -137,8 +146,8 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
             # --- the fold -----------------------------------------------------------
             f1 = ASK.fold(resolve=seam, table=table, questions_root=qdir,
                           ledger_path=tmp / "learned.json", testing=MARK)
-            check("the first fold deposits every answered record",
-                  f1.get("deposited") == 2, f"fold 1 = {f1}")
+            check("the first fold deposits every answered record, and never a VOID one",
+                  f1.get("deposited") == 2 and f1.get("skipped") == 1, f"fold 1 = {f1}")
             before = len(seam.calls["embed"])
             f2 = ASK.fold(resolve=seam, table=table, questions_root=qdir,
                           ledger_path=tmp / "learned.json", testing=MARK)
@@ -153,10 +162,28 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
                   r.get("outcome") == "resolved" and r.get("qid") == "open-000000000a01",
                   f"outcome={r.get('outcome')} qid={r.get('qid')}")
             check("his words come back verbatim", r.get("answer") == A_SEAL, repr(r.get("answer")))
+            check("who answered comes back verbatim — a measurement is never labelled as him",
+                  r.get("answered_by") == "akien (fixture)"
+                  and "akien (fixture)" in ASK._render(r), repr(r.get("answered_by")))
             check("the resolved ask spent no generate",
                   len(seam.calls["generate"]) == gen0,
                   f"{len(seam.calls['generate']) - gen0} generate call(s)")
             traces = [r.get("trace") or {}]
+
+            # --- his answer does not decay: with the horizon forced past, it still resolves
+            import cairn.devices.librarian.loop as L
+            from datetime import timedelta
+            horizon, L.DECAY_HORIZON = L.DECAY_HORIZON, timedelta(seconds=-1)
+            try:
+                # the Hex answer: nothing has walked to it yet, so no attestation exempts it
+                r = ASK.ask(PARA_HEX, resolve=seam, **kw)
+            finally:
+                L.DECAY_HORIZON = horizon
+            traces.append(r.get("trace") or {})
+            check("an answer past the decay horizon still resolves — his words are not a hypothesis",
+                  r.get("outcome") == "resolved" and r.get("qid") == "open-000000000a02"
+                  and len(seam.calls["generate"]) == gen0,
+                  f"outcome={r.get('outcome')} generate={len(seam.calls['generate']) - gen0}")
 
             # --- an uncovered question, without a ticket: nothing opened, command handed back
             n_before = len(list(qdir.glob("open-*.json")))
@@ -167,8 +194,8 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
             check("with no ticket it opens nothing and hands back the operator command",
                   r.get("opened") is None
                   and len(list(qdir.glob("open-*.json"))) == n_before
-                  and "cairn question operator" in (r.get("operator_command") or "")
-                  and UNCOVERED in (r.get("operator_command") or ""),
+                  and shlex.split(r.get("operator_command") or "x")[:4]
+                  == ["cairn", "question", "operator", UNCOVERED],
                   f"opened={r.get('opened')} cmd={r.get('operator_command')!r}")
 
             # --- with a ticket: exactly one record, through the door, test-marked ----

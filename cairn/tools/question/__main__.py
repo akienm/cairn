@@ -2,6 +2,8 @@
 question.py; this file only parses and prints.
 
   cairn question open --ticket <id> "<question>" --why "<what it blocks>" [--born-of <qid>]
+  cairn question operator "<question>" --ticket <id> --why "<what it blocks>"
+                                                   the escalation `cairn librarian ask` hands back
   cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
   cairn question answer <qid> "<the finding>" --measured <record> --spawned none
                                                    a measurement settles it (Law 9); never recorded as his
@@ -35,6 +37,10 @@ def main(argv: list[str] | None = None) -> int:
     o.add_argument("--why", required=True, dest="why_it_blocks")
     o.add_argument("--born-of", dest="born_of")
     o.add_argument("--raised-by", dest="raised_by")
+    op = sub.add_parser("operator")
+    op.add_argument("question")
+    op.add_argument("--ticket", required=True)
+    op.add_argument("--why", required=True, dest="why_it_blocks")
     a = sub.add_parser("answer")
     a.add_argument("qid")
     a.add_argument("words")
@@ -54,6 +60,10 @@ def main(argv: list[str] | None = None) -> int:
             rec = Q.open_question(args.ticket, args.question, args.why_it_blocks,
                                   raised_by=args.raised_by, born_of=args.born_of)
             print(f"question opened: {rec['id']} against {rec['ticket']}")
+            return 0
+        if args.verb == "operator":
+            rec = Q.operator(args.ticket, args.question, args.why_it_blocks)
+            print(f"question opened: {rec['id']} against {rec['ticket']} (source: {rec['source']})")
             return 0
         if args.verb == "answer":
             spawned = args.spawned

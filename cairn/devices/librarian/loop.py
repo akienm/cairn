@@ -155,6 +155,14 @@ def _label_evidence(walk: list[dict], deposited: list[str], now: datetime) -> No
             node["evidence_why"] = "earned tenure"
             continue
         prov = node.get("provenance") or {}
+        # AN ANSWER ON RECORD IS NOT A HYPOTHESIS (ticket cd8096f9eeca D7): decay retires what
+        # nobody walked to — right for a mint, wrong for Akien's answer, which would fade in
+        # DECAY_HORIZON unasked and send the settled question back to him. Refutation above
+        # still retires it; only age cannot.
+        if str(prov.get("source") or "").startswith("question:"):
+            node["evidence"] = True
+            node["evidence_why"] = "an answered question on record — his words do not decay"
+            continue
         birth_q = prov.get("question")
         # Only a CROSS-question attestation exempts from decay — a same-question echo
         # (the node's own birth re-arriving as a duplicate) is not independent reach,

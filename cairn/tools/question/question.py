@@ -182,6 +182,15 @@ def open_question(ticket: str, question: str, why_it_blocks: str, *,
     return record
 
 
+def operator(ticket: str, question: str, why_it_blocks: str, *,
+             source: str = "librarian ask", root: Path | str | None = None) -> dict:
+    """The escalation rung of `cairn librarian ask` (ticket cd8096f9eeca, D7): a question
+    nothing on record answers goes to Akien's inbox as an ordinary open question, stamped
+    with where it came from. A named alias of ``open_question`` — this door stays the only
+    writer of the lane; ask calls it, never writes a record itself."""
+    return open_question(ticket, question, why_it_blocks, source=source, root=root)
+
+
 def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None = None,
            spawned_why: str | None = None, measured: str | None = None,
            root: Path | str | None = None) -> dict:

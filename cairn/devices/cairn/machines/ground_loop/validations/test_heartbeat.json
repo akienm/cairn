@@ -2,12 +2,12 @@
   {
     "claim": "proof test_heartbeat.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-30T12:03:08",
+    "date": "2026-09-30T12:09:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=134862 vs 134862\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
+      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=135693 vs 135693\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -60,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-134849-kwmzi8z1/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-135679-8bozf470/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,11 +69,39 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 237846541,
-          "disk_bytes": 252952576,
-          "entries": 6386,
+          "bytes": 237888116,
+          "disk_bytes": 253014016,
+          "entries": 6392,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "bae622881f03": {
+          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
+            "COMMAND_EXIT stops the loop cleanly",
+            "a changed own file re-execs the loop in place (same pid, new start)",
+            "a second loop exits 3 while one runs and is LIVE",
+            "an untouched folder reads unchanged",
+            "test_the_doors_loser_reports_from_the_record_and_exits_distinctly",
+            "the record carries pid, last_run, and the heartbeat state",
+            "the triggers called this beat are listed, class and instance level",
+            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
+            "COMMAND_EXIT stops the loop cleanly",
+            "a changed own file re-execs the loop in place (same pid, new start)",
+            "a second loop exits 3 while one runs and is LIVE",
+            "the record carries pid, last_run, and the heartbeat state",
+            "the triggers called this beat are listed, class and instance level",
+            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/cli.py": [
+            "status prints each trigger the record lists and the changed count"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/intention+why.json": [
+            "the charter describes only the heartbeat"
+          ]
         }
       }
     },

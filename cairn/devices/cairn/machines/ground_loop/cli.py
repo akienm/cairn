@@ -46,7 +46,8 @@ def _status() -> int:
     pid = record.get("pid")
     beats = (record.get("state") or {}).get("beats")
     age_s = found.get("age_s")
-    subscribers = (record.get("state") or {}).get("subscribers") or []
+    triggers = (record.get("state") or {}).get("triggers") or []
+    changed = (record.get("state") or {}).get("changed") or []
 
     print(f"ground_loop: {verdict}")
     if pid:
@@ -55,8 +56,11 @@ def _status() -> int:
         print(f"  beats:       {beats}")
     if age_s is not None:
         print(f"  last beat:   {age_s:.1f}s ago")
-    if subscribers:
-        print(f"  subscribers: {len(subscribers)}")
+    for t in triggers:
+        mark = "ok" if t.get("ok") else f"FAILED {t.get('error')}"
+        print(f"  trigger:     {t.get('device_id')} ({t.get('level')}) {mark}")
+    if changed:
+        print(f"  changed:     {len(changed)} own file(s) since start")
     if found.get("lack"):
         print(f"  note:        {found['lack']}")
 

@@ -1,34 +1,34 @@
-"""python3 -m cairn.devices.cairn.machines.ground_loop — the thin wall-clock backing for the heartbeat.
+"""python3 -m cairn.devices.cairn.machines.ground_loop — the heartbeat (ticket bae622881f03).
 
-THE ONE PART UNPROVABLE WITHOUT THE OS (loop.py filed it as an edge from birth;
-ticket ground-loop-writes-its-own-liveness builds it): construct the resident
-GroundLoopDevice with its instance home, beat it on the ruled once-per-minute
-cadence, exit cleanly on SIGINT/SIGTERM. Nothing else — no subscription seeding,
-no callback logic, no routing. Discovery finds devices on disk; the ground loop
-provides heartbeat and a device list (CC-- x3, 2026-08-29). Everything provable
-lives under this wrapper.
+What it does, all of it (Akien, 2026-09-30):
 
-TWO KINDS OF SIDE EFFECT, and the difference is the whole of Law 7. Every beat
-REPLACES ``~/.cairn/devices/cairn/machines/ground_loop/0/liveness.json`` — a snapshot answering
-"is it alive right now", true only at the instant it is read (the write is part
-of the pass, in loop.py). Every gate contact EMITS one JSON file per record under
-``~/.cairn/logs/<device>/<instance>/`` — a trail, where a file already written is
-never rewritten. The snapshot and the trail sit in different directories and that
-separation is the distinction on display.
-Timestamps are timezone-aware — the read face subtracts.
+  - claims the singleton; a second loop exits while one runs and is LIVE;
+  - records the mtimes of its own files;
+  - each beat: compares them, calls every groundloop/pulse.py and lists the calls, writes
+    one JSON (liveness.json) with the recorded and current mtimes and the calls;
+  - COMMAND_EXIT stops it; a changed own file re-execs it in place unless
+    COMMAND_DO_NOT_RESTART is set.
 
-THE DOOR GUARDS ITSELF (ticket an-entry-point-starts-the-loop-only-once): the
-runner claims the singleton BEFORE constructing the device, so any entry point
-— superclaude is one of them — gets the only-once guarantee by spawning this
-module, a CALL, not a policy (Law 1: no caller re-derives the guard; Law 6: it
-lives with the thing it protects). The winner holds the claim until death; a
-loser reads the RECORD to say what is running (never the process table) and
-exits ``EXIT_ALREADY_RUNNING`` — distinct from a crash, so a launcher can tell
-"refused, one is running" (fine) from "broke" (not fine).
+No bus, no probes, no shims, no web server, no import checks. Each of those belongs to
+something else: mail and probes to the device (on its own pulse file, or on the event that
+fires them), the web server to its own shim.
+
+THE FLAGS (Akien's design 2026-08-19): the menu lives in <home>/flags/ (``ls`` shows what is
+available); a flag is active when a file of that name sits in <home> itself.
+
+RESTART IS os.execv OF THE SAME COMMAND LINE (``sys.orig_argv``), so the pid survives and a
+proof's injected arguments survive with it. The flock fd is non-inheritable (PEP 446), so
+the claim drops at exec and the new image claims again. If another starter wins that
+instant, the new image exits 3 and the winner runs, which is the singleton contract.
+
+THE STOP IS AN EVENT, NOT A BOOL: PEP 475 makes ``time.sleep`` resume after a signal
+handler returns, so a bool left SIGTERM waiting out the cadence (measured 2026-08-09,
+proofs/test_stop_is_prompt.py). ``Event.wait`` wakes on ``set()``.
 """
 
 from __future__ import annotations
 
+import os
 import signal
 import sys
 import threading
@@ -37,124 +37,88 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.cairn.machines.ground_loop.discovery import discover, pulse_sites
+from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
-from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice, arbitrate_newcomer
-CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22; was 1.0s)
-EXIT_ALREADY_RUNNING = 3   # the loser's exit — not 1 (a crash's traceback), not 2 (argparse's)
+from cairn.devices.cairn.machines.ground_loop.heartbeat import Triggers, changed, mtimes, own_files
+from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness
 
-# THE FLAGS (ticket a-stale-loop-restarts-itself, Akien's design 2026-08-19).
-# Menu in <instance>/flags/ (permanent, ls shows all); active signals as zero-byte copies
-# in the instance folder. The runner checks the signal folder once per beat — two stats.
+CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22)
+EXIT_ALREADY_RUNNING = 3   # the loser's exit: not 1 (a crash), not 2 (argparse)
+
 COMMAND_EXIT = "COMMAND_EXIT.flag"
 COMMAND_DO_NOT_RESTART = "COMMAND_DO_NOT_RESTART.flag"
 
 
-def main(home=None, roots=None) -> int:
-    # ``home`` has always meant the LIVENESS address specifically, and the two proofs that
-    # inject it mean exactly that. ``roots`` redirects the whole instance tree — both trails
-    # below and, when home is not given, the liveness record too — so a caller can run this
-    # runner without touching the live tree it will later be read against.
-    home = home if home is not None else instance_path("cairn", 0, roots) / "machines" / "ground_loop"
+def _now() -> datetime:
+    return datetime.now(timezone.utc).astimezone()
+
+
+def _claim(home: Path):
+    """The claim, or None when a LIVE loop holds it. A holder whose record is DEAD is hung:
+    it is sent SIGTERM and the claim is taken once more."""
     try:
-        claim = claim_singleton(home)  # noqa: F841 — held for the process's whole life
+        return claim_singleton(home)
     except ClaimRefused as refusal:
-        now = datetime.now(timezone.utc).astimezone()
-        decision = arbitrate_newcomer(now, home)
-        if decision["action"] == "takeover" and decision.get("pid"):
-            import os as _os
-            print(f"ground_loop: incumbent is stale ({decision['reason']}), "
-                  f"killing pid {decision['pid']}", file=sys.stderr)
-            try:
-                _os.kill(decision["pid"], signal.SIGTERM)
-                time.sleep(2)
-            except OSError as kill_err:
-                print(f"ground_loop: kill failed ({kill_err}), "
-                      "proceeding to reclaim", file=sys.stderr)
-            try:
-                claim = claim_singleton(home)  # noqa: F841
-            except ClaimRefused:
-                print("ground_loop: reclaim failed after killing stale incumbent — "
-                      "another newcomer may have taken it", file=sys.stderr)
-                return EXIT_ALREADY_RUNNING
-        else:
-            found = read_liveness(now, home)
-            record = found.get("record") or {}
-            if found["verdict"] == "LIVE":
-                detail = (f"the record says pid {record.get('pid')} last ran "
-                          f"{found['age_s']:.2f}s ago")
-            else:
-                detail = ("the claim is held but the record is "
-                          f"{found.get('lack', 'stale')} — a loop alive inside its first beats "
-                          "or merely slow; the held lock outranks the stale read")
-            print(f"ground_loop: refusing to start a second loop — {refusal}\n"
-                  f"ground_loop: {detail}", file=sys.stderr)
-            return EXIT_ALREADY_RUNNING
+        found = read_liveness(_now(), home)
+        pid = (found.get("record") or {}).get("pid")
+        if found["verdict"] == "LIVE" or not pid:
+            print(f"ground_loop: a loop is running (pid {pid}, {found['verdict']}); "
+                  f"refusing to start a second loop — {refusal}", file=sys.stderr)
+            return None
+        print(f"ground_loop: the claim holder pid {pid} is stale, not beating "
+              f"({found.get('age_s')}s); sending SIGTERM", file=sys.stderr)
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError:
+            pass
+        time.sleep(2)
+        try:
+            return claim_singleton(home)
+        except ClaimRefused:
+            print(f"ground_loop: the stale holder pid {pid} still holds the claim; "
+                  "refusing to start a second loop", file=sys.stderr)
+            return None
 
-    # THE RESIDENT LOOP IS THE WIRED ONE. The device stays provable bare (both discover
-    # and pulse_finder are injected); this runner is the one place that hands it the real
-    # world. Discovery finds devices on disk — no hand-subscribed shims.
-    bus = BusDevice()
-    # ``pulse_finder`` wires the second registration surface (ticket
-    # the-pulse-file-is-the-subscription): groundloop/pulse.py at class or instance level,
-    # found each beat, activated on presence, unloaded on absence. Injected here, like
-    # ``discover``, because this runner is where the loop meets the real disk.
-    device = GroundLoopDevice(liveness_home=home, discover=discover,
-                              bus=bus, pulse_finder=pulse_sites)
-    # THE BREADCRUMBS GET A WORLD — and no longer a NAME (ticket a-device-logs-without-being-wired,
-    # 2026-08-18). These two lines used to read ``set_diagnostic_receiver(BreadcrumbLog("ground_loop",
-    # 0, roots=roots))`` and the same for the bus, and they were the ONLY place in the running
-    # system that knew those two strings. That is why they were also the only two trails that
-    # existed: 17 components emit, one runner wired, and the other 15 appended to a list on an
-    # object inside a process about to exit. A device now derives its own component name from its
-    # class's module address and writes to ~/.cairn/logs/<device>/<instance>/ with nobody wiring
-    # anything, so the naming half of these lines is gone and the trails are unchanged.
-    #
-    # WHAT STAYS IS THE WORLD-HANDING, which was always this runner's actual job — the same
-    # reason it hands these devices a wall clock and a discoverer. ``roots`` is ``None`` in
-    # production (the live tree) and a temp table for a caller running the whole loop against a
-    # fixture; passing it here is what keeps such a caller from seeding the tree it is about to
-    # read. Both devices, not one: the bus's records are the bus's (Law 6 on the file, not merely
-    # in the code), and redirecting the loop while leaving the bus pointed at the live tree would
-    # be half a fixture, which is worse than none.
-    device.set_diagnostic_roots(roots)
-    bus.set_diagnostic_roots(roots)
-    # THE FLAGS MENU (permanent; ls flags/ shows what is available).
-    flags_dir = Path(home) / "flags"
-    flags_dir.mkdir(parents=True, exist_ok=True)
+
+def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class_root=None) -> int:
+    home = Path(home) if home is not None else (
+        instance_path("cairn", 0, roots) / "machines" / "ground_loop")
+    instance_home = Path(roots["instance"]) / "devices" if roots else None
+    claim = _claim(home)  # noqa: F841 — held for the process's whole life
+    if claim is None:
+        return EXIT_ALREADY_RUNNING
+
+    flags = home / "flags"
+    flags.mkdir(parents=True, exist_ok=True)
     for flag in (COMMAND_EXIT, COMMAND_DO_NOT_RESTART):
-        (flags_dir / flag).touch(exist_ok=True)
+        (flags / flag).touch(exist_ok=True)
 
-    # THE STOP FLAG IS AN EVENT, NOT A BOOL, AND THE REASON IS time.sleep's CONTRACT.
-    # A handler that only flipped a bool left the loop asleep for the REST of the beat:
-    # PEP 475 makes `time.sleep` RETRY after a signal handler returns, with the timeout
-    # recomputed from the original deadline, so SIGTERM one second into a 60s sleep still
-    # slept 59 more seconds before the `while` was re-tested. Measured 2026-09-08 twice,
-    # from both ends: `systemctl --user restart cairn-ground-loop` logged
-    # "State 'stop-sigterm' timed out. Killing." after 90s — the unit SIGKILLed, so a beat
-    # in flight was torn down mid-write rather than finished — and the liveness proof's own
-    # cleanup died on `systemctl --user stop` at a 20s timeout, taking every tooth's output
-    # with it. `Event.wait` is the same sleep with the one property the bool could not have:
-    # `set()` from the handler wakes it NOW. The beat itself is still allowed to finish
-    # (~23.7s, bounded work whose whole point is leaving records consistent) — what is gone
-    # is waiting out a cadence nobody is waiting for.
+    started = _now().isoformat()
+    recorded = mtimes(own_files(watch))
+    triggers = Triggers()
+    state = {"beats": 0, "started": started, "recorded_mtimes": recorded,
+             "current_mtimes": recorded, "changed": [], "triggers": []}
+    write_liveness(_now(), state, os.getpid(), home)
+
     stop = threading.Event()
-
-    def _stop(signum, frame):  # noqa: ARG001 — the signal API's shape
-        stop.set()
-
-    signal.signal(signal.SIGTERM, _stop)
-    signal.signal(signal.SIGINT, _stop)
+    signal.signal(signal.SIGTERM, lambda *_: stop.set())
+    signal.signal(signal.SIGINT, lambda *_: stop.set())
     while not stop.is_set():
-        device.beat(datetime.now(timezone.utc).astimezone())
-        # TWO STAT CALLS PER BEAT — the flag check IS the poll (no inotify, no daemon).
-        if (Path(home) / COMMAND_EXIT).exists():
+        now = _now()
+        current = mtimes(own_files(watch))
+        diff = changed(recorded, current)
+        calls = triggers.fire(now, pulse_sites(class_root, instance_home))
+        state = {"beats": state["beats"] + 1, "started": started,
+                 "recorded_mtimes": recorded, "current_mtimes": current,
+                 "changed": diff, "triggers": calls}
+        write_liveness(_now(), state, os.getpid(), home)
+        if (home / COMMAND_EXIT).exists():
             break
-        if device.stale and not (Path(home) / COMMAND_DO_NOT_RESTART).exists():
-            break
-        stop.wait(CADENCE_S)
+        if diff and not (home / COMMAND_DO_NOT_RESTART).exists():
+            print(f"ground_loop: own files changed {diff}; restarting in place", file=sys.stderr)
+            sys.stderr.flush()
+            os.execv(sys.executable, sys.orig_argv)
+        stop.wait(cadence)
     return 0
 
 

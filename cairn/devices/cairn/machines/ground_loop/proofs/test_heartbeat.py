@@ -202,8 +202,8 @@ def teeth_runner() -> None:
                list(st.get("recorded_mtimes", {})) == [str(watch / "loop_file.py")]
                and st.get("changed") == [], f"changed={st.get('changed')}")
             listed = sorted((c.get("device_id"), c.get("ok")) for c in st.get("triggers", []))
-            ok("the triggers called this beat are listed",
-               listed == [("alpha", True), ("broken", False)], str(listed))
+            ok("the triggers called this beat are listed, class and instance level",
+               listed == [("alpha", True), ("beta", True), ("broken", False)], str(listed))
 
             # 5 — a second loop exits 3 while this one is LIVE
             second = _spawn(src)

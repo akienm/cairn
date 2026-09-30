@@ -1,39 +1,45 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-16T13:27:04",
+    "caller": "cairn test",
+    "date": "2026-09-30T13:28:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "test_tmux_mode.py:164: AssertionError\n______________________ test_launcher_env_var_enables_tmux ______________________\n\n    def test_launcher_env_var_enables_tmux():\n        result = subprocess.run(\n            [\"bash\", \"launchers/superclaude\", \"--dry-run\"],\n            capture_output=True, text=True, cwd=os.getcwd(),\n            env={**os.environ, \"CAIRN_SUPERCLAUDE_TMUX\": \"1\"},\n        )\n>       assert \"tmux: on\" in result.stdout\nE       AssertionError: assert 'tmux: on' in ''\nE        +  where '' = CompletedProcess(args=['bash', 'launchers/superclaude', '--dry-run'], returncode=127, stdout='', stderr='bash: launchers/superclaude: No such file or directory\\n').stdout\n\ntest_tmux_mode.py:174: AssertionError\n=========================== short test summary info ============================\nFAILED test_tmux_mode.py::test_mailcheck_outputs_notification_when_mail_waiting\nFAILED test_tmux_mode.py::test_launcher_dry_run_shows_tmux_when_flag_set - As...\nFAILED test_tmux_mode.py::test_launcher_dry_run_no_tmux_by_default - Assertio...\nFAILED test_tmux_mode.py::test_launcher_env_var_enables_tmux - AssertionError...\n4 failed, 8 passed in 0.11s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.61s",
       "stderr_tail": "",
       "teeth_green": [
         "test_deliver_persists_mail_to_disk",
         "test_pending_mail_reads_what_deliver_wrote",
         "test_consume_mail_reads_and_removes",
         "test_pending_mail_returns_empty_for_no_dir",
+        "test_mailcheck_outputs_notification_when_mail_waiting",
         "test_mailcheck_silent_when_no_mail",
         "test_is_idle_returns_false_when_no_tmux_session",
         "test_inject_refuses_when_not_idle",
-        "test_inject_succeeds_when_idle"
-      ],
-      "teeth_red": [
-        "test_mailcheck_outputs_notification_when_mail_waiting",
+        "test_inject_succeeds_when_idle",
         "test_launcher_dry_run_shows_tmux_when_flag_set",
         "test_launcher_dry_run_no_tmux_by_default",
-        "test_launcher_env_var_enables_tmux",
-        "test_tmux_mode"
+        "test_launcher_env_var_enables_tmux"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "972d3cc95c5496d9c255828736045180823f3f09c81a659b61852a43e24057b7",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "4732932efe69cb15dfbc850ea0d7d1131b31fc8536a89f46cdf1750b0387c64e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_tmux_mode.py",
         "cairn/devices/cc/shim.py",
@@ -54,30 +60,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1874230-k9zlgllq/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-177936-_bclmkzx/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 6,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/boot",
+            "logs/preflight.json"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 138094283,
-          "disk_bytes": 149909504,
-          "entries": 4908,
+          "bytes": 243901678,
+          "disk_bytes": 259784704,
+          "entries": 6704,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "d83e0ef3cc91118f222c6403b4b0fc175e26802621ef579ac2d0ed7df3368e45",
-        "opened": "2026-09-16T13:27:04",
-        "last_red": "2026-09-16T13:27:04",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cc",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

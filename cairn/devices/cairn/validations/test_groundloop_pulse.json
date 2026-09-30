@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_groundloop_pulse.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-30T12:50:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "the cairn device fires its own clock probes on its own pulse\n  ok   the heartbeat's discovery lists cairn's pulse at class level\n         -> sites=[{'device_id': 'cairn', 'level': 'class', 'path': PosixPath('/home/akien/dev/src/cairn/cairn/devices/cairn/groundloop/pulse.py')}]\n  ok   the pulse names exactly its two clock probes and each resolves to a Probe\n         -> roster=['history_integrity', 'trouble_panel_surfaces_live_troubles'] loaded=2\n  ok   no other probe in cairn's probes folder is in the roster\n         -> others=[] roster=['history_integrity', 'trouble_panel_surfaces_live_troubles']\n  ok   one pulse covers exactly the two probes in fired and held\n         -> covered 2 entries; missing=[]\n\nGREEN — cairn's pulse fires history_integrity and the trouble panel, and nothing else.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the heartbeat's discovery lists cairn's pulse at class level",
+        "the pulse names exactly its two clock probes and each resolves to a Probe",
+        "no other probe in cairn's probes folder is in the roster",
+        "one pulse covers exactly the two probes in fired and held"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "12be1a20f17669e65488d1b795e1033bc05cf184a532cb2bcc0a5dc027e27ccc",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/device.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/cairn/proofs/test_groundloop_pulse.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/beat_probes.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-151535-78w8nxvo/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 242618875,
+          "disk_bytes": 258334720,
+          "entries": 6644,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

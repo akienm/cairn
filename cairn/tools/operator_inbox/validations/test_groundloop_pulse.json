@@ -1,0 +1,88 @@
+[
+  {
+    "claim": "proof test_groundloop_pulse.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-30T13:22:31",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "operator_inbox fires its own clock probes on its own pulse\n  ok   the heartbeat's discovery lists operator_inbox's pulse at class level\n         -> sites=[{'device_id': 'operator_inbox', 'level': 'class', 'path': PosixPath('/home/akien/dev/src/cairn/cairn/tools/operator_inbox/groundloop/pulse.py')}]\n  ok   the pulse names exactly operator_inbox's clock probes and each resolves to a Probe\n         -> roster=['operator_inbox_matches_live_state', 'an_open_idea_that_went_stale'] loaded=2\n  ok   no other probe in operator_inbox's probes folder is in the roster\n         -> others=['one_status_everywhere', 'the_lane_holds_only_his_decisions'] roster=['operator_inbox_matches_live_state', 'an_open_idea_that_went_stale']\n  ok   one pulse covers exactly operator_inbox's clock probes in fired and held\n         -> covered 2 entries; missing=[]\n\nGREEN — operator_inbox's pulse fires operator_inbox_matches_live_state and an_open_idea_that_went_stale, and nothing else.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the heartbeat's discovery lists operator_inbox's pulse at class level",
+        "the pulse names exactly operator_inbox's clock probes and each resolves to a Probe",
+        "no other probe in operator_inbox's probes folder is in the roster",
+        "one pulse covers exactly operator_inbox's clock probes in fired and held"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "b9522c565e57b63633d342491c97d223e3056ef19185d12f5261f1d9f0b5510d",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/liveness.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/beat_probes.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/operator_inbox/proofs/test_groundloop_pulse.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-171811-er2wzi9_/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 243266469,
+          "disk_bytes": 259072000,
+          "entries": 6677,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

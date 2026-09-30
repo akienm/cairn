@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_groundloop_pulse.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T12:50:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:48:05",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "12be1a20f17669e65488d1b795e1033bc05cf184a532cb2bcc0a5dc027e27ccc",
+      "source_fingerprint": "a241c7805c9a64887bacf23b80a74a7fa5114d8180181dd98b5381a15849a1a4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,7 +50,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-151535-78w8nxvo/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-3080p7v_/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,34 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 242618875,
-          "disk_bytes": 258334720,
-          "entries": 6644,
+          "bytes": 245743699,
+          "disk_bytes": 261857280,
+          "entries": 6782,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "32959e65ec5a": {
-          "cairn/tools/base/beat_probes.py": [
-            "a bus factory is called on the first beat, never at construction",
-            "a named probe with no module is recorded missing, never raised",
-            "a probe whose enough holds is cleared and then held as cleared",
-            "a raising trigger is recorded refused and the rest still fire",
-            "a trigger that stays true pokes once across two beats",
-            "a while_true probe pokes on every beat",
-            "no other probe in cairn's probes folder is in the roster",
-            "one pulse covers exactly the two probes in fired and held",
-            "the bus rides the pulse context",
-            "the firer flushes its bus once per beat and records it",
-            "the pulse names exactly its two clock probes and each resolves to a Probe"
-          ],
-          "cairn/devices/cairn/groundloop/pulse.py": [
-            "no other probe in cairn's probes folder is in the roster",
-            "one pulse covers exactly the two probes in fired and held",
-            "the heartbeat's discovery lists cairn's pulse at class level",
-            "the pulse names exactly its two clock probes and each resolves to a Probe"
-          ]
+          "reuses": 21
         }
       }
     },

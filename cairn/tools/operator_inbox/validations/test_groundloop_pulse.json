@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_groundloop_pulse.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T13:22:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:53:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b9522c565e57b63633d342491c97d223e3056ef19185d12f5261f1d9f0b5510d",
+      "source_fingerprint": "92fa3949a1a17a729d193e5cfa02f98a75c883974fc2a2754ef7a6846accdbdf",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -65,30 +65,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-171811-er2wzi9_/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-20tnbwn6/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 243266469,
-          "disk_bytes": 259072000,
-          "entries": 6677,
+          "bytes": 245744295,
+          "disk_bytes": 261861376,
+          "entries": 6783,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "98e70e3c1677": {
-          "cairn/tools/operator_inbox/groundloop/pulse.py": [
-            "no other probe in operator_inbox's probes folder is in the roster",
-            "one pulse covers exactly operator_inbox's clock probes in fired and held",
-            "the heartbeat's discovery lists operator_inbox's pulse at class level",
-            "the pulse names exactly operator_inbox's clock probes and each resolves to a Probe"
-          ]
+          "reuses": 93
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_groundloop_pulse.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T13:22:28",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:54:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1c4dae065732eced714c098c08b4520b800adfeaf4237f9b27fd3801d2f63f6c",
+      "source_fingerprint": "7953d787dbf610b1080388a7dc37fc73a128cadd8598710af83e3722a5ad3e70",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,30 +50,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-171779-t2_3kzy8/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-eefmpm1l/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 243265319,
-          "disk_bytes": 259072000,
-          "entries": 6677,
+          "bytes": 245744295,
+          "disk_bytes": 261861376,
+          "entries": 6783,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "1904fd89231a": {
-          "cairn/tools/ticket_inspector/groundloop/pulse.py": [
-            "no other probe in ticket_inspector's probes folder is in the roster",
-            "one pulse covers exactly ticket_inspector's clock probes in fired and held",
-            "the heartbeat's discovery lists ticket_inspector's pulse at class level",
-            "the pulse names exactly ticket_inspector's clock probes and each resolves to a Probe"
-          ]
+          "reuses": 99
         }
       }
     },

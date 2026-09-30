@@ -1,23 +1,25 @@
 [
   {
     "claim": "proof test_present_tense_sweep.py passes under python3",
-    "caller": "CC reseal after 16e1577",
-    "date": "2026-09-15T12:48:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:53:42",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)\ntooth (ii) green: 0 matches over 81 artifacts, 124 pairs (28 cites, every snippet standing)\nGREEN: the present-tense corpus carries no dated appends, and every judgment is on record",
-      "stderr_tail": "",
-      "teeth_green": [
-        "the present-tense corpus carries no dated appends, and every judgment is on record"
-      ],
+      "returncode": 1,
+      "stdout_tail": "tooth (i) green: planted fixture detected (3 matches, all three shapes)",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 122, in <module>\n    tooth_ii_zero_live_and_every_cite_stands()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_present_tense_sweep.py\", line 80, in tooth_ii_zero_live_and_every_cite_stands\n    assert r[\"matches\"] == [], (\n           ^^^^^^^^^^^^^^^^^^\nAssertionError: tooth (ii) RED: 1 dated-append shape(s) still standing: [{\"path\": \"/home/akien/dev/src/cairn/cairn/tools/cairnmap/intention+why.json\", \"line\": 31, \"shape\": \"\\\\bRETIRED\\\\b\", \"matched\": \"RETIRED 2026-09-11 (ticket 7aed0fd0ba29) because membership is derived from the \"}]",
+      "teeth_green": [],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "e3dcc551f57556ee0e33817b754ba97a33c33a516a33ef94c09e18e468c06e85",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "3acdab70f4a0d340cc8ca610443f2010a1bb0ea604a12b166c7ea9bd26509246",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -29,7 +31,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2012806-ryb52rqd/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-luv02dc9/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -38,12 +40,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136813118,
-          "disk_bytes": 148504576,
-          "entries": 4864,
+          "bytes": 245743699,
+          "disk_bytes": 261857280,
+          "entries": 6782,
           "builds": 1,
-          "reuses": 0
+          "reuses": 92
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "5e36f2165778c7ba9e64c50596fadae9b5fc8f4ac5cf1721ee19203251d3fa73",
+        "opened": "2026-09-30T14:53:42",
+        "last_red": "2026-09-30T14:53:42",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-intentions-model-compiler",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

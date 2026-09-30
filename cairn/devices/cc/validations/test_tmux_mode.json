@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T13:28:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:48:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.61s",
+      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.62s",
       "stderr_tail": "",
       "teeth_green": [
         "test_deliver_persists_mail_to_disk",
@@ -32,7 +32,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4732932efe69cb15dfbc850ea0d7d1131b31fc8536a89f46cdf1750b0387c64e",
+      "source_fingerprint": "0e9a3bb35ec6821d447e2867ce89a0d123e3a1e87aa8afaf8400b7f101d38b59",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -60,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-177936-_bclmkzx/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-c1anh651/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
@@ -76,11 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 243901678,
-          "disk_bytes": 259784704,
-          "entries": 6704,
+          "bytes": 245746816,
+          "disk_bytes": 261865472,
+          "entries": 6784,
           "builds": 1,
-          "reuses": 0
+          "reuses": 26
         }
       }
     },

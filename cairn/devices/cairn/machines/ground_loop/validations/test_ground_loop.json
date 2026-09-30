@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_ground_loop.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T12:03:58",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T14:47:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -41,7 +41,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1fc9e2b5637471c3502bf16e68836f5105531ab26f15e033d05e097a5ed9afd9",
+      "source_fingerprint": "c75a63f84a3c2062c3bbdab138d3e14fe19734bb4da77dde7d381ec9f19e1e1f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -72,7 +72,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-135021-dh581h_z/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-212345-i9b1aiuw/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 21,
@@ -84,58 +84,30 @@
             "devices/rider/0/last_known.json",
             "devices/sensor/0/last_known.json",
             "devices/steady/0/last_known.json",
-            "logs/ground_loop/0/20260930.180354.888408.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180354.888889.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180354.956283.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.011694.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.011965.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.012204.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.073061.GroundLoopDevice.pulse_refused.json",
-            "logs/ground_loop/0/20260930.180355.073777.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.073907.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180355.199456.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180357.799526.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180357.799933.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180357.861806.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20260930.180357.862055.GroundLoopDevice.subscribe.json"
+            "logs/ground_loop/0/20260930.204744.635995.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.636375.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.695559.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.749408.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.749702.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.749961.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.803453.GroundLoopDevice.pulse_refused.json",
+            "logs/ground_loop/0/20260930.204744.804179.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.804304.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204744.932047.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204747.577926.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204747.578422.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204747.640846.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20260930.204747.641138.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 237850849,
-          "disk_bytes": 253014016,
-          "entries": 6403,
+          "bytes": 245746409,
+          "disk_bytes": 261914624,
+          "entries": 6798,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "bae622881f03": {
-          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
-            "COMMAND_EXIT stops the loop cleanly",
-            "a changed own file re-execs the loop in place (same pid, new start)",
-            "a second loop exits 3 while one runs and is LIVE",
-            "an untouched folder reads unchanged",
-            "test_the_doors_loser_reports_from_the_record_and_exits_distinctly",
-            "the record carries pid, last_run, and the heartbeat state",
-            "the triggers called this beat are listed, class and instance level",
-            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
-            "COMMAND_EXIT stops the loop cleanly",
-            "a changed own file re-execs the loop in place (same pid, new start)",
-            "a second loop exits 3 while one runs and is LIVE",
-            "the record carries pid, last_run, and the heartbeat state",
-            "the triggers called this beat are listed, class and instance level",
-            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/cli.py": [
-            "status prints each trigger the record lists and the changed count"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": [
-            "the charter describes only the heartbeat"
-          ]
+          "reuses": 15
         }
       }
     },

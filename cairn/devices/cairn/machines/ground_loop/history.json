@@ -6707,5 +6707,89 @@
     "fingerprint": "baed97767ce0f074fb301def7d1f7c86a269628e908a53a36500cb092583141d",
     "at": "2026-09-30T12:12:25",
     "seq": 47
+  },
+  {
+    "from": "WATCHME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_beater_holds_the_claim) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> SUPERSEDED moves the cursor off position 4",
+        "actual": "WATCHME -> SUPERSEDED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 4,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> SUPERSEDED",
+        "actual": "WATCHME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py",
+    "proven_seal_date": "2026-09-30T12:09:26",
+    "delegated": false,
+    "ticket": "ef06b5a49613",
+    "note": "SUPERSEDED by bae622881f03 (PROVED 2026-09-30): the loop no longer carries probes of its own, so this watch's probe was deleted with them; the runner now claims the flock and beats in the SAME process (claim then beat, no separate beater), and a second loop exits 3 naming the LIVE pid. Residue: loop.py/GroundLoopDevice stays importable until the sibling ticket moves bus_client/web_server off it.",
+    "superseded_by": "bae622881f03",
+    "fingerprint": "44e04a49a878d967a4b387f53bd2c16238eb97303b99ca140dbfc1f76a80a378",
+    "at": "2026-09-30T12:13:09",
+    "seq": 48
   }
 ]

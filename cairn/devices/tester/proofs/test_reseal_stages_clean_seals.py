@@ -5,7 +5,7 @@ The reseal proves the working tree and writes seals through ``persist_validation
 staged them, and 104 validation files sat modified after a day of commits. The fix,
 ``stage_clean_seals``, stages a seal only when every file in its closure has no unstaged
 change and nothing untracked — so a committed seal describes the committed tree (Law 8) —
-and stages the artifact journal beside them so ``cairn artifact check`` sees the bytes came
+whether it sealed green or red — and stages the artifact journal beside them so ``cairn artifact check`` sees the bytes came
 through the door.
 
 EVERY TOOTH RUNS IN A SCRATCH GIT REPO, NEVER THE LIVE TREE: the function runs ``git add``,
@@ -87,10 +87,18 @@ def test_an_untracked_file_in_the_closure_holds_the_seal():
     assert _staged(repo) == set(), _staged(repo)
 
 
-def test_only_a_fresh_seal_is_staged():
+def test_a_red_seal_over_a_clean_closure_is_staged_too():
+    repo = _repo()
+    got = stage_clean_seals([{"proof": _PROOF, "outcome": "red"}], root=repo)
+    assert got["staged"] == [_VALIDATION], (
+        f"the door sealed a red and the hook left it out of the commit — a red is a record of "
+        f"truth (Law 7) and would pile up in the working tree: {got}")
+
+
+def test_only_an_outcome_that_wrote_a_seal_is_staged():
     repo = _repo()
     results = [{"proof": _PROOF, "outcome": o} for o in
-               ("unchanged", "red", "settled-red", "timeout")]
+               ("unchanged", "settled-red", "timeout")]
     got = stage_clean_seals(results, root=repo)
     assert got == {"staged": [], "held": []}, got
     assert _staged(repo) == set(), _staged(repo)

@@ -542,7 +542,9 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
     base = Path(root or REPO_ROOT)
     staged, held = [], []
     for r in results:
-        if r.get("outcome") not in ("resealed", "sealed"):
+        # A RED IS STAGED TOO: the door seals its red (Law 7), and a red over the committed tree
+        # is as true a record as a green. settled-red and timeout write nothing, so nothing moves.
+        if r.get("outcome") not in ("resealed", "sealed", "red"):
             continue
         proof = base / r["proof"]
         trail = read_validations(str(proof))

@@ -20934,5 +20934,84 @@
     "fingerprint": "d2de5832d81bebf11a9711fd3896827ae44649dbffed7dfbec9b0e2766b29ff9",
     "at": "2026-09-30T13:05:19",
     "seq": 119
+  },
+  {
+    "from": "TICKETME",
+    "to": "RETIRED",
+    "standing": "RETIRED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [RETIRED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'RETIRED' in the code-seam@v2 vocabulary",
+        "actual": "'RETIRED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> RETIRED moves the cursor off position 1",
+        "actual": "TICKETME -> RETIRED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> RETIRED",
+        "actual": "TICKETME -> RETIRED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/tools/base/proofs/test_nest.py",
+    "proven_seal_date": "2026-09-09T23:19:16",
+    "delegated": false,
+    "ticket": "013f8834e0e1",
+    "note": "RETIRED 2026-09-30 by Akien's ruling, not by a proof: 'NOTHING in the system that should fire on the heartbeat execpt the messaging'; 'all probes respond to events'. This ticket made the per-beat sweep of at-rest probes cheap (settled probes skipped via a nest preprocess sieve). There is no per-beat sweep any more: 164da559823d deletes every groundloop/pulse.py and beat_probes.py, and the beat-cost probe its watch named (ground_loop/probes/does_a_beat_cost_what_changed.py) is already gone. The nest contract itself stays with 71cd4a62e8c5 (the shake), whose tenants are sieves.",
+    "fingerprint": "8680dfafb4ad031f15d0fba6c75927085298229b0b789638b50e813d5e87f9b6",
+    "at": "2026-09-30T16:44:45",
+    "seq": 120
   }
 ]

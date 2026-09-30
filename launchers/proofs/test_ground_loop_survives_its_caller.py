@@ -41,7 +41,6 @@ liveness, nohup log and boot log), and a per-run unit name via
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import os
 import re
@@ -67,30 +66,48 @@ SYSTEMD_RUN = shutil.which("systemd-run") or "systemd-run"
 REPO = Path(__file__).resolve().parents[2]
 SUPERCLAUDE = REPO / "launchers" / "superclaude"
 
-# THE JUDGEMENTS ARE THE PROBE'S AND THE READ IS A TOOL'S, AND THE PROOF BORROWS BOTH.
-# The probe is loaded by path exactly as test_reported_but_unfixed_probe.py loads its own
-# floor; a second spelling of either here would be the corpus growing a second reader of
-# /proc/*/cgroup, which criterion 7 of the chart forbids.
-# The berth moved with the thing it watches: 6ae83e7 absorbed ground_loop into the cairn
-# device as one of its machines, and a probe berths WITH what it watches. Line 137 below
-# already reads the new module path; this one did not, and the seal that would have caught
-# it was directory-scoped over launchers/, which the move never touched.
-# THE READ MOVED OUT ON 2026-09-08 for the same reason the census exists: when this arm
-# was finally re-run it counted THREE readers, because cc's memory_curve probe and the
-# superclaude memory-scope proof had each grown their own copy. Two devices needing one
-# primitive is a TOOL (Law 6), so the parse now berths at cairn/tools/cgroup and the probe
-# imports it; SOLE_READER below is that tool, and BERTH keeps only what it always was —
-# the instrument that decides what a cgroup MEANS for the heartbeat's lifetime.
-BERTH = (REPO / "cairn" / "devices" / "cairn" / "machines" / "ground_loop" / "probes"
-         / "does_the_heartbeat_outlive_its_caller.py")
+# THE READ IS A TOOL'S AND THE JUDGEMENTS ARE THIS PROOF'S. The read of /proc/*/cgroup berths
+# at cairn/tools/cgroup (SOLE_READER below) and is imported; a second spelling here would be
+# the corpus growing a second reader, which criterion 7 of the chart forbids. The three
+# judgements below — what a cgroup MEANS for the heartbeat's lifetime — lived in the ground
+# loop's probe does_the_heartbeat_outlive_its_caller.py until ticket bae622881f03 (2026-09-30)
+# cut the loop back to a heartbeat and removed its probes. This proof was their only other
+# user, so they came here with their words unchanged. None of them reads a cgroup.
 SOLE_READER = REPO / "cairn" / "tools" / "cgroup" / "cgroup.py"
-_spec = importlib.util.spec_from_file_location("_probe_heartbeat_residency", BERTH)
-probe_mod = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(probe_mod)
 
-is_descendant = probe_mod.is_descendant
-residency = probe_mod.residency
-alive = probe_mod.alive
+
+def is_descendant(inner: str | None, outer: str | None) -> bool:
+    """Is ``inner`` the same cgroup as ``outer``, or beneath it? Path containment on the
+    unified hierarchy, with the separator forced so ``/a/bc`` is not read as inside
+    ``/a/b``. Either side missing is False — an unknown is never a containment."""
+    if not inner or not outer:
+        return False
+    a, b = inner.rstrip("/"), outer.rstrip("/")
+    return a == b or a.startswith(b + "/")
+
+
+def residency(cgroup: str | None) -> dict:
+    """What KIND of home this is, and therefore whose lifetime it borrows: ``manager`` for a
+    unit systemd forked and owns, ``caller`` for a scope built around processes it did not,
+    ``unknown`` when there is nothing to read."""
+    if not cgroup:
+        return {"leaf": None, "kind": "unreadable", "lifetime": "unknown",
+                "under_user_manager": False}
+    leaf = cgroup.rstrip("/").rsplit("/", 1)[-1]
+    if leaf.endswith(".service"):
+        kind, lifetime = "service", "manager"
+    elif leaf.endswith(".scope"):
+        kind, lifetime = "scope", "caller"
+    elif leaf.endswith(".slice") or leaf in ("", "/"):
+        kind, lifetime = "slice", "unknown"
+    else:
+        kind, lifetime = "other", "unknown"
+    return {"leaf": leaf, "kind": kind, "lifetime": lifetime,
+            "under_user_manager": f"/user@{os.getuid()}.service/" in cgroup + "/"}
+
+
+def alive(pid: int | None) -> bool:
+    return bool(pid) and Path(f"/proc/{pid}").exists()
 
 _SCRATCH = scratch_dir("cairn-proof-heartbeat-")
 _UNITS: list[str] = []          # every transient unit this run created, cleaned at the end
@@ -606,11 +623,6 @@ _DECLARED_MENTIONS = {
     "launchers/proofs/test_ground_loop_survives_its_caller.py":
         "this file: prose in the docstring and the census pattern itself; the read it uses "
         "is the tool's, imported at the top and asserted by the next check",
-    "cairn/devices/cairn/machines/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py":
-        "prose only, in two places, and both are the record of the read LEAVING: the "
-        "module docstring says what the probe carries home each beat, and the header where "
-        "`cgroup_of` used to live quotes its own retired claim to be the sole reader. It "
-        "imports the tool now; a read here again would be the extraction undone",
 }
 
 
@@ -649,9 +661,8 @@ def arm_six_one_reader() -> None:
         print(f"      because {_DECLARED_MENTIONS.get(m, '<UNDECLARED>')}")
 
     proof_src = Path(__file__).read_text()
-    check("and this proof reaches BOTH by importing, not by re-spelling either",
-          "spec_from_file_location" in proof_src
-          and "from cairn.tools.cgroup.cgroup import cgroup_of" in proof_src)
+    check("and this proof reaches the read by importing the tool, not by re-spelling it",
+          "from cairn.tools.cgroup.cgroup import cgroup_of" in proof_src)
 
 
 def main() -> int:

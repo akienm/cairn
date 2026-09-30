@@ -2,19 +2,15 @@
   {
     "claim": "proof test_ground_loop_survives_its_caller.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T03:48:54",
+    "date": "2026-09-30T11:41:31",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "the heartbeat outlives its caller — scratch at /tmp/cairn-proof-heartbeat-qnmvnijb\n\nRESIDENCY AND SURVIVAL — the real launcher, a disposable caller, and the kernel\n  PASS  the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'\n  FAIL  a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-qnmvnijb/home-1/.cairn/devices/cairn/0/machines/ground_loop/liveness.json: None",
-      "stderr_tail": "  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 672, in main\n    arms_one_and_two()\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 446, in arms_one_and_two\n    d.stop()\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 366, in stop\n    _run(\"systemctl\", \"--user\", \"stop\", self.loop_unit + \".service\", timeout=20)\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 115, in _run\n    return subprocess.run(list(argv), capture_output=True, text=True, timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 550, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 1209, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/subprocess.py\", line 2116, in _communicate\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\n  File \"/usr/lib/python3.12/subprocess.py\", line 1253, in _check_timeout\n    raise TimeoutExpired(\nsubprocess.TimeoutExpired: Command '['systemctl', '--user', 'stop', 'cairn-proof-loop-164532-1.service']' timed out after 20 seconds",
-      "teeth_green": [
-        "the launch reaches the binary at all (the prime directive)  — pty output: '\\x1b[H\\x1b[2J\\x1b[3JSTAND_IN_REACHED argv=--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions\\n'"
-      ],
-      "teeth_red": [
-        "a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-qnmvnijb/home-1/.cairn/devices/cairn/0/machines/ground_loop/liveness.json: None"
-      ],
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/launchers/proofs/test_ground_loop_survives_its_caller.py\", line 89, in <module>\n    _spec.loader.exec_module(probe_mod)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap_external>\", line 755, in exec_module\n  File \"<frozen importlib._bootstrap_external>\", line 892, in get_code\n  File \"<frozen importlib._bootstrap_external>\", line 950, in get_data\nFileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/probes/does_the_heartbeat_outlive_its_caller.py'",
+      "teeth_green": [],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,44 +19,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5dc372033b982f8282b4602a5b38e0b4c84e8331a0052b4825c97649871c65f3",
+      "source_fingerprint": "c45c2f81f2f4075b2647f840d5583c6071e9c44b98363e713002d8660526a18a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/liveness.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/store.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
         "cairn/tools/cgroup/__init__.py",
         "cairn/tools/cgroup/cgroup.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
         "launchers/proofs/test_ground_loop_survives_its_caller.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-76799-xb6ep96_/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-131165-migcl1gj/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,18 +52,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 167441019,
-          "disk_bytes": 180465664,
-          "entries": 5409,
+          "bytes": 237632699,
+          "disk_bytes": 252702720,
+          "entries": 6374,
           "builds": 1,
-          "reuses": 94
+          "reuses": 4
         }
       },
       "reseal_ladder": {
         "proof_sha256": "95588744b1234cdc93e6de87f200633fae69641b1bc6ee79c97d6507327c0941",
         "opened": "2026-09-18T03:48:54",
-        "last_red": "2026-09-18T03:48:54",
-        "passes": 1,
+        "last_red": "2026-09-30T11:41:31",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-launchers",
         "ruling": null

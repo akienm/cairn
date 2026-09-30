@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:35:08",
+    "date": "2026-09-30T11:41:17",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  last beat:   0.0s ago\n  subscribers: 1\nPASS: status returns 0 and reads liveness\nground_loop: stop signaled (flag copied to instance folder)\n  pid 3938837 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n6 passed, 0 failed out of 6",
+      "stdout_tail": "  beats:       42\n  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nground_loop: stop signaled (flag copied to instance folder)\n  pid 131176 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n6 passed, 0 failed out of 6",
       "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "teeth_green": [
         "status returns 0 and reads liveness",
@@ -22,7 +22,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "0fdb825a29278798538dd6017822b05c2ebe581a24bc31f572f2de4ad0aff928",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "81098979d00ce5de7155aa1cf1ce844fadd53f9267eba2903a74fb7bd9323f24",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -42,7 +46,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-0y0vtbz2/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-131165-zgjscx2f/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -51,11 +55,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 237632699,
+          "disk_bytes": 252702720,
+          "entries": 6374,
           "builds": 1,
-          "reuses": 21
+          "reuses": 0
         }
       }
     },

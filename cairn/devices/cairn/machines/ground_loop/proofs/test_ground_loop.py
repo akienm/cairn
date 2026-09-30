@@ -43,6 +43,8 @@ from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.shim import BaseShim
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 
+PROVES = {"bae622881f03": {"7": "test_the_doors_loser_reports_from_the_record_and_exits_distinctly"}}
+
 
 class _SpyBus:
     def __init__(self) -> None:
@@ -377,7 +379,9 @@ import subprocess as _subprocess
 import time as _time
 
 from cairn.devices.cairn.machines.ground_loop.guard import LOCK_NAME, claim_singleton
-from cairn.devices.cairn.machines.ground_loop.__main__ import EXIT_ALREADY_RUNNING
+# EXIT_ALREADY_RUNNING is read at call time (below), never bound here: the heartbeat
+# rewrite (bae622881f03) is what this module imports, and a proof that crashes at import when
+# its subject is reverted prints no teeth for the hollow reading to count.
 
 _CLAIMANT = (
     "import sys, time\n"
@@ -469,6 +473,7 @@ def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
         write_liveness(_dt.now(_tz.utc).astimezone(), {"beats": 4}, 4242, home)
         loser = _subprocess.run([sys.executable, "-c", door, str(home)],
                                 capture_output=True, text=True, timeout=10, env=env)
+        from cairn.devices.cairn.machines.ground_loop.__main__ import EXIT_ALREADY_RUNNING
         assert loser.returncode == EXIT_ALREADY_RUNNING == 3, \
             "the door's loser exits DISTINCTLY — not 1 (a crash), not 0 (a lie)"
         assert "refusing to start a second loop" in loser.stderr

@@ -2,15 +2,16 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-09-30T11:45:33",
+    "date": "2026-09-30T12:04:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  beats:       42\n  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nground_loop: stop signaled (flag copied to instance folder)\n  pid 132859 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n6 passed, 0 failed out of 6",
+      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints each trigger the record lists and the changed count\nground_loop: stop signaled (flag copied to instance folder)\n  pid 135080 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
       "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "teeth_green": [
         "status returns 0 and reads liveness",
+        "status prints each trigger the record lists and the changed count",
         "stop copies COMMAND_EXIT.flag to instance folder",
         "stop is idempotent (already signaled)",
         "help returns 0",
@@ -26,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "81098979d00ce5de7155aa1cf1ce844fadd53f9267eba2903a74fb7bd9323f24",
+      "source_fingerprint": "418567dd9dcecb721af9de47c72c202222394405f889caa23219adf27994200b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -46,7 +47,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-132848-jrkcvasw/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-135069-ftyoqoy_/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,9 +56,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 237811113,
-          "disk_bytes": 252911616,
-          "entries": 6384,
+          "bytes": 237849734,
+          "disk_bytes": 252964864,
+          "entries": 6388,
           "builds": 1,
           "reuses": 0
         }

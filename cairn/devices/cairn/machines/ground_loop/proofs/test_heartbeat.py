@@ -38,12 +38,29 @@ _REPO = Path(__file__).resolve().parents[6]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
+# Clause keys follow the falsifier's (N) markers; (8) and (9) name what the builder_check's
+# delete list and D4 required and the first falsifier text left unstated.
+PROVES = {"bae622881f03": {
+    "1": "an untouched folder reads unchanged",
+    "2": "a changed own file re-execs the loop in place (same pid, new start)",
+    "3": "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
+    "4": "COMMAND_EXIT stops the loop cleanly",
+    "5": "the triggers called this beat are listed, class and instance level",
+    "6": "the record carries pid, last_run, and the heartbeat state",
+    "7": "a second loop exits 3 while one runs and is LIVE",
+    "8": "the loop carries no probes of its own",
+    "9": "the charter describes only the heartbeat",
+}}
 FAILURES: list[str] = []
 CADENCE = 0.3   # the fixture runner's cadence; the live one is 60s
 
 
 def ok(name: str, passed: bool, detail: str = "") -> None:
-    print(f"  {'ok  ' if passed else 'RED '} {name}" + (f"  — {detail}" if detail else ""))
+    # The detail rides its own unmarked line, so the marked line is the tooth's name alone and
+    # a PROVES declaration can match it byte for byte (tmp paths and pids would not).
+    print(f"  {'ok  ' if passed else 'RED '} {name}")
+    if detail:
+        print(f"         -> {detail}")
     if not passed:
         FAILURES.append(f"{name}: {detail}")
 
@@ -94,8 +111,9 @@ def teeth_pure() -> None:
     ok("the loop's own files are its folder's .py files",
        bool(own) and all(p.suffix == ".py" and p.parent == Path(hb.__file__).parent for p in own),
        f"{len(own)} files")
-    ok(f"an untouched folder reads unchanged (Python {sys.version.split()[0]})",
-       hb.changed(first, second) == [], str(hb.changed(first, second)))
+    ok("an untouched folder reads unchanged",
+       hb.changed(first, second) == [],
+       f"Python {sys.version.split()[0]}: {hb.changed(first, second)}")
 
     with tempfile.TemporaryDirectory(prefix="cairn-proof-heartbeat-pure-") as t:
         td = Path(t)
@@ -265,11 +283,27 @@ def teeth_nothing_else() -> None:
     ok("the loop carries no probes of its own", not left, str(left))
 
 
+def teeth_charter() -> None:
+    """The charter says what the loop is now: it parses, cites this ticket, and no longer
+    describes the roster/subscription/probe loop it replaced. (The build commit first landed
+    it without its opening brace; nothing read it, so nothing noticed.)"""
+    path = Path(__file__).resolve().parents[1] / "intention+why.json"
+    try:
+        what = json.loads(path.read_text(encoding="utf-8")).get("what", "")
+    except (OSError, ValueError) as e:
+        ok("the charter describes only the heartbeat", False, f"{type(e).__name__}: {e}")
+        return
+    stale = [w for w in ("roster()", "subscribed device", "PROBES") if w in what]
+    ok("the charter describes only the heartbeat",
+       "bae622881f03" in what and not stale, f"stale={stale}")
+
+
 def main() -> int:
     print("the ground loop is only a heartbeat")
     teeth_pure()
     teeth_runner()
     teeth_nothing_else()
+    teeth_charter()
     print()
     if FAILURES:
         print(f"RED — {len(FAILURES)} failure(s):")

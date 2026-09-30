@@ -16,6 +16,8 @@ from unittest.mock import patch
 from cairn.devices.cairn.machines.ground_loop.cli import _status, _stop, _start, main
 from cairn.devices.cairn.machines.ground_loop.liveness import write_liveness
 
+PROVES = {"bae622881f03": {"6": "status prints each trigger the record lists and the changed count"}}
+
 PASS = 0
 FAIL = 0
 
@@ -45,6 +47,38 @@ def test_status_reads_liveness():
             print(f"FAIL: status returned {rc}")
     finally:
         import shutil
+        shutil.rmtree(d)
+
+
+def test_status_prints_triggers_and_changed():
+    """The heartbeat's record (ticket bae622881f03) carries the triggers called this beat and
+    the own files changed since start; status prints one line per trigger and the count."""
+    global PASS, FAIL
+    import contextlib, io, shutil
+    d = scratch_dir("gl_cli_triggers_")
+    now = datetime.now(timezone.utc).astimezone()
+    state = {"beats": 3, "changed": ["/x/a.py"], "triggers": [
+        {"device_id": "alpha", "level": "class", "ok": True, "result": {}},
+        {"device_id": "broken", "level": "instance", "ok": False, "error": "RuntimeError: boom"}]}
+    write_liveness(now, state, os.getpid(), Path(d))
+    out = io.StringIO()
+    try:
+        with patch("cairn.devices.cairn.machines.ground_loop.cli._home", return_value=Path(d)), \
+                contextlib.redirect_stdout(out):
+            _status()
+        text = out.getvalue()
+        want = ["trigger:     alpha (class) ok",
+                "trigger:     broken (instance) FAILED RuntimeError: boom",
+                "changed:     1 own file(s) since start"]
+        missing = [w for w in want if w not in text]
+        if not missing:
+            PASS += 1
+            print("PASS: status prints each trigger the record lists and the changed count")
+        else:
+            FAIL += 1
+            print(f"FAIL: status prints each trigger the record lists and the changed count")
+            print(f"      missing {missing}")
+    finally:
         shutil.rmtree(d)
 
 
@@ -123,6 +157,7 @@ def test_dispatcher_exists_and_is_executable():
 
 if __name__ == "__main__":
     test_status_reads_liveness()
+    test_status_prints_triggers_and_changed()
     test_stop_copies_flag()
     test_stop_idempotent()
     test_help_output()

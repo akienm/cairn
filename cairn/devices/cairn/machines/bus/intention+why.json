@@ -11,8 +11,8 @@
   "state_and_history": "compiled to state.json + history.json beside this charter",
   "filed_edges": [
     "(a) the bus is its own process holding every shim — today shims run inside the ground loop's pulses; the move is a cast ticket's work",
-    "(b) the ring flush hears the pulse — today it runs inside the ground loop's pulse call; once the bus is its own process it answers the spawned pulse. A reader outside the bus process is covered by the 2026-08-31 per-device LISTEN/NOTIFY ruling (never built).",
-    "(c) the shim wakes its component when it is not running (`_start_device` raises NotImplementedError today)",
+    "(b) the ring flush hears the pulse — today it runs inside bus_client's private loop; the bus process answers a `flush` verb sent by the ground loop's spawned pulse (tickets 48519f4789b1 D1 and acb4ecd84364). With every shim inside the one bus process there is no reader outside it, so the 2026-08-31 LISTEN/NOTIFY ruling has no consumer here.",
+    "(c) the shim wakes its component when it is not running — measured 2026-09-30: all 10 concrete shims define _start_device; the only one that raises is DiscoveredShim, the shim the probes/ rule invents for a folder with no shim.py, and ticket a808e21d646f (the device roster is the rack) retires that rule. Delivery itself is already an event in-process (BaseShim._check_mail runs at wiring and on the post-time poke, never per pulse); across processes it is ticket 48519f4789b1 (one bus process holds every shim).",
     "(d) side doors close — bus_client.reach and direct cross-device imports",
     "(e) an MCP adapter at the edge for outside callers"
   ],

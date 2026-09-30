@@ -41,5 +41,11 @@ cd "$REPO" || exit 0
 if [ -f "$REPO/cairn/tools/artifact/artifact.py" ]; then
   PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check "$REPO" || exit 2
 fi
-"$PY" -m cairn.devices.tester.cli --reseal || true
+"$PY" -m cairn.devices.tester.cli --reseal --stage || true
+# THE SEALS IT STAGED ride this commit (2026-09-30). Only a seal whose whole closure matches
+# the index is staged, so the committed seal describes the committed tree; the journal goes
+# with them, and the artifact question is asked again over the new index — blocking, as above.
+if [ -f "$REPO/cairn/tools/artifact/artifact.py" ]; then
+  PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check "$REPO" || exit 2
+fi
 exit 0

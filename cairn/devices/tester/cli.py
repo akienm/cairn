@@ -200,6 +200,14 @@ def _reseal_run(args) -> int:
         print(f"\n─── RUNG 4 REFUSED: {refusal['proof']} " + "─" * 20)
         for line in refusal["refusal"].splitlines():
             print(f"    {line}")
+    if args.stage:
+        # THE HOOK STAGES WHAT IT SEALED — only the seals whose whole closure is the commit's.
+        got = door.stage_clean_seals(outcome["results"])
+        for v in got["staged"]:
+            print(f"  STAGED  {v}")
+        for h in got["held"]:
+            print(f"  HELD    {h['validation']}  (unstaged: {', '.join(h['because'][:3])}"
+                  f"{' …' if len(h['because']) > 3 else ''})")
     counts = " · ".join(f"{v} {k}" for k, v in sorted(outcome["counts"].items()))
     print(f"\nreseal: {counts or 'nothing measured'}"
           + (f" · {len(outcome['refusals'])} refused at rung 4" if outcome["refusals"] else ""))
@@ -363,6 +371,9 @@ def main(argv: list[str] | None = None) -> int:
              "whose bytes have moved. Akien's alone — 'the proof's claim no longer matches "
              "the spec' is a ruling, never a declaration",
     )
+    ap.add_argument("--stage", action="store_true",
+                    help="with --reseal: git-add each seal whose whole closure matches the "
+                         "index, plus the artifact journal (the pre-commit hook passes this)")
     ap.add_argument("--reseal-install", action="store_true",
                     help="install the reseal door's git pre-commit hook (idempotent; "
                          "refuses to overwrite a hook that is not this one)")

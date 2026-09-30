@@ -89,6 +89,7 @@ from cairn.devices.tester.validation_store import (
     sealed_fingerprint_now,
     standing,
     standing_seal,
+    validations_path_for,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -519,6 +520,53 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
         counts[r["outcome"]] = counts.get(r["outcome"], 0) + 1
     return {"results": results, "refusals": refusals, "counts": counts,
             "red": [r for r in results if r["outcome"] == "red"]}
+
+
+def stage_clean_seals(results, *, root: Path | None = None) -> dict:
+    """Stage the seals the hook just wrote whose WHOLE closure is what the commit carries.
+
+    THE MEASURED DEFECT (2026-09-30): the reseal proves the WORKING tree and writes its seals
+    through ``persist_validation``, and nothing ever staged them — 104 validation files sat
+    modified after a day of commits, each a seal over code that had long since landed. Akien:
+    *"sounds like you should fix the pre-commit hook?"*
+
+    WHY NOT STAGE EVERY SEAL. A seal is a claim about the bytes its proof loaded. If one of
+    those files still differs from the index, the seal describes a tree this commit does not
+    carry, and committing it would put a false green in the record (Law 8). So a seal is
+    staged only when every file in its closure — and the proof itself — has no unstaged
+    change and nothing untracked; the rest stay in the working tree, as they must, and seal
+    again on the commit that carries their code.
+
+    The artifact journal goes in with them: it is what lets ``cairn artifact check`` see that
+    the staged validation bytes came through the door."""
+    base = Path(root or REPO_ROOT)
+    staged, held = [], []
+    for r in results:
+        if r.get("outcome") not in ("resealed", "sealed"):
+            continue
+        proof = base / r["proof"]
+        trail = read_validations(str(proof))
+        if not trail:
+            continue
+        closure = closure_of(trail[-1])
+        files = list(closure) if closure is not None else [os.path.relpath(component_root_for(str(proof)), base)]
+        files.append(r["proof"])
+        dirty = subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", *files],
+                               capture_output=True, text=True).stdout.split()
+        untracked = subprocess.run(["git", "-C", str(base), "ls-files", "--others",
+                                    "--exclude-standard", "--", *files],
+                                   capture_output=True, text=True).stdout.split()
+        validation = os.path.relpath(validations_path_for(str(proof)), base)
+        if dirty or untracked:
+            held.append({"validation": validation, "because": sorted(dirty + untracked)})
+            continue
+        subprocess.run(["git", "-C", str(base), "add", "--", validation], check=True)
+        staged.append(validation)
+    if staged:
+        from cairn.tools.artifact.artifact import journal_path
+        subprocess.run(["git", "-C", str(base), "add", "--",
+                        os.path.relpath(journal_path(base), base)], check=True)
+    return {"staged": staged, "held": held}
 
 
 # ── the host seam: the pre-commit hook ────────────────────────────────────────────────

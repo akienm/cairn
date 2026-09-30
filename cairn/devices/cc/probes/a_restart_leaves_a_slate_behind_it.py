@@ -44,7 +44,7 @@ _STAMP_FORMAT = "%Y%m%dT%H%M%S"
 _PAIR_WINDOW_SECONDS = 60
 _ENOUGH_RUN = 3
 
-_FLAGS_HOME = Path.home() / ".cairn" / "launchers" / "superclaude"
+_FLAGS_HOME = address.resolve("instance/launchers/superclaude")
 _SLATES = Path("/home/akien/dev/src/CairnCommons/slates")
 _WATERMARK = (address.instance_path("cc", 0) / "probes"
               / "a_restart_leaves_a_slate_behind_it.json")

@@ -1,11 +1,17 @@
 {
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
-  "what": "The cairn system device — top-level holder of ground_loop, harbor_master, and bus. Every device has a presence on the bus, and the system itself is a device.",
-  "why": "Every device has a presence on the bus (Akien, 2026-08-11). The system itself is a device and answers its own mail. Without it the system's own infrastructure machines (ground_loop, harbor_master, bus) hang off nothing — no introspection surface, no mail delivery, no bus address.",
-  "falsifier": "The cairn device stops fronting its machines on the bus, or a second top-level device absorbs one of its machines.",
+  "what": "The cairn system device — top-level holder of ground_loop, harbor_master, bus and sleep_cycle. Every device has a presence on the bus, and the system itself is a device. It owns the system's two clock uses (Akien 2026-09-30): AWAY WINDOWS — Akien tells the cairn device he'll be away from x to y — and SLEEP, a peer handoff the cairn device manages: it mints the token when sleep is due and hands it device to device, each doing its own maintenance. Both are checked on the ground loop's spawned pulse; the cairn device decides whether either is due.",
+  "why": "Every device has a presence on the bus (Akien, 2026-08-11). The system itself is a device and answers its own mail. Without it the system's own infrastructure machines (ground_loop, harbor_master, bus) hang off nothing — no introspection surface, no mail delivery, no bus address. Away and sleep are about the whole system and when humans won't trouble it, so they belong to the device that IS the system (Akien 2026-09-30: \"away windows belongs with cairn device ... the cairn device should be the manager of sleep\").",
+  "falsifier": "The cairn device stops fronting its machines on the bus, or a second top-level device absorbs one of its machines. Or: an away window or sleep is held or decided anywhere but the cairn device; or sleep runs two devices' maintenance at once.",
   "feedback": {},
   "learns": "It does not learn — its machines learn. The device is a holder.",
   "runtime_role": "device",
-  "gated_by": ["CC"],
-  "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "akien-ruled",
+    "why": "akien-ruled"
+  }
 }

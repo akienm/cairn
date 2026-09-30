@@ -1,159 +1,29 @@
-"""Probe — the immutable "call X when this trigger is true", made a primitive.
+"""Probe — "when this EVENT happens, send this to that consumer", made a primitive.
 
-ONE OF TWO SPECIES (converged with Akien 2026-07-18;
-``CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md``):
+THE INTENTION (Akien, 2026-09-30):
+  - *"all probes respond to events."* A probe fires where a thing happens — a door
+    writing, a ticket crossing a gate, a message arriving. Never on the heartbeat, never on
+    a clock. The only clock users in the system are Akien's away windows and sleep (see the
+    ground loop charter); a probe is neither.
+  - *"if it's not consumed, it's trash."* A probe exists only because a consumer needs its
+    data and USES it — code that reads it and acts, not a mailbox or a recorder nobody
+    reads. Build the receiver first, then the sender.
 
-  - **Probe** (here) — *immutable, no workflow.* "Call X when this trigger is true."
-    It carries no state of its own. Every recurring wake-up — an interval, a wall-clock
-    time, data accumulated, a resource threshold, a proof going green — is a probe. One
-    primitive for "call this again / on this trigger," used everywhere (even the
-    question-nexus template's loop is a probe).
-  - **Ticket** — *a workflow node: mutable, carries a state machine.* A DIFFERENT species,
-    living where workflow-state lives (instance-space / the node store), not here. See
-    ``CairnCommons/tickets/state-machine-physics.json``. A ``WATCHME`` node EMITS a probe;
-    the probe is not the node and holds none of its state. Do not mush the two into "a
-    mutable ticket."
+A probe is immutable and holds no state; it is a different species from a TICKET (a
+mutable workflow node). A ticket's WATCHME creates a probe; the probe carries no authority
+and never moves the ticket (Law 6).
 
-WHERE A PROBE BERTHS (ruled by Akien 2026-07-30, ticket ``watchme-emits-a-probe``). An
-earlier version of this header argued class-space "because it is DECLARATION, it lives with
-the device's CODE." That argument is DELETED and recorded as a wrong turn, because a probe
-is not the declaration: the DECLARATION is the intent, the intent is on the TICKET, and the
-probe is an EXPRESSION of that intent (when this happens, call this, with this).
+It berths WITH WHAT IT WATCHES, not with the ticket that made it (ruled 2026-07-30,
+``watchme-emits-a-probe``).
 
-  THE RULE: A PROBE IS COMPILED INTENT — EXACTLY AS CODE IS COMPILED INTENT — AND IT
-  BERTHS WITH WHAT IT WATCHES, NOT WITH THE TICKET IT WAS COMPILED FROM.
+Mechanics this module keeps:
+  - a trigger is a predicate ``(now, context) -> bool`` — no closed enum of kinds;
+  - a carrier is a callable ``(context) -> dict``; the pointer it carries is a FILE PATH
+    (ruled 2026-08-05: *"the carriers are all files. so the file path is the link."*);
+  - it is evaluated where its data is owned, so only the poke crosses the bus.
 
-So a probe's folder is routinely nowhere near its ticket, and probes CLUSTER BY SUBJECT: a
-device's time-related watchers share a folder in that device, as do the watchers over one
-piece of code. Three destinations, chosen by the subject:
-
-  (i)   WATCHES THE TOOLS -> IN THE REPO, beside the monitored code, CHECKED IN. Someone
-        who installs this repo needs these to have working tools — they are part of what
-        the tool IS. (A shipped probe is therefore a HOST-SEAM in shape: it must ARM ITSELF
-        on a host it has never seen. Coupled to ticket ``host-seam-installer``, not
-        sequential with it.)
-  (ii)  WATCHES THIS INSTANCE'S RUNTIME, or is a standing ask from this user ->
-        instance-space, e.g. ``~/.cairn/devices/<device>/<n>/<subject>/probes_for_.../``.
-  (iii) WATCHES A DOWNSTREAM PROJECT -> that project's own repo, because that project's
-        ticket workflow lives there — and ITS user-specific learning points at that user's
-        own runtime path, outside both of our roots entirely.
-
-  WORKED, because a rule that cannot place a real probe is prose. (1) THIS MODULE'S OWN
-  WATCHER — it watches whether the WATCHME machinery in ``cairn/tools/base`` actually fires, i.e.
-  it watches the TOOLS — so it berths at ``cairn/tools/base/probes/``, checked in, nowhere near
-  its ticket in the commons. (2) ``system_rackmount`` LOOKS like a counter-example and is
-  not: it checks in no probe at all. ``subscribe()`` is a FACTORY that compiles a probe from
-  a caller's value at runtime, and the probes it compiles watch THIS host's resources —
-  subject (ii) — so they live in this instance's device state and are checked in nowhere.
-  The rule places probes; a factory for probes is ordinary code and places by the ordinary
-  test. No exception clause was needed for either.
-
-DELIBERATE EXCEPTION TO LAW 5, recorded so it is not "fixed" later: intent, voyage and
-proofs share an address, but a probe is none of the three — it is an INSTRUMENT, and an
-instrument berths at what it measures. A probe far from its ticket reads as drift and is
-not. This EXTENDS the three-roots test rather than breaking it: CLAUDE.md asks "does the
-intention have ONE code address?"; for a compiled probe the question becomes "what does it
-WATCH, and where does THAT live?" — same question, different subject.
-
-A TRIGGER IS ANYTHING THAT EVALUATES TO TRUE (Law 3, and the anti-reification made
-structural). There is NO closed enum of trigger kinds — the shipped
-``interval/date/quantity/state`` set was the reification this rework deletes. So a trigger
-here is not a "kind" you name; it is a PREDICATE you pass: ``trigger(now, context) -> bool``.
-A new signal is a new predicate, not a schema change. (The tell that produced the enum: CC
-turns an open list of *examples* into a closed typed set — the fix is to keep it a callable.)
-
-EVALUATED WHERE ITS DATA IS OWNED (Law 6 for triggers). A probe reading device-local
-data has its predicate CLOSE OVER that device's own data, so the data never leaves — only
-the wake-up (the poke) crosses the bus, never the raw value it tested. A probe reading
-genuinely shared data (the passage of time) reads it from ``now`` / ``context``. The
-primitive does not care which; it just calls the predicate. The ownership lives in how the
-owning device BUILDS the closure — which is exactly where Law 6 says it belongs.
-
-WHAT RIDES ALONG IS A CARRIER, NOT A FIXED SHAPE (Akien 2026-07-25). ``body`` alone says
-only *that* a line was crossed. But a gate-watching probe usually wants to send the thing
-that crossed — and how it must ride depends entirely on what the RECEIVER can process there:
-a pointer, a deep copy, or a string rendering of the artifact in motion. Akien's example:
-"call dave back with 'ticket detected at {gate} as {ticket}'". And the payload is not always
-an artifact at all — something inside the inference proxy may send back a loop count over N.
-These are designed to be that flexible.
-
-So carriage gets the SAME treatment as the trigger, one paragraph up: a carrier is a
-CALLABLE ``(context) -> dict``, evaluated at fire time — never a named kind, never a closed
-enum. ``by_pointer`` / ``by_copy`` / ``by_text`` ship below; a fourth carriage is a fourth
-function, not a schema change. (Same shape as the diagnostic inspector's filters,
-deliberately — one idea, one spelling.)
-
-  "BECAUSE THEY HAVE CONSUMERS" WAS A CLAIM, AND IT MEASURED FALSE (2026-08-05, Law 3 on
-  this file's own prose). Counted across the corpus: ``by_copy`` had ZERO live consumers,
-  and every one of the seven live ``carry=`` closures was hand-rolled — seven private
-  functions each shipping a bare ticket id under the same key, which is seven
-  re-derivations of one rule (Law 1's defect) and the concrete registry-in-disguise the
-  ruling below kills. The three carriers were the design's guess at what would be needed,
-  not a count of what was.
-
-AND THE POINTER IS A FILE PATH (Akien, ruled 2026-08-05 —
-``CairnCommons/decisions/2026-08-05-the-file-path-is-the-link-rescoped.json``): *"the
-carriers are all files. so the file path is the link."* The filesystem is the index and no
-receiver resolves anything, so an id — which obliges a receiver to look something up — is
-refused as a pointer and rendered as a visible hole. See ``as_a_path``. ``by_copy`` narrows
-in the same act to a receiver that genuinely cannot read that filesystem; a copy sent to a
-receiver that can is a stale snapshot of a thing still moving.
-
-LAW 6 STILL BINDS, AND MOVES TO THE AUTHOR. ``by_pointer`` remains the default and the
-cheap, safe ride: only the address crosses, owned data stays home. ``by_copy`` and
-``by_text`` are the owner's DELIBERATE choice to send owned data across, made where Law 6
-says the decision belongs — in the owning device, as it builds the probe, exactly as the
-trigger's closure already works. The primitive does not police it; it makes the choice
-explicit and greppable instead of implicit.
-
-A POKE PER CROSSING, NOT PER PULSE (Akien 2026-07-25, "so we need an anti-bounce?"). A
-trigger is evaluated on every heartbeat pulse, so a condition that STAYS true — a CPU parked
-at 91% — would poke on every pulse forever. That is a flood, and floods are how a diagnostic
-surface turns into noise (the shrinking-footprint discipline; ``rackmount.py`` filed exactly
-this and left it). So the default is: poke once when the trigger CROSSES false -> true, and
-not again until it has gone false and crossed back. ``while_true=True`` opts back into
-per-pulse poking, for the probe that genuinely means "keep telling me while this holds."
-
-  The DECLARATION is here; the MEMORY is on the shim. A probe is frozen and holds no
-  state — "its fire-history lives on whatever fires it, never here" — and that is exactly
-  why crossing-detection cannot be implemented in this file. The shim remembers which
-  declarations were true last pulse, keyed by ``identity`` below. Same split as the trigger:
-  the probe declares, the firer evaluates.
-
-  CROSSING IS NOT CHATTER. A value flapping across the line (89.9 / 90.1 / 89.9) produces a
-  genuine crossing each time, so this does not damp it — that wants hysteresis or a hold-down
-  window, and it is NOT built: no flapping signal has been measured yet, and damping one
-  blind would be guessing at the width. Filed, with its why, on the bus-completion ticket.
-
-AND IT CAN SAY WHEN IT HAS GATHERED ENOUGH (ticket ``watchme-emits-a-probe``, 2026-07-30).
-A ``WATCHME`` ticket CREATES a probe to gather efficacy data for its own intention, and a
-gatherer with no stopping condition is a watcher that runs forever — the standing cost the
-shrinking-footprint discipline exists to refuse. So ``enough`` is a THIRD open predicate,
-spelled exactly like ``trigger`` and ``carry``: ``enough(context) -> bool``, no enum of
-condition kinds. It is asked ONLY AFTER A FIRE, because a probe that has not fired has
-gathered nothing; a probe wanting to retire on something other than its own yield is a
-different declaration and grows when one is measured.
-
-  CLEARED IS NOT RE-ARMED, and the two must never read alike. RE-ARMED is the anti-bounce
-  resting state: the trigger went false, the watch STANDS, and the next crossing pokes.
-  CLEARED is terminal: enough was gathered and this declaration is retired — the shim will
-  not fire it again even if the trigger crosses. The memory for both lives on the shim
-  (this file is frozen and holds no state), and the shim reports them under DIFFERENT
-  reasons so a tooth — and an operator reading a pulse record — can tell which happened.
-
-FIRING is stateless and fire-and-die: when the trigger is true, the probe's ``to`` /
-``channel`` / ``payload(context)`` / ``why`` are posted to the bus (the shim does the
-posting — see ``cairn/tools/base/shim.py``). Because a probe holds no state, its firing can be
-a separate, short-lived process that sends the message and terminates (the process model; a
-filed edge on the shim). The probe itself is just the immutable declaration of what to
-send when — and now, in what form.
-
-  THE ONE DELIBERATE SURVIVAL OF THE OLD WORD. Programmatically, that post IS a **callback**:
-  the shim holds a reference and invokes it when the trigger crosses. The word is correct
-  for the PLUMBING and is kept here on purpose, once, so a later reader can tell a survivor
-  from a straggler. What it stopped being (Akien 2026-07-30) is the NAME OF THE CONCEPT:
-  functionally this thing observes a condition and reports what it saw, which is a probe.
-  Anywhere else in authored space, "callback" is a straggler from before the rename.
+Where code below still speaks of pulses, per-pulse evaluation or crossing memory on the
+shim, it is the old clock-driven shape awaiting removal, not the design.
 """
 
 from __future__ import annotations

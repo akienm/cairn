@@ -1,11 +1,16 @@
 """DEVICENESS — the one callable answer to "is X a device?", and the divergence it exposes.
 
-RULED BY AKIEN 2026-08-11, twice in one day, and the two rulings are the same ruling seen
-from two ends:
+RULED BY AKIEN 2026-08-11: "a shim fits TO the device; you + your shim = your device."
+Restated 2026-09-30 (the bus charter, ``cairn/devices/cairn/machines/bus/intention+why.json``):
+"a device is a shim + it's component(s)" — the device = shim + the component or external
+thing it talks to.
 
-  "a shim fits TO the device; you + your shim = your device."
-  "THE UNIT IS THE FOLDER, NOT THE REGISTRATION. A device is a directory with a ``probes/``
-   subdirectory in it; its id is the directory's own name."
+CORRECTED 2026-09-30: this header used to set a second line beside that one as his words —
+"a device is a directory with a ``probes/`` subdirectory". Those were CC's gloss, not his;
+the 2026-08-13 decision (``CairnCommons/decisions/2026-08-13-a-device-is-its-own-process-and-
+the-roster-is-sorted.json``) retired the probes/ folder as the registration path. The code
+below still reads membership from ground_loop discovery — the probes/ rule — and so still
+counts tools as devices; that is the gap, not the design.
 
 WHY THIS FILE EXISTS AT ALL. Device-ness was decided by INHERITANCE — a thing was a device
 if it subclassed ``BaseDevice`` — and that axis cannot see an external device. Calibre was a

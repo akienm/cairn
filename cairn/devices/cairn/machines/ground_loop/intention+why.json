@@ -1,44 +1,39 @@
 {
-
-
   "component": "ground_loop",
   "runtime_role": "machine",
   "role": "charter",
   "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
-  "what": "THE HEARTBEAT, and all of it (Akien 2026-09-30, ticket bae622881f03): 'Not everything we MIGHT need, everything we KNOW WE NEED.' The resident runner (`python3 -m cairn.devices.cairn.machines.ground_loop`) (1) claims the singleton (guard.claim_singleton, an flock on <home>/run.lock held for the process's life); a second loop exits 3 while one is running and LIVE, and a holder whose record is DEAD is sent SIGTERM and the claim retaken once; (2) on start records the mtimes of its own top-level .py files (heartbeat.own_files/mtimes); (3) each beat compares them (heartbeat.changed), calls on_pulse(now, {}) on every groundloop/pulse.py found at class or instance level (discovery.pulse_sites; heartbeat.Triggers, which holds each module against its mtime and re-loads on change; one raising trigger never stops the rest), and writes ONE JSON — liveness.json: beat time, pid, and state {beats, started, recorded_mtimes, current_mtimes, changed, triggers} — which the pane and `cairn groundloop status` read; (4) COMMAND_EXIT.flag in <home> stops it; a changed own file re-execs it in place (os.execv of sys.orig_argv, same pid) unless COMMAND_DO_NOT_RESTART.flag is present. The menu of flags lives in <home>/flags/. THAT IS ALL. No bus, no probes, no shims, no web server launch, no import or bytecode checks. Each of those belongs to something else: mail and clock probes to the owning device (in its own pulse.py), event probes to the gate/door that fires them, the web server to its own shim. STILL STANDING BESIDE IT, NOT PART OF THE RUNNER: loop.py's in-process GroundLoopDevice (with staleness.py) is still constructed by bus_client/web_server — the sibling ticket moves those consumers off it; see filed_edges.",
-  "why": "One heartbeat that every device hangs its own clock work on, so no device runs a bespoke daemon of its own (the UU disease: dozens of independent daemons rotting silently). It stays this small because every extra duty is a way for the one thing everything depends on to fail: measured 2026-09-30, a bytecode-staleness check misfiring under Python 3.14 restarted the loop 61 times on an untouched tree. The only questions a heartbeat needs answered are: has my own code changed, and whose trigger did I call.",
-  "invoke": "Run resident: `python3 -m cairn.devices.cairn.machines.ground_loop` (superclaude spawns it as the systemd-run unit cairn-ground-loop; spawning it twice is safe — the loser exits 3). Operator: `cairn groundloop status|start|stop|restart` — status prints LIVE/DEAD, pid, beats, age, each trigger called with ok/FAILED, and a changed-files count. Stop: `touch <home>/COMMAND_EXIT.flag` or SIGTERM (an Event, so the wait is woken). Hold restarts while editing: copy flags/COMMAND_DO_NOT_RESTART.flag into <home>. Get beat service: put `groundloop/pulse.py` with `on_pulse(now, context)` at your class address or under ~/.cairn/devices/<device>/<n>/. Prove: `python3 cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py` (exit 0 = green).",
+  "what": "THE HEARTBEAT, and only that (Akien 2026-09-30: beat, report found devices, and the flags). Each beat it (1) checks its own .py mtimes and re-execs in place if they changed, unless COMMAND_DO_NOT_RESTART is set; (2) obeys the flags (COMMAND_EXIT stops it); (3) reports the devices it finds (a device is a shim + its component, per the bus charter); (4) SPAWNS the pulse as separate processes and does not wait on them — no skip or overlap logic; (5) writes one JSON of what it did. Exactly three things listen to the pulse: messaging (the bus writes its ring to the db — Akien: \"NOTHING in the system that should fire on the heartbeat execpt the messaging\"), and the only two clock users, Akien's away windows (\"Akien can say he'll be away from x to y times\") and sleep (maintenance). Each decides for itself whether it is due. No probes ride the beat. A second loop exits while one is running and healthy.",
+  "why": "Akien 2026-09-30: CC once made daemons for everything and could not shut them down, so the one loop is as simple as possible. \"this is ENTIERLY an event driven system EXCEPT: Akien can say he'll be away from x to y times. and sleep.\" Every extra duty is a way for the one thing everything depends on to fail — measured 2026-09-30, a bytecode-staleness check restarted it 61 times on an untouched tree.",
+  "invoke": "Run resident: `python3 -m cairn.devices.cairn.machines.ground_loop` (the cairn-ground-loop unit). Operator: `cairn groundloop status|start|stop|restart`. Stop: touch <home>/COMMAND_EXIT.flag or SIGTERM. Hold restarts while editing: COMMAND_DO_NOT_RESTART.flag in <home>. Prove: `python3 cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py`.",
   "node_class": "device",
-  "entry": "FRESH design to Form v0. The mechanism is Cairn's own: one daemon, one beat, firing-in-the-shim. No mechanism grafted.",
-  "state_and_history": "compiled to state.json (projected window) + history.json (append-only voyage) beside this charter — the charter-state-history split; this file stays pure intention+why, the operational voyage lives in the sidecars (Law 1/4/7)",
+  "entry": "Fresh design. One process, one beat, one record; the two clock users spawned, never hosted.",
+  "state_and_history": "compiled to state.json + history.json beside this charter",
   "filed_edges": [
-    "(a) the in-process GroundLoopDevice (loop.py) and staleness.py still stand because bus_client connect_system and the web server construct one; the sibling ticket the-cli-and-web-server-reach-devices-without-a-private-ground-loop moves them off it, then both go.",
-    "(b) clock probes that lived in devices' probes/ folders move into each owning device's own groundloop/pulse.py, one ticket per device (Akien 2026-09-30); event probes belong to the gate or door that fires them, never the loop."
+    "(a) ticket efb670ff1dd8 (in flight): loop.py and staleness.py deleted; bus_client and the web server hold a DeviceRoster instead of a private loop.",
+    "(b) every groundloop/pulse.py (9) and every probe fired on the beat goes — the cleanup ticket; the loop stops calling pulse files in-process and spawns the pulse instead.",
+    "(c) where away windows are declared and what one does when due, and sleep's idle check — cast tickets' work; sleep's roster no longer read from probes/ folders."
   ],
-  "gates": "proof gate (tester) — proofs/test_heartbeat.py, runnable bare (python3) and under the tester. Durability gate: not done until proven AND committed.",
-  "falsifier": "RED on any of (proofs/test_heartbeat.py): (1) an own-file touch, addition or removal not named by changed(), or an untouched tree read as changed; (2) a pulse.py at class or instance level not called, a raising one stopping the others, or the beat's call list not in the record; (3) the record missing beats/started/recorded_mtimes/current_mtimes/changed/triggers; (4) a second runner starting while one is LIVE, or not exiting 3; (5) a changed own file not re-execing in place (same pid, new start), or re-execing while COMMAND_DO_NOT_RESTART is set; (6) COMMAND_EXIT not stopping it with rc 0, or the flags menu absent; (7) the runner re-growing anything else — a bus, a device, staleness, discovery of probes/, a takeover arbiter — or the loop's own probes/ holding a .py. Live horizon: the deployed loop beats past 3 with one pid and changed == [].",
-  "how_it_learns": "It does not; it is the heartbeat — it records its own file times, calls the pulse files it finds, and writes what it did. Learning belongs to the devices whose triggers it calls.",
+  "gates": "proof gate (tester) — proofs/test_heartbeat.py, bare and under the tester. Done means proven and committed.",
+  "falsifier": "RED on any of: (1) an own-file change not detected, or an untouched tree read as changed; (2) a changed own file not re-execing in place, or re-execing while COMMAND_DO_NOT_RESTART is set; (3) COMMAND_EXIT not stopping it with rc 0; (4) a second runner starting while one is healthy; (5) the record missing beat time, pid, mtimes, found devices or what it spawned; (6) the pulse reaching anything but the bus's ring flush, the away windows and sleep, or the loop waiting on what it spawned; (7) the runner re-growing a bus, a shim, probes, pulses, staleness or takeover. Live horizon: the deployed loop beats with one pid and changed == [].",
+  "how_it_learns": "It does not; it is the heartbeat.",
   "traces_to": [
-    "Law 1 (one daemon, folded once — not re-derived as a bespoke loop per device)",
-    "Law 4 (a single heartbeat is physics; every handler hangs on it)",
+    "telos aim 1 (event, not poll — one clock, two users, footprint shrinks)",
+    "Law 4 (one heartbeat is physics)",
     "Law 5 (intent + code + proofs share this address)",
-    "the converged architecture (CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md — the heartbeat is the first of the two substrates)",
-    "cairn/tools/base/shim.py (the shim carries the per-pulse probe-firing — 'hang probes on it' built into all devices)",
-    "cairn/tools/base/probe.py (the immutable unit the shim fires — a trigger is any predicate, evaluated where owned)",
-    "CC memory [[cc-reify-vs-flow]] (the goof: three roles frozen into one device; the fix flowed them apart)",
-    "build order: db domain → ground loop → … (MAP.md:892)"
+    "the bus charter (cairn/devices/cairn/machines/bus/intention+why.json — delivery is the bus's, by event)"
   ],
-  "owner": "CC owns the ground_loop code + its proofs and gates writes to them. The heartbeat is the shared substrate every device's shim depends on; the probes hung on it are owned by their own devices (class-space declarations), and any durable state they touch is owned through db_domain.",
+  "owner": "CC owns the ground_loop code and proofs. What it spawns is owned by its own device.",
   "gated_by": [
     "Akien",
     "CC"
   ],
-  "proof": "proofs/test_heartbeat.py — the heartbeat's teeth, written first and run RED at 81ac20e4 (every failure an absence): pure mtime/changed teeth over temp trees, trigger firing over class- and instance-level pulse trees with one raising, and the runner as a subprocess at a 0.3s cadence (record fields, second loop exits 3, DO_NOT_RESTART, re-exec same pid, COMMAND_EXIT rc 0, flag menu, nothing else). proofs/test_stop_is_prompt.py — SIGTERM wakes the wait. proofs/test_ground_loop.py, test_discovery.py, test_staleness.py, test_cli.py — the in-process GroundLoopDevice, liveness record, claim, pulse discovery and CLI, still standing for their consumers.",
-  "provenance": "Born 2026-07-18 as the fifth spine step; reworked the same day from a driver-executor into the heartbeat. Grew a bus device, shims, probe discovery, bytecode staleness, takeover arbitration and six probes of its own through 2026-09. Cut back to the heartbeat 2026-09-30 (ticket bae622881f03) after the staleness check restarted it 61 times on an untouched tree under Python 3.14; the full trail is in git and the commons.",
-  "learns": "It does not; it is the heartbeat — it records its own file times, calls the pulse files it finds, and writes what it did. Learning belongs to the devices whose triggers it calls.",
+  "proof": "proofs/test_heartbeat.py — mtime teeth, re-exec, flags, single runner, the record. Its pulse-calling teeth are the old shape and go with filed edge (b).",
+  "provenance": "Born 2026-07-18. Grew a bus, shims, probe discovery, staleness and takeover through 2026-09; cut back to the heartbeat 2026-09-30 (tickets bae622881f03, efb670ff1dd8) and to two clock users the same day. The trail is in git and the commons.",
+  "learns": "It does not; it is the heartbeat.",
   "claim_provenance": {
     "role": "cc-read",
-    "what": "cc-read",
-    "why": "cc-read"
+    "what": "akien-ruled",
+    "why": "akien-ruled"
   }
 }

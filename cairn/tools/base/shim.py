@@ -1,66 +1,25 @@
-"""BaseShim — the device's always-on front, and its ROUTER for everything it has to route.
+"""BaseShim — a device's front, and a part of the bus.
 
-THE PATTERN, RULED 2026-08-04 by Akien
-(``CairnCommons/decisions/2026-08-04-the-shim-routes-everything-rescoped.json``): *"each
-device should own its own everything as much as possible, that's encapsulation... since the
-shim knows about the device, it should know exactly how everything should be routed. not
-even just messages."*
+THE INTENTION lives in the bus charter (``cairn/devices/cairn/machines/bus/intention+why.json``,
+Akien 2026-09-30): *"the shims are part of the bus (same process). a device is a shim + it's
+component(s)."* A device is its shim plus the component(s) or external thing it talks to —
+the librarian is a separate process its shim wakes and hands the message to; Calibre is all
+shim, talking to the Calibre db itself.
 
-Read the list below as ONE job, not four. The shim is the single thing that knows both the
-bus and the device, so every question of the form "where does this go for that device" is
-answered here — mail, predicates, page assembly, and whatever comes next. Routing on a
-PREDICATE is the same job as routing on an address; a shim can sort either way precisely
-because it knows the device behind it.
+The shim's jobs:
+  1. **Receive** messages addressed to its device (delivery is an event, never a clock tick).
+  2. **Wake the component** when it is not running, then hand it the message
+     (``_start_device``).
+  3. **Route** everything else for its device — views, verbs, panes (ruled 2026-08-04,
+     ``CairnCommons/decisions/2026-08-04-the-shim-routes-everything-rescoped.json``: *"since the
+     shim knows about the device, it should know exactly how everything should be routed."*).
 
-This RATIFIES what ``system_rackmount`` already does rather than changing it: a caller
-subscribes at the owner's gate, the owner resolves its own predicate, and the OWNER'S SHIM
-fires it on the beat. The caller's probe is still the caller's — it chose the line, the
-address and the why — and it is still routed by a shim that knows its device. Delegated
-access through the owner's gate is Law 6's second clause, not a hole in its first.
+A shim fires NO probes and does nothing on the heartbeat (Akien 2026-09-30: *"all probes
+respond to events"*). Where the code below still does either, it is the gap the bus
+charter's filed edges name, not the design.
 
-The generalization the ruling adds: when a NEW thing needs routing for a device, it goes
-here, and a second path around this class is the thing to be suspicious of.
-
-Every Cairn device is its OWN PROCESS, and it does not spin — it sleeps when idle and is
-woken on demand (converged with Akien 2026-07-18;
-``CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md``). The SHIM is the piece that is
-always on: one per device, lightweight, and it does three things.
-
-  1. **Fires the device's due probes on each heartbeat pulse.** The ``ground_loop`` is
-     ONLY the heartbeat — it beats and pulses shims; the FIRING lives here (this is the
-     correction of the goof where the ground_loop was an executor). On ``on_pulse`` the shim
-     evaluates each of its device's probes (a probe's trigger is evaluated where its
-     data is owned — Law 6) and POKES the target of each one that fires, onto the bus.
-  2. **Receives incoming bus messages for its device.**
-  3. **Starts the device (the heavier process) on demand** when a message arrives and the
-     device isn't running.
-
-So the shim is the device's persistent front and process-manager; the device is the heavier
-process the shim wakes. This is the sleep/wake peer model made physical: a device is a
-process that WAKES TO A POKE, not a daemon that spins.
-
-RESOLVED: the one-loop primitive. Last session filed "BaseShim's one-loop primitive" as an
-open edge (a UU ``ShimLoopThread`` would have been a hollow build before Cairn's loop was
-designed). It is now designed and built: the shim's "loop" IS the per-pulse probe-firing,
-driven by the ground_loop heartbeat — no bespoke thread, no ``RUNNING`` state. The state
-machine (whose one rest is ``PROVED``, since ticket watchme-emits-a-probe dissolved the
-second rest on 2026-07-30) is the TICKET species' concern (a different thing from a probe —
-see ``cairn/tools/base/probe.py``); the shim fires probes, it does not run workflows.
-
-Still composes ``CoreValuesMixin`` — every shim carries CP1-CP6 structurally (Law 2,
-proofs/test_composition.py). Kept import-light: the bus is INJECTED, not imported, so this
-module still pulls in no DB and no daemon threads (only the probe primitive, which is
-itself import-light).
-
-FILED EDGES (children of this stone, not faked):
-  - Each device its own OS PROCESS: ``_start_device`` is the wake hook; today a concrete shim
-    may instantiate its device in-process. Spawning a real separate process (and a probe
-    firing as a separate short-lived process that posts and terminates) is the process-model
-    edge — the SHAPE is here (start-on-demand, fire-and-poke), the OS plumbing grows against
-    a real multi-process need, like sudo_relay's daemon is the one unprovable-without-the-OS part.
-  - SUBSCRIPTION by a file in the device's own folder tree (how the ground_loop discovers who
-    to pulse without in-process references): today a shim is subscribed in-process via
-    ``ground_loop.subscribe(shim)``; the file-discovery grows when devices are separate processes.
+Composes ``CoreValuesMixin`` (Law 2, proofs/test_composition.py). The bus is INJECTED, not
+imported, so this module pulls in no DB and no threads.
 """
 
 from __future__ import annotations

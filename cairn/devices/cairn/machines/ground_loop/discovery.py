@@ -16,7 +16,12 @@ all, and nothing was loud about it because an empty roster and a healthy roster 
 byte-identical resting states. Disk cannot have that failure: a probe file that exists IS on
 the roster, and the only way to leave the roster is to stop existing.
 
-THE UNIT IS THE FOLDER, NOT THE REGISTRATION. A device is a directory with a ``probes/``
+RETIRED 2026-09-30 — the next paragraph is CC's gloss, never Akien's words, and the
+2026-08-13 decision retired it (a device is a shim + its component; see the bus charter).
+Probes do not ride the beat at all now ("all probes respond to events"). This module goes
+with the cleanup ticket.
+
+THE UNIT IS THE FOLDER, NOT THE REGISTRATION (CC's reading). A device is a directory with a ``probes/``
 subdirectory in it; its id is the directory's own name (``cairn/devices/librarian/probes`` → the
 ``librarian`` device). Nothing declares itself and nothing is granted membership — the
 address IS the declaration (Law 5: intent, its voyage and its proofs share an address, and

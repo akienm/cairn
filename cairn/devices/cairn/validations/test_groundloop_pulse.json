@@ -65,6 +65,29 @@
           "builds": 1,
           "reuses": 0
         }
+      },
+      "hollow": {
+        "32959e65ec5a": {
+          "cairn/tools/base/beat_probes.py": [
+            "a bus factory is called on the first beat, never at construction",
+            "a named probe with no module is recorded missing, never raised",
+            "a probe whose enough holds is cleared and then held as cleared",
+            "a raising trigger is recorded refused and the rest still fire",
+            "a trigger that stays true pokes once across two beats",
+            "a while_true probe pokes on every beat",
+            "no other probe in cairn's probes folder is in the roster",
+            "one pulse covers exactly the two probes in fired and held",
+            "the bus rides the pulse context",
+            "the firer flushes its bus once per beat and records it",
+            "the pulse names exactly its two clock probes and each resolves to a Probe"
+          ],
+          "cairn/devices/cairn/groundloop/pulse.py": [
+            "no other probe in cairn's probes folder is in the roster",
+            "one pulse covers exactly the two probes in fired and held",
+            "the heartbeat's discovery lists cairn's pulse at class level",
+            "the pulse names exactly its two clock probes and each resolves to a Probe"
+          ]
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

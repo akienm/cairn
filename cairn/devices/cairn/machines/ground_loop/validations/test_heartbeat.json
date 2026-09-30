@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_heartbeat.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-09-30T11:43:44",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   an added and a removed file are named too  — ['/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/a.py', '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/b.py', '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/c.py']\n  ok   every pulse.py found is called and listed  — [('alpha', 'class'), ('beta', 'instance'), ('broken', 'class')]\n  ok   a raising trigger is listed with its error  — {'device_id': 'broken', 'level': 'class', 'path': '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/class/devices/broken/groundloop/pulse.py', 'ok': False, 'error': 'RuntimeError: this trigger always raises'}\n  ok   the others still ran and returned  — {'device_id': 'alpha', 'level': 'class', 'path': '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/class/devices/alpha/groundloop/pulse.py', 'result': {'called': True}, 'ok': True}\n  ok   one call per trigger per beat  — 'xx'\n  ok   the runner beats and writes its record  — beats=2 rc=None\n  ok   the record carries pid, last_run, and the heartbeat state  — missing=[]\n  ok   recorded and current mtimes name the watched file, unchanged  — changed=[]\n  ok   the triggers called this beat are listed, class and instance level  — [('alpha', True), ('beta', True), ('broken', False)]\n  ok   a second loop exits 3 while one runs and is LIVE  — rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays  — seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)  — restarted=True pid=132417 vs 132417\n  ok   the new image records the new mtime as its baseline  — []\n  ok   COMMAND_EXIT stops the loop cleanly  — rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness  — []\n  ok   the loop carries no probes of its own  — []\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the loop's own files are its folder's .py files  — 11 files",
+        "an untouched folder reads unchanged (Python 3.14.4)  — []",
+        "only .py files are watched  — ['/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/a.py', '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/b.py']",
+        "a touched file is named as changed  — ['/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/a.py']",
+        "an added and a removed file are named too  — ['/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/a.py', '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/b.py', '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/watch/c.py']",
+        "every pulse.py found is called and listed  — [('alpha', 'class'), ('beta', 'instance'), ('broken', 'class')]",
+        "a raising trigger is listed with its error  — {'device_id': 'broken', 'level': 'class', 'path': '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/class/devices/broken/groundloop/pulse.py', 'ok': False, 'error': 'RuntimeError: this trigger always raises'}",
+        "the others still ran and returned  — {'device_id': 'alpha', 'level': 'class', 'path': '/tmp/cairn-proof-heartbeat-pure-qiotn1ur/class/devices/alpha/groundloop/pulse.py', 'result': {'called': True}, 'ok': True}",
+        "one call per trigger per beat  — 'xx'",
+        "the runner beats and writes its record  — beats=2 rc=None",
+        "the record carries pid, last_run, and the heartbeat state  — missing=[]",
+        "recorded and current mtimes name the watched file, unchanged  — changed=[]",
+        "the triggers called this beat are listed, class and instance level  — [('alpha', True), ('beta', True), ('broken', False)]",
+        "a second loop exits 3 while one runs and is LIVE  — rc=3",
+        "the first loop is untouched by the second",
+        "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays  — seen=True started_same=True",
+        "a changed own file re-execs the loop in place (same pid, new start)  — restarted=True pid=132417 vs 132417",
+        "the new image records the new mtime as its baseline  — []",
+        "COMMAND_EXIT stops the loop cleanly  — rc=0",
+        "the flag menu is laid out in flags/",
+        "the runner reaches no bus, no probe discovery, no bytecode staleness  — []",
+        "the loop carries no probes of its own  — []"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "21b71decba9867a6679747a2e735cfdd7a8a7fd771648d5b54b7f9c830d3469f",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-132405-hj_fd50f/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 237703953,
+          "disk_bytes": 252784640,
+          "entries": 6378,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

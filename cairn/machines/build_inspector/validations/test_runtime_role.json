@@ -1,17 +1,19 @@
 [
   {
     "claim": "proof test_runtime_role.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:50:17",
+    "caller": "cairn test",
+    "date": "2026-09-30T17:02:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "\nself = <cairn.machines.build_inspector.proofs.test_runtime_role.TestRuntimeRoleOnCharters object at 0x7a7dbe9424b0>\ncharters = [(PosixPath('/home/akien/dev/src/cairn/cairn/machines/exemptions/intention+why.json'), {'schema_version': 'v0 — compon...schema_version': 'v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands', ...}), ...]\n\n    def test_runtime_role_matches_directory_rung(self, charters):\n        mismatched = []\n        for path, d in charters:\n            expected = _derive_rung(path)\n            actual = d.get(\"runtime_role\", \"\")\n            if expected != \"unknown\" and actual != expected:\n                mismatched.append((str(path.relative_to(REPO_ROOT)), actual, expected))\n>       assert not mismatched, f\"runtime_role mismatches: {mismatched}\"\nE       AssertionError: runtime_role mismatches: [('cairn/devices/codemother/0/tools/charter/intention+why.json', 'state', 'tool')]\nE       assert not [('cairn/devices/codemother/0/tools/charter/intention+why.json', 'state', 'tool')]\n\ntest_runtime_role.py:79: AssertionError\n=========================== short test summary info ============================\nFAILED test_runtime_role.py::TestRuntimeRoleOnCharters::test_runtime_role_is_valid\nFAILED test_runtime_role.py::TestRuntimeRoleOnCharters::test_runtime_role_matches_directory_rung\n2 failed, 14 passed in 1.20s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_census_rows_have_runtime_role\n.\n  ok   test_census_runtime_role_matches_charter\n.\n  ok   test_sieve_fires_on_missing_gated_by\n.\n  ok   test_sieve_clean_on_present_gated_by\n.\n  ok   test_sieve_fires_on_empty_gated_by\n.\n  ok   test_sieve_fires_on_non_list_gated_by\n.\n  ok   test_sieve_fires_on_empty_string_in_gated_by\n.\n  ok   test_sieve_clean_on_multi_hand_gated_by\n.\n  ok   test_roster_minimum\n                                                         [100%]\n16 passed in 0.90s",
       "stderr_tail": "",
       "teeth_green": [
         "test_at_least_40_charters",
         "test_every_charter_has_runtime_role",
+        "test_runtime_role_is_valid",
+        "test_runtime_role_matches_directory_rung",
         "test_sieve_fires_on_missing_role",
         "test_sieve_clean_on_present_role",
         "test_sieve_fires_on_invalid_role",
@@ -25,14 +27,14 @@
         "test_sieve_clean_on_multi_hand_gated_by",
         "test_roster_minimum"
       ],
-      "teeth_red": [
-        "test_runtime_role_is_valid",
-        "test_runtime_role_matches_directory_rung",
-        "test_runtime_role"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
       },
       "source_fingerprint": "d5983bf1984f21355665180fbba02a276a4031dae89961d9a1087d67c99efc29",
       "fingerprint_closure": [
@@ -72,7 +74,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-36fzphet/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-256631-nnawltqt/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,21 +83,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 247570518,
+          "disk_bytes": 263888896,
+          "entries": 6873,
           "builds": 1,
-          "reuses": 98
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "2c13165e16ac624f1fad971ba642932ad18eeb89d6f1a77dc630c6715f87a344",
-        "opened": "2026-09-18T01:50:17",
-        "last_red": "2026-09-18T01:50:17",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

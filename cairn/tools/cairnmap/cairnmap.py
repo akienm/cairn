@@ -195,17 +195,36 @@ def skill_membership(commons: Path | None = None,
 
 
 def installed_skills(install: Path | None = None) -> dict[str, Path | None]:
-    """Name -> resolved target for every entry in the install dir (None = dangling)."""
+    """Name -> resolved target for every skill entry in the install dir (None = dangling).
+
+    A SKILL ENTRY is a symlink (the way Cairn installs, dangling or not) or a directory
+    carrying its own SKILL.md (the way Claude Code loads one). Anything else in the dir is
+    not a skill at all — Claude Code's `synced/` bucket of platform skills is the measured
+    case — and `not_skill_entries` names it so the gate reports it rather than hiding it.
+    Those are Claude's, not Cairn's (Akien 2026-09-30, open-911846f67f0f: "cairnhelp is
+    about cairn skills. you kind of have your own").
+    """
     install = install or skills_install_dir()
     if not install.is_dir():
         return {}
     out: dict[str, Path | None] = {}
     for entry in sorted(install.iterdir()):
+        if not (entry.is_symlink() or (entry / "SKILL.md").is_file()):
+            continue
         try:
             out[entry.name] = entry.resolve(strict=True)
         except OSError:
             out[entry.name] = None
     return out
+
+
+def not_skill_entries(install: Path | None = None) -> list[str]:
+    """Entries in the install dir that are neither a symlink nor a SKILL.md directory."""
+    install = install or skills_install_dir()
+    if not install.is_dir():
+        return []
+    return sorted(e.name for e in install.iterdir()
+                  if not (e.is_symlink() or (e / "SKILL.md").is_file()))
 
 
 # ── the derivation gate: completeness both ways ──────────────────────────────
@@ -331,7 +350,8 @@ def inspect(repo: Path | None = None, commons: Path | None = None,
         expected=[], actual=strays + misaimed,
         location=str(where),
         reds=strays + misaimed,
-        installed_count=len(installed)))
+        installed_count=len(installed),
+        not_skill_entries=not_skill_entries(where)))
 
     # Command lane: every bin/cmd/<name> is owned by some charter'd unit's invoke.
     all_units = [u for c in charters for u in units(c)]

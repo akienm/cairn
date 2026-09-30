@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_cairnmap.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T17:02:58",
+    "caller": "cairn test --reseal",
+    "date": "2026-09-30T17:46:14",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -42,7 +42,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "abfd0307213406a9b57ea95d2dee8c580244f61ede3262060d5b060be82be8c0",
+      "source_fingerprint": "d3786f12d521b87d24803e7ac00d750f1dd6c4332c83c7cbd600107716901057",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -60,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-256892-_0l2ne75/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-269625-yc8unqqd/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,12 +69,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 247570518,
-          "disk_bytes": 263888896,
-          "entries": 6873,
+          "bytes": 247926484,
+          "disk_bytes": 264306688,
+          "entries": 6894,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "d76e8d152be7bb42b42f646508e384fe54584f92565523340acdbf6724317df7",
+        "opened": "2026-09-30T17:46:14",
+        "last_red": "2026-09-30T17:46:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-cairnmap",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

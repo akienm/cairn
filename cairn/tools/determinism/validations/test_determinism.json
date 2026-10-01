@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_determinism.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:49:03",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T17:34:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -35,7 +35,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "81cd75c1bd29b250350a51dd057215d29d7cdea6b5f4b70d5f9de83f859ebffa",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "6fb926c16c431164666b7d8a553acf5111cb227d2faa617d658382a7f7ad55e0",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2492397-gexz0u_g/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-526762-pmmahl_h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,73 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123124689,
-          "disk_bytes": 133648384,
-          "entries": 4289,
+          "bytes": 249368129,
+          "disk_bytes": 265883648,
+          "entries": 6957,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "dd8ad9702b49": {
-          "cairn/devices/tester/discovery.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/tools/base/validation.py": [
-            "test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle"
-          ],
-          "cairn/tools/bus_client/__init__.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/tools/bus_client/bus_client.py": [
-            "test_i_every_address_this_build_wrote_is_load_bearing",
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/tools/bus_client/intention+why.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/devices/web_server/listener.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/intention_extractor/live.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/codemother/seed_trees.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/codemother/watch.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/librarian/live.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "skills/chart/live.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/devices/aider_shim/interceptor.py": [
-            "test_v_every_importer_in_class_space_imports_at_the_new_address"
-          ],
-          "cairn/tools/determinism/validations/test_determinism.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/tools/base/history.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/tools/base/state.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/tools/bus_client/history.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ],
-          "cairn/tools/bus_client/state.json": [
-            "test_i_every_address_this_build_wrote_is_load_bearing"
-          ]
+          "reuses": 58
         }
       }
     },

@@ -4,6 +4,7 @@ from cairn.tools.import_sieve.sieve import (        # noqa: F401
     HollowScan,
     catches,
     import_graph,
+    import_sites,
     importers_of,
     imports_in,
     module_name,

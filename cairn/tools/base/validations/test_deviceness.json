@@ -2,7 +2,7 @@
   {
     "claim": "proof test_deviceness.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-30T17:46:13",
+    "date": "2026-10-01T17:33:07",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ead30f6d349d066495677a17dc320a47632708a341fe6be4715c5afdfcee493a",
+      "source_fingerprint": "6586c7af9776b26e1b29b19f8c7f26fba82f8cec7ce6bb2cfb6cc8dfb66030b6",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -121,20 +121,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-269625-p7ea0rbs/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-526762-o151jnm9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 247926484,
-          "disk_bytes": 264306688,
-          "entries": 6894,
+          "bytes": 249368725,
+          "disk_bytes": 265887744,
+          "entries": 6958,
           "builds": 1,
-          "reuses": 1
+          "reuses": 49
         }
       }
     },

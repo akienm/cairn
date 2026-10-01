@@ -188,6 +188,79 @@ def import_graph(repo_root: str) -> dict[str, set[str]]:
     return graph
 
 
+def _resolve(root: str, dotted: str) -> str | None:
+    """The repo-relative file `dotted` executes: a/b.py, else a/b/__init__.py, else None.
+
+    Exact, never a prefix walk — `cairn.tools.base.probe.thing` names no file, and guessing
+    the nearest ancestor is how an import lands on a component it never reaches."""
+    parts = dotted.split(".")
+    for cand in (os.path.join(root, *parts) + ".py",
+                 os.path.join(root, *parts, "__init__.py")):
+        if os.path.isfile(cand):
+            return os.path.relpath(cand, root)
+    return None
+
+
+def import_sites(repo_root: str) -> list[dict]:
+    """Every in-tree import site: {file, line, module, target, kind}, sorted by (file, line).
+
+    import_graph says what a file WRITES; this says what file each import EXECUTES, and
+    where — the question RULE 1 asks (ticket a907458344ba, for 56d1aff4455e). A from-import
+    lands on the submodule when the name is a module and on the package when it is a name;
+    relative imports resolve against the importing file's package. kind is 'import',
+    'from', 'dynamic' (a literal importlib/__import__ string) or 'opaque' (a computed one,
+    module and target None — returned, never dropped, since a dropped site reads exactly
+    like no import at all). Anything landing on no file under repo_root (stdlib,
+    third-party) is not a site.
+    """
+    sites: list[dict] = []
+    for abs_path in walk_py(repo_root):
+        rel = os.path.relpath(abs_path, repo_root)
+        try:
+            src = open(abs_path, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            continue
+        file_imports = imports_in(src)
+        pkg_parts = module_name(rel).split(".")
+        if not rel.endswith("__init__.py"):
+            pkg_parts = pkg_parts[:-1]
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    t = _resolve(repo_root, alias.name)
+                    if t:
+                        sites.append({"file": rel, "line": node.lineno, "module": alias.name,
+                                      "target": t, "kind": "import"})
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    keep = pkg_parts[:len(pkg_parts) - (node.level - 1)]
+                    base = ".".join(keep + ([node.module] if node.module else []))
+                else:
+                    base = node.module or ""
+                for alias in node.names:
+                    sub = f"{base}.{alias.name}" if base else alias.name
+                    t, module = _resolve(repo_root, sub), sub
+                    if not t and base:
+                        t, module = _resolve(repo_root, base), base
+                    if t:
+                        sites.append({"file": rel, "line": node.lineno, "module": module,
+                                      "target": t, "kind": "from"})
+        for d in _dynamic_imports_in(tree, file_imports):
+            if d["opaque"]:
+                sites.append({"file": rel, "line": d["line"], "module": None,
+                              "target": None, "kind": "opaque"})
+            else:
+                t = _resolve(repo_root, d["module"])
+                if t:
+                    sites.append({"file": rel, "line": d["line"], "module": d["module"],
+                                  "target": t, "kind": "dynamic"})
+    return sorted(sites, key=lambda s: (s["file"], s["line"]))
+
+
 def _matches(imported: str, target: str) -> bool:
     """Dotted-prefix match. `urllib.request` catches `urllib.request.urlopen` and NOT
     `urllib.parse.parse_qs` — the whole dial/parse distinction is this one line."""

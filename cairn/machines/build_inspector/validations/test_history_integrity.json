@@ -2,14 +2,15 @@
   {
     "claim": "proof test_history_integrity.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:48:03",
+    "date": "2026-10-01T17:31:13",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_modified_past_entry_reds\n  PASS  test_uncommitted_append_flags\n  PASS  test_untouched_passes\n  PASS  test_no_history_skips\n  PASS  test_state_json_tamper_detected\n  PASS  test_deleted_entry_reds\n\n6 teeth, all green.",
-      "stderr_tail": "/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:55: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_modified\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:75: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_append\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:90: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_clean\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:100: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_nohistory\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:113: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_state\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_history_integrity.py:129: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"history_integrity_deleted\") as root:",
-      "teeth_green": [
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_modified_past_entry_reds: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n  FAIL  test_uncommitted_append_flags: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n  FAIL  test_untouched_passes: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n  FAIL  test_no_history_skips: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n  FAIL  test_state_json_tamper_detected: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n  FAIL  test_deleted_entry_reds: 'pathlib.PosixPath' object does not support the context manager protocol (missed __exit__ method)\n\n6 FAILED: test_modified_past_entry_reds, test_uncommitted_append_flags, test_untouched_passes, test_no_history_skips, test_state_json_tamper_detected, test_deleted_entry_reds",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
         "test_modified_past_entry_reds",
         "test_uncommitted_append_flags",
         "test_untouched_passes",
@@ -17,12 +18,15 @@
         "test_state_json_tamper_detected",
         "test_deleted_entry_reds"
       ],
-      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "4679ba2353cc80cc04d9aecb02dce084f01fbec2ca750d5670c0f036bb0bb125",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "32272070df6041bc9fd6e7ca7b2ae0f54b21d9f8d12289f581a6c83f1f0bafca",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -60,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-gpxt_ant/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-526762-z40kugz9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,12 +73,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 249368129,
+          "disk_bytes": 265883648,
+          "entries": 6957,
           "builds": 1,
-          "reuses": 94
+          "reuses": 33
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "fa37f04db73085e698e62b539f1d47d5bf04d0f202d7c0665643512a201c09d8",
+        "opened": "2026-10-01T17:31:13",
+        "last_red": "2026-10-01T17:31:13",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

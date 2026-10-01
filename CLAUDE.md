@@ -29,6 +29,18 @@ construction. Its charter: `CairnCommons/intentions-not-beside-code/I-cairn-clau
   sealed them. A component without an intention doesn't run. (The filename forces the why — CP3 as schema, not as a field someone can
   leave blank.)
 
+## RULE 1 — Encapsulation
+
+**Every component talks to every other component only through that component's
+public interface.** A device's is the bus (plus any client tool it publishes); a
+machine's or tool's is what its charter declares in `public_interface`. Nothing
+outside a device reaches into its code — skills included. A ticket's build lives
+inside its own component, and its proofs measure only that component. *Why: it
+limits a change to the component that made it* (Akien, agreed 2026-10-01). Stands
+above the Laws without renumbering them. The rule and its verbatim source:
+`CairnCommons/intentions-not-beside-code/I-rule-1-encapsulation.md`; its physics is
+ticket 56d1aff4455e (one `build_inspector` sieve over every component boundary).
+
 ## The Laws
 
 Present-tense contracts, dependency order. Everything Cairn does traces to one;

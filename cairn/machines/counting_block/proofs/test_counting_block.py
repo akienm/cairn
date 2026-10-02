@@ -351,7 +351,15 @@ def the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_
     assert theirs.read_text(encoding="utf-8") == "#!/bin/sh\nexit 0\n", "a foreign hook was eaten"
     # nothing else runs it: no process of the block's own between commits
     ps = subprocess.run(["ps", "-eo", "args"], capture_output=True, text=True, check=True).stdout
-    mine = [l for l in ps.splitlines() if "counting_block" in l and "proofs/test_counting_block" not in l]
+    # A BLOCK PROCESS IS A PYTHON RUNNING THE BLOCK'S MODULE, not any line naming it. Measured
+    # 2026-10-02 (e8455d73): the reseal hook redded this tooth on the `bash -c 'git commit ...'`
+    # wrapper whose commit MESSAGE said counting_block — a shell carrying the word is not the
+    # block running, and a tooth that reds on prose is a coin toss.
+    def _is_block(line: str) -> bool:
+        argv = line.split()
+        return bool(argv) and Path(argv[0]).name.startswith("python") \
+            and "cairn.machines.counting_block" in line
+    mine = [l for l in ps.splitlines() if _is_block(l) and "proofs/test_counting_block" not in l]
     assert mine == [], f"a counting_block process is running: {mine}"
     # the module verb is the whole entry point: calling it IS a commit's fold, over scratch
     w = World()

@@ -231,6 +231,8 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
         and changes a writes_to file.
     The bound is the latest back-edge out of BUILDME or PROVEME that has a build commit after
     it; a back-edge with no build after it is a retreat-and-recross and bounds nothing.
+    A back-edge INTO FIXME bounds nothing either: a repair stands on the build it repairs
+    (ticket e08c996f939c).
     "Earlier" is ancestry (``merge-base --is-ancestor``), never a clock: a build committed
     before its own journal crossing (the journal lags the hand) would otherwise anchor AFTER
     the build and read every file as unwritten — blamed on the chart.
@@ -242,9 +244,13 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     crossing = _buildme_crossing(ticket, roots)
     at = _buildme_at(ticket, crossing, repo_root)
     builds = _build_commits(tid, files, repo_root)
+    # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
+    # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
+    # anchored the hollow at the repair's parent, and the build itself fell outside the window).
     backs = [c for c in crossings_for(tid, roots)
              if c.get("direction") in ("back", "backward")
-             and c.get("from") in ("BUILDME", "PROVEME") and c.get("at")]
+             and c.get("from") in ("BUILDME", "PROVEME") and c.get("at")
+             and c.get("to") != "FIXME"]
     bound = None
     for c in sorted(backs, key=lambda c: _when(str(c["at"])), reverse=True):
         if any(_when(w) > _when(str(c["at"])) for _, w in builds):
@@ -549,6 +555,27 @@ def seal_isolation(proof: Path) -> str:
         return "none"
 
 
+def _expand_dirs(files: list[str], commit: str, repo_root: Path) -> tuple[list[str], list[dict]]:
+    """A writes_to entry naming a directory is measured file by file over the files changed
+    between the anchor and HEAD (ticket e08c996f939c). Measured 2026-10-02 on efb670ff1dd8:
+    its chart named cairn/devices/cairn/machines/ground_loop/, a directory present at HEAD and
+    holding the repair, and the file loop skipped it as "not present at HEAD" — a reason that
+    was false. A directory the build left unchanged comes back as a skip, never silently."""
+    out: list[str] = []
+    skips: list[dict] = []
+    for rel in files:
+        if not (Path(repo_root) / rel).is_dir():
+            out.append(rel)
+            continue
+        proc = _git_ok(repo_root, "diff", "--name-only", commit, "HEAD", "--", rel)
+        changed = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+        if changed:
+            out.extend(changed)
+        else:
+            skips.append({"file": rel, "why": "a directory the build left unchanged since the anchor"})
+    return list(dict.fromkeys(out)), skips
+
+
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
             berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
     """Revert this ticket's build file by file and report which declared teeth each one reds.
@@ -566,6 +593,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
     anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root)
     commit, at = anchor["commit"], anchor["buildme_at"]
+    files, dir_skips = _expand_dirs(files, commit, repo_root)
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
@@ -696,7 +724,9 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     measured: dict[str, list[str]] = {}
     unran: dict[str, list[str]] = {}
     unchanged: list[str] = []
-    skipped: list[dict] = []
+    skipped: list[dict] = list(dir_skips)
+    for s in dir_skips:
+        log(f"  skip   {s['file']}  ({s['why']})")
     moved: dict[str, str] = {}
     for rel in files:
         why = _classify(rel)
@@ -715,14 +745,22 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             log(f"  skip   {rel}  ({why})")
             continue
         how = _revert(wt, commit, rel, repo_root=repo_root)
+        src_noop = True
         if source is not None:
             # THE COUNTERFACTUAL OF A MOVE IS BOTH HALVES: the successor as it was before the
             # build (usually absent — removed, not emptied) AND the source back where it stood.
-            _revert(wt, commit, source, repo_root=repo_root)
-            how = f"{how}; moved from {source}, restored there"
+            # A no-op on both halves stays "unchanged" and reads UNWRIT (ticket e08c996f939c: the
+            # suffix used to be added first, so a no-op move read HOLLOW).
+            src_was = (wt / source).exists()
+            src_how = _revert(wt, commit, source, repo_root=repo_root)
+            src_noop = src_how == "unchanged" or (src_how.startswith("removed") and not src_was)
+            if not (how == "unchanged" and src_noop):
+                how = f"{how}; moved from {source}, restored there"
         if how == "unchanged":
             unchanged.append(rel)
             _restore(wt, rel)
+            if source is not None and not src_was and (wt / source).exists():
+                (wt / source).unlink()
             log(f"  UNWRIT {rel}  (identical at the pre-build commit — the build did not write it)")
             continue
         try:

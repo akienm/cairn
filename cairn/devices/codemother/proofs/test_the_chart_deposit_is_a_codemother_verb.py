@@ -112,7 +112,15 @@ def a_real_deposit_rides_the_bus():
     from cairn.tools.tree.tree import scratch_nexus
     packets = sorted(glob.glob(os.path.join(INSTANCE_DIR, "orient-*.json")))
     assert packets, f"no berthed orient packet under {INSTANCE_DIR} to deposit"
-    berth = packets[-1]
+    # A real packet, minus only its ticket claim: the claim is checked against the commons
+    # at a repo-relative path, and hollow's /tmp worktree has no commons beside it (an absent
+    # claim passes the same rule). The deposit under test is the same either way.
+    from cairn.tools.scratch.scratch import scratch_dir
+    import json
+    doc = json.loads(Path(packets[-1]).read_text(encoding="utf-8"))
+    doc.pop("ticket", None)
+    berth = str(scratch_dir("testing-e8fe361a5b2f-berth-") / Path(packets[-1]).name)
+    Path(berth).write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
     bus = reach("codemother", "inference_domain")
     with scratch_nexus("testing_e8fe") as nexus:
         reply = bus.request(sender=SENDER, to="codemother", verb="deposit",

@@ -425,7 +425,10 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
 
     ticket = json.loads(_ticket_path("9579a6f9cec6").read_text(encoding="utf-8"))
     declared_files = writes_to(ticket)
-    seen = set(f["measured"]) | {s["file"] for s in f["skipped"]} | set(f["unchanged"])
+    # A declared file a later ticket moved is measured at its successor (ticket d65fe3aa96e2);
+    # the report's "moved" names the source it came from, so read it back through that.
+    moved = f.get("moved", {})
+    seen = {moved.get(m, m) for m in f["measured"]} | {s["file"] for s in f["skipped"]} | set(f["unchanged"])
     assert seen == set(declared_files), sorted(seen ^ set(declared_files))
     assert not (set(f["measured"]) & {s["file"] for s in f["skipped"]}), "a file both measured and skipped"
     assert f["measured"], "every file was skipped — a measurement of the empty set is not a pass"

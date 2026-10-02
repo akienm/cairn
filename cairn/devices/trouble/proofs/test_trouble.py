@@ -556,18 +556,24 @@ def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
     one sieve's findings can compose the sieve; that needs no new contract.
         -> trouble beat-tail-re-walks-corpora-no-sieve-counts
     """
-    from cairn.machines.build_inspector.inspector import (
-        device_census, device_isolation_holds, _REPO_ROOT)
+    from cairn.machines.build_inspector.inspector import encapsulation_breaches, _REPO_ROOT
 
-    root = _REPO_ROOT / "cairn"
-    findings = []
-    for row in device_census(root=root)["measured"]["components"]:
-        for f in device_isolation_holds(row, root / row["dir"]):
-            f["at"] = row["dir"]
-            findings.append(f)
+    # 2026-10-02, ticket 56d1aff4455e: device_isolation_holds retired into the one
+    # encapsulation_holds sieve, so the same question is asked of its breach list — a
+    # device's own code (proofs and proofs_disabled aside, as before) landing in another
+    # device. db_domain stays exempt exactly as the retired sieve had it, until ticket
+    # 4cbf6e28126e moves every caller onto its published client and drops the exemption.
+    def _dev(c):
+        return c.split("/")[2] if c.startswith("cairn/devices/") else None
+
+    findings = [b for b in encapsulation_breaches(str(_REPO_ROOT))
+                if _dev(b["source"]) and _dev(b["target"])
+                and _dev(b["source"]) != _dev(b["target"])
+                and _dev(b["target"]) != "db_domain"
+                and "/proofs/" not in b["file"] and "/proofs_disabled/" not in b["file"]]
     assert findings == [], (
         "a device imports another device — the seam this ticket closed has re-opened: "
-        + "; ".join(f"{f.get('component')}: {f.get('about')}" for f in findings[:5]))
+        + "; ".join(f"{f['file']}:{f['line']} imports {f['module']}" for f in findings[:5]))
 
 
 def test_no_device_reaches_this_one_by_import():

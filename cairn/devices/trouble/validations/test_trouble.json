@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_trouble.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-01T23:57:48",
+    "caller": "cairn test",
+    "date": "2026-10-02T00:01:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        findings and nothing else. The one behavioural difference is in the honest direction: a\n        sieve that RAISES is wrapped by the nest into an \"unreadable\" finding, and here it\n        propagates — a measurement that could not be taken stops being reported as clean (Law 7).\n    \n        NOT FIXED BY GIVING ``inspect()`` A ``sieves=`` ARGUMENT, though that is the shape the\n        beat's own tail wants (trouble beat-tail-re-walks-corpora-no-sieve-counts). A partial\n        shake returns a partial GRADATION, and what a score of \"min() over the sieves we felt\n        like running\" means is a real question about the nest's contract, owned by\n        build_inspector and not settleable from inside a consumer's proof. A caller that wants\n        one sieve's findings can compose the sieve; that needs no new contract.\n            -> trouble beat-tail-re-walks-corpora-no-sieve-counts\n        \"\"\"\n>       from cairn.machines.build_inspector.inspector import (\n            device_census, device_isolation_holds, _REPO_ROOT)\nE       ImportError: cannot import name 'device_isolation_holds' from 'cairn.machines.build_inspector.inspector' (/home/akien/dev/src/cairn/cairn/machines/build_inspector/inspector.py)\n\ntest_trouble.py:559: ImportError\n=========================== short test summary info ============================\nFAILED test_trouble.py::test_the_isolation_sieve_reports_nothing_over_the_live_tree\n1 failed, 39 passed in 1.59s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_inspector_troubles_were_cleared_through_the_door\n.\n  ok   test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution\n.\n  ok   test_a_clear_for_a_trouble_that_is_NOT_LIVE_is_DECLINED_and_does_not_WEDGE_the_lane\n.\n  ok   test_a_reconcile_clears_the_stale_spares_the_standing_and_CANNOT_REACH_OUTSIDE_ITS_SCOPE\n.\n  ok   test_BOTH_CLEARING_LANES_COMPARE_THROUGH_THE_STORES_OWN_ADDRESSING_RULE\n.\n  ok   test_a_RECONCILE_SCOPE_KEEPS_ITS_TRAILING_SEPARATOR\n.\n  ok   test_the_THREE_LANES_keep_INDEPENDENT_watermarks\n.\n  ok   test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS\n.\n  ok   test_the_narrowed_lane_scan_still_bites\n                                 [100%]\n40 passed in 5.79s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_first_raise_notifies",
@@ -38,6 +38,7 @@
         "test_an_amendment_emits_a_breadcrumb",
         "test_two_processes_raising_ONE_identity_fold_to_ONE_ticket",
         "test_a_SECOND_drain_does_not_re_fold_what_it_already_folded",
+        "test_the_isolation_sieve_reports_nothing_over_the_live_tree",
         "test_no_device_reaches_this_one_by_import",
         "test_the_holding_class_is_not_re_exported_from_anywhere_outside_this_device",
         "test_the_inspector_troubles_were_cleared_through_the_door",
@@ -50,10 +51,7 @@
         "test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS",
         "test_the_narrowed_lane_scan_still_bites"
       ],
-      "teeth_red": [
-        "test_the_isolation_sieve_reports_nothing_over_the_live_tree",
-        "test_trouble"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -62,7 +60,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "825b70790e6b1ff107660d5aa2f0ef7cec6e0f6f86f00c3c8dc0f5dd6d390feb",
+      "source_fingerprint": "697c2a7ee4f8de84f00177627b7b3ad8c0a4ecc3c795d5c5164b3b0cea8fe03e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -116,53 +114,44 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766681-80s7o94e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-771055-0248rxju/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 22,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261002.055746.258189.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.259055.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.292166.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.565791.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.596353.TroubleDevice.clear.json",
-            "logs/trouble/0/20261002.055746.657692.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.748343.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.748844.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.749346.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.780152.TroubleDevice.clear.json",
-            "logs/trouble/0/20261002.055746.811588.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.841831.TroubleDevice.clear.json",
-            "logs/trouble/0/20261002.055746.901105.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.901628.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.931700.TroubleDevice.clear.json",
-            "logs/trouble/0/20261002.055746.992798.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055746.993291.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055747.027321.TroubleDevice.clear.json",
-            "logs/trouble/0/20261002.055747.063093.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055747.129139.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261002.055747.129806.TroubleDevice.clear.json"
+            "logs/trouble/0/20261002.060142.687530.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060142.688386.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060142.720642.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.112512.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.149671.TroubleDevice.clear.json",
+            "logs/trouble/0/20261002.060147.222132.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.317777.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.318270.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.318731.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.350114.TroubleDevice.clear.json",
+            "logs/trouble/0/20261002.060147.382484.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.413576.TroubleDevice.clear.json",
+            "logs/trouble/0/20261002.060147.474606.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.475230.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.506316.TroubleDevice.clear.json",
+            "logs/trouble/0/20261002.060147.570139.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.570627.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.602283.TroubleDevice.clear.json",
+            "logs/trouble/0/20261002.060147.635081.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.698124.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261002.060147.699123.TroubleDevice.clear.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 139021787,
-          "disk_bytes": 158351360,
-          "entries": 8043,
+          "bytes": 139822688,
+          "disk_bytes": 159215616,
+          "entries": 8085,
           "builds": 1,
-          "reuses": 11
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "e465c5c3602765dd14fa0840642f40b1811a8e639db17a2a9061a947a2d2be1b",
-        "opened": "2026-10-01T21:38:52",
-        "last_red": "2026-10-01T23:57:48",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-trouble",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

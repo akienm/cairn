@@ -137,6 +137,8 @@ class CodeMotherDevice(BaseDevice):
             "question": self._handle_question,
             "charter": self._handle_charter,
             "feedback": self._handle_feedback,
+            "deposit": self._handle_deposit,
+            "drain": self._handle_drain,
         }
 
     # --- the door she fires -------------------------------------------------
@@ -470,6 +472,37 @@ class CodeMotherDevice(BaseDevice):
         from cairn.devices.codemother.watch import on_question
         body = envelope.get("body", {}) or {}
         return on_question(body.get("question", ""), area=body.get("area"))
+
+    def _handle_deposit(self, envelope: dict) -> dict:
+        """Land one berthed chart packet in its tree (ticket e8fe361a5b2f). Body
+        ``{berth, nexus?}``; a berth that is missing or not on disk is refused."""
+        from cairn.devices.codemother.deposit import deposit_berth, embed, embed_metered
+        from cairn.tools.bus_client import reach
+        body = envelope.get("body", {}) or {}
+        berth = body.get("berth")
+        if not isinstance(berth, str) or not berth:
+            return {"accepted": False, "verb": "deposit", "device": "codemother",
+                    "reason": "deposit needs a berth path in body.berth"}
+        if not os.path.isfile(os.path.expanduser(berth)):
+            return {"accepted": False, "verb": "deposit", "device": "codemother",
+                    "reason": "berth %r is not on disk" % berth}
+        bus = self._bus or reach("inference_domain")
+        try:
+            out = deposit_berth(berth, nexus=body.get("nexus"), embed=embed(bus),
+                                embed_metered=embed_metered(bus))
+        except Exception as e:  # noqa: BLE001 — a refusal rides back named, loud
+            return {"accepted": False, "verb": "deposit", "device": "codemother",
+                    "reason": "%s: %s" % (type(e).__name__, e)}
+        return {"accepted": True, "verb": "deposit", "device": "codemother", **out}
+
+    def _handle_drain(self, envelope: dict) -> dict:
+        """Land every verdict the PROVED crossing enqueued and nobody deposited; one
+        entry per berth, a failure named and left pending (ticket e8fe361a5b2f)."""
+        from cairn.devices.codemother.deposit import drain_pending, embed_metered
+        from cairn.tools.bus_client import reach
+        bus = self._bus or reach("inference_domain")
+        return {"accepted": True, "verb": "drain", "device": "codemother",
+                "drained": drain_pending(embed=embed_metered(bus))}
 
     def intention(self) -> dict:
         return {

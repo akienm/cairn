@@ -3351,108 +3351,117 @@ def gated_by_declared(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
-_DEVICE_ISOLATION = {
-    "kind": "device_isolation",
-    "capability": "no device may import another device (db_domain is the sole exception)",
-    "device_prefix": "",
-    "module_prefix": "cairn.devices.",
-    "exempt": ("db_domain",),
-}
+# RULE 1 (Akien, agreed 2026-10-01; ticket 56d1aff4455e): every component talks to every other
+# only through that component's public interface. ONE predicate replaces device_isolation_holds
+# and machine_imports_no_device, whose rules are strict subsets of it. A breach is computed once
+# per pass over the whole repository (import_sieve.import_sites) and attributed per row.
+_BREACH_CACHE: dict[str, list[dict]] = {}
+_DEVICE_PREFIX = "cairn/devices/"
 
 
-def device_isolation_holds(row: dict, comp_dir: Path) -> list[dict]:
-    """A device imports another device. db_domain is the sole exception.
+def _components(repo_root: str) -> list[str]:
+    """Every directory (repo-relative, posix) holding an intention+why.json, SKIP_DIRS pruned."""
+    out = []
+    for dirpath, dirnames, filenames in os.walk(repo_root):
+        dirnames[:] = sorted(d for d in dirnames if d not in import_sieve.SKIP_DIRS)
+        if "intention+why.json" in filenames:
+            rel = os.path.relpath(dirpath, repo_root).replace(os.sep, "/")
+            if rel != ".":
+                out.append(rel)
+    return sorted(out)
 
-    Provenance: ruling 2026-08-31-no-cross-device-imports, verbatim: 'no device
-    should ever import another device except the database. anybody may talk to our
-    database proxy directly. the only one. no device may import another.'
 
-    Only fires for top-level device rows (dir = devices/<name>). A device's nested
-    machines are under its tree, so their imports are caught here too — attributed to
-    the device they belong to, because the boundary the ruling draws is between devices.
+def _device_of(comp: str) -> str | None:
+    if not comp.startswith(_DEVICE_PREFIX):
+        return None
+    return _DEVICE_PREFIX + comp[len(_DEVICE_PREFIX):].split("/", 1)[0]
+
+
+def encapsulation_breaches(repo_root: str) -> list[dict]:
+    """Every import that crosses a component boundary off the target's public interface.
+
+    Component = the innermost directory holding intention+why.json; proofs and probes are
+    inside their component and are NOT skipped. A site in S landing on module M in T (S != T)
+    holds iff M is in T's ``public_interface`` AND, when T sits inside device D and S does
+    not, T is a tool nested in D whose charter says ``published_by_device: true``. A charter
+    without ``public_interface`` as a list of str is itself a breach (reason missing_field).
+    Each breach is {source, target, reason, file, line, module}, reason one of
+    'into_device' | 'undeclared' | 'missing_field'. Opaque (computed) imports are not
+    returned here — ``encapsulation_opaque`` counts them.
     """
-    if not row["dir"].startswith("devices/"):
-        return []
-    parts = row["dir"].split("/")
-    if len(parts) != 2:
-        return []
-    graph = import_sieve.import_graph(str(comp_dir.parent))
-    prefix = row["component"] + os.sep
-    findings = []
-    for caught in import_sieve.catches(graph, _DEVICE_ISOLATION, floor=1):
-        path = caught.split(" imports ", 1)[0]
-        if not path.startswith(prefix):
+    comps = _components(repo_root)
+    charters: dict[str, dict] = {}
+    for c in comps:
+        try:
+            charters[c] = json.loads((Path(repo_root) / c / "intention+why.json").read_text())
+        except (OSError, ValueError):
+            charters[c] = {}
+    by_len = sorted(comps, key=len, reverse=True)
+
+    def comp_of(path: str) -> str | None:
+        path = path.replace(os.sep, "/")
+        return next((c for c in by_len if path == c or path.startswith(c + "/")), None)
+
+    out = []
+    for c in comps:
+        pi = charters[c].get("public_interface")
+        if not (isinstance(pi, list) and all(isinstance(x, str) for x in pi)):
+            out.append({"source": c, "target": c, "reason": "missing_field",
+                        "file": c + "/intention+why.json", "line": 0, "module": None})
+    for site in import_sieve.import_sites(repo_root):
+        if not site.get("target"):
             continue
-        if os.sep + "proofs" + os.sep in path or path.endswith(os.sep + "proofs") \
-                or os.sep + "proofs_disabled" + os.sep in path:
+        s, t = comp_of(site["file"]), comp_of(site["target"])
+        if s is None or t is None or s == t:
             continue
-        findings.append(_finding(
-            "device_isolation_holds", row["component"],
-            caught,
-            expected=True, actual=False,
-            rule=dict(_DEVICE_ISOLATION),
-            file=str(comp_dir.parent / path),
-        ))
-    return findings
-
-
-_MACHINE_ISOLATION = {
-    "kind": "machine_isolation",
-    "capability": "no machine may import a device (db_domain is the sole exception)",
-    "module_prefix": "cairn.devices.",
-    "exempt": ("db_domain",),
-}
-
-
-def machine_imports_no_device(row: dict, comp_dir: Path) -> list[dict]:
-    """A top-level machine imports a device. db_domain is the sole exception.
-
-    Provenance: Akien, 2026-09-11 (ticket 76639374d9f9, verbatim): "the openai wire
-    is a machine anybody can include" — and a machine that imports a device cannot be
-    included by anybody, only by that device. The db_domain exemption rides the same
-    ruling as device_isolation_holds (2026-08-31-no-cross-device-imports: "anybody may
-    talk to our database proxy directly. the only one.").
-
-    Only fires for top-level machine rows (dir = machines/<name>): a machine nested
-    under a device is that device's, and the boundary there is device_isolation_holds'.
-    Proofs and probes are instruments and may read what they measure, so they are
-    skipped. The exemption is an ENUMERATED device list, never a dotted prefix — a
-    prefix would forgive `cairn.devices.db_domain_x` too.
-    """
-    if not row["dir"].startswith("machines/"):
-        return []
-    parts = row["dir"].split("/")
-    if len(parts) != 2:
-        return []
-    graph = import_sieve.import_graph(str(comp_dir.parent))
-    if not graph:
-        raise import_sieve.HollowScan(
-            f"the sieve was shaken over 0 files under {comp_dir.parent} — a clean result "
-            "here means the scan did not read the tree, not that the tree is clean")
-    prefix = row["component"] + os.sep
-    module_prefix = _MACHINE_ISOLATION["module_prefix"]
-    exempt = frozenset(_MACHINE_ISOLATION["exempt"])
-    findings = []
-    for path, imported in sorted(graph.items()):
-        if not path.startswith(prefix):
+        m = import_sieve.module_name(site["target"])
+        dev = _device_of(t)
+        if dev and dev != _device_of(s) and not (
+                t != dev and charters[t].get("published_by_device") is True):
+            reason = "into_device"
+        elif m not in (charters[t].get("public_interface") or []):
+            reason = "undeclared"
+        else:
             continue
-        if os.sep + "proofs" + os.sep in path or os.sep + "probes" + os.sep in path \
-                or os.sep + "proofs_disabled" + os.sep in path:
-            continue
-        found = sorted(
-            m for m in imported
-            if m.startswith(module_prefix)
-            and m[len(module_prefix):].split(".", 1)[0] not in exempt)
-        if found:
-            findings.append(_finding(
-                "machine_imports_no_device", row["component"],
-                f"{path} imports {found} — {row['component']} is a machine and may not "
-                f"import a device; {_MACHINE_ISOLATION['capability']}",
-                expected=True, actual=False,
-                rule=dict(_MACHINE_ISOLATION),
-                file=str(comp_dir.parent / path),
-            ))
-    return findings
+        out.append({"source": s, "target": t, "reason": reason,
+                    "file": site["file"].replace(os.sep, "/"), "line": site["line"], "module": m})
+    return out
+
+
+def encapsulation_opaque(repo_root: str) -> list[dict]:
+    """The import_sites records of kind 'opaque' whose file sits in a component — counted on
+    the whole-repo sweep, never a red (a computed import names no target to judge)."""
+    comps = _components(repo_root)
+    return [s for s in import_sieve.import_sites(repo_root) if s["kind"] == "opaque"
+            and any(s["file"].replace(os.sep, "/").startswith(c + "/") for c in comps)]
+
+
+def _breaches(repo_root: str) -> list[dict]:
+    if repo_root not in _BREACH_CACHE:
+        _BREACH_CACHE[repo_root] = encapsulation_breaches(repo_root)
+    return _BREACH_CACHE[repo_root]
+
+
+def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
+    """RULE 1 at one census row: the row's own breaches, plus breaches whose reacher sits
+    outside the census (skills/, bin/, launchers/) landing on this row."""
+    root = Path(comp_dir).resolve()
+    for _ in row["dir"].split("/"):
+        root = root.parent                       # the census root: <repo_root>/cairn
+    repo_root = str(root.parent)
+    here = "cairn/" + row["dir"]
+    census = {"cairn/" + r["dir"] for r in device_census(root=root)["measured"]["components"]} \
+        if repo_root not in _CENSUS_DIRS else _CENSUS_DIRS[repo_root]
+    _CENSUS_DIRS[repo_root] = census
+    return [_finding("encapsulation_holds", row["component"],
+                     f"{b['file']}:{b['line']} imports {b['module']} — {b['reason']}: {b['target']}",
+                     expected=True, actual=False, file=b["file"], source=b["source"],
+                     target=b["target"], reason=b["reason"])
+            for b in _breaches(repo_root)
+            if b["source"] == here or (b["source"] not in census and b["target"] == here)]
+
+
+_CENSUS_DIRS: dict[str, set[str]] = {}
 
 
 def green_seal_names_a_tooth(row: dict, comp_dir: Path) -> list[dict]:
@@ -3536,8 +3545,7 @@ SIEVES = {
     "claim_provenance": claim_provenance,
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
-    "device_isolation_holds": device_isolation_holds,
-    "machine_imports_no_device": machine_imports_no_device,
+    "encapsulation_holds": encapsulation_holds,
     "working_tree_clean": working_tree_clean,
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
 }
@@ -3572,6 +3580,8 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     findings are the detail behind the zeroes.
     """
     root = root or (_REPO_ROOT / "cairn")
+    _BREACH_CACHE.clear()
+    _CENSUS_DIRS.clear()
     census = device_census(root=root)  # refuses bad roots loudly — inherited, not re-built
     rows = census["measured"]["components"]
     if component is not None:
@@ -3619,11 +3629,18 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     stale_slates = []
     stale_histories = []
     uncovered_tickets = []
+    outside_census = []
+    opaque_sites = 0
     if component is None:
         unbuilt = unbuilt_intentions(rows, root)
         stale_slates = slate_reach(root)
         stale_histories = history_reach(root)
         uncovered_tickets = proof_covers_the_ticket(root)
+        # RULE 1 breaches no census row can carry: neither reacher nor target is a row.
+        census_dirs = {"cairn/" + r["dir"] for r in rows}
+        outside_census = [b for b in _breaches(str(Path(root).resolve().parent))
+                          if b["source"] not in census_dirs and b["target"] not in census_dirs]
+        opaque_sites = len(encapsulation_opaque(str(Path(root).resolve().parent)))
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
     record = proof_record(shaken["gradation"], shaken["findings"])
@@ -3642,8 +3659,10 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "stale_slates": stale_slates,
         "stale_histories": stale_histories,
         "uncovered_tickets": uncovered_tickets,
+        "encapsulation_outside_census": outside_census,
+        "encapsulation_opaque_sites": opaque_sites,
         "clean": (not shaken["findings"] and not unbuilt and not stale_slates
-                  and not stale_histories and not uncovered_tickets),
+                  and not stale_histories and not uncovered_tickets and not outside_census),
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

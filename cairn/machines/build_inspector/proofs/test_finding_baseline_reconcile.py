@@ -34,7 +34,7 @@ _inspector = _Late("cairn.machines.build_inspector.inspector")
 PASS = 0
 FAIL = 0
 
-_COVERED = {"method": "machine_imports_no_device", "at": "machines/build_inspector"}
+_COVERED = {"method": "encapsulation_holds", "at": "machines/build_inspector"}
 _BARE = {"method": "component_color", "at": "tools/tree"}
 
 

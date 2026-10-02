@@ -67,6 +67,7 @@ class _CallTime:
 
 R = _CallTime()
 from cairn.tools.artifact import artifact as door             # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir
 
 REPO = Path(__file__).resolve().parents[4]
 
@@ -150,7 +151,7 @@ class Stub:
 
 class World:
     def __init__(self):
-        self.dir = Path(tempfile.mkdtemp(prefix="rehearsal-proof-"))
+        self.dir = scratch_dir("rehearsal-proof-")
         self.commons = self.dir / "CairnCommons"
         self.cairn = self.dir / "cairn"
         for d in ("tickets", "rehearsals", "questions"):

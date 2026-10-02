@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.import_sieve.sieve import HollowScan
+from cairn.devices.tester.scratch import scratch_dir
 
 
 class _Late:
@@ -50,7 +51,7 @@ _TMP: list[str] = []
 
 
 def _scratch(prefix):
-    d = tempfile.mkdtemp(prefix=prefix)
+    d = str(scratch_dir(prefix))
     _TMP.append(d)
     return Path(d)
 

@@ -47,6 +47,7 @@ if str(ROOT) not in sys.path:
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.shim import BaseShim, cli_main  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir
 
 PROVES = {"15d6a0ef9c11": {
     "1": "test_the_vocabulary_is_one_table_and_list_carries_it",
@@ -143,7 +144,7 @@ def _shim_class(name: str) -> type:
 
 
 def _scratch() -> Path:
-    home = Path(tempfile.mkdtemp(prefix="15d6-home-"))
+    home = scratch_dir("15d6-home-")
     from cairn.devices.cairn.machines.ground_loop.liveness import write_liveness
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)

@@ -750,7 +750,8 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
     toolset = [{"type": "function", "function": {"name": "clock"}}]
     r = _CountingResolver()
 
-    tmp = Path(tempfile.mkdtemp(prefix="cairn_agent_trail_both_records_"))
+    from cairn.devices.tester.scratch import scratch_dir
+    tmp = scratch_dir("cairn_agent_trail_both_records_")
     outer = getattr(domain._trail, "_diagnostic_roots", None)
     domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
     try:

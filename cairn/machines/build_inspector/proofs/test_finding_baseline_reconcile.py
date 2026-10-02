@@ -13,6 +13,7 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from cairn.devices.tester.scratch import scratch_dir
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
@@ -50,7 +51,7 @@ def _tooth(name, fn):
 
 
 def _baseline_covering(finding) -> Path:
-    d = Path(tempfile.mkdtemp(prefix="inspector-proof-baseline-"))
+    d = scratch_dir("inspector-proof-baseline-")
     bp = d / "finding_baseline.json"
     bp.write_text(json.dumps({"known": [{**finding, "ticket": "135a905eac3c"}],
                               "updated": "2026-09-13"}))

@@ -39,6 +39,7 @@ sys.path.insert(0, str(ROOT))
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.shim import NEVER_BOOTED, OFFLINE, ONLINE, ROOT_VERBS, ROOT_VIEWS, BaseShim, cli_main  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir
 
 PROVES = [
     "cold list names the six verbs and the two root views and starts nothing",
@@ -125,7 +126,7 @@ SHIMS = {"weather": WeatherShim, "bare": BareShim, "colliding": CollidingShim}
 # --- the harness: one fresh process per command, under a scratch HOME ------------------------
 
 def _scratch() -> Path:
-    home = Path(tempfile.mkdtemp(prefix="b41b-home-"))
+    home = scratch_dir("b41b-home-")
     from cairn.devices.cairn.machines.ground_loop.liveness import write_liveness
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)

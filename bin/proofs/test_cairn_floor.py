@@ -45,7 +45,8 @@ N = 15
 
 
 def _scratch() -> Path:
-    return Path(tempfile.mkdtemp(prefix="0853-floor-"))
+    from cairn.devices.tester.scratch import scratch_dir
+    return scratch_dir("0853-floor-")
 
 
 def _env(home: Path, *, venv: Path | None = None, sock: Path | None = None) -> dict:

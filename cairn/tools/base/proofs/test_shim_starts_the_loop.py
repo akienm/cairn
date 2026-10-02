@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
 from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness  # noqa: E402
+from cairn.devices.tester.scratch import scratch_dir
 
 # The falsifier's four DONE clauses, one tooth each (the coverage reader's contract:
 # {ticket: {clause: tooth}}); the resting case is a fifth tooth beyond the clauses.
@@ -102,7 +103,7 @@ def _kill_setsid_children(home: Path) -> None:
 
 
 def test_dead_to_live_one_shim() -> None:
-    home = Path(tempfile.mkdtemp(prefix="d6eb-home-"))
+    home = scratch_dir("d6eb-home-")
     unit = f"cairn-ground-loop-proof-{os.getpid()}"
     try:
         now = datetime.now(timezone.utc)
@@ -126,7 +127,7 @@ def test_dead_to_live_one_shim() -> None:
 
 
 def test_two_shims_one_loop() -> None:
-    home = Path(tempfile.mkdtemp(prefix="d6eb-home-"))
+    home = scratch_dir("d6eb-home-")
     unit = f"cairn-ground-loop-proof-{os.getpid()}-two"
     try:
         procs = [subprocess.Popen([sys.executable, "-c", CONSTRUCT % str(ROOT)], env=_env(home, unit),
@@ -188,7 +189,7 @@ def _is_scratch_loop(p: Path, home: Path) -> bool:
 
 
 def test_live_record_spawns_nothing() -> None:
-    home = Path(tempfile.mkdtemp(prefix="d6eb-home-"))
+    home = scratch_dir("d6eb-home-")
     unit = f"cairn-ground-loop-proof-{os.getpid()}-live"
     try:
         lh = _liveness_home(home)

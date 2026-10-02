@@ -29,6 +29,7 @@ import tempfile
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
+from cairn.devices.tester.scratch import scratch_dir
 
 
 class _Late:
@@ -59,7 +60,7 @@ _TMP: list[str] = []
 
 
 def _scratch(prefix):
-    d = tempfile.mkdtemp(prefix=prefix)
+    d = str(scratch_dir(prefix))
     _TMP.append(d)
     return Path(d)
 

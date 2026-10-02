@@ -1,0 +1,105 @@
+[
+  {
+    "claim": "proof test_a_requester_takes_its_reply.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T13:06:56",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green an_unwired_requesters_reply_is_receipted\n  green a_wired_requester_gets_one_receipt_not_two\n  green mail_outside_the_request_stays_undelivered\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "an_unwired_requesters_reply_is_receipted",
+        "a_wired_requester_gets_one_receipt_not_two",
+        "mail_outside_the_request_stays_undelivered"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "d170d7a0b2f567ab415a056f30a4299d0c0d75cbd373c1ebdaa9050c59756868",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_a_requester_takes_its_reply.py",
+        "cairn/devices/cairn/machines/bus/shim.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/roster.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1151342-2d1n_ggd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 23,
+          "paths": [
+            "logs/bus/0/20261002.190655.983629.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.026795.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.190656.045121.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.054107.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.068419.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.070080.BusDevice.delivered.json",
+            "logs/bus/0/20261002.190656.070306.BusDevice.delivered.json",
+            "logs/bus/0/20261002.190656.115000.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.174104.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.190656.194084.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.202785.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.210358.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.219626.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.227077.BusDevice.delivered.json",
+            "logs/bus/0/20261002.190656.227327.BusDevice.delivered.json",
+            "logs/bus/0/20261002.190656.265757.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.320645.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.190656.338001.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.344547.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.345729.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.353031.BusDevice.post.json",
+            "logs/bus/0/20261002.190656.353232.BusDevice.delivered.json",
+            "logs/bus/0/20261002.190656.353347.BusDevice.delivered.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 91497943,
+          "disk_bytes": 108814336,
+          "entries": 7151,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

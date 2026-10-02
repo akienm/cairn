@@ -2,12 +2,12 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T21:07:34",
+    "date": "2026-10-01T21:08:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "    def test_the_inspector_spells_no_watchme_field_list():\n        src = (Path(__file__).resolve().parents[1] / \"inspector.py\").read_text(encoding=\"utf-8\")\n>       assert '\"carrier\"' not in src, \"inspector.py still spells a WATCHME field list of its own\"\nE       AssertionError: inspector.py still spells a WATCHME field list of its own\nE       assert '\"carrier\"' not in '\"\"\"ticket_i...ding\\']}\")\\n'\nE         \nE         '\"carrier\"' is contained here:\nE           \"enough\", \"carrier\", \"probe\"):\nE         ?           +++++++++\nE                           if not wm.get(wf):\nE                               finding(\"watchme_present\",\nE                                       f\"watchme missing {wf}\",...\nE         \nE         ...Full output truncated (135 lines hidden), use '-vv' to show\n\ntest_inspector.py:173: AssertionError\n=========================== short test summary info ============================\nFAILED test_inspector.py::test_watchme_present_carries_the_spec_rule_text - A...\nFAILED test_inspector.py::test_the_inspector_spells_no_watchme_field_list - A...\n2 failed, 28 passed in 0.10s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_children_are_ticket_ids_prose_entry\n.\n  ok   test_children_are_ticket_ids_clean\n.\n  ok   test_child_tickets_exist\n.\n  ok   test_owning_intention_resolves\n.\n  ok   test_workflow_matches_node_class\n.\n  ok   test_workflow_matches_node_class_clean\n.\n  ok   test_roster_coverage\n.\n  ok   test_corpus_sweep_produces_findings\n.\n  ok   test_finding_shape\n                                           [100%]\n30 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_clean_ticket_is_clean",
@@ -26,6 +26,8 @@
         "test_traces_present",
         "test_watchme_present",
         "test_watchme_with_spec_is_clean",
+        "test_watchme_present_carries_the_spec_rule_text",
+        "test_the_inspector_spells_no_watchme_field_list",
         "test_buildme_has_how",
         "test_how_not_required_at_proveme",
         "test_children_are_ticket_ids_prose_string",
@@ -39,11 +41,7 @@
         "test_corpus_sweep_produces_findings",
         "test_finding_shape"
       ],
-      "teeth_red": [
-        "test_watchme_present_carries_the_spec_rule_text",
-        "test_the_inspector_spells_no_watchme_field_list",
-        "test_inspector"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -52,7 +50,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "9ba1b209c8cb240f2a2c0036f9777a6fa63480eb4b654592d2b760ebdacdbf01",
+      "source_fingerprint": "8f0c67623bd1f635d930837e3e5624bba1ab4a789329d0c3242c4d62f300e05b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -81,7 +79,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-699430-e7ij1xkd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-699686-1rh056bp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,21 +88,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 132286650,
+          "bytes": 132287015,
           "disk_bytes": 150519808,
           "entries": 7663,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "973b2115343f5fc8bade77b98230fe8d7dc5a9a0eb8afc2648e96a92d8aee2af",
         "opened": "2026-10-01T21:07:34",
         "last_red": "2026-10-01T21:07:34",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-ticket-inspector",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-01T21:08:02",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "973b2115343f5fc8bade77b98230fe8d7dc5a9a0eb8afc2648e96a92d8aee2af"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

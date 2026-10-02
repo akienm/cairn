@@ -18,6 +18,8 @@ import os
 import re
 from pathlib import Path
 
+from cairn.tools.base.watchme_spec import watchme_spec_error
+
 TICKETS_DIR = Path(os.path.expanduser("~/dev/src/CairnCommons/tickets/"))
 CAIRN_ROOT = Path(os.path.expanduser("~/dev/src/cairn"))
 COMMONS_ROOT = Path(os.path.expanduser("~/dev/src/CairnCommons"))
@@ -157,29 +159,13 @@ def inspect_ticket(t: dict) -> list[dict]:
         finding("traces_present", "no traces_to")
 
     # --- WATCHME ---
+    # The inspector holds no opinion of its own about a complete spec (ticket
+    # de9e31ef104c): the finding IS watchme_spec_error's sentence, the code the gate
+    # runs, so a spec this check passes is a spec the crossing accepts.
     if "WATCHME" in state:
-        wm = t.get("watchme")
-        if not wm:
-            finding("watchme_present",
-                    "workflow_and_state mentions WATCHME but no watchme field")
-        elif isinstance(wm, dict):
-            for wf in ("object", "trigger", "enough", "carrier", "probe"):
-                if not wm.get(wf):
-                    finding("watchme_present",
-                            f"watchme missing {wf}",
-                            {"field": wf})
-        elif isinstance(wm, list):
-            for i, w in enumerate(wm):
-                if isinstance(w, dict):
-                    for wf in ("object", "trigger", "enough", "carrier", "probe"):
-                        if not w.get(wf):
-                            finding("watchme_present",
-                                    f"watchme[{i}] missing {wf}",
-                                    {"index": i, "field": wf})
-        elif isinstance(wm, str) and wm.startswith("none") and not _has_because(wm):
-            finding("watchme_present",
-                    "'none' without a 'because' reason",
-                    {"watchme": str(wm)[:120]})
+        err = watchme_spec_error(t)
+        if err:
+            finding("watchme_present", err, {})
 
     # --- BUILDME HAS HOW ---
     if cursor == "BUILDME":

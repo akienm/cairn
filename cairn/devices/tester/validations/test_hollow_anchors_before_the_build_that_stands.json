@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_hollow_anchors_before_the_build_that_stands.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T13:16:52",
+    "caller": "cairn test",
+    "date": "2026-10-02T13:50:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 15.88s",
+      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 15.35s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
@@ -80,28 +80,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1162856-gx5ks67f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1179457-f_d9zkf4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/tester/0/20261002.191638.495691.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191640.227404.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191641.898365.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191643.554235.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191645.276002.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191646.912274.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191648.627527.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191650.356573.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.191652.094590.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.194954.203332.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.194955.836522.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.194957.562695.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.194959.281815.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.195000.922245.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.195002.550320.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.195004.240763.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.195005.865175.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.195007.478398.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91524851,
-          "disk_bytes": 108847104,
-          "entries": 7156,
+          "bytes": 91710344,
+          "disk_bytes": 109178880,
+          "entries": 7210,
           "builds": 1,
           "reuses": 0
         }

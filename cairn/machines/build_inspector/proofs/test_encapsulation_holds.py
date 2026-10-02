@@ -164,6 +164,10 @@ def the_old_sieves_are_retired_and_encapsulation_holds_stands():
     assert "device_isolation_holds" not in sieves and "machine_imports_no_device" not in sieves, \
         sorted(k for k in sieves if k in ("device_isolation_holds", "machine_imports_no_device"))
     assert sieves.get("encapsulation_holds") is _inspector.encapsulation_holds
+    # A sieve the nest would refuse does not stand: every member carries the provenance of
+    # the failure that taught it (the learning-device shape, test_inspector tooth 10).
+    assert "Provenance:" in (_inspector.encapsulation_holds.__doc__ or ""), \
+        "encapsulation_holds carries no provenance — a check nobody was taught by"
     retired = ("device_isolation_holds", "machine_imports_no_device")
     seeds = _REPO_ROOT / "cairn/machines/build_inspector/sieves"
     assert (seeds / "encapsulation_holds.json").is_file(), "encapsulation_holds has no sieve seed"

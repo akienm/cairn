@@ -213,9 +213,52 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
 # ---------------------------------------------------------------------------
 # the render: what the reader sees, and nothing else (D4)
 
+_DECISION_STEP = re.compile(r"[Dd]([1-9][0-9]*)")
+
+
+def reader_view(blob: bytes) -> str:
+    """The ticket as the reader is handed it (ticket eb1c943e09b9). Only the PASTED COPY's
+    ``decisions`` change; the file, and the sha256 every record keeps, are its bytes as read.
+
+    (a) every decision's text begins with its own ``D<n>`` — a read that cannot see an id in
+        the text refuses 'missing D<n>' (measured 2026-09-29 on cd8096f9eeca, 2026-10-02 on
+        d8e8a2dc1176); a text already labeled is left as it is;
+    (b) a decision ``decide()`` appended (source 'rehearsal', step 'D<m>' naming a decision in
+        the list) is also shown INSIDE D<m>'s line as ``[settled by D<n>: <its text>]``, so the
+        reader judging D<m> sees the answer where the question is, instead of re-flagging a
+        settled step whose answer stands lines away. It stays in the list, labeled. A step
+        that is not 'D<m>', or names no decision, is left alone.
+
+    decide() is unchanged (D3): the file keeps who said what and when; this is a view. A ticket
+    that does not parse, or carries no decisions list, is pasted verbatim."""
+    raw = blob.decode("utf-8").rstrip()
+    try:
+        doc = json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
+    have = doc.get("decisions") if isinstance(doc, dict) else None
+    if not isinstance(have, list):
+        return raw
+    entries = [d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    original = {d["n"]: str(d.get("text", "")) for d in entries}
+    view = {}
+    for n, text in original.items():
+        view[n] = text if re.match(rf"D{n}\b", text) else f"D{n} {text}"
+    for d in sorted(entries, key=lambda d: d["n"]):
+        m = _DECISION_STEP.fullmatch(str(d.get("step") or "").strip())
+        if d.get("source") != "rehearsal" or not m:
+            continue
+        target = int(m.group(1))
+        if target in view and target != d["n"]:
+            view[target] += f" [settled by D{d['n']}: {original[d['n']]}]"
+    for d in entries:
+        d["text"] = view[d["n"]]
+    return json.dumps(doc, indent=2, ensure_ascii=False)
+
+
 def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
            repo: Path | str | None = None) -> tuple[str, str, Path]:
-    """The text the reader is handed: the ticket file verbatim, the standing chart berths
+    """The text the reader is handed: the ticket as ``reader_view`` shows it, the standing chart berths
     for the ticket (per stage, the latest claiming packet — through the one chain locator),
     and the charters of the components orient ref'd. Returns ``(text, sha256 of the ticket
     bytes as read, ticket path)``. No repository, no code: D4 is the whole point, and the
@@ -226,7 +269,7 @@ def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
         raise Refused(f"no ticket file for {ticket!r} under {commons(root) / 'tickets'}")
     blob = tk.read_bytes()
     repo = Path(repo) if repo is not None else REPO
-    parts = [prompt(), "\n\n# THE TICKET\n\n```json\n" + blob.decode("utf-8").rstrip() + "\n```\n"]
+    parts = [prompt(), "\n\n# THE TICKET\n\n```json\n" + reader_view(blob) + "\n```\n"]
     try:
         chain = chain_for_ticket(ticket, berths_root=berths_root)
     except Exception as exc:  # the chart is a courtesy to the reader, not a gate here — the lane a_berthed_chart_chain_claims_the_ticket judges it

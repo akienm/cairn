@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_watchme_spec.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-01T19:39:00",
+    "caller": "cairn test",
+    "date": "2026-10-01T20:33:04",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -59,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-644046-pedbte_2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-683270-juk1cepi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,24 +68,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 258807865,
-          "disk_bytes": 276492288,
-          "entries": 7463,
+          "bytes": 130081420,
+          "disk_bytes": 148025344,
+          "entries": 7547,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "09164719582d727826077c322f56240613b4f5eb2718fba59bb4ea7900570939",
-        "opened": "2026-10-01T19:37:04",
-        "last_red": "2026-10-01T19:37:04",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base",
-        "ruling": null,
-        "closed_at": "2026-10-01T19:39:00",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "09164719582d727826077c322f56240613b4f5eb2718fba59bb4ea7900570939"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

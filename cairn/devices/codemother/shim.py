@@ -314,6 +314,7 @@ class CodeMotherDevice(BaseDevice):
                               "why": "a red seal crosses nothing"})
             return {"accepted": True, "verb": "sealed", "device": self.device_id,
                     "proof": proof, "verdict": verdict, "crossed": [], "refused": [],
+                    "awaiting_hollow": [],
                     "reason": "a red seal crosses nothing — the boat stays where it is "
                               "and the red stands beside it (Law 7)"}
 
@@ -321,8 +322,31 @@ class CodeMotherDevice(BaseDevice):
         self.emit("sealed_heard", pointer=proof,
                   values={"verdict": verdict, "boats": len(boats),
                           "fingerprint": body.get("source_fingerprint", "")})
-        crossed, refused = [], []
+        from cairn.tools.base.validation import latest_seal
+        from cairn.tools.system_word.system_word import is_word
+
+        crossed, refused, awaiting_hollow = [], [], []
         for boat in boats:
+            # A SEAL WAITS FOR ITS HOLLOW READING (ticket b984567d8c05). The reading can only be
+            # taken AFTER a seal stands, so the first seal on a proof always arrives without
+            # one — and crossing on it was refused hollow_evidence_absent, which sends the boat
+            # to FIXME. Measured n=2 on 2026-10-02 (e8fe361a5b2f, 56d1aff4455e): an unchanged
+            # build bounced, both times. An ABSENT reading is a measurement still to come, so
+            # the boat waits, listed; the tester announces again when the reading lands
+            # (9bdbeeaa1f8b). A PRESENT reading that names a hollow, unreadable or empty file
+            # is not waiting for anything, so it crosses and the door refuses it into FIXME,
+            # where the real lack belongs (973574dddb77). A proof with NO seal is not waiting
+            # either: the harbor already refuses it. Concept-pieces are proved by review and
+            # carry no reversion reading at all.
+            if not is_word(boat.get("node_class"), "concept-piece"):
+                waiting_on = [
+                    p for p in boat["proven_by"]
+                    if (seal := latest_seal(_resolved(p), artifact=False)) is not None
+                    and not isinstance(((seal.get("evidence") or {}).get("hollow") or {})
+                                       .get(boat["ticket"]), dict)]
+                if waiting_on:
+                    awaiting_hollow.append({"ticket": boat["ticket"], "waiting_on": waiting_on})
+                    continue
             # THE CROSSING NAMES WHAT THE BOAT NAMED, NOT WHAT WAS JUST SEALED (2026-09-09).
             # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, which is why ``proven_by`` is read
             # as one-or-many everywhere else in this path — and passing the single sealed
@@ -343,9 +367,12 @@ class CodeMotherDevice(BaseDevice):
             else:
                 refused.append({"ticket": boat["ticket"],
                                 "reason": answer.get("reason") or answer.get("refusal", "")})
+        self.emit("sealed_heard", pointer=proof,
+                  values={"crossed": len(crossed), "refused": len(refused),
+                          "awaiting_hollow": len(awaiting_hollow)})
         return {"accepted": True, "verb": "sealed", "device": self.device_id,
                 "proof": proof, "verdict": verdict,
-                "crossed": crossed, "refused": refused}
+                "crossed": crossed, "refused": refused, "awaiting_hollow": awaiting_hollow}
 
     @staticmethod
     def _boats_named_on(proof: str) -> list[dict]:
@@ -393,7 +420,8 @@ class CodeMotherDevice(BaseDevice):
             # of its four proofs. Measured: 1 of the 42 migrated tickets lost 3 proofs.
             named = proven_by_since_buildme(str(ticket.get("id") or ""), _crossing_roots())
             if named and want in {_resolved(one) for one in named}:
-                out.append({"ticket": str(ticket.get("id") or ""), "proven_by": named})
+                out.append({"ticket": str(ticket.get("id") or ""), "proven_by": named,
+                            "node_class": str(ticket.get("node_class") or "")})
         return [one for one in out if one["ticket"]]
 
     # --- the watcher face, now actually reachable ---------------------------

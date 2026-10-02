@@ -68,7 +68,6 @@ if str(_REPO_ROOT) not in sys.path:
 #   test_a_HOLLOW_FILE_in_the_reading_is_refused_and_the_refusal_NAMES_THE_FILE
 #   test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow
 #   test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading
-#   test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding
 PROVES = {
     "1accdc1781aa": {
         "3": "test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass",
@@ -905,8 +904,17 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         _seal(_covering)
         assert record_hollow(_covering, _OTHER_BOAT, {"thing.py": [_COVERED_TOOTH]}) is True
         import cairn.machines.build_inspector.inspector as _insp
+        import cairn.tools.base.transitions as _t
+        # AND THE BOAT ITSELF CROSSES IN THE FIXTURE WORLD (2026-10-02, ticket 973574dddb77,
+        # decisions D1/D2). This tooth used to resolve the LIVE ticket, so the exit gate's
+        # the_stones_are_pushed lane read the real CairnCommons and the tooth went red
+        # whenever the operator had an unpushed commit — a verdict about push state, not
+        # about clearance. Cast into the fixture registry, as ``_cross_to_proved`` does.
+        _cast(_OTHER_BOAT)
         _saved = _insp._CHART_BERTHS
+        _saved_tickets = _t._TICKETS
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+        _t._TICKETS = _FIXTURE_TICKETS
         try:
             # AND THE CROSSING RECORD IS STOOD UP TOO (2026-09-10). The coverage rung used to
             # read this boat's proofs off the substituted ticket dict; since the crossings
@@ -930,8 +938,14 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
             assert "re-read at the door" in rec.get("clearance_gate", ""), (
                 "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
                 f"through this gate satisfies that gate rather than being waived past it: {rec}")
+            crossed = _t._find_ticket(_OTHER_BOAT)
+            assert crossed is not None, "the fixture registry must resolve the crossed boat"
+            live = Path(_clearance.COMMONS_ROOT).resolve()
+            assert live not in Path(crossed).resolve().parents, (
+                f"the crossed ticket resolved under the live commons {live}: {crossed}")
         finally:
             _insp._CHART_BERTHS = _saved
+            _t._TICKETS = _saved_tickets
 
 
 def test_a_caller_may_not_hand_this_gate_its_own_witness():
@@ -1617,6 +1631,12 @@ def _cast(tid: str) -> None:
         json.dumps({"id": tid, "cursor": "code-seam@v1: ... [PROVEME]"}), encoding="utf-8")
 
 
+def _at_fixme(cursor: str) -> bool:
+    """The cursor stands at FIXME — bare or with a sub-state such as ``[FIXME:waiting]``."""
+    import re
+    return re.search(r"\[FIXME(:[A-Za-z_]+)?\]", cursor) is not None
+
+
 def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
     """Ask the gate for the PROVED crossing this rung guards. Returns the refusal, or None."""
     import cairn.machines.build_inspector.inspector as _insp
@@ -1927,7 +1947,8 @@ def test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack():
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
     assert "FIXME" in str(exc), f"the refusal must say where the boat went: {exc}"
     doc = json.loads(ticket_path.read_text(encoding="utf-8"))
-    assert "[FIXME]" in doc["workflow_and_state"], doc["workflow_and_state"]
+    # the back-edge's cursor carries its sub-state (``[FIXME:waiting]``), measured 2026-10-01
+    assert _at_fixme(doc["workflow_and_state"]), doc["workflow_and_state"]
     fixme = doc.get("fixme") or []
     assert fixme and all(e.get("kind") and e.get("missing") for e in fixme), fixme
     back = [e for e in journal if e.get("to") == "FIXME"]
@@ -1948,7 +1969,7 @@ def test_a_fixture_refusal_WRITES_NOTHING_LIVE():
     tid = "fixmelive00a"
     exc, ticket_path, _, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
-    assert "[FIXME]" in json.loads(ticket_path.read_text(encoding="utf-8"))["workflow_and_state"], \
+    assert _at_fixme(json.loads(ticket_path.read_text(encoding="utf-8"))["workflow_and_state"]), \
         "the fixture-world ticket was not written, so 'nothing live' would be vacuous"
     live = Path(_clearance.COMMONS_ROOT)
     leaked = sorted(str(p) for d in ("tickets", "troubles") for p in (live / d).glob(f"*{tid}*"))
@@ -1966,54 +1987,20 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
     saved = _t._TICKETS
     _t._TICKETS = ticket_path.parent
     try:
-        try:
-            _t.emit(doc["workflow_and_state"], "BUILDME", ticket=tid, actor=_OWNER)
-        except _t.FixmeGateRed:
-            pass
-        else:
-            raise AssertionError("the boat left FIXME with every lack unanswered")
+        # a JOURNALED crossing: the gates run only when the crossing has a record to write
+        # to, so an unjournaled emit would walk past the FIXME seat without asking it
+        with tempfile.TemporaryDirectory() as tmp:
+            hp, sp = _paths(tmp)
+            try:
+                _t.emit(doc["workflow_and_state"], "BUILDME", ticket=tid, actor=_OWNER,
+                        history_path=hp, state_path=sp)
+            except _t.FixmeGateRed as e:
+                assert not Path(hp).exists(), "a refused crossing out of FIXME wrote a record"
+                assert e.findings, f"the refusal must name what is unanswered: {e}"
+            else:
+                raise AssertionError("the boat left FIXME with every lack unanswered")
     finally:
         _t._TICKETS = saved
-
-
-def test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding():
-    """The half of the rule that is not the refusal. A gate that only refuses teaches the one
-    caller standing at it; the boat then sits at PROVEME looking exactly like a boat nobody
-    has got to yet. The trouble is what makes the reason outlive the call — one identity per
-    BOAT, so five refusals fold to one trouble with a count of five."""
-    tid = "trouble0000a"
-    proof = _covering_proof("trouble", tid, declares=False)
-    _seal(proof)
-    dev = _Raises()
-    with tempfile.TemporaryDirectory() as tmp:
-        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
-                               trouble_device=dev)
-    assert isinstance(exc, _built("Uncovered"))
-    assert len(dev.raised) == 1, f"exactly one trouble per refusal: {dev.raised}"
-    one = dev.raised[0]
-    assert tid in one["identity"], one["identity"]
-    assert one["detail"]["boat"] == tid and one["detail"]["lacks"], one["detail"]
-    assert {l["kind"] for l in one["detail"]["lacks"]} <= set(one["why"] .split()) | \
-        {k for k in ("proof_declares_the_ticket", "clause_declared", "hollow_evidence_absent")}, \
-        "the why must name the kinds a reader would grep for"
-
-
-def test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace():
-    """Law 7 at a diagnostic surface, pointed the safe way. The refusal is the record of
-    truth and it is already on its way up; a diagnostics failure must not make the gate MORE
-    dangerous. Measured by handing it a device that throws."""
-    class _Broken:
-        def raise_trouble(self, *a, **k):
-            raise RuntimeError("the trouble store is down")
-
-    tid = "broken00000a"
-    proof = _covering_proof("broken-trouble", tid, declares=False)
-    _seal(proof)
-    with tempfile.TemporaryDirectory() as tmp:
-        exc = _cross_to_proved(_covered_owner(tid, proof), tmp, boat=tid, proven_by=proof,
-                               trouble_device=_Broken())
-    assert isinstance(exc, _built("Uncovered")), \
-        f"a broken trouble store replaced the refusal with its own failure: {exc!r}"
 
 
 def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past():
@@ -2170,8 +2157,6 @@ def _main() -> int:
         test_a_refused_boat_RAISES_NO_TROUBLE,
         test_a_fixture_refusal_WRITES_NOTHING_LIVE,
         test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered,
-        test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding,
-        test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace,
         test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past,
         test_proven_by_IS_READ_AS_ONE_OR_MANY_because_a_seam_has_more_than_one_end,
         test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT,

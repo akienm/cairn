@@ -1023,38 +1023,58 @@ def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
             + hollow_lacks(ticket, named))
 
 
-def _raise_uncovered_trouble(boat_id: str, lacks: list[dict], *, device=None) -> None:
-    """A hollow green becomes a LIVE TROUBLE, not a boat parked quietly at PROVEME.
+def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor: str,
+                   history_path: str | None, state_path: str | None) -> str:
+    """A coverage refusal is DESIGN WORK THE TICKET OWNS — send the boat back to FIXME.
 
-    This is the half of the ticket's rule that is not the refusal. A gate that only refuses
-    teaches the one caller standing at it; the boat then sits at PROVEME looking exactly like
-    a boat nobody has got to yet, and the corpus grows a class of stuck voyages whose reason
-    lives in an exception string that scrolled past. The trouble is what makes the reason
-    outlive the call.
+    Akien, 2026-10-01 (ticket 973574dddb77): "whoever asked is the ticket itself. recording
+    the refusal is not important to furthering anything." / "it becomes open work in deisgn.
+    it goes back to ticketing for improvement." / "FIXME". So the refusal no longer raises a
+    trouble in the operator's store (the harbor raises nothing about boats it does not own,
+    Law 6): the boat takes the back-edge into FIXME at the crossing's own address, carrying
+    every lack as ``missing``, and its ticket is written through the artifact door with
+    the new cursor and one ``fixme`` entry per lack — the list the FIXME gate holds open
+    until each entry is answered (72d2f79daf0a).
 
-    ``identity`` names the DEFECT and not the occurrence, so a boat refused five times folds
-    to one trouble with a count of five — which is also what makes "how often is this gate
-    biting?" a question the store can answer.
+    THE TICKET IS RESOLVED IN THE WORLD THE GATE READ THE BOAT FROM — ``_crossing_roots()``,
+    the live commons when that is ``None`` — so a proof's fixture boat is written in its
+    fixture world and never in the live corpus.
 
-    NEVER RAISES OUT. The refusal is the record of truth (Law 7) and it is already on its way
-    up; a trouble store that is down must not turn a clean refusal into a stack trace at the
-    caller, because that would make the gate MORE dangerous the moment diagnostics fail.
+    Returns one sentence for the refusal to carry. NEVER RAISES OUT: the refusal is the
+    record of truth and is already on its way up (Law 7). A boat whose workflow has no FIXME
+    (only code-seam@v2 registers one, measured 2026-10-01) or whose ticket does not resolve
+    stays where it is, and the sentence SAYS so rather than going quiet.
     """
+    import glob as _glob
+    from cairn.tools.artifact.artifact import write as _write
+    missing = [f"[{one['kind']}] {one['why']}" for one in lacks]
     try:
-        if device is None:
-            from cairn.tools.base.diagnostic import ModuleRaiser
-            device = ModuleRaiser("harbor_master")
-        device.raise_trouble(
-            f"boat-crossed-to-proved-uncovered-{boat_id}",
-            why=(f"boat {boat_id} was crossed toward PROVED on evidence that does not cover "
-                 f"it: {len(lacks)} lack(s) — "
-                 + "; ".join(sorted({one["kind"] for one in lacks}))
-                 + ". The gate refused; the boat stays at its current state until the "
-                   "evidence is real (Law 8 — nothing enters proven-space without a proof a "
-                   "hollow build couldn't pass)."),
-            detail={"boat": boat_id, "lacks": lacks})
-    except Exception:  # noqa: BLE001 — see the docstring: the refusal outranks its announcement
-        pass
+        new = emit(workflow_str, "FIXME", history_path=history_path, state_path=state_path,
+                   ticket=boat_id, actor=actor, missing=missing,
+                   why=f"clearance refused at PROVED: {len(lacks)} lack(s)")
+    except Exception as exc:  # noqa: BLE001 — see the docstring
+        return (f"The boat could not be sent to FIXME ({type(exc).__name__}: {exc}); it stays "
+                "where it is.")
+    roots = _crossing_roots()
+    tickets = (Path(roots["commons"]) / "tickets") if roots else Path(TICKETS_DIR)
+    hits = _glob.glob(str(tickets / f"{boat_id}-*.json")) or _glob.glob(
+        str(tickets / f"{boat_id}.json"))
+    if len(hits) != 1:
+        return (f"The boat was sent to FIXME ({new}) but its ticket did not resolve to one file "
+                f"under {tickets} ({len(hits)} found), so the fixme list was not written.")
+    try:
+        doc = json.loads(Path(hits[0]).read_text(encoding="utf-8"))
+        doc["workflow_and_state"] = new
+        doc["fixme"] = [{"n": i, "kind": one["kind"], "missing": one["why"]}
+                        for i, one in enumerate(lacks, 1)]
+        _write(hits[0], json.dumps(doc, indent=2, ensure_ascii=False) + "\n", verb="cast",
+               why=f"{boat_id}: clearance refused at PROVED — sent to FIXME with "
+                   f"{len(lacks)} missing")
+    except Exception as exc:  # noqa: BLE001 — see the docstring
+        return (f"The boat was sent to FIXME ({new}) but its ticket write failed "
+                f"({type(exc).__name__}: {exc}).")
+    return (f"The boat is sent back to FIXME ({new}) with {len(lacks)} missing on its ticket; "
+            "answer each with a 'FIXME <n>' decision, then cross to BUILDME.")
 
 
 def _decide(
@@ -1071,7 +1091,6 @@ def _decide(
     resources=None,
     lines: dict | None = None,
     now: float | None = None,
-    trouble_device=None,
     **journal_extra,
 ) -> str:
     """Clear a transition, or refuse it — the authority rung wrapping the rules+truth chokepoint.
@@ -1352,13 +1371,15 @@ def _decide(
         _lacks = _coverage_lacks(owner, boat_id, _named)
         if _lacks:
             _why = "; ".join(f"[{one['kind']}] {one['why']}" for one in _lacks)
-            _raise_uncovered_trouble(boat_id, _lacks, device=trouble_device)
+            _sent = _send_to_fixme(workflow_str, boat_id, _lacks, actor=actor,
+                                   history_path=history_path, state_path=state_path)
             raise Uncovered(
                 f"{actor!r} may not cross boat {boat_id!r} to PROVED: the proof it leans on "
                 f"does not cover it. {len(_lacks)} lack(s), every one named in this pass "
                 f"because a caller who fixes what he is told and hits a second refusal learns "
                 f"to distrust the report — {_why}. This gate has no advisory mode (ruling "
-                "2026-08-10 clearance-is-mandatory); the boat crosses when the lacks are gone."
+                "2026-08-10 clearance-is-mandatory); the boat crosses when the lacks are gone. "
+                + _sent
             )
 
     # 3. RESOURCES — the fourth refusal. The harbor asks the resource owner about ITS OWN lines
@@ -1433,7 +1454,6 @@ def clear(
     resources=None,
     lines: dict | None = None,
     now: float | None = None,
-    trouble_device=None,
     **journal_extra,
 ) -> str:
     """The clearance gate — decide, and REMEMBER BEING ASKED. This is the public door.
@@ -1480,7 +1500,6 @@ def clear(
             actor=actor, boat_id=boat_id, proven_by=proven_by, grant=grant,
             history_path=history_path, state_path=state_path,
             node_class_root=node_class_root, resources=resources, lines=lines, now=now,
-            trouble_device=trouble_device,
             **journal_extra,
         )
     except BaseException as exc:

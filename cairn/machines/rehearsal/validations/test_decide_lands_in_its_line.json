@@ -1,0 +1,84 @@
+[
+  {
+    "claim": "proof test_decide_lands_in_its_line.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T08:06:01",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green every_decision_is_labeled\n  green the_answer_lands_in_its_line\n  green the_hash_is_of_the_file\n  green the_file_is_untouched\n4 passed, 0 failed out of 4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "every_decision_is_labeled",
+        "the_answer_lands_in_its_line",
+        "the_hash_is_of_the_file",
+        "the_file_is_untouched"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "31e687445c3b004a2f83a5514ccd7e8fbbe41b9b86677605341cb7eec0dd33c9",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py",
+        "cairn/machines/rehearsal/rehearsal.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1005926-6q0qibdl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 154674638,
+          "disk_bytes": 175620096,
+          "entries": 8748,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "eb1c943e09b9": {
+          "cairn/machines/rehearsal/rehearsal.py": [
+            "every_decision_is_labeled",
+            "the_answer_lands_in_its_line"
+          ]
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

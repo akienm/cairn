@@ -94,7 +94,9 @@ def _finding(proof: Path) -> dict:
             "commit": "0" * 40, "verdict": "green",
             # the anchor keys measure() returns since 06f0445e7a63
             "anchor_rule": "first-build-commit", "anchor_journal": "0" * 40,
-            "anchor_first_build": "1" * 40}
+            "anchor_first_build": "1" * 40,
+            # and the per-proof depth it returns since 054bcbe02f12
+            "isolation": {str(proof): "netns"}}
 
 
 @contextlib.contextmanager

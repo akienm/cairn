@@ -1,0 +1,62 @@
+[
+  {
+    "claim": "proof test_venv_imports.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-01T19:19:56",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_present_but_broken_package_reds_verify\n  PASS  test_the_stated_set_carries_the_audioop_backport\ngreen — 2 teeth: verify names a stated package that is present but fails to import, and the set build() installs carries audioop-lts for Python 3.13+",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_present_but_broken_package_reds_verify",
+        "test_the_stated_set_carries_the_audioop_backport"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "07b41df360a643e99b40b136a86a722a329e6d29b68e42d64f06c70772d511b0",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/aider_shim/__init__.py",
+        "cairn/devices/aider_shim/fence.py",
+        "cairn/devices/aider_shim/interceptor.py",
+        "cairn/devices/aider_shim/proofs/test_venv_imports.py",
+        "cairn/devices/aider_shim/venv.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-628506-c2mrf6z_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 257957383,
+          "disk_bytes": 275509248,
+          "entries": 7414,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

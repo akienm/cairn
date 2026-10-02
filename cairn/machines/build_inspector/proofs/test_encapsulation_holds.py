@@ -23,7 +23,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(_REPO_ROOT))
 
 
 class _Late:
@@ -151,6 +152,10 @@ def a_component_with_no_public_interface_reds():
     got = _breaches({"cairn/tools/t/intention+why.json": _charter(None),
                      "cairn/tools/t/t.py": "import json\n"})
     assert [(b["source"], b["reason"]) for b in got] == [("cairn/tools/t", "missing_field")], got
+    # The live horizon (step 4): every charter in the repo declares the field.
+    live = [b["source"] for b in _inspector.encapsulation_breaches(str(_REPO_ROOT))
+            if b["reason"] == "missing_field"]
+    assert not live, f"{len(live)} live charter(s) declare no public_interface: {sorted(set(live))}"
 
 
 def the_old_sieves_are_retired_and_encapsulation_holds_stands():
@@ -158,6 +163,20 @@ def the_old_sieves_are_retired_and_encapsulation_holds_stands():
     assert "device_isolation_holds" not in sieves and "machine_imports_no_device" not in sieves, \
         sorted(k for k in sieves if k in ("device_isolation_holds", "machine_imports_no_device"))
     assert sieves.get("encapsulation_holds") is _inspector.encapsulation_holds
+    retired = ("device_isolation_holds", "machine_imports_no_device")
+    seeds = _REPO_ROOT / "cairn/machines/build_inspector/sieves"
+    assert (seeds / "encapsulation_holds.json").is_file(), "encapsulation_holds has no sieve seed"
+    assert not [n for n in retired if (seeds / f"{n}.json").exists()], "a retired sieve keeps its seed"
+    # A baseline entry naming a retired method forgives a finding nothing can raise any more.
+    known = json.loads((_REPO_ROOT / "cairn/machines/build_inspector/finding_baseline.json")
+                       .read_text())["known"]
+    assert not [k for k in known if k.get("method") in retired], known
+    # A charter's contract (its gates and falsifier) never leans on a retired sieve.
+    leaning = [str(c.relative_to(_REPO_ROOT)) for c in _REPO_ROOT.rglob("intention+why.json")
+               if ".git" not in c.parts and any(n in json.dumps(
+                   {k: v for k, v in json.loads(c.read_text()).items() if k in ("gates", "falsifier")})
+                   for n in retired)]
+    assert not leaning, f"charter contracts still name a retired sieve: {leaning}"
 
 
 def a_device_importing_another_device_is_into_device():

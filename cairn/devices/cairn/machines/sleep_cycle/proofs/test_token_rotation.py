@@ -47,7 +47,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 from cairn.devices.cairn.shim import CairnShim  # noqa: E402
 
 _TICKET = "bf146e9e3967"
@@ -154,15 +154,15 @@ def _announces(bus, cycle_id: str) -> list[dict]:
 
 def _rig(bus, roots: dict, roster_root: Path):
     from cairn.devices.cairn.machines.ground_loop.discovery import load_module
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     cairn_shim = FixtureCairnShim(bus, roots, roster_root)
-    loop.subscribe(cairn_shim)
+    loop.hold(cairn_shim)
     boxes = {}
     for dev in reversed(FIXTURE_DEVICES):        # c, b, a — see the module docstring
         probe_file = roster_root / "devices" / dev / "probes" / "sleeps_when_the_token_arrives.py"
         probe = load_module(probe_file).PROBE
         boxes[dev] = FixtureMailbox(dev, roots)
-        loop.subscribe(FixtureShim(dev, boxes[dev], probe, bus=bus))
+        loop.hold(FixtureShim(dev, boxes[dev], probe, bus=bus))
     return loop, cairn_shim, boxes
 
 
@@ -205,7 +205,7 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     assert token.standing(roots) is None
 
     # Beat 0 wires every shim's delivery (nothing pending, nothing fires).
-    loop.beat(NOW, {"roots": roots})
+    loop.pulse(NOW, {"roots": roots})
     assert _holders(roots) == [], _holders(roots)
 
     # Mint through the operator's verb on the bus — the hand lands inside post() (the bus
@@ -222,7 +222,7 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     # One beat per hand (c, b, a order): the holder answers, cairn hands onward.
     expected_holder = ["fx_sleep_b", "fx_sleep_c", None]
     for i, nxt in enumerate(expected_holder, start=1):
-        loop.beat(NOW + timedelta(seconds=60 * i), {"roots": roots})
+        loop.pulse(NOW + timedelta(seconds=60 * i), {"roots": roots})
         holders = _holders(roots)
         assert len(holders) <= 1, f"beat {i}: {holders}"                # (3) never two
         assert holders == ([nxt] if nxt else []), f"beat {i}: {holders} != {nxt}"
@@ -252,7 +252,7 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     assert [e["body"]["device"] for e in feed] == [*FIXTURE_DEVICES, None], feed
 
     # A further beat changes nothing: every token is answered, no probe fires.
-    quiet = loop.beat(NOW + timedelta(seconds=600), {"roots": roots})
+    quiet = loop.pulse(NOW + timedelta(seconds=600), {"roots": roots})
     assert token.standing(roots) == closed, quiet
     assert _holders(roots) == []
 

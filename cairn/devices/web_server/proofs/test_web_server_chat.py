@@ -41,7 +41,7 @@ import os, tempfile  # noqa: E401
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.web_server.server import WebServerDevice
 
@@ -78,17 +78,16 @@ class _FakeFace:
 
 
 def _wired(face=None):
-    """The real machinery end to end: a ground loop, the REAL LibrarianShim subscribed
-    (its face injected), the ONE web server over the heartbeat that owns the shims."""
-    heartbeat = GroundLoopDevice()
+    """The real machinery end to end: a DeviceRoster, the REAL LibrarianShim held
+    (its face injected), the ONE web server over the roster that holds the shims."""
+    heartbeat = DeviceRoster(None)
     shim = LibrarianShim(session_factory=lambda dev: face)
-    heartbeat.subscribe(shim)
+    heartbeat.hold(shim)
     web = WebServerDevice(heartbeat, port=8799)
     # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): a device nobody wired now
     # WRITES its trail to ~/.cairn/logs/<device>/0/ rather than holding it. The serve-crossing
     # tooth below reads ``web.held_diagnostics()``, and both devices would otherwise leave a
     # proof-written trail in the live tree — the instrument writing into what it measures.
-    heartbeat.set_diagnostic_receiver(None)
     web.set_diagnostic_receiver(None)
     return web, shim
 

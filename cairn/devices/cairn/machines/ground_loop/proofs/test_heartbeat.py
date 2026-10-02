@@ -275,7 +275,7 @@ def teeth_runner() -> None:
 def teeth_nothing_else() -> None:
     """The runner imports none of what the heartbeat no longer does."""
     src = (Path(__file__).resolve().parents[1] / "__main__.py").read_text()
-    banned = ["bus.bus", "BusDevice", "GroundLoopDevice", "staleness", "discover,", "arbitrate_newcomer"]
+    banned = ["bus.bus", "BusDevice", "staleness", "discover,", "arbitrate_newcomer"]
     hits = [b for b in banned if b in src]
     ok("the runner reaches no bus, no probe discovery, no bytecode staleness", not hits, str(hits))
     probes = Path(__file__).resolve().parents[1] / "probes"

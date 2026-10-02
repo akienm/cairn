@@ -3,8 +3,8 @@
 The web server is a thin PRESENTATION surface (Law 7): the devices on the heartbeat across the
 top (the roster, child c), the selected device's ACTIVE page below (its panes, child a). It owns
 NO device state — everything is pulled live from the heartbeat and the target device's shim. This
-proof composes a REAL ground_loop + REAL BaseShims + a REAL device, so it shows the whole
-route → fetch-through-the-heartbeat → render chain WITHOUT binding a socket (the socket lives in
+proof composes a REAL DeviceRoster + REAL BaseShims + a REAL device, so it shows the whole
+route → fetch-through-the-roster → render chain WITHOUT binding a socket (the socket lives in
 daemon.py, the thin OS wrapper this stays provable without).
 
 Teeth a hollow surface could not pass:
@@ -47,7 +47,7 @@ os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.web_server.server import WebServerDevice
 
 # Ticket 72e8e3509287 (the web server graduates to Starlette) — five numbered proves_red clauses,
@@ -100,21 +100,29 @@ class _Shim(BaseShim):
         return self._dev
 
 
+def _members(*names):
+    """A class root holding ``<id>/probes/`` for each name, so the roster lists exactly those.
+    mkdtemp, not a context manager: the roster reads it at serve time, after ``_wired`` returns."""
+    root = Path(tempfile.mkdtemp(prefix="ws-proof-roster-"))
+    for name in names:
+        (root / name / "probes").mkdir(parents=True)
+    return root
+
+
 def _wired():
-    """A real heartbeat with two real device-shims subscribed, and a web server over it."""
-    gl = GroundLoopDevice()
+    """A DeviceRoster over two fitted devices with their real shims held, and a web server over it."""
+    gl = DeviceRoster(None, root=_members("alpha", "beta"))
     alpha = _Shim(_Device("alpha"))
     beta = _Shim(_Device("beta", hostile=True, extra_panes=[
         {"kind": "logging", "label": "Log", "handler": None},                     # absent
         {"kind": "interaction", "label": "Chat", "handler": lambda: {"turns": 0}},  # data
     ]))
-    gl.subscribe(alpha)
-    gl.subscribe(beta)
+    gl.hold(alpha)
+    gl.hold(beta)
     web = WebServerDevice(gl, port=8799)
     # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): un-wired now WRITES to
     # ~/.cairn/logs/<device>/<instance>/ instead of holding, which would both empty the lists this
     # proof reads and seed the live tree from a proof. Holding is now asked for, not an accident.
-    gl.set_diagnostic_receiver(None)
     web.set_diagnostic_receiver(None)
     return web, gl
 
@@ -163,7 +171,7 @@ def test_the_web_server_owns_no_state_and_is_a_device():
     web, gl = _wired()
     assert isinstance(web, CoreValuesMixin), "the web server is a device (Law 2)"
     assert list(web.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
-    # Its state is pulled live: the roster it reports IS the heartbeat's, not a stored copy.
+    # Its state is pulled live: the roster it reports IS the DeviceRoster's, not a stored copy.
     assert web.state()["roster"] == gl.roster(), "the web server holds no cached copy — it reads live"
     before = web.state()["served"]
     web.serve("/")

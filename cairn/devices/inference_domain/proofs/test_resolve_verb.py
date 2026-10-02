@@ -36,7 +36,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 from cairn.devices.inference_domain.device import InferenceDomainDevice  # noqa: E402
 from cairn.devices.inference_domain.shim import InferenceDomainShim  # noqa: E402
 
@@ -84,14 +84,14 @@ def _fresh_bus():
 
 
 def _rig_with_inference(bus):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
     inf_shim = InferenceDomainShim(bus=bus)
     caller_shim = CallerShim(bus=bus)
-    loop.subscribe(bus_shim)
-    loop.subscribe(inf_shim)
-    loop.subscribe(caller_shim)
-    loop.beat(NOW)
+    loop.hold(bus_shim)
+    loop.hold(inf_shim)
+    loop.hold(caller_shim)
+    loop.pulse(NOW)
     return loop
 
 

@@ -19,7 +19,7 @@ WHERE THE ANSWER LIVES NOW, so this file points instead of asserting: the predic
 ``cairn/tools/base/deviceness.py`` (``is_device`` / ``fitted_device_ids`` / ``divergence``), and
 the membership it composes is ``cairn/devices/cairn/machines/ground_loop/discovery.py``'s, which is the mechanism
 the ruling created and the one a running loop actually fits shims to
-(``ground_loop/loop.py::_reconcile``). The divergence is watched by
+(``DeviceRoster.shim_for`` in ``cairn/tools/bus_client/roster.py``). The divergence is watched by
 ``cairn/tools/base/probes/device_claims_match_shims.py``.
 
 WHAT SURVIVES UNTOUCHED, because it was never the same claim: this class's real value is the

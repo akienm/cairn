@@ -2,23 +2,20 @@
   {
     "claim": "proof test_discovery.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T06:26:48",
+    "date": "2026-10-02T12:43:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_broken_probe_does_not_prevent_healthy_probes_from_firing\n  PASS  test_a_broken_probe_does_not_stop_the_heartbeat\n  PASS  test_a_folder_on_disk_is_the_registration\n  PASS  test_a_hand_subscribed_shim_is_not_double_pulsed_by_discovery\n  PASS  test_a_healthy_process_is_not_stale\n  PASS  test_a_probe_deleted_mid_run_leaves_the_roster\n  PASS  test_a_probe_written_mid_run_is_fired_by_the_next_beat\n  PASS  test_an_edited_probe_is_reimported_not_served_from_cache\n  PASS  test_staleness_sets_the_stale_flag\n  PASS  test_the_real_tree_discovers_its_devices\ngreen — the roster is disk, no bench, no judging",
+      "stdout_tail": "  PASS  test_a_broken_probe_does_not_prevent_healthy_probes_from_firing\n  PASS  test_a_broken_probe_does_not_stop_the_pass\n  PASS  test_a_folder_on_disk_is_the_registration\n  PASS  test_a_probe_deleted_mid_run_leaves_the_roster\n  PASS  test_a_probe_written_mid_run_is_found_by_the_next_pass\n  PASS  test_an_edited_probe_is_reimported_not_served_from_cache\n  PASS  test_the_real_tree_discovers_its_devices\ngreen — the roster is disk, no bench, no judging",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_broken_probe_does_not_prevent_healthy_probes_from_firing",
-        "test_a_broken_probe_does_not_stop_the_heartbeat",
+        "test_a_broken_probe_does_not_stop_the_pass",
         "test_a_folder_on_disk_is_the_registration",
-        "test_a_hand_subscribed_shim_is_not_double_pulsed_by_discovery",
-        "test_a_healthy_process_is_not_stale",
         "test_a_probe_deleted_mid_run_leaves_the_roster",
-        "test_a_probe_written_mid_run_is_fired_by_the_next_beat",
+        "test_a_probe_written_mid_run_is_found_by_the_next_pass",
         "test_an_edited_probe_is_reimported_not_served_from_cache",
-        "test_staleness_sets_the_stale_flag",
         "test_the_real_tree_discovers_its_devices"
       ],
       "teeth_red": [],
@@ -30,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1d75dcef3f362eeb1e5c99bb93f7fa75f90fabc6ac0f32220ad399d14fb89f14",
+      "source_fingerprint": "392826a26fe6ff7562c4a4833d229395eeee0199e5f84680683e1f6a1dec6b82",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -39,15 +36,12 @@
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/shim.py",
@@ -58,36 +52,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-962907-4bvuhya7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1136903-9s3jlb_z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
-          "paths": [
-            "logs/ground_loop/0/20261002.122647.524346.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.575720.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.575959.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.576142.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.576324.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.624607.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.668984.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122647.714839.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.716020.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.716222.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.762859.GroundLoopDevice.undiscovered.json",
-            "logs/ground_loop/0/20261002.122647.763745.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.807953.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.808831.GroundLoopDevice.discovered.json",
-            "logs/ground_loop/0/20261002.122647.859085.GroundLoopDevice.discovered.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 152329846,
-          "disk_bytes": 173088768,
-          "entries": 8647,
+          "bytes": 91335540,
+          "disk_bytes": 108482560,
+          "entries": 7093,
           "builds": 1,
-          "reuses": 15
+          "reuses": 2
         }
       }
     },

@@ -5,9 +5,9 @@ Akien's ruling, 2026-08-11, is the contract these teeth bite on:
   "ON EACH PASS THE GROUND LOOP POLLS A FOLDER FOR EACH DEVICE AND IF THERE IS CODE THERE
    THE GROUND LOOP RUNS IT."
 
-The ground loop does NOT bench devices, does NOT raise trouble tickets, and does NOT judge
+Discovery does NOT bench devices, does NOT raise trouble tickets, and does NOT judge
 whether a device is broken. A device whose probe fails to import simply does not get those
-probes on that beat — the heartbeat keeps beating, the device stays on the roster. Corrected
+probes on that pass — the pass completes, the device stays on the roster. Corrected
 2026-09-02: the bench/trouble machinery was stripped (CC-- x3 2026-08-29, 2026-08-31,
 2026-09-02).
 
@@ -25,7 +25,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
 from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache, discover, device_folders  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 
 NOW = datetime(2026, 8, 11, 12, 0, tzinfo=timezone.utc)
 
@@ -70,75 +69,60 @@ class _RecordingBus:
         return []
 
 
-def _loop(root: Path, staleness=None, bus=None):
-    cache = ProbeCache()
-
-    def discoverer(cache=None):  # noqa: ARG001
-        return discover(root=root, cache=_held[0])
-
-    _held = [cache]
-    return GroundLoopDevice(discover=discoverer, staleness=staleness, bus=bus)
-
-
-def _stale(*modules):
-    return lambda: [{"module": m, "evidence": "VANISHED", "file": f"/gone/{m}.py",
-                     "detail": "fixture drift"} for m in modules]
-
-
 # --- teeth ------------------------------------------------------------------
+# Each tooth calls discover(root=..., cache=ProbeCache()) directly — one call is one pass.
+# A tooth that spans passes holds its one cache across them, exactly as a resident process
+# would (ticket efb670ff1dd8 removed the in-process loop these teeth used to drive).
 
 def test_a_folder_on_disk_is_the_registration():
-    """No subscribe call: a device with a probes/ folder is pulsed because it EXISTS."""
+    """No subscribe call: a device with a probes/ folder is on the roster because it EXISTS."""
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
         _device(root, "alpha", {"w.py": _GOOD.format(why="alpha watch", fires="False")})
-        loop = _loop(root)
-        record = loop.beat(NOW)
-        assert record["pulsed"] == ["alpha"], record["pulsed"]
-        assert loop.subscribers == ["alpha"]
+        found = discover(root=root, cache=ProbeCache())
+        assert list(found) == ["alpha"], list(found)
+        assert len(found["alpha"]["probes"]) == 1, found["alpha"]
 
 
-def test_a_probe_written_mid_run_is_fired_by_the_next_beat():
+def test_a_probe_written_mid_run_is_found_by_the_next_pass():
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
+        cache = ProbeCache()
         _device(root, "alpha", {"w.py": _GOOD.format(why="alpha watch", fires="False")})
-        loop = _loop(root)
-        loop.beat(NOW)
-        assert loop.subscribers == ["alpha"]
+        assert list(discover(root=root, cache=cache)) == ["alpha"]
         _device(root, "beta", {"w.py": _GOOD.format(why="beta watch", fires="False")})
-        record = loop.beat(NOW)
-        assert sorted(record["pulsed"]) == ["alpha", "beta"], record["pulsed"]
+        found = discover(root=root, cache=cache)
+        assert sorted(found) == ["alpha", "beta"], sorted(found)
 
 
 def test_a_probe_deleted_mid_run_leaves_the_roster():
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
+        cache = ProbeCache()
         folder = _device(root, "alpha", {"w.py": _GOOD.format(why="a", fires="False")})
         _device(root, "beta", {"w.py": _GOOD.format(why="b", fires="False")})
-        loop = _loop(root)
-        loop.beat(NOW)
-        assert sorted(loop.subscribers) == ["alpha", "beta"]
+        assert sorted(discover(root=root, cache=cache)) == ["alpha", "beta"]
         shutil.rmtree(folder)
-        record = loop.beat(NOW)
-        assert record["pulsed"] == ["beta"], record["pulsed"]
+        found = discover(root=root, cache=cache)
+        assert list(found) == ["beta"], list(found)
 
 
 def test_an_edited_probe_is_reimported_not_served_from_cache():
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
+        cache = ProbeCache()
         folder = _device(root, "alpha", {"w.py": _GOOD.format(why="a", fires="False")})
-        loop = _loop(root)
-        rec = loop.beat(NOW)
-        assert rec["pulses"][0]["fired_count"] == 0
+        [probe] = discover(root=root, cache=cache)["alpha"]["probes"]
+        assert not probe.fires(NOW, {})
         (folder / "w.py").write_text(_GOOD.format(why="a", fires="True"), encoding="utf-8")
         import os
         os.utime(folder / "w.py", (0, 10_000_000))
-        rec = loop.beat(NOW)
-        assert len(rec["pulses"][0]["fired"]) == 1, rec["pulses"][0]
+        [probe] = discover(root=root, cache=cache)["alpha"]["probes"]
+        assert probe.fires(NOW, {}), "the edited file is re-imported on the next pass"
 
 
-def test_a_broken_probe_does_not_stop_the_heartbeat():
-    """CP2: the loop cannot be taken down by a device. Three different lacks, one beat, and
+def test_a_broken_probe_does_not_stop_the_pass():
+    """CP2: a pass cannot be taken down by a device. Three different lacks, one pass, and
     every device is still on the roster — no benching, no trouble tickets."""
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
@@ -146,68 +130,31 @@ def test_a_broken_probe_does_not_stop_the_heartbeat():
         _device(root, "silent", {"w.py": _NO_PROBE})
         _device(root, "liar", {"w.py": _NOT_A_PROBE})
         _device(root, "fine", {"w.py": _GOOD.format(why="fine", fires="False")})
-        loop = _loop(root)
-        record = loop.beat(NOW)
-        assert sorted(record["pulsed"]) == ["fine", "liar", "raises", "silent"], record["pulsed"]
+        found = discover(root=root, cache=ProbeCache())
+        assert sorted(found) == ["fine", "liar", "raises", "silent"], sorted(found)
 
 
 def test_a_broken_probe_does_not_prevent_healthy_probes_from_firing():
     """One broken file in a folder does not take the whole device down. The probes that
     load fine still fire — benching per-device for a per-file failure was the 29-hour
     outage's mechanism."""
+    from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
+
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
         _device(root, "mixed", {"broke.py": _BROKEN_IMPORT,
                                 "works.py": _GOOD.format(why="still armed", fires="True")})
+        found = discover(root=root, cache=ProbeCache())
+        assert list(found) == ["mixed"], list(found)
+        entry = found["mixed"]
+        assert len(entry["probes"]) == 1 and len(entry["failures"]) == 1, entry
         bus = _RecordingBus()
-        loop = _loop(root, bus=bus)
-        record = loop.beat(NOW)
-        assert record["pulsed"] == ["mixed"], record["pulsed"]
-        pulse = record["pulses"][0]
+        shim = DiscoveredShim("mixed", entry["folder"], bus=bus)
+        shim.set_probes(entry["probes"], entry["folder"])
+        pulse = shim.on_pulse(NOW)
         assert pulse["fired_count"] == 1, pulse
         probe_posts = [p for p in bus.posted if p["channel"] == "personal"]
         assert [p["to"] for p in probe_posts] == ["harbor_master"], probe_posts
-
-
-def test_staleness_sets_the_stale_flag():
-    """When this process's code has drifted from disk, the device reports stale. The runner
-    reads this and exits — that is the ONLY consequence. No trouble tickets, no benching."""
-    with tempfile.TemporaryDirectory() as td:
-        root = Path(td)
-        _device(root, "alpha", {"w.py": _GOOD.format(why="a", fires="False")})
-        loop = _loop(root, staleness=_stale("some.module.that.moved"))
-        assert not loop.stale
-        loop.beat(NOW)
-        assert loop.stale
-
-
-def test_a_healthy_process_is_not_stale():
-    with tempfile.TemporaryDirectory() as td:
-        root = Path(td)
-        _device(root, "alpha", {"w.py": _GOOD.format(why="a", fires="False")})
-        loop = _loop(root, staleness=lambda: [])
-        loop.beat(NOW)
-        assert not loop.stale
-
-
-def test_a_hand_subscribed_shim_is_not_double_pulsed_by_discovery():
-    with tempfile.TemporaryDirectory() as td:
-        root = Path(td)
-        _device(root, "alpha", {"w.py": _GOOD.format(why="a", fires="False")})
-        loop = _loop(root)
-
-        class HandShim:
-            device_id = "alpha"
-            pulses = 0
-
-            def on_pulse(self, now, ctx):
-                HandShim.pulses += 1
-                return {"device": "alpha", "fired": [], "fired_count": 0, "held": []}
-
-        loop.subscribe(HandShim())
-        record = loop.beat(NOW)
-        assert record["pulsed"] == ["alpha"], record["pulsed"]
-        assert HandShim.pulses == 1
 
 
 def test_the_real_tree_discovers_its_devices():

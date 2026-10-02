@@ -21,8 +21,8 @@ disk every pass and cannot go stale. The INTERPRETER READING IT can, and did: on
 daemon outlived a file move, so every probe it loaded bound a ``Probe`` class the daemon's
 own frame no longer held, ``isinstance`` compared two class objects wearing one name, and
 fifteen devices were benched under their own names for 29 hours. An unstaleable list read by
-a stale reader is a stale answer. The predicate that now tells those apart lives at
-``staleness.py``; the loop now self-restarts on staleness rather than benching devices.
+a stale reader is a stale answer. The heartbeat now restarts itself when its own files
+change (``heartbeat.py``) rather than benching devices.
 
 The probe list is REPLACED each pass, not appended: a probe file deleted from disk leaves
 the roster on the next beat. The shim's own memories are keyed by ``Probe.identity`` and
@@ -31,8 +31,8 @@ already poked (``BaseShim._was_true`` / ``_cleared`` / ``_first_seen``).
 
 NO PAGE. This shim deliberately does not implement ``_start_device``: it fronts a device
 for the BEAT, not for the web surface. A device that wants a page has a real shim of its
-own with a real device behind it (``LibrarianShim``, ``GroundLoopShim``), and the loop
-prefers that one when both exist — see ``GroundLoopDevice._reconcile``.
+own with a real device behind it (``LibrarianShim``, ``GroundLoopShim``), and that one is
+preferred when both exist — see ``DeviceRoster.shim_for`` (cairn/tools/bus_client/roster.py).
 """
 
 from __future__ import annotations

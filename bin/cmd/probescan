@@ -157,7 +157,7 @@ def scan_probes(root: Path, devices: set[str]) -> list[dict]:
 def _find_shim_class(device_id: str, root: Path):
     """Find the registered shim class for a device from its ``shim.py`` on disk.
 
-    The same preference ``GroundLoopDevice._reconcile`` performs — a hand-subscribed
+    The same preference ``DeviceRoster.shim_for`` performs — a held or concrete
     shim takes precedence over a DiscoveredShim — borrowed as a disk convention: a
     device whose directory holds a ``shim.py`` with a ``BaseShim`` subclass has a
     registered shim. Returns the class, or ``None``.
@@ -203,7 +203,7 @@ def can_receive(device_id: str, root: Path | None = None) -> dict:
     """Walk the postman's own path as far as it goes WITHOUT delivering.
 
     Resolves the device's REGISTERED shim first (from its ``shim.py`` on disk) — the
-    same preference ``GroundLoopDevice._reconcile`` performs, borrowed rather than
+    same preference ``DeviceRoster.shim_for`` performs, borrowed rather than
     re-implemented — and falls back to ``DISCOVERED_ONLY`` only when no registered shim
     exists. Each failure is the REAL exception from the REAL code, not a guess about it.
     """

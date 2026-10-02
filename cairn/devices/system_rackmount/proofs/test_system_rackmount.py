@@ -52,7 +52,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.system_rackmount.rackmount import (
     SystemRackmountDevice,
     SystemRackmountShim,
@@ -71,13 +71,13 @@ def _table() -> str:
 
 
 def _rig(reading: dict):
-    """Wire the full chain: a heartbeat, a real bus, the system device (with an injected,
-    mutable reading), and its shim subscribed to the beat. Returns them for the test to drive."""
+    """Wire the full chain: a DeviceRoster, a real bus, the system device (with an injected,
+    mutable reading), and its shim held for the pulse. Returns them for the test to drive."""
     bus = BusDevice(table=_table())
     dev = SystemRackmountDevice(sampler=lambda: reading)
     shim = SystemRackmountShim(dev, bus)
-    gl = GroundLoopDevice()
-    gl.subscribe(shim)
+    gl = DeviceRoster(None)
+    gl.hold(shim)
     return gl, bus, dev
 
 
@@ -97,7 +97,7 @@ def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
     gl, bus, dev = _rig(reading)
     dev.subscribe("cpu_threshold", address="ops/personal", why="page me when CPU is high", value=80)
 
-    gl.beat(now="t0")                          # one heartbeat drives the whole chain
+    gl.pulse(now="t0")                          # one pulse drives the whole chain
 
     pokes = bus.read(to="ops/personal", channel="personal")
     assert len(pokes) == 1, "a beat over the line pokes the subscriber exactly once"
@@ -116,7 +116,7 @@ def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
 
     # Under the line, the same subscription pokes no one new.
     reading["cpu"] = 50
-    gl.beat(now="t1")
+    gl.pulse(now="t1")
     assert len(bus.read(to="ops/personal", channel="personal")) == 1, "under the line → no new poke"
 
 
@@ -128,12 +128,12 @@ def test_the_ask_door_answers_the_same_predicate_as_the_subscribe_door():
     dev.subscribe("cpu_threshold", address="admission/personal", why="watch", value=80)
 
     assert dev.ask("cpu_threshold", 80) is False, "10% is under an 80% line"
-    gl.beat(now="t0")
+    gl.pulse(now="t0")
     assert bus.read(to="admission/personal", channel="personal") == [], "and the poke door agrees"
 
     reading["cpu"] = 95
     assert dev.ask("cpu_threshold", 80) is True, "95% crosses an 80% line"
-    gl.beat(now="t1")
+    gl.pulse(now="t1")
     assert len(bus.read(to="admission/personal", channel="personal")) == 1, "and the poke door agrees"
 
     # A VERDICT, NOT A READING (Law 6). Checked as the TYPE, not by scanning the value for the

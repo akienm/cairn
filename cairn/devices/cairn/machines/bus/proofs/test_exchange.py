@@ -33,7 +33,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 29, 12, 0, tzinfo=timezone.utc)
@@ -126,11 +126,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -145,7 +145,7 @@ def test_sync_returns_correlated_reply():
     caller_dev = SilentDevice()
     caller_shim = SilentShim("caller_a", caller_dev, bus=bus)
     loop = _rig(bus, echo_shim, caller_shim)
-    loop.beat(NOW)  # wire delivery for both
+    loop.pulse(NOW)  # wire delivery for both
     reply = bus.request(
         sender="caller_a", to="echo_a", channel="personal",
         verb="echo", why="sync proof", body={"question": "are you there"},
@@ -164,7 +164,7 @@ def test_timeout_raises_not_returns_empty():
     caller_dev = SilentDevice()
     caller_shim = SilentShim("caller_b", caller_dev, bus=bus)
     loop = _rig(bus, silent_shim, caller_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     try:
         bus.request(
             sender="caller_b", to="silent_a", channel="personal",
@@ -184,7 +184,7 @@ def test_request_uses_post_not_a_second_door():
     caller_dev = SilentDevice()
     caller_shim = SilentShim("caller_c", caller_dev, bus=bus)
     loop = _rig(bus, echo_shim, caller_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     reply = bus.request(
         sender="caller_c", to="echo_b", channel="personal",
         verb="echo", why="door proof", body={"n": 1},
@@ -201,7 +201,7 @@ def test_async_post_still_fire_and_forget():
     echo_dev = EchoDevice(bus=bus)
     echo_shim = EchoShim("echo_c", echo_dev, bus=bus)
     loop = _rig(bus, echo_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     envelope = bus.post(
         sender="caller_d", to="echo_c", channel="personal",
         why="async proof", body={"n": 2},
@@ -220,7 +220,7 @@ def test_reply_to_correlation_is_exact():
     caller_dev = SilentDevice()
     caller_shim = SilentShim("caller_e", caller_dev, bus=bus)
     loop = _rig(bus, echo_shim, caller_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     reply1 = bus.request(
         sender="caller_e", to="echo_d", channel="personal",
         verb="echo", why="correlation proof 1", body={"seq": 1},

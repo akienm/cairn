@@ -34,7 +34,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 29, 12, 0, tzinfo=timezone.utc)
@@ -80,11 +80,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -108,7 +108,7 @@ def test_external_reads_own_feed():
     receiver_dev = ReceiverDevice()
     receiver_shim = ReceiverShim("device_a", receiver_dev, bus=bus)
     loop = _rig(bus, receiver_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     ext = ExternalParticipant("cc_0", bus)
     bus.post(sender="device_a", to="cc_0", channel="personal",
              why="hello CC", body={"greeting": True})
@@ -149,7 +149,7 @@ def test_external_can_read_device_announce():
     receiver_dev = ReceiverDevice()
     receiver_shim = ReceiverShim("device_b", receiver_dev, bus=bus)
     loop = _rig(bus, receiver_shim)
-    loop.beat(NOW)  # wires delivery + announces menu
+    loop.pulse(NOW)  # wires delivery + announces menu
     ext = ExternalParticipant("cc_0", bus)
     target_announce = bus.read(to="device_b", channel="announce")
     menu_posts = [e for e in target_announce if e.get("body", {}).get("verbs") is not None]

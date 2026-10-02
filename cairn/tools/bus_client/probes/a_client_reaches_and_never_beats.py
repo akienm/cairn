@@ -3,8 +3,8 @@
 Berth for the WATCHME that ticket ``fc93d8cd5961`` (a-client-reaches-and-a-runner-beats)
 carries. Berthed beside ``cairn/tools/bus_client`` because that is WHAT IT WATCHES: the two faces
 of ``bus_client.py`` (it moved there from ``cairn/tools/base`` on 2026-09-09, ticket
-dd8ad9702b49, and this probe moved with it — a probe berths with what it watches) — ``connect_bus``/``connect_system`` (RUN the system: a full
-``GroundLoopDevice.beat``) and ``reach`` (USE it: wire, pulse only the shims addressed).
+dd8ad9702b49, and this probe moved with it — a probe berths with what it watches) — ``connect_bus``/``connect_system`` (RUN the system: one pulse of every held shim,
+``DeviceRoster.pulse``) and ``reach`` (USE it: wire, pulse only the shims addressed).
 
 THE MEASUREMENT THAT BORE IT (2026-09-09, the efficiency eval Akien asked for): one
 ``connect_bus()`` on this machine costs **23.5s** and one ``reach("inference_domain")``

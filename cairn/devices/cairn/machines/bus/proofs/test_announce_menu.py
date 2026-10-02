@@ -35,7 +35,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 29, 12, 0, tzinfo=timezone.utc)
@@ -116,11 +116,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -135,7 +135,7 @@ def test_menu_matches_declared_verbs():
     })
     bus = _fresh_bus()
     loop = _rig(bus, MenuShim("menu_a", dev, bus=bus))
-    loop.beat(NOW)  # first pulse wires delivery + announces menu
+    loop.pulse(NOW)  # first pulse wires delivery + announces menu
     feed = bus.read(to="menu_a", channel="announce")
     menu_posts = [e for e in feed if e.get("body", {}).get("verbs") is not None]
     assert len(menu_posts) >= 1, f"no menu on announce channel, feed has {len(feed)} entries"
@@ -149,7 +149,7 @@ def test_base_verbs_are_published():
     dev = EmptyDevice()
     bus = _fresh_bus()
     loop = _rig(bus, EmptyShim("menu_b", dev, bus=bus))
-    loop.beat(NOW)
+    loop.pulse(NOW)
     feed = bus.read(to="menu_b", channel="announce")
     menu_posts = [e for e in feed if e.get("body", {}).get("verbs") is not None]
     assert len(menu_posts) >= 1, f"no menu on announce channel"
@@ -162,7 +162,7 @@ def test_menu_is_on_the_announce_channel():
     dev = MenuDevice(verbs={"ping": lambda env: {"pong": True}})
     bus = _fresh_bus()
     loop = _rig(bus, MenuShim("menu_c", dev, bus=bus))
-    loop.beat(NOW)
+    loop.pulse(NOW)
     announce = bus.read(to="menu_c", channel="announce")
     personal = bus.read(to="menu_c", channel="personal")
     assert any(e.get("body", {}).get("verbs") is not None for e in announce), \
@@ -179,7 +179,7 @@ def test_menu_does_not_trigger_delivery():
     bus = _fresh_bus()
     shim = MenuShim("menu_d", dev, bus=bus)
     loop = _rig(bus, shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     assert bus.undelivered(to="menu_d") == [], \
         "announce post should not appear as undelivered"
 

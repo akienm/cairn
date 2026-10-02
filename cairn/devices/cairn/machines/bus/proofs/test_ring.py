@@ -34,7 +34,7 @@ from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
 from cairn.devices.db_domain.tools.client import store  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc)
@@ -87,11 +87,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -139,7 +139,7 @@ def test_request_resolves_from_ring():
     echo_shim = EchoShim("echo", echo_dev, bus=bus)
     caller_shim = EchoShim("caller", EchoDevice(bus), bus=bus)
     loop = _rig(bus, echo_shim, caller_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     reply = bus.request(
         sender="caller", to="echo", channel="personal",
         verb="echo", why="ring proof", body={"q": "hello"},

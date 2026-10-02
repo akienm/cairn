@@ -109,9 +109,10 @@ def main(argv=None) -> int:
                         help="address to bind (default: all interfaces — loopback + LAN)")
     args = parser.parse_args(argv)
 
-    _bus, heartbeat = connect_system(
-        devices=["ground_loop", "librarian", "trouble"])
-    _device = WebServerDevice(heartbeat, harbor_source=harbor_source(), port=args.port)
+    # No device is special-cased; the roster lists every fitted device and loads a shim from
+    # disk the first time its page or its mail asks for one (ticket efb670ff1dd8).
+    _bus, roster = connect_system(devices=["librarian", "trouble"])
+    _device = WebServerDevice(roster, harbor_source=harbor_source(), port=args.port)
 
     app = _make_app()
     config = uvicorn.Config(

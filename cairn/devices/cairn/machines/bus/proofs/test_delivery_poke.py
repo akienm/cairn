@@ -35,7 +35,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 29, 12, 0, tzinfo=timezone.utc)
@@ -74,11 +74,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -87,11 +87,11 @@ def _rig(bus, *shims):
 def test_poke_delivers_without_a_pulse():
     """THE HEADLINE TOOTH. After the first pulse wires delivery, a post() delivers to the
     addressee WITHIN the post() call — no second pulse needed. A per-pulse-only path fails
-    this: the envelope sits in transit until loop.beat() is called."""
+    this: the envelope sits in transit until loop.pulse() is called."""
     box = Mailbox()
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("poke_a", box, bus=bus))
-    loop.beat(NOW)  # first pulse wires delivery
+    loop.pulse(NOW)  # first pulse wires delivery
     assert len(box.got) == 0  # nothing posted yet — nothing delivered
     sent = bus.post(sender="proof", to="poke_a", channel="personal",
                     why="prove poke", body={"test": "poke"})
@@ -106,7 +106,7 @@ def test_poke_carries_body_and_verb():
     box = Mailbox()
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("poke_b", box, bus=bus))
-    loop.beat(NOW)
+    loop.pulse(NOW)
     bus.post(sender="proof", to="poke_b", channel="personal",
              why="body check", body={"deep": {"key": [1, 2]}})
     assert len(box.got) == 1, f"expected 1 delivery, got {len(box.got)}"
@@ -125,7 +125,7 @@ def test_poke_retries_earlier_failures():
     loop = _rig(bus, MailboxShim("poke_c", broken, bus=bus))
     first = bus.post(sender="proof", to="poke_c", channel="personal",
                      why="will fail", body={"n": 1})
-    loop.beat(NOW)  # wiring drain tries to deliver — receiver raises
+    loop.pulse(NOW)  # wiring drain tries to deliver — receiver raises
     assert len(broken.got) == 0
     assert len(bus.undelivered(to="poke_c")) == 1
     broken.blow_up = False
@@ -155,7 +155,7 @@ def test_delivery_failed_emits_on_poke_exception():
     broken = Mailbox(blow_up=True)
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("poke_e", broken, bus=bus))
-    loop.beat(NOW)  # wire delivery
+    loop.pulse(NOW)  # wire delivery
     sent = bus.post(sender="proof", to="poke_e", channel="personal",
                     why="will fail post-wiring", body={"n": 1})
     assert len(bus.undelivered(to="poke_e")) == 1

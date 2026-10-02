@@ -45,7 +45,7 @@ from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
 from cairn.devices.db_domain.tools.client import store  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 11, 12, 0, tzinfo=timezone.utc)
@@ -87,17 +87,16 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    """A heartbeat with receivers. The first pulse wires event-driven delivery; subsequent
-    posts poke the shim directly. The loop is built with no liveness_home and no discoverer:
-    this proof is about delivery, so the beat is the anonymous in-process one and the
-    roster is exactly what is handed in.
+    """A DeviceRoster holding receivers. The first pulse wires event-driven delivery;
+    subsequent posts poke the shim directly. This proof is about delivery, so the pulse is
+    one pass over exactly the shims handed in.
 
     Bus is passed in so shims can be constructed with it before the rig is built."""
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -122,7 +121,7 @@ def test_the_device_actually_receives_the_body():
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     sent = _post(bus, "box_a", why="prove arrival", body={"question": "are you there"})
-    loop.beat(NOW)
+    loop.pulse(NOW)
     assert len(box.got) == 1, box.got
     assert box.got[0]["id"] == sent["id"]
     assert box.got[0]["body"] == {"question": "are you there"}
@@ -135,9 +134,9 @@ def test_a_delivered_envelope_never_comes_back():
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     _post(bus, "box_a")
-    loop.beat(NOW)
-    loop.beat(NOW)
-    loop.beat(NOW)
+    loop.pulse(NOW)
+    loop.pulse(NOW)
+    loop.pulse(NOW)
     assert len(box.got) == 1, [e["id"] for e in box.got]
     assert bus.undelivered(to="box_a") == []
 
@@ -154,8 +153,8 @@ def test_a_receiver_that_raises_leaves_the_mail_in_the_inbox():
     bus = _fresh_bus()
     loop = _rig(bus, MailboxShim("box_bad", broken, bus=bus))
     sent = _post(bus, "box_bad")
-    loop.beat(NOW)
-    mail = _mail_result(loop._last_beat, "box_bad") or {}
+    record = loop.pulse(NOW)
+    mail = _mail_result(record, "box_bad") or {}
     assert mail.get("delivered") == [], mail
     assert mail.get("refused", []) != []
     still = bus.undelivered(to="box_bad")
@@ -174,8 +173,8 @@ def test_a_discovered_shim_receives_to_feedback():
     bus = _fresh_bus()
     loop = _rig(bus, DiscoveredShim("disk_only", "/nowhere", bus=bus))
     sent = _post(bus, "disk_only")
-    loop.beat(NOW)
-    mail = _mail_result(loop._last_beat, "disk_only") or {}
+    record = loop.pulse(NOW)
+    mail = _mail_result(record, "disk_only") or {}
     assert mail.get("delivered"), f"DiscoveredShim must deliver: {mail}"
     assert bus.undelivered(to="disk_only") == []
 
@@ -188,7 +187,7 @@ def test_mail_for_a_device_not_on_the_roster_sits():
     loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     ghost = _post(bus, "nobody_by_that_name")
     real = _post(bus, "box_a")
-    loop.beat(NOW)
+    loop.pulse(NOW)
     assert len(box.got) == 1
     assert box.got[0]["id"] == real["id"]
     assert [e["id"] for e in bus.undelivered()] == [ghost["id"]]
@@ -205,7 +204,7 @@ def test_a_dead_store_does_not_stop_the_heartbeat():
         raise ConnectionError("could not connect to server: Connection refused")
 
     bus.undelivered = dead      # type: ignore[method-assign]
-    record = loop.beat(NOW)
+    record = loop.pulse(NOW)
     assert "box_a" in record["pulsed"], record["pulsed"]
     mail = _mail_result(record, "box_a")
     assert mail is None
@@ -220,7 +219,7 @@ def test_a_receipt_appends_and_never_rewrites_the_envelope():
     loop = _rig(bus, MailboxShim("box_a", box, bus=bus))
     sent = _post(bus, "box_a", body={"deep": {"nested": [1, 2, 3]}})
     before = bus.read(to="box_a")[0]
-    loop.beat(NOW)
+    loop.pulse(NOW)
     bus.flush()
     after = bus.read(to="box_a")[0]
     assert after == before, (before, after)

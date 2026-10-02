@@ -148,7 +148,7 @@ def _carry(context: dict) -> dict:
 _TICKET = owning_ticket("the-return-trip-is-countable")
 
 # THE HORIZON — the roster's shared tracked debt, restated not re-derived: the unit is
-# PULSES, nothing pulses this shim yet (cairn/devices/cairn/machines/ground_loop/loop.py's filed edge), so the
+# PULSES, nothing pulses this shim yet (the retired private ground loop's filed edge, removed by ticket efb670ff1dd8), so the
 # loudness rides ``BaseShim.overdue()`` alone. 1000 is honest as a placeholder and
 # dishonest as a measurement, and MUST be re-tuned when the beat becomes a real number.
 _HORIZON = 1000

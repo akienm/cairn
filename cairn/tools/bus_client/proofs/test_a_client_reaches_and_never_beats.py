@@ -1,6 +1,6 @@
 """A CLIENT REACHES AND A RUNNER BEATS — ticket ``fc93d8cd5961`` (2026-09-09).
 
-MEASURED: ``connect_bus()`` 23.5s (a full ``GroundLoopDevice.beat``), ``reach()`` 0.23s.
+MEASURED: ``connect_bus()`` 23.5s (a full beat of the old in-process loop), ``reach()`` 0.23s.
 Five clients paid the beat to ask for one embedding. This proof pins that they no longer do,
 and that the watch which keeps it so can actually see a client.
 
@@ -63,14 +63,14 @@ class _BeatRaised(RuntimeError):
 
 
 def _stub_beat():
-    from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
-    original = GroundLoopDevice.beat
+    from cairn.tools.bus_client.roster import DeviceRoster
+    original = DeviceRoster.pulse
 
     def raising(self, now, context=None):
         raise _BeatRaised("a client fired the heartbeat")
 
-    GroundLoopDevice.beat = raising
-    return lambda: setattr(GroundLoopDevice, "beat", original)
+    DeviceRoster.pulse = raising
+    return lambda: setattr(DeviceRoster, "pulse", original)
 
 
 def test_i_every_client_helper_reaches_without_beating():

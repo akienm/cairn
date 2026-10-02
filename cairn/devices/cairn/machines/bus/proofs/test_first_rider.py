@@ -38,7 +38,7 @@ from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.probe import Probe  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
 NOW = datetime(2026, 8, 29, 12, 0, tzinfo=timezone.utc)
@@ -128,11 +128,11 @@ def _fresh_bus():
 
 
 def _rig(bus, *shims):
-    loop = GroundLoopDevice(bus=bus)
+    loop = DeviceRoster(bus)
     bus_shim = BusShim(bus, loop)
-    loop.subscribe(bus_shim)
+    loop.hold(bus_shim)
     for shim in shims:
-        loop.subscribe(shim)
+        loop.hold(shim)
     return loop
 
 
@@ -147,7 +147,7 @@ def test_probe_arrives_at_target():
     receiver_shim = ReceiverShim("receiver_a", receiver_dev, bus=bus)
     sender_shim = SenderShim("sender_a", sender_dev, bus=bus, target="receiver_a")
     loop = _rig(bus, receiver_shim, sender_shim)
-    loop.beat(NOW)  # first beat: wires delivery for both, sender's probe fires
+    loop.pulse(NOW)  # first beat: wires delivery for both, sender's probe fires
     assert len(receiver_dev.got) == 1, \
         f"expected 1 envelope at receiver, got {len(receiver_dev.got)}"
     assert receiver_dev.got[0]["sender"] == "sender_a"
@@ -164,7 +164,7 @@ def test_probe_body_arrives_intact():
     sender_shim = SenderShim("sender_b", sender_dev, bus=bus,
                              target="receiver_b", probe_body=body)
     loop = _rig(bus, receiver_shim, sender_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     assert len(receiver_dev.got) == 1
     assert receiver_dev.got[0]["body"] == body
 
@@ -176,7 +176,7 @@ def test_probe_to_unwired_device_sits():
     bus = _fresh_bus()
     sender_shim = SenderShim("sender_c", sender_dev, bus=bus, target="nobody_home")
     loop = _rig(bus, sender_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     waiting = bus.undelivered(to="nobody_home")
     assert len(waiting) == 1, f"expected 1 waiting envelope, got {len(waiting)}"
     assert waiting[0]["sender"] == "sender_c"
@@ -190,7 +190,7 @@ def test_receipt_is_written_after_delivery():
     receiver_shim = ReceiverShim("receiver_d", receiver_dev, bus=bus)
     sender_shim = SenderShim("sender_d", sender_dev, bus=bus, target="receiver_d")
     loop = _rig(bus, receiver_shim, sender_shim)
-    loop.beat(NOW)
+    loop.pulse(NOW)
     assert bus.undelivered(to="receiver_d") == [], \
         "delivered envelope should not appear as undelivered"
     assert len(receiver_dev.got) == 1

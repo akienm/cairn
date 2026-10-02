@@ -39,7 +39,7 @@ os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.cairn.machines.harbor_master import voyage
 from cairn.devices.web_server import render
 from cairn.devices.web_server.server import WebServerDevice
@@ -74,10 +74,10 @@ class _Shim(BaseShim):
 
 
 def _wired(*, with_harbor=True):
-    """A real heartbeat with one device, and a web server whose harbor source is the REAL
+    """A DeviceRoster holding one device, and a web server whose harbor source is the REAL
     live traffic image (or none, to prove the not-wired path)."""
-    gl = GroundLoopDevice()
-    gl.subscribe(_Shim(_Device("alpha")))
+    gl = DeviceRoster(None)
+    gl.hold(_Shim(_Device("alpha")))
     harbor = voyage.traffic_image if with_harbor else None
     return WebServerDevice(gl, harbor_source=harbor, port=8798), gl
 

@@ -6,11 +6,11 @@ tool provides it to any device that needs a bus connection.
 
 A device's shim.py on disk IS its bus declaration — no registry, no boolean flags.
 ``connect_bus(devices=["inference_domain"])`` discovers the shim from
-``cairn/devices/inference_domain/shim.py`` and registers it with the ground loop.
+``cairn/devices/inference_domain/shim.py`` and holds it in a ``DeviceRoster``
+(``roster.py``) — no ground loop is built inside a client (ticket efb670ff1dd8).
 
-Today: in-process construction. The shape is already right for out-of-process
-(IPC to the running ground loop), which is why the wiring lives here rather than
-in each caller — one seam to change when the process model advances.
+Today: in-process construction. The wiring lives here rather than in each caller —
+one seam to change when the process model advances.
 """
 from __future__ import annotations
 
@@ -24,103 +24,67 @@ _CLASS_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _wire(*, devices: list[str] | None = None, beat: bool = True):
-    """Internal: create bus + ground loop with discovery and named device shims."""
+    """Internal: a bus, a DeviceRoster holding the bus's own shim and each named device's
+    shim, and — with ``beat`` — one pulse of those held shims. Returns ``(bus, roster)``.
+
+    No ground loop is built here (ticket efb670ff1dd8): the heartbeat is the resident one,
+    and no device is special-cased — ``ground_loop`` loads its own shim from disk like any
+    other name."""
     from datetime import datetime, timezone
 
     from cairn.devices.cairn.machines.bus.bus import BusDevice
     from cairn.devices.cairn.machines.bus.shim import BusShim
-    from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
-    from cairn.devices.cairn.machines.ground_loop.discovery import discover, pulse_sites
+    from cairn.tools.bus_client.roster import DeviceRoster
 
     bus = BusDevice()
-    loop = GroundLoopDevice(bus=bus, discover=discover, pulse_finder=pulse_sites)
-    loop.subscribe(BusShim(bus, loop))
+    roster = DeviceRoster(bus)
+    roster.hold(BusShim(bus, roster))
 
     for name in (devices or []):
-        if name == "ground_loop":
-            # THE LOOP'S OWN SHIM IS HANDED THE LOOP — it fronts the chassis being built here,
-            # never a second one (ground_loop/shim.py: "constructor injection is the honest
-            # join"). The generic loader below builds a shim from ``bus`` alone, which is every
-            # other device's contract and not this one's. MEASURED 2026-09-13: the listener
-            # asked for "ground_loop" and got NOTHING from 2026-09-02 (7864f6c moved the
-            # subscription here, and the loader then spelled an address no shim.py sat at) and
-            # a TypeError from 2026-09-09 (8475127's walk found the real shim and called it
-            # without the loop) — the web server failed on every start after the 09-12 reboot.
-            from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim
-            loop.subscribe(GroundLoopShim(loop, bus=bus))
-            continue
-        shim = _load_device_shim(name, bus)
+        shim = roster.shim_for(name)
         if shim is not None:
-            loop.subscribe(shim)
+            roster.hold(shim)
 
     if beat:
-        loop.beat(datetime.now(timezone.utc))
+        roster.pulse(datetime.now(timezone.utc))
 
-    return bus, loop
+    return bus, roster
 
 
 def connect_bus(*, devices: list[str] | None = None, beat: bool = True):
-    """Return a working BusDevice with named device shims registered.
+    """Return a working BusDevice with named device shims held.
 
-    devices: device names whose concrete shims should handle bus verbs.
-             Each is discovered from ``cairn/devices/<name>/shim.py`` —
-             a file that declares a BaseShim subclass is its own registration.
-    beat:    fire one ground-loop beat to initialize (wires delivery, runs
-             discovery). True when you mean to RUN the system — the beat is
-             the heartbeat, and on this machine it costs ~23.5s (measured
-             2026-09-09). A CLIENT that wants to ASK a device one question
-             does not call this at all: it calls ``reach(<device>)`` below,
-             which wires and pulses only the shims addressed (~0.23s). Five
-             clients paid the beat before that was enforced; the probe at
-             ``probes/a_client_reaches_and_never_beats.py`` now reds any Call
-             of this face outside the runner roster. False is for a fixture
-             that inspects the wiring before the first pulse.
+    devices: device names whose shims should handle bus verbs. Each is loaded from
+             ``<device folder>/shim.py`` — a file that declares a BaseShim subclass is its
+             own registration — or, for a fitted device with no shim.py, a DiscoveredShim.
+    beat:    pulse the held shims once (the bus's own shim first, then each named one),
+             which wires their delivery. True when you mean to RUN the system. A CLIENT
+             that wants to ASK a device one question calls ``reach(<device>)`` instead; the
+             probe at ``probes/a_client_reaches_and_never_beats.py`` reds any Call of this
+             face outside the runner roster. False is for a fixture that inspects the
+             wiring before the first pulse.
     """
-    bus, _loop = _wire(devices=devices, beat=beat)
+    bus, _roster = _wire(devices=devices, beat=beat)
     return bus
 
 
 def reach(*devices: str):
     """A bus that can ASK the named devices — one exchange, no heartbeat.
 
-    THE MEASUREMENT THAT BORE IT (2026-09-07, ticket 9579a6f9cec6): a ground-loop beat on this
-    machine costs **104.8s** — trigger 57.5s, carry 24.0s, enough 22.6s, and 0.7s for
-    everything the loop itself does (poke, reconcile, shim bookkeeping). Not the bus and not
-    the DB: ``bus.read`` is 80ms and discovery is 0.3s. It is the pulse, and subscribing NO
-    devices at all still pays all of it, because 78 probes re-derive their whole survey on
-    every beat and a probe that fires pays for its survey three times over (trigger, carry,
-    enough). That is a real defect and it is not this ticket's; what matters here is that
-    ``connect_bus`` pays it, and a caller that wants one question answered should not.
-
-    A FIRST WRITING OF THIS PARAGRAPH SAID "over nine minutes" AND BLAMED
-    ``probes/hand_spelled_instance_paths.py`` for AST-parsing class-space every beat. Both
-    halves were wrong and the correction is left standing here rather than quietly swapped:
-    that scan is 1.17s over 457 files, 2% of the beat. The real cost was
-    ``no_component_reaches_proved_with_an_uncharted_build`` at 55.6s, asking the chart chain
-    of all 196 PROVED tickets while ``claiming_packets`` re-parsed all 2,552 berthed packets
-    per call — 1,568 sweeps of the store per beat. Indexed 2026-09-07
-    (``tools/chain/chain.py``, proof ``test_packet_index.py``); that probe now costs ~1.4s.
-    THE LESSON IS THE ONE LAW 3 KEEPS TEACHING: the first plausible culprit was named from
-    reading, and the census that measured it named a different one.
-
-    WHAT THE BEAT WAS ACTUALLY FOR, from the caller's side, is one line:
     ``BaseShim._wire_delivery`` hands the bus a poke channel for its device, and until some
     pulse does that, ``request`` posts into silence and times out. So this pulses exactly the
     shims being addressed — which wires their delivery, fires their own probes, and touches
-    nothing else. That is not a shortcut around the heartbeat; it is the difference between
-    RUNNING the system and USING it. A build inspector reconciling its troubles is a client,
-    and a client that had to start everything in order to ask one question would make the
-    ask cost more than the work.
+    nothing else. That is the difference between RUNNING the system and USING it.
 
-    Use ``connect_bus``/``connect_system`` when you mean to run the system (the web server's
-    listener does, and wants the roster a real beat produces). Use this when you mean to ask.
+    Raises LookupError for a name no shim answers to. Use ``connect_bus``/``connect_system``
+    when you mean to run the system; use this when you mean to ask.
     """
     from datetime import datetime, timezone
 
-    bus, loop = _wire(devices=list(devices), beat=False)
+    bus, roster = _wire(devices=list(devices), beat=False)
     now = datetime.now(timezone.utc)
     for name in devices:
-        shim = loop.shim_for(name)
+        shim = roster.shim_for(name)
         if shim is None:
             raise LookupError(
                 f"no shim answers to {name!r} — a device's bus presence IS "
@@ -130,11 +94,10 @@ def reach(*devices: str):
 
 
 def connect_system(*, devices: list[str] | None = None, beat: bool = True):
-    """Return ``(bus, loop)`` — for callers that need the ground loop itself.
+    """Return ``(bus, roster)`` — for process entry points that run the system.
 
-    The web_server uses the loop as its roster source (the nav across the top
-    shows which devices the heartbeat beats to). Most callers want only the bus;
-    this variant is for process entry points that run the system.
+    The roster is a ``DeviceRoster``: the web server's nav (every fitted device on disk) and
+    the source of each device's shim (``shim_for``). Most callers want only the bus.
     """
     return _wire(devices=devices, beat=beat)
 

@@ -104,3 +104,12 @@ def read_liveness(now: datetime, home: Path | None = None) -> dict:
                 "lack": f"unreadable record at {path} ({type(exc).__name__}: {exc})"}
     verdict = "LIVE" if age_s <= STALENESS_THRESHOLD_S else "DEAD"
     return {"verdict": verdict, "record": record, "age_s": age_s}
+
+
+def liveness_pane_data(now, home=None) -> dict:
+    """The LIVENESS pane's DATA — the read face's own answer, untouched."""
+    return {
+        "reports": "the resident singleton's liveness record (instance 0), read from disk "
+        "at request time — whatever process serves this page",
+        **read_liveness(now, home),
+    }

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_voyage_pane.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:29:15",
+    "date": "2026-10-02T12:48:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,17 +24,14 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "9a127d0c67274639a6c4524d965d9a75b15901a7cd788f68e39ecdc03223d9d9",
+      "source_fingerprint": "1b23954d92e15f43c4919e5dff6a4344f2dd3b8dd68b0c67563cdb4ffe9c2925",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/register.py",
         "cairn/devices/cairn/machines/harbor_master/voyage.py",
@@ -51,12 +48,16 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
+        "cairn/tools/base/deviceness.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/shim.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/roster.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -72,32 +73,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1011457-8r2x1fp7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1136903-alo4hnd3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 11,
+          "count": 7,
           "paths": [
-            "logs/ground_loop/0/20261002.142914.673439.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.142914.959843.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.142914.973339.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.142915.298881.GroundLoopDevice.subscribe.json",
             "logs/ground_loop_nohup.log",
-            "logs/web_server/0/20261002.142914.812161.WebServerDevice.serve.json",
-            "logs/web_server/0/20261002.142914.960066.WebServerDevice.serve.json",
-            "logs/web_server/0/20261002.142914.960464.WebServerDevice.serve.json",
-            "logs/web_server/0/20261002.142915.131792.WebServerDevice.serve.json",
-            "logs/web_server/0/20261002.142915.299076.WebServerDevice.serve.json",
-            "logs/web_server/0/20261002.142915.299409.WebServerDevice.serve.json"
+            "logs/web_server/0/20261002.184828.385919.WebServerDevice.serve.json",
+            "logs/web_server/0/20261002.184828.556460.WebServerDevice.serve.json",
+            "logs/web_server/0/20261002.184828.572812.WebServerDevice.serve.json",
+            "logs/web_server/0/20261002.184828.740668.WebServerDevice.serve.json",
+            "logs/web_server/0/20261002.184828.907500.WebServerDevice.serve.json",
+            "logs/web_server/0/20261002.184828.923084.WebServerDevice.serve.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 154903064,
-          "disk_bytes": 175927296,
-          "entries": 8778,
+          "bytes": 91339118,
+          "disk_bytes": 108511232,
+          "entries": 7102,
           "builds": 1,
-          "reuses": 38
+          "reuses": 33
         }
       }
     },

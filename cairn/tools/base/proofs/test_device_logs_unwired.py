@@ -129,9 +129,9 @@ def test_real_device_classes_name_their_own_component() -> None:
     checked against where the class's file actually lives — not against the string that used
     to be in the runner, which is gone precisely because this works."""
     from cairn.devices.cairn.machines.bus.bus import BusDevice
-    from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
+    from cairn.devices.cairn.machines.ground_loop.shim import HeartbeatPage
     import inspect
-    for cls in (BusDevice, GroundLoopDevice):
+    for cls in (BusDevice, HeartbeatPage):
         derived = component_of_module(cls.__module__)
         home = component_of(Path(inspect.getfile(cls)))
         ok(home is not None and derived == home.name,

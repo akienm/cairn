@@ -6,10 +6,10 @@ pulled live from a device's shim (``active_page``) or the heartbeat (``roster``)
 bridge + frame renderer — the intelligence is in the shims, the rendering is pure (``render.py``),
 and this device only routes a request to a rendered page.
 
-HOW IT REACHES DEVICES (v0, honest): through the ``ground_loop`` it is given. The heartbeat
+HOW IT REACHES DEVICES (v0, honest): through the ``DeviceRoster`` it is given. The heartbeat
 already OWNS the roster and holds its subscribers' shims (Law 6); the web server reads the nav
 from ``roster()`` and a device's page from that device's shim's ``active_page()``. Devices are
-in-process today (the whole spine's shared v0 — ground_loop holds shim references directly), so
+in-process today (the whole spine's shared v0 — a DeviceRoster holds shim references directly), so
 the fetch is a direct call. The DESIGNED path is browser ⟷ HTTP ⟷ web_server ⟷ BUS ⟷ shim; the
 bus request/reply transport is a FILED EDGE (below), the same separate-process deferral every
 device carries — the SHAPE (route → fetch device DATA → render) is here and proven now.
@@ -43,7 +43,7 @@ from cairn.devices.web_server import render
 class WebServerDevice(BaseDevice):
     """The web presentation surface as a device (carries CP1-CP6; reports intention/state/settings).
 
-    Given a ``roster_source`` (the ground_loop) it routes an HTTP path to a rendered HTML page.
+    Given a ``roster_source`` (a DeviceRoster) it routes an HTTP path to a rendered HTML page.
     Owns its listening PORT (a setting; the socket itself is the listener's, a filed edge). Holds no
     device state — every render pulls live from the roster source and the target device's shim.
     """
@@ -51,7 +51,7 @@ class WebServerDevice(BaseDevice):
     def __init__(self, roster_source, *, harbor_source=None, port: int = 80,
                  device_id: str = "web_server") -> None:
         super().__init__()
-        self._roster_source = roster_source   # the ground_loop: owns roster() + the shims
+        self._roster_source = roster_source   # a DeviceRoster: owns roster() + the shims
         self._harbor_source = harbor_source   # harbor_master's traffic image (INJECTED, not imported)
         self._port = port
         self._device_id = device_id

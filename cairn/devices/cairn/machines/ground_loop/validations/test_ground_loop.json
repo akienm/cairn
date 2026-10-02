@@ -2,35 +2,25 @@
   {
     "claim": "proof test_ground_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T06:26:52",
+    "date": "2026-10-02T12:43:36",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_subscribe_is_idempotent_and_typed\n  PASS  test_one_shim_raising_cannot_stop_the_beat\n  PASS  test_the_executor_goof_is_gone\n  PASS  test_the_roster_is_the_nav_published_at_all_times\n  PASS  test_the_crossings_are_no_longer_silent\n  PASS  test_it_is_a_device\n  PASS  test_the_stamp_advances_across_beats_and_pid_and_state_ride\n  PASS  test_the_instance_dir_is_born_on_first_write\n  PASS  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn\n  PASS  test_a_reader_never_sees_a_torn_record\n  PASS  test_a_homeless_device_writes_nothing\n  PASS  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly\n  PASS  test_a_sigkilled_winner_leaves_no_stale_claim\n  PASS  test_the_held_claim_survives_the_records_churn\n  PASS  test_the_doors_loser_reports_from_the_record_and_exits_distinctly\n  PASS  test_the_pane_renders_what_the_record_says_and_never_derives\n  PASS  test_an_absent_record_renders_the_named_lack_never_blank\n  PASS  test_the_page_assembles_through_the_standard_machinery\n  PASS  test_the_self_subscription_is_inert_under_the_beat\ngreen — ground_loop: the heartbeat beats and pulses subscribed shims (in order, survivably); the firing is the shim's, and the executor goof is gone",
+      "stdout_tail": "  PASS  test_the_stamp_advances_across_beats_and_pid_and_state_ride\n  PASS  test_the_instance_dir_is_born_on_first_write\n  PASS  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn\n  PASS  test_a_reader_never_sees_a_torn_record\n  PASS  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly\n  PASS  test_a_sigkilled_winner_leaves_no_stale_claim\n  PASS  test_the_held_claim_survives_the_records_churn\n  PASS  test_the_doors_loser_reports_from_the_record_and_exits_distinctly\n  PASS  test_the_pane_renders_what_the_record_says_and_never_derives\n  PASS  test_an_absent_record_renders_the_named_lack_never_blank\n  PASS  test_the_page_assembles_through_the_standard_machinery\ngreen — ground_loop: the liveness record, the single-start guard and the heartbeat's page hold",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_beat_pulses_every_shim_in_order",
-        "test_the_firing_is_the_shims_not_the_heartbeats",
-        "test_subscribe_is_idempotent_and_typed",
-        "test_one_shim_raising_cannot_stop_the_beat",
-        "test_the_executor_goof_is_gone",
-        "test_the_roster_is_the_nav_published_at_all_times",
-        "test_the_crossings_are_no_longer_silent",
-        "test_it_is_a_device",
         "test_the_stamp_advances_across_beats_and_pid_and_state_ride",
         "test_the_instance_dir_is_born_on_first_write",
         "test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn",
         "test_a_reader_never_sees_a_torn_record",
-        "test_a_homeless_device_writes_nothing",
         "test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly",
         "test_a_sigkilled_winner_leaves_no_stale_claim",
         "test_the_held_claim_survives_the_records_churn",
         "test_the_doors_loser_reports_from_the_record_and_exits_distinctly",
         "test_the_pane_renders_what_the_record_says_and_never_derives",
         "test_an_absent_record_renders_the_named_lack_never_blank",
-        "test_the_page_assembles_through_the_standard_machinery",
-        "test_the_self_subscription_is_inert_under_the_beat"
+        "test_the_page_assembles_through_the_standard_machinery"
       ],
       "teeth_red": [],
       "seal": {
@@ -41,7 +31,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4968d12dd4e5f77261691c2720be493133daa701773ff345e328f652dacc6fa7",
+      "source_fingerprint": "03848d65b9c7d42a9de7a621fa6bea1d5e6bef9bee4764a1f4518efa193bbc0f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -49,14 +39,11 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py",
         "cairn/devices/cairn/machines/ground_loop/shim.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -73,42 +60,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-962907-wntt2icc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1136903-_m89wla_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 21,
+          "count": 1,
           "paths": [
-            "devices/a/0/last_known.json",
-            "devices/alpha/0/last_known.json",
-            "devices/b/0/last_known.json",
-            "devices/healthy/0/last_known.json",
-            "devices/rider/0/last_known.json",
-            "devices/sensor/0/last_known.json",
-            "devices/steady/0/last_known.json",
-            "logs/ground_loop/0/20261002.122649.197871.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.198201.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.257388.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.309597.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.309836.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.310049.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.366467.GroundLoopDevice.pulse_refused.json",
-            "logs/ground_loop/0/20261002.122649.367072.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.367192.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122649.477437.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122652.081419.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122652.081815.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122652.152106.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122652.152432.GroundLoopDevice.subscribe.json"
+            "devices/ground_loop/0/last_known.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 152328979,
-          "disk_bytes": 173084672,
-          "entries": 8646,
+          "bytes": 91335540,
+          "disk_bytes": 108482560,
+          "entries": 7093,
           "builds": 1,
-          "reuses": 16
+          "reuses": 3
         }
       }
     },

@@ -1,29 +1,17 @@
-"""Proof for ground_loop — THE HEARTBEAT. One pulse; nothing more.
+"""Proof for ground_loop — THE HEARTBEAT's records: its liveness stamp, its single-start
+guard, and its page.
 
-This proof exercises the corrected shape: the heartbeat beats and pulses the shim of every
-subscribed device; the FIRING lives in the shim. It composes the real BaseShim + Probe +
-a spy bus, so the full beat → on_pulse → fire → poke chain is shown WITHOUT a DB (the
-heartbeat holds no durable state — that is the whole point). The durable bus is proven
-separately (cairn/devices/cairn/machines/bus/proofs/test_bus.py).
+The beat itself is ``__main__.py`` (proved in test_heartbeat.py). Since ticket efb670ff1dd8
+there is no in-process loop device to beat: these teeth write the liveness record through the
+tool's own write face (``write_liveness``), read it back through the read face, and assemble
+the heartbeat's page — a template over that record — through the standard shim machinery.
 
-Teeth a hollow heartbeat could not pass:
-  - A BEAT PULSES EVERY SUBSCRIBED SHIM, IN ORDER, and leaves a legible beat-record naming
-    who was pulsed — a beat is evidence, a record, never a silent ``RUNNING``. (This line
-    said "LEARNING, not silent RUNNING" until 2026-07-30, when ticket watchme-emits-a-probe
-    dissolved ``LEARNING`` as a node state; the tooth never changed — EVIDENCE was always
-    what a beat yields.)
-  - THE FIRING IS THE SHIM'S: a probe due on this beat pokes the bus THROUGH its shim; one
-    not due holds. The heartbeat itself pokes nothing.
-  - SUBSCRIBE IS IDEMPOTENT by device_id; only a shim (device_id + on_pulse) may subscribe.
-  - ONE SHIM RAISING CANNOT STOP THE BEAT reaching the others (CP2, Law 7).
-  - THE GOOF IS GONE: no run_driver / no method registry — the heartbeat executes nothing.
-  - IT IS A DEVICE (Law 2 / Form v0 #2).
-  - THE ROSTER IS THE NAV (web-server child c): the heartbeat publishes roster() at ALL times —
-    the devices it beats to, in order, each with live wakefulness — before the first beat too;
-    a device absent from subscriptions is absent from the roster; the roster is DATA.
-  - THE CROSSINGS ARE NO LONGER SILENT — and the beat is NOT a crossing. Breadcrumbs on
-    roster changes and pulse failures only; a healthy beat emits nothing (per anomaly,
-    never per pulse — the firehose is the failure mode on this device).
+Teeth a hollow build could not pass:
+  - THE STAMP ADVANCES, the pid and state ride, the instance dir is born on first write.
+  - LIVE on fresh, DEAD on stale / absent / torn — and a reader never sees a torn record.
+  - EXACTLY ONE CLAIMANT WINS the singleton; a corpse leaves no stale claim.
+  - THE PANE RENDERS WHAT THE RECORD SAYS and never derives; an absent record is a named lack.
+  - THE PAGE ASSEMBLES through the real ``BaseShim.active_page``.
 
 Runnable bare (NO DB, NO framework):
     python3 cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py     # exit 0 = green
@@ -38,213 +26,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.probe import Probe
-from cairn.tools.base.core_values import CoreValuesMixin
-from cairn.tools.base.shim import BaseShim
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice
 
 PROVES = {"bae622881f03": {"7": "test_the_doors_loser_reports_from_the_record_and_exits_distinctly"}}
-
-
-class _SpyBus:
-    def __init__(self) -> None:
-        self.posted: list[dict] = []
-        self._wired: dict = {}
-
-    def post(self, **envelope) -> dict:
-        envelope = {"id": f"env{len(self.posted)}", **envelope}
-        self.posted.append(envelope)
-        return envelope
-
-    def wire_delivery(self, device_id: str, deliver) -> None:
-        self._wired[device_id] = deliver
-
-    def unwire_delivery(self, device_id: str) -> None:
-        self._wired.pop(device_id, None)
-
-    def read(self, **kw):
-        return []
-
-
-class _Shim(BaseShim):
-    def __init__(self, device_id, bus=None, probes=None) -> None:
-        super().__init__(bus=bus)
-        self._id = device_id
-        self._probes = probes or []
-
-    @property
-    def device_id(self) -> str:
-        return self._id
-
-    def probes(self):
-        return self._probes
-
-    def _start_device(self):
-        # A minimal woken device — enough to flip running True, and it declares a ``receive``
-        # because since 2026-08-11 a device that is delivered to and cannot receive REFUSES
-        # rather than swallowing the envelope (``BaseShim.deliver``). A bare ``object()`` here
-        # used to stand in for a real device and quietly proved the opposite of the contract.
-        class _Woken:
-            def __init__(self):
-                self.mail = []
-
-            def receive(self, envelope):
-                self.mail.append(envelope)
-                return {"ack": envelope.get("id")}
-
-        return _Woken()
-
-
-class _AngryShim(BaseShim):
-    @property
-    def device_id(self) -> str:
-        return "angry"
-
-    def on_pulse(self, now, context=None):
-        raise RuntimeError("this shim throws on pulse")
-
-
-def test_a_beat_pulses_every_shim_in_order():
-    bus = _SpyBus()
-    gl = GroundLoopDevice()
-    gl.subscribe(_Shim("a", bus))
-    gl.subscribe(_Shim("b", bus))
-
-    rec = gl.beat(now="t0")
-
-    assert rec["pulsed"] == ["a", "b"], "every subscribed shim is pulsed, in subscription order"
-    assert [p["device"] for p in rec["pulses"]] == ["a", "b"]
-    assert gl.state()["beats"] == 1
-
-
-def test_the_firing_is_the_shims_not_the_heartbeats():
-    bus = _SpyBus()
-    due = Probe(why="wake ops", trigger=lambda now, ctx: ctx.get("hot"), to="ops/personal")
-    idle = Probe(why="wake night", trigger=lambda now, ctx: False, to="night/personal")
-    gl = GroundLoopDevice()
-    gl.subscribe(_Shim("sensor", bus, probes=[due, idle]))
-
-    gl.beat(now="t0", context={"hot": True})
-
-    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
-    assert len(pokes) == 1 and pokes[0]["to"] == "ops/personal", \
-        "the due probe pokes the bus through its shim; the heartbeat itself pokes nothing"
-    # A beat where nothing is due pokes nobody.
-    gl.beat(now="t1", context={"hot": False})
-    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
-    assert len(pokes) == 1, "no probe due → no poke"
-
-
-def test_subscribe_is_idempotent_and_typed():
-    gl = GroundLoopDevice()
-    s = _Shim("once")
-    gl.subscribe(s)
-    gl.subscribe(s)  # same device_id — must not double-subscribe
-    assert gl.subscribers == ["once"]
-    try:
-        gl.subscribe(object())
-        raise AssertionError("only a shim (device_id + on_pulse) may subscribe to the heartbeat")
-    except TypeError:
-        pass
-
-
-def test_one_shim_raising_cannot_stop_the_beat():
-    bus = _SpyBus()
-    gl = GroundLoopDevice()
-    gl.subscribe(_AngryShim())
-    gl.subscribe(_Shim("healthy", bus, probes=[
-        Probe(why="still fires", trigger=lambda now, ctx: True, to="ok/personal")]))
-
-    rec = gl.beat(now="t0")
-
-    outcomes = {p["device"]: p.get("outcome", "ok") for p in rec["pulses"]}
-    assert outcomes["angry"] == "refused", "the throwing shim is a loud, permanent entry (Law 7)"
-    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
-    assert len(pokes) == 1 and pokes[0]["to"] == "ok/personal", \
-        "the healthy shim still fired after the angry one (CP2)"
-
-
-def test_the_executor_goof_is_gone():
-    gl = GroundLoopDevice()
-    assert not hasattr(gl, "run_driver"), "the heartbeat executes nothing — run_driver is retired"
-    assert not hasattr(gl, "registry"), "the heartbeat holds no method registry — that was the goof"
-
-
-def test_the_roster_is_the_nav_published_at_all_times():
-    import json
-    gl = GroundLoopDevice()
-    # Published BEFORE any subscribe or beat — an empty nav is honest, not broken.
-    empty = gl.roster()
-    assert empty == {"beats": 0, "devices": []}, "the roster is published at all times, even empty"
-
-    a, b = _Shim("alpha"), _Shim("beta")
-    gl.subscribe(a)
-    gl.subscribe(b)
-    roster = gl.roster()
-    assert [d["device"] for d in roster["devices"]] == ["alpha", "beta"], \
-        "the roster is the subscription list, in order — the nav across the top"
-    assert all(d["awake"] is False for d in roster["devices"]), "no device woken yet → all asleep in the nav"
-
-    # Wakefulness is LIVE: wake one device (deliver mail) and the nav reflects it.
-    a.deliver({"id": "e1"})
-    assert gl.roster()["devices"][0]["awake"] is True, "the roster shows live wakefulness (shim.running)"
-    # A device NOT subscribed cannot appear in the nav — you navigate to what the heartbeat beats.
-    assert "gamma" not in [d["device"] for d in gl.roster()["devices"]]
-    # The roster is DATA the web server renders — json-round-trips unchanged.
-    assert json.loads(json.dumps(roster)) == roster
-
-
-def test_the_crossings_are_no_longer_silent():
-    """The silent_device disposition (troubles/silent-devices-2026-07-27.json): the
-    heartbeat's crossings are ROSTER CHANGES and pulse FAILURES — never the beat itself.
-    A breadcrumb per beat would be the per-pulse firehose the discipline forbids; a
-    healthy beat's evidence is the beat-record it already returns.
-
-    SILENCED, DELIBERATELY (ticket a-device-logs-without-being-wired, 2026-08-18). This tooth
-    used to say "HELD when no receiver is wired" and lean on it: un-wired meant held, so the
-    proof read ``held_diagnostics()`` for free. Un-wired now WRITES to
-    ``~/.cairn/logs/ground_loop/0/`` — which would empty this list and seed the live tree in the
-    same stroke. ``set_diagnostic_receiver(None)`` asks for the holding that used to be an
-    accident; what Law 7 forbids (a silent drop) is what the assertions below still check."""
-    bus = _SpyBus()
-    gl = GroundLoopDevice()
-    gl.set_diagnostic_receiver(None)
-    s = _Shim("steady", bus)
-    gl.subscribe(s)
-    gl.subscribe(s)                      # idempotent re-subscribe: no roster change, no breadcrumb
-    gl.beat(now="t0")                    # a healthy beat is SILENT
-    assert [h["gate"] for h in gl.held_diagnostics()] == ["subscribe"], \
-        "one roster change → one breadcrumb; the healthy beat and the re-subscribe add none"
-    assert gl.held_diagnostics()[0]["pointer"] == "steady"
-
-    gl.subscribe(_AngryShim())
-    rec = gl.beat(now="t1")              # the angry shim fails ITS pulse; the beat survives (CP2)
-    held = gl.held_diagnostics()
-    assert [h["gate"] for h in held] == ["subscribe", "subscribe", "pulse_refused"], (
-        f"a FAILED pulse is the anomaly worth a breadcrumb, got {[h['gate'] for h in held]} — "
-        "per anomaly, never per beat"
-    )
-    refused = held[-1]
-    assert refused["pointer"] == "angry", "the breadcrumb points at the shim whose pulse failed"
-    assert refused["values"]["beat"] == rec["beat"] and "RuntimeError" in refused["values"]["error"], \
-        "the error rides the breadcrumb whole — complete on first pass, no re-run to gather it"
-    assert all(h["home"] == "held" for h in held), \
-        "a SILENCED device holds its records (Law 7) — never silently dropped"
-    # More healthy beats: still nothing new from health.
-    gl2 = GroundLoopDevice()
-    gl2.set_diagnostic_receiver(None)
-    gl2.subscribe(_Shim("quiet"))
-    for t in ("t0", "t1", "t2"):
-        gl2.beat(now=t)
-    assert [h["gate"] for h in gl2.held_diagnostics()] == ["subscribe"], \
-        "three healthy beats, zero breadcrumbs — the heartbeat does not narrate its own pulse"
-
-
-def test_it_is_a_device():
-    gl = GroundLoopDevice()
-    assert isinstance(gl, CoreValuesMixin), "a device must compose the core values (Law 2)"
-    assert [v.id for v in gl.CORE_VALUES] == ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
-    assert list(gl.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
 
 
 # --- the liveness record (ticket ground-loop-writes-its-own-liveness) ----------
@@ -269,31 +52,27 @@ _T0 = _dt(2026, 8, 9, 12, 0, 0, tzinfo=_tz.utc)
 def test_the_stamp_advances_across_beats_and_pid_and_state_ride():
     with _tempfile.TemporaryDirectory() as td:
         home = Path(td) / "0"
-        gl = GroundLoopDevice(liveness_home=home)
-        gl.subscribe(_Shim("rider"))
-
-        gl.beat(now=_T0)
+        write_liveness(_T0, {"beats": 1}, _os.getpid(), home)
         first = read_liveness(_T0, home=home)
         assert first["verdict"] == "LIVE" and first["age_s"] == 0.0
         assert first["record"]["last_run"] == _T0.isoformat(), \
             "last-run is THIS beat's injected now — the write is part of the pass"
 
         t1 = _T0 + _td(seconds=1)
-        gl.beat(now=t1)
+        write_liveness(t1, {"beats": 2}, _os.getpid(), home)
         second = read_liveness(t1, home=home)
         assert second["record"]["last_run"] == t1.isoformat(), \
             "the stamp ADVANCES while the loop runs — the falsifier's first clause"
         assert second["record"]["pid"] == _os.getpid(), "the pid rides the record"
-        assert second["record"]["state"]["beats"] == 2 and \
-            second["record"]["state"]["subscribers"] == ["rider"], \
-            "the state riding the record is the device's own state() surface, post-pass"
+        assert second["record"]["state"] == {"beats": 2}, \
+            "the state riding the record is the state the writer handed it, post-pass"
 
 
 def test_the_instance_dir_is_born_on_first_write():
     with _tempfile.TemporaryDirectory() as td:
         home = Path(td) / "devices" / "ground_loop" / "0"   # does not exist yet
         assert not home.exists()
-        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        write_liveness(_T0, {"beats": 1}, _os.getpid(), home)
         assert (home / RECORD_NAME).exists(), \
             "the device space is born with its first record — no separate mkdir step to forget"
 
@@ -305,7 +84,7 @@ def test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn():
         gone = read_liveness(_T0, home=home)
         assert gone["verdict"] == "DEAD" and gone["record"] is None and "lack" in gone
 
-        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        write_liveness(_T0, {"beats": 1}, _os.getpid(), home)
         fresh = read_liveness(_T0 + _td(seconds=3), home=home)
         assert fresh["verdict"] == "LIVE" and fresh["age_s"] == 3.0, \
             "within the ruled threshold → LIVE (a second loop must NOT start over a live one)"
@@ -357,16 +136,6 @@ def test_a_reader_never_sees_a_torn_record():
             _json.loads((home / RECORD_NAME).read_text())   # a torn record raises here
         w.join()
         _json.loads((home / RECORD_NAME).read_text())
-
-
-def test_a_homeless_device_writes_nothing():
-    # Constructed without a liveness home, the device is an anonymous in-process
-    # heartbeat: beat() attempts NO write — proven by beating with a string now,
-    # which any write path would choke on (str has no isoformat), exactly as every
-    # pre-existing tooth in this file already beats.
-    gl = GroundLoopDevice()
-    gl.beat(now="t0")
-    assert gl._liveness_home is None
 
 
 # --- the single-start guard (ticket an-entry-point-starts-the-loop-only-once) ---
@@ -494,19 +263,19 @@ def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
 
 
 # --- the liveness PANE (ticket the-ground-loop-pane-shows-its-state) ------------
-# The loop's device page — a declared pane through the base shim's STANDARD
+# The heartbeat's device page — a declared pane through the base shim's STANDARD
 # machinery, never a route or a port of its own. The pane RENDERS what the
 # record says: its data IS read_liveness's own output plus one presentation
 # label, so it cannot derive, cache, or grow a second staleness opinion.
 
-from cairn.devices.cairn.machines.ground_loop.loop import liveness_pane_data
+from cairn.tools.liveness.liveness import liveness_pane_data
 from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim
 
 
 def test_the_pane_renders_what_the_record_says_and_never_derives():
     with _tempfile.TemporaryDirectory() as td:
         home = Path(td) / "0"
-        GroundLoopDevice(liveness_home=home).beat(now=_T0)
+        write_liveness(_T0, {"beats": 1}, _os.getpid(), home)
         for probe_now, verdict in ((_T0 + _td(seconds=3), "LIVE"),
                                    (_T0 + _td(seconds=STALENESS_THRESHOLD_S + 1), "DEAD")):
             pane = liveness_pane_data(probe_now, home=home)
@@ -529,10 +298,9 @@ def test_an_absent_record_renders_the_named_lack_never_blank():
 
 
 def test_the_page_assembles_through_the_standard_machinery():
-    gl = GroundLoopDevice()
-    shim = GroundLoopShim(gl)
-    gl.subscribe(shim)                             # the self-join the listener wires
-    assert shim.device() is gl, "the shim fronts the HANDED chassis — never a second loop"
+    shim = GroundLoopShim()                        # the standard loader contract, no loop handed
+    assert type(shim.device()).__name__ == "HeartbeatPage", \
+        "the shim starts the heartbeat's read-only page — never a second loop"
 
     page = shim.active_page()                      # the REAL BaseShim method, unoverridden
     assert page["device"] == "ground_loop"
@@ -553,55 +321,22 @@ def test_the_page_assembles_through_the_standard_machinery():
     assert "resident singleton" in data["reports"]
 
 
-def test_the_self_subscription_is_inert_under_the_beat():
-    bus = _SpyBus()
-    plain = GroundLoopDevice()
-    plain.subscribe(_Shim("rider", bus))
-    baseline = plain.beat(now="t0")
-
-    looped = GroundLoopDevice()
-    looped.subscribe(GroundLoopShim(looped))
-    looped.subscribe(_Shim("rider", bus))
-    rec = looped.beat(now="t0")
-
-    assert [p["device"] for p in rec["pulses"]] == ["ground_loop", "rider"]
-    own = rec["pulses"][0]
-    assert own.get("fired", []) == [] and own.get("outcome") != "refused", \
-        "the loop pulsing its own probe-less shim evaluates nothing, fires nothing, raises nothing"
-    assert rec["pulses"][1] == baseline["pulses"][0], \
-        "the rider's pulse-record is identical with the self-subscription present"
-    pokes = [p for p in bus.posted if p.get("channel") != "announce"]
-    assert pokes == [], "no pokes either way — the self-join changes no firing"
-    assert [d["device"] for d in looped.roster()["devices"]] == ["ground_loop", "rider"], \
-        "the one difference is the honest one: the roster (and so the nav) carries ground_loop"
-
-
 def _main() -> int:
-    for check in (test_a_beat_pulses_every_shim_in_order,
-                  test_the_firing_is_the_shims_not_the_heartbeats,
-                  test_subscribe_is_idempotent_and_typed,
-                  test_one_shim_raising_cannot_stop_the_beat,
-                  test_the_executor_goof_is_gone,
-                  test_the_roster_is_the_nav_published_at_all_times,
-                  test_the_crossings_are_no_longer_silent,
-                  test_it_is_a_device,
-                  test_the_stamp_advances_across_beats_and_pid_and_state_ride,
+    for check in (test_the_stamp_advances_across_beats_and_pid_and_state_ride,
                   test_the_instance_dir_is_born_on_first_write,
                   test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn,
                   test_a_reader_never_sees_a_torn_record,
-                  test_a_homeless_device_writes_nothing,
                   test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly,
                   test_a_sigkilled_winner_leaves_no_stale_claim,
                   test_the_held_claim_survives_the_records_churn,
                   test_the_doors_loser_reports_from_the_record_and_exits_distinctly,
                   test_the_pane_renders_what_the_record_says_and_never_derives,
                   test_an_absent_record_renders_the_named_lack_never_blank,
-                  test_the_page_assembles_through_the_standard_machinery,
-                  test_the_self_subscription_is_inert_under_the_beat):
+                  test_the_page_assembles_through_the_standard_machinery):
         check()
         print(f"  PASS  {check.__name__}")
-    print("green — ground_loop: the heartbeat beats and pulses subscribed shims (in order, "
-          "survivably); the firing is the shim's, and the executor goof is gone")
+    print("green — ground_loop: the liveness record, the single-start guard and the "
+          "heartbeat's page hold")
     return 0
 
 

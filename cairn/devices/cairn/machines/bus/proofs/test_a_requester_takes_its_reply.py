@@ -37,7 +37,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
+from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 from cairn.devices.db_domain.tools.client import store  # noqa: E402
 
 PROVES = {"6b1e13704e17": {
@@ -95,11 +95,11 @@ class _Shim(BaseShim):
 
 def _rig(*pairs):
     bus = _SCRATCH.enter_context(BusDevice.scratch("bus_rtr"))
-    loop = GroundLoopDevice(bus=bus)
-    loop.subscribe(BusShim(bus, loop))
+    loop = DeviceRoster(bus)
+    loop.hold(BusShim(bus, loop))
     for device_id, device in pairs:
-        loop.subscribe(_Shim(device_id, device, bus))
-    loop.beat(NOW)
+        loop.hold(_Shim(device_id, device, bus))
+    loop.pulse(NOW)
     return bus
 
 

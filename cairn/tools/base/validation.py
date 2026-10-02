@@ -19,9 +19,11 @@ acquired a bus dial and with it a static path to ``inference_domain``.
 
 So the rule this file follows is narrower than "tools may import devices": REACH
 FOR THE NARROWEST MODULE THAT HOLDS WHAT YOU NEED. ``discover`` comes from
-``tester/discovery.py``, which imports ``Path`` and ``sys`` and can never grow an
-oracle; it does NOT come from ``tester/cli.py``, which is the command and reaches
-the bus. Each function below names its own source for the same reason — the
+``cairn/tools/proof_discovery/proof_discovery.py``, which imports ``Path`` and ``sys``
+and can never grow an oracle; it does NOT come from ``tester/cli.py``, which is the
+command and reaches the bus. Since ticket 67b78ae59c1d (RULE 1) this module imports
+nothing from any device: running a proof is the tester's ``run`` bus verb, asked by
+the caller that wants it, never a wrapper here. Each function below names its own source for the same reason — the
 function-local imports are not laziness, they are what keeps one caller's needs
 from becoming every caller's import closure.
 """
@@ -30,9 +32,9 @@ from __future__ import annotations
 
 def discover(targets):
     """Resolve CLI targets to proof files — ``**/proofs/test_*.py`` beneath each."""
-    # discovery.py, NOT cli.py — cli.py reaches the bus and would drag an oracle into
-    # every gate that imports this tool (ticket dd8ad9702b49, measured 2026-09-09).
-    from cairn.devices.tester.discovery import discover as _discover
+    # The stdlib-only tool, NOT the tester's cli.py — cli.py reaches the bus and would drag
+    # an oracle into every gate that imports this tool (ticket dd8ad9702b49, 2026-09-09).
+    from cairn.tools.proof_discovery.proof_discovery import discover as _discover
     return _discover(targets)
 
 
@@ -81,26 +83,3 @@ def latest_seal(path, *, artifact=False):
     where = validations_path_for_artifact(str(path)) if artifact else validations_path_for(str(path))
     records = read_validations(path=where)
     return records[-1] if records else None
-
-
-def run_proof(path, *, sink="none", caller="unknown"):
-    """Run ONE proof and return its record. Persists nothing — the caller decides.
-
-    THIS DOOR SWEEPS NOTHING, AND SAYS SO ON THE EVIDENCE. The tester sweeps dead-minter
-    scratch before every seal (ticket 201a37bf1613), but the sweep opens db_domain and this
-    module sits on the inspector's fire path (``inspector.py -> cairn.tools.base.validation
-    -> cairn.devices.tester.device``; ``test_inspector_nexus`` reds any import of a database
-    along it — measured 2026-09-18, when a sweep here reached ``cairn.devices.db_domain``
-    through ``scratch_sweep`` and the nexus tooth caught it). So the two seal writers that
-    sweep are ``cli.py`` and ``reseal.py``, one address aside; a ``sink="validations"`` call
-    through THIS door hands the device a declared non-sweep rather than nothing, so the
-    device's refusal (which exists for a caller that forgot) stays a refusal of silence and
-    the record it seals still names that no sweep ran.
-    """
-    from cairn.devices.tester.device import TesterDevice
-    swept = None
-    if sink == "validations":
-        swept = {"skipped": "cairn.tools.base.validation.run_proof sits on the inspector's "
-                            "fire path and may not reach db_domain; seals that sweep ride "
-                            "cairn/devices/tester/cli.py and reseal.py"}
-    return TesterDevice().run_proof(path, sink=sink, caller=caller, scratch_sweep=swept)

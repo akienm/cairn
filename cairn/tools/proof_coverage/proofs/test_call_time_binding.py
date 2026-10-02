@@ -157,14 +157,9 @@ def test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_r
         "the tooth must depend on the sieve being present")
     assert [l["kind"] for l in without] == [l["kind"] for l in full
                                             if l["kind"] != "proof_binds_its_subject_at_call_time"]
-    # (c) hollow, run over the same world, reads exactly that file UNRAN for that proof
-    from cairn.devices.tester import hollow  # bound here: the tester is another component
-    reading = hollow.measure(world.ticket["id"], repo_root=world.repo, commons=world.commons,
-                             berths_root=world.roots["berths"], timeout=120, log=lambda *_: None)
-    unran = reading.get("unran") or {}
-    assert predicted in unran, (predicted, reading.get("verdict"), reading.get("reasons"))
-    assert any(p.endswith(world.proof) for p in unran[predicted]), unran
-    assert reading.get("verdict") == "red", reading.get("verdict")
+    # (c) hollow, run over the same world, reads exactly that file UNRAN — that half measures
+    # the tester, so it is the tester's own tooth now (ticket 67b78ae59c1d, RULE 1):
+    # cairn/devices/tester/proofs/test_the_teeth_that_measure_the_tester.py declares this key too.
     # (d) in life the same comparison is the WATCHME probe's: every hollow UNRAN measured
     # against what the sieve predicted. Armed, or the crossing cannot be made.
     _probe_is_armed()

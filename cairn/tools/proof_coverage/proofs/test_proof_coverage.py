@@ -126,17 +126,19 @@ def test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail():
     marginal.
 
     This runs the REAL tester through the REAL door, not a parser over a canned string:
-    the claim is about what run_proof records, and a canned string would prove only that
+    the claim is about what the tester records, and a canned string would prove only that
     the parser works on strings I wrote.
     """
-    from cairn.devices.tester.device import TesterDevice
+    from cairn.tools.bus_client.bus_client import reach  # the tester's interface is the bus (RULE 1)
 
     with tempfile.TemporaryDirectory() as tmp:
         proof = Path(tmp) / "test_forty.py"
         proof.write_text(
             "\n".join([f'print("  ok   test_tooth_{i:02d}")' for i in range(40)])
             + "\nraise SystemExit(0)\n", encoding="utf-8")
-        record = TesterDevice().run_proof(proof, sink="none", caller="test_proof_coverage")
+        record = reach("tester").request(
+            sender="proof_coverage", to="tester", verb="run", why="the forty-teeth record",
+            body={"path": str(proof), "caller": "test_proof_coverage"}, timeout=120)["body"]["record"]
 
     assert record["verdict"] == "green", record
     green = record["evidence"]["teeth_green"]

@@ -71,7 +71,6 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.validation_store import validation_store as vs
 from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
-from cairn.tools.base import validation as public_validation
 
 # WHICH TOOTH ANSWERS WHICH CLAUSE — read by proof_coverage and by `cairn test --hollow`.
 # Ticket 299d4f72ae40's falsifier enumerates its DONE-when list (1)..(5); clauses (1) and (4)
@@ -383,34 +382,41 @@ def test_the_guard_covers_every_persisting_caller_not_only_the_flag():
     """THE GUARD IS AT THE DOOR, NOT AT THE FLAG, and this is the tooth that says so in
     behaviour rather than in a comment.
 
-    TWO READINGS, AND THE SECOND IS THE HONEST SHAPE OF THE FIRST. `cairn/tools/base/validation.py`'s
-    public `run_proof` persists with `sink="validations"` and NEVER forwards isolation — measured
-    2026-09-10 at its own signature, which takes no isolation argument at all. So today it can
-    only ever mint an `open` reading, and it cannot itself perform a conversion. What it CAN do
-    is meet the door: reading 1 fires the sibling guard through it, proving the wrapper passes
-    through `persist_validation` with no escape kwarg of its own. Reading 2 then fires the
-    conversion guard through the exact call shape `device.py` uses when that wrapper seals —
-    `persist_validation(record, proof_path=...)`, positional record, no reason — so the two
-    together say: any caller reaching this door meets both guards, whichever direction it moves.
+    TWO READINGS, AND THE SECOND IS THE HONEST SHAPE OF THE FIRST. A foreign caller reaches the
+    tester only through its `run` bus verb (RULE 1, ticket 67b78ae59c1d), which returns the record
+    with `sink="none"` and NEVER forwards isolation — so the record it hands back can only ever be
+    an `open` reading, and the caller seals it itself through `persist_validation`. Reading 1
+    fires the sibling guard through exactly that shape: the verb's record, persisted by the
+    caller with no escape kwarg of its own. Reading 2 then fires the conversion guard through the
+    exact call shape `device.py` uses when it seals — `persist_validation(record, proof_path=...)`,
+    positional record, no reason — so the two together say: any caller reaching this door meets
+    both guards, whichever direction it moves.
 
     A fix bolted to `--netns` would have passed neither reading, and that is the latent miss
     this placement was chosen against.
     """
-    # READING 1: the wrapper reaches the guarded door with no escape of its own. The fixture is
-    # COPIED into the temp tree first, so the wrapper's real persist lands there and no real
-    # component's validations/ is touched — this file's self-cleaning promise holds.
+    # READING 1: the run verb's record reaches the guarded door with no escape of its own. The
+    # fixture is COPIED into the temp tree first, so the caller's real persist lands there and no
+    # real component's validations/ is touched — this file's self-cleaning promise holds.
     with tempfile.TemporaryDirectory() as tmp:
         proof = _fake_proof(tmp)
         Path(proof).write_text(_GREEN_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
         vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
 
+        from cairn.tools.bus_client.bus_client import reach
+        reply = reach("tester").request(
+            sender="tester", to="tester", verb="run",
+            why="the coverage tooth seals a run verb record over a standing sealed reading",
+            body={"path": proof, "caller": "the coverage tooth"}, timeout=180)
+        record = (reply.get("body") or {}).get("record")
+        assert isinstance(record, dict), f"the run verb returned no record: {reply!r}"
         raised = None
         try:
-            public_validation.run_proof(proof, sink="validations", caller="the coverage tooth")
+            vs.persist_validation(record, proof_path=proof)
         except vs.SealDowngradeRefused as refusal:
             raised = refusal
         assert raised is not None, (
-            "the public wrapper sealed without meeting the door's guards. It forwards no "
+            "the run verb's record sealed without meeting the door's guards. It forwards no "
             "isolation, so its run reads `open`; landing that over a standing `sealed` is "
             "exactly what SealDowngradeRefused exists to refuse, and a caller that walks past "
             "it is a caller a CLI-bolted fix would never have covered")

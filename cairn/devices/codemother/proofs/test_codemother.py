@@ -14,10 +14,16 @@ from pathlib import Path
 
 from cairn.tools.scratch.scratch import scratch_dir
 
-# A seal sweeps dead-minter scratch first (ticket 201a37bf1613) and the device refuses a
-# seal without the sweep on hand. These fixtures seal stand-ins under a scratch dir; the
-# tooth measures the coverage rung, not the sweep, and the evidence says so.
-_NO_SWEEP = {"skipped": "test_codemother seals a fixture stand-in; nothing to sweep"}
+def _seal(proof) -> dict:
+    """Seal a fixture proof: the tester's verdict asked over its ``run`` bus verb (RULE 1,
+    ticket 67b78ae59c1d), landed through the store's one write door."""
+    from cairn.tools.bus_client.bus_client import reach
+    from cairn.tools.validation_store.validation_store import persist_validation
+    record = reach("tester").request(
+        sender="codemother", to="tester", verb="run", why="seal a fixture under the real tester",
+        body={"path": str(proof), "caller": "cc"}, timeout=120)["body"]["record"]
+    persist_validation(record, proof_path=str(proof))
+    return record
 
 
 def _commons_root():
@@ -553,9 +559,7 @@ def _fixture_component(tag, *, seal=True, boat=None):
     (comp / "state.json").write_text(
         json.dumps({"cursor": None, "window": [], "count": 0}), encoding="utf-8")
     if seal:
-        from cairn.devices.tester.device import TesterDevice
-        TesterDevice().run_proof(str(proof), sink="validations", caller="cc",
-                                 scratch_sweep=_NO_SWEEP)
+        _seal(proof)
     return comp, proof
 
 
@@ -584,16 +588,14 @@ def _a_second_end(comp, boat, first_proof):
         f'    print("PASS: {_SECOND_TOOTH}")\n\n\n'
         'if __name__ == "__main__":\n'
         f'    {_SECOND_TOOTH}()\n', encoding="utf-8")
-    from cairn.devices.tester.device import TesterDevice
-    tester = TesterDevice()
-    tester.run_proof(str(other), sink="validations", caller="cc", scratch_sweep=_NO_SWEEP)
+    _seal(other)
     # AND THE FIRST END IS RESEALED, because writing this file MOVED the component's
     # fingerprint and the seal already standing on the first proof is now about a tree that
     # no longer exists. That is the horizon rung doing its job — measured the first time
     # this fixture ran, where the refusal read "the code moved under the proof" and was
     # entirely correct. A fixture that left it stale would be measuring the horizon rung
     # instead of the coverage rung it is aimed at.
-    tester.run_proof(str(first_proof), sink="validations", caller="cc", scratch_sweep=_NO_SWEEP)
+    _seal(first_proof)
     return other
 
 

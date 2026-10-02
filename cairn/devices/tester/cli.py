@@ -71,7 +71,7 @@ from cairn.tools.system_word import fold_flags
 # cairn/tools/base/validation.py imports THIS MODULE for discover alone — which put a static
 # path to an oracle inside seven gate components. Measured 2026-09-09, ticket dd8ad9702b49.
 # Re-exported here so the command's public surface is exactly what it was.
-from cairn.devices.tester.discovery import REPO_ROOT, discover  # noqa: E402
+from cairn.tools.proof_discovery.proof_discovery import REPO_ROOT, discover  # noqa: E402
 
 __all__ = ["REPO_ROOT", "discover", "main"]
 

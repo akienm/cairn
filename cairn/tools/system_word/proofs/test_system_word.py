@@ -69,7 +69,6 @@ PROVES = {
         "5": "test_ground_loop_takes_uppercase_help_and_status_word",
         "6": "test_base_device_show_and_shim_verb_fold",
         "7": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
-        "8": "test_tester_cli_takes_uppercase_flags",
         "9": "test_bin_cairn_the_file_and_cairn_the_command_are_untouched",
         # The build touched more files than the nine clauses name; each of those is a
         # writes_to the hollow reading reverts, and each names the tooth that reds when it
@@ -360,14 +359,6 @@ def test_sudo_relay_takes_uppercase_status_flag():
     finally:
         daemon._print_status = orig
     assert rc == 0 and hits == [1], "--STATUS must reach the status branch, not run() the daemon"
-
-
-def test_tester_cli_takes_uppercase_flags():
-    from cairn.devices.tester.cli import main
-    with tempfile.TemporaryDirectory() as d:
-        rc, out, err = _drive(main, ["--SEAL", "-Q", d])
-    assert rc == 2 and "found no proofs" in err, (
-        f"the flags parse folded and the run reaches discovery: rc={rc} {err!r}")
 
 
 def test_ruling_cli_takes_uppercase_list():

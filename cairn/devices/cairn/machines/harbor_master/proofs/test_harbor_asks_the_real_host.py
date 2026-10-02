@@ -64,7 +64,6 @@ from cairn.devices.cairn.machines.harbor_master.clearance import (
 )
 from cairn.machines.learning_block.learning_block import trace_root
 from cairn.devices.system_rackmount.rackmount import SystemRackmountDevice
-from cairn.devices.tester.device import TesterDevice
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.validation_store.validation_store import persist_validation
 
@@ -100,7 +99,10 @@ def _proven() -> str:
     proofs.mkdir(parents=True, exist_ok=True)
     proof = proofs / "test_proven.py"
     proof.write_text(_GREEN_FIXTURE.read_text(), encoding="utf-8")
-    validation = TesterDevice().run_proof(str(proof), sink="none")
+    from cairn.tools.bus_client.bus_client import reach  # the tester's interface is the bus (RULE 1)
+    validation = reach("tester").request(
+        sender="harbor_master", to="tester", verb="run", why="seal a fixture under the real tester",
+        body={"path": str(proof), "caller": "test_harbor_asks_the_real_host"}, timeout=120)["body"]["record"]
     persist_validation(validation, proof_path=str(proof))
     return str(proof)
 

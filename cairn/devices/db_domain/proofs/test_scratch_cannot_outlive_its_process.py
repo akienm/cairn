@@ -126,15 +126,6 @@ def _dead_pid() -> int:
     return pid
 
 
-def _tiny_proof(dirpath: Path) -> Path:
-    """A one-line green proof under a scratch component: ``<d>/proofs/test_tiny_201a.py``,
-    so its seal lands at ``<d>/validations/test_tiny_201a.json`` the way every seal does."""
-    (dirpath / "proofs").mkdir()
-    p = dirpath / "proofs" / "test_tiny_201a.py"
-    p.write_text("print('ok test_tiny')\n", encoding="utf-8")
-    return p
-
-
 class _FakeConn:
     """A connection the one-time sweep can plan and drop over without a database: pg_tables
     answers ``tables``, and every composed statement (a DROP or a registry DELETE) is kept
@@ -209,40 +200,11 @@ def _the_one_time_sweep_keeps_the_live_set_and_refuses_a_live_pid() -> None:
 # --- the teeth --------------------------------------------------------------------------
 
 def test_a_seal_sweeps_first_and_says_so() -> None:
-    from cairn.devices.tester.device import TesterDevice
-    from cairn.devices.tester.scratch_sweep import sweep
-    with tempfile.TemporaryDirectory(prefix="201a-seal-") as d:
-        tiny = _tiny_proof(Path(d))
-        tester = TesterDevice()
-        # a seal without a sweep is refused at the run door, like a seal without a sink
-        try:
-            tester.run_proof(tiny, sink="validations", caller="proof 201a")
-            raise AssertionError("run_proof sealed without a scratch sweep")
-        except ValueError as exc:
-            assert "scratch_sweep" in str(exc), exc
-        # a run that seals nothing records that it swept nothing — never a made-up zero
-        rec = tester.run_proof(tiny, sink="none", caller="proof 201a")
-        assert rec["evidence"]["scratch_sweep"] == {"skipped": "the caller sealed nothing and swept nothing"}, rec["evidence"]
-        # the seal's evidence carries what the sweep dropped, by name
-        pid, table = _fork_minter("scratch_seal", with_bus=False)
-        _kill(pid)
-        swept = sweep()
-        assert swept.get("dropped", 0) >= 1 and table in swept["tables"], swept
-        rec = tester.run_proof(tiny, sink="validations", caller="proof 201a", scratch_sweep=swept)
-        assert rec["evidence"]["scratch_sweep"] == swept, rec["evidence"]
-        sealed = json.loads((Path(d) / "validations" / "test_tiny_201a.json").read_text())[-1]
-        assert sealed["evidence"]["scratch_sweep"]["tables"] == swept["tables"], sealed["evidence"]
-        # the CLI names the count on the way past
-        pid, table = _fork_minter("scratch_cli", with_bus=False)
-        _kill(pid)
-        r = subprocess.run([sys.executable, "-m", "cairn.devices.tester.cli", "--seal", str(tiny)],
-                           cwd=str(ROOT), env={**os.environ, "PYTHONPATH": str(ROOT)},
-                           capture_output=True, text=True, timeout=300)
-        assert r.returncode == 0, (r.stdout, r.stderr)
-        line = next((ln for ln in r.stdout.splitlines() if ln.strip().startswith("swept ")), None)
-        assert line and table in line and "1 scratch table(s)" in line, r.stdout
-    assert table not in _pg_tables() and not store.is_scratch(table)
-    # and the ONE-TIME sweep clause (1) counts after: the migration that cleared the leak
+    # The tester half of this clause — the run door's refusal, the skipped and swept evidence,
+    # the CLI's 'swept' line — measures the tester, so it is the tester's own tooth now
+    # (ticket 67b78ae59c1d, RULE 1): cairn/devices/tester/proofs/test_the_teeth_that_measure_the_tester.py.
+    # What stays is db_domain's half: the ONE-TIME sweep clause (1) counts — the migration that
+    # cleared the leak.
     _the_one_time_sweep_keeps_the_live_set_and_refuses_a_live_pid()
     print("ok test_a_seal_sweeps_first_and_says_so")
 

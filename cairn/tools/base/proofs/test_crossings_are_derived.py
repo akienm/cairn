@@ -44,12 +44,12 @@ X = _TheDerivation()
 
 PROVES = {
     # 2026-09-10, ticket d2ecdb867bc9 — a crossing is derived from the journal, never stored on
-    # the ticket. Lettered clauses because that ticket's falsifier enumerates (a)..(d).
+    # the ticket. Lettered clauses because that ticket's falsifier enumerates (a)..(d); (d) measures the
+    # tester's hollow, so it moved to the tester's own proofs (ticket 67b78ae59c1d, RULE 1).
     "d2ecdb867bc9": {
         "a": "test_ALSO_PROVEN_BY_IS_READ_or_the_derivation_LOSES_a_proof",
         "b": "test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array",
         "c": "test_NO_TICKET_IN_THE_LIVE_COMMONS_CARRIES_A_STORED_CROSSINGS_KEY",
-        "d": "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG",
     },
 }
 
@@ -369,28 +369,6 @@ def test_EVERY_GATE_READER_ASKS_THE_JOURNALS_and_none_reads_a_stored_array():
     assert no_import == [], (
         "a gate reader names the derivation nowhere, so it is getting its crossings from "
         "somewhere this tooth cannot see: " + ", ".join(no_import))
-
-
-def test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG():
-    """CLAUSE (d) — hollow resolves the pre-build moment to the second or refuses to guess.
-
-    The retired branch read the stored crossing's ``date``, which is a DAY. ``git rev-list -1
-    --before=2026-09-07`` resolves a bare date to the last commit before that day STARTED, so a
-    ticket built and committed on one day reverted to a whole day earlier and the hollow reading
-    measured a world the build never stood in — a wrong answer delivered with no sign it was
-    wrong, which Law 3 calls a hypothesis wearing a measurement's clothes.
-
-    Deriving from the journal means every crossing carries an ``at`` with a time, so the branch
-    that could be wrong has nothing left to be wrong about. At the pre-build commit this same
-    call returned ``"2026-09-01"``; now it refuses.
-    """
-    from cairn.devices.tester.hollow import HollowUnmeasurable, _buildme_at
-    ticket = {"id": "t1", "crossings": [{"to": "BUILDME", "date": "2026-09-01"}]}
-    crossing = {"to": "BUILDME", "date": "2026-09-01"}   # a day, and no 'at'
-    with pytest.raises(HollowUnmeasurable) as red:
-        _buildme_at(ticket, crossing)
-    assert "at" in str(red.value), (
-        "hollow refused, but not for the missing time — the message must name what is absent")
 
 
 if __name__ == "__main__":

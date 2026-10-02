@@ -116,9 +116,12 @@ def _drive_python() -> list[tuple[str, bool]]:
     from cairn.machines.ruling.cli import main as ru_main
     out.append(("ruling LIST", _quiet(ru_main, ["LIST"]) != _quiet(ru_main, ["list"])))
 
-    from cairn.devices.tester.cli import main as te_main
+    # THE COMMAND HE TYPES, as a subprocess: the tester is a device and its CLI is reached
+    # as `cairn test`, never by importing its code (RULE 1, ticket 67b78ae59c1d).
     with tempfile.TemporaryDirectory() as empty:
-        out.append(("tester --SEAL -Q", _quiet(te_main, ["--SEAL", "-Q", empty]) != 2))
+        te = subprocess.run([str(_DISPATCHER), "test",
+                             "--SEAL", "-Q", empty], capture_output=True, text=True, timeout=120)
+        out.append(("tester --SEAL -Q", te.returncode != 2))
 
     from types import SimpleNamespace
 

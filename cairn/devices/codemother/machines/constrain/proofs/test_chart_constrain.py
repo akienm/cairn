@@ -386,17 +386,20 @@ def test_import_allowlist(root, orient_berth):
              # and `cairnmap --gate` see it from outside without being told.
              "cairn.tools.gate.gate",
              # THE TESTER'S READ SIDE (2026-09-02, device isolation): constrain
-             # reaches the tester's discover, source_fingerprint, and run_proof
-             # through cairn.tools.base.validation — the tool that surfaces these
-             # without crossing device boundaries.
-             "cairn.tools.base.validation")
+             # reads source_fingerprint and standing through cairn.tools.base.validation.
+             "cairn.tools.base.validation",
+             # THE TESTER'S RUN SIDE (2026-10-02, ticket 67b78ae59c1d, RULE 1): a run
+             # is the tester's to perform, and a device's public interface is the bus,
+             # so constrain asks the tester's `run` verb through the bus client instead
+             # of reaching run_proof through validation (which no longer carries it).
+             "cairn.tools.bus_client.bus_client")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
     assert not offenders, (
-        f"constrain.py imports outside its allowlist: {offenders} — three composed "
+        f"constrain.py imports outside its allowlist: {offenders} — composed "
         "doors only: the inspector's judge, chart's settled orient machinery, "
-        "chart's tree verbs")
+        "chart's tree verbs, its gate, the tester's read side and its run verb")
 
 
 def test_refusal_is_one_pass_complete(root, orient_berth):
@@ -593,7 +596,7 @@ def test_the_check_set_is_discovered_never_enumerated(root, orient_berth):
         # AND THE TESTER AGREES, SET FOR SET — the corpus has one idea of what a proof is.
         # By identity, not by coincidence: ``discovered_instruments`` composes ``discover``,
         # so this asserts the composition is still in place rather than re-derived.
-        from cairn.devices.tester.cli import discover
+        from cairn.tools.proof_discovery.proof_discovery import discover
         theirs = {str(Path(p).relative_to(root))
                   for p in discover([os.path.join(root, ALPHA_HOME)])}
         assert set(after) == theirs, \

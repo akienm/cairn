@@ -355,6 +355,28 @@ class TesterDevice(BaseDevice):
                   values={"why": (envelope.get("why") or "")[:120]})
         return {"accepted": True, "device": self.device_id}
 
+    def declared_verbs(self) -> dict:
+        """``run`` — the tester's public surface on the bus (ticket 67b78ae59c1d, RULE 1).
+
+        Every component outside the tester that wants a proof's verdict asks this verb rather
+        than importing ``TesterDevice``: a device's public interface is the bus. The verb runs
+        ONE proof with ``sink="none"`` and hands the record back; a caller that seals lands it
+        through ``validation_store.persist_validation`` itself, so the store's guards meet
+        every sealer at the same door."""
+        return {**super().declared_verbs(), "run": self._handle_run}
+
+    def _handle_run(self, envelope: dict) -> dict:
+        """``{"record": <VALIDATION>}`` for a proof file, or ``{"refused": why}`` for a path
+        that is not one — refused by name, never run into a red that reads like a verdict."""
+        body = envelope.get("body") or {}
+        path = str(body.get("path") or "")
+        if not path or not os.path.isfile(path):
+            return {"refused": f"no proof file at {path!r} — nothing was run and no "
+                               f"verdict was read"}
+        caller = str(body.get("caller") or envelope.get("sender") or "unknown")
+        timeout = int(body.get("timeout") or 120)
+        return {"record": self.run_proof(path, sink="none", caller=caller, timeout=timeout)}
+
     # --- the one capability: prove and attest -------------------------------
 
     def run_proof(

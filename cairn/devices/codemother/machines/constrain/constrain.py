@@ -299,8 +299,8 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
 def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
     """Run ONE discovered instrument and report the state it is in RIGHT NOW.
 
-    The verdict is the tester's, read and not granted. ``run_proof`` returns its record
-    and PERSISTS NOTHING — measured in its own docstring and in its source, which settles
+    The verdict is the tester's, read and not granted. Its ``run`` bus verb returns the
+    record and PERSISTS NOTHING — measured in its own docstring and in its source, which settles
     the Law 6 question the chain carried as an unknown: a floor calling it is a reader, not
     a writer into another component's records, so no ownership gate is crossed here.
 
@@ -325,7 +325,7 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         return {"verdict": "unrunnable",
                 "how": "no file at %s — it was discovered and then was not there, so "
                        "nothing was run and no verdict was read" % rel_path}
-    from cairn.tools.base.validation import run_proof, source_fingerprint, standing
+    from cairn.tools.base.validation import source_fingerprint, standing
     try:
         key = (rel_path, source_fingerprint(abs_path))
     except Exception as e:                                   # unreadable tree, not a green
@@ -364,8 +364,20 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         # component this voyage may not even touch. The tester requires the choice by name
         # (ticket standing-gates-the-newest-link-and-run-proof-names-its-sink), so the
         # not-sealing is now stated here rather than being the absence of a thought.
-        record = run_proof(abs_path, sink="none", caller="constrain_floor")
-        state = {"verdict": record.get("verdict"), "how": "run by the tester"}
+        # ASKED OVER THE BUS, the tester's public interface (RULE 1, ticket 67b78ae59c1d):
+        # the run verb runs with sink none and hands the record back.
+        from cairn.tools.bus_client.bus_client import reach
+        reply = reach("tester").request(
+            sender="constrain", to="tester", verb="run",
+            why="the chart floor reads an instrument verdict",
+            body={"path": abs_path, "caller": "constrain_floor"}, timeout=180)
+        body = (reply or {}).get("body") or {}
+        record = body.get("record")
+        if not isinstance(record, dict):
+            state = {"verdict": "unrunnable",
+                     "how": body.get("refused") or "the tester returned no record"}
+        else:
+            state = {"verdict": record.get("verdict"), "how": "run by the tester"}
     except Exception as e:
         state = {"verdict": "unrunnable",
                  "how": "%s: %s" % (type(e).__name__, e)}

@@ -1,4 +1,9 @@
-"""cairn.devices.tester.discovery — resolving CLI targets to proof files, and nothing else.
+"""cairn.tools.proof_discovery.proof_discovery — resolving CLI targets to proof files, and nothing else.
+
+A TOOL SINCE 2026-10-02 (ticket 67b78ae59c1d, RULE 1): it lived at cairn/devices/tester/discovery.py,
+and cairn/tools/base/validation.py — a tool every gate imports — reached into the tester device
+for this one standard-library function. Nothing in it is the tester's, so it moved down a rung
+where every user reaches it the same way.
 
 WHY THIS IS ITS OWN MODULE, and it is an import-graph reason rather than a tidiness one.
 ``discover`` used to live in ``cli.py`` beside the command's other faces. ``cli.py`` also
@@ -25,7 +30,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# The repo root: cairn/devices/tester/discovery.py -> cairn/devices/tester -> cairn -> root
+# The repo root: cairn/tools/proof_discovery/proof_discovery.py -> proof_discovery -> tools -> cairn -> root
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 

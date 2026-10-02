@@ -182,7 +182,13 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it():
     from cairn.tools.base import watchme_spec
 
     ticket = json.loads(_find_ticket(SUT._OWNING_TICKET).read_text("utf-8"))
-    assert watchme_spec.watchme_spec_error(ticket) is None
+    # A missing receiver is allowed here exactly as the corpus sweep allows it
+    # (test_watchme_spec.test_the_real_ticket_corpus_is_not_retro_redded): this spec predates
+    # the field (fa4a411c96be), and its disposition — a receiver that USES the count, or FIXME
+    # — is the receiver backfill's, cast after fa4a is PROVED. Every OTHER fault still reds.
+    err = watchme_spec.watchme_spec_error(ticket) or ""
+    others = [part for part in err.split("; ") if part and "names no receiver" not in part]
+    assert not others, "; ".join(others)
     spec = watchme_spec.spec_for(ticket, "does-optional-mean-never-carried")
     assert spec is not None, "no spec for the object the workflow string names"
     assert watchme_spec.armed_error(spec) is None, watchme_spec.armed_error(spec)

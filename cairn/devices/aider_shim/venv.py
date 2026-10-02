@@ -101,6 +101,25 @@ FUNCTIONAL = ("gitpython==3.1.46",)
 #: exactly one third-party root, no guarded ones. Version matches the host interpreter's.
 CAIRN_RUNTIME = ("psycopg2-binary==2.9.12",)
 
+#: What the INTERPRETER no longer ships and a stated package still imports. Python 3.13
+#: removed stdlib audioop (PEP 594), and pydub 0.25.1 imports it unconditionally — measured
+#: 2026-10-01, when the venv was rebuilt on 3.14 and pydub raised at import. The backport
+#: puts audioop back; the marker keeps it off interpreters that still have the real one.
+INTERPRETER_BACKFILL = ("audioop-lts==0.2.2; python_version >= '3.13'",)
+
+
+def packages() -> list[str]:
+    """The one list build() installs — every stated set, in order."""
+    return list(REQUIRED) + list(FUNCTIONAL) + list(CAIRN_RUNTIME) + list(INTERPRETER_BACKFILL)
+
+
+#: Import names, not distribution names — the two differ for half the stated set.
+IMPORT_NAMES = ("diff_match_patch", "diskcache", "grep_ast", "importlib_resources",
+                "json5", "oslex", "packaging", "pathspec", "pexpect", "PIL",
+                "prompt_toolkit", "psutil", "pydub", "pygments", "pypandoc",
+                "pyperclip", "yaml", "requests", "rich", "tqdm", "tree_sitter", "git",
+                "psycopg2")
+
 #: Never installed. Each is answered by a Cairn-owned surface at sys.modules instead.
 ABSENT = {
     "litellm": "the shim answers this surface; absent from disk so a failed interception "
@@ -223,7 +242,7 @@ def build(*, upgrade: bool = False) -> dict:
     created = not python().exists()
     if created:
         subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
-    pkgs = list(REQUIRED) + list(FUNCTIONAL) + list(CAIRN_RUNTIME)
+    pkgs = packages()
     cmd = [str(python()), "-m", "pip", "install", "--disable-pip-version-check", "-q"]
     if upgrade:
         cmd.append("--upgrade")
@@ -231,7 +250,7 @@ def build(*, upgrade: bool = False) -> dict:
     return {"venv": str(VENV), "created": created, "installed": len(pkgs)}
 
 
-def verify() -> dict:
+def verify(import_names: list[str] | None = None) -> dict:
     """RE-RUNNABLE, and it is the half that can go red without git changing.
 
     THIS IS DELIBERATELY NOT A SEALED PROOF, and the distinction is not bookkeeping: a
@@ -244,7 +263,9 @@ def verify() -> dict:
 
 
     Three questions, all answered by running the venv's own interpreter rather than by
-    reading a list we wrote: is every required package importable, is every ABSENT name
+    reading a list we wrote: is every required package importable — IMPORTED for real, not
+    found on disk (find_spec answers "is there a file", and a present-but-broken package
+    passed it: pydub on 3.14, measured 2026-10-01) — is every ABSENT name
     genuinely not on disk, and does aider itself import once the shim's surfaces are in
     place. The middle one is the ruling's instrument — a transitive dependency could drag
     litellm or openai in at any future install, and nothing else in the system would
@@ -258,14 +279,18 @@ import importlib, importlib.util, json, sys
 required = json.loads(sys.argv[1]); absent = json.loads(sys.argv[2])
 missing = [m for m in required if importlib.util.find_spec(m) is None]
 present = [m for m in absent if importlib.util.find_spec(m) is not None]
-print(json.dumps({"missing_required": missing, "present_but_absent": present}))
+broken = {}
+for m in required:
+    if m in missing:
+        continue
+    try:
+        importlib.import_module(m)
+    except Exception as e:
+        broken[m] = f"{type(e).__name__}: {e}"
+print(json.dumps({"missing_required": missing, "present_but_absent": present,
+                  "unimportable_required": broken}))
 """
-    # import names, not distribution names — the two differ for half this set
-    import_names = ["diff_match_patch", "diskcache", "grep_ast", "importlib_resources",
-                    "json5", "oslex", "packaging", "pathspec", "pexpect", "PIL",
-                    "prompt_toolkit", "psutil", "pydub", "pygments", "pypandoc",
-                    "pyperclip", "yaml", "requests", "rich", "tqdm", "tree_sitter", "git",
-                    "psycopg2"]
+    import_names = list(IMPORT_NAMES) if import_names is None else list(import_names)
     r = subprocess.run([str(python()), "-c", probe, json.dumps(import_names),
                         json.dumps(sorted(ABSENT))], capture_output=True, text=True)
     if r.returncode != 0:
@@ -276,7 +301,7 @@ print(json.dumps({"missing_required": missing, "present_but_absent": present}))
     out["aider_imports"] = held["ok"]
     out["aider_detail"] = held["detail"]
     out["ok"] = (not out["missing_required"] and not out["present_but_absent"]
-                 and held["ok"])
+                 and not out["unimportable_required"] and held["ok"])
     return out
 
 

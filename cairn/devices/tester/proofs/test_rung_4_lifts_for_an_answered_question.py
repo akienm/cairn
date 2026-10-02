@@ -64,16 +64,22 @@ def test_an_open_a_measured_or_an_unknown_question_does_not():
         assert qid in why, f"the refusal must name the id it read: {why}"
 
 
-def test_a_confirmed_legacy_ruling_still_lifts_it():
-    """Over the live decisions/ store, an invariant and never a snapshot: every confirmed
-    ruling lifts rung 4 and every unconfirmed one does not."""
-    from cairn.machines.ruling import ruling as ruling_mod
-    records = ruling_mod.load_all()
-    confirmed = [r["id"] for r in records if r.get("confirmed")]
-    unconfirmed = [r["id"] for r in records if not r.get("confirmed")]
-    assert confirmed, "the decisions/ store carries no confirmed ruling to read"
-    assert all(ruling_refusal(i, question_root=scratch_dir("cairn-rung4-")) is None for i in confirmed)
-    assert all(ruling_refusal(i, question_root=scratch_dir("cairn-rung4-")) is not None for i in unconfirmed)
+def test_a_confirmed_legacy_ruling_still_lifts_it(monkeypatch):
+    """Over a scratch decisions/ store, through the ruling machine's own ``CAIRN_ROOTS_PARENT``
+    seam, so the tooth reads the same in a worktree with no commons beside it: a confirmed
+    ruling lifts rung 4, an unconfirmed one and an absent one do not."""
+    world = scratch_dir("cairn-rung4-world-")
+    store = world / "CairnCommons" / "decisions"
+    store.mkdir(parents=True)
+    for rid, confirmed in (("2026-09-01-f1x7-confirmed", True), ("2026-09-02-f1x7-unconfirmed", False)):
+        (store / f"{rid}.json").write_text(json.dumps(
+            {"id": rid, "kind": "ruling", "date": rid[:10], "confirmed": confirmed}), encoding="utf-8")
+    monkeypatch.setenv("CAIRN_ROOTS_PARENT", str(world))
+    root = scratch_dir("cairn-rung4-")
+    assert ruling_refusal("2026-09-01-f1x7-confirmed", question_root=root) is None
+    for rid in ("2026-09-02-f1x7-unconfirmed", "2026-09-03-f1x7-absent"):
+        why = ruling_refusal(rid, question_root=root)
+        assert isinstance(why, str) and rid in why, (rid, why)
 
 
 if __name__ == "__main__":

@@ -1,37 +1,35 @@
 [
   {
     "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-10T22:00:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:07:33",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
+      "stderr_tail": "    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_scratch.py\", line 197, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_scratch.py\", line 129, in test_no_proof_in_this_repo_calls_mkdtemp_bare\n    assert not offenders, (\n           ^^^^^^^^^^^^^\nAssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.devices.tester.scratch.scratch_dir:\n  bin/proofs/test_cairn_floor.py:48: return Path(tempfile.mkdtemp(prefix=\"0853-floor-\"))\n  cairn/devices/inference_domain/proofs/test_inference_domain.py:753: tmp = Path(tempfile.mkdtemp(prefix=\"cairn_agent_trail_both_records_\"))\n  cairn/machines/build_inspector/proofs/test_finding_baseline_reconcile.py:53: d = Path(tempfile.mkdtemp(prefix=\"inspector-proof-baseline-\"))\n  cairn/machines/build_inspector/proofs/test_machine_imports_no_device.py:53: d = tempfile.mkdtemp(prefix=prefix)\n  cairn/machines/counting_block/proofs/test_counting_block.py:62: d = tempfile.mkdtemp(prefix=prefix)\n  cairn/machines/rehearsal/proofs/test_rehearsal.py:153: self.dir = Path(tempfile.mkdtemp(prefix=\"rehearsal-proof-\"))\n  cairn/tools/base/proofs/test_root_verb_vocabulary.py:146: home = Path(tempfile.mkdtemp(prefix=\"15d6-home-\"))\n  cairn/tools/base/proofs/test_root_verbs.py:128: home = Path(tempfile.mkdtemp(prefix=\"b41b-home-\"))\n  cairn/tools/base/proofs/test_shim_starts_the_loop.py:105: home = Path(tempfile.mkdtemp(prefix=\"d6eb-home-\"))\n  cairn/tools/base/proofs/test_shim_starts_the_loop.py:129: home = Path(tempfile.mkdtemp(prefix=\"d6eb-home-\"))\n  cairn/tools/base/proofs/test_shim_starts_the_loop.py:191: home = Path(tempfile.mkdtemp(prefix=\"d6eb-home-\"))",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
         "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
-        "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare",
-        "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook"
+        "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal"
       ],
       "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "6a060559dbbc150bd95764cf7a8d6c401b65ba9f7cea5062c095fd059d22f538",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "2d670f5925abd546ad96c72f1d236b0a74a4ce64a354e5395cf649d3583a54bb",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/proofs/test_scratch.py",
-        "cairn/devices/tester/scratch.py"
+        "cairn/devices/tester/proofs/test_scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2177624-1pzrffg9/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-571100-j_wk8n1e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -40,12 +38,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 128862441,
-          "disk_bytes": 139685888,
-          "entries": 4459,
+          "bytes": 252313217,
+          "disk_bytes": 269197312,
+          "entries": 7114,
           "builds": 1,
-          "reuses": 7
+          "reuses": 0
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "b02799728fe4d3ac2d3e65e035ab81f23954e0e7d119c3b0b28d9dc37475b097",
+        "opened": "2026-10-01T18:07:33",
+        "last_red": "2026-10-01T18:07:33",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

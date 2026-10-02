@@ -27,6 +27,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
+                            "2": "test_a_with_block_holds_the_scratch",
+                            "3": "test_a_with_block_holds_the_scratch"}}
+
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
@@ -57,6 +61,18 @@ def test_the_scratch_is_gone_once_the_process_is():
     path, _ = _in_a_dead_process(body)
     assert not Path(path).exists(), \
         f"the door registered a sweep that never ran — {path} outlived its process"
+
+
+def test_a_with_block_holds_the_scratch():
+    """Python 3.13 removed Path's context-manager methods; 27 sealed sites hold a scratch
+    path in a with-block. The door's path must still enter, still be a Path, and still go."""
+    body = ("from cairn.devices.tester.scratch import scratch_dir\n"
+            "with scratch_dir('scratch-proof-with-') as d:\n"
+            "    (d / 'a_file').write_text('x')\n"
+            "    assert d.is_dir()\n"
+            "print(d)\n")
+    path, _ = _in_a_dead_process(body)
+    assert not Path(path).exists(), f"the with-block scratch {path} outlived its process"
 
 
 def test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something():
@@ -175,6 +191,7 @@ def _main() -> int:
         test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal,
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
         test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,
+        test_a_with_block_holds_the_scratch,
     ]
     for check in checks:
         check()

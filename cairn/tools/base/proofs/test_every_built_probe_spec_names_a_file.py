@@ -46,9 +46,9 @@ class _Late:
 
 _spec = _Late("cairn.tools.base.watchme_spec")
 
-PROVES = {"693e9f45e6f2": {"1": "test_no_proved_ticket_names_a_missing_probe",
-                           "2": "test_a_ticket_sent_back_for_an_absent_probe_names_it",
-                           "3": "test_the_census_reds_a_missing_probe"}}
+# The ticket's falsifier is one unnumbered clause ("all"), so ONE composite tooth claims it;
+# the three named teeth below are its parts and still print one by one.
+PROVES = {"693e9f45e6f2": {"all": "test_every_built_probe_spec_names_a_file"}}
 
 # Beside the checkout when there is one; hollow's /tmp worktree has none, so fall back
 # to where hollow.py itself resolves the commons.
@@ -100,6 +100,12 @@ def test_the_census_reds_a_missing_probe():
                    watchme=[{"probe": str(Path(__file__).relative_to(_REPO_ROOT))}])
     got = census([fixture, present])
     assert [r["tid"] for r in got] == ["fixture-proved-names-nothing"], got
+
+
+def test_every_built_probe_spec_names_a_file():
+    test_no_proved_ticket_names_a_missing_probe()
+    test_a_ticket_sent_back_for_an_absent_probe_names_it()
+    test_the_census_reds_a_missing_probe()
 
 
 if __name__ == "__main__":

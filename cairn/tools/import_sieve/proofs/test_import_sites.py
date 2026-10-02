@@ -20,18 +20,29 @@ from __future__ import annotations
 
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.import_sieve import sieve
+from cairn.devices.tester.scratch import scratch_dir
+
+# The falsifier's six numbered clauses, one tooth each (ticket a907458344ba).
+PROVES = {
+    "a907458344ba": {
+        "1": "test_from_import_of_a_module_lands_on_the_submodule",
+        "2": "test_from_import_of_a_name_lands_on_the_package",
+        "3": "test_relative_imports_resolve_against_the_package",
+        "4": "test_a_literal_import_module_is_a_dynamic_site",
+        "5": "test_a_computed_import_module_is_returned_opaque",
+        "6": "test_a_stdlib_import_is_not_a_site",
+    },
+}
 
 
 def _tree(files: dict[str, str]) -> str:
-    root = tempfile.mkdtemp(prefix="encapsulation_fixture_import_sites_")
+    root = str(scratch_dir("encapsulation_fixture_import_sites_"))
     for rel, src in files.items():
         path = os.path.join(root, rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -41,7 +52,11 @@ def _tree(files: dict[str, str]) -> str:
 
 
 def _sites(root: str, file: str) -> list[dict]:
-    return [s for s in sieve.import_sites(root) if s["file"] == file]
+    # Through the package's public face (RULE 1), resolved at call time: with the build taken
+    # away the import fails INSIDE the tooth, so every tooth reports red instead of the whole
+    # proof dying at import — the hollow check needs to see a tooth red, not a crash.
+    from cairn.tools.import_sieve import import_sites
+    return [s for s in import_sites(root) if s["file"] == file]
 
 
 def test_from_import_of_a_module_lands_on_the_submodule():

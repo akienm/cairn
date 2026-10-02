@@ -1,0 +1,62 @@
+[
+  {
+    "claim": "proof test_import_sites.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:03:32",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_from_import_of_a_module_lands_on_the_submodule\n  PASS  test_from_import_of_a_name_lands_on_the_package\n  PASS  test_relative_imports_resolve_against_the_package\n  PASS  test_a_literal_import_module_is_a_dynamic_site\n  PASS  test_a_computed_import_module_is_returned_opaque\n  PASS  test_a_stdlib_import_is_not_a_site\ngreen — import_sites: 6 teeth; an import resolves to the file it executes, a computed one is named opaque, and the stdlib is not the tree",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_from_import_of_a_module_lands_on_the_submodule",
+        "test_from_import_of_a_name_lands_on_the_package",
+        "test_relative_imports_resolve_against_the_package",
+        "test_a_literal_import_module_is_a_dynamic_site",
+        "test_a_computed_import_module_is_returned_opaque",
+        "test_a_stdlib_import_is_not_a_site"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "56c6a5ff297b7ec87140e14bf8eb8e659d4c7bf44c0a992ea5f80842eebe8961",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/proofs/test_import_sites.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-569140-1ynhl23d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 252200995,
+          "disk_bytes": 269066240,
+          "entries": 7107,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

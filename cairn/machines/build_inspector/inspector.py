@@ -2432,7 +2432,7 @@ def address_is_resolved_never_spelled(row: dict, comp_dir: Path) -> list[dict]:
 
 
 _HONEST_ABSENCE = re.compile(
-    r"FIRST CROSSING|once its ticket|once the seam crosses|once a ticket|"
+    r"FIRST CROSSING|\bonce (?:its|the|a|this)\b|"
     r"until a ticket crosses|NONE,? and",
     re.IGNORECASE,
 )

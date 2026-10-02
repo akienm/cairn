@@ -2,7 +2,7 @@
   {
     "claim": "proof test_history_integrity.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T18:17:43",
+    "date": "2026-10-01T18:33:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "37ba23d486d043604ca96008b8dee9df1a79d677ddab3eb6f33a0378f888f720",
+      "source_fingerprint": "8cfdbbb0e8f458f1f98ef086d1806cd629041e0a4e787450f69a171c6fc0cff8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -64,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-573964-dtskmfxj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-590977-ur3iu6ux/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,24 +73,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 252346771,
-          "disk_bytes": 269238272,
-          "entries": 7116,
+          "bytes": 254107358,
+          "disk_bytes": 271220736,
+          "entries": 7203,
           "builds": 1,
-          "reuses": 44
+          "reuses": 17
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "fa37f04db73085e698e62b539f1d47d5bf04d0f202d7c0665643512a201c09d8",
-        "opened": "2026-10-01T17:31:13",
-        "last_red": "2026-10-01T17:31:13",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null,
-        "closed_at": "2026-10-01T18:17:43",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "fa37f04db73085e698e62b539f1d47d5bf04d0f202d7c0665643512a201c09d8"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

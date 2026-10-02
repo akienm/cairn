@@ -47,7 +47,12 @@ PROVES = {
     },
 }
 
-_LIVE_CLASS = transitions._NODE_CLASSES / "code-seam.json"
+# The live class, read where hollow.py reads the commons: beside the repo when it is there, else
+# at the home path — `cairn test --hollow` runs these teeth in a /tmp worktree with no commons
+# beside it, where the repo-relative path alone reads nothing and every tooth reds at HEAD.
+_COMMONS_CLASSES = (transitions._NODE_CLASSES if transitions._NODE_CLASSES.is_dir()
+                    else Path.home() / "dev" / "src" / "CairnCommons" / "node_classes")
+_LIVE_CLASS = _COMMONS_CLASSES / "code-seam.json"
 _AT_PROVEME = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
 _AT_FIXME = "code-seam@v2: THINKME -> TICKETME -> [FIXME] -> BUILDME -> PROVEME -> PROVED"
 _NAME = "fixme_fixture_ticket"

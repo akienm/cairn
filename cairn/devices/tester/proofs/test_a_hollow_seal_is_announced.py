@@ -125,9 +125,30 @@ def _cli(argv):
 
 
 def _seal_green(proof: Path, bus: BusDevice) -> None:
-    with _wired(bus):
-        rc = _cli(["--seal", str(proof)])
-    assert rc == 0, f"the fixture proof did not seal green (rc={rc})"
+    """Seed the fixture's standing green seal through the store's one door.
+
+    NOT THROUGH ``cairn test --seal``, MEASURED 2026-10-02 on this proof's first hollow run:
+    sealing asks for the network seal, a bwrap, and a proof the tester runs is already inside
+    the tester's own sandbox, where a second user namespace cannot be opened ("bwrap: No
+    permissions to create a new namespace"). The fixture read red at HEAD and the hollow
+    reading could not be taken at all. The sealing run's announcement is
+    test_the_seal_announces_itself's to measure; this proof measures the HOLLOW run's.
+    """
+    from cairn.tools.validation_store.validation_store import (
+        persist_validation, source_fingerprint)
+    persist_validation({
+        "claim": "fixture proof green",
+        "caller": "test_a_hollow_seal_is_announced.py",
+        "date": "2026-10-02T00:00:00",
+        "method": "fixture seal",
+        "verdict": "green",
+        "evidence": {"source_fingerprint": source_fingerprint(str(proof)),
+                     "teeth_green": [_TOOTH]},
+        "falsifier": "the fixture's source moves",
+        "horizon": "until the fixture's source changes",
+    }, proof_path=str(proof))
+    assert read_validations(str(proof))[-1].get("verdict") == "green", \
+        "the fixture's green seal did not land"
 
 
 def a_hollow_seal_on_a_green_proof_is_announced_once():

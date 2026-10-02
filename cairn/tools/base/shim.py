@@ -771,7 +771,11 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             why=f"bounced: {reason}",
             body={"is_bounce": True, "reason": reason,
                   "original_verb": envelope.get("verb", ""),
-                  "original_addressee": envelope.get("addressee", "")})
+                  "original_addressee": envelope.get("addressee", "")},
+            # THE BOUNCE ANSWERS THE REQUEST THAT BORE IT (ticket 60cc220da787): Bus.request
+            # correlates by reply_to alone, so without it a synchronous asker sat out its whole
+            # timeout and was told the target "did not reply" when it had.
+            reply_to=envelope.get("id"))
         self.emit("bounce_sent", pointer=envelope.get("id"),
                   values={"reason": reason, "to": sender})
         return {"bounced": True, "reason": reason, "to": sender}

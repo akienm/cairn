@@ -35,7 +35,8 @@ from __future__ import annotations
 import hashlib
 import re
 
-from cairn.devices.librarian.trees import LibrarianDevice, NODES, tree_state
+from cairn.devices.librarian.tools.trees.trees import NODES, tree_state
+from cairn.devices.librarian.device import LibrarianDevice
 
 # The region a summary renders: the k nearest source nodes around the question. A labeled
 # guess (n=0 live summaries at pick time); tunes against real use. Multi-hop expansion

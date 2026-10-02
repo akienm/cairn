@@ -40,7 +40,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.db_domain.tools.client.store import OwnershipError
-from cairn.devices.librarian import trees
+from cairn.devices.librarian.tools.trees import trees
 from cairn.tools.orient import nexus
 from cairn.tools.orient import orient
 from cairn.tools.orient.nexus import (

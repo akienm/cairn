@@ -39,7 +39,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.devices.librarian.trees import DepositRefused, LibrarianDevice, NODES
+from cairn.devices.librarian.tools.trees.trees import DepositRefused, NODES
+from cairn.devices.librarian.device import LibrarianDevice
 
 LIBRARY_ROOT = instance_path("librarian", 0) / "library"
 MANIFEST = "_manifest.json"

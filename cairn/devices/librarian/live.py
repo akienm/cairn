@@ -52,7 +52,7 @@ from cairn.devices.librarian.library import learn as learn_verb
 from cairn.devices.librarian.library import shelve
 from cairn.devices.librarian.loop import resolve_query
 from cairn.devices.librarian.summarize import summarize
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.device import LibrarianDevice
 
 DEFAULT_MODEL = "nomic-embed-text"
 GENERATE_MODEL = "qwen2.5:7b"

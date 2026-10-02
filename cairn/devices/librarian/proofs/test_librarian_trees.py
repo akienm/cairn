@@ -47,14 +47,13 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.db_domain.tools.client.store import OwnershipError
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.trees import (
-    DepositRefused, LibrarianDevice, WalkRefused, consolidate, deposit, linked,
-    nearest, neighbors, contradiction_scan,
-    ensure_threads, get_threads, detect_threads, wake_threads, attend_thread,
-    sleep_check, parse_temporal, awake_thread_node_ids,
-    THREADS_TABLE, MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD,
-)
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.tools.trees.trees import (
+    DepositRefused, WalkRefused, consolidate, deposit, linked, nearest, neighbors,
+    contradiction_scan, ensure_threads, get_threads, detect_threads, wake_threads,
+    attend_thread, sleep_check, parse_temporal, awake_thread_node_ids, THREADS_TABLE,
+    MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD)
+from cairn.devices.librarian.device import LibrarianDevice
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
@@ -779,7 +778,7 @@ def test_co_occurrence_crystallizes_into_thread():
         n1 = _warm_land("the library has a reading room on the second floor", [0.8, 0.1, 0.1])
         n2 = _warm_land("the reading room is open from nine to five", [0.75, 0.15, 0.1])
         n3 = _warm_land("the reading room has comfortable chairs and good lighting", [0.7, 0.2, 0.1])
-        from cairn.devices.librarian.trees import link, traverse_link, link_neighbors
+        from cairn.devices.librarian.tools.trees.trees import link, traverse_link, link_neighbors
         link(n1, n2, 0.9, conn=conn)
         link(n1, n3, 0.85, conn=conn)
         for _ in range(CO_OCCURRENCE_THRESHOLD + 1):
@@ -948,7 +947,7 @@ def test_warm_set_is_event_driven_not_daemon():
     offenders = imported & forbidden
     assert not offenders, f"warm-set imports daemon/timer modules: {offenders}"
 
-    loop_src = Path(trees.__file__).parent.joinpath("loop.py").read_text(encoding="utf-8")
+    loop_src = (_REPO_ROOT / "cairn/devices/librarian/loop.py").read_text(encoding="utf-8")
     loop_ast = ast.parse(loop_src)
     loop_imported = set()
     for node in ast.walk(loop_ast):

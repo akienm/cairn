@@ -26,8 +26,8 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import resolve_query, PROMOTION_THRESHOLD
-from cairn.devices.librarian.trees import (NODES_TABLE, LibrarianDevice, corroborate,
-                                           deposit, forget_leaf, scratch_leaf)
+from cairn.devices.librarian.tools.trees.trees import NODES_TABLE, corroborate, deposit, forget_leaf, scratch_leaf
+from cairn.devices.librarian.device import LibrarianDevice
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_proactive_callback.py", "ground": "fixture"}

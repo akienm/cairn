@@ -65,8 +65,8 @@ import hashlib
 
 from cairn.devices.librarian.loop import BackfillRefused, resolve_query
 from cairn.devices.librarian.summarize import _MARKER, SUMMARY_REGION_K, SummaryRefused, summarize
-from cairn.devices.librarian.trees import (NODES, DepositRefused, LibrarianDevice,
-                                   RefutationRefused, deposit, refute)
+from cairn.devices.librarian.tools.trees.trees import NODES, DepositRefused, RefutationRefused, deposit, refute
+from cairn.devices.librarian.device import LibrarianDevice
 
 # The affordances that route a turn away from the core loop — stated on the surface,
 # matched case-insensitively here. A prefix, not an intent guess: deterministic, free,

@@ -42,15 +42,11 @@ import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 
-from cairn.devices.librarian.trees import (
-    NODES, DepositRefused, LibrarianDevice, consolidate, corroborate, tree_state,
-    parse_temporal, awake_thread_node_ids, wake_threads, attend_thread,
-    sleep_check, detect_threads,
-)
+from cairn.devices.librarian.tools.trees.trees import (
+    NODES, RESOLUTION_FLOOR, DepositRefused, consolidate, corroborate, tree_state, parse_temporal,
+    awake_thread_node_ids, wake_threads, attend_thread, sleep_check, detect_threads)
+from cairn.devices.librarian.device import LibrarianDevice
 
-# The floor a walk must clear to count as resolved — a labeled guess, not a settled law
-# (seeded by the first live walk, n=1; see the module note). Returned in every verdict.
-RESOLUTION_FLOOR = 0.65
 
 # Rounds of backfill before the loop reports exhaustion. Small on purpose: each round is
 # a real host call, and a question three rounds cannot ground is a finding, not a retry.

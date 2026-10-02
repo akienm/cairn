@@ -7,7 +7,7 @@ inference temporary. This module is that rung for chart's nexi.
 
 THE TOOLS ARE THE LIBRARIAN'S — the ratified unification ("we'll use the same tools with
 the librarian"), landed as an owner parameter, not a fork: chart reaches ITS OWN table
-(``chart_<nexus>_nodes``, owner ``chart``) through cairn.devices.librarian.trees, whose deposit
+(``chart_<nexus>_nodes``, owner ``chart``) through cairn.devices.librarian.tools.trees.trees, whose deposit
 door and walks are the only door here. This module never touches db_domain or the network
 directly (the composition lesson from stone 1, applied one layer up; the proof pins it by
 AST allowlist).
@@ -55,8 +55,8 @@ import os
 import re
 from contextlib import contextmanager
 
-import cairn.devices.librarian.trees as trees
-from cairn.devices.librarian.loop import RESOLUTION_FLOOR
+import cairn.devices.librarian.tools.trees.trees as trees
+from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 
 OWNER = "chart"
 

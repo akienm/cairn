@@ -42,8 +42,8 @@ from cairn.devices.librarian import library
 from cairn.devices.librarian.library import (
     LearnRefused, ShelfRefused, learn, passages, shelf_entry, shelve,
 )
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.device import LibrarianDevice
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
@@ -256,7 +256,8 @@ def test_library_opens_no_door_of_its_own():
     # per the precedent every prior widening in this corpus followed — an entry that arrives
     # without one is the defect the-inspectors-allowlist-tooth-is-red trouble is open about.
     allowed = ("__future__", "hashlib", "json", "shutil", "datetime", "pathlib",
-               "cairn.tools.base.address", "cairn.devices.librarian.trees")
+               "cairn.tools.base.address", "cairn.devices.librarian.tools.trees.trees",
+               "cairn.devices.librarian.device")
     src = Path(library.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

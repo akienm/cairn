@@ -41,8 +41,8 @@ from cairn.devices.librarian import summarize as summarize_module
 from cairn.devices.librarian.summarize import (
     SummaryRefused, gather, parse_summary, region_digest, render_prompt, summarize,
 )
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.device import LibrarianDevice
 
 _TABLE = ""     # the current test's own leaf — a scratch table, minted per test below
 _test_seq = itertools.count()
@@ -295,7 +295,8 @@ def test_the_render_prompt_carries_the_region_whole():
 
 
 def test_summarize_opens_no_door_of_its_own():
-    allowed = ("__future__", "hashlib", "re", "cairn.devices.librarian.trees")
+    allowed = ("__future__", "hashlib", "re", "cairn.devices.librarian.tools.trees.trees",
+               "cairn.devices.librarian.device")
     src = Path(summarize_module.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

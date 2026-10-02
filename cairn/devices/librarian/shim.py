@@ -21,7 +21,7 @@ clock can spin it (NO DAEMONS).
 from __future__ import annotations
 
 from cairn.tools.base.shim import BaseShim
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.device import LibrarianDevice
 
 
 class LibrarianShim(BaseShim):

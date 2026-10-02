@@ -43,7 +43,7 @@ from cairn.devices.codemother.machines.verdict.verdict import (
 )
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.librarian import trees
+from cairn.devices.librarian.tools.trees import trees
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not

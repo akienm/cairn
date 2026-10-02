@@ -55,8 +55,9 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.inference_domain import domain
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query
-from cairn.devices.librarian.trees import (forget_leaf, scratch_leaf, NODES_TABLE, OWNER, LibrarianDevice, corroborate,
-                                           deposit, node_id_for, refute)
+from cairn.devices.librarian.tools.trees.trees import (
+    forget_leaf, scratch_leaf, NODES_TABLE, OWNER, corroborate, deposit, node_id_for, refute)
+from cairn.devices.librarian.device import LibrarianDevice
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_librarian_loop.py", "ground": "fixture"}
@@ -407,7 +408,8 @@ def test_no_seam_no_loop_and_no_empty_questions():
 
 
 def test_loop_opens_no_door_of_its_own():
-    allowed = ("__future__", "hashlib", "json", "datetime", "cairn.devices.librarian.trees")
+    allowed = ("__future__", "hashlib", "json", "datetime", "cairn.devices.librarian.tools.trees.trees",
+               "cairn.devices.librarian.device")
     src = Path(loop.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

@@ -60,8 +60,8 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.probes import standing_moves_under_live_use as probe
 from cairn.devices.librarian.shim import LibrarianShim
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.trees import OWNER, corroborate, deposit, node_id_for
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.tools.trees.trees import OWNER, corroborate, deposit, node_id_for
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not

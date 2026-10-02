@@ -28,7 +28,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.librarian.trees import (
+from cairn.devices.librarian.tools.trees.trees import (
     EMBEDDINGS_TABLE, LINKS_TABLE, NODES_TABLE, OWNER,
     _LEAF_COLUMNS, _LINK_COLUMNS,
     attractor, calve, cosine, deposit, ensure_trees, forget_leaf,
@@ -131,7 +131,7 @@ def test_calve_splits_into_two_children():
 
     child_a, child_b = result["children"]
 
-    from cairn.devices.librarian.trees import _leaf_rows
+    from cairn.devices.librarian.tools.trees.trees import _leaf_rows
     conn = store.connect()
     try:
         parent_rows = _leaf_rows(table=t, conn=conn)

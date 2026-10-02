@@ -42,7 +42,7 @@ import sys
 from pathlib import Path
 
 from cairn.devices.librarian.loop import RESOLUTION_FLOOR, resolve_query
-from cairn.devices.librarian.trees import LibrarianDevice
+from cairn.devices.librarian.device import LibrarianDevice
 from cairn.machines.learning_block.engine import run_block
 from cairn.tools.base.address import instance_path
 from cairn.tools.question import question as Q

@@ -58,7 +58,8 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import chat as chat_module
 from cairn.devices.librarian.chat import ChatRefused, ChatSession, chat_turn, parse_reply, route
 from cairn.devices.librarian.shim import LibrarianShim
-from cairn.devices.librarian.trees import forget_leaf, scratch_leaf, NODES_TABLE, OWNER, LibrarianDevice
+from cairn.devices.librarian.tools.trees.trees import forget_leaf, scratch_leaf, NODES_TABLE, OWNER
+from cairn.devices.librarian.device import LibrarianDevice
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 
@@ -429,7 +430,8 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
 
 def test_chat_opens_no_door_of_its_own():
     allowed = ("__future__", "hashlib", "cairn.devices.librarian.loop",
-               "cairn.devices.librarian.summarize", "cairn.devices.librarian.trees")
+               "cairn.devices.librarian.summarize", "cairn.devices.librarian.tools.trees.trees",
+               "cairn.devices.librarian.device")
     src = Path(chat_module.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

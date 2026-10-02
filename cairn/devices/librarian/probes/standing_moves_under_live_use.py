@@ -34,7 +34,7 @@ from pathlib import Path
 from cairn.tools.base.probe import Probe, owning_ticket, once
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
-from cairn.devices.librarian.trees import NODES, NODES_TABLE
+from cairn.devices.librarian.tools.trees.trees import NODES, NODES_TABLE
 
 _OWNING_TICKET = "the-tenure-loop"
 

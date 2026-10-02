@@ -53,8 +53,8 @@ from cairn.tools.tree.tree import (
 )
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.db_domain.tools.client.store import OwnershipError
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.loop import RESOLUTION_FLOOR
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 
 # The falsifier of 9c46e187f2de is one unnumbered clause, so one composite tooth carries it.
 PROVES = {
@@ -221,7 +221,7 @@ def test_the_librarians_tools_are_the_only_door():
     allowed = {
         tree.__file__: ("__future__", "contextlib", "os", "re",   # contextlib: scratch_nexus (201a37bf1613)
                         "cairn.devices.codemother.machines.orient.orient",
-                        "cairn.devices.librarian.trees", "cairn.devices.librarian.loop"),
+                        "cairn.devices.librarian.tools.trees.trees", "cairn.devices.librarian.loop"),
         # cairn.devices.codemother.machines.constrain.constrain joined 2026-07-28 (chart-constrain), cairn.devices.codemother.machines.survey.survey
         # and cairn.devices.codemother.machines.decompose.decompose the same day (chart-survey, chart-decompose),
         # cairn.devices.codemother.machines.triage.triage the same day again (chart-triage), then

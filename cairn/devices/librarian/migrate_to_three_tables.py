@@ -7,7 +7,7 @@ Safe to re-run: idempotent on all three tables (PK-based dedup).
 """
 import sys
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.librarian.trees import (
+from cairn.devices.librarian.tools.trees.trees import (
     NODES_TABLE, EMBEDDINGS_TABLE, OWNER,
     _NODE_COLUMNS, _EMBEDDING_COLUMNS, _LEAF_COLUMNS,
     node_id_for, embedding_id_for, leaf_id_for,

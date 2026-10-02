@@ -44,8 +44,8 @@ from skills.moreabout import moreabout as moreabout_mod
 from skills.moreabout.moreabout import MoreaboutRefused, expand, signal
 from cairn.tools.tree.tree import deposit_learning, nexus_table
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.librarian import trees
-from cairn.devices.librarian.loop import RESOLUTION_FLOOR
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 
 _STAMP = f"{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 _NEXUS = f"orient_ma_{_STAMP}"          # the near-node corpus

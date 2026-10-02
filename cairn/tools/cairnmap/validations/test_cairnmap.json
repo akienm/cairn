@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_cairnmap.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-30T17:46:14",
+    "caller": "cairn test",
+    "date": "2026-10-01T21:25:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green  test_check_is_derived_from_the_record_and_never_parallel\n  green  test_code_without_a_charter_reds\n  green  test_corrupt_charter_is_loud_and_the_rest_still_renders\n  green  test_first_sentence_is_a_cut_never_a_break\n  green  test_gate_exit_codes_and_render_always_presents\n  green  test_green_world_and_direction_one\n  green  test_installed_without_charter_reds\n  green  test_misaimed_symlink_reds\n  green  test_named_brief_and_unknown_name_refusal\n  green  test_render_mutates_nothing\n  green  test_skill_directory_with_no_charter_reds\n  green  test_standing_in_a_directory_briefs_on_it\n  RED    test_the_charter_records_where_membership_lives: the charter does not record that the roster lane was retired, so it still promises a red from a lane that no longer runs\n  green  test_the_gate_lists_what_it_proved_not_only_what_failed\n  green  test_the_retired_roster_coming_back_is_ONE_red\n  green  test_the_watchme_probe_is_armed_and_can_be_made_to_fire\n  green  test_uncharted_command_reds_and_does_not_render\n  green  test_uninstalled_skill_reds\n\n20/21 teeth green",
+      "returncode": 0,
+      "stdout_tail": "  green  test_check_is_derived_from_the_record_and_never_parallel\n  green  test_code_without_a_charter_reds\n  green  test_corrupt_charter_is_loud_and_the_rest_still_renders\n  green  test_first_sentence_is_a_cut_never_a_break\n  green  test_gate_exit_codes_and_render_always_presents\n  green  test_green_world_and_direction_one\n  green  test_installed_without_charter_reds\n  green  test_misaimed_symlink_reds\n  green  test_named_brief_and_unknown_name_refusal\n  green  test_render_mutates_nothing\n  green  test_skill_directory_with_no_charter_reds\n  green  test_standing_in_a_directory_briefs_on_it\n  green  test_the_charter_records_where_membership_lives\n  green  test_the_gate_lists_what_it_proved_not_only_what_failed\n  green  test_the_retired_roster_coming_back_is_ONE_red\n  green  test_the_watchme_probe_is_armed_and_can_be_made_to_fire\n  green  test_uncharted_command_reds_and_does_not_render\n  green  test_uninstalled_skill_reds\n\n21/21 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_check_that_stops_running_makes_the_record_shorter",
@@ -25,15 +25,14 @@
         "test_render_mutates_nothing",
         "test_skill_directory_with_no_charter_reds",
         "test_standing_in_a_directory_briefs_on_it",
+        "test_the_charter_records_where_membership_lives",
         "test_the_gate_lists_what_it_proved_not_only_what_failed",
         "test_the_retired_roster_coming_back_is_ONE_red",
         "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
         "test_uncharted_command_reds_and_does_not_render",
         "test_uninstalled_skill_reds"
       ],
-      "teeth_red": [
-        "test_the_charter_records_where_membership_lives"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -42,7 +41,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "d3786f12d521b87d24803e7ac00d750f1dd6c4332c83c7cbd600107716901057",
+      "source_fingerprint": "a4df2c6c31d705f5536fab5134c33896b98086ecd0bb4117fcc25ec6310ecdd3",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -60,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-269625-yc8unqqd/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-710955-_31l7jgc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,21 +68,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 247926484,
-          "disk_bytes": 264306688,
-          "entries": 6894,
+          "bytes": 132969905,
+          "disk_bytes": 151318528,
+          "entries": 7704,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "d76e8d152be7bb42b42f646508e384fe54584f92565523340acdbf6724317df7",
-        "opened": "2026-09-30T17:46:14",
-        "last_red": "2026-09-30T17:46:14",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-cairnmap",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

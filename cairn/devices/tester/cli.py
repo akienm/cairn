@@ -114,7 +114,9 @@ def _hollow_run(args) -> int:
         print(f"cairn test --hollow: {why}", file=sys.stderr)
         return 2
 
-    for rel, depth in finding["isolation"].items():
+    # .get, because a finding is a contract other callers fake: a stub measure that predates
+    # the per-proof depth (054bcbe02f12) still owes every other line below, not this one.
+    for rel, depth in finding.get("isolation", {}).items():
         print(f"  isolation: {rel} {depth}")
     for line in finding["reasons"]:
         print(f"  {line}")

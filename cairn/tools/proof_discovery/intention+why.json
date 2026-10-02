@@ -11,7 +11,7 @@
   "why": "RULE 1: validation.py (a tool every gate imports) reached into the tester device for this one stdlib function; a function with no device in it belongs on the tool rung, where every user reaches it the same way (ticket 67b78ae59c1d). Stdlib-only also keeps every gate that imports it clear of the bus and any oracle.",
   "entry": "GRAFTED by git mv from cairn/devices/tester/discovery.py, ticket 67b78ae59c1d, 2026-10-02",
   "invoke": "from cairn.tools.proof_discovery.proof_discovery import discover; discover([path, ...]). Prove: python3 cairn/tools/proof_discovery/proofs/test_proof_discovery.py",
-  "state_and_history": "A tool holds no state of its own (Law 6). Its prior history rides cairn/devices/tester/history.json.",
+  "state_and_history": "A tool holds no state of its own (Law 6). Its prior history rides the tester device's history (cairn/devices/tester/); nothing beside this charter holds history.",
   "proof": "proofs/test_proof_discovery.py — proofs/ dir, nested dir, missing path",
   "gates": "encapsulation_holds in build_inspector; the tester seal",
   "falsifier": "Red if a proofs/ directory or a directory holding one does not expand, if a missing path is dropped silently, or if the module imports anything beyond the standard library.",

@@ -451,26 +451,38 @@ class BusDevice(BaseDevice):
         target's verb handler posts a reply (with reply_to set to this envelope's id),
         and the reply lands in the ring by the time post() returns. The ring check is
         zero-DB; the timeout falls back to read() (ring + DB) for the multi-process
-        future. LOUD on timeout (CP1)."""
+        future. LOUD on timeout (CP1).
+
+        THE REPLY IT RETURNS IS IN THE REQUESTER'S HAND, so request() writes its receipt
+        (ticket 6b1e13704e17; measured 2026-10-02, 2791 trouble->cairn replies stood
+        undelivered because nothing receipted them) — unless the poke chain already
+        receipted it for a wired requester, which the ``_ring_delivered`` guard reads."""
         envelope = self.post(sender=sender, to=to, channel=channel, why=why,
                              verb=verb, body=body)
         ring_replies = self._ring_matches(reply_to=envelope["id"])
         if ring_replies:
-            return ring_replies[0]
+            return self._taken(ring_replies[0], sender)
         replies = self.read(reply_to=envelope["id"])
         if replies:
-            return replies[0]
+            return self._taken(replies[0], sender)
         import time
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             time.sleep(min(0.1, deadline - time.monotonic()))
             replies = self.read(reply_to=envelope["id"])
             if replies:
-                return replies[0]
+                return self._taken(replies[0], sender)
         raise TimeoutError(
             f"no reply to envelope {envelope['id'][:8]}… from {to} "
             f"within {timeout}s — the target did not reply (CP1: loud, not empty)"
         )
+
+    def _taken(self, reply: dict, sender: str) -> dict:
+        """Receipt the reply request() hands back, once: a wired requester's hook already
+        receipted it inside post()'s poke chain (the reply id is in ``_ring_delivered``)."""
+        if reply["id"] not in self._ring_delivered:
+            self.record_delivery(reply["id"], to=sender, by=sender)
+        return reply
 
     # --- delivery: the half that was missing --------------------------------
 

@@ -31,6 +31,14 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.machines.build_inspector.inspector import charter_asserts_file_present
 from cairn.tools.base.address import component_dirs
 
+PROVES = {
+    "ebf1802fd5b2": {
+        "1": "test_once_a_voyage_qualifies",
+        "2": "test_false_assertion_is_caught",
+        "3": "test_live_corpus_is_clean",
+    },
+}
+
 
 def _make_charter(d: str, state_and_history: str, create_files: list[str] | None = None) -> Path:
     comp = Path(d) / "test_component"
@@ -60,6 +68,13 @@ def test_honest_qualification_passes():
             "FIRST CROSSING. Until a ticket crosses here there is no journal.")
         result = charter_asserts_file_present({"component": "test_component"}, comp)
         assert result == [], f"honest qualification must pass, got {result}"
+
+
+def test_once_a_voyage_qualifies():
+    with tempfile.TemporaryDirectory() as d:
+        comp = _make_charter(d, "state.json + history.json beside this charter once a voyage freezes here (Law 5).")
+        result = charter_asserts_file_present({"component": "test_component"}, comp)
+        assert result == [], f"an honest once-clause must pass, got {result}"
 
 
 def test_present_file_passes():
@@ -96,6 +111,7 @@ def _main() -> int:
     checks = [
         test_false_assertion_is_caught,
         test_honest_qualification_passes,
+        test_once_a_voyage_qualifies,
         test_present_file_passes,
         test_not_hardcoded_to_two_filenames,
         test_live_corpus_is_clean,

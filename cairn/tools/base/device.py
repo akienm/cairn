@@ -233,6 +233,10 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
     # an undeclared holder produces an undeclared recorder, and that reads RED under
     # cairn/tools/data_recorder/probes/reading_is_declared_and_current.py. Override
     # per device class; None is the honest state of a device nobody reads.
+    # UNDECLARED NOW MEANS UNKEPT: a device that declares no RECORDER_ON_READ keeps none of
+    # its inbound mail (ruling "if it's not consumed, it's trash", 2026-09-30,
+    # CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md; ticket
+    # ae8d2bfb08e2), so a device that wants its mail kept declares both attributes.
     RECORDER_READ_FREQUENCY_SECONDS: int | None = None
     RECORDER_ON_READ: str | None = None
 
@@ -256,18 +260,21 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
     def receive(self, envelope: dict) -> dict:
         """Accept an incoming bus envelope and record it for later evaluation.
 
-        The default handler: every device that gets mail records it to a
-        DataRecorder. Devices that need to DO something with the mail
-        override this and call super() to keep the recording.
+        The default handler. Devices that need to DO something with the mail
+        override this and call super() to keep the recording. The envelope is
+        kept in the inbound DataRecorder only when this device's class declares
+        RECORDER_ON_READ; a device that declares no reader keeps none of its mail
+        (ticket ae8d2bfb08e2), and the reply is the same either way.
         """
-        self._get_recorder().write({
-            "finding": envelope.get("why", "bus message received"),
-            "inspector_target": self.device_id,
-            "probe_source": envelope.get("sender", "unknown"),
-            "envelope_id": envelope.get("id"),
-            "verb": envelope.get("verb", ""),
-            "body": envelope.get("body", {}),
-        })
+        if type(self).RECORDER_ON_READ is not None:
+            self._get_recorder().write({
+                "finding": envelope.get("why", "bus message received"),
+                "inspector_target": self.device_id,
+                "probe_source": envelope.get("sender", "unknown"),
+                "envelope_id": envelope.get("id"),
+                "verb": envelope.get("verb", ""),
+                "body": envelope.get("body", {}),
+            })
         self.emit("received", pointer=envelope.get("sender", "unknown"),
                   values={"why": (envelope.get("why") or "")[:120]})
         return {"accepted": True, "device": self.device_id}

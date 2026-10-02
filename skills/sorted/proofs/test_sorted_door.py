@@ -35,6 +35,9 @@ PROVES = {"9adc6fddf185": {
     "exemption": "questions exemption without referent refused",
     "contract": "the contract names questions",
     "skill": "the skill tells the caster to open a question",
+}, "7d2a4bbec455": {
+    "1": "conforming cast berths",
+    "2": "unparseable workflow names the missing receiver",
 }}
 
 PASSES = 0
@@ -267,6 +270,17 @@ def main() -> int:
             ok("unknown exit refused at the door", False)
         except DoorRefused as exc:
             ok("unknown exit refused at the door", "exit" in fields_of(exc))
+
+        # Ticket 7d2a4bbec455: with no parseable workflow the gate rule cannot attach, so the
+        # door's own floor must still name a missing receiver (fa4a411c96be) in the same pass.
+        no_wf = dict(GOOD, workflow="not a workflow at all",
+                     watchme={k: v for k, v in GOOD["watchme"].items() if k != "receiver"})
+        try:
+            door.fire(no_wf, **roots)
+            ok("unparseable workflow names the missing receiver", False, "door passed")
+        except DoorRefused as exc:
+            ok("unparseable workflow names the missing receiver",
+               "receiver" in whys_of(exc, "watchme"), whys_of(exc, "watchme"))
 
         # 15-17. a conforming cast rides the seam: berth written, readable, door_pass traced
         result = door.fire(dict(GOOD), **roots)

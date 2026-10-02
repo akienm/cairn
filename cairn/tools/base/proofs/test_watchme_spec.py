@@ -40,6 +40,15 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base import watchme_spec as ws
 
+# Ticket fa4a411c96be: a WATCHME names its receiver — the code that USES the probe's data, and
+# the component it lives in. Clause 5 is the sweep: a missing receiver is the one fault the
+# standing corpus may still carry (its backfill is the sibling ticket), every other still reds.
+PROVES = {"fa4a411c96be": {"1": "test_a_spec_without_a_receiver_is_refused",
+                           "2": "test_a_receiver_outside_a_component_is_refused",
+                           "3": "test_a_receiver_naming_nothing_is_refused",
+                           "4": "test_a_valid_receiver_passes",
+                           "5": "test_the_real_ticket_corpus_is_not_retro_redded"}}
+
 _V1 = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 _V2_BARE = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
 _V2_WATCH = ("code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> "
@@ -55,7 +64,8 @@ def _spec(obj, **over):
          "carrier": "a verdict artifact against the ticket's falsifier",
          "nexus": "hypothesize",
          "consumer": "the owner, who back-edges on a failed verdict",
-         "probe": "cairn/tools/base/probes/does_the_emission_gate_fire.py"}
+         "probe": "cairn/tools/base/probes/does_the_emission_gate_fire.py",
+         "receiver": {"what": "the owner reads the verdict", "in": "cairn/tools/base"}}
     s.update(over)
     return s
 
@@ -156,7 +166,11 @@ def test_the_real_ticket_corpus_is_not_retro_redded():
     rows = ws.sweep()
     assert len(rows) > 40, f"the sweep found only {len(rows)} tickets — it is not reading the " \
                            "real corpus"
-    red = [r for r in rows if r["error"]]
+    # A missing receiver is allowed (fa4a411c96be: the 138 standing specs predate the field and
+    # their backfill is the sibling ticket, whose work list is `python3 watchme_spec.py`);
+    # every OTHER fault in a row still reds it.
+    red = [r for r in rows if r["error"]
+           and any("names no receiver" not in part for part in r["error"].split("; "))]
     assert not red, "retro-red on pre-existing cast tickets: " + \
                     "; ".join(f"{r['ticket']}: {r['error']}" for r in red)
 
@@ -211,6 +225,40 @@ def test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not():
         f"past its stated rule (got: {err!r})"
 
 
+
+_WATCH = "does-the-emission-gate-fire-in-anger"
+
+
+def _receiver_error(spec):
+    return ws.watchme_spec_error({"workflow_and_state": _V2_WATCH, "watchme": spec})
+
+
+def test_a_spec_without_a_receiver_is_refused():
+    """fa4a411c96be clause 1: complete in every other field, no receiver — refused."""
+    s = _spec(_WATCH)
+    s.pop("receiver")
+    err = _receiver_error(s)
+    assert err and "receiver" in err, err
+
+
+def test_a_receiver_outside_a_component_is_refused():
+    """Clause 2: 'in' must be a directory holding intention+why.json."""
+    err = _receiver_error(_spec(_WATCH, receiver={"what": "w", "in": "cairn/no_such_component"}))
+    assert err and "receiver" in err, err
+
+
+def test_a_receiver_naming_nothing_is_refused():
+    """Clause 3: an empty 'what' names no code that receives."""
+    err = _receiver_error(_spec(_WATCH, receiver={"what": "", "in": "cairn/tools/base"}))
+    assert err and "receiver" in err, err
+
+
+def test_a_valid_receiver_passes():
+    """Clause 4: the rule refuses only what it states."""
+    err = _receiver_error(_spec(_WATCH))
+    assert err is None, err
+
+
 TESTS = [
     test_a_v1_ticket_is_exempt_by_the_version_rule,
     test_a_pre_workflow_string_ticket_is_exempt_too,
@@ -226,6 +274,10 @@ TESTS = [
     test_the_real_ticket_corpus_is_not_retro_redded,
     test_the_clean_sweep_is_not_a_vacuous_check,
     test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not,
+    test_a_spec_without_a_receiver_is_refused,
+    test_a_receiver_outside_a_component_is_refused,
+    test_a_receiver_naming_nothing_is_refused,
+    test_a_valid_receiver_passes,
 ]
 
 if __name__ == "__main__":

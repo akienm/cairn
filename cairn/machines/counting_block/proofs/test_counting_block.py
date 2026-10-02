@@ -18,8 +18,10 @@ proof at import (UNRAN is not evidence).
 """
 from __future__ import annotations
 
+import contextlib
 import datetime
 import importlib
+import io
 import json
 import os
 import shutil
@@ -41,7 +43,8 @@ class _Late:
 
 
 block = _Late("cairn.machines.counting_block.block")
-pulse_mod = _Late("cairn.machines.counting_block.groundloop.pulse")
+main_mod = _Late("cairn.machines.counting_block.__main__")
+hook_mod = _Late("cairn.machines.counting_block.hook")
 probe_mod = _Late("cairn.machines.counting_block.probes.raise_rate_falls")
 
 PROVES = {
@@ -49,7 +52,7 @@ PROVES = {
         "1": "the_table_compiles_from_both_journals_and_is_byte_identical_when_recompiled",
         "2": "an_unseen_triple_raises_exactly_one_trouble_and_a_seen_one_raises_nothing",
         "3": "an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not",
-        "4": "the_block_runs_on_the_beat_with_no_process_of_its_own_and_the_probe_fires_once_per_raise",
+        "4": "the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_once_per_raise",
         "5": "over_the_live_corpus_rows_are_well_under_entries",
     },
 }
@@ -310,42 +313,73 @@ def an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not():
         w.close()
 
 
-def the_block_runs_on_the_beat_with_no_process_of_its_own_and_the_probe_fires_once_per_raise():
-    # the beat's hook is discovered by the ground loop under the block's own folder …
-    from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
-    sites = [s for s in pulse_sites() if s["device_id"] == block.COMPONENT]
-    assert len(sites) == 1 and sites[0]["path"].name == "pulse.py", sites
-    # … and nothing else runs it: no process of the block's own between beats
+def _main_pulse() -> dict:
+    """``python3 -m cairn.machines.counting_block pulse``, in process: exit 0 and one JSON line."""
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = main_mod.main(["pulse"])
+    assert rc == 0, f"pulse exited {rc}: {buf.getvalue()!r}"
+    return json.loads(buf.getvalue())
+
+
+def the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_once_per_raise():
+    # D26 (Akien 2026-09-30: nothing fires on the heartbeat but the messaging): the event is
+    # the COMMIT. The tracked post-commit hook is the whole firer, and it never blocks …
+    src_path = Path(block.__file__).parent / "hooks" / "post-commit"
+    src = src_path.read_text(encoding="utf-8")
+    assert hook_mod._MARK in src, f"the hook source does not carry {hook_mod._MARK!r}"
+    assert "-m cairn.machines.counting_block pulse" in src, "the hook does not run the fold"
+    assert os.access(src_path, os.X_OK), f"{src_path} is not executable"
+    lines = [l.strip() for l in src.splitlines() if l.strip()]
+    assert lines[-1] == "exit 0", f"the hook's last word is {lines[-1]!r}, not exit 0"
+    # … and installs as a host-seam: apply, re-runnable verify, never over a foreign hook
+    repo = _scratch("counting-block-hook-repo-")
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    assert hook_mod.verify_hook(repo)["green"] is False, "verify read green before install"
+    got = hook_mod.install_hook(repo)
+    assert got["installed"] is True and got["path"].endswith("hooks/post-commit"), got
+    assert hook_mod.verify_hook(repo)["green"] is True, hook_mod.verify_hook(repo)
+    again = hook_mod.install_hook(repo)
+    assert again["installed"] is False and "already installed" in again["why"], again
+    foreign = _scratch("counting-block-foreign-repo-")
+    subprocess.run(["git", "init", "-q", str(foreign)], check=True)
+    theirs = hook_mod.hook_path(foreign)
+    theirs.parent.mkdir(parents=True, exist_ok=True)
+    theirs.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    refused = hook_mod.install_hook(foreign)
+    assert refused["installed"] is False, refused
+    assert theirs.read_text(encoding="utf-8") == "#!/bin/sh\nexit 0\n", "a foreign hook was eaten"
+    # nothing else runs it: no process of the block's own between commits
     ps = subprocess.run(["ps", "-eo", "args"], capture_output=True, text=True, check=True).stdout
     mine = [l for l in ps.splitlines() if "counting_block" in l and "proofs/test_counting_block" not in l]
     assert mine == [], f"a counting_block process is running: {mine}"
-    # the hook is the whole entry point: calling it IS a beat, over the scratch world
+    # the module verb is the whole entry point: calling it IS a commit's fold, over scratch
     w = World()
     try:
         _seed(w)
-        real_dir, real_roots = block.table_dir, door.roots
-        # the hook and the probe read the block's live addresses; point both at the scratch
+        real_dir = block.table_dir
+        # the verb and the probe read the block's live addresses; point both at the scratch
         # world for this tooth by the same seams the block itself uses
         import cairn.machines.counting_block.block as blk
         blk.table_dir = lambda: w.table
         blk.ModuleRaiser = lambda component: w.raiser()
         try:
-            out = pulse_mod.on_pulse(w.t, {})
+            out = _main_pulse()
             assert out["block"] == block.COMPONENT and out["raised"] == 0, out
             # the probe: declared, armed with carry and enough, and silent on the seed
             P = probe_mod.PROBE
             assert P.carry is not None and P.enough is not None and P.horizon
             assert P.trigger(w.t, {}) is False, "the probe fired on the seed"
-            # one raise → the probe fires on the NEXT beat, exactly once, carrying the triple
+            # one raise → the probe fires after the NEXT fold, exactly once, carrying the triple
             w.append(*UNSEEN_1)
-            pulse_mod.on_pulse(w.t, {})
+            _main_pulse()
             assert P.trigger(w.t, {}) is True, "a raise did not fire the probe"
             ctx = {}
             P.trigger(w.t, ctx)
             carried = P.carry(ctx)
             assert carried["raised"][0]["triple"] == _key(*UNSEEN_1), carried
             assert carried["rows"] >= 1 and "finding" in carried
-            pulse_mod.on_pulse(w.t, {})  # the ack catches up
+            _main_pulse()  # the ack catches up
             assert P.trigger(w.t, {}) is False, "the probe fired twice for one raise"
             assert P.enough({}) is False
         finally:
@@ -373,7 +407,7 @@ TEETH = [
     the_table_compiles_from_both_journals_and_is_byte_identical_when_recompiled,
     an_unseen_triple_raises_exactly_one_trouble_and_a_seen_one_raises_nothing,
     an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not,
-    the_block_runs_on_the_beat_with_no_process_of_its_own_and_the_probe_fires_once_per_raise,
+    the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_once_per_raise,
     over_the_live_corpus_rows_are_well_under_entries,
 ]
 

@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_encapsulation_holds.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-01T21:43:58",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_tool_reaching_into_a_device_is_into_device\n  green a_skill_importing_an_undeclared_module_reds_until_declared\n  green a_proof_reaching_into_a_device_reds\n  green a_published_device_client_is_reachable_through_its_declared_module\n  green a_component_with_no_public_interface_reds\n  green the_old_sieves_are_retired_and_encapsulation_holds_stands\n  green a_device_importing_another_device_is_into_device\n  green a_machine_importing_a_device_reds_by_file_and_module\n8 passed, 0 failed out of 8",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_tool_reaching_into_a_device_is_into_device",
+        "a_skill_importing_an_undeclared_module_reds_until_declared",
+        "a_proof_reaching_into_a_device_reds",
+        "a_published_device_client_is_reachable_through_its_declared_module",
+        "a_component_with_no_public_interface_reds",
+        "the_old_sieves_are_retired_and_encapsulation_holds_stands",
+        "a_device_importing_another_device_is_into_device",
+        "a_machine_importing_a_device_reds_by_file_and_module"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "db9c8801a2a4c3bfd39d96c1dea27ceb3e45f2f4d9aa537d203bd29218629148",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/machines/__init__.py",
+        "cairn/devices/codemother/machines/verdict/__init__.py",
+        "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_encapsulation_holds.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-721175-hwaq7goh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 136413406,
+          "disk_bytes": 155324416,
+          "entries": 7884,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

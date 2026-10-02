@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# cairn-counting-block-door — the firing event for the counting block (ticket 5a4ec289bf15 D26).
+#
+# Source: cairn/machines/counting_block/hooks/post-commit  (tracked; this copy is installed by
+#         `python3 -m cairn.machines.counting_block install-hook` and verified by
+#         `python3 -m cairn.machines.counting_block verify-hook`)
+#
+# WHY POST-COMMIT. The commit is where the artifact journals become the machine's state, so it
+# is the event the fold answers to (Akien, 2026-09-30: nothing fires on the heartbeat but the
+# messaging). The tester owns pre-commit, and a fold has nothing to refuse, so it runs after.
+#
+# WHY IT NEVER BLOCKS. The commit has already happened; a failed fold is printed and the next
+# commit folds the whole journal again (the fold is full every time), so nothing is lost.
+set -uo pipefail
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -n "$REPO" ] || exit 0
+[ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ] || exit 0
+[ -f "$REPO/cairn/machines/counting_block/block.py" ] || exit 0
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO" || exit 0
+PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.machines.counting_block pulse || true
+exit 0

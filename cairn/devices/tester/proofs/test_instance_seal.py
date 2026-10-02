@@ -32,6 +32,8 @@ Proof: exit 0 = green.
 from __future__ import annotations
 
 import hashlib
+import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -144,14 +146,29 @@ def test_a_proof_that_writes_to_instance_space_seeds_nothing_live():
     device would; neither may exist on the host afterwards."""
     v = _run(_fixture(_WRITER))
     assert v["verdict"] == "green", f"the fixture itself failed: {v['evidence']['stderr_tail']}"
+    seal = v["evidence"]["instance_seal"]
+
+    if iso_mod.inside_an_instance_seal():
+        # UNDER THE TESTER'S OWN SEAL (answered open-8fee7c432219 = a): ~/.cairn here IS the
+        # outer run's swap, so the nested writes land at the "live" path by design and the host
+        # is not visible from inside. Assert what can be seen: the writes went into the
+        # INHERITED swap, the swap is a mount point, and the inherited seal reads SEALED. The
+        # host-side check is the bare run's, and the outer run's wrote_to_instance witnesses it.
+        assert os.path.realpath(LIVE) in iso_mod._mount_points(), (
+            f"marked {iso_mod.INSTANCE_SEAL_MARKER}=1 but {LIVE} is not a mount point — the "
+            "inherited seal has nothing under it")
+        assert (LIVE / "SEEDED-BY-A-PROOF").exists(), (
+            "the nested write did not land in the inherited swap — it went somewhere unseen")
+        assert seal["verdict"] == SEALED, f"expected an inherited sealed run, got {seal}"
+        (LIVE / "SEEDED-BY-A-PROOF").unlink()
+        shutil.rmtree(LIVE / "logs" / "fixture_device", ignore_errors=True)
+        return
 
     assert not (LIVE / "SEEDED-BY-A-PROOF").exists(), (
         "a proof's write reached the LIVE instance root — the seal did not hold, and this is "
         "the exact failure that filled the trail tree with 2,080 records of proof exhaust")
     assert not (LIVE / "logs" / "fixture_device").exists(), (
         "a proof seeded a device trail in the live logs tree")
-
-    seal = v["evidence"]["instance_seal"]
     assert seal["verdict"] == SEALED, f"expected a sealed run, got {seal}"
 
 
@@ -198,10 +215,22 @@ def test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list():
 
 
 def _with_fake_root(fake: Path):
-    """Point the seal's notion of the instance root at ``fake``. Returns a restore callable."""
+    """Point the seal's notion of the instance root at ``fake``. Returns a restore callable.
+
+    The positive controls measure the BARE branch of ``check_instance_seal``, so the inherited
+    marker is lifted for their span: under the tester's own seal it would route them to the
+    inherited branch, which asks a different question (is the swap mounted?) of a fake root
+    that never is. Under that seal no nested sandbox can be opened, so a control that needs
+    the swap to stand in for the root uses ``_PathSwapIsolation`` there."""
     original = iso_mod._INSTANCE_ROOT
+    marker = os.environ.pop(iso_mod.INSTANCE_SEAL_MARKER, None)
     iso_mod._INSTANCE_ROOT = str(fake)
-    return lambda: setattr(iso_mod, "_INSTANCE_ROOT", original)
+
+    def restore():
+        iso_mod._INSTANCE_ROOT = original
+        if marker is not None:
+            os.environ[iso_mod.INSTANCE_SEAL_MARKER] = marker
+    return restore
 
 
 class _LeakyIsolation(NoIsolation):
@@ -211,6 +240,16 @@ class _LeakyIsolation(NoIsolation):
 
     def wrap(self, argv, cwd, *, instance_swap=None):
         return list(argv)
+
+
+class _PathSwapIsolation(NoIsolation):
+    """The swap standing in for the root WITHOUT a namespace: the probe is handed the swap's
+    path where it would have been handed the root's. Used only inside the tester's own seal,
+    where this host refuses the nested bwrap a bare NoIsolation opens (measured 2026-10-02:
+    the probe printed nothing). It is what a bind mount does to that one path, done by hand."""
+
+    def wrap(self, argv, cwd, *, instance_swap=None):
+        return [instance_swap if a == iso_mod._INSTANCE_ROOT else a for a in argv]
 
 
 def test_a_seal_that_does_not_hold_is_reported_BREACHED():
@@ -235,11 +274,12 @@ def test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED():
     and the seal must refuse to call that a success — it is the failure it was built from."""
     fake = scratch_dir("fake-instance-") / "cairn"
     (fake / "devices").mkdir(parents=True)
+    iso = _PathSwapIsolation() if iso_mod.inside_an_instance_seal() else NoIsolation()
     restore = _with_fake_root(fake)
     try:
         empty = str(scratch_dir("empty-swap-") / "cairn")
         Path(empty).mkdir(parents=True)
-        seal = check_instance_seal(NoIsolation(), empty, cwd=str(fake))
+        seal = check_instance_seal(iso, empty, cwd=str(fake))
         assert seal.verdict == INDETERMINATE, (
             f"an empty swap hides the live world from the subject; that is not SEALED "
             f"(got {seal.verdict}: {seal.detail})")
@@ -301,6 +341,13 @@ def _main() -> int:
     for check in checks:
         check()
         print(f"  PASS  {check.__name__}")
+
+    if iso_mod.inside_an_instance_seal():
+        print("  SKIP  the host witness — bare runs only: inside the tester's seal the live root "
+              "is not visible, and the outer run's wrote_to_instance is the host-side witness")
+        print("green — under an inherited seal, a proof's writes land in the inherited swap and "
+              "the seal reads SEALED; the detector produces a real BREACHED and INDETERMINATE")
+        return 0
 
     # THE WITNESS, and it spans every tooth above — including the two that deliberately
     # produce a BREACHED. A proof of an isolation that itself leaked would be the most

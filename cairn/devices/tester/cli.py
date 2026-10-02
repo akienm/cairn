@@ -118,7 +118,7 @@ def _hollow_run(args) -> int:
         print(f"  {line}")
     n_meas, n_skip = len(finding["measured"]), len(finding["skipped"])
     print(f"\n{finding['ticket']}: {n_meas} file(s) measured · {len(finding['hollow'])} hollow "
-          f"· {n_skip} skipped · reverted to {finding['commit'][:12]}")
+          f"· {n_skip} skipped · reverted to {finding['commit'][:12]} ({finding['anchor_rule']})")
 
     if args.seal:
         # AN UNREADABLE FILE IS SEALED AS UNREADABLE, NEVER AS A TOOTH LIST.
@@ -149,7 +149,9 @@ def _hollow_run(args) -> int:
         # the rung judges, and FIXME holds the real lack, 973574dddb77).
         landed_green: list[tuple[Path, dict]] = []
         for rel in finding["proofs"]:
-            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading)
+            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading,
+                                   anchor={k: finding[k] for k in ("anchor_rule", "anchor_journal",
+                                                                   "anchor_first_build", "commit")})
             persisted += 1 if landed else 0
             if landed:
                 standing = read_validations(str(REPO_ROOT / rel))[-1]

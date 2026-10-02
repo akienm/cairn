@@ -85,12 +85,14 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.scratch.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
+from cairn.tools.base.crossings import crossings_for
 from cairn.tools.chain.chain import chain_for_ticket
 from cairn.machines.build_inspector.inspector import resolves_to  # the one successor order (public_interface)
 
@@ -189,6 +191,80 @@ def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
             f"hollow: no commit precedes the BUILDME crossing at {at!r} — "
             f"{(proc.stderr or 'rev-list named nothing').strip()}")
     return commit
+
+
+def _when(at: str) -> datetime:
+    """A journal ``at`` (local, naive) or git's ``%cI`` (with offset) as one comparable instant."""
+    t = datetime.fromisoformat(at)
+    return t if t.tzinfo is not None else t.astimezone()
+
+
+def _build_commits(tid: str, files: list[str], repo_root: Path) -> list[tuple[str, str]]:
+    """[(sha, committer_iso)] oldest first: the commits that name the ticket AND change a writes_to file."""
+    if not files:
+        return []
+    proc = subprocess.run(["git", "-C", str(repo_root), "log", "--reverse", "--format=%H %cI",
+                           "-F", f"--grep={tid}", "HEAD", "--", *files],
+                          capture_output=True, text=True, env=git_env())
+    out = []
+    for line in proc.stdout.splitlines():
+        sha, _, when = line.strip().partition(" ")
+        if sha and when:
+            out.append((sha, when))
+    return out
+
+
+def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(repo_root), *args],
+                          capture_output=True, text=True, env=git_env())
+
+
+def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path) -> dict:
+    """The commit the reversion lands on: BEFORE THE BUILD THAT STANDS (ticket 06f0445e7a63).
+
+    THE RULE. Two candidates, and the earlier one wins:
+      - the journal's: the last commit before the latest forward BUILDME crossing — CLAMPED to
+        the bounding back-edge, because a kick-back INTO BUILDME has no forward re-cross, so the
+        latest forward crossing predates the rebuild it is supposed to stand before;
+      - the build's: the parent of the first commit after that bound that names the ticket id
+        and changes a writes_to file.
+    The bound is the latest back-edge out of BUILDME or PROVEME that has a build commit after
+    it; a back-edge with no build after it is a retreat-and-recross and bounds nothing.
+    "Earlier" is ancestry (``merge-base --is-ancestor``), never a clock: a build committed
+    before its own journal crossing (the journal lags the hand) would otherwise anchor AFTER
+    the build and read every file as unwritten — blamed on the chart.
+
+    MEASURED LIVE (2026-10-02): 68f563403c8f anchors at edb4e137^ and c691e19d5464 at
+    448601ca^, both by rule 'first-build-commit'.
+    """
+    tid = str(ticket.get("id") or "")
+    crossing = _buildme_crossing(ticket, roots)
+    at = _buildme_at(ticket, crossing, repo_root)
+    builds = _build_commits(tid, files, repo_root)
+    backs = [c for c in crossings_for(tid, roots)
+             if c.get("direction") in ("back", "backward")
+             and c.get("from") in ("BUILDME", "PROVEME") and c.get("at")]
+    bound = None
+    for c in sorted(backs, key=lambda c: _when(str(c["at"])), reverse=True):
+        if any(_when(w) > _when(str(c["at"])) for _, w in builds):
+            bound = str(c["at"])
+            break
+    journal_at = bound if bound is not None and _when(at) < _when(bound) else at
+    anchor_journal = prebuild_commit(journal_at, repo_root=repo_root)
+    after = [sha for sha, w in builds if bound is None or _when(w) > _when(bound)]
+    first = after[0] if after else None
+    parent = None
+    if first is not None:
+        proc = _git_ok(repo_root, "rev-parse", f"{first}^")
+        parent = proc.stdout.strip() if proc.returncode == 0 and proc.stdout.strip() else None
+    if (parent is not None and parent != anchor_journal
+            and _git_ok(repo_root, "merge-base", "--is-ancestor", parent, anchor_journal).returncode == 0):
+        commit, rule = parent, "first-build-commit"
+    else:
+        commit, rule = anchor_journal, "journal"
+    return {"commit": commit, "anchor_rule": rule, "anchor_journal": anchor_journal,
+            "anchor_first_build": first, "anchor_first_build_parent": parent,
+            "buildme_at": at, "bound": bound}
 
 
 def writes_to(ticket: dict, *, berths_root=None) -> list[str]:
@@ -463,10 +539,9 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     ticket = json.loads(_ticket_path(ticket_id, commons).read_text(encoding="utf-8"))
     tid = str(ticket.get("id") or ticket_id)
     roots = _roots(repo_root, commons)
-    crossing = _buildme_crossing(ticket, roots)
-    at = _buildme_at(ticket, crossing, repo_root)
-    commit = prebuild_commit(at, repo_root=repo_root)
     files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
+    anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root)
+    commit, at = anchor["commit"], anchor["buildme_at"]
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
@@ -515,7 +590,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                           capture_output=True, text=True, env=git_env()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
-    log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} (BUILDME at {at})")
+    log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} ({anchor['anchor_rule']}; BUILDME at {at})")
 
     def run_all() -> tuple[dict[str, set[str]], dict[str, int], dict[str, str]]:
         """Each named proof's green teeth, how many teeth it printed at all, and why it printed none.
@@ -656,6 +731,18 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             + (f"  [{len(broke)} proof(s) printed no teeth at all — did not reach a check: a "
                f"broken import, a timeout, or a crash before the first tooth]" if broke else ""))
 
+    if unchanged and not measured:
+        # THE ANCHOR'S FAULT IS NAMED AS THE ANCHOR'S. Every eligible file identical at the
+        # anchor means the anchor postdates the build; calling each file "unwritten" would put
+        # the blame on the chart's writes_to in a record a later reader trusts (Law 7).
+        raise HollowUnmeasurable(
+            f"hollow: the anchor {commit[:12]} (rule {anchor['anchor_rule']}; journal "
+            f"{anchor['anchor_journal'][:12]}, first build commit "
+            f"{(anchor['anchor_first_build'] or 'none')[:12]}) postdates the build — every one of "
+            f"the {len(unchanged)} eligible file(s) is byte-identical there, so no file can be "
+            f"reverted. This is the anchor's fault, not the chart's writes_to: commit the build "
+            f"with the ticket id in its message, or re-cross BUILDME before building.")
+
     hollow_files = [f for f, teeth in measured.items() if not teeth]
     reasons: list[str] = []
     for f in hollow_files:
@@ -690,4 +777,6 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
             "unchanged": unchanged, "moved": moved,
+            "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],
+            "anchor_first_build": anchor["anchor_first_build"],
             "verdict": "red" if reasons else "green", "reasons": reasons}

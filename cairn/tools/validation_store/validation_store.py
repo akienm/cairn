@@ -783,6 +783,13 @@ def persist_validation(
                 and "hollow" not in _new_ev
                 and _fp and _fp == _new_ev.get("source_fingerprint")):
             record["evidence"] = {**_new_ev, "hollow": _prior_hollow}
+        # The anchor a reading was taken against rides with that reading and expires with it.
+        _prior_anchor = _prior_ev.get("hollow_anchor")
+        _new_ev = record.get("evidence") or {}
+        if (isinstance(_prior_anchor, dict) and _prior_anchor
+                and "hollow_anchor" not in _new_ev
+                and _fp and _fp == _new_ev.get("source_fingerprint")):
+            record["evidence"] = {**_new_ev, "hollow_anchor": _prior_anchor}
 
     change = verdict_change(standing_trail, record)
     # A FIXTURE'S VERDICT CHANGE IS THE FIXTURE DOING ITS JOB, not a defect in the world.
@@ -836,7 +843,8 @@ def persist_validation(
     return path
 
 
-def record_hollow(proof_path: str, ticket: str, measured: dict, *, trouble_device=None) -> bool:
+def record_hollow(proof_path: str, ticket: str, measured: dict, *, anchor: dict | None = None,
+                  trouble_device=None) -> bool:
     """Land a hollow reading on this proof's STANDING validation as ``evidence.hollow[ticket]``.
 
     Returns True when a record was rewritten, False when there is no standing validation to
@@ -858,6 +866,10 @@ def record_hollow(proof_path: str, ticket: str, measured: dict, *, trouble_devic
     key inside evidence, and hands the same eight fields back to the door. A hollow run's
     proofs execute against reverted code, so nothing it observed about pass-or-fail may be
     sealed as standing — and nothing here is.
+
+    THE ANCHOR RIDES BESIDE THE READING, NEVER INSIDE IT (``evidence.hollow_anchor[ticket]``,
+    ticket 06f0445e7a63), because the PROVED gate reads every non-list value in the reading as
+    an unreadable file.
     """
     trail = read_validations(proof_path)
     if not trail:
@@ -879,5 +891,9 @@ def record_hollow(proof_path: str, ticket: str, measured: dict, *, trouble_devic
                           str(ticket): {str(f): (list(t) if isinstance(t, (list, tuple, set))
                                                  else t)
                                         for f, t in measured.items()}}
+    if anchor is not None:
+        prior = evidence.get("hollow_anchor")
+        evidence["hollow_anchor"] = {**(prior if isinstance(prior, dict) else {}),
+                                     str(ticket): dict(anchor)}
     persist_validation(record, proof_path=proof_path, trouble_device=trouble_device)
     return True

@@ -1,0 +1,94 @@
+[
+  {
+    "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T12:51:18",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "the wiring needs no loop\n  ok   the three faces never import the old loop module\n         -> rc=0 stdout=['ABSENT', 'ERRORS []'] stderr=\n  ok   connect_system's roster lists exactly the deviceness members\n         -> missing=[] extra=[]\n  ok   reach of the heartbeat's own shim answers a request\n         -> body keys=['age_s', 'record', 'reports', 'verdict']\n  ok   loop.py and staleness.py are gone and nothing names them\n         -> still standing=[] grep hits=0 []\n\nGREEN — no private loop, the roster is deviceness, reach answers, the loop is gone.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the three faces never import the old loop module",
+        "connect_system's roster lists exactly the deviceness members",
+        "reach of the heartbeat's own shim answers a request",
+        "loop.py and staleness.py are gone and nothing names them"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "53b1cfff550e76c602b4ba05297ad4b4427fd2782b963f949393803eb0f09839",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/shim.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/cairn/machines/ground_loop/shim.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/deviceness.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py",
+        "cairn/tools/bus_client/roster.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1144199-snwd6g4l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 7,
+          "paths": [
+            "devices/ground_loop/0/last_known.json",
+            "logs/bus/0/20261002.185118.308609.BusDevice.post.json",
+            "logs/bus/0/20261002.185118.335638.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.185118.345100.BusDevice.post.json",
+            "logs/bus/0/20261002.185118.354914.BusDevice.post.json",
+            "logs/bus/0/20261002.185118.356444.BusDevice.delivered.json",
+            "logs/bus/0/20261002.185118.356617.BusDevice.delivered.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 91473246,
+          "disk_bytes": 108687360,
+          "entries": 7124,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

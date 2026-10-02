@@ -769,5 +769,87 @@
     "note": "A piece now names where its output LANDS, and the reason it had to is worth keeping: `uses` cannot be the editable list BY CONSTRUCTION. `uses` names survey HOLDINGS — things the sweep FOUND, which is to say things that exist — and a build piece's whole job is to create what a measured absence says is missing. So the file a build piece writes is excluded from `uses` by definition, and the first live drive (2026-08-17) handed the apprentice venv.py, the file the piece READS, and got driver.py edited instead: a sibling in the same folder, which is why the probe's _inside test is EQUALITY and never a prefix.\n\nTHE SHAPE THAT GENERALISES — a decompose packet has TWO MOUTHS and they take different strictness. The BERTH DOOR (inspect_decompose -> validate_decompose -> write_decompose) judges only the packet being written, so a HARD requirement belongs there: a new packet whose piece carries no `writes_to` is refused, on the same one pass as any other shape lack. The PROMOTION JUDGE (judge_decompose, in the build_inspector's nest) reads the STANDING CORPUS, so the same hard requirement there would retro-red every berth charted before the field existed. Measured at build time: corpus=52, carrying the field=1 (this ticket's own chain), silent=51 — so the judge stays silent about absence and judges only a `writes_to` that IS present (out-of-repo, or naming an existing directory). Full sweep after the build: 271 findings, 0 decompose-sieve, identical to the pre-build baseline. If you are ever tempted to move a door's requirement into a judge, that 51 is the number to remember.\n\nThe second keeper: a `writes_to` path that DOES NOT EXIST YET must pass through as editable, never be reported `skipped`. Skipping it would reproduce this ticket's exact defect at the exact function that fixes it, so the tooth reads the disk first to prove the target is absent, then asserts it lands in `files`. Existence is the wrong question for a field that names a destination.\n\nVerdict artifact: verdict-20260817T170339-fe6c8dc0aa15.json — 5 criteria, all pass; 4 hypotheses, all confirmed. Seals: decompose 1/1, aider_shim 7/7, build_inspector 2/2, all green under netns. The watch is armed and starts at 0 countable rows — the honest reading of an intention whose evidence has not been produced yet.",
     "at": "2026-08-17T17:06:14",
     "seq": 3
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(piece_output_address) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "68f1fc073512",
+    "actor": "CC",
+    "missing": [
+      "[watchme_probe_absent] cairn/devices/aider_shim/probes/writes_to_is_where_it_landed_probe.py — moved to cairn/devices/aider_shim/probes_disabled/ at e50eb534 (2026-08-30, 'aider_shim disabled: encapsulation violation — reaches into inference_domain internals'); the WATCHME has no running probe"
+    ],
+    "why": "693e9f45e6f2: the WATCHME's probe is disabled",
+    "fingerprint": "ec74d48a85f18a6c898996f99cea19023555c97815f0b2f57e79ffb4b83fa2c0",
+    "at": "2026-10-01T22:11:19",
+    "seq": 4
   }
 ]

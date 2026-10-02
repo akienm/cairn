@@ -5103,5 +5103,251 @@
     "fingerprint": "79d34d06f27f77bde185183daa2efee46b82182bb2fca22b4392ba42a2b66a70",
     "at": "2026-10-01T20:07:02",
     "seq": 24
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(aider_shim_edit_survival) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "6d3e689b0bf8",
+    "actor": "CC",
+    "missing": [
+      "[watchme_probe_absent] cairn/devices/aider_shim/probes/edit_survival_probe.py — moved to cairn/devices/aider_shim/probes_disabled/ at e50eb534 (2026-08-30, 'aider_shim disabled: encapsulation violation — reaches into inference_domain internals'); the WATCHME has no running probe"
+    ],
+    "why": "693e9f45e6f2: the WATCHME's probe is disabled",
+    "fingerprint": "2c9c09bb4c645894977554ca837cf8d2e26654281aa956c65f1aec8f7a938dee",
+    "at": "2026-10-01T22:11:19",
+    "seq": 25
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(aider_shim_offload_yield) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "d7b4019d2407",
+    "actor": "CC",
+    "missing": [
+      "[watchme_probe_absent] /home/akien/dev/src/cairn/cairn/devices/aider_shim/probes/offload_yield_probe.py — moved to cairn/devices/aider_shim/probes_disabled/ at e50eb534 (2026-08-30, 'aider_shim disabled: encapsulation violation — reaches into inference_domain internals'); the WATCHME has no running probe"
+    ],
+    "why": "693e9f45e6f2: the WATCHME's probe is disabled",
+    "fingerprint": "da793b4f5a76c19b6ed1b9d4f5ad603b041bf5fdd22ecbd8ee143cca0dbe625c",
+    "at": "2026-10-01T22:11:19",
+    "seq": 26
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(reflection_earns_its_ask) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e9b0a8d4fb99",
+    "actor": "CC",
+    "missing": [
+      "[watchme_probe_absent] cairn/devices/aider_shim/probes/reflection_earns_its_ask.py — moved to cairn/devices/aider_shim/probes_disabled/ at e50eb534 (2026-08-30, 'aider_shim disabled: encapsulation violation — reaches into inference_domain internals'); the WATCHME has no running probe"
+    ],
+    "why": "693e9f45e6f2: the WATCHME's probe is disabled",
+    "fingerprint": "f435599c68ede7ec1044c9b44656b3718cdb401a7ae766649307c816f3c6e648",
+    "at": "2026-10-01T22:11:19",
+    "seq": 27
   }
 ]

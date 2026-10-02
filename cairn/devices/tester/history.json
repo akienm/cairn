@@ -16038,5 +16038,88 @@
     "fingerprint": "b05a0cd195efc5a5125cfc271763dadd5fa503a550850da437501a942e45e865",
     "at": "2026-10-02T17:36:39",
     "seq": 80
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e08c996f939c",
+    "actor": "cc",
+    "why": "hollow reading of efb670ff1dd8 after bce2f865: the anchor is right (1923f254, first-build-commit) but the directory expansion measured 4 files no efb670ff1dd8 commit wrote, all hollow",
+    "missing": [
+      "_expand_dirs expands a writes_to directory to `git diff --name-only <anchor> HEAD -- <dir>`, which includes files OTHER tickets changed after the anchor. Measured 2026-10-02 on efb670ff1dd8's hollow (HEAD f670e2fb, anchor 1923f254): ground_loop/__main__.py and cli.py (59ade57ef280, 89bfb8fb), discovery.py (the 09-30 restatement, 507a15ad) and intention+why.json (56d1aff4455e and others) read HOLLOW although no efb670ff1dd8 commit touched them — the proof blamed for another hand's edit (Law 7). A directory must expand only to the files the ticket's own build commits (those naming the ticket id after the anchor) changed under it; tooth 2's fixture gains an unrelated commit after the build that the reading must not measure."
+    ],
+    "fingerprint": "65c91763c429b4cb6d467b5b437b8b078f2716b4471e0eeaa7d10c3a3d5f6392",
+    "at": "2026-10-02T17:46:58",
+    "seq": 81
   }
 ]

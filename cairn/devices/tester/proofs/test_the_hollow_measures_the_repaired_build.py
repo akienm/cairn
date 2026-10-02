@@ -152,16 +152,22 @@ def test_a_fixme_back_edge_does_not_bound_the_anchor():
 
 
 def test_a_writes_to_directory_is_measured_per_file():
-    """A writes_to entry naming a directory present at HEAD is expanded to the files changed
-    between the anchor and HEAD, and each is measured — never skipped as 'not present'."""
+    """A writes_to entry naming a directory present at HEAD is expanded to the files the
+    ticket's own build commits changed under it, and each is measured — never skipped as 'not
+    present', and never a file another ticket's commit changed after the anchor (FIXME 1,
+    measured on efb670ff1dd8: four files other hands edited read HOLLOW)."""
     repo, commons, berths, c = _fixture([
-        ("commit", "2020-01-01T00:00:00", "c0", {"pkg/subject.py": "VALUE = 1\n"}, False),
+        ("commit", "2020-01-01T00:00:00", "c0",
+         {"pkg/subject.py": "VALUE = 1\n", "pkg/other.py": "O = 0\n"}, False),
         ("cross", "2020-01-01T12:00:00", "TICKETME", "BUILDME", "forward"),
         ("commit", "2020-01-02T00:00:00", "build", {"pkg/subject.py": "VALUE = 2\n"}, True),
+        ("commit", "2020-01-03T00:00:00", "another ticket", {"pkg/other.py": "O = 1\n"}, False),
     ], ["pkg/"])
     f = _measure(repo, commons, berths)
     assert f["measured"].get("pkg/subject.py") == [TOOTH], (f["measured"], f["skipped"])
     assert not any(s["file"].rstrip("/") == "pkg" for s in f["skipped"]), f["skipped"]
+    assert "pkg/other.py" not in f["measured"] and "pkg/other.py" not in f["hollow"], \
+        ("another ticket's edit was measured as this build", f["measured"], f["hollow"])
 
 
 def test_an_unchanged_move_reads_unwritten():

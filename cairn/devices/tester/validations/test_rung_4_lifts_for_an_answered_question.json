@@ -1,41 +1,41 @@
 [
   {
-    "claim": "proof test_reseal_stages_clean_seals.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T03:54:16",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_rung_4_lifts_for_an_answered_question.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T03:54:10",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_seal_over_a_clean_closure_is_staged_with_the_journal\n.\n  ok   test_a_seal_over_an_unstaged_change_is_held_out_of_the_commit\n.\n  ok   test_an_untracked_file_in_the_closure_holds_the_seal\n.\n  ok   test_a_red_seal_over_a_clean_closure_is_staged_too\n.\n  ok   test_only_an_outcome_that_wrote_a_seal_is_staged\n.\n  ok   test_the_hook_passes_stage_and_rechecks_the_artifact_door\n                                                                   [100%]\n6 passed in 0.09s",
+      "stdout_tail": ".\n  ok   test_a_question_akien_answered_lifts_rung_4\n.\n  ok   test_an_open_a_measured_or_an_unknown_question_does_not\n.\n  ok   test_a_confirmed_legacy_ruling_still_lifts_it\n                                                                      [100%]\n3 passed in 0.33s",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_seal_over_a_clean_closure_is_staged_with_the_journal",
-        "test_a_seal_over_an_unstaged_change_is_held_out_of_the_commit",
-        "test_an_untracked_file_in_the_closure_holds_the_seal",
-        "test_a_red_seal_over_a_clean_closure_is_staged_too",
-        "test_only_an_outcome_that_wrote_a_seal_is_staged",
-        "test_the_hook_passes_stage_and_rechecks_the_artifact_door"
+        "test_a_question_akien_answered_lifts_rung_4",
+        "test_an_open_a_measured_or_an_unknown_question_does_not",
+        "test_a_confirmed_legacy_ruling_still_lifts_it"
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "open",
-        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "7891e253eada670da6ea8bfc0bf8738954c03bd7279ae63de071a30ebc488c69",
+      "source_fingerprint": "9c0372a76945447555e76de889af0c16899632292f1bccfe508f23d588d20760",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/proofs/test_reseal_stages_clean_seals.py",
+        "cairn/devices/tester/proofs/test_rung_4_lifts_for_an_answered_question.py",
         "cairn/devices/tester/reseal.py",
         "cairn/devices/tester/scratch_sweep.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/ruling/__init__.py",
+        "cairn/machines/ruling/ruling.py",
         "cairn/tools/__init__.py",
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -47,8 +47,14 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/cgroup/__init__.py",
         "cairn/tools/cgroup/cgroup.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/question/__init__.py",
+        "cairn/tools/question/question.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
@@ -58,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-886784-lzy9u9dq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-886719-z3em2s_p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,7 +77,7 @@
           "disk_bytes": 168312832,
           "entries": 8454,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       }
     },

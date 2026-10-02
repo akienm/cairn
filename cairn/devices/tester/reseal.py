@@ -178,8 +178,16 @@ def read_ladder(proof_path) -> dict | None:
     return ladder if isinstance(ladder, dict) else None
 
 
-def ruling_refusal(ruling_id: str) -> str | None:
-    """``None`` if ``ruling_id`` names a CONFIRMED ruling; else the sentence saying why not.
+def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str | None:
+    """``None`` if ``ruling_id`` names Akien's decision; else the sentence saying why not.
+
+    Two stores, one per era. An ``open-`` id is a question (ticket 9adc6fddf185: since
+    2026-09-14 a decision IS an answered question), read through the question tool's declared
+    interface, and it lifts rung 4 only when resolved with ``answered_by`` in his name — an
+    answer by measurement settles what IS, and a proof's claim changing is what SHOULD BE,
+    which is his (Law 9). Any other id is a legacy ruling in the frozen decisions/ store,
+    which must be CONFIRMED (ticket 37ddc47686c2). ``question_root`` points the question read
+    at a scratch store for a proof; ``None`` is the live one.
 
     Imported lazily and read-only. The ruling store is Akien's record and this door only
     ever asks it a question — rung 4 is his, and a door that could write there would be CC
@@ -192,6 +200,20 @@ def ruling_refusal(ruling_id: str) -> str | None:
 
     if not (ruling_id or "").strip():
         return "no ruling id was given"
+    if ruling_id.startswith("open-"):
+        from cairn.tools.question import question as question_mod
+        try:
+            record = question_mod.read(ruling_id, root=question_root)
+        except question_mod.Refused:
+            return (f"no question {ruling_id!r} exists — rung 4 is Akien's, and an id that "
+                    f"resolves to nothing is a paragraph wearing an id")
+        if not record.get("resolved"):
+            return f"question {ruling_id!r} is still open — rung 4 waits on his answer"
+        if not str(record.get("answered_by") or "").startswith("Akien"):
+            return (f"question {ruling_id!r} was answered by {record.get('answered_by')!r}, "
+                    f"not by Akien — a proof's claim changing is a spec change, and the spec "
+                    f"is his")
+        return None
     for record in ruling_mod.load_all():
         if record.get("id") != ruling_id:
             continue

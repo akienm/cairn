@@ -326,7 +326,10 @@ def _announce_seals(tester, sealed_green: list) -> None:
         # knocks on has to be wired wherever the handler ends up running. So this names
         # both — the receiver and the door it will use — which is what the message actually
         # costs. It is still one exchange and no heartbeat: two shims pulsed, ~0.5s.
-        bus = reach("codemother", "harbor_master")
+        # AND THE TESTER ITSELF (ticket cff5a197b3c4): codemother answers every seal with a
+        # "sealed reply" to the sender, and only a wired tester shim takes it. Unwired, each
+        # reply flushed to the store undelivered forever — 633 stood on 2026-10-02.
+        bus = reach("codemother", "harbor_master", "tester")
         for proof, record in sealed_green:
             evidence = record.get("evidence") or {}
             bus.post(

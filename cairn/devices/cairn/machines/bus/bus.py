@@ -252,19 +252,35 @@ class BusDevice(BaseDevice):
         held tool by address, or a held tool by bare name) that carries an instanceizer, load
         its DataRecorder and write the envelope. Returns True if delivered, False if nothing
         on disk answers to the name."""
-        if addressee in self._folder_recorders:
-            recorder = self._folder_recorders[addressee]
-        else:
+        # ONLY A LOADED RECORDER IS CACHED (ticket cff5a197b3c4). A cached None outlived the
+        # folder gaining its instanceizer, so the press_office WATCHME and a charter envelope
+        # stood undelivered from 2026-09-30 although both names resolved two days later.
+        recorder = self._folder_recorders.get(addressee)
+        fresh = recorder is None
+        if fresh:
             try:
                 from cairn.tools.instanceizer.instanceizer import load
                 fp = self._instance_folder(addressee)
                 recorder = load(fp) if fp is not None else None
-                self._folder_recorders[addressee] = recorder
             except (FileNotFoundError, Exception):
-                self._folder_recorders[addressee] = None
                 return False
-        if recorder is None:
+            if recorder is None:
+                return False
+            self._folder_recorders[addressee] = recorder
+        if not self._folder_write(recorder, addressee, envelope):
             return False
+        if fresh:
+            # WHAT STOOD BEFORE THE FOLDER ANSWERED lands now, once per bus life: nothing
+            # else ever re-offers a stored envelope to a folder, which has no shim to drain.
+            for standing in self.undelivered(to=addressee, limit=10000):
+                if standing["id"] != envelope["id"]:
+                    self._folder_write(recorder, addressee, standing)
+        return True
+
+    def _folder_write(self, recorder, addressee: str, envelope: dict) -> bool:
+        """Write one envelope into a folder's recorder and RECEIPT it. A bare
+        ``_ring_delivered`` mark is cleared by ``flush()``, after which the envelope read
+        undelivered from the store again — the receipt is what makes the taking durable."""
         try:
             recorder.write({
                 "finding": envelope.get("why", "bus message received"),
@@ -274,16 +290,13 @@ class BusDevice(BaseDevice):
                 "verb": envelope.get("verb", ""),
                 "body": envelope.get("body", {}),
             })
-            self._ring_delivered.add(envelope["id"])
-            self._delivered += 1
-            self.emit("delivered", pointer=envelope["id"],
-                      values={"addressee": addressee, "by": "folder_instanceizer"})
-            return True
         except Exception as exc:  # noqa: BLE001
             self.emit("delivery_failed", pointer=envelope["id"], values={
                 "addressee": addressee, "error": f"{type(exc).__name__}: {exc}",
             })
             return False
+        self.record_delivery(envelope["id"], to=addressee, by="folder_instanceizer")
+        return True
 
     def list(self) -> dict:
         """Enumerate registered devices and their per-channel toggle standing."""

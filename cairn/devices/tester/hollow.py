@@ -90,6 +90,7 @@ from pathlib import Path
 
 from cairn.tools.scratch.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
+from cairn.tools.validation_store.validation_store import SEALED, standing_seal
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
 from cairn.tools.base.crossings import crossings_for
@@ -525,6 +526,29 @@ def _restore(worktree: Path, rel: str) -> None:
             f"against a tree still carrying the last reversion, so the run stops here.")
 
 
+def seal_isolation(proof: Path) -> str:
+    """The isolation a proof is MEASURED at: ``netns`` when its standing seal reads ``sealed``,
+    ``none`` otherwise (an open seal, no seal, no validation at all, or one that will not parse).
+
+    WHY THE HOLLOW NEEDS THIS AND A PLAIN RUN DOES NOT (ticket 054bcbe02f12). Measured
+    2026-10-02 on c54d744aa9ac: the hollow ran every proof at ``none``, which still binds the
+    instance seal, and ``test_a_seal_inside_a_seal_inherits.py`` cuts a network seal of its
+    own — inside an instance-only sandbox that is a namespace inside a namespace, which this
+    host refuses. So two teeth sealed green under netns read red AT HEAD and the hollow could
+    attribute nothing. Measuring at the depth the seal was taken is what makes the HEAD run the
+    same run the seal is a claim about.
+
+    ``proof`` is the LIVE repo's path, never the worktree's: a validation the worktree's HEAD
+    does not carry yet is still the standing one. Only ``sealed`` maps to ``netns`` — the
+    ticket's falsifier (2) names exactly that reading, and ``indeterminate``/``breached`` are
+    seals that did not hold, so reproducing them inside a namespace measures nothing extra.
+    """
+    try:
+        return "netns" if standing_seal(str(proof)) == SEALED else "none"
+    except (OSError, ValueError, TypeError, AttributeError, IndexError, KeyError):
+        return "none"
+
+
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
             berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
     """Revert this ticket's build file by file and report which declared teeth each one reds.
@@ -590,6 +614,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                           capture_output=True, text=True, env=git_env()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
+    depth = {rel: seal_isolation(repo_root / rel) for rel in proofs}
     log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} ({anchor['anchor_rule']}; BUILDME at {at})")
 
     def run_all() -> tuple[dict[str, set[str]], dict[str, int], dict[str, str]]:
@@ -618,7 +643,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                 continue
             _purge_bytecode(wt)
             record = tester.run_proof(path, sink="none", caller="cairn test --hollow",
-                                      timeout=timeout, isolation="none")
+                                      timeout=timeout, isolation=depth[rel])
             ev = record["evidence"]
             green[rel] = set(ev.get("teeth_green") or [])
             ran[rel] = len(green[rel]) + len(ev.get("teeth_red") or [])
@@ -774,6 +799,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
 
     return {"ticket": tid, "commit": commit, "buildme_at": at, "worktree": str(wt),
             "proofs": proofs, "declared": declared_teeth, "silent_proofs": silent,
+            "isolation": depth,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
             "unchanged": unchanged, "moved": moved,

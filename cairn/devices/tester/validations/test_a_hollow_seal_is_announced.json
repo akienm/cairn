@@ -1,21 +1,20 @@
 [
   {
     "claim": "proof test_a_hollow_seal_is_announced.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T13:58:34",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T15:19:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  green a_hollow_seal_on_a_green_proof_is_announced_once\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nNOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the reading as evidence.hollow on the proofs' standing validations.\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 0 of 1 standing validation(s) through the store's door.\n  green a_diagnostic_or_empty_hollow_run_announces_nothing\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  (the 1 green seal(s) landed, but codemother could not be told: ConnectionError: testing: codemother is not wired on this bus — the seals stand; the crossings they would have fired did not)\n  green an_unwired_codemother_costs_the_evidence_nothing\n3 passed, 0 failed out of 3",
+      "returncode": 1,
+      "stdout_tail": "  RED   a_hollow_seal_on_a_green_proof_is_announced_once: KeyError: 'isolation'\n  RED   a_diagnostic_or_empty_hollow_run_announces_nothing: KeyError: 'isolation'\n  RED   an_unwired_codemother_costs_the_evidence_nothing: KeyError: 'isolation'\n0 passed, 3 failed out of 3",
       "stderr_tail": "",
-      "teeth_green": [
-        "a/file.py (fixture)",
-        "a_hollow_seal_on_a_green_proof_is_announced_once",
-        "a_diagnostic_or_empty_hollow_run_announces_nothing",
-        "an_unwired_codemother_costs_the_evidence_nothing"
+      "teeth_green": [],
+      "teeth_red": [
+        "a_hollow_seal_on_a_green_proof_is_announced_once: KeyError: 'isolation'",
+        "a_diagnostic_or_empty_hollow_run_announces_nothing: KeyError: 'isolation'",
+        "an_unwired_codemother_costs_the_evidence_nothing: KeyError: 'isolation'"
       ],
-      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -24,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f58229ff5571b100da58536d9878fd7f8badf584c94405c80c403815d149ae14",
+      "source_fingerprint": "2023772a6b39b060e01e132eeeb6c98fdafe374ce16adcce20cc0b3517185fdc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -73,8 +72,6 @@
         "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/proof_coverage/__init__.py",
@@ -90,27 +87,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1184325-s0l0sj9v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1233028-n747r32d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 2,
           "paths": [
-            "logs/bus/0/20261002.195834.152805.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.195834.178145.BusDevice.post.json",
-            "logs/bus/0/20261002.195834.277664.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.195834.432810.BusDevice.transit_table_ensured.json",
-            "logs/tester/0/20261002.195834.460996.TesterDevice.sealed_announce_failed.json"
+            "logs/bus/0/20261002.211925.470026.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.211925.563761.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91749917,
-          "disk_bytes": 109223936,
-          "entries": 7216,
+          "bytes": 93084481,
+          "disk_bytes": 110751744,
+          "entries": 7297,
           "builds": 1,
-          "reuses": 2
+          "reuses": 1
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "1f073e200dc5c403c09f782f3aa1afe9e876830403750d3edb8db3cad6b367e8",
+        "opened": "2026-10-02T15:19:26",
+        "last_red": "2026-10-02T15:19:26",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

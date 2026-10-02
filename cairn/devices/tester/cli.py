@@ -114,6 +114,8 @@ def _hollow_run(args) -> int:
         print(f"cairn test --hollow: {why}", file=sys.stderr)
         return 2
 
+    for rel, depth in finding["isolation"].items():
+        print(f"  isolation: {rel} {depth}")
     for line in finding["reasons"]:
         print(f"  {line}")
     n_meas, n_skip = len(finding["measured"]), len(finding["skipped"])

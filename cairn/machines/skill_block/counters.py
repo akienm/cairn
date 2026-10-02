@@ -167,7 +167,7 @@ def _read_tree_nodes(spec: dict, *, connect=None, **_) -> dict:
     """
     kind = spec["provenance_kind"]
     try:
-        from cairn.devices.db_domain import store as _store
+        from cairn.devices.db_domain.tools.client import store as _store
         opener = connect or _store.connect
         with opener() as conn:
             cur = conn.cursor()

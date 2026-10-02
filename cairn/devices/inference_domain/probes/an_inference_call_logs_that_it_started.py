@@ -143,7 +143,7 @@ def survey_the_corpus() -> dict:
     raises rather than reporting a clean zero, because a silent 0/0 reads as both "no finding"
     and "not yet enough".
     """
-    from cairn.devices.db_domain import store            # late: imports clean without a DB
+    from cairn.devices.db_domain.tools.client import store            # late: imports clean without a DB
     from cairn.devices.inference_domain import domain
     from cairn.tools.base.breadcrumb_log import LogUnreadable
 

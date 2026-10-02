@@ -46,8 +46,8 @@ from cairn.machines.build_inspector.nexus import (
     propose_sieve,
 )
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 from cairn.devices.librarian import trees
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not

@@ -51,7 +51,7 @@ def _proved_at() -> datetime | None:
 
 
 def survey() -> dict:
-    from cairn.devices.db_domain import store
+    from cairn.devices.db_domain.tools.client import store
     conn = store.connect()
     try:
         with conn.cursor() as cur:

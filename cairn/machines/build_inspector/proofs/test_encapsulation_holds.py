@@ -234,6 +234,11 @@ def the_live_into_device_findings_equal_an_independent_census():
             continue
         dev = re.match(r"cairn/devices/[^/]+", tgt)
         if dev and not (src == dev.group(0) or src.startswith(dev.group(0) + "/")):
+            # A tool the device publishes (RULE 1: bus + published client tools) is not an
+            # into-device reach; whether the module is declared is the 'undeclared' question.
+            if tgt != dev.group(0) and json.loads((Path(root) / tgt / "intention+why.json")
+                                                  .read_text()).get("published_by_device") is True:
+                continue
             census.add((f, site["line"], tgt))
     found = {(b["file"], b["line"], b["target"]) for b in _inspector.encapsulation_breaches(root)
              if b["reason"] == "into_device"}

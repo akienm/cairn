@@ -2,12 +2,12 @@
   {
     "claim": "proof test_inference_rides_the_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T20:10:15",
+    "date": "2026-10-02T00:35:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inference_domain\n.\n  ok   test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inference_domain_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                    [100%]\n5 passed in 7.06s",
+      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inference_domain\n.\n  ok   test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inference_domain_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                    [100%]\n5 passed in 7.26s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_source_outside_the_owner_imports_inference_domain",
@@ -25,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "93516c24e84c7d752ab2e3743cb5478904bcb250350dcb7f94c8425d43f3f9b1",
+      "source_fingerprint": "a403b613a7989b1f8ab2befead988b3cb38f7cc65fcd2512a098a9147cb2b242",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -46,7 +46,9 @@
         "cairn/devices/cairn/machines/ground_loop/loop.py",
         "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/store.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/device.py",
         "cairn/devices/inference_domain/domain.py",
@@ -77,34 +79,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-664040-38gt5cq6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-784693-eslpe7ex/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
           "paths": [
             "devices/inference_domain/0/last_known.json",
-            "logs/bus/0/20261002.021011.585083.BusDevice.post.json",
-            "logs/bus/0/20261002.021011.610141.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.021011.620252.BusDevice.post.json",
-            "logs/bus/0/20261002.021011.631708.BusDevice.post.json",
-            "logs/bus/0/20261002.021011.632745.BusDevice.delivered.json",
-            "logs/bus/0/20261002.021015.051269.BusDevice.post.json",
-            "logs/bus/0/20261002.021015.081249.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.021015.093450.BusDevice.post.json",
-            "logs/bus/0/20261002.021015.106178.BusDevice.post.json",
-            "logs/bus/0/20261002.021015.106858.BusDevice.delivered.json",
-            "logs/ground_loop/0/20261002.021008.597831.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021008.598635.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021012.118452.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021012.118843.GroundLoopDevice.subscribe.json"
+            "logs/bus/0/20261002.063526.142877.BusDevice.post.json",
+            "logs/bus/0/20261002.063526.174728.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.063526.186326.BusDevice.post.json",
+            "logs/bus/0/20261002.063526.199200.BusDevice.post.json",
+            "logs/bus/0/20261002.063526.200747.BusDevice.delivered.json",
+            "logs/bus/0/20261002.063529.704442.BusDevice.post.json",
+            "logs/bus/0/20261002.063529.729469.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.063529.739601.BusDevice.post.json",
+            "logs/bus/0/20261002.063529.749978.BusDevice.post.json",
+            "logs/bus/0/20261002.063529.750625.BusDevice.delivered.json",
+            "logs/ground_loop/0/20261002.063523.021452.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.063523.022316.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.063526.684895.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.063526.685249.GroundLoopDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 259658409,
-          "disk_bytes": 277508096,
-          "entries": 7529,
+          "bytes": 140059468,
+          "disk_bytes": 159465472,
+          "entries": 8096,
           "builds": 1,
           "reuses": 11
         }

@@ -26,7 +26,7 @@ from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.probe import Probe  # noqa: E402
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
+from cairn.devices.db_domain.tools.client import store  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this proof mints rides store.scratch(): dropped at close, swept by pid if not
 

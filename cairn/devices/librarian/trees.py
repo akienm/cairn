@@ -35,7 +35,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
 from cairn.tools.base.device import BaseDevice
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 
 NODES_TABLE = "cairn_nodes"
 EMBEDDINGS_TABLE = "cairn_embeddings"

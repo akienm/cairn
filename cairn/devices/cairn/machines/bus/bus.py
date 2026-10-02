@@ -63,7 +63,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from cairn.tools.base.device import BaseDevice
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 
 # The channels every device has, each classified by Law 7. RECORD channels are records of
 # truth (never collapse, never expire); DIAGNOSTIC channels may collapse in a view. The

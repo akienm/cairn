@@ -45,8 +45,8 @@ ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from cairn.devices.db_domain import store  # noqa: E402
-from cairn.devices.db_domain.store import OwnershipError  # noqa: E402
+from cairn.devices.db_domain.tools.client import store  # noqa: E402
+from cairn.devices.db_domain.tools.client.store import OwnershipError  # noqa: E402
 
 PROVES = {"201a37bf1613": {
     "1": "test_a_seal_sweeps_first_and_says_so",

@@ -35,8 +35,8 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.devices.cairn.machines.bus.bus import BusDevice, ChannelError
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 
 _SCRATCH = contextlib.ExitStack()   # the one transit table this proof owns rides store.scratch()
 _HELD: list[BusDevice] = []

@@ -51,7 +51,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.inference_domain import domain
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query

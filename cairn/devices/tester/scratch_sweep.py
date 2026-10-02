@@ -21,7 +21,7 @@ def sweep() -> dict:
     be reached — a stated failure, because a seal that says 'swept 0' over a store it never
     opened would be the hollow green Law 8 forbids."""
     try:
-        from cairn.devices.db_domain import store
+        from cairn.devices.db_domain.tools.client import store
         tables: list[str] = []
         n = store.sweep_scratch(report=tables)
         return {"dropped": n, "tables": tables}

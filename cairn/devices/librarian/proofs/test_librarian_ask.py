@@ -119,7 +119,7 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
     from cairn.tools.artifact import artifact as A
     from cairn.devices.librarian.trees import (LibrarianDevice, NODES_TABLE, forget_leaf,
                                                node_id_for, refute, scratch_leaf)
-    from cairn.devices.db_domain import store
+    from cairn.devices.db_domain.tools.client import store
     from cairn.machines.learning_block.engine import answers_five_questions
     from cairn.devices.librarian import ask as ASK
     from cairn.tools.question import question as Q

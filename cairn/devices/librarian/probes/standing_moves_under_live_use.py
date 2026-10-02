@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, once
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.trees import NODES, NODES_TABLE
 

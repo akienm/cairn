@@ -2,7 +2,7 @@
   {
     "claim": "proof test_deviceness.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T23:58:41",
+    "date": "2026-10-02T00:41:37",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "92b1262daa3033c4af46620a7841d486b21f9540d24b8d09a60c1c1187c8339a",
+      "source_fingerprint": "2d537012cd80cc86891ac24eeb876d8627715148d0b67b4dd438b1b2ac8a9ea5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,7 +50,9 @@
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/verdict.py",
         "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/store.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
         "cairn/devices/librarian/__init__.py",
@@ -122,20 +124,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766681-b5ekk2gi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-784693-jl95ruw0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 139017315,
-          "disk_bytes": 158265344,
-          "entries": 8020,
+          "bytes": 140056560,
+          "disk_bytes": 159412224,
+          "entries": 8079,
           "builds": 1,
-          "reuses": 27
+          "reuses": 67
         }
       }
     },

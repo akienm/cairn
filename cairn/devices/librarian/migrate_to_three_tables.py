@@ -6,7 +6,7 @@ node+embedding into the shared tables, then rebuilds each as a leaf table.
 Safe to re-run: idempotent on all three tables (PK-based dedup).
 """
 import sys
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.trees import (
     NODES_TABLE, EMBEDDINGS_TABLE, OWNER,
     _NODE_COLUMNS, _EMBEDDING_COLUMNS, _LEAF_COLUMNS,

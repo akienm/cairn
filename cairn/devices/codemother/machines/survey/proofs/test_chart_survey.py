@@ -52,7 +52,7 @@ from cairn.devices.codemother.machines.survey.survey import (
 )
 from cairn.tools.chain.grammar import component_of, component_roster
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 

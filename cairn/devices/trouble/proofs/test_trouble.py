@@ -561,15 +561,14 @@ def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
     # 2026-10-02, ticket 56d1aff4455e: device_isolation_holds retired into the one
     # encapsulation_holds sieve, so the same question is asked of its breach list — a
     # device's own code (proofs and proofs_disabled aside, as before) landing in another
-    # device. db_domain stays exempt exactly as the retired sieve had it, until ticket
-    # 4cbf6e28126e moves every caller onto its published client and drops the exemption.
+    # device. The retired sieve exempted db_domain; ticket 4cbf6e28126e moved every caller
+    # onto db_domain's published client tool, which the breach list admits, so no exemption.
     def _dev(c):
         return c.split("/")[2] if c.startswith("cairn/devices/") else None
 
     findings = [b for b in encapsulation_breaches(str(_REPO_ROOT))
                 if _dev(b["source"]) and _dev(b["target"])
                 and _dev(b["source"]) != _dev(b["target"])
-                and _dev(b["target"]) != "db_domain"
                 and "/proofs/" not in b["file"] and "/proofs_disabled/" not in b["file"]]
     assert findings == [], (
         "a device imports another device — the seam this ticket closed has re-opened: "

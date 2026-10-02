@@ -1,6 +1,6 @@
 """Watchme probe: the constraint door is the only ALTER.
 
-Sweeps the tree for schema-changing SQL outside db_domain/store.py — ALTER TABLE,
+Sweeps the tree for schema-changing SQL outside db_domain/tools/client/store.py — ALTER TABLE,
 ADD CONSTRAINT, DROP CONSTRAINT in any module, and psql invocations in scripts.
 The same shape of sweep import_sieve runs for the inference host: a grep of the
 codebase, not a runtime check.
@@ -21,7 +21,7 @@ from pathlib import Path
 from cairn.tools.base.probe import Probe, owning_ticket
 
 REPO = Path(__file__).resolve().parents[4]
-STORE = Path("cairn/devices/db_domain/store.py")
+STORE = Path("cairn/devices/db_domain/tools/client/store.py")
 
 SCHEMA_CHANGE_PATTERNS = [
     r"\bALTER\s+TABLE\b",

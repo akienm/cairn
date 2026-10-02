@@ -84,7 +84,7 @@ def judge(rows: list[dict], meter: dict) -> dict:
 
 def survey_the_corpus() -> dict:
     """The live read — the store and the meter through their own doors."""
-    from cairn.devices.db_domain import store
+    from cairn.devices.db_domain.tools.client import store
     from cairn.devices.inference_domain.domain import yield_report
     rows = store.read("inference_calls")
     meter = yield_report()

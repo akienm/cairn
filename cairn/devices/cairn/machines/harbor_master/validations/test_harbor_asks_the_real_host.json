@@ -2,7 +2,7 @@
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T21:18:15",
+    "date": "2026-10-02T00:36:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a7b8d996d74cd0c96f4c7738a1b41d4548b8b5773a161908841d32576d238e32",
+      "source_fingerprint": "b77cf955b5f016fc16a14b7aae3a8cfa84f494b70c17335c30ae510a45f0a360",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -38,7 +38,9 @@
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py",
         "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/store.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/system_rackmount/__init__.py",
         "cairn/devices/system_rackmount/rackmount.py",
         "cairn/devices/tester/__init__.py",
@@ -78,24 +80,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-706704-4oftcnxk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-784693-mq7zifk3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20261002.031815.364807.BusDevice.post.json",
-            "logs/charter/0/20261002.031815.345574.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20261002.031815.330741.TesterDevice.run_proof.json"
+            "logs/bus/0/20261002.063615.713676.BusDevice.post.json",
+            "logs/charter/0/20261002.063615.694315.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20261002.063615.680576.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132647452,
-          "disk_bytes": 150953984,
-          "entries": 7694,
+          "bytes": 140057309,
+          "disk_bytes": 159420416,
+          "entries": 8087,
           "builds": 1,
-          "reuses": 0
+          "reuses": 17
         }
       }
     },

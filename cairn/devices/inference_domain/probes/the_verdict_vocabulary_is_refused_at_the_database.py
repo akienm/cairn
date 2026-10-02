@@ -32,7 +32,7 @@ _OWNING_TICKET = "the-verdict-vocabulary-is-held-by-postgres"
 
 def survey_the_corpus() -> dict:
     """The live read — the store through its one door."""
-    from cairn.devices.db_domain import store
+    from cairn.devices.db_domain.tools.client import store
 
     conn = store.connect()
     try:

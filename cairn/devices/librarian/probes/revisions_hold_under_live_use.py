@@ -58,7 +58,7 @@ import json
 from datetime import datetime, timezone
 
 from cairn.tools.base.probe import Probe, owning_ticket, once
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.trees import NODES
 
 _OWNING_TICKET = "revision-with-receipts"

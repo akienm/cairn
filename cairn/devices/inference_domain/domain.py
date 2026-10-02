@@ -86,7 +86,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.tools.base import address
 from cairn.tools.base.diagnostic import DiagnosticBase
 

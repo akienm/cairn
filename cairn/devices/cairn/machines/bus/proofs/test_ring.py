@@ -33,7 +33,7 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
+from cairn.devices.db_domain.tools.client import store  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not

@@ -37,7 +37,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import library
 from cairn.devices.librarian.library import (
     LearnRefused, ShelfRefused, learn, passages, shelf_entry, shelve,

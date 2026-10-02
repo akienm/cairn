@@ -53,7 +53,7 @@ from cairn.devices.codemother.machines.hypothesize.hypothesize import (
     hypothesize_node_content, validate_hypothesize, write_hypothesize,
 )
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import trees
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 

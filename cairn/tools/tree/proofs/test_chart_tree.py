@@ -51,8 +51,8 @@ from cairn.devices.codemother.machines.orient.orient import (OrientRefused, depo
 from cairn.tools.tree.tree import (
     TreeRefused, counsel, deposit_learning, nexus_table, scratch_nexus,
 )
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.loop import RESOLUTION_FLOOR
 

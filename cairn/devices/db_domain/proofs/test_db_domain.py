@@ -34,8 +34,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 
 # A per-run marker so parallel/re-runs never collide and cleanup is exact.
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name

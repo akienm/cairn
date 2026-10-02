@@ -43,7 +43,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.devices.db_domain import store  # noqa: E402
+from cairn.devices.db_domain.tools.client import store  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.loop import GroundLoopDevice  # noqa: E402
 

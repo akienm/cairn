@@ -27,7 +27,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.trees import (
     EMBEDDINGS_TABLE, LINKS_TABLE, NODES_TABLE, OWNER,
     _LEAF_COLUMNS, _LINK_COLUMNS,

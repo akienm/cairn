@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cc_device.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T23:56:50",
+    "date": "2026-10-02T00:36:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_charter_is_valid_json_with_required_fields\n.\n  ok   test_the_shim_inherits_baseshim_and_device_id_is_cc\n.\n  ok   test_the_shim_probes_return_a_list\n.\n  ok   test_discover_finds_cc_with_zero_failures\n.\n  ok   test_deliver_routes_through_the_shim\n.\n  ok   test_the_probe_module_declares_a_probe\n                                                                   [100%]\n6 passed in 0.11s",
+      "stdout_tail": ".\n  ok   test_the_charter_is_valid_json_with_required_fields\n.\n  ok   test_the_shim_inherits_baseshim_and_device_id_is_cc\n.\n  ok   test_the_shim_probes_return_a_list\n.\n  ok   test_discover_finds_cc_with_zero_failures\n.\n  ok   test_deliver_routes_through_the_shim\n.\n  ok   test_the_probe_module_declares_a_probe\n                                                                   [100%]\n6 passed in 0.12s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_charter_is_valid_json_with_required_fields",
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0490fe11eb15398d34496dc6365a2f4cbe47e39423f4b6b6bee0dc7587a94b89",
+      "source_fingerprint": "abd327e3b8ed95cdd73c7473fbbdeaef04d17a85ddd4448ebc942a30f2836e1a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -52,7 +52,9 @@
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/verdict.py",
         "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/store.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
         "cairn/devices/librarian/__init__.py",
@@ -121,7 +123,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766681-xfk9644g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-784693-vd64z3na/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -130,11 +132,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 139017315,
-          "disk_bytes": 158265344,
-          "entries": 8020,
+          "bytes": 140055964,
+          "disk_bytes": 159408128,
+          "entries": 8078,
           "builds": 1,
-          "reuses": 1
+          "reuses": 19
         }
       }
     },

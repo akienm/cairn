@@ -43,7 +43,7 @@ if str(_REPO_ROOT) not in sys.path:
 from skills.moreabout import moreabout as moreabout_mod
 from skills.moreabout.moreabout import MoreaboutRefused, expand, signal
 from cairn.tools.tree.tree import deposit_learning, nexus_table
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.loop import RESOLUTION_FLOOR
 

@@ -29,7 +29,7 @@ import sys
 
 from psycopg2 import sql
 
-from cairn.devices.db_domain import store
+from cairn.devices.db_domain.tools.client import store
 
 LIVE = frozenset({
     "cairn_owned", "cairn_scratch", "inference_calls",

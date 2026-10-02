@@ -142,10 +142,10 @@ def judge_rows(rows: list[dict]) -> dict:
 
 
 def survey_the_corpus() -> dict:
-    """The live read, THROUGH the one door (db_domain.store). A DB this probe cannot reach
+    """The live read, THROUGH the one door (db_domain.tools.client.store). A DB this probe cannot reach
     raises rather than reporting a clean zero — a silent 0/0 would read as both 'no finding'
     and 'not yet enough', which is the quiet the watch exists to end."""
-    from cairn.devices.db_domain import store  # late: the probe module imports clean without a DB
+    from cairn.devices.db_domain.tools.client import store  # late: the probe module imports clean without a DB
     return judge_rows(store.read("inference_calls"))
 
 

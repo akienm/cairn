@@ -41,8 +41,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 from cairn.devices.inference_domain import domain, host
 
 # Ephemeral table + a per-run tag on every canonical, so cleanup is exact and re-runs never collide.

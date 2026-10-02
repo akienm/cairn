@@ -45,8 +45,8 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base.device import BaseDevice
-from cairn.devices.db_domain import store
-from cairn.devices.db_domain.store import OwnershipError
+from cairn.devices.db_domain.tools.client import store
+from cairn.devices.db_domain.tools.client.store import OwnershipError
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import (
     DepositRefused, LibrarianDevice, WalkRefused, consolidate, deposit, linked,

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_heartbeat.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-30T14:47:51",
+    "caller": "cairn test",
+    "date": "2026-10-01T20:38:33",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=213998 vs 213998\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  RED  the charter describes only the heartbeat\n         -> stale=[]\n\nRED — 1 failure(s):\n  - the charter describes only the heartbeat: stale=[]",
+      "returncode": 0,
+      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=686845 vs 686845\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -31,11 +31,10 @@
         "COMMAND_EXIT stops the loop cleanly",
         "the flag menu is laid out in flags/",
         "the runner reaches no bus, no probe discovery, no bytecode staleness",
-        "the loop carries no probes of its own"
-      ],
-      "teeth_red": [
+        "the loop carries no probes of its own",
         "the charter describes only the heartbeat"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -61,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-212345-z_k_mpz1/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-686821-94u67_u1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,21 +69,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 245743699,
-          "disk_bytes": 261857280,
-          "entries": 6782,
+          "bytes": 130561939,
+          "disk_bytes": 148594688,
+          "entries": 7581,
           "builds": 1,
-          "reuses": 16
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "8b3c575fab595da0a2b6d45bd2528b2650ea14d42fdb3344c6c65c4ec8a39cd4",
-        "opened": "2026-09-30T14:47:51",
-        "last_red": "2026-09-30T14:47:51",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

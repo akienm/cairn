@@ -1,0 +1,59 @@
+[
+  {
+    "claim": "proof test_every_built_probe_spec_names_a_file.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-01T22:11:50",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_no_proved_ticket_names_a_missing_probe\n.\n  ok   test_a_ticket_sent_back_for_an_absent_probe_names_it\n.\n  ok   test_the_census_reds_a_missing_probe\n                                                                      [100%]\n3 passed in 0.09s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_no_proved_ticket_names_a_missing_probe",
+        "test_a_ticket_sent_back_for_an_absent_probe_names_it",
+        "test_the_census_reds_a_missing_probe"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "7126c41d0956c313b4df586a50177a52142a392329c72249821e32c6aac0c9ed",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/proofs/test_every_built_probe_spec_names_a_file.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-729708-ag716rc3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 137237398,
+          "disk_bytes": 156225536,
+          "entries": 7918,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

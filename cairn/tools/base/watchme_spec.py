@@ -293,6 +293,27 @@ def armed_error(spec: dict, *, root: Path | str = _REPO_ROOT) -> str | None:
     return None
 
 
+def absent_probes(ticket: dict, *, root: Path | str = _REPO_ROOT) -> list[str]:
+    """Every probe path this ticket's WATCHME specs name that is not on disk, in spec order.
+
+    The corpus-wide face of the check ``armed_error`` makes at one crossing (ticket
+    693e9f45e6f2): a probe that moved, was deleted, or was parked after its ticket proved
+    leaves a spec naming nothing, and the ticket keeps reading as watched (Law 7). Only
+    existence is asked here — loading every berth across the corpus is the crossing's job,
+    not a census's. A path is taken before any ``::`` qualifier, and resolves against
+    ``root`` or, failing that, as written (``~`` expanded) for the absolute ones."""
+    declared = ticket.get("watchme")
+    specs = declared if isinstance(declared, list) else [declared]
+    out = []
+    for spec in specs:
+        if not (isinstance(spec, dict) and spec.get(BERTH_FIELD)):
+            continue
+        probe = str(spec[BERTH_FIELD]).split("::")[0].strip()
+        if not (Path(root) / probe).exists() and not Path(probe).expanduser().exists():
+            out.append(probe)
+    return out
+
+
 def require_watchme_spec(ticket: dict) -> None:
     """The refusing face, for a caller that wants the raise rather than the text."""
     err = watchme_spec_error(ticket)

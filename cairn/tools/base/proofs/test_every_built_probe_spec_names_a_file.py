@@ -32,23 +32,29 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+class _Late:
+    """The build's names resolve AT CALL TIME, so `cairn test --hollow` reverting
+    watchme_spec.py reads as red teeth rather than an import that never ran."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        import importlib
+        return getattr(importlib.import_module(self._module), name)
+
+
+_spec = _Late("cairn.tools.base.watchme_spec")
+
 PROVES = {"693e9f45e6f2": {"1": "test_no_proved_ticket_names_a_missing_probe",
                            "2": "test_a_ticket_sent_back_for_an_absent_probe_names_it",
                            "3": "test_the_census_reds_a_missing_probe"}}
 
-_TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+# Beside the checkout when there is one; hollow's /tmp worktree has none, so fall back
+# to where hollow.py itself resolves the commons.
+_COMMONS = _REPO_ROOT.parent / "CairnCommons"
+_TICKETS = (_COMMONS if _COMMONS.is_dir() else Path.home() / "dev" / "src" / "CairnCommons") / "tickets"
 _CURSOR = re.compile(r"\[([A-Z]+)")
-
-
-def _probes(ticket: dict) -> list[str]:
-    w = ticket.get("watchme")
-    specs = w if isinstance(w, list) else [w]
-    return [str(s["probe"]).split("::")[0].strip()
-            for s in specs if isinstance(s, dict) and s.get("probe")]
-
-
-def _missing(probe: str, repo: Path) -> bool:
-    return not (repo / probe).exists() and not Path(probe).expanduser().exists()
 
 
 def census(tickets: list[dict], repo: Path = _REPO_ROOT) -> list[dict]:
@@ -56,10 +62,9 @@ def census(tickets: list[dict], repo: Path = _REPO_ROOT) -> list[dict]:
     out = []
     for t in tickets:
         m = _CURSOR.search(t.get("workflow_and_state") or "")
-        for p in _probes(t):
-            if _missing(p, repo):
-                out.append({"tid": t.get("id"), "cursor": m.group(1) if m else "?",
-                            "probe": p, "fixme": t.get("fixme") or []})
+        for p in _spec.absent_probes(t, root=repo):
+            out.append({"tid": t.get("id"), "cursor": m.group(1) if m else "?",
+                        "probe": p, "fixme": t.get("fixme") or []})
     return out
 
 

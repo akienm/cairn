@@ -91,7 +91,10 @@ def _finding(proof: Path) -> dict:
     """What hollow.measure returns for one covered file — fixed, so nothing is reverted."""
     return {"ticket": TID, "proofs": [str(proof)], "measured": {"a/file.py": [_TOOTH]},
             "unran": {}, "hollow": [], "skipped": [], "reasons": ["ok  a/file.py (fixture)"],
-            "commit": "0" * 40, "verdict": "green"}
+            "commit": "0" * 40, "verdict": "green",
+            # the anchor keys measure() returns since 06f0445e7a63
+            "anchor_rule": "first-build-commit", "anchor_journal": "0" * 40,
+            "anchor_first_build": "1" * 40}
 
 
 @contextlib.contextmanager

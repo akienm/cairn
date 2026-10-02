@@ -1,18 +1,21 @@
 [
   {
-    "claim": "proof test_hollow_follows_a_move.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:46:53",
+    "claim": "proof test_hollow_anchors_before_the_build_that_stands.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T13:07:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 7.04s",
+      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 15.42s",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds",
-        "test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence",
-        "test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure"
+        "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
+        "test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build",
+        "test_a_recross_with_no_build_between_keeps_the_build_it_followed",
+        "test_an_anchor_holding_every_file_raises_naming_the_anchor",
+        "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates",
+        "test_the_live_anchors_of_68f5_and_c691_are_their_build_parents"
       ],
       "teeth_red": [],
       "seal": {
@@ -23,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "20d1c0e9416bfc8502abda55679918f428849b417640cc87a74ef5d1d31f68c4",
+      "source_fingerprint": "f535b06bba919c9f540127170de671f78b022a07778071d55b281360ebefa3cf",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -31,11 +34,13 @@
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/proofs/test_hollow_follows_a_move.py",
+        "cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py",
         "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
@@ -46,6 +51,8 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -69,25 +76,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-0nzcvs_j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1151907-whgwr3me/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 9,
           "paths": [
-            "logs/tester/0/20261002.184648.112848.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.184649.665087.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.184651.273171.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.184653.236897.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.190733.716175.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190735.331457.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190736.986835.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190738.680816.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190740.329260.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190741.911398.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190743.644140.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190745.376390.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.190746.986224.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91336708,
-          "disk_bytes": 108498944,
-          "entries": 7099,
+          "bytes": 91494291,
+          "disk_bytes": 108756992,
+          "entries": 7137,
           "builds": 1,
-          "reuses": 22
+          "reuses": 0
         }
       }
     },

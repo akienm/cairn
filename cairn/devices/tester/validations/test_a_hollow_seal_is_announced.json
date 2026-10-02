@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_hollow_seal_is_announced.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T09:51:25",
+    "caller": "cairn test",
+    "date": "2026-10-02T13:08:34",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  green a_hollow_seal_on_a_green_proof_is_announced_once\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000\nNOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the reading as evidence.hollow on the proofs' standing validations.\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000\nSEALED — hollow evidence landed on 0 of 1 standing validation(s) through the store's door.\n  green a_diagnostic_or_empty_hollow_run_announces_nothing\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  (the 1 green seal(s) landed, but codemother could not be told: ConnectionError: testing: codemother is not wired on this bus — the seals stand; the crossings they would have fired did not)\n  green an_unwired_codemother_costs_the_evidence_nothing\n3 passed, 0 failed out of 3",
+      "stdout_tail": "\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  green a_hollow_seal_on_a_green_proof_is_announced_once\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nNOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the reading as evidence.hollow on the proofs' standing validations.\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 0 of 1 standing validation(s) through the store's door.\n  green a_diagnostic_or_empty_hollow_run_announces_nothing\n  ok  a/file.py (fixture)\n\ntesting9bdbe: 1 file(s) measured · 0 hollow · 0 skipped · reverted to 000000000000 (first-build-commit)\nSEALED — hollow evidence landed on 1 of 1 standing validation(s) through the store's door.\n  (the 1 green seal(s) landed, but codemother could not be told: ConnectionError: testing: codemother is not wired on this bus — the seals stand; the crossings they would have fired did not)\n  green an_unwired_codemother_costs_the_evidence_nothing\n3 passed, 0 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
         "a/file.py (fixture)",
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "42a32c71eabe608d04e36b1f2e907275dd02cc69bae2cdc7b98d829bf9a25b29",
+      "source_fingerprint": "5a8c4a17efe93c5f77916474adbb934677b0f37c912369ce89331b824e76e4b6",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -90,33 +90,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1055733-s08pnvbm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1152809-3scdjee0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261002.155125.214014.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.155125.234727.BusDevice.post.json",
-            "logs/bus/0/20261002.155125.316482.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.155125.397605.BusDevice.transit_table_ensured.json",
-            "logs/tester/0/20261002.155125.425702.TesterDevice.sealed_announce_failed.json"
+            "logs/bus/0/20261002.190834.307465.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.190834.326980.BusDevice.post.json",
+            "logs/bus/0/20261002.190834.408393.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.190834.484569.BusDevice.transit_table_ensured.json",
+            "logs/tester/0/20261002.190834.510479.TesterDevice.sealed_announce_failed.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 159997101,
-          "disk_bytes": 181571584,
-          "entries": 9008,
+          "bytes": 91495046,
+          "disk_bytes": 108748800,
+          "entries": 7136,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "9bdbeeaa1f8b": {
-          "cairn/devices/tester/cli.py": [
-            "a_hollow_seal_on_a_green_proof_is_announced_once"
-          ]
         }
       }
     },

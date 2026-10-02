@@ -1,0 +1,37 @@
+{
+  "component": "post_commit",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "host-seam primitive",
+  "public_interface": [
+    "cairn.tools.post_commit.fanout"
+  ],
+  "what": "The one installed git post-commit, as a fan-out: subscribers(repo) lists every tracked <component>/hooks/post-commit by git ls-files (no master index — a component subscribes by carrying the file), fire(repo) runs each once in order and returns {subscriber, exit, stderr} per run, and a failing subscriber is printed by name without stopping the next. hook_path, install_hook and verify_hook are the host-seam's apply and its re-runnable verify; install_hook replaces the counting block's predecessor hook and refuses any other foreign hook.",
+  "why": "Git runs exactly one installed post-commit, and the counting block held it, so any second component that wanted to hear a commit could only poll HEAD on the heartbeat — which is what codemother's groundloop/pulse.py did. Akien, 2026-09-30: nothing fires on the heartbeat but the messaging, and a probe fires on its event. A commit is an event; this tool lets every component answer it through its own hook (RULE 1), so the beat carries nothing (ticket e0f318650123).",
+  "entry": "CAST by ticket e0f318650123, 2026-10-02: new tool, its proof committed red at a5ce4acc before the build. The hook body is the counting block's hook (cairn/machines/counting_block/hooks/post-commit) in shape, with its own marker, presence guard and run line.",
+  "invoke": "`python3 -m cairn.tools.post_commit fire` (what the installed hook runs; always exits 0), `python3 -m cairn.tools.post_commit install-hook`, `python3 -m cairn.tools.post_commit verify-hook` (exit 0 = installed, executable, identical to hooks/post-commit). In code: `from cairn.tools.post_commit import fanout; fanout.fire()`. Prove: `python3 cairn/tools/post_commit/proofs/test_the_commit_fans_out_to_its_subscribers.py` (exit 0 = green).",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): each subscriber keeps whatever it records under its own holder (codemother's trail is ~/.cairn/logs/codemother/0/post_commit.jsonl). state.json and history.json beside this charter are written by the crossing door for ticket e0f318650123.",
+  "proof": "proofs/test_the_commit_fans_out_to_its_subscribers.py — teeth for e0f318650123 clauses 1 and 3: in a throwaway repo every tracked subscriber runs once on a commit and a failing one blocks neither the next nor the commit; install-hook refuses a foreign hook and verify-hook reads the live install; the counting block's verify-hook stays green through the fan-out.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) reds any reach landing off this tool's declared module. Host-seam verify: `verify-hook` reads the installed hook live, because its seal expires with nothing in git changing. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if a commit in the main tree does not run every tracked */hooks/post-commit subscriber exactly once (counting_block's fold and codemother's post both fire), if a failing subscriber blocks the commit or the subscribers after it, if install-hook overwrites a hook that is neither its own nor the counting block's predecessor, or if this charter stops declaring exactly cairn.tools.post_commit.fanout.",
+  "learns": "It does not; it is a fixed primitive.",
+  "how_it_learns": "It does not; it is a fixed primitive.",
+  "traces_to": [
+    "RULE 1 (encapsulation — each component answers the commit through its own hook)",
+    "Law 4 (the commit itself fires the subscribers — physics, not a poll)",
+    "Law 6 (a tool has users, not an owner)"
+  ],
+  "owner": "None — a tool has users (Law 6): every component that carries a hooks/post-commit. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "akien"
+  }
+}

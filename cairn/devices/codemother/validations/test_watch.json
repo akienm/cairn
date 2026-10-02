@@ -2,12 +2,12 @@
   {
     "claim": "proof test_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:41:12",
+    "date": "2026-10-02T15:05:12",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_escalates_when_no_tree_hits\n.\n  ok   test_returns_structure\n.\n  ok   test_delegates_to_activate\n.\n  ok   test_seeds_on_first_run\n.\n  ok   test_no_new_commits\n.\n  ok   test_processes_new_commits\n.\n  ok   test_trigger_false_when_no_dir\n.\n  ok   test_trigger_true_when_activations_exist\n.\n  ok   test_enough_requires_20_activations\n                                                  [100%]\n23 passed in 0.05s",
+      "stdout_tail": ".\n  ok   test_empty_hits\n.\n  ok   test_writes_to_instance_space\n.\n  ok   test_returns_structure_on_embed_failure\n.\n  ok   test_escalates_when_no_tree_hits\n.\n  ok   test_returns_structure\n.\n  ok   test_delegates_to_activate\n.\n  ok   test_trigger_false_when_no_dir\n.\n  ok   test_trigger_true_when_activations_exist\n.\n  ok   test_enough_requires_20_activations\n                                                     [100%]\n20 passed in 0.07s",
       "stderr_tail": "",
       "teeth_green": [
         "test_device_path",
@@ -27,9 +27,6 @@
         "test_escalates_when_no_tree_hits",
         "test_returns_structure",
         "test_delegates_to_activate",
-        "test_seeds_on_first_run",
-        "test_no_new_commits",
-        "test_processes_new_commits",
         "test_trigger_false_when_no_dir",
         "test_trigger_true_when_activations_exist",
         "test_enough_requires_20_activations"
@@ -43,12 +40,11 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "eaac7df3329f166966e5aa85da74f49de2c00395abfaa8af442a8cc32dbefc22",
+      "source_fingerprint": "224c5234467a600983b08c51d74fe805c465504d789d42d6a2a0dacb21ce16d2",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/groundloop/pulse.py",
         "cairn/devices/codemother/probes/commit_fires_activations.py",
         "cairn/devices/codemother/proofs/test_watch.py",
         "cairn/devices/codemother/watch.py",
@@ -57,8 +53,6 @@
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
-        "cairn/devices/librarian/tools/__init__.py",
-        "cairn/devices/librarian/tools/trees/__init__.py",
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
@@ -75,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1132427-fqm9qlq5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1224091-tjo6l2ld/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -84,11 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91312557,
-          "disk_bytes": 108457984,
-          "entries": 7087,
+          "bytes": 92412893,
+          "disk_bytes": 109965312,
+          "entries": 7254,
           "builds": 1,
-          "reuses": 13
+          "reuses": 0
         }
       }
     },

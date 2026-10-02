@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# cairn-post-commit-fanout — the one installed post-commit; runs every component's own (e0f318650123).
+#
+# Source: cairn/tools/post_commit/hooks/post-commit  (tracked; installed by
+#         `python3 -m cairn.tools.post_commit install-hook`, verified by `... verify-hook`)
+#
+# A component subscribes to the commit by carrying a tracked <component>/hooks/post-commit; the
+# fan-out finds them with `git ls-files` and runs each once. It never blocks: the commit has
+# already landed, and a failing subscriber is printed by name and does not stop the next.
+set -uo pipefail
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -n "$REPO" ] || exit 0
+[ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ] || exit 0
+[ -f "$REPO/cairn/tools/post_commit/fanout.py" ] || exit 0
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO" || exit 0
+PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.post_commit fire || true
+exit 0

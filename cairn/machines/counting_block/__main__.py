@@ -2,7 +2,8 @@
 
 Ticket 5a4ec289bf15, D26: the commit is the event, and the post-commit hook (``hook.py``,
 ``hooks/post-commit``) is the caller. ``pulse`` folds the journals once and prints what the
-fold did as one JSON line; ``install-hook`` and ``verify-hook`` are the host-seam's apply and
+fold did as one JSON line; ``install-hook`` and ``verify-hook`` install and verify the post-commit FAN-OUT
+(cairn/tools/post_commit, which runs this block's subscriber) — the host-seam's apply and
 its re-runnable verify, at the same address as the block they fire (Law 5).
 """
 import json

@@ -1,7 +1,8 @@
 """PROBE — the watcher's commit-triggered activations are alive.
 
-Liveness check on codemother's commit watcher: the pulse module
-(groundloop/pulse.py) detects commits and calls on_commit() directly.
+Liveness check on codemother's commit watcher: each commit reaches on_commit()
+through the post-commit fan-out -> hooks/post-commit -> post_commit.py -> the
+`commit` bus verb (ticket e0f318650123).
 This probe watches the OUTPUT — activation records in instance-space —
 to verify the watcher is doing its job. Fires when new activation
 records appear, clears when enough have accumulated with findings.

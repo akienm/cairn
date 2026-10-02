@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# codemother's post-commit subscriber — the commit reaches her `commit` verb (e0f318650123).
+#
+# Source: cairn/devices/codemother/hooks/post-commit  (tracked; run once per main-tree commit by
+#         the fan-out at cairn/tools/post_commit — never installed on its own)
+#
+# WHY IT DETACHES. Her handler runs in this process (reach wires delivery here) and on_commit
+# spreads activations through inference, which can take minutes; `git commit` waits for its
+# hook, so the post runs in its own session and the hook returns at once. Its outcome is one
+# line in ~/.cairn/logs/codemother/0/post_commit.jsonl, and an envelope her handler did not take
+# is flushed to the bus store for her mailbox.
+set -uo pipefail
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -n "$REPO" ] || exit 0
+[ -f "$REPO/cairn/devices/codemother/post_commit.py" ] || exit 0
+
+BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+cd "$REPO" || exit 0
+PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" setsid "$PY" -m cairn.devices.codemother.post_commit \
+  </dev/null >/dev/null 2>&1 &
+exit 0

@@ -51,11 +51,12 @@ import time
 
 from cairn.machines.build_inspector.inspector import judge_hypothesize, HYPOTHESIZE_ROSTER
 from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 from cairn.devices.codemother.machines.triage.triage import _read_decompose_berth
 
-AUTHORED_FIELDS = ("triage_ref", "hypotheses", "unknowns")
+AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["hypothesize"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 

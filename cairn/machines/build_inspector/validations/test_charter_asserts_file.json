@@ -2,20 +2,19 @@
   {
     "claim": "proof test_charter_asserts_file.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T23:57:49",
+    "date": "2026-10-02T08:30:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_once_a_voyage_qualifies\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames\n  PASS  test_live_corpus_is_clean\ngreen — charter_asserts_file_present (6 teeth): a false assertion is caught, an honest qualification passes, present files pass, the check is not hardcoded to two filenames, and the live corpus is clean",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_false_assertion_is_caught\n  PASS  test_honest_qualification_passes\n  PASS  test_once_a_voyage_qualifies\n  PASS  test_present_file_passes\n  PASS  test_not_hardcoded_to_two_filenames",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 129, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 120, in _main\n    c()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_charter_asserts_file.py\", line 105, in test_live_corpus_is_clean\n    assert not failures, (\n           ^^^^^^^^^^^^\nAssertionError: the live corpus must be clean after corrections, 2 finding(s):\nclient: asserted file present: history.json\nproof_discovery: asserted file present: history.json",
       "teeth_green": [
         "test_false_assertion_is_caught",
         "test_honest_qualification_passes",
         "test_once_a_voyage_qualifies",
         "test_present_file_passes",
-        "test_not_hardcoded_to_two_filenames",
-        "test_live_corpus_is_clean"
+        "test_not_hardcoded_to_two_filenames"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,14 +25,9 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "dc4f7ab80473291f9e455a694ce110493683d0da3480cdfdf2da9095d563205b",
+      "source_fingerprint": "ab30997c5ec60daca40463e54d6a9efe4872f51948641a684258046442c4390b",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/machines/__init__.py",
-        "cairn/devices/codemother/machines/verdict/__init__.py",
-        "cairn/devices/codemother/machines/verdict/verdict.py",
         "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -49,6 +43,7 @@
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -62,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766681-b27bbja6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1011457-t5frpi_p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,12 +66,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 139017315,
-          "disk_bytes": 158265344,
-          "entries": 8020,
+          "bytes": 154898646,
+          "disk_bytes": 175882240,
+          "entries": 8763,
           "builds": 1,
-          "reuses": 12
+          "reuses": 40
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "081ce005e23d5599618c5b1fc666b46e77f246cd5395edafd0c47f8f6842c9fe",
+        "opened": "2026-10-02T08:30:35",
+        "last_red": "2026-10-02T08:30:35",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

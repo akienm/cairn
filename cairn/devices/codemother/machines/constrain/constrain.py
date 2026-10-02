@@ -45,10 +45,11 @@ from cairn.machines.build_inspector.inspector import judge_constrain, CONSTRAIN_
 # owner of class-space addressing without widening what actually enters.
 from cairn.tools.base import address
 from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 
-AUTHORED_FIELDS = ("intent_ref", "constraints", "bounds", "unknowns")
+AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["constrain"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 

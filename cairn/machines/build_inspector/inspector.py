@@ -55,7 +55,8 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (t
 #   ticket_path joined 2026-07-30 (watchme-emits-a-probe's own live fire): the
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
-from cairn.devices.codemother.machines.verdict.verdict import claiming_packets, unanswered, verdict_error  # noqa: E402
+from cairn.tools.chain.chain import claiming_packets, verdict_error  # noqa: E402
+from cairn.tools.chain.verdict_contract import unanswered  # noqa: E402  (ticket d8e8a2dc1176: chart's contract, not codemother's)
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
 #   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
@@ -2198,7 +2199,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
     # THE ONE LATEST-CLAIMER RULE, composed (ticket the-deposit-rides-the-read):
-    # this gate's private glob loop retired into cairn.devices.codemother.machines.verdict.verdict, where the
+    # this gate's private glob loop retired into the chart contract (now cairn.tools.chain), where the
     # crossing's deposit-enqueue reads it too — one implementation, two mouths.
     claiming = claiming_packets(ticket, "validate", berths_root=root)
     artifacts = claiming_packets(ticket, "verdict", berths_root=root)

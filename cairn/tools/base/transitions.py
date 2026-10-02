@@ -1690,7 +1690,7 @@ def _enqueue_verdict(ticket: str) -> str | None:
     """
     # Lazy on purpose, same boot-order law as the gates: the cost lands only at a
     # journaled PROVED entry — an event, never a poll.
-    from cairn.devices.codemother.machines.verdict.verdict import enqueue_verdict as _enqueue
+    from cairn.tools.chain.verdict_contract import enqueue_verdict as _enqueue
 
     return _enqueue(ticket)
 

@@ -202,8 +202,10 @@ def test_the_fire_path_never_reaches_the_tree():
     # the same pass that removed the other two, because the ticket's bounds put it out.
     # Named here rather than left as a silent leftover: the residue is the 12 closure
     # members nobody asks the dynamic question of.
-    import cairn.devices.codemother.machines.orient.orient as chart_orient
-    import cairn.devices.codemother.machines.verdict.verdict as chart_verdict
+    # The chart contract the exit gate composes is the chain tool's since ticket d8e8a2dc1176
+    # (it used to be reached through codemother's orient and verdict machines).
+    import cairn.tools.chain.chain as chart_chain
+    import cairn.tools.chain.verdict_contract as chart_verdict
     import cairn.machines.learning_block.learning_block as lb
     import cairn.machines.skill_block.skill_block as skill_block
     # DERIVED from the one declaration, never restated: a second literal here is two
@@ -212,7 +214,7 @@ def test_the_fire_path_never_reaches_the_tree():
     # "requests" appear in honest prose all over the corpus, and asking by substring for
     # those would be the coin-toss red the comment above is about.
     TREE_DOORS = tuple(m for m in inspector._FIRE_PATH["modules"] if m.startswith("cairn."))
-    for mod in (chart_orient, chart_verdict, skill_block, lb, import_sieve_mod):
+    for mod in (chart_chain, chart_verdict, skill_block, lb, import_sieve_mod):
         seen = import_map(mod.__file__)["measured"]["imports"]
         # Sharpened 2026-08-06: the dynamic question is asked of the IMPORTS, with the
         # text scan kept for exactly the hole an AST cannot see. import_sieve NAMES

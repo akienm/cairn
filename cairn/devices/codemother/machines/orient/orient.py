@@ -96,12 +96,13 @@ import time
 
 from cairn.tools.gate import gate
 from cairn.tools.tree.tree import deposit_learning
+from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, AmbiguousComponent,
                                        _ref_exists, common_shape_record, component_home,
                                        component_roster, inspected, lacks_of,
                                        render_lacks, skill_roster)
 
-AUTHORED_FIELDS = ("intent", "domain", "scope", "refs", "unknowns")
+AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["orient"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 # '+' rides the class because the house's own charter filenames carry it (intention+why.json)

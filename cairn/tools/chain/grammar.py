@@ -66,6 +66,19 @@ CAIRN_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.
 INSTANCE_DIR = str(instance_path("chart", 0) / "packets")
 
 STRATA = ("floor", "tree", "cc")
+
+# WHAT EACH STAGE AUTHORS — the chain's shapes, one table (ticket d8e8a2dc1176): each stage
+# machine binds its AUTHORED_FIELDS from here, and the dial reads a packet against its own
+# stage's row without importing the machine that writes it.
+STAGE_AUTHORED_FIELDS = {
+    "orient": ("intent", "domain", "scope", "refs", "unknowns"),
+    "constrain": ("intent_ref", "constraints", "bounds", "unknowns"),
+    "survey": ("constrain_ref", "sought", "holdings", "absences", "unknowns"),
+    "decompose": ("survey_ref", "sub_problems", "unknowns"),
+    "triage": ("decompose_ref", "order", "unknowns"),
+    "hypothesize": ("triage_ref", "hypotheses", "unknowns"),
+    "validate": ("hypothesize_ref", "criteria", "unknowns"),
+}
 _STRATA_ACCEPTED = frozenset(STRATA) | {"claude"}
 
 SKELETON = "NOT IN THIS DATA VERSION YET"

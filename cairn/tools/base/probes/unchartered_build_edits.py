@@ -53,7 +53,7 @@ def _proved_tickets_with_chains() -> list[dict]:
     not have is a real defect and it belongs to
     ``no_component_reaches_proved_with_an_uncharted_build``, which measures exactly that;
     checking it a second time HERE, badly, bought nothing and cost the watch."""
-    from cairn.devices.codemother.machines.verdict.verdict import chain_for_ticket
+    from cairn.tools.chain.chain import chain_for_ticket
 
     results = []
     for name in sorted(os.listdir(_TICKETS_DIR)):

@@ -47,11 +47,12 @@ from pathlib import Path
 
 from cairn.machines.build_inspector.inspector import judge_survey, resolves_to, SURVEY_ROSTER
 from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 from cairn.tools.orient.orient import device_census
 
-AUTHORED_FIELDS = ("constrain_ref", "sought", "holdings", "absences", "unknowns")
+AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["survey"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 

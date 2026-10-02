@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_teeth_that_measure_the_tester.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T05:06:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T08:28:55",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG\n.\n  ok   test_tester_cli_takes_uppercase_flags\n.\n  ok   test_hollow_reads_unran_exactly_the_file_the_sieve_names\n.\n  ok   test_a_seal_sweeps_first_and_says_so\n                                                                     [100%]\n4 passed in 10.87s",
+      "stdout_tail": ".\n  ok   test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG\n.\n  ok   test_tester_cli_takes_uppercase_flags\n.\n  ok   test_hollow_reads_unran_exactly_the_file_the_sieve_names\n.\n  ok   test_a_seal_sweeps_first_and_says_so\n                                                                     [100%]\n4 passed in 14.11s",
       "stderr_tail": "",
       "teeth_green": [
         "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG",
@@ -24,14 +24,10 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "76aa933390dfce5e99506db3129ca42a15c410277c5a9057160af4b0ee887f6b",
+      "source_fingerprint": "50c9482e1b61a6cc7df401c44d9b664529920e452e692cd579679d0353c1f00c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/machines/__init__.py",
-        "cairn/devices/codemother/machines/verdict/__init__.py",
-        "cairn/devices/codemother/machines/verdict/verdict.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -65,6 +61,7 @@
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -88,40 +85,41 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-915711-utxzf6wt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1011457-8fjsb013/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 19,
+          "count": 20,
           "paths": [
             "devices/codemother/0/last_known.json",
             "devices/harbor_master/0/last_known.json",
-            "logs/bus/0/20261002.110637.962886.BusDevice.post.json",
-            "logs/bus/0/20261002.110637.989145.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.110638.157728.BusDevice.post.json",
-            "logs/bus/0/20261002.110638.313767.BusDevice.post.json",
-            "logs/bus/0/20261002.110638.531061.BusDevice.post.json",
-            "logs/bus/0/20261002.110638.532003.BusDevice.delivered.json",
-            "logs/codemother/0/20261002.110638.530805.CodeMotherDevice.sealed_heard.json",
-            "logs/ground_loop/0/20261002.110637.946943.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.110637.947899.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.110637.962461.GroundLoopDevice.subscribe.json",
-            "logs/harbor_master/0/20261002.110638.313548.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261002.110629.493593.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.110631.148963.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.110632.800905.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.110634.452519.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.110636.154187.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.110637.941424.TesterDevice.run_proof.json"
+            "logs/bus/0/20261002.142854.723433.BusDevice.post.json",
+            "logs/bus/0/20261002.142854.750227.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.142854.919058.BusDevice.post.json",
+            "logs/bus/0/20261002.142855.117247.BusDevice.post.json",
+            "logs/bus/0/20261002.142855.371171.BusDevice.post.json",
+            "logs/bus/0/20261002.142855.372124.BusDevice.delivered.json",
+            "logs/codemother/0/20261002.142855.370913.CodeMotherDevice.sealed_heard.json",
+            "logs/ground_loop/0/20261002.142854.679260.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.142854.692501.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.142854.722999.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop_nohup.log",
+            "logs/harbor_master/0/20261002.142855.116891.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261002.142844.238023.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.142846.601146.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.142848.969492.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.142851.128625.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.142852.854375.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.142854.661122.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 148620146,
-          "disk_bytes": 168996864,
-          "entries": 8514,
+          "bytes": 154905221,
+          "disk_bytes": 175955968,
+          "entries": 8791,
           "builds": 1,
-          "reuses": 0
+          "reuses": 35
         }
       }
     },

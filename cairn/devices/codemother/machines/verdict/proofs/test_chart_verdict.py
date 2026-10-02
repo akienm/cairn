@@ -782,10 +782,17 @@ def test_import_allowlist_tree_free(root, berths, val):
     # DETERMINISTIC grade: `cairn determinism` excludes subprocess from its oracle
     # walk by name (determinism.py:156) under Akien's ruling that deterministic code
     # may call other scripts. A run is a fork, never an ask.
+    # cairn.tools.chain.verdict_contract joined 2026-10-02 (ticket d8e8a2dc1176, RULE 1): the
+    # coverage reader and the ledger moved down a rung to the chain tool. MEASURED tree-free
+    # below like the gate: its own imports are stdlib plus the chain tool's two modules.
     allow = ("__future__", "hashlib", "json", "os", "re", "shlex", "shutil",
              "subprocess", "time",
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
-             "cairn.tools.gate.gate")
+             "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate")
+    import cairn.tools.chain.verdict_contract as _contract
+    assert sorted(import_map(_contract.__file__)["measured"]["imports"]) == [
+        "__future__", "cairn.tools.chain.chain", "cairn.tools.chain.grammar", "json", "os",
+        "re", "time"], "the chain contract grew an import — the tree-free claim is measured"
     assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \
         "the gate tool grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]

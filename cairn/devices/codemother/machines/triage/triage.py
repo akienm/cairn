@@ -49,10 +49,11 @@ import time
 from cairn.machines.build_inspector.inspector import judge_triage, TRIAGE_ROSTER
 from cairn.devices.codemother.machines.decompose.decompose import _read_survey_berth
 from cairn.tools.gate import gate
+from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 
-AUTHORED_FIELDS = ("decompose_ref", "order", "unknowns")
+AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["triage"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 

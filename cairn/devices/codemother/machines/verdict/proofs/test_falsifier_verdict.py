@@ -260,7 +260,12 @@ def test_one_contract_not_two(root, tickets):
     for bad in ("verdicts", "dispositions"):
         assert (verdict_error(dict(fal, **{bad: "not a list"}))
                 == verdict_error(dict(berth_form, **{bad: "not a list"})))
-    tree = ast.parse(Path(verdict_mod.__file__).read_text(encoding="utf-8"))
+    # Over BOTH halves since ticket d8e8a2dc1176 moved the reader to the chain tool: one
+    # fork across the door and its contract, never one in each.
+    contract = sys.modules[verdict_mod._read_chain.__module__]
+    tree = ast.Module(body=[n for m in (verdict_mod, contract) for n in
+                            ast.parse(Path(m.__file__).read_text(encoding="utf-8")).body],
+                      type_ignores=[])
     # OVER THE AST, not over the text: prose mentioning the constant is not a
     # branch on it, and a grep that cannot tell those apart would red on a comment
     # (measured — it did, the moment the module docstring named the form).

@@ -28,7 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim.probes import offload_yield_probe as probe  # noqa: E402
-from cairn.devices.codemother.machines.verdict.verdict import (  # noqa: E402
+from cairn.tools.chain.chain import (  # noqa: E402
     OUTCOMES, verdict_error,
 )
 
@@ -307,17 +307,19 @@ def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
     teeth that stood here all missed it because the FIXTURE hand-wrote the reader's
     invented shape — the two halves of one head agreeing with each other.
 
-    So this tooth refuses to DESCRIBE the artifact at all. It builds one THROUGH THE
-    DOOR'S OWN WRITER and asserts the probe reads it green. The falsifier form
+    So this tooth refuses to DESCRIBE the artifact at all. It builds one FROM THE CHAIN'S
+    OWN CONTRACT — claims verbatim from ``falsifier_criteria``, shape gated by
+    ``verdict_error``, the very check the door's writer gates on — and asserts the probe
+    reads it green. (Since ticket d8e8a2dc1176 both live in cairn.tools.chain: RULE 1 keeps
+    aider out of codemother's writer, and that the writer gates on this shape is
+    codemother's own proof to carry.) The falsifier form
     (``falsifier@<ticket>``) is used because it needs no chart chain on disk — and both
     the ticket root and the berth root are injected, so this reads a synthetic world in
     a tempdir: no CairnCommons, no instance-space. If anyone renames a key or a
     vocabulary word on either side of the seam, this goes red AT the seam instead of
     going quiet in the carrier.
     """
-    from cairn.devices.codemother.machines.verdict.verdict import (
-        falsifier_criteria, write_verdict,
-    )
+    from cairn.tools.chain.verdict_contract import falsifier_criteria
     with tempfile.TemporaryDirectory() as d:
         tmp = Path(d)
         ticket = "probe-reads-the-door"
@@ -335,7 +337,7 @@ def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
         log = ask_log(tmp, [allowed(ticket)])
         root = tmp / "berths"
         (root / "chart" / "packets").mkdir(parents=True, exist_ok=True)
-        written = write_verdict({
+        artifact = {
             "ticket": ticket,
             "validate_ref": f"falsifier@{ticket}",
             # claims VERBATIM from the door's own deriver — the point of it being public
@@ -344,7 +346,10 @@ def test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented():
                           "discriminating_observation": "reverted the fix; instrument exits 1"}
                          for c in owed],
             "dispositions": [],
-        }, instance_dir=str(root / "chart" / "packets"), root=fake_root)
+        }
+        assert verdict_error(artifact) is None, verdict_error(artifact)
+        written = str(root / "chart" / "packets" / "verdict-20260816T000000-000000000000.json")
+        Path(written).write_text(json.dumps(artifact), encoding="utf-8")
 
         rows = probe.yields_so_far(ask_log=log, berths_root=root)
         assert len(rows) == 1, f"the door's own artifact was not read at all: {rows}"

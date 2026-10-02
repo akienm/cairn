@@ -28,14 +28,7 @@ import json
 import os
 import re
 
-import cairn.devices.codemother.machines.constrain.constrain as _constrain
-import cairn.devices.codemother.machines.decompose.decompose as _decompose
-import cairn.devices.codemother.machines.hypothesize.hypothesize as _hypothesize
-import cairn.devices.codemother.machines.survey.survey as _survey
-import cairn.devices.codemother.machines.triage.triage as _triage
-import cairn.devices.codemother.machines.validate.validate as _validate
-from cairn.tools.chain.grammar import (INSTANCE_DIR, STRATA)
-from cairn.devices.codemother.machines.orient.orient import (AUTHORED_FIELDS)
+from cairn.tools.chain.grammar import (INSTANCE_DIR, STAGE_AUTHORED_FIELDS, STRATA)
 
 # orient-20260728T110828-63dcfc770585.json → (nexus, stamp)
 _PACKET_RE = re.compile(r"^([a-z][a-z0-9_]*)-(\d{8}T\d{6})-([0-9a-f]+)\.json$")
@@ -44,15 +37,7 @@ _PACKET_RE = re.compile(r"^([a-z][a-z0-9_]*)-(\d{8}T\d{6})-([0-9a-f]+)\.json$")
 # shape (a constrain packet judged by orient's fields would be a false finding).
 # A berthed stage with no registered shape is reported loudly — stage 3 registers
 # here when it lands, and silence would hide a whole nexus from the reading.
-STAGE_FIELDS = {
-    "orient": AUTHORED_FIELDS,
-    "constrain": _constrain.AUTHORED_FIELDS,
-    "survey": _survey.AUTHORED_FIELDS,
-    "decompose": _decompose.AUTHORED_FIELDS,
-    "triage": _triage.AUTHORED_FIELDS,
-    "hypothesize": _hypothesize.AUTHORED_FIELDS,
-    "validate": _validate.AUTHORED_FIELDS,
-}
+STAGE_FIELDS = STAGE_AUTHORED_FIELDS
 
 
 def _fractions(provenance: dict, fields) -> dict:

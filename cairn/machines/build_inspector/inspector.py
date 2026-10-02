@@ -3444,7 +3444,13 @@ def _breaches(repo_root: str) -> list[dict]:
 
 def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
     """RULE 1 at one census row: the row's own breaches, plus breaches whose reacher sits
-    outside the census (skills/, bin/, launchers/) landing on this row."""
+    outside the census (skills/, bin/, launchers/) landing on this row.
+
+    Provenance: 2026-10-01, ticket 56d1aff4455e under RULE 1 (agreed with Akien that day:
+    every component talks to every other only through its public interface). Measured
+    that day: device_isolation_holds and machine_imports_no_device each guarded one edge
+    of the rule, and neither could see a tool reaching into a device or a machine reaching
+    into another machine's private module. One sieve over every boundary replaces both."""
     root = Path(comp_dir).resolve()
     for _ in row["dir"].split("/"):
         root = root.parent                       # the census root: <repo_root>/cairn

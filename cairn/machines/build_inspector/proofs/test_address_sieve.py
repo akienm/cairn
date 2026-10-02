@@ -77,6 +77,7 @@ def _component(root: Path, rel: str) -> Path:
     charter = {"component": Path(rel).name, "runtime_role": rung,
                "gated_by": ["CC"],
                "learns": "fixture component — does not learn",
+               "public_interface": [],
                "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}
     (d / "intention+why.json").write_text(_json.dumps(charter))
     (d / "proofs" / "test_x.py").write_text("assert True\n")

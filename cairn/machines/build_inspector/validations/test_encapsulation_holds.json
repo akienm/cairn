@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T22:26:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T23:58:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -29,7 +29,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "706bf58f05b196f577489904d80897be98180dc17c2be706ba5888ef4edc96ae",
+      "source_fingerprint": "df0940a58c2d6b09e56464ed89fee24c8efbfda1c2673dc21f1ee65b37023c39",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -65,7 +65,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-736335-wxdvdcwn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-766681-626gbd03/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,34 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 138113163,
-          "disk_bytes": 157241344,
-          "entries": 7969,
+          "bytes": 139017315,
+          "disk_bytes": 158265344,
+          "entries": 8020,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "56d1aff4455e": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "a_component_with_no_public_interface_reds",
-            "a_proof_reaching_into_a_device_reds",
-            "a_published_device_client_is_reachable_through_its_declared_module",
-            "a_skill_importing_an_undeclared_module_reds_until_declared",
-            "a_tool_reaching_into_a_device_is_into_device",
-            "the_live_into_device_findings_equal_an_independent_census",
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/build_inspector/sieves/encapsulation_holds.json": [
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/build_inspector/finding_baseline.json": [
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/openai_wire/intention+why.json": [
-            "a_component_with_no_public_interface_reds",
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ]
+          "reuses": 14
         }
       }
     },

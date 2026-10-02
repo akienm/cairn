@@ -556,7 +556,9 @@ def test_the_charter_records_where_membership_lives():
     assert "members_derived_by" in falsifier, (
         "the charter's falsifier does not name the key the code actually reads — the design "
         "record and the reader disagree about where membership lives")
-    assert "every_chartered_skill_is_on_the_roster" in falsifier and "RETIRED" in falsifier, (
+    # the lane's name plus its present-tense "needs no check", never the bare word RETIRED,
+    # which the present-tense charter sweep reds (Akien, open-abdf26c39ed9, answered yes)
+    assert "every_chartered_skill_is_on_the_roster" in falsifier and "needs no check" in falsifier, (
         "the charter does not record that the roster lane was retired, so it still promises "
         "a red from a lane that no longer runs")
     assert "roster omission replay" not in proof_field, (

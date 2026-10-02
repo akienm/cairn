@@ -108,7 +108,7 @@ def _isolated():
 
 
 def _tickets(tmp: Path) -> list[dict]:
-    folder = tmp / "devices" / "inference_domain" / "0" / "tickets"
+    folder = tmp / "logs" / "inference_domain" / "0" / "tickets"
     if not folder.is_dir():
         return []
     return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(folder.glob("*.json"))]
@@ -138,8 +138,8 @@ def test_one_call_writes_one_ticket_naming_the_canonical():
         t = tickets[0]
         assert t["canonical"] == out["canonical"], "the ticket names the canonical request"
         assert out["ticket"] and Path(out["ticket"]).is_file(), "the result carries the ticket path"
-        assert Path(out["ticket"]).parent == tmp / "devices" / "inference_domain" / "0" / "tickets", (
-            f"the ticket berths in the device's own instance-space, got {out['ticket']}")
+        assert Path(out["ticket"]).parent == tmp / "logs" / "inference_domain" / "0" / "tickets", (
+            f"the ticket berths in the logs tree (07f415c15970), got {out['ticket']}")
         assert t["verdict"] == "miss" and t["outcome"]["kind"] == "answered"
         assert t["response"] == out["answer"], "the ticket carries the response"
         assert domain.ticket_lacks(t) == [], f"a fresh ticket is complete, lacks {domain.ticket_lacks(t)}"

@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket ``ea4a6151300f`` carries (object
 ``inference-task-tickets-are-complete``). Berthed beside ``cairn/devices/inference_domain``
 because that is WHAT IT WATCHES: since this build every ``domain.resolve`` writes one JSON
-artifact into the device's own instance-space (``devices/inference_domain/0/tickets/``)
+artifact into the logs tree (``logs/inference_domain/0/tickets/``, ticket 07f415c15970)
 carrying who asked, what they asked for versus what the route selected, how the call ended,
 and — on a refusal — the trouble it raised. The proof enforces the shape on a stub resolver.
 The one place the shape can still fail is LIVE, where the callers are real: a call that

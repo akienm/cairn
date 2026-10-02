@@ -220,12 +220,18 @@ _REPO = address.ROOTS["repo"]
 
 
 def tickets_dir(roots: dict | None = None) -> Path:
-    """Where this device's task tickets land: ``<instance>/devices/inference_domain/0/tickets``.
+    """Where this device's task tickets land: ``<instance>/logs/inference_domain/0/tickets``.
+
+    IN THE LOGS TREE, NOT THE DEVICE'S STATE DIRECTORY (ticket 07f415c15970). A task ticket is
+    a LOGGING artifact (Akien, open-5ec505c169c1): learning loops relearn off the same calls
+    without rerunning them, and forensics read the complete trail of every call for 30 days.
+    The logs tree is the address whose why is that retention (``address.log_path``) and the one
+    tree every proof sandbox leaves empty, so ~280 files a day no longer ride into each one.
 
     Follows the trail's roots (``set_diagnostic_roots``) so a proof that moved the device
     into a temp world finds its tickets there too, never in the live tree."""
     table = roots if roots is not None else getattr(_trail, "_diagnostic_roots", None)
-    return address.instance_path("inference_domain", 0, table) / TICKETS
+    return address.log_path("inference_domain", 0, table) / TICKETS
 
 
 def _frame_identity(frames) -> str | None:

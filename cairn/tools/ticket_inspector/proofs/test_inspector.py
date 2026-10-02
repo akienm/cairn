@@ -19,6 +19,10 @@ from cairn.tools.ticket_inspector.inspector import (  # noqa: E402
 )
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
+PROVES = {"de9e31ef104c": {"1": "test_watchme_present_carries_the_spec_rule_text",
+                           "2": "test_watchme_with_spec_is_clean",
+                           "3": "test_the_inspector_spells_no_watchme_field_list"}}
+
 
 CLEAN_TICKET = {
     "id": "a1b2c3d4e5f6",
@@ -145,9 +149,28 @@ def test_watchme_with_spec_is_clean():
              workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED",
              watchme={"object": "x", "trigger": "t", "enough": "e",
                       "carrier": "c", "nexus": "n", "consumer": "u",
-                      "probe": "p"})
+                      "probe": "p", "receiver": {"what": "w", "in": "cairn/tools/base"}})
     ff = inspect_ticket(t)
     assert not any(f["check"] == "watchme_present" for f in ff), ff
+
+
+def test_watchme_present_carries_the_spec_rule_text():
+    """The inspector holds no opinion of its own about a complete spec: its finding IS
+    watchme_spec_error's sentence, so the inspector and the gate cannot disagree."""
+    from cairn.tools.base.watchme_spec import watchme_spec_error
+    t = dict(CLEAN_TICKET,
+             workflow_and_state="code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> WATCHME(x) -> PROVED",
+             watchme={"object": "x", "trigger": "t", "enough": "e",
+                      "carrier": "c", "nexus": "n", "consumer": "u", "probe": "p"})
+    want = watchme_spec_error(t)
+    assert want and "receiver" in want, want
+    texts = [f["finding"] for f in inspect_ticket(t) if f["check"] == "watchme_present"]
+    assert texts == [want], texts
+
+
+def test_the_inspector_spells_no_watchme_field_list():
+    src = (Path(__file__).resolve().parents[1] / "inspector.py").read_text(encoding="utf-8")
+    assert '"carrier"' not in src, "inspector.py still spells a WATCHME field list of its own"
 
 
 def test_buildme_has_how():

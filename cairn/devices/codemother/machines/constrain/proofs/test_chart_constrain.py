@@ -78,6 +78,12 @@ PROVES = {
         "d": "test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one",
         "e": "test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them",
     },
+    # 2026-10-02, ticket 67b78ae59c1d — the floor reads an instrument's verdict by asking the
+    # tester's `run` bus verb (RULE 1). Clause 2 is declared at the tester's end too; this end
+    # measures that the foreign caller really gets the tester's green and red back.
+    "67b78ae59c1d": {
+        "2": "test_one_red_check_does_not_blanket_the_report",
+    },
 }
 
 

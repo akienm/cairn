@@ -13,7 +13,12 @@ One tooth per numbered falsifier clause, over the LIVE repo and the live bus:
   2. THE VERB ANSWERS WITH THE TESTER'S VERDICT. declared_verbs() has `run`; a green fixture
      asked over the bus comes back green, a red one red — read, not granted.
   3. THE TOOL FLOOR STANDS ON NO DEVICE. cairn/tools/base/validation.py imports nothing from
-     cairn.devices, at any depth of the module (function-local imports included).
+     cairn.devices, at any depth of the module (function-local imports included); its discover
+     answers over a scratch tree; and no code imports discovery from its old device address.
+
+Clause 2 is also declared by constrain's own test_one_red_check_does_not_blanket_the_report,
+the foreign caller that asks the run verb for an instrument's verdict — measured from inside
+codemother, where RULE 1 puts that measurement.
 
     python3 cairn/devices/tester/proofs/test_the_tester_is_reached_only_through_its_interface.py
 """
@@ -83,6 +88,33 @@ def test_the_tool_floor_stands_on_no_device():
                 else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
         reaches += [f"{node.lineno} {m}" for m in mods if m.startswith("cairn.devices")]
     assert not reaches, f"cairn/tools/base/validation.py imports device code: {reaches}"
+    # AND THE FLOOR STANDS ON THE TOOL, NOT ON A DEVICE COPY. The hollow measured 2026-10-02
+    # that an import list says nothing about whether the floor still works: with the tool
+    # removed, validation.py read clean here and could not discover a single proof. So the
+    # floor is CALLED, over a scratch tree, at call time ...
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = Path(tmp) / "c" / "proofs" / "test_floor_67b78ae59c1d.py"
+        proof.parent.mkdir(parents=True)
+        proof.write_text("", encoding="utf-8")
+        validation = importlib.import_module("cairn.tools.base.validation")
+        found = [Path(p).resolve() for p in validation.discover([tmp])]
+        assert found == [proof.resolve()], f"validation.discover did not find the floor's proof: {found}"
+    # ... and nothing in the repo still stands on discovery's old device address — the tester's
+    # own cli included, which reached it until the move.
+    old_address = "cairn.devices.tester." + "discovery"
+    stale = []
+    for py in sorted((_REPO_ROOT / "cairn").rglob("*.py")):
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            mods = ([a.name for a in node.names] if isinstance(node, ast.Import)
+                    else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
+            stale += [f"{py.relative_to(_REPO_ROOT)}:{node.lineno}" for m in mods
+                      if m == old_address or m.startswith(old_address + ".")]
+    assert not stale, f"code still imports discovery from the tester device: {stale}"
 
 
 if __name__ == "__main__":

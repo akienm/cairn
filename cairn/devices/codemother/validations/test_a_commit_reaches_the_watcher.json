@@ -56,6 +56,42 @@
           "builds": 1,
           "reuses": 0
         }
+      },
+      "hollow": {
+        "e0f318650123": {
+          "cairn/tools/post_commit/intention+why.json": [],
+          "cairn/tools/post_commit/fanout.py": [
+            "test_a_failing_subscriber_blocks_nothing_and_silences_no_one",
+            "test_every_tracked_subscriber_runs_once_and_the_fanout_skips_itself",
+            "test_the_live_install_is_the_fanout_and_it_sees_both_subscribers"
+          ],
+          "cairn/tools/post_commit/hooks/post-commit": [
+            "test_the_live_install_is_the_fanout_and_it_sees_both_subscribers"
+          ],
+          "cairn/tools/post_commit/__main__.py": [
+            "test_a_failing_subscriber_blocks_nothing_and_silences_no_one"
+          ],
+          "cairn/machines/counting_block/hook.py": [
+            "test_the_live_install_is_the_fanout_and_it_sees_both_subscribers"
+          ],
+          "cairn/machines/counting_block/__main__.py": [],
+          "cairn/devices/codemother/hooks/post-commit": [
+            "test_the_tracked_hook_runs_the_subscriber_and_never_blocks"
+          ],
+          "cairn/devices/codemother/post_commit.py": [
+            "test_a_commit_posts_one_commit_envelope_and_flushes_it",
+            "test_the_subscriber_reads_the_commit_it_was_fired_for"
+          ],
+          "cairn/devices/codemother/probes/commit_fires_activations.py": []
+        }
+      },
+      "hollow_anchor": {
+        "e0f318650123": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "389defbfbc420d02e84144797fa2cc61c800aba1",
+          "anchor_first_build": "a5ce4acc26a84ef6fceb1ce005033a2ec11ed99c",
+          "commit": "c2d2fedfdf09b90e7ea0fb254b96925f099f7f92"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

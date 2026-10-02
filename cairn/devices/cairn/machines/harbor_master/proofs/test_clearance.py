@@ -73,6 +73,12 @@ PROVES = {
     "1accdc1781aa": {
         "3": "test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass",
     },
+    "973574dddb77": {
+        "1": "test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack",
+        "2": "test_a_refused_boat_RAISES_NO_TROUBLE",
+        "3": "test_a_fixture_refusal_WRITES_NOTHING_LIVE",
+        "4": "test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered",
+    },
 }
 
 from cairn.tools.base.transitions import IllegalTransition
@@ -1851,6 +1857,125 @@ def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
         "and the fork must be the CLASS — a code-seam with the same seal is still asked"
 
 
+# ── A REFUSED BOAT GOES TO FIXME, NOT TO THE TROUBLE STORE (ticket 973574dddb77) ─────────
+#
+# Akien, 2026-10-01: "whoever asked is the ticket itself. recording the refusal is not
+# important to furthering anything." / "it becomes open work in deisgn. it goes back to
+# ticketing for improvement." / "FIXME". So a coverage refusal at PROVED is design work the
+# TICKET owns: the boat takes the back-edge into FIXME carrying every lack, and the operator's
+# trouble store hears nothing. These boats live wholly in the fixture world — their ticket
+# files sit under the world's commons, the one ``_crossing_roots()`` names — so no refusal
+# here can reach the live CairnCommons.
+
+_FIXME_WF = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
+
+
+class _CountingModuleRaiser(_SandboxedModuleRaiser):
+    """The sandboxed raiser, counting every trouble raised through it while a tooth runs."""
+
+    raised: list = []
+
+    def raise_trouble(self, identity, *a, **k):
+        _CountingModuleRaiser.raised.append(identity)
+        return super().raise_trouble(identity, *a, **k)
+
+
+def _fixme_world_ticket(tid: str) -> Path:
+    tickets = _journal_world() / "commons" / "tickets"
+    tickets.mkdir(parents=True, exist_ok=True)
+    path = tickets / f"{tid}-a-fixture-boat-refused-at-proved.json"
+    path.write_text(json.dumps({"id": tid, "workflow_and_state": _FIXME_WF, "decisions": []},
+                               indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def _refuse_at_proved(tid: str):
+    """Cross an UNCOVERED fixture boat to PROVED. Returns (refusal, ticket path, journal,
+    troubles raised) — the four places a refusal could leave a mark."""
+    import cairn.machines.build_inspector.inspector as _insp
+    import cairn.tools.base.transitions as _t
+    proof = _covering_proof(f"fixme-{tid}", tid, declares=False)
+    _seal(proof)
+    ticket_path = _fixme_world_ticket(tid)
+    _cast(tid)
+    _CountingModuleRaiser.raised = []
+    saved = (_insp._CHART_BERTHS, _t._TICKETS, _diagnostic.ModuleRaiser)
+    exc = None
+    with tempfile.TemporaryDirectory() as tmp:
+        hp, sp = _paths(tmp)
+        _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+        _t._TICKETS = _FIXTURE_TICKETS
+        _diagnostic.ModuleRaiser = _CountingModuleRaiser
+        try:
+            with _owner_is(_covered_owner(tid, proof)), _fixture_journals():
+                clear(_FIXME_WF, "PROVED", actor=_OWNER, boat_id=tid, proven_by=proof,
+                      history_path=hp, state_path=sp, ticket=tid)
+        except Exception as e:  # noqa: BLE001 — the refusal IS the measurement here
+            exc = e
+        finally:
+            _insp._CHART_BERTHS, _t._TICKETS, _diagnostic.ModuleRaiser = saved
+        journal = projector.read_history(hp) if Path(hp).exists() else []
+    return exc, ticket_path, journal, list(_CountingModuleRaiser.raised)
+
+
+def test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack():
+    """Clause (1). The refusal still raises — the caller standing at the gate hears it — and
+    the boat now stands at FIXME with one ``fixme`` entry per lack on its ticket and the same
+    lacks in the back-edge's journaled ``missing``."""
+    tid = "fixmeland00a"
+    exc, ticket_path, journal, _ = _refuse_at_proved(tid)
+    assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    assert "FIXME" in str(exc), f"the refusal must say where the boat went: {exc}"
+    doc = json.loads(ticket_path.read_text(encoding="utf-8"))
+    assert "[FIXME]" in doc["workflow_and_state"], doc["workflow_and_state"]
+    fixme = doc.get("fixme") or []
+    assert fixme and all(e.get("kind") and e.get("missing") for e in fixme), fixme
+    back = [e for e in journal if e.get("to") == "FIXME"]
+    assert len(back) == 1, f"exactly one back-edge journaled: {journal}"
+    assert len(back[0].get("missing") or []) == len(fixme), (back[0], fixme)
+
+
+def test_a_refused_boat_RAISES_NO_TROUBLE():
+    """Clause (2). Not one trouble, through any raiser the module could reach for."""
+    exc, _, _, raised = _refuse_at_proved("fixmequiet0a")
+    assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    assert raised == [], f"a refusal raised trouble(s) into the operator's store: {raised}"
+
+
+def test_a_fixture_refusal_WRITES_NOTHING_LIVE():
+    """Clause (3). The ticket write lands in the world the gate read the boat from, and
+    nothing named for the fixture boat appears under the live tickets or troubles."""
+    tid = "fixmelive00a"
+    exc, ticket_path, _, _ = _refuse_at_proved(tid)
+    assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    assert "[FIXME]" in json.loads(ticket_path.read_text(encoding="utf-8"))["workflow_and_state"], \
+        "the fixture-world ticket was not written, so 'nothing live' would be vacuous"
+    live = Path(_clearance.COMMONS_ROOT)
+    leaked = sorted(str(p) for d in ("tickets", "troubles") for p in (live / d).glob(f"*{tid}*"))
+    assert leaked == [], f"a fixture refusal wrote into the live commons: {leaked}"
+
+
+def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
+    """Clause (4). The FIXME gate (72d2f79daf0a) holds the forward crossing to BUILDME until
+    every entry has a ``FIXME <n>`` decision — measured on the ticket the refusal wrote."""
+    import cairn.tools.base.transitions as _t
+    tid = "fixmehold00a"
+    exc, ticket_path, _, _ = _refuse_at_proved(tid)
+    assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    doc = json.loads(ticket_path.read_text(encoding="utf-8"))
+    saved = _t._TICKETS
+    _t._TICKETS = ticket_path.parent
+    try:
+        try:
+            _t.emit(doc["workflow_and_state"], "BUILDME", ticket=tid, actor=_OWNER)
+        except _t.FixmeGateRed:
+            pass
+        else:
+            raise AssertionError("the boat left FIXME with every lack unanswered")
+    finally:
+        _t._TICKETS = saved
+
+
 def test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding():
     """The half of the rule that is not the refusal. A gate that only refuses teaches the one
     caller standing at it; the boat then sits at PROVEME looking exactly like a boat nobody
@@ -2040,6 +2165,11 @@ def _main() -> int:
         test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow,
         test_an_EMPTY_reading_is_REFUSED_as_nothing_measured_and_never_read_as_covered,
         test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading,
+        # A REFUSED BOAT GOES TO FIXME (ticket 973574dddb77).
+        test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack,
+        test_a_refused_boat_RAISES_NO_TROUBLE,
+        test_a_fixture_refusal_WRITES_NOTHING_LIVE,
+        test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered,
         test_a_REFUSAL_RAISES_A_TROUBLE_naming_the_boat_and_the_finding,
         test_a_TROUBLE_STORE_THAT_IS_DOWN_never_turns_a_clean_refusal_into_a_stack_trace,
         test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past,

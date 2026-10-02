@@ -1,0 +1,64 @@
+[
+  {
+    "claim": "proof test_a_commit_reaches_the_watcher.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T15:06:35",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_commit_posts_one_commit_envelope_and_flushes_it\n.\n  ok   test_the_subscriber_reads_the_commit_it_was_fired_for\n.\n  ok   test_the_tracked_hook_runs_the_subscriber_and_never_blocks\n.\n  ok   test_nothing_reads_git_head_on_the_beat\n                                                                     [100%]\n4 passed in 0.04s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_commit_posts_one_commit_envelope_and_flushes_it",
+        "test_the_subscriber_reads_the_commit_it_was_fired_for",
+        "test_the_tracked_hook_runs_the_subscriber_and_never_blocks",
+        "test_nothing_reads_git_head_on_the_beat"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "2978c4fe49fbcec6319638c4de62bc18dba76ac0a3bed73c9fdf6c07de33d336",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/post_commit.py",
+        "cairn/devices/codemother/proofs/test_a_commit_reaches_the_watcher.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1224981-dro9bro7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 92414420,
+          "disk_bytes": 109973504,
+          "entries": 7256,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

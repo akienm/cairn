@@ -1,0 +1,62 @@
+[
+  {
+    "claim": "proof test_the_commit_fans_out_to_its_subscribers.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T15:06:36",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_every_tracked_subscriber_runs_once_and_the_fanout_skips_itself\n.\n  ok   test_the_live_install_is_the_fanout_and_it_sees_both_subscribers\n.\n  ok   test_a_failing_subscriber_blocks_nothing_and_silences_no_one\n                                                                      [100%]\n3 passed in 0.17s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_tracked_subscriber_runs_once_and_the_fanout_skips_itself",
+        "test_the_live_install_is_the_fanout_and_it_sees_both_subscribers",
+        "test_a_failing_subscriber_blocks_nothing_and_silences_no_one"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "d758314c204fb4ded20cba17a74e1a5bffbbbb39623fcd50c9c0cd9ca5a53b57",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/post_commit/__init__.py",
+        "cairn/tools/post_commit/fanout.py",
+        "cairn/tools/post_commit/proofs/test_the_commit_fans_out_to_its_subscribers.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1224981-tlax_pbe/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 92414420,
+          "disk_bytes": 109973504,
+          "entries": 7256,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -92,6 +92,7 @@ from cairn.tools.proof_coverage.proof_coverage import declared
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
 from cairn.tools.chain.chain import chain_for_ticket
+from cairn.machines.build_inspector.inspector import resolves_to  # the one successor order (public_interface)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
@@ -244,6 +245,29 @@ def writes_to(ticket: dict, *, berths_root=None) -> list[str]:
             f"hollow: the decompose berth {berth} lists no writes_to on any sub_problem — the "
             f"chart never said what this build writes, so there is nothing to revert.")
     return out
+
+
+def moved_to(rel: str, ticket_id: str, *, repo_root: Path, worktree: Path) -> str | None:
+    """Where a charted file the build MOVED now lives, or ``None``.
+
+    Added 2026-10-02 (ticket d65fe3aa96e2), measured at 9245b9cbce53's PROVEME: a chart names
+    the files a build will write as they stand BEFORE it, so a move's writes_to is its SOURCE —
+    and the source is exactly the path that is gone at HEAD. The loop used to skip it as "the
+    build is not committed" with the build sitting committed in front of it, so a move-only
+    build read "measured nothing" and a move co-listed with any other file read as measured on
+    the other file alone. The successor is asked of build_inspector's ``resolves_to`` (the
+    ticket's forwarding order first, git's rename record second), which that machine publishes
+    for exactly this; a second spelling of the precedence here is the defect
+    one-owner-for-the-instance-address was born of. Existence is asked of THIS repo, so a
+    fixture repo is not read through the live tree's eyes.
+    """
+    root = Path(repo_root)
+    succ = resolves_to(rel, ticket_id, repo_root=str(root),
+                       exists=lambda a: (Path(a) if Path(a).is_absolute() else root / a).exists())
+    if not succ:
+        return None
+    succ = _inside(succ, root)
+    return succ if succ != rel and (Path(worktree) / succ).is_file() else None
 
 
 def proven_by(ticket: dict, roots: dict | None = None) -> list[str]:
@@ -573,15 +597,29 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     unran: dict[str, list[str]] = {}
     unchanged: list[str] = []
     skipped: list[dict] = []
+    moved: dict[str, str] = {}
     for rel in files:
         why = _classify(rel)
+        source = None
         if why is None and not (wt / rel).is_file():
-            why = "not present at HEAD — the build is not committed, so there is nothing to revert from"
+            succ = moved_to(rel, tid, repo_root=repo_root, worktree=wt)
+            if succ is None:
+                why = "not present at HEAD and no recorded successor — there is nothing to revert"
+            elif succ in measured or succ in moved or _classify(succ) is not None:
+                continue  # already read under its own name, or the successor is itself skippable
+            else:
+                source, rel = rel, succ
+                moved[rel] = source
         if why is not None:
             skipped.append({"file": rel, "why": why})
             log(f"  skip   {rel}  ({why})")
             continue
         how = _revert(wt, commit, rel, repo_root=repo_root)
+        if source is not None:
+            # THE COUNTERFACTUAL OF A MOVE IS BOTH HALVES: the successor as it was before the
+            # build (usually absent — removed, not emptied) AND the source back where it stood.
+            _revert(wt, commit, source, repo_root=repo_root)
+            how = f"{how}; moved from {source}, restored there"
         if how == "unchanged":
             unchanged.append(rel)
             _restore(wt, rel)
@@ -591,6 +629,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             after, after_ran, _ = run_all()
         finally:
             _restore(wt, rel)
+            if source is not None and (wt / source).exists():
+                (wt / source).unlink()  # absent at HEAD; checkout cannot restore an absence
         # DECLARED TEETH ONLY, and the filter is the ticket's bound rather than a nicety.
         # Without it, the reading counts any tooth in the file that went red — including the
         # 55 teeth these three proofs hold for OTHER tickets. A neighbour's tooth reddening
@@ -649,5 +689,5 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "proofs": proofs, "declared": declared_teeth, "silent_proofs": silent,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
-            "unchanged": unchanged,
+            "unchanged": unchanged, "moved": moved,
             "verdict": "red" if reasons else "green", "reasons": reasons}

@@ -54,6 +54,7 @@ from cairn.tools.base.transitions import (                  # noqa: E402
 )
 from cairn.tools.base.watchme_spec import (                 # noqa: E402
     BERTH_FIELD,
+    RECEIVER_FIELD,
     REQUIRED_FIELDS,
     watchme_spec_error,
 )
@@ -152,11 +153,14 @@ def judge_packet(payload: dict, *, node_class_root: Path | str | None = None,
             for spec in (s for s in specs if isinstance(s, dict)):
                 missing = [f for f in ("object", *REQUIRED_FIELDS, BERTH_FIELD)
                            if not (isinstance(spec.get(f), str) and spec[f].strip())]
+                if not isinstance(spec.get(RECEIVER_FIELD), dict):
+                    missing.append(RECEIVER_FIELD)
                 if missing:
                     lacks.append({"field": "watchme",
                                   "why": "spec is missing " + ", ".join(missing) +
-                                         " — the gate reads five fields plus the probe "
-                                         "berth; a partial spec is a watch nobody can arm"})
+                                         " — the gate reads five fields, the probe berth "
+                                         "and the receiver; a partial spec is a watch nobody "
+                                         "can arm"})
         # The shape and referent judgments below are the door's own floor on an
         # exemption; when the gate rule already faulted the field, its refusal names
         # the fix and a second entry would be two doors disagreeing about one lack.

@@ -29,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
-from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness  # noqa: E402
+from cairn.tools.liveness.liveness import read_liveness, write_liveness  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir
 
 # The falsifier's four DONE clauses, one tooth each (the coverage reader's contract:

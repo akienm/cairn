@@ -127,7 +127,7 @@ SHIMS = {"weather": WeatherShim, "bare": BareShim, "colliding": CollidingShim}
 
 def _scratch() -> Path:
     home = scratch_dir("b41b-home-")
-    from cairn.devices.cairn.machines.ground_loop.liveness import write_liveness
+    from cairn.tools.liveness.liveness import write_liveness
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)
     write_liveness(datetime.now(timezone.utc).astimezone(), {"beats": 1, "subscribers": []}, os.getpid(), lh)

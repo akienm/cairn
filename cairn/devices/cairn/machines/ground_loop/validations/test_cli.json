@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:07:27",
+    "date": "2026-10-02T06:26:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints each trigger the record lists and the changed count\nground_loop: stop signaled (flag copied to instance folder)\n  pid 809549 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
+      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints each trigger the record lists and the changed count\nground_loop: stop signaled (flag copied to instance folder)\n  pid 964695 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
       "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "teeth_green": [
         "status returns 0 and reads liveness",
@@ -27,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4ce71bdf41442b2527e73d4757da503b771f44d4d2d6dac4255bfe7decafa003",
+      "source_fingerprint": "3d03cb6054545e401f89a316ba5da06cb3bfbc705db33742c38b221959ecf5a8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -35,11 +35,12 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/cli.py",
-        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
@@ -47,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-jil8yki1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-962907-c4hws40t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,11 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 152326269,
+          "disk_bytes": 173027328,
+          "entries": 8630,
           "builds": 1,
-          "reuses": 6
+          "reuses": 14
         }
       }
     },

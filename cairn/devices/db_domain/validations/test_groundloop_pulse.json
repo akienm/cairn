@@ -2,7 +2,7 @@
   {
     "claim": "proof test_groundloop_pulse.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T05:55:35",
+    "date": "2026-10-02T06:28:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ae85c5fa4cb4b90c6c912ed5afa8db05a332de642da0087ab557a667f996594f",
+      "source_fingerprint": "4f0b223f69453d7ef99c2bf21772c107bd66bf1518e94a64523ac71c0204caa4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -32,7 +32,6 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/proofs/test_groundloop_pulse.py",
         "cairn/devices/db_domain/tools/__init__.py",
@@ -52,6 +51,8 @@
         "cairn/tools/chain/grammar.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/system_word/__init__.py",
@@ -59,20 +60,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-945243-1xb6jm1r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-962907-38n8yvcd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 149721107,
-          "disk_bytes": 170225664,
-          "entries": 8551,
+          "bytes": 152326865,
+          "disk_bytes": 173031424,
+          "entries": 8631,
           "builds": 1,
-          "reuses": 28
+          "reuses": 34
         }
       }
     },

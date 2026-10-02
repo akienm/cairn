@@ -259,7 +259,7 @@ import tempfile as _tempfile
 import threading as _threading
 from datetime import datetime as _dt, timedelta as _td, timezone as _tz
 
-from cairn.devices.cairn.machines.ground_loop.liveness import (
+from cairn.tools.liveness.liveness import (
     RECORD_NAME, STALENESS_THRESHOLD_S, read_liveness, write_liveness,
 )
 

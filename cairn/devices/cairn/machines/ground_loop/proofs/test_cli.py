@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cairn.devices.cairn.machines.ground_loop.cli import _status, _stop, _start, main
-from cairn.devices.cairn.machines.ground_loop.liveness import write_liveness
+from cairn.tools.liveness.liveness import write_liveness
 
 PROVES = {"bae622881f03": {"6": "status prints each trigger the record lists and the changed count"}}
 

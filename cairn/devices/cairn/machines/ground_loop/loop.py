@@ -28,7 +28,7 @@ from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.probe import _pulse
 from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
 from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache, PulseCache
-from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness
+from cairn.tools.liveness.liveness import read_liveness, write_liveness
 from cairn.devices.cairn.machines.ground_loop import staleness as _staleness
 
 

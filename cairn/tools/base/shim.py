@@ -101,7 +101,7 @@ def ensure_ground_loop(now: datetime, *, home: Path | None = None, log: Path | N
     log, never a silent pass and never a crashed shim), and it owns nothing about the loop
     beyond what its one attempt did. On LIVE this is one file read and no spawn."""
     import subprocess
-    from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness  # deferred: ground_loop imports base
+    from cairn.tools.liveness.liveness import read_liveness  # deferred: kept off the import path of every shim
 
     log = (log or _LOOP_LOG).expanduser()
 

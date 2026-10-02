@@ -40,7 +40,7 @@ from cairn.tools.base.address import instance_path
 from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.cairn.machines.ground_loop.heartbeat import Triggers, changed, mtimes, own_files
-from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness, write_liveness
+from cairn.tools.liveness.liveness import read_liveness, write_liveness
 
 CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit: not 1 (a crash), not 2 (argparse)

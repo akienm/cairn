@@ -2,12 +2,12 @@
   {
     "claim": "proof test_beat_probes.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T05:58:47",
+    "date": "2026-10-02T06:32:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "a device fires its own clock probes on its own pulse — the shared firer\n  ok   a trigger that stays true pokes once across two beats\n         -> beat1 fired=1 beat2 held=[{'why': 'fixture probe standing for test_beat_probes', 'to': 'fixture_target', 'reason': 'still true — already poked at the crossing'}]\n  ok   a while_true probe pokes on every beat\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-2'}] beat2=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-5'}]\n  ok   a raising trigger is recorded refused and the rest still fire\n         -> broken=[{'to': 'fixture_target', 'why': 'fixture probe broken for test_beat_probes', 'outcome': 'refused', 'error': 'RuntimeError: the fixture trigger raises on purpose'}] others_fired=['standing', 'chatty', 'done', 'needs_bus']\n  ok   a probe whose enough holds is cleared and then held as cleared\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe done for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-3', 'cleared': 'gathered enough — retired'}] beat2=[{'why': 'fixture probe done for test_beat_probes', 'to': 'fixture_target', 'reason': 'cleared — gathered enough, retired'}]\n  ok   a named probe with no module is recorded missing, never raised\n         -> missing=[{'name': 'no_such_probe', 'reason': 'no module at /tmp/test_beat_probes-1l8lm0bc/fixture_device/probes/no_such_probe.py'}]\n  ok   the bus rides the pulse context\n         -> needs_bus=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe needs_bus for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-4'}]\n  ok   the firer flushes its bus once per beat and records it\n         -> flushes=2 one={'flushed': 1} two={'flushed': 2}\n  ok   a bus factory is called on the first beat, never at construction\n         -> calls at construction=0, after two beats=1\n\nGREEN — crossings, while_true, refusal, clearing, missing, bus, flush, lazy bus.",
+      "stdout_tail": "a device fires its own clock probes on its own pulse — the shared firer\n  ok   a trigger that stays true pokes once across two beats\n         -> beat1 fired=1 beat2 held=[{'why': 'fixture probe standing for test_beat_probes', 'to': 'fixture_target', 'reason': 'still true — already poked at the crossing'}]\n  ok   a while_true probe pokes on every beat\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-2'}] beat2=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-5'}]\n  ok   a raising trigger is recorded refused and the rest still fire\n         -> broken=[{'to': 'fixture_target', 'why': 'fixture probe broken for test_beat_probes', 'outcome': 'refused', 'error': 'RuntimeError: the fixture trigger raises on purpose'}] others_fired=['standing', 'chatty', 'done', 'needs_bus']\n  ok   a probe whose enough holds is cleared and then held as cleared\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe done for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-3', 'cleared': 'gathered enough — retired'}] beat2=[{'why': 'fixture probe done for test_beat_probes', 'to': 'fixture_target', 'reason': 'cleared — gathered enough, retired'}]\n  ok   a named probe with no module is recorded missing, never raised\n         -> missing=[{'name': 'no_such_probe', 'reason': 'no module at /tmp/test_beat_probes-pa8mv0p1/fixture_device/probes/no_such_probe.py'}]\n  ok   the bus rides the pulse context\n         -> needs_bus=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe needs_bus for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-4'}]\n  ok   the firer flushes its bus once per beat and records it\n         -> flushes=2 one={'flushed': 1} two={'flushed': 2}\n  ok   a bus factory is called on the first beat, never at construction\n         -> calls at construction=0, after two beats=1\n\nGREEN — crossings, while_true, refusal, clearing, missing, bus, flush, lazy bus.",
       "stderr_tail": "",
       "teeth_green": [
         "a trigger that stays true pokes once across two beats",
@@ -28,14 +28,9 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "d2ace2cf3813ce2df48bfdf367069a67a78b8c9a0ac5ab323b2e73c4fbc7ffb2",
+      "source_fingerprint": "55d86dbeb221eb0a6974a13e583d12637766dc47d19febf1c66e7ee696911572",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -46,12 +41,14 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_beat_probes.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-945243-xzp23oz4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-962907-2xzn4bsc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -62,11 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 149722279,
-          "disk_bytes": 170229760,
-          "entries": 8552,
+          "bytes": 152327441,
+          "disk_bytes": 173031424,
+          "entries": 8631,
           "builds": 1,
-          "reuses": 47
+          "reuses": 54
         }
       }
     },

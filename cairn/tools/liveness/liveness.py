@@ -1,5 +1,9 @@
 """liveness — the ground loop's own liveness record, written as part of the pass.
 
+A TOOL SINCE 2026-10-02 (ticket 59ade57ef280, RULE 1): moved down a rung from
+cairn/devices/cairn/machines/ground_loop/ so the shim's lazy-init can ask whether the
+system is up without reaching into a device. The record did not move; only its reader.
+
 Ticket ground-loop-writes-its-own-liveness (parent ground-loop-is-discoverable-
 without-scanning): on each pass the loop writes a record in its own device space
 (``~/.cairn/devices/cairn/machines/ground_loop/<instance>/`` — instance 0 for the singleton)

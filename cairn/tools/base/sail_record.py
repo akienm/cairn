@@ -18,7 +18,7 @@ asks. A session that dies takes its claim with it, which is exactly the property
 stored phase could not have.
 
 THE DETECTOR, AND WHERE IT DELIBERATELY DIVERGES FROM ITS ANCESTOR. This composes
-``ground_loop/liveness.py`` — its atomic temp-then-``os.replace`` write, and its
+``cairn/tools/liveness/liveness.py`` — its atomic temp-then-``os.replace`` write, and its
 read face that names a lack instead of raising. It DIVERGES on the verdict: liveness
 judges by the stamp's AGE against a 300s threshold, because a loop ticks on a cadence
 and a stopped clock is the whole signal. A sail has no cadence. A build that thinks

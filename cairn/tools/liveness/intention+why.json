@@ -1,0 +1,37 @@
+{
+  "component": "liveness",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "record reader/writer",
+  "public_interface": [
+    "cairn.tools.liveness.liveness"
+  ],
+  "what": "The LIVENESS record's writer and read face. write_liveness(now, state, pid, home) stamps {last_run, state, pid} into <home>/liveness.json atomically (temp-then-os.replace in the same directory); read_liveness(now, home) returns {verdict, record, age_s}: LIVE iff last_run is within STALENESS_THRESHOLD_S (300s, ruled 2026-07-31, cadence 60s since 2026-08-22) of now, DEAD otherwise, and DEAD with the lack named when the record is absent or unreadable, never an exception. instance_home(instance) names the cairn instance's heartbeat home, instance_path('cairn', instance)/machines/ground_loop, which is where the running ground loop writes it.",
+  "why": "The shim's lazy-init asks 'is the system up' before any bus exists, so the answer has to be a file read, and 6 encapsulation rows reached into the cairn device's ground loop to make it (measured 2026-10-02). RULE 1 lets a component reach another only through its public interface; the module imported nothing but cairn.tools.base.address and held no state of its own, so it moved down a rung to a tool every user reaches the same way (ticket 59ade57ef280). The ground loop still writes the record each beat; it does so through this tool like everyone else.",
+  "entry": "GRAFTED by git mv from cairn/devices/cairn/machines/ground_loop/liveness.py, ticket 59ade57ef280, 2026-10-02. The module's bytes moved unchanged but for its own docstring's address; every caller's dotted path was rewritten.",
+  "invoke": "from cairn.tools.liveness.liveness import read_liveness; read_liveness(datetime.now().astimezone())['verdict']. Prove: python3 cairn/tools/liveness/proofs/test_liveness_is_a_tool.py (exit 0 = green); the record's behaviour is proved where it is used, by cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py and cairn/tools/base/proofs/test_shim_starts_the_loop.py.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): the record it writes lives in the holder's home it is handed — today the cairn device's, at ~/.cairn/devices/cairn/<instance>/machines/ground_loop/liveness.json, gated by the ground loop that writes it. Its prior history rides the ground loop's own; this move rides ticket 59ade57ef280.",
+  "proof": "proofs/test_liveness_is_a_tool.py — three teeth for 59ade57ef280: nothing reaches into the ground loop for liveness; no code names the old address and the old file is gone; this charter declares exactly its module, the module imports nothing from cairn.devices, it exposes the record's surface, and its default home is still the one the running loop writes.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) reds any reach landing off this tool's declared module. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if any import lands on cairn.devices.cairn.machines.ground_loop.liveness, if any code names that address, if this module imports device code, if this charter stops declaring exactly cairn.tools.liveness.liveness, or if the default record home moves away from where the ground loop writes.",
+  "learns": "It does not; it is a fixed record format, its atomic write and its staleness verdict.",
+  "how_it_learns": "It does not; it is a fixed record format, its atomic write and its staleness verdict.",
+  "traces_to": [
+    "RULE 1 (encapsulation — reach another component only through its public interface)",
+    "Law 6 (a tool has users, not an owner)",
+    "Law 7 (an absent record is a DEAD verdict with its lack named)"
+  ],
+  "owner": "None — a tool has users (Law 6): the ground loop, which writes the record, and the shim's lazy-init and the operator cli, which read it. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "akien"
+  }
+}

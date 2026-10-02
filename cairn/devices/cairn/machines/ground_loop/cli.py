@@ -27,7 +27,7 @@ from shutil import copy2
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.system_word import canon, fold, is_word
-from cairn.devices.cairn.machines.ground_loop.liveness import read_liveness
+from cairn.tools.liveness.liveness import read_liveness
 
 INSTANCE = 0
 COMMAND_EXIT = "COMMAND_EXIT.flag"

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_verb.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T05:53:51",
+    "date": "2026-10-02T06:26:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "824a5e9db0529e3484239882a0de0f4d19f7bf579f838aca968a86e343446f70",
+      "source_fingerprint": "f9c6e28334a8e36f813b4d4cb4d495c5705f126014793d53cd1782d4f79e8d2c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -37,8 +37,6 @@
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
         "cairn/devices/cairn/machines/bus/proofs/test_verb.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -54,27 +52,29 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/instanceizer/__init__.py",
         "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-945243-61kghm98/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-962907-lznu81un/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20261002.115350.983265.BusDevice.post.json",
-            "logs/bus/0/20261002.115351.007686.BusDevice.post.json",
-            "logs/bus/0/20261002.115351.121476.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261002.122643.053242.BusDevice.post.json",
+            "logs/bus/0/20261002.122643.077459.BusDevice.post.json",
+            "logs/bus/0/20261002.122643.146095.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 149721966,
-          "disk_bytes": 170237952,
-          "entries": 8556,
+          "bytes": 152327128,
+          "disk_bytes": 173039616,
+          "entries": 8635,
           "builds": 1,
           "reuses": 12
         }

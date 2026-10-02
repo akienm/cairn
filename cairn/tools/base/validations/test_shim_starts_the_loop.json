@@ -2,19 +2,15 @@
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:17:10",
+    "date": "2026-10-02T06:32:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\ntest_shim_starts_the_loop: green",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "ok test_check_lives_in_the_base_only",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_shim_starts_the_loop.py\", line 228, in <module>\n    test_ground_loop_package_untouched()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_shim_starts_the_loop.py\", line 213, in test_ground_loop_package_untouched\n    assert r.returncode == 0 and r.stdout.strip() == \"\", r.stdout\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError:  .../devices/cairn/machines/ground_loop/__main__.py |   2 +-\n cairn/devices/cairn/machines/ground_loop/cli.py    |   2 +-\n .../devices/cairn/machines/ground_loop/liveness.py | 102 ---------------------\n cairn/devices/cairn/machines/ground_loop/loop.py   |   2 +-\n 4 files changed, 3 insertions(+), 105 deletions(-)\n",
       "teeth_green": [
-        "test_check_lives_in_the_base_only",
-        "test_ground_loop_package_untouched",
-        "test_live_record_spawns_nothing",
-        "test_dead_to_live_one_shim",
-        "test_two_shims_one_loop"
+        "test_check_lives_in_the_base_only"
       ],
       "teeth_red": [],
       "seal": {
@@ -25,24 +21,21 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b98a6185f5fdc99f1a240543f79829d7e943f4bd26f6377d686b3e1761d78f07",
+      "source_fingerprint": "6bea7c2770ffda83e1d8f7ea2887c9dcf6628209b59d4624371e4781ec88116e",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/proofs/test_shim_starts_the_loop.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-3qeg0w3_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-962907-kwtxlg1o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -51,12 +44,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 152326269,
+          "disk_bytes": 173027328,
+          "entries": 8630,
           "builds": 1,
-          "reuses": 66
+          "reuses": 73
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "2d17b96db64657464b5712876c613b2c5f6872457eb23e6096bc3527d0bd36bb",
+        "opened": "2026-10-02T06:32:46",
+        "last_red": "2026-10-02T06:32:46",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

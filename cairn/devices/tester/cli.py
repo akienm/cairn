@@ -61,6 +61,7 @@ from cairn.tools.validation_store.validation_store import (
     SealConversionRefused,
     SealDowngradeRefused,
     isolation_for_seal,
+    read_validations,
     record_hollow,
     standing_seal,
 )
@@ -137,11 +138,29 @@ def _hollow_run(args) -> int:
         for f, broke in finding["unran"].items():
             reading[f] = {"unreadable": sorted(broke)}
         persisted = 0
+        # THE SEAL THAT COMPLETES THE RECORD IS THE ONE CODEMOTHER MUST HEAR (ticket
+        # 9bdbeeaa1f8b). The reading can only be taken AFTER a seal stands, so the sealing
+        # run's announcement always reached her before the reading existed, and this run,
+        # which completes the record, said nothing. Measured n=2 on 2026-10-02
+        # (e8fe361a5b2f, 56d1aff4455e): she crossed on the incomplete record, the PROVED rung
+        # refused hollow_evidence_absent, and an unchanged build went to FIXME. So each proof
+        # the reading LANDED on, whose standing seal is green, is announced in the same shape
+        # the batch path announces (a red hollow verdict included: the reading itself is what
+        # the rung judges, and FIXME holds the real lack, 973574dddb77).
+        landed_green: list[tuple[Path, dict]] = []
         for rel in finding["proofs"]:
             landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading)
             persisted += 1 if landed else 0
+            if landed:
+                standing = read_validations(str(REPO_ROOT / rel))[-1]
+                if standing.get("verdict") == "green":
+                    landed_green.append((REPO_ROOT / rel, standing))
         print(f"SEALED — hollow evidence landed on {persisted} of {len(finding['proofs'])} "
               f"standing validation(s) through the store's door.")
+        if landed_green:
+            # Its own TesterDevice: main() returns into this path before the batch path
+            # builds one, and an empty landing builds nothing at all.
+            _announce_seals(TesterDevice(), landed_green)
     else:
         print("NOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the "
               "reading as evidence.hollow on the proofs' standing validations.")

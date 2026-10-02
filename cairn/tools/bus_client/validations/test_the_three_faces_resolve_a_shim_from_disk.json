@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_three_faces_resolve_a_shim_from_disk.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T10:08:34",
+    "date": "2026-10-02T12:42:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (56 file(s) named it · 31 module(s) imported for real · 28 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
+      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (75 file(s) named it · 34 module(s) imported for real · 44 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
       "stderr_tail": "",
       "teeth_green": [
         "test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost",
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "19819f44de22b94dd5b52a5e416bf19837c0793786caf3755a67bcc82a454d42",
+      "source_fingerprint": "80f670a9229fd26ad4518fb7edc71ffded118f26ac248f52b0109ccd17233a2f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -42,9 +42,7 @@
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
         "cairn/devices/cairn/machines/ground_loop/shim.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/groundloop/pulse.py",
         "cairn/devices/cc/shim.py",
@@ -84,11 +82,14 @@
         "cairn/devices/intention_extractor/machines/judge/__init__.py",
         "cairn/devices/intention_extractor/machines/judge/judge.py",
         "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/library.py",
         "cairn/devices/librarian/live.py",
         "cairn/devices/librarian/loop.py",
         "cairn/devices/librarian/summarize.py",
-        "cairn/devices/librarian/trees.py",
+        "cairn/devices/librarian/tools/__init__.py",
+        "cairn/devices/librarian/tools/trees/__init__.py",
+        "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
         "cairn/devices/tester/device.py",
@@ -116,6 +117,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
+        "cairn/tools/base/deviceness.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/probe.py",
@@ -125,6 +127,7 @@
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py",
+        "cairn/tools/bus_client/roster.py",
         "cairn/tools/cgroup/__init__.py",
         "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
@@ -166,33 +169,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1060264-637c8leo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1132427-4duabd95/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 12,
+          "count": 4,
           "paths": [
             "devices/cc/0/last_known.json",
-            "logs/bus/0/20261002.160833.834865.BusDevice.post.json",
-            "logs/bus/0/20261002.160833.861749.BusDevice.transit_table_ensured.json",
-            "logs/ground_loop/0/20261002.160833.832974.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.833797.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.834211.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.834547.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.871740.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.872105.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160833.887291.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160834.430928.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.160834.431431.GroundLoopDevice.subscribe.json"
+            "devices/ground_loop/0/last_known.json",
+            "logs/bus/0/20261002.184229.010754.BusDevice.post.json",
+            "logs/bus/0/20261002.184229.041811.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 160116450,
-          "disk_bytes": 181755904,
-          "entries": 9027,
+          "bytes": 91313119,
+          "disk_bytes": 108466176,
+          "entries": 7091,
           "builds": 1,
-          "reuses": 9
+          "reuses": 27
         }
       }
     },

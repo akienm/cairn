@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_rackmount.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T06:29:36",
+    "date": "2026-10-02T12:31:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f918390352153519e33fb5a3b479cdca1a216611575a3e9f92e47b74a9da02df",
+      "source_fingerprint": "c190623a29f3e5ac2920573928a7368a4f71e7c4ec0e63c0211433dd074a16f9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -35,11 +35,6 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovered.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
-        "cairn/devices/cairn/machines/ground_loop/loop.py",
-        "cairn/devices/cairn/machines/ground_loop/staleness.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -56,6 +51,9 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/roster.py",
         "cairn/tools/instanceizer/__init__.py",
         "cairn/tools/instanceizer/instanceizer.py",
         "cairn/tools/liveness/__init__.py",
@@ -65,34 +63,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-962907-9bmv8ko5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1115361-d6n7gbrr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
+          "count": 7,
           "paths": [
-            "logs/bus/0/20261002.122934.536565.BusDevice.post.json",
-            "logs/bus/0/20261002.122934.582850.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.122934.708853.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.122934.719756.BusDevice.post.json",
-            "logs/ground_loop/0/20261002.122934.458754.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122934.471481.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122934.611839.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122934.737839.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122935.752941.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.122935.765719.GroundLoopDevice.subscribe.json",
+            "logs/bus/0/20261002.183135.669013.BusDevice.post.json",
+            "logs/bus/0/20261002.183135.713314.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.183135.775813.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.183135.787619.BusDevice.post.json",
             "logs/ground_loop_nohup.log",
-            "logs/system_rackmount/0/20261002.122934.471685.SystemRackmountDevice.subscribe.json",
-            "logs/system_rackmount/0/20261002.122934.612068.SystemRackmountDevice.subscribe.json"
+            "logs/system_rackmount/0/20261002.183135.668761.SystemRackmountDevice.subscribe.json",
+            "logs/system_rackmount/0/20261002.183135.743269.SystemRackmountDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 152333187,
-          "disk_bytes": 173080576,
-          "entries": 8649,
+          "bytes": 91313472,
+          "disk_bytes": 108474368,
+          "entries": 7096,
           "builds": 1,
-          "reuses": 41
+          "reuses": 25
         }
       }
     },

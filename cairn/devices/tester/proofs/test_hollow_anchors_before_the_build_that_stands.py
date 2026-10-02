@@ -229,6 +229,24 @@ def test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates():
     assert ev["hollow"][FIXTURE] == f["measured"], ev["hollow"]
     assert ev.get("hollow_anchor", {}).get(FIXTURE) == anchor, ev.get("hollow_anchor")
 
+    # AND THE CLI IS THE WRITER THAT HANDS IT OVER. Measured at this ticket's own hollow
+    # (2026-10-02): reverting cli.py redded nothing, because the store accepting an anchor
+    # says nothing about the one caller passing it. So the CLI's seal path runs over this
+    # finding with the door captured — nothing reaches a live validation.
+    import argparse
+    from cairn.devices.tester import cli
+    seen: list[dict] = []
+    finding = dict(f, ticket=FIXTURE, proofs=["proofs/test_fixture.py"], hollow=[],
+                   skipped={}, unran={}, reasons=[], verdict="green")
+    real_measure, real_record = hollow.measure, cli.record_hollow
+    hollow.measure = lambda *a, **k: finding
+    cli.record_hollow = lambda path, tid, reading, **k: seen.append(k) or False
+    try:
+        cli._hollow_run(argparse.Namespace(hollow=FIXTURE, timeout=60, quiet=True, seal=True))
+    finally:
+        hollow.measure, cli.record_hollow = real_measure, real_record
+    assert seen and seen[0].get("anchor") == anchor, seen
+
 
 def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
     """Over the live repo and journals: the two tickets the rule was measured on anchor at the

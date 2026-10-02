@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_word.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:56:39",
+    "date": "2026-10-02T12:39:38",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -48,7 +48,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "985088cb19f289bb5aadf15dd6afe1685bc9f8f3e99173456bc73c0723dabb4b",
+      "source_fingerprint": "afb11e70d60c75271d114aa23233972caf7c6afecacbf4223b53162be2bde122",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,11 +66,14 @@
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/library.py",
         "cairn/devices/librarian/live.py",
         "cairn/devices/librarian/loop.py",
         "cairn/devices/librarian/summarize.py",
-        "cairn/devices/librarian/trees.py",
+        "cairn/devices/librarian/tools/__init__.py",
+        "cairn/devices/librarian/tools/trees/__init__.py",
+        "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/devices/sudo_relay/__init__.py",
         "cairn/devices/sudo_relay/daemon.py",
         "cairn/devices/sudo_relay/relay.py",
@@ -137,28 +140,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1033244-eln2pm7q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1115361-kf9966j2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 8,
           "paths": [
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "devices/verb_device/0/last_known.json",
             "logs/boot",
-            "logs/bus/0/20261002.145632.760628.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.145635.620500.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20261002.145639.120712.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261002.145639.351663.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20261002.183928.368098.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.183932.711254.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log",
+            "logs/harbor_master/0/20261002.183937.995173.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261002.183938.260372.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 156907591,
-          "disk_bytes": 178163712,
-          "entries": 8868,
+          "bytes": 91311829,
+          "disk_bytes": 108470272,
+          "entries": 7095,
           "builds": 1,
-          "reuses": 10
+          "reuses": 52
         }
       }
     },

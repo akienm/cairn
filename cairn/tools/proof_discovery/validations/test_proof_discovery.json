@@ -1,0 +1,56 @@
+[
+  {
+    "claim": "proof test_proof_discovery.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T05:06:50",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS test_a_proofs_directory_expands_to_its_proofs\nPASS test_a_directory_expands_to_every_proof_beneath_it_sorted_and_deduped\nPASS test_a_missing_path_is_kept_and_announced\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_proofs_directory_expands_to_its_proofs",
+        "test_a_directory_expands_to_every_proof_beneath_it_sorted_and_deduped",
+        "test_a_missing_path_is_kept_and_announced"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "950b1cb4d6f96e1df325945081fe896225c4c9c8f4085e021577c6bd2067fca3",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/proof_discovery/__init__.py",
+        "cairn/tools/proof_discovery/proof_discovery.py",
+        "cairn/tools/proof_discovery/proofs/test_proof_discovery.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-915711-rpy6ycfh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 148615319,
+          "disk_bytes": 168927232,
+          "entries": 8487,
+          "builds": 1,
+          "reuses": 2
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

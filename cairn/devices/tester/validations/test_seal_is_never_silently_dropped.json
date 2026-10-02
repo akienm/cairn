@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_seal_is_never_silently_dropped.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-09-30T15:03:22",
+    "caller": "cairn test",
+    "date": "2026-10-01T18:48:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -57,47 +57,38 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-222882-hq2im396/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-605517-42r0ncp7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 16,
           "paths": [
-            "logs/tester/0/20260930.210315.331707.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210315.761968.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210316.195250.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210316.618935.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210317.038135.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210317.469387.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210317.886561.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210318.328373.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210318.747449.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210319.175043.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210319.602311.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210320.021062.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210320.453270.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210320.870406.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210321.326028.TesterDevice.run_proof.json",
-            "logs/tester/0/20260930.210321.743215.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.004825.414472.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004825.855621.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004826.307173.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004826.737641.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004827.188926.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004827.638023.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004828.074068.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004828.531279.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004828.957298.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004829.396483.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004829.827232.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004830.279161.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004830.704536.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004831.144032.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004831.603422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.004832.033078.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 245856689,
-          "disk_bytes": 262049792,
-          "entries": 6806,
+          "bytes": 255676439,
+          "disk_bytes": 273018880,
+          "entries": 7306,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "1e00e89fa62b78465f7997d7f96977c4e00cf37e68fe0be31b2fe24d0e372718",
-        "opened": "2026-09-30T14:51:48",
-        "last_red": "2026-09-30T15:03:22",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

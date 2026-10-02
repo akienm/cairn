@@ -114,6 +114,7 @@ the clearance gate summons ``validation_store.standing`` the same way — all mo
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import os
@@ -664,8 +665,22 @@ def _conform(wf: Workflow, class_def: dict) -> dict:
                     f"{wf.node_class}@{wf.version} carries a bare {state!r} at position {i} — a "
                     f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); a watch "
                     f"without an object is inert, and a blank object cannot be checked")
+    # A REPAIR SUMMONS (ticket 72d2f79daf0a) is lifted out beside the free ones, but it is
+    # not free: it may occur at most once, and only directly before the backbone state it is
+    # anchored to — FIXME sits before BUILDME because design is repaired before building.
+    repair = reg.get("repair_summons", {})
+    for state, anchor in repair.items():
+        hits = [i for i, s in enumerate(wf.path) if s == state]
+        if len(hits) > 1:
+            raise MalformedWorkflow(
+                f"{wf.node_class}@{wf.version} carries {state!r} {len(hits)} times — a repair "
+                f"summons occurs at most once")
+        if hits and (hits[0] + 1 >= len(wf.path) or wf.path[hits[0] + 1] != anchor):
+            raise MalformedWorkflow(
+                f"{wf.node_class}@{wf.version} carries {state!r} not directly before {anchor!r} "
+                f"— a repair summons sits immediately before its anchor")
     dispositions = set(class_def.get("dispositions", []))
-    backbone = [s for s in wf.path if s not in free and s not in dispositions]
+    backbone = [s for s in wf.path if s not in free and s not in dispositions and s not in repair]
     if backbone != list(reg["path"]):
         raise MalformedWorkflow(
             f"{wf.node_class}@{wf.version} string path {list(wf.path)} does not conform to the "
@@ -1046,6 +1061,21 @@ class DemoGateRed(IllegalTransition):
         self.findings = findings or []
 
 
+class FixmeGateRed(IllegalTransition):
+    """The forward crossing out of FIXME is refused: the ticket's ``fixme`` list — what its
+    design was found to lack — has an entry with no ``FIXME <n>`` decision answering it.
+
+    FIXME is a REPAIR SUMMONS (ticket 72d2f79daf0a, Akien 2026-10-01: "it becomes open work
+    in deisgn. it goes back to ticketing for improvement." / "FIXME. that's approved thru
+    PROVED"). A refused crossing is a red, and a red's only legal motion is back to design;
+    this seat is what keeps the ticket there until the design carries every answer, so the
+    ticket's own state says it is broken rather than a trouble the ticket never sees."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 # ---------------------------------------------------------------------------
 # THE GATE REGISTRY — five named, instantiated gates at the block-general level.
 #
@@ -1057,6 +1087,41 @@ ENTRY_GATE = TransitionGate("entry_gate", exception_class=EntryGateRed)
 EXIT_GATE = TransitionGate("exit_gate", exception_class=ExitGateRed)
 BUILD_GATE = TransitionGate("build_gate", exception_class=BuildGateRed)
 CLEARANCE_GATE = TransitionGate("clearance_gate", exception_class=ClearanceRequiredRed)
+FIXME_GATE = TransitionGate("fixme_gate", exception_class=FixmeGateRed)
+
+
+def inspect_fixme(ticket: object) -> list[dict]:
+    """THE FIXME GATE'S PROOF RECORD — one lane: every ``fixme`` entry 1..N on the ticket has
+    a decision whose step is ``FIXME <n>`` and whose text is non-empty.
+
+    A missing ticket, an unnamed one, or an absent/empty ``fixme`` list is a RED, never a
+    pass: a ticket standing at FIXME with nothing listed cannot say what it is waiting on,
+    and 'cannot know' must never render as 'clean' (Law 3)."""
+    expected = "every fixme entry 1..N has a decision with step FIXME <n> and non-empty text"
+    code = "transitions.py::inspect_fixme"
+    unanswered: list[int] = []
+    path = _find_ticket(ticket) if isinstance(ticket, str) and ticket.strip() else None
+    if path is None:
+        actual = f"no ticket file resolves for {ticket!r} — the FIXME list cannot be read"
+    else:
+        body = json.loads(path.read_text(encoding="utf-8"))
+        fixme = body.get("fixme")
+        if not isinstance(fixme, list) or not fixme:
+            actual = f"ticket {ticket!r} stands at FIXME with no fixme list — nothing says what it lacks"
+        else:
+            answered = {str(d.get("step", "")).strip() for d in body.get("decisions") or []
+                        if isinstance(d, dict) and str(d.get("text", "")).strip()}
+            unanswered = [n for n in range(1, len(fixme) + 1) if f"FIXME {n}" not in answered]
+            actual = (expected if not unanswered else
+                      f"fixme entries {unanswered} on {ticket!r} have no FIXME <n> decision")
+    return [_lane("every_fixme_entry_is_answered", expected=expected, actual=actual,
+                  code=code, ticket=ticket, unanswered=unanswered)]
+
+
+def _fixme_gate(ticket: object) -> tuple[str, list[dict]]:
+    """A ticket crossing forward out of FIXME must carry an answer for every entry it lacked.
+    Returns ``(note, record)``; raises ``FixmeGateRed`` before anything is written."""
+    return FIXME_GATE.run(inspect_fixme(ticket), note=None)
 
 
 def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[dict]]:
@@ -1905,6 +1970,26 @@ def emit(
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)
     target = canon_target(wf, target, class_def)   # a stage token is a system word
+    # A REPAIR SUMMONS IS ENTERED BY WRITING IT IN (ticket 72d2f79daf0a). FIXME is not on the
+    # backbone, so a ticket that has never been sent back has no FIXME to retreat to: the
+    # first back-edge rewrites the path with FIXME immediately before its anchor (the cursor
+    # shifts by one) and is then an ordinary, ungated back-edge. Entering it must say what
+    # the design lacks — the list is the work FIXME holds open.
+    repair = _registered_workflow(class_def, wf.version).get("repair_summons", {})
+    target = canon(target, list(repair)) or target
+    if target in repair and target not in wf.path:
+        a = wf.path.index(repair[target])
+        if wf.cursor < a:
+            raise IllegalTransition(f"{target} is entered from {repair[target]} or later")
+        objs = tuple(wf.objects) + (None,) * (len(wf.path) - len(wf.objects))
+        wf = dataclasses.replace(wf, path=wf.path[:a] + (target,) + wf.path[a:],
+                                 objects=objs[:a] + (None,) + objs[a:], cursor=wf.cursor + 1)
+    if target in repair and resolve_target(wf, target) < wf.cursor:
+        missing = journal_extra.get("missing")
+        if not (isinstance(missing, list) and missing
+                and all(isinstance(m, str) and m.strip() for m in missing)):
+            raise IllegalTransition(
+                f"entering {target} needs missing=[...] — the list of what the design lacks")
     # THE RULES RUNG ALWAYS RUNS, so every journaled crossing carries at least its three
     # lanes: NO EMPTY ANYWHERE (Akien, 2026-08-13). `proved` accumulates every lane every
     # seat below ran, and `checks_proved` is its length — so a gate that stops running makes
@@ -1975,6 +2060,13 @@ def emit(
         # record is written: every gate must refuse upstream of it or a refused crossing
         # would leave a deposit owed for a voyage that never closed.
         entry_note = None
+        # THE FIXME GATE (ticket 72d2f79daf0a): a forward crossing out of a repair summons
+        # reads the ticket off disk and refuses while any entry of its ``fixme`` list is
+        # unanswered — BEFORE the BUILDME entry gate, so the design's own gap is named first.
+        fixme_note = None
+        if wf.here in repair and target_idx > wf.cursor:
+            fixme_note, _rec = _fixme_gate(journal_extra.get("ticket"))
+            proved += _rec
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")
             _exempt, _rec = _require_named_ticket("BUILDME", _ticket, history_path=history_path)
@@ -2089,6 +2181,9 @@ def emit(
             # ALWAYS PRESENT (ticket the-buildme-gates-guard-a-crossing-not-a-state):
             # "not_applicable" when no build-relevant crossing, else the gate's note.
             "entry_gate": entry_note if entry_note is not None else "not_applicable",
+            # The record of truth says the FIXME gate ran: every entry the design lacked
+            # was answered before the ticket left design for the build.
+            **({"fixme_gate": fixme_note} if fixme_note else {}),
             # The record of truth says the proof-named seat ran: a forward PROVEME entry
             # journals which proof stands behind the build, or that no ticket asked.
             **({"proof_gate": proof_note} if proof_note else {}),

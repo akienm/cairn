@@ -293,6 +293,11 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
         return
     s = json.loads(REAL_SET.read_text(encoding="utf-8"))
     ex = s.get("exemptions") or []
+    # 2026-10-02 (ticket 56d1aff4455e): RULE 1 retired build_inspector's db_domain exemption
+    # (db_domain's client is a published tool, so no device is exempt) and its entry left
+    # with the construct; the intent gate's 'none, because' exemption in the same file,
+    # masked until then by that entry's path, took its place. The tooth keeps its name:
+    # PROVES keys address it, and a renamed address silently drops the coverage on it.
     _check("the live set carries 8 entries — 7 measured sites plus itself",
            len(ex) == 8, len(ex))
     want = {

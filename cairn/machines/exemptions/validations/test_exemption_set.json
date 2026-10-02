@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_exemption_set.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-01T21:39:20",
+    "caller": "cairn test",
+    "date": "2026-10-01T22:16:15",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\n  ok   justification.py imports no inference path\n  ok   the sieve is registered under its own name\n  ok   the sieve lives in the inspector, not in a device\n  ok     test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\ntest_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n  ok   PROBE is a frozen Probe\n  ok   it carries a carry and an enough\n  ok   and a why that says what silence would mean\n  ok   it is quiet over today's corpus\n  ok   because every swept site is declared or acknowledged\n  ok   and its quiet carry still reports both counts\n  ok   it fires the moment a site is neither declared nor acknowledged\n  ok   and names the offending path in what it carries\n  ok   and its finding says which of the two things went wrong\n  ok   and it is quiet again once the acknowledgement is restored\n  ok   enough never clears — the corpus never stops growing sites\n  ok     test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n\n47 passed, 1 failed",
+      "returncode": 0,
+      "stdout_tail": "test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\n  ok   justification.py imports no inference path\n  ok   the sieve is registered under its own name\n  ok   the sieve lives in the inspector, not in a device\n  ok     test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM\ntest_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n  ok   PROBE is a frozen Probe\n  ok   it carries a carry and an enough\n  ok   and a why that says what silence would mean\n  ok   it is quiet over today's corpus\n  ok   because every swept site is declared or acknowledged\n  ok   and its quiet carry still reports both counts\n  ok   it fires the moment a site is neither declared nor acknowledged\n  ok   and names the offending path in what it carries\n  ok   and its finding says which of the two things went wrong\n  ok   and it is quiet again once the acknowledgement is restored\n  ok   enough never clears — the corpus never stops growing sites\n  ok     test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE\n\n48 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
         "an absent set reds",
@@ -37,6 +37,8 @@
         "every measured site is in the set",
         "every entry declares a legal justification_kind",
         "every entry's declared justification resolves against the live corpus",
+        "the live set reads green through the sieve",
+        "test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES",
         "the package is a real package, not a namespace",
         "and it says what an exemption is",
         "the charter is on disk",
@@ -69,10 +71,7 @@
         "enough never clears — the corpus never stops growing sites",
         "test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE"
       ],
-      "teeth_red": [
-        "the live set reads green through the sieve  [{'about': 'exemption anchored: device-isolation-db-domain', 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'every_exemption_cites_a_ruling_or_an_impossibility', 'component': 'exemptions', 'values': {'exemption_id': 'device-isolation-db-domain', 'exemption_path': 'cairn/machines/build_inspector/inspector.py', 'symbol': '\"exempt\": (\"db_domain\",)', 'lack': 'the declared symbol does not appear at that path — the exempting construct was renamed or removed and the reason now stands over nothing'}}]",
-        "test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -81,7 +80,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a27b925fec83c4be9e463634be174dc5346a4d069248f208df9235aa3dcbd178",
+      "source_fingerprint": "daed07876aafea0d30aefd766589eea79c8d937460dc08047106a8e5d49f2916",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -126,7 +125,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-715144-i_ugxcx5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-731341-zen93n0d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -135,21 +134,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 133113135,
-          "disk_bytes": 151494656,
-          "entries": 7714,
+          "bytes": 137709096,
+          "disk_bytes": 156762112,
+          "entries": 7944,
           "builds": 1,
-          "reuses": 23
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "118a30c16793a87325b381f36a6c269592140f952d78b21498b033d5bdd2ff93",
-        "opened": "2026-10-01T21:39:20",
-        "last_red": "2026-10-01T21:39:20",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-exemptions",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

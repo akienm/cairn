@@ -18,13 +18,13 @@
    "symbol": "exemption-set-self-reference"
   },
   {
-   "id": "device-isolation-db-domain",
+   "id": "intent-gate-named-exemption",
    "path": "cairn/machines/build_inspector/inspector.py",
-   "description": "_DEVICE_ISOLATION['exempt'] = ('db_domain',) — db_domain is the sole device another device may import. Every other cross-device import reds.",
+   "description": "_EXEMPT_RE / _EXEMPT_PREFIX in the intent gate — a ticket's intent_berth may read 'none, because <X>' in place of a berth, and the gate then declines to require one; the reason is recorded in the gate note, so every exempted crossing is visible in the journal. Declared 2026-10-02 (ticket 56d1aff4455e): until then the file was in the set only for the db_domain entry RULE 1 retired, which masked this site from the watch probe.",
    "kind": "sieve-scope",
-   "justification_kind": "ruling",
-   "evidence": "2026-08-31-no-cross-device-imports",
-   "symbol": "\"exempt\": (\"db_domain\",)"
+   "justification_kind": "no-other-way",
+   "evidence": "/intent fires before /sorted casts, so a ticket cast before the intent gate existed can never have had an intent berth — one written now would be fabricated after the event; the only honest input for such a ticket is a stated reason, and the gate takes that reason rather than silence.",
+   "symbol": "_EXEMPT_PREFIX = \"none, because \""
   },
   {
    "id": "address-rule-exemption-of",

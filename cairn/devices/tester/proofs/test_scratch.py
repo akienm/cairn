@@ -29,7 +29,8 @@ from pathlib import Path
 
 PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
                             "2": "test_a_with_block_holds_the_scratch",
-                            "3": "test_a_with_block_holds_the_scratch"}}
+                            "3": "test_a_with_block_holds_the_scratch",
+                            "4": "test_every_with_scratch_dir_site_in_the_repo_enters"}}
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
@@ -73,6 +74,40 @@ def test_a_with_block_holds_the_scratch():
             "print(d)\n")
     path, _ = _in_a_dead_process(body)
     assert not Path(path).exists(), f"the with-block scratch {path} outlived its process"
+
+
+def test_every_with_scratch_dir_site_in_the_repo_enters():
+    """Clause 4 measured at its cause, not by running other components' proofs (RULE 1):
+    test_component_color, test_history_integrity and test_inspector failed with the
+    context-manager TypeError because each holds ``with scratch_dir(<literal>) as d``. Every
+    such site in the repo's proofs is collected by AST and its exact call is entered, in one
+    dead process, through the door as it stands — so a door that cannot enter reds here."""
+    import ast
+    calls = []
+    for py in sorted(REPO.rglob("proofs/test_*.py")):
+        if "__pycache__" in py.parts:
+            continue
+        try:
+            tree = ast.parse(py.read_text(errors="replace"))
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.With):
+                for item in node.items:
+                    c = item.context_expr
+                    if (isinstance(c, ast.Call) and getattr(c.func, "id", None) == "scratch_dir"
+                            and all(isinstance(a, ast.Constant) for a in c.args) and not c.keywords):
+                        calls.append((f"{py.relative_to(REPO)}:{node.lineno}", ast.unparse(c)))
+    assert len(calls) >= 10, f"the census found {len(calls)} with-sites — the scan went blind"
+    body = "from cairn.devices.tester.scratch import scratch_dir\nimport json\nseen = []\n"
+    for site, call in calls:
+        body += f"with {call} as d:\n    assert d.is_dir(), {site!r}\n    seen.append(str(d))\n"
+    body += "print(json.dumps(seen))\n"
+    out, _ = _in_a_dead_process(body)
+    import json as _json
+    seen = _json.loads(out)
+    assert len(seen) == len(calls), (len(seen), len(calls))
+    assert not [d for d in seen if Path(d).exists()], "a with-site's scratch outlived its process"
 
 
 def test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something():
@@ -192,6 +227,7 @@ def _main() -> int:
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
         test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,
         test_a_with_block_holds_the_scratch,
+        test_every_with_scratch_dir_site_in_the_repo_enters,
     ]
     for check in checks:
         check()

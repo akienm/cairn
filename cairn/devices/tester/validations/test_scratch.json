@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T18:24:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:45:33",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
@@ -15,7 +15,8 @@
         "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
         "test_no_proof_in_this_repo_calls_mkdtemp_bare",
         "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
-        "test_a_with_block_holds_the_scratch"
+        "test_a_with_block_holds_the_scratch",
+        "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "9041ad72c9effa876afc4b85990b4caae6bf46ca0ef7c755eabb0c2fd8e427e2",
+      "source_fingerprint": "6c74726ff461f41dc14ff7b7c6acf80a05c1fe0cf09366422b3cfaf83fba460e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -36,7 +37,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-587932-33eet6d4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-603776-m7v4_l9r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -45,18 +46,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 253772477,
-          "disk_bytes": 270843904,
-          "entries": 7188,
+          "bytes": 255555170,
+          "disk_bytes": 272814080,
+          "entries": 7279,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "e038544a9b60": {
-          "cairn/devices/tester/scratch.py": [
-            "test_a_with_block_holds_the_scratch"
-          ]
         }
       }
     },

@@ -39,7 +39,7 @@ from pathlib import Path
 
 from cairn.tools.base import settled as S
 from cairn.tools.base.settled import forget, settled, tree_fingerprint
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 
 class _Counted:

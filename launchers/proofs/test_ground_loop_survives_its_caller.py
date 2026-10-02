@@ -53,7 +53,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
 
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop import liveness as _gl_liveness  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.__main__ import CADENCE_S as _CADENCE_S  # noqa: E402

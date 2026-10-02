@@ -23,7 +23,7 @@ sys.path.insert(0, str(REPO))
 from cairn.machines.learning_block import learning_block as lb  # noqa: E402
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 from cairn.tools.gate import gate  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime(2026, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
 

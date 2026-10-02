@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 # A seal sweeps dead-minter scratch first (ticket 201a37bf1613) and the device refuses a
 # seal without the sweep on hand. These fixtures seal stand-ins under a scratch dir; the
@@ -517,7 +517,7 @@ def _fixture_component(tag, *, seal=True, boat=None):
     ``seal=False`` leaves the proof NEVER RUN under the tester, which is how the
     refusal tooth gets a boat that is honestly not in proven-space.
     """
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
 
     root = Path(scratch_dir(tag))
     comp = root / "a_fixture_component"
@@ -1027,7 +1027,7 @@ def test_a_history_that_is_not_a_list_is_refused_by_name():
     which file was wrong or what shape it should have had (Law 7). The list shape is
     load-bearing everywhere below (append splats it, _window slices it, project indexes
     [-1]), so the read is where it gets asserted."""
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.charter import projector
 
     bad = Path(scratch_dir("cm_badhistory_")) / "history.json"

@@ -33,7 +33,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.chain import chain
 from cairn.tools.chain.chain import ChartNoteRefused
 

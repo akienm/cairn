@@ -52,7 +52,7 @@ SUT = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(SUT)
 
 from cairn.tools.base.probe import Probe  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 NOW = datetime.datetime(2026, 7, 30, tzinfo=datetime.timezone.utc)
 _failures: list[str] = []

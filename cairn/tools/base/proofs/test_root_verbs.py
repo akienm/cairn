@@ -39,7 +39,7 @@ sys.path.insert(0, str(ROOT))
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.shim import NEVER_BOOTED, OFFLINE, ONLINE, ROOT_VERBS, ROOT_VIEWS, BaseShim, cli_main  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 PROVES = [
     "cold list names the six verbs and the two root views and starts nothing",

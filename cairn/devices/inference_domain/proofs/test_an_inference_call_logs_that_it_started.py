@@ -66,7 +66,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.inference_domain import domain
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.base import address
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name

@@ -87,7 +87,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from cairn.devices.tester.scratch import git_env, scratch_worktree
+from cairn.tools.scratch.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme

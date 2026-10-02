@@ -44,7 +44,7 @@ from cairn.devices.librarian.library import (
 )
 from cairn.devices.librarian import trees
 from cairn.devices.librarian.trees import LibrarianDevice
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not

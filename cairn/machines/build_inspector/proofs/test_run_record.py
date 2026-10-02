@@ -21,7 +21,7 @@ from cairn.machines.build_inspector.run_record import (  # noqa: E402
     never_redded,
     list_runs,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 def _fake_result(gradation: dict, scope: str = "all") -> dict:

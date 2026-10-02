@@ -47,7 +47,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from cairn.devices.tester.scratch import scratch_dir              # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir              # noqa: E402
 from cairn.machines.build_inspector import inspector as _insp     # noqa: E402
 from cairn.machines.build_inspector.inspector import (            # noqa: E402
     GitUnreadable,

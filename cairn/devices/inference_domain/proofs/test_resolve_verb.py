@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # The device's trail and task tickets (ticket ea4a6151300f) ride the roots: moved into a
     # fixture world for the run so a bus proof leaves nothing in the live tickets folder.
     from cairn.devices.inference_domain import domain as _domain
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.base import address as _address
     _domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_resolve_verb_")})
     try:

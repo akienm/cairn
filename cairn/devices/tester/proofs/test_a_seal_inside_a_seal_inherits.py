@@ -142,7 +142,7 @@ def test_the_inner_write_lands_in_the_outer_swap_only():
 
 def test_the_instance_marker_without_a_mount_reads_breached():
     from cairn.devices.tester import isolation as I
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
 
     was = os.environ.get("CAIRN_TESTER_INSTANCE_SEALED")
     os.environ["CAIRN_TESTER_INSTANCE_SEALED"] = "1"

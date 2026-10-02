@@ -55,7 +55,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.devices.codemother.machines.verdict import verdict as _verdict  # noqa: E402
 from cairn.devices.codemother.machines.verdict.verdict import (  # noqa: E402
     VerdictRefused, inspect_verdict, validate_verdict, write_verdict)
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 def extract_command(*a, **kw):

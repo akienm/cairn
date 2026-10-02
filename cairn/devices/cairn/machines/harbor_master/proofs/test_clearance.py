@@ -140,7 +140,7 @@ from cairn.devices.cairn.machines.harbor_master import clearance as _clearance
 from cairn.devices.cairn.machines.harbor_master import register as _register
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.devices.tester.device import TesterDevice
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from cairn.devices.tester.validation_store import persist_validation, record_hollow
 
 
@@ -321,7 +321,7 @@ _RED_FIXTURE = _FIXTURES / "red_proof.py"
 # Scratch components for the proven-space teeth. NOT hand-written seals: each is a real
 # component tree whose validation trail is produced by the REAL tester and landed through the
 # REAL single write-door, so a build that faked either dies here. Swept at process exit by
-# cairn.devices.tester.scratch — the corpus's own door for this, and test_scratch.py enforces its use.
+# cairn.tools.scratch.scratch — the corpus's own door for this, and test_scratch.py enforces its use.
 _SCRATCH = scratch_dir("clearance-proven-space-")
 
 

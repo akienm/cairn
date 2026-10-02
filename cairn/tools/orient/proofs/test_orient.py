@@ -46,7 +46,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.tools.orient.orient import (  # noqa: E402
     SCANS, ScanRefused, call_sites, deepen, device_census, import_map, repo_truth,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 def _refuses(fn, because):

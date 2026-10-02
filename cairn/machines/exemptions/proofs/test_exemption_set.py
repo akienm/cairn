@@ -18,7 +18,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from cairn.machines.build_inspector import inspector as INSP
 
 # THE SAME LESSON, TAKEN AGAIN FOR justification.py (measured 2026-09-14 under ticket

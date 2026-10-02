@@ -20,11 +20,12 @@ reads red tooth by tooth rather than dying at import (the _Late pattern below).
 import json
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402  the fixture door; swept at exit
 
 
 class _Late:
@@ -83,7 +84,7 @@ def _charter(public_interface=(), **extra):
 
 
 def _repo(files: dict[str, str]) -> str:
-    root = tempfile.mkdtemp(prefix="encapsulation_fixture_holds_")
+    root = str(scratch_dir("encapsulation_fixture_holds_"))
     _TMP.append(root)
     for rel, text in files.items():
         p = Path(root) / rel

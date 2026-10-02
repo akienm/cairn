@@ -29,7 +29,7 @@ import tempfile
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 
 class _Late:

@@ -25,7 +25,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.devices.tester.hollow import (  # noqa: E402
     HollowUnmeasurable, SKIP_INSTRUMENT, SKIP_RECORD, _restore, measure,
 )
-from cairn.devices.tester.scratch import git_env, scratch_dir, scratch_worktree  # noqa: E402
+from cairn.tools.scratch.scratch import git_env, scratch_dir, scratch_worktree  # noqa: E402
 from cairn.devices.tester.validation_store import (  # noqa: E402
     VALIDATION_FIELDS, read_validations, persist_validation, record_hollow,
 )
@@ -315,7 +315,7 @@ def test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway():
     child = subprocess.run(
         [sys.executable, "-c",
          "import sys;sys.path.insert(0,%r)\n"
-         "from cairn.devices.tester.scratch import scratch_worktree\n"
+         "from cairn.tools.scratch.scratch import scratch_worktree\n"
          "import subprocess\n"
          "h=subprocess.run(['git','-C',%r,'rev-parse','HEAD'],capture_output=True,text=True).stdout.strip()\n"
          "print(scratch_worktree(h, repo_root=%r))\n" % (str(_REPO_ROOT), str(_REPO_ROOT), str(_REPO_ROOT))],
@@ -624,7 +624,7 @@ def test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree():
     wt = scratch_worktree(head, repo_root=_REPO_ROOT)
     probe = wt / "cairn" / "devices" / "tester" / "proofs" / "_where_did_cairn_come_from.py"
     probe.write_text(
-        "import cairn.devices.tester.scratch as m\nprint('  ok   ' + m.__file__)\n")
+        "import cairn.tools.scratch.scratch as m\nprint('  ok   ' + m.__file__)\n")
     prior = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = str(_REPO_ROOT)          # what every launcher hands us
     try:

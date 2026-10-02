@@ -48,7 +48,7 @@ if str(_REPO_ROOT) not in sys.path:
 # module global — so a recording wrapper installed on the package would be invisible to the
 # code under test, and tooth ii would pass while measuring nothing. ``_CLASS_ROOT`` lives
 # here too. The faces reached this way are the same objects the package hands out.
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 class _LazyModule:

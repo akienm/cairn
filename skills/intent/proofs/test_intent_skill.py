@@ -54,7 +54,7 @@ sys.path.insert(0, str(REPO))
 
 from cairn.machines.learning_block.learning_block import DoorRefused  # noqa: E402
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 SKILL_MD = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 CHARTER = json.loads((SKILL_DIR / "intention+why.json").read_text(encoding="utf-8"))

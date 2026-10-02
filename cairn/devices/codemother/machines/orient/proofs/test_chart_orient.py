@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from cairn.tools.chain.grammar import (component_roster, ref_exists)
 from cairn.devices.codemother.machines.orient.orient import (AUTHORED_FIELDS, FLOOR_AUTHORED, OrientRefused, deposit_orient, floor_facts, floor_packet, validate_orient, write_packet)
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
     # 2026-09-10, ticket 4c022c44de53 — the deposit door reads the provenance the write

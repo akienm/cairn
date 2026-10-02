@@ -71,7 +71,7 @@ from skills.chart.live import deposit_verdict, drain_pending
 from cairn.tools.tree.tree import nexus_table, scratch_nexus
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import trees
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
 _HELD: list[str] = []

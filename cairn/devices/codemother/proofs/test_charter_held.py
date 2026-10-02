@@ -62,7 +62,7 @@ _CLASS_CHARTER = _REPO_ROOT / "cairn/devices/codemother/0/tools/charter/intentio
 # --- the fixture world ---------------------------------------------------------------------
 
 def _scratch_roots() -> Path:
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     d = scratch_dir("cairn_charter_held_")
     _address.ROOTS["instance"] = d
     return d

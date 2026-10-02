@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 # The repo root by address, never by cwd: the tester runs a proof from its own scratch dir, and
 # 'launchers/superclaude' relative to THAT was 4 teeth red under a green seal that named no

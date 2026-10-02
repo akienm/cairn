@@ -43,7 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import driver, venv  # noqa: E402
 from cairn.devices.aider_shim.translate import Brief, Span  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 # Clause 3 of a1a2156a2a17: the real-coder drive runs in the live venv, so it is the tooth
 # that reds with ModuleNotFoundError when pydub cannot import audioop (Python 3.13+ without

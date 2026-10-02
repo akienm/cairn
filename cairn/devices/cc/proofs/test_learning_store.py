@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 
 @pytest.fixture

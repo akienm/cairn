@@ -55,7 +55,7 @@ from cairn.devices.codemother.machines.survey.survey import (
     SurveyRefused, deposit_survey, validate_survey, validate_survey_at_deposit,
     write_survey,
 )
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 TICKET = "a-deposit-stands-downstream-of-a-move"
 CONSTRAIN_BERTH = ("/home/akien/.cairn/devices/chart/0/packets/"

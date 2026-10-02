@@ -28,7 +28,7 @@ from cairn.tools.chain.grammar import _HEX_ID_RE
 # is retitled — a synthetic root has no tickets/ for a renamed citation to miss.
 from cairn.tools.chain.grammar import CAIRN_ROOT as _CR
 TICKETS = os.path.join(os.path.dirname(_CR), "CairnCommons", "tickets")
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 GRAMMAR_PY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "grammar.py"))
 

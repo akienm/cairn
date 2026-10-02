@@ -2,7 +2,7 @@
   {
     "claim": "proof test_web_server.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T20:18:55",
+    "date": "2026-10-02T01:12:38",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -33,7 +33,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "faff67e798188431a83f71f224a66fb67f67908fb78f86031a14624184b73b44",
+      "source_fingerprint": "1b11b10ddfc282fb5a31c66fc97ec43c84931057f99f89d607e35fcaa6b01be3",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -45,8 +45,6 @@
         "cairn/devices/cairn/machines/ground_loop/liveness.py",
         "cairn/devices/cairn/machines/ground_loop/loop.py",
         "cairn/devices/cairn/machines/ground_loop/staleness.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/devices/web_server/__init__.py",
         "cairn/devices/web_server/listener.py",
         "cairn/devices/web_server/proofs/test_web_server.py",
@@ -68,45 +66,47 @@
         "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-664040-g3jqi8na/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-805468-fntrcg_4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 19,
           "paths": [
-            "logs/ground_loop/0/20261002.021854.697188.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.697410.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.722434.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.722618.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.747762.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.747931.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.772746.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.772914.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.798329.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.798499.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.823679.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.823842.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.849227.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.849390.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.874520.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021854.874697.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021855.031561.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.021855.031745.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.364527.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.364820.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.390900.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.391070.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.417389.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.417559.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.442953.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.443122.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.468628.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.468800.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.494639.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.494803.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.519888.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.520054.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.545684.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.545853.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.701437.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.071237.701675.GroundLoopDevice.subscribe.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 259668644,
-          "disk_bytes": 277536768,
-          "entries": 7532,
+          "bytes": 141515336,
+          "disk_bytes": 161107968,
+          "entries": 8171,
           "builds": 1,
-          "reuses": 70
+          "reuses": 40
         }
       }
     },

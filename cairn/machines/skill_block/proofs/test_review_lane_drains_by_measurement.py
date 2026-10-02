@@ -33,7 +33,7 @@ sys.path.insert(0, str(REPO))
 
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 from cairn.tools.base import transitions  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 WF = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> {cursor}"
 

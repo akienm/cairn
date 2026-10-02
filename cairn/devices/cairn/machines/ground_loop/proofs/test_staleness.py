@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.devices.cairn.machines.ground_loop.staleness import (  # noqa: E402
     DRIFTED, UNDECIDABLE, VANISHED, REWRITTEN,
     diagnostics, is_stale, module_drift, read_all,

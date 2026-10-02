@@ -2,12 +2,12 @@
   {
     "claim": "proof test_fixme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T00:41:41",
+    "date": "2026-10-02T01:16:51",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_back_edge_lands_at_fixme_before_buildme\n.\n  ok   test_fixme_refuses_exit_while_an_entry_is_unanswered\n.\n  ok   test_fixme_admits_exit_once_every_entry_is_answered\n.\n  ok   test_a_v2_string_without_fixme_is_unchanged\n                                                                     [100%]\n4 passed in 0.05s",
+      "stdout_tail": ".\n  ok   test_a_back_edge_lands_at_fixme_before_buildme\n.\n  ok   test_fixme_refuses_exit_while_an_entry_is_unanswered\n.\n  ok   test_fixme_admits_exit_once_every_entry_is_answered\n.\n  ok   test_a_v2_string_without_fixme_is_unchanged\n                                                                     [100%]\n4 passed in 0.07s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_back_edge_lands_at_fixme_before_buildme",
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "2cbef6111814fc825ac007205f983cb2d574050eb02cd354a34194944900f277",
+      "source_fingerprint": "bdc12d7e901ed61dd1f5030e3e292e0550c89f9289106c3007d4fa7c16083006",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -36,8 +36,6 @@
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -61,29 +59,31 @@
         "cairn/tools/instanceizer/instanceizer.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-784693-wz2trd7z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-805468-zvx495ks/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/bus/0/20261002.064141.170364.BusDevice.post.json",
-            "logs/charter/0/20261002.064141.151586.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20261002.071651.412554.BusDevice.post.json",
+            "logs/charter/0/20261002.071651.389258.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 140056986,
-          "disk_bytes": 159416320,
-          "entries": 8084,
+          "bytes": 141502619,
+          "disk_bytes": 161030144,
+          "entries": 8156,
           "builds": 1,
-          "reuses": 70
+          "reuses": 62
         }
       }
     },

@@ -39,7 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.tester import isolation as iso_mod          # noqa: E402
 from cairn.devices.tester.device import TesterDevice           # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir           # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir           # noqa: E402
 from cairn.devices.tester.isolation import (                   # noqa: E402
     BREACHED, INDETERMINATE, SEALED, NoIsolation, check_instance_seal,
     snapshot_instance_space, venvs_under_instance_space,

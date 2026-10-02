@@ -41,7 +41,7 @@ from cairn.devices.codemother.machines.verdict import verdict as verdict_mod
 from cairn.devices.codemother.machines.verdict.verdict import (DEFAULT_NEXUS, FALSIFIER_REF, VerdictRefused,
                                  falsifier_criteria, unanswered, validate_verdict,
                                  verdict_error, verdict_nexus, write_verdict)
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _FALSIFIER = ("RED on any of: (1) the door admits a claim its instrument never "
               "ran. (2) A clause is dropped in segmentation and nobody is loud "

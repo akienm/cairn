@@ -18,7 +18,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.machines.build_inspector.inspector import (  # noqa: E402
     component_color, unbuilt_intentions, _source_fingerprint,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 def _row(name, d=None):

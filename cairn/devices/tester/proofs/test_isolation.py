@@ -51,7 +51,7 @@ from cairn.devices.tester.isolation import (
     pristine_stats,
     snapshot_instance_space,
 )
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 _FIXTURES = Path(__file__).resolve().parent / "fixtures"
 _GREEN_FIXTURE = _FIXTURES / "green_proof.py"

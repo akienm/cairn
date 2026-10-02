@@ -20,7 +20,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.machines.build_inspector.inspector import (  # noqa: E402
     SIEVES, green_seal_names_a_tooth,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
 PROVES = {

@@ -48,7 +48,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.machines.build_inspector.inspector import FINDING_SHAPE, SIEVES, inspect, working_tree_clean  # noqa: E402
 from cairn.tools.charter import projector  # noqa: E402
 from cairn.tools.orient.orient import ScanRefused  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 def _jfindings(attendance):

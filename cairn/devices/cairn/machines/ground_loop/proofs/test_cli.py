@@ -8,7 +8,7 @@ import os
 import sys
 import tempfile
 
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch

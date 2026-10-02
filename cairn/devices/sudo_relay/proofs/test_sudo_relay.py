@@ -42,7 +42,7 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.devices.sudo_relay import relay
 from cairn.devices.sudo_relay.relay import AUDIT_FIELDS, SudoRelayDevice
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _NOW = datetime(2026, 7, 18, 12, 0, 0)
 

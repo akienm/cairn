@@ -47,7 +47,7 @@ if str(ROOT) not in sys.path:
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
 from cairn.tools.base.shim import BaseShim, cli_main  # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 
 PROVES = {"15d6a0ef9c11": {
     "1": "test_the_vocabulary_is_one_table_and_list_carries_it",

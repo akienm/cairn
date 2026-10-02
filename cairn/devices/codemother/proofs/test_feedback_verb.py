@@ -61,7 +61,7 @@ class _FakeBus:
 
 @contextlib.contextmanager
 def _scratch_instance():
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.base import address as _address
     live = _address.ROOTS["instance"]
     d = scratch_dir("cairn_feedback_verb_")

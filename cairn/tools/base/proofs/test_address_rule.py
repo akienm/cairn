@@ -50,7 +50,7 @@ from __future__ import annotations
 
 import sys
 import tempfile
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_mailbox_nobody_reads_keeps_nothing.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T19:41:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T01:07:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_undeclared_mailbox_keeps_no_mail\n.\n  ok   test_a_declared_mailbox_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_mailboxes_accept_the_mail\n                                                                      [100%]\n3 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_an_undeclared_mailbox_keeps_no_mail\n.\n  ok   test_a_declared_mailbox_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_mailboxes_accept_the_mail\n                                                                      [100%]\n3 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_undeclared_mailbox_keeps_no_mail",
@@ -23,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "fa3f29d835f7fab75e2032e1d9db129a42a7aa6a8572903bacc7b23ce2d57139",
+      "source_fingerprint": "9c1a717ae4a2c9ccdc11d5e0b4e344b653ccaa3dcb1d1cc42fe1ea25444f88aa",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -33,8 +33,6 @@
         "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -47,12 +45,14 @@
         "cairn/tools/data_recorder/data_recorder.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-645500-xxcoa2r8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-805468-dxe13mgd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,18 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 258983654,
-          "disk_bytes": 276697088,
-          "entries": 7473,
+          "bytes": 141501597,
+          "disk_bytes": 161021952,
+          "entries": 8150,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "0bcd51173524": {
-          "cairn/devices/cairn/machines/ground_loop/discovered.py": [
-            "test_an_undeclared_mailbox_keeps_no_mail"
-          ]
+          "reuses": 5
         }
       }
     },

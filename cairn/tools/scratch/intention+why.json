@@ -1,0 +1,22 @@
+{
+ "component": "scratch",
+ "runtime_role": "tool",
+ "role": "charter",
+ "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+ "node_class": "tool",
+ "node_class_role": "fixture primitive",
+ "public_interface": ["cairn.tools.scratch.scratch"],
+ "what": "A proof's throwaway places: scratch_dir(prefix) — a temp directory whose removal the door registers at exit; scratch_worktree — a detached git worktree swept the same way; git_env — the environment a git call needs when it means 'the repository I am pointing at', scrubbed of the caller's GIT_* variables.",
+ "why": "Measured 2026-08-03: thirty mkdtemp sites, zero cleanup, 3581 leaked entries in /tmp — a proof author cannot forget a cleanup the door already registered. It moved out of the tester device on 2026-10-01 (ticket 9245b9cbce53) because RULE 1 lets a component reach another only through its public interface, and 90 proofs across every component were reaching into the tester for a temp directory; these primitives touch no tester state, so they are a tool everyone uses.",
+ "entry": "GRAFTED by git mv from cairn/devices/tester/scratch.py, with its proof test_scratch.py, ticket 9245b9cbce53, 2026-10-01. The module's bytes moved unchanged but for the dotted path naming its own address; every caller's dotted path was rewritten.",
+ "invoke": "`from cairn.tools.scratch.scratch import scratch_dir` (or scratch_worktree, git_env). Prove: `python3 cairn/tools/scratch/proofs/test_scratch.py` and `python3 cairn/tools/scratch/proofs/test_scratch_is_a_tool.py` (exit 0 = green).",
+ "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): the directories it makes belong to the run that asked for them and die with it. Its prior history rides cairn/devices/tester/history.json; this move rides ticket 9245b9cbce53.",
+ "proof": "proofs/test_scratch.py — moved with the module: a scratch directory cannot survive its run, and the corpus tooth holds every proof's temp reach to this door. proofs/test_scratch_is_a_tool.py — three teeth for 9245b9cbce53: nothing reaches into the tester for scratch; no code names the old address and the old file is gone; this charter declares exactly its module, the module exposes its three primitives, and test_scratch.py exits 0.",
+ "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) reds any reach landing off this tool's declared module. Seal: the tester seals both proofs into validations/ beside it.",
+ "falsifier": "Red if any import lands on cairn.devices.tester.scratch, if any code names that address, or if this charter stops declaring exactly cairn.tools.scratch.scratch, or if a scratch directory outlives its run.",
+ "learns": "It does not; it is a fixed primitive — a door that cleans up so no author has to.",
+ "how_it_learns": "It does not; it is a fixed primitive — a door that cleans up so no author has to.",
+ "traces_to": ["RULE 1 (encapsulation — reach another component only through its public interface)", "Law 4 (cleanup enforced by the door, not by each caller remembering)", "Law 6 (a tool has users, not an owner)"],
+ "owner": "None — a tool has users (Law 6): every proof that needs a throwaway directory. CC gates writes to its code and proofs.",
+ "gated_by": ["CC"]
+}

@@ -454,7 +454,7 @@ def test_the_lane_probe_is_armed_and_measures_a_scratch_world():
     named by a [BUILDME] ticket kept, zero terminal-ticket berths left in the lane — and
     reads a LACK the moment a question bound to the ticket is raised by Akien rather than
     by the cc caller class. No read touches the live commons: every root is scratch."""
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.operator_inbox.probes import the_lane_holds_only_his_decisions as probe_mod
 
     probe = probe_mod.PROBE

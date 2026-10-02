@@ -65,7 +65,7 @@ from cairn.devices.cairn.machines.harbor_master.clearance import (
 from cairn.machines.learning_block.learning_block import trace_root
 from cairn.devices.system_rackmount.rackmount import SystemRackmountDevice
 from cairn.devices.tester.device import TesterDevice
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from cairn.devices.tester.validation_store import persist_validation
 
 _WF = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
@@ -84,7 +84,7 @@ _GREEN_FIXTURE = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtu
 
 # The code a cleared move lands onto. A real component tree, proved by the REAL tester and
 # sealed through the REAL write-door — so the Law 8 rung these teeth pass THROUGH is the
-# shipped one, not a stub that answers yes. Swept at process exit by cairn.devices.tester.scratch.
+# shipped one, not a stub that answers yes. Swept at process exit by cairn.tools.scratch.scratch.
 _SCRATCH = scratch_dir("harbor-seam-proven-space-")
 
 # Fixtured host readings. The SAMPLER is injected, never the verdict: everything between this

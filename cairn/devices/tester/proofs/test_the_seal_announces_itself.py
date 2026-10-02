@@ -43,7 +43,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 from cairn.devices.tester.validation_store import (
     read_validations,
     standing_seal,

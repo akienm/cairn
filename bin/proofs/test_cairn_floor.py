@@ -45,7 +45,7 @@ N = 15
 
 
 def _scratch() -> Path:
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     return scratch_dir("0853-floor-")
 
 

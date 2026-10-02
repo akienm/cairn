@@ -17,7 +17,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.tools.ticket_inspector.inspector import (  # noqa: E402
     inspect_ticket, inspect_corpus, ROSTER, TICKETS_DIR,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"de9e31ef104c": {"1": "test_watchme_present_carries_the_spec_rule_text",
                            "2": "test_watchme_with_spec_is_clean",

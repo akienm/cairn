@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_venv_imports.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T19:19:56",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T01:07:24",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,7 +22,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "07b41df360a643e99b40b136a86a722a329e6d29b68e42d64f06c70772d511b0",
+      "source_fingerprint": "906034a77cfa605fd05308815d04d08f868c8f1a7786128585461855c9088f80",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -31,15 +31,15 @@
         "cairn/devices/aider_shim/interceptor.py",
         "cairn/devices/aider_shim/proofs/test_venv_imports.py",
         "cairn/devices/aider_shim/venv.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py"
+        "cairn/tools/base/address.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-628506-c2mrf6z_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-805468-xxr3uliq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -48,19 +48,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 257957383,
-          "disk_bytes": 275509248,
-          "entries": 7414,
+          "bytes": 141501597,
+          "disk_bytes": 161021952,
+          "entries": 8150,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "a1a2156a2a17": {
-          "cairn/devices/aider_shim/venv.py": [
-            "test_a_present_but_broken_package_reds_verify",
-            "test_the_stated_set_carries_the_audioop_backport"
-          ]
+          "reuses": 4
         }
       }
     },

@@ -55,7 +55,7 @@ import os
 import subprocess
 import sys
 import tempfile
-from cairn.devices.tester.scratch import scratch_dir
+from cairn.tools.scratch.scratch import scratch_dir
 import time
 from pathlib import Path
 

@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.base.device import BaseDevice          # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir    # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir    # noqa: E402
 
 PROVES = {
     "ae8d2bfb08e2": {

@@ -38,7 +38,7 @@ from cairn.devices.tester.device import GREEN, RED  # noqa: E402
 from cairn.devices.tester.reseal import (  # noqa: E402
     ResealRefused, proof_sha256, read_ladder, reseal, ruling_refusal, trouble_identity,
 )
-from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.devices.tester.validation_store import (  # noqa: E402
     persist_validation, read_validations, source_fingerprint, standing, validations_path_for,
 )

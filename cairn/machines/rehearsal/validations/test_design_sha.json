@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_design_sha.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T19:06:14",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T01:16:32",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,12 +24,9 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "53d450cad2a9285c56f84a365a9b98a4a55739e02886ded180f963ca4f6606e0",
+      "source_fingerprint": "171142aeb9340e97d8a4e49465a276019f23fbaf48c802621c02d0666522d561",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/machines/__init__.py",
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_design_sha.py",
@@ -52,12 +49,14 @@
         "cairn/tools/orient/orient.py",
         "cairn/tools/question/__init__.py",
         "cairn/tools/question/question.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-618152-k96ls_vw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-805468-a9glfh9o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,19 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 257081779,
-          "disk_bytes": 274509824,
-          "entries": 7364,
+          "bytes": 141501597,
+          "disk_bytes": 161021952,
+          "entries": 8150,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "9fb045a476dc": {
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_a_clean_record_carries_design_sha256",
-            "test_a_cursor_move_leaves_the_record_standing"
-          ]
+          "reuses": 55
         }
       }
     },

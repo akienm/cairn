@@ -750,7 +750,7 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
     toolset = [{"type": "function", "function": {"name": "clock"}}]
     r = _CountingResolver()
 
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     tmp = scratch_dir("cairn_agent_trail_both_records_")
     outer = getattr(domain._trail, "_diagnostic_roots", None)
     domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
@@ -827,7 +827,7 @@ def _main() -> int:
     # task ticket into the device's instance-space beside its trail; with the roots left
     # live, this proof's 32 calls landed 32 fixture tickets in the LIVE tickets folder
     # (measured 2026-09-17). The roots move once here and every tooth rides them.
-    from cairn.devices.tester.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.base import address as _address
     # RESOLVED AT CALL TIME: a hollow reading reverts domain.py to a world before ea4a6151300f,
     # where this name does not exist, and a proof that dies here prints no teeth at all — an

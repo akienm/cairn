@@ -23,7 +23,7 @@ sys.path.insert(0, str(_REPO))
 from cairn.machines.learning_block.learning_block import DoorRefused, read_trace  # noqa: E402
 from cairn.machines.skill_block import skill_block as sb                          # noqa: E402
 from cairn.machines.skill_block.skill_block import read_berth                     # noqa: E402
-from cairn.devices.tester.scratch import scratch_dir                              # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir                              # noqa: E402
 
 PASSES = 0
 

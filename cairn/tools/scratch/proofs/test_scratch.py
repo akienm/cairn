@@ -1,4 +1,4 @@
-"""Proof for tester/scratch — a proof's throwaway directory cannot survive the run.
+"""Proof for tools/scratch — a proof's throwaway directory cannot survive the run.
 
 The defect this seals was MEASURED, not imagined: on 2026-08-03 there were 3581 leaked
 entries and 33M sitting in /tmp, from thirty-one temp-directory sites that each forgot
@@ -18,7 +18,7 @@ the same cleanup. Teeth a hollow door could not pass:
     were fixed by hand; the thirty-fifth is what this catches. Without it the leak returns
     the first time someone writes the obvious line, and nobody finds out for two months.
 
-    python3 cairn/devices/tester/proofs/test_scratch.py     # exit 0 = green
+    python3 cairn/tools/scratch/proofs/test_scratch.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def _in_a_dead_process(body: str) -> tuple[str, str]:
 
 
 def test_the_scratch_is_gone_once_the_process_is():
-    body = ("from cairn.devices.tester.scratch import scratch_dir\n"
+    body = ("from cairn.tools.scratch.scratch import scratch_dir\n"
             "d = scratch_dir('scratch-proof-gone-')\n"
             "(d / 'a_file').write_text('x')\n"          # non-empty: rmtree must be recursive
             "assert d.is_dir()\n"
@@ -67,7 +67,7 @@ def test_the_scratch_is_gone_once_the_process_is():
 def test_a_with_block_holds_the_scratch():
     """Python 3.13 removed Path's context-manager methods; 27 sealed sites hold a scratch
     path in a with-block. The door's path must still enter, still be a Path, and still go."""
-    body = ("from cairn.devices.tester.scratch import scratch_dir\n"
+    body = ("from cairn.tools.scratch.scratch import scratch_dir\n"
             "with scratch_dir('scratch-proof-with-') as d:\n"
             "    (d / 'a_file').write_text('x')\n"
             "    assert d.is_dir()\n"
@@ -99,7 +99,7 @@ def test_every_with_scratch_dir_site_in_the_repo_enters():
                             and all(isinstance(a, ast.Constant) for a in c.args) and not c.keywords):
                         calls.append((f"{py.relative_to(REPO)}:{node.lineno}", ast.unparse(c)))
     assert len(calls) >= 10, f"the census found {len(calls)} with-sites — the scan went blind"
-    body = "from cairn.devices.tester.scratch import scratch_dir\nimport json\nseen = []\n"
+    body = "from cairn.tools.scratch.scratch import scratch_dir\nimport json\nseen = []\n"
     for site, call in calls:
         body += f"with {call} as d:\n    assert d.is_dir(), {site!r}\n    seen.append(str(d))\n"
     body += "print(json.dumps(seen))\n"
@@ -125,7 +125,7 @@ def test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal():
     # Make the directory unremovable from inside: a child the sweep cannot unlink because
     # the parent it must unlink from is not writable. The run must still exit 0.
     body = ("import os\n"
-            "from cairn.devices.tester.scratch import scratch_dir\n"
+            "from cairn.tools.scratch.scratch import scratch_dir\n"
             "d = scratch_dir('scratch-proof-stuck-')\n"
             "(d / 'child').mkdir()\n"
             "print(d)\n"
@@ -164,7 +164,7 @@ def test_no_proof_in_this_repo_calls_mkdtemp_bare():
     assert not offenders, (
         "a proof reaches the system temp directory directly, so what it makes there outlives "
         "the run — exactly how 3581 of them accumulated. Use "
-        "cairn.devices.tester.scratch.scratch_dir:\n  " + "\n  ".join(offenders))
+        "cairn.tools.scratch.scratch.scratch_dir:\n  " + "\n  ".join(offenders))
 
 
 def test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook():
@@ -190,7 +190,7 @@ def test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook():
     scrubber's return value would pass just as happily if nothing ever called it."""
     import os
     import subprocess as sp
-    from cairn.devices.tester.scratch import scratch_worktree
+    from cairn.tools.scratch.scratch import scratch_worktree
 
     head = sp.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
                   capture_output=True, text=True).stdout.strip()
@@ -203,9 +203,9 @@ def test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook():
     # directory the child happens to be in, which is not the one the hook was standing in.
     hooked = dict(os.environ, GIT_INDEX_FILE=".git/index", GIT_PREFIX="")
     body = (f"import os\nos.environ.update({hooked!r})\n"
-            "from cairn.devices.tester.scratch import scratch_worktree\n"
+            "from cairn.tools.scratch.scratch import scratch_worktree\n"
             f"wt = scratch_worktree({head!r}, repo_root={str(REPO)!r})\n"
-            "assert (wt / 'cairn' / 'devices' / 'tester' / 'scratch.py').is_file(), wt\n"
+            "assert (wt / 'cairn' / 'tools' / 'scratch' / 'scratch.py').is_file(), wt\n"
             "print(wt)\n")
     path, stderr = _in_a_dead_process(body)
     assert path, stderr

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-16T13:27:07",
+    "date": "2026-10-01T18:22:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_children_are_ticket_ids_prose_entry\n.\n  ok   test_children_are_ticket_ids_clean\n.\n  ok   test_child_tickets_exist\n.\n  ok   test_owning_intention_resolves\n.\n  ok   test_workflow_matches_node_class\n.\n  ok   test_workflow_matches_node_class_clean\n.\n  ok   test_roster_coverage\n.\n  ok   test_corpus_sweep_produces_findings\n.\n  ok   test_finding_shape\n                                             [100%]\n28 passed in 0.07s",
+      "stdout_tail": ".\n  ok   test_children_are_ticket_ids_prose_entry\n.\n  ok   test_children_are_ticket_ids_clean\n.\n  ok   test_child_tickets_exist\n.\n  ok   test_owning_intention_resolves\n.\n  ok   test_workflow_matches_node_class\n.\n  ok   test_workflow_matches_node_class_clean\n.\n  ok   test_roster_coverage\n.\n  ok   test_corpus_sweep_produces_findings\n.\n  ok   test_finding_shape\n                                             [100%]\n28 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_clean_ticket_is_clean",
@@ -44,7 +44,11 @@
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
-      "source_fingerprint": "74220a390d9571c5498e0f7d9034c93e2ab8d7257946b9ffe41d823b5ca5b657",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "d4c846c37fec403e9ff4abf12e244d498a1997c8ef390537c4603ba48c7bf3fc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -62,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1874230-dk_ul0_i/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-w9odr0ox/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,11 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 138094283,
-          "disk_bytes": 149909504,
-          "entries": 4908,
+          "bytes": 252346771,
+          "disk_bytes": 269238272,
+          "entries": 7116,
           "builds": 1,
-          "reuses": 5
+          "reuses": 67
         }
       }
     },

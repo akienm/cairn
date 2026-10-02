@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_run_record.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T23:18:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:19:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  GREEN  test_persist_and_read_round_trip\n  GREEN  test_silent_stop_detected\n  GREEN  test_verdict_change_detected\n  GREEN  test_never_redded_correct\n  GREEN  test_check_added_detected\n  GREEN  test_list_runs_chronological\n  GREEN  test_empty_records_dir\n\nrun_record proofs: all 7 teeth green",
-      "stderr_tail": "/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:41: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_round_trip\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:81: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_silent_stop\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:111: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_verdict_change\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:133: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_never_redded\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:156: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_added\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:172: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_list\") as root:\n/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_run_record.py:190: DeprecationWarning: pathlib.Path.__enter__() is deprecated and scheduled for removal in Python 3.13; Path objects as a context manager is a no-op\n  with scratch_dir(\"run_record_empty\") as root:",
+      "stderr_tail": "",
       "teeth_green": [
         "test_persist_and_read_round_trip",
         "test_silent_stop_detected",
@@ -23,7 +23,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "b3310fde36854dbcf5e3f88e22a6f654068eede1cd650881a1392eb336609740",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "480b7b93a6b02623f6241952c39b0088cfe7077ee34c041f2782c70ca3c68e07",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -36,7 +40,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2366936-xypt9xmn/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-gri2teom/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -45,11 +49,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123101502,
-          "disk_bytes": 133623808,
-          "entries": 4288,
+          "bytes": 252346771,
+          "disk_bytes": 269238272,
+          "entries": 7116,
           "builds": 1,
-          "reuses": 65
+          "reuses": 46
         }
       }
     },

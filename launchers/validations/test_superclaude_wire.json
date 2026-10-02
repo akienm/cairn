@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_superclaude_wire.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-09T11:47:27",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:22:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,11 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "fa1ec8d0b1a60fb5867510a459206563dcfb4d6612b677fbf6b2afdaaf66e4c8",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "e62526dcde6104c120304b213da1ac6a760c145796214ed79db8de1d46dce276",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -29,11 +33,15 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-271987-ehy5vtyv/cairn and not in /home/akien/.cairn; all 6 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-dg17eh51/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
+          "count": 6,
           "paths": [
+            "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART_FRESH.flag",
+            "launchers/superclaude/0/loop.pid",
             "logs/ground_loop_nohup.log",
             "logs/preflight.json"
           ],
@@ -41,11 +49,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116730300,
-          "disk_bytes": 125546496,
-          "entries": 3665,
+          "bytes": 252348633,
+          "disk_bytes": 269246464,
+          "entries": 7118,
           "builds": 1,
-          "reuses": 47
+          "reuses": 71
         }
       }
     },

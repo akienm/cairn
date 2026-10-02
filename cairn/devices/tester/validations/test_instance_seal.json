@@ -2,24 +2,14 @@
   {
     "claim": "proof test_instance_seal.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T08:44:01",
+    "date": "2026-10-01T18:16:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_proof_that_writes_to_instance_space_seeds_nothing_live\n  PASS  test_the_writes_are_MEASURED_not_merely_discarded\n  PASS  test_a_proof_still_READS_the_live_world\n  PASS  test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list\n  PASS  test_a_seal_that_does_not_hold_is_reported_BREACHED\n  PASS  test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED\n  PASS  test_every_venv_in_instance_space_is_found_and_bound_back\n  PASS  test_the_subject_can_still_execute_and_import_inside_the_seal\n  PASS  the live instance root is unleaked (5472 files witnessed; 2 declared subject-write(s), none on the host; 0 append(s) and 0 status rewrite(s) by the tester and the running daemons, read and clean)\ngreen — a proof writes nowhere in the live instance root and reads it exactly as the host does; the detector produces a real BREACHED and a real INDETERMINATE, so its SEALED means something",
-      "stderr_tail": "",
-      "teeth_green": [
-        "test_a_proof_that_writes_to_instance_space_seeds_nothing_live",
-        "test_the_writes_are_MEASURED_not_merely_discarded",
-        "test_a_proof_still_READS_the_live_world",
-        "test_an_unsealed_run_reports_UNMEASURED_and_never_an_empty_list",
-        "test_a_seal_that_does_not_hold_is_reported_BREACHED",
-        "test_a_seal_that_blinds_the_reads_is_INDETERMINATE_not_SEALED",
-        "test_every_venv_in_instance_space_is_found_and_bound_back",
-        "test_the_subject_can_still_execute_and_import_inside_the_seal",
-        "the live instance root is unleaked (5472 files witnessed; 2 declared subject-write(s), none on the host; 0 append(s) and 0 status rewrite(s) by the tester and the running daemons, read and clean)"
-      ],
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_instance_seal.py\", line 364, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_instance_seal.py\", line 302, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_instance_seal.py\", line 148, in test_a_proof_that_writes_to_instance_space_seeds_nothing_live\n    assert not (LIVE / \"SEEDED-BY-A-PROOF\").exists(), (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: a proof's write reached the LIVE instance root — the seal did not hold, and this is the exact failure that filled the trail tree with 2,080 records of proof exhaust",
+      "teeth_green": [],
       "teeth_red": [],
       "seal": {
         "verdict": "open",
@@ -29,7 +19,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "788e01398225728a1210d7002675a5d64e702a60f6eb3974c115bfe7684931c8",
+      "source_fingerprint": "dc031044f5814bac6b0802a18ec5f9e1745a5eacf2da0b77c461e6d4de6dec62",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -53,26 +43,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1019118-1gew6pe3/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-t3v_ugxt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 3,
           "paths": [
-            "logs/tester/0/20260918.144351.752515.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.144354.166665.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.144356.641933.TesterDevice.run_proof.json",
-            "logs/tester/0/20260918.144359.456613.TesterDevice.run_proof.json"
+            "SEEDED-BY-A-PROOF",
+            "logs/fixture_device/0/diagnostics.jsonl",
+            "logs/tester/0/20261002.001601.261184.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 178749111,
-          "disk_bytes": 192245760,
-          "entries": 5638,
+          "bytes": 252347384,
+          "disk_bytes": 269250560,
+          "entries": 7123,
           "builds": 1,
-          "reuses": 59
+          "reuses": 32
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "199dde4c83d7af9a96ab4720500ebeb819bcca0f963be0b1c2dd1963eaa70899",
+        "opened": "2026-10-01T18:16:01",
+        "last_red": "2026-10-01T18:16:01",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

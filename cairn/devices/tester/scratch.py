@@ -54,9 +54,25 @@ import tempfile
 from pathlib import Path
 
 
+class ScratchPath(type(Path())):
+    """A scratch Path that still works as a with-block.
+
+    Python 3.13 removed pathlib.Path.__enter__/__exit__ (since 3.9 they returned self and
+    did nothing). 27 sealed with-sites in build_inspector's proofs hold a scratch path that
+    way, so the door keeps the old contract. Entering removes nothing on exit: removal stays
+    with the atexit sweep below, exactly as before.
+    """
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return None
+
+
 def scratch_dir(prefix: str) -> Path:
     """A temp directory removed when this process exits. The caller writes no cleanup."""
-    d = Path(tempfile.mkdtemp(prefix=prefix))
+    d = ScratchPath(tempfile.mkdtemp(prefix=prefix))
     atexit.register(_sweep, d)
     return d
 

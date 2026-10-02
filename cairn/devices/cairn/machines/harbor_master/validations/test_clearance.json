@@ -2,13 +2,13 @@
   {
     "claim": "proof test_clearance.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T17:28:01",
+    "date": "2026-10-01T18:12:24",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "  PASS  test_the_owner_may_clear_a_legal_move_and_it_is_recorded\n  PASS  test_an_unauthorized_actor_is_refused_and_nothing_is_written\n  PASS  test_clearance_is_delegable_per_operation\n  PASS  test_a_grant_is_non_ambient_it_does_not_authorize_other_operations\n  PASS  test_even_the_owner_cannot_clear_an_illegal_move\n  PASS  test_clearing_onto_code_that_was_never_sealed_is_refused\n  PASS  test_clearing_onto_code_whose_proof_went_red_is_refused\n  PASS  test_a_green_seal_whose_code_has_moved_underneath_it_is_refused\n  PASS  test_the_record_names_the_proof_the_clearance_leaned_on\n  PASS  test_a_lapsed_grant_is_refused_and_nothing_is_written\n  PASS  test_the_same_grant_inside_its_window_still_clears\n  PASS  test_a_crossed_resource_line_refuses_an_otherwise_perfect_move\n  PASS  test_the_gate_asks_for_a_verdict_and_never_counts_anything",
-      "stderr_tail": "        workflow_str, target,\n    ...<4 lines>...\n        **journal_extra,\n    )\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/clearance.py\", line 1380, in _decide\n    return emit(\n        workflow_str,\n    ...<36 lines>...\n        **emit_kwargs,\n    )\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 2046, in emit\n    exit_note, _rec = _exit_gate(_ticket, history_path=history_path)\n                      ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1600, in _exit_gate\n    return EXIT_GATE.run(record, note=note, red_fn=_red)\n           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/gate_class.py\", line 58, in run\n    raise self.exception_class(msg, self._extract_findings(bad))\ncairn.tools.base.transitions.ExitGateRed: PROVED crossing refused: cast ticket 'an-intention-declares-its-gated-hands' would close over stones that exist only on this laptop — CairnCommons is 3 commit(s) ahead of 8c376ecfa66a4744a5e98627e181dff2b5bb215f — git -C /home/akien/dev/src/CairnCommons push. A green nobody else can pull is a green nobody can lean on (Law 8). Push, then cross again:\n  [the_stones_are_pushed] lane the_stones_are_pushed refused and named no finding (expected: \"every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)\", actual: 'CairnCommons is 3 commit(s) ahead of 8c376ecfa66a4744a5e98627e181dff2b5bb215f — git -C /home/akien/dev/src/CairnCommons push')",
+      "stderr_tail": "        workflow_str, target,\n    ...<4 lines>...\n        **journal_extra,\n    )\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/clearance.py\", line 1380, in _decide\n    return emit(\n        workflow_str,\n    ...<36 lines>...\n        **emit_kwargs,\n    )\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 2046, in emit\n    exit_note, _rec = _exit_gate(_ticket, history_path=history_path)\n                      ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1600, in _exit_gate\n    return EXIT_GATE.run(record, note=note, red_fn=_red)\n           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/gate_class.py\", line 58, in run\n    raise self.exception_class(msg, self._extract_findings(bad))\ncairn.tools.base.transitions.ExitGateRed: PROVED crossing refused: cast ticket 'an-intention-declares-its-gated-hands' would close over stones that exist only on this laptop — CairnCommons is 1 commit(s) ahead of 42ac6c4c45efe3878ef84dc8facafc847799de04 — git -C /home/akien/dev/src/CairnCommons push. A green nobody else can pull is a green nobody can lean on (Law 8). Push, then cross again:\n  [the_stones_are_pushed] lane the_stones_are_pushed refused and named no finding (expected: \"every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)\", actual: 'CairnCommons is 1 commit(s) ahead of 42ac6c4c45efe3878ef84dc8facafc847799de04 — git -C /home/akien/dev/src/CairnCommons push')",
       "teeth_green": [
         "test_the_owner_may_clear_a_legal_move_and_it_is_recorded",
         "test_an_unauthorized_actor_is_refused_and_nothing_is_written",
@@ -33,7 +33,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "17c9969baa4d2132c9599702505c0749377875dfd6196051d853cbffc3209d24",
+      "source_fingerprint": "3976ecdb9f68192d1e3ea1efd15e7d950f8e726bb3b4da2ab658d84f837f4e3c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -102,46 +102,46 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-526762-s85rsmrj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-xdub77ln/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 18,
           "paths": [
             "devices/cairn/0/machines/sail/durability_refusals.jsonl",
-            "logs/bus/0/20261001.232800.417302.BusDevice.post.json",
-            "logs/bus/0/20261001.232800.422153.BusDevice.post.json",
-            "logs/bus/0/20261001.232800.841598.BusDevice.post.json",
-            "logs/bus/0/20261001.232800.845738.BusDevice.post.json",
-            "logs/bus/0/20261001.232800.850691.BusDevice.post.json",
-            "logs/bus/0/20261001.232800.854510.BusDevice.post.json",
-            "logs/charter/0/20261001.232800.397382.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261001.232800.422007.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261001.232800.841449.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261001.232800.845603.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261001.232800.850558.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261001.232800.854378.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20261001.232759.546370.TesterDevice.run_proof.json",
-            "logs/tester/0/20261001.232759.956969.TesterDevice.run_proof.json",
-            "logs/tester/0/20261001.232800.394451.TesterDevice.run_proof.json",
-            "logs/tester/0/20261001.232800.838720.TesterDevice.run_proof.json",
-            "logs/tester/0/20261001.232801.284697.TesterDevice.run_proof.json"
+            "logs/bus/0/20261002.001223.419623.BusDevice.post.json",
+            "logs/bus/0/20261002.001223.424465.BusDevice.post.json",
+            "logs/bus/0/20261002.001223.854414.BusDevice.post.json",
+            "logs/bus/0/20261002.001223.858416.BusDevice.post.json",
+            "logs/bus/0/20261002.001223.863434.BusDevice.post.json",
+            "logs/bus/0/20261002.001223.867281.BusDevice.post.json",
+            "logs/charter/0/20261002.001223.399872.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.001223.424320.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.001223.854270.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.001223.858279.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.001223.863300.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.001223.867147.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20261002.001222.538912.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.001222.960987.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.001223.396465.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.001223.851454.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.001224.305938.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 249374665,
-          "disk_bytes": 265953280,
-          "entries": 6980,
+          "bytes": 252353307,
+          "disk_bytes": 269307904,
+          "entries": 7139,
           "builds": 1,
-          "reuses": 4
+          "reuses": 6
         }
       },
       "reseal_ladder": {
         "proof_sha256": "e0bc9a446492f8489cca175f8e41ee8b68c5d00617d386af4c4c5876ba6634a1",
         "opened": "2026-09-30T14:48:00",
-        "last_red": "2026-10-01T17:28:01",
-        "passes": 2,
+        "last_red": "2026-10-01T18:12:24",
+        "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cairn-machines-harbor-master",
         "ruling": null

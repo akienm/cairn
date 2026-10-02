@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_cli.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-09-30T12:04:00",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-01T18:12:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints each trigger the record lists and the changed count\nground_loop: stop signaled (flag copied to instance folder)\n  pid 135080 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
+      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints each trigger the record lists and the changed count\nground_loop: stop signaled (flag copied to instance folder)\n  pid 577588 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
       "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "teeth_green": [
         "status returns 0 and reads liveness",
@@ -27,7 +27,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "418567dd9dcecb721af9de47c72c202222394405f889caa23219adf27994200b",
+      "source_fingerprint": "f3971475de89f93c0aa5f9d7a22c3cd19d17cf1c188d849f4a4c22b1a9c43b72",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -47,7 +47,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-135069-ftyoqoy_/cairn and not in /home/akien/.cairn; all 8 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-573964-17vfx8fh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,39 +56,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 237849734,
-          "disk_bytes": 252964864,
-          "entries": 6388,
+          "bytes": 252346771,
+          "disk_bytes": 269238272,
+          "entries": 7116,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "bae622881f03": {
-          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
-            "COMMAND_EXIT stops the loop cleanly",
-            "a changed own file re-execs the loop in place (same pid, new start)",
-            "a second loop exits 3 while one runs and is LIVE",
-            "an untouched folder reads unchanged",
-            "test_the_doors_loser_reports_from_the_record_and_exits_distinctly",
-            "the record carries pid, last_run, and the heartbeat state",
-            "the triggers called this beat are listed, class and instance level",
-            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
-            "COMMAND_EXIT stops the loop cleanly",
-            "a changed own file re-execs the loop in place (same pid, new start)",
-            "a second loop exits 3 while one runs and is LIVE",
-            "the record carries pid, last_run, and the heartbeat state",
-            "the triggers called this beat are listed, class and instance level",
-            "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/cli.py": [
-            "status prints each trigger the record lists and the changed count"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": [
-            "the charter describes only the heartbeat"
-          ]
+          "reuses": 4
         }
       }
     },

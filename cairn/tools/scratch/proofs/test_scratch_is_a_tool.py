@@ -76,8 +76,9 @@ def nothing_reaches_into_the_tester_for_scratch():
 
 
 def _code_files():
-    for p in (_REPO_ROOT / "cairn").rglob("*.py"):
-        if p != Path(__file__).resolve() and "__pycache__" not in p.parts:
+    for p in _REPO_ROOT.rglob("*.py"):
+        if (p != Path(__file__).resolve() and "__pycache__" not in p.parts
+                and ".git" not in p.parts):
             yield p
     for p in (_REPO_ROOT / "bin").rglob("*"):
         if p.is_file() and "__pycache__" not in p.parts and p.suffix in ("", ".py", ".sh"):

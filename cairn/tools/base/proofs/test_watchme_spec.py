@@ -40,6 +40,12 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base import watchme_spec as ws
 
+# The live commons, resolved as hollow.py resolves it: beside the repo when there is one, else
+# the home path — a worktree under /tmp has no CairnCommons beside it, and the repo-relative
+# ws._TICKETS would read an empty corpus there.
+_TICKETS = ws._TICKETS if ws._TICKETS.is_dir() else \
+    Path.home() / "dev" / "src" / "CairnCommons" / "tickets"
+
 # Ticket fa4a411c96be: a WATCHME names its receiver — the code that USES the probe's data, and
 # the component it lives in. Clause 5 is the sweep: a missing receiver is the one fault the
 # standing corpus may still carry (its backfill is the sibling ticket), every other still reds.
@@ -163,7 +169,7 @@ def test_a_lone_dict_is_read_as_one_spec():
 
 def test_the_real_ticket_corpus_is_not_retro_redded():
     """THE FALSIFIER'S OWN INSTRUMENT — the real CairnCommons/tickets/, not a fixture."""
-    rows = ws.sweep()
+    rows = ws.sweep(_TICKETS)
     assert len(rows) > 40, f"the sweep found only {len(rows)} tickets — it is not reading the " \
                            "real corpus"
     # A missing receiver is allowed (fa4a411c96be: the 138 standing specs predate the field and
@@ -192,7 +198,7 @@ def test_the_clean_sweep_is_not_a_vacuous_check():
     import json
 
     bit, exempt = 0, 0
-    for p in sorted(ws._TICKETS.glob("*.json")):
+    for p in sorted(_TICKETS.glob("*.json")):
         if p.name.startswith("_"):
             continue
         t = json.loads(p.read_text(encoding="utf-8"))

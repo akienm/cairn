@@ -86,6 +86,11 @@ PROVES = {
         "2": "test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof",
         "5": "test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody",
     },
+    "b984567d8c05": {
+        "1": "test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME",
+        "2": "test_a_seal_whose_hollow_reading_COVERS_crosses",
+        "3": "test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME",
+    },
     "8754ae677af6": {
         "1": "test_a_crossing_codemother_admits_names_her_in_the_record",
         "2": "test_the_door_still_refuses_an_unproven_boat_through_her",
@@ -600,7 +605,7 @@ def _a_second_end(comp, boat, first_proof):
 
 
 @contextlib.contextmanager
-def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
+def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, hollow="covered"):
     """Give ``boat`` REAL coverage, and point the gate's owner read at the fixture corpus.
 
     THE COVERAGE RUNG IS SATISFIED, NEVER ROUTED AROUND (2026-09-09, ticket 1accdc1781aa).
@@ -635,10 +640,15 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
     import cairn.tools.base.transitions as _transitions
 
     root = comp.parent
-    landed = record_hollow(str(proof), boat, {"fixture.py": [_FIXTURE_TOOTH]})
-    assert landed is True, (
-        f"the hollow reading did not land on {proof}'s seal — the rung would refuse for a "
-        "reason the fixture created, not one the gate found")
+    # ``hollow`` (ticket b984567d8c05): "covered" lands a reading whose file redded a tooth;
+    # "empty" lands one whose file redded NONE (a real hollow file, which the rung refuses);
+    # None lands no reading at all — the seal stands before hollow has been taken.
+    if hollow is not None:
+        teeth = [_FIXTURE_TOOTH] if hollow == "covered" else []
+        landed = record_hollow(str(proof), boat, {"fixture.py": teeth})
+        assert landed is True, (
+            f"the hollow reading did not land on {proof}'s seal — the rung would refuse for a "
+            "reason the fixture created, not one the gate found")
     # A SECOND END IS COVERED THE SAME WAY, NEVER EXEMPTED. Each end carries its own hollow
     # reading because the rung asks it of every proof the crossing names — an end admitted
     # on the first end's evidence would be a seam half-checked.
@@ -1264,6 +1274,59 @@ def test_a_RED_seal_crosses_nothing_at_all():
     assert history == [], f"a RED seal journaled {len(history)} crossing(s)"
     print("PASS: test_a_RED_seal_crosses_nothing_at_all")
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 15. A SEAL WAITS FOR ITS HOLLOW READING
+#     ticket b984567d8c05. Measured n=2 on 2026-10-02 (e8fe361a5b2f, 56d1aff4455e): the
+#     seal that comes BEFORE the hollow reading can exist fired the crossing, the PROVED
+#     rung refused hollow_evidence_absent, and an unchanged build went to FIXME. A missing
+#     reading is a measurement still to come; a reading that names a hollow file is not.
+# ══════════════════════════════════════════════════════════════════════════
+
+def test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME():
+    """FALSIFIER CLAUSE (1): no reading yet → no crossing, no FIXME, the boat listed as waiting."""
+    comp, proof = _fixture_component("cm_awaiting_hollow_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof, hollow=None) as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof)
+    assert answer.get("accepted") is True, answer
+    assert answer.get("crossed") == [], f"a boat with no hollow reading crossed: {answer}"
+    assert answer.get("refused") == [], \
+        f"a boat with no hollow reading was refused (and so sent to FIXME): {answer}"
+    waiting = [w.get("ticket") for w in (answer.get("awaiting_hollow") or [])]
+    assert waiting == [boat], f"awaiting_hollow is {answer.get('awaiting_hollow')!r}, expected [{boat}]"
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    assert history == [], f"a waiting boat journaled {len(history)} crossing(s): {history}"
+    print("PASS: test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME")
+
+
+def test_a_seal_whose_hollow_reading_COVERS_crosses():
+    """FALSIFIER CLAUSE (2): the reading stands and covers → the boat crosses to PROVED."""
+    comp, proof = _fixture_component("cm_hollow_covers_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof, hollow="covered") as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof)
+    assert answer.get("crossed") == [boat], f"a covered boat did not cross: {answer}"
+    assert not answer.get("awaiting_hollow"), f"a covered boat was held: {answer}"
+    print("PASS: test_a_seal_whose_hollow_reading_COVERS_crosses")
+
+
+def test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME():
+    """FALSIFIER CLAUSE (3): a reading that names a file no tooth noticed is design work → FIXME."""
+    comp, proof = _fixture_component("cm_hollow_file_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof, hollow="empty") as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof)
+    assert answer.get("crossed") == [], f"a boat with a hollow file crossed: {answer}"
+    assert [r.get("ticket") for r in answer.get("refused") or []] == [boat], \
+        f"a boat with a hollow file was not refused: {answer}"
+    assert not answer.get("awaiting_hollow"), f"a boat WITH a reading was held as waiting: {answer}"
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    states = [str(h.get("workflow_and_state") or h.get("to") or "") for h in history]
+    assert any("FIXME" in s for s in states), f"the refusal did not send the boat to FIXME: {states}"
+    print("PASS: test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME")
+
+
 if __name__ == "__main__":
     tests = [
         test_shim_imports_and_has_correct_device_id,
@@ -1296,6 +1359,9 @@ if __name__ == "__main__":
         test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody,
         test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed,
         test_a_RED_seal_crosses_nothing_at_all,
+        test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME,
+        test_a_seal_whose_hollow_reading_COVERS_crosses,
+        test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME,
     ]
     passed = 0
     failed = 0

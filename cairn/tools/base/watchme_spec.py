@@ -67,6 +67,12 @@ REQUIRED_FIELDS = ("trigger", "enough", "carrier", "nexus", "consumer")
 # the load-bearing bound of the whole split (a registry is out of this ticket's constrain).
 BERTH_FIELD = "probe"
 
+# What USES the probe's data, and where it lives (ticket fa4a411c96be, Akien 2026-10-01: "I think
+# we've just been doing 1" — probes were built and nothing received what they sent). A dict
+# {"what": the code that receives, "in": its component directory, repo-relative}. ``consumer``
+# names a person in prose; this names code, so "nothing receives" is checkable from a path.
+RECEIVER_FIELD = "receiver"
+
 _NONE_RE = re.compile(r"^none,\s*because\s+\S+", re.IGNORECASE)
 
 
@@ -185,6 +191,20 @@ def watchme_spec_error(ticket: dict) -> str | None:
             faults.append("WATCHME(%s) spec names no %r — the emission gate resolves ARMED "
                           "from a path, so a spec with no berth cannot be gated"
                           % (obj, BERTH_FIELD))
+        # No fault text below may contain "; " — the faults are joined on it, and the corpus
+        # sweep tells "names no receiver" (the one fault the standing specs may carry until their
+        # backfill) from every other fault by splitting on it.
+        rec = spec.get(RECEIVER_FIELD)
+        if not isinstance(rec, dict):
+            faults.append("WATCHME(%s) spec names no receiver — a probe with nothing that USES "
+                          "its data is trash (Akien, 2026-10-01) — give %s: {\"what\": <the code "
+                          "that receives>, \"in\": <component dir>}" % (obj, RECEIVER_FIELD))
+        elif not (isinstance(rec.get("what"), str) and rec["what"].strip()):
+            faults.append("WATCHME(%s) receiver names no what" % obj)
+        elif not (isinstance(rec.get("in"), str) and rec["in"].strip()
+                  and (_REPO_ROOT / rec["in"] / "intention+why.json").is_file()):
+            faults.append("WATCHME(%s) receiver in=%r is not a component (no intention+why.json "
+                          "there)" % (obj, rec.get("in")))
 
     for orphan in by_object:
         faults.append("a spec claims object %r, which no WATCHME in the workflow carries — a "

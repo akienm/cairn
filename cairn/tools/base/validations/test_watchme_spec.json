@@ -2,12 +2,12 @@
   {
     "claim": "proof test_watchme_spec.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T19:37:04",
+    "date": "2026-10-01T19:39:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  ok   test_the_real_ticket_corpus_is_not_retro_redded\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n  ok   test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not\n  FAIL test_a_spec_without_a_receiver_is_refused: None\n  FAIL test_a_receiver_outside_a_component_is_refused: None\n  FAIL test_a_receiver_naming_nothing_is_refused: None\n  ok   test_a_valid_receiver_passes\n\n15/18 green",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_v1_ticket_is_exempt_by_the_version_rule\n  ok   test_a_pre_workflow_string_ticket_is_exempt_too\n  ok   test_a_v2_ticket_that_carries_no_watch_must_say_none_because\n  ok   test_a_carried_watch_with_a_complete_spec_passes\n  ok   test_a_carried_watch_with_no_spec_is_refused\n  ok   test_a_missing_field_is_named_and_so_is_every_other_one\n  ok   test_a_spec_with_no_berth_cannot_be_gated\n  ok   test_two_watches_need_two_specs_joined_by_object\n  ok   test_a_spec_cannot_drift_onto_a_watch_the_node_does_not_carry\n  ok   test_a_spec_that_names_no_object_describes_nothing\n  ok   test_a_lone_dict_is_read_as_one_spec\n  ok   test_the_real_ticket_corpus_is_not_retro_redded\n  ok   test_the_clean_sweep_is_not_a_vacuous_check\n  ok   test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not\n  ok   test_a_spec_without_a_receiver_is_refused\n  ok   test_a_receiver_outside_a_component_is_refused\n  ok   test_a_receiver_naming_nothing_is_refused\n  ok   test_a_valid_receiver_passes\n\n18/18 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_v1_ticket_is_exempt_by_the_version_rule",
@@ -24,13 +24,12 @@
         "test_the_real_ticket_corpus_is_not_retro_redded",
         "test_the_clean_sweep_is_not_a_vacuous_check",
         "test_a_swept_version_claim_is_exempt_but_an_authored_one_is_not",
-        "test_a_valid_receiver_passes"
-      ],
-      "teeth_red": [
         "test_a_spec_without_a_receiver_is_refused",
         "test_a_receiver_outside_a_component_is_refused",
-        "test_a_receiver_naming_nothing_is_refused"
+        "test_a_receiver_naming_nothing_is_refused",
+        "test_a_valid_receiver_passes"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -39,7 +38,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "60c9b4921510fd55407e0bc90040ea0435e9611d71462a6c1b08cdc8d8cd77a7",
+      "source_fingerprint": "25a2c81093a621bd810a8a4ddf7bfa20624b7e61d474547b2a9fcc7a29c046e8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -60,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-643022-haro2j57/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-644046-pedbte_2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,21 +68,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 258359206,
-          "disk_bytes": 275988480,
-          "entries": 7438,
+          "bytes": 258807865,
+          "disk_bytes": 276492288,
+          "entries": 7463,
           "builds": 1,
-          "reuses": 0
+          "reuses": 5
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "09164719582d727826077c322f56240613b4f5eb2718fba59bb4ea7900570939",
         "opened": "2026-10-01T19:37:04",
         "last_red": "2026-10-01T19:37:04",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-01T19:39:00",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "09164719582d727826077c322f56240613b4f5eb2718fba59bb4ea7900570939"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

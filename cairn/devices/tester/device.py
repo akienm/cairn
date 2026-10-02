@@ -57,7 +57,8 @@ from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.tester.isolation import (
-    INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal, get_isolation,
+    _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
+    get_isolation, inside_an_instance_seal,
     pristine_stats, snapshot_instance_space,
 )
 
@@ -486,6 +487,14 @@ class TesterDevice(BaseDevice):
                     INDETERMINATE,
                     f"cannot build the instance seal: {why} — this run MAY have written to the "
                     f"live instance root, and the record says so rather than implying it did not")
+            elif inside_an_instance_seal():
+                # INHERITED (c54d744aa9ac): an outer tester run bound the swap this process
+                # sees at _INSTANCE_ROOT, and this host refuses a second namespace. Nothing is
+                # made, so the finally sweeps nothing — the outer swap is the outer run's.
+                instance_seal = check_instance_seal(iso, _INSTANCE_ROOT, str(proof_path.parent))
+                if instance_seal.sealed:
+                    swap = _INSTANCE_ROOT
+                    before = _manifest(swap)
             else:
                 made = snapshot_instance_space()
                 instance_seal = check_instance_seal(iso, made, str(proof_path.parent))

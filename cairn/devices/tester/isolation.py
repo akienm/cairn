@@ -94,6 +94,21 @@ def inside_a_seal() -> bool:
     """TRUE when this process is running inside a network seal the tester built."""
     return os.environ.get(SEAL_MARKER) == "1"
 
+# THE INSTANCE SEAL INHERITS TOO, AND ON THIS HOST IT MUST (ticket c54d744aa9ac, 2026-10-01).
+# The host (AppArmor unpriv_bwrap, kernel 7.0.0-34) refuses a namespace inside a namespace:
+# bwrap started inside a bwrap sandbox prints "No permissions to create a new namespace" and
+# exits 1. So "one sandbox carrying both seals" is not merely this module's preference any more,
+# it is the only thing that runs — and every proof that drives `cairn test` as a subprocess is
+# one level down. The sandbox that binds a swap says so with this marker, the wraps below skip
+# bwrap when they would add nothing, and ``check_instance_seal`` asks the mount table, never the
+# marker alone, whether the inherited swap is really mounted.
+INSTANCE_SEAL_MARKER = "CAIRN_TESTER_INSTANCE_SEALED"
+
+
+def inside_an_instance_seal() -> bool:
+    """TRUE when this process runs inside a sandbox the tester bound an instance swap into."""
+    return os.environ.get(INSTANCE_SEAL_MARKER) == "1"
+
 # The inside-probe. Printed tokens, classified by errno so we distinguish "no route at all"
 # (the seal worked) from "reached the host, port said no" (a route exists — NOT sealed).
 # A refusal proves a route as surely as a success does; only ENETUNREACH-family errors mean
@@ -456,6 +471,8 @@ def instance_bind_flags(swap_root: str) -> list[str]:
     flags = ["--bind", swap_root, _INSTANCE_ROOT]
     for venv in venvs_under_instance_space():
         flags += ["--ro-bind", venv, venv]
+    # Every sandbox carrying a swap says so, so a tester run inside it inherits (c54d744aa9ac).
+    flags += ["--setenv", INSTANCE_SEAL_MARKER, "1"]
     return flags
 
 
@@ -477,6 +494,9 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     Anything else is INDETERMINATE — and a marker that reaches the live root is BREACHED,
     which is the one outcome this whole module exists to make impossible to miss.
     """
+    if inside_an_instance_seal():
+        return _check_inherited_instance_seal(iso, swap_root, cwd)
+
     live = Path(_INSTANCE_ROOT)
     control = sorted(p.name for p in live.iterdir()) if live.is_dir() else []
     if not control:
@@ -535,6 +555,53 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     return Seal(SEALED, f"writes land in {swap_root} and not in {live}; all {len(control)} "
                         f"live top-level entries remain readable — seeded nothing, read "
                         f"everything")
+
+
+def _mount_points() -> set[str]:
+    """The mount points this process sees (field 5 of /proc/self/mountinfo), or empty."""
+    try:
+        lines = Path("/proc/self/mountinfo").read_text().splitlines()
+    except OSError:
+        return set()
+    return {ln.split()[4] for ln in lines if len(ln.split()) > 4}
+
+
+def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
+    """The inherited branch: the swap was bound by an outer tester run — measure it anyway.
+
+    The marker chooses the question; the mount table and a write answer it. A marker over a
+    directory that is no mount point is a claim with nothing under it, and that is BREACHED:
+    set it by hand on an ordinary shell and the very next seal says so. The live root is not
+    visible from in here (the swap is mounted over it), so the outer run's own
+    ``wrote_to_instance`` reading is the host-side witness, not this one."""
+    if os.path.realpath(swap_root) not in _mount_points():
+        return Seal(BREACHED, f"this run is marked {INSTANCE_SEAL_MARKER}=1 but {swap_root} is "
+                              f"not a mount point here — the INHERITED instance seal is a claim "
+                              f"with no mount under it (RED)")
+    marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker], cwd,
+                    instance_swap=swap_root)
+    try:
+        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return Seal(INDETERMINATE, f"inherited instance-seal probe did not run: "
+                                   f"{type(exc).__name__}")
+    wrote = "WROTE" in out.splitlines()
+    in_swap = (Path(swap_root) / marker).exists()
+    try:
+        (Path(swap_root) / marker).unlink()
+    except OSError:
+        pass
+    if not wrote:
+        fail = next((ln for ln in out.splitlines() if ln.startswith("WRITEFAIL")), "no WROTE line")
+        return Seal(INDETERMINATE, f"the inherited-seal probe could not write ({fail}) — CP1")
+    if not in_swap:
+        return Seal(INDETERMINATE, f"the inherited-seal probe reported WROTE but {marker!r} is "
+                                   f"not in {swap_root} — nothing is confirmed")
+    return Seal(SEALED, f"writes land in {swap_root}, the instance swap this run INHERITED (a "
+                        f"mount point here, bound by an outer tester run that measured it "
+                        f"against the live root); the live root is not visible from inside, so "
+                        f"the outer run's own wrote_to_instance is the host-side witness")
 
 
 class Isolation(ABC):
@@ -632,6 +699,10 @@ class NoIsolation(Isolation):
     def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:
         if instance_swap is None:
             return list(argv)
+        if inside_an_instance_seal():
+            # Inherited: the swap is already mounted, and this host refuses a second namespace.
+            # `env -C` is the cwd change --chdir gave (c54d744aa9ac).
+            return ["env", "-C", cwd] + list(argv)
         # Bare of the NETWORK seal, still sealed against instance-space: this is the ordinary
         # case, since the tester's default is unsealed-network and every proof gets the
         # instance seal. --chdir is required here for the same reason it is under netns — the
@@ -678,14 +749,20 @@ class NetnsIsolation(Isolation):
         # becoming root-in-namespace breaks uid-matched services (e.g. Postgres peer auth).
         # Least privilege here is not hygiene, it is correctness — a grader that breaks the
         # thing it observes is worse than no grader.
+        need_net = not inside_a_seal()
+        need_inst = instance_swap is not None and not inside_an_instance_seal()
+        if not (need_net or need_inst):
+            # Both seals inherited: nothing new to cut, and this host refuses a namespace inside
+            # a namespace anyway (c54d744aa9ac). `env -C` is the cwd change --chdir gave.
+            return ["env", "-C", cwd] + list(argv)
         flags = ["bwrap", "--dev-bind", "/", "/"]
-        if not inside_a_seal():
+        if need_net:
             # AN INHERITED SEAL IS NOT RE-CUT. If this process is already running inside a
             # namespace the tester built, the route is already gone and a second --unshare-net
             # would buy nothing while costing a namespace whose behaviour would have to be
             # measured all over again. The marker rides the sandbox so the inner run can know.
             flags += ["--unshare-net", "--setenv", SEAL_MARKER, "1"]
-        if instance_swap is not None:
+        if need_inst:
             # ONE sandbox carrying both seals, never a sandbox inside a sandbox: they are
             # flags on the same bwrap, so composing them costs nothing and nesting would cost
             # a second namespace whose failure modes nobody has measured.

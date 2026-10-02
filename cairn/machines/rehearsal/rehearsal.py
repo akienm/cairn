@@ -119,6 +119,17 @@ def _sha(blob: bytes) -> str:
     return hashlib.sha256(blob).hexdigest()
 
 
+def design_sha(blob: bytes) -> str:
+    """The sha256 of a ticket's DESIGN: its JSON with ``workflow_and_state`` (the cursor) and
+    ``rehearsal`` (the pointer to this very record) removed, serialized with sorted keys. A
+    clean record stands over this, so the cursor moving through the workflow leaves it
+    standing and any edit to what the builder reads still makes it stale (ticket 9fb045a476dc)."""
+    doc = json.loads(blob)
+    doc.pop("workflow_and_state", None)
+    doc.pop("rehearsal", None)
+    return _sha(json.dumps(doc, sort_keys=True, ensure_ascii=False).encode("utf-8"))
+
+
 def _stamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
 
@@ -477,8 +488,11 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         doc["rehearsal"] = rec_rel
         live = _write_ticket(tk, doc, why=f"rehearsal clean on pass {passes + 1}: {rec_rel}")
         sha_live = _sha(live)
+        design = design_sha(live)
     else:
         sha_live = sha_at_read
+        blob = tk.read_bytes()
+        design = design_sha(blob) if _sha(blob) == sha_at_read else None
     record = {
         "ticket": ticket,
         "record": rec_rel,
@@ -487,6 +501,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         "clean": clean,
         "ticket_sha256": sha_live,
         "ticket_sha256_at_read": sha_at_read,
+        "design_sha256": design,
         "reads": reads,
         "gaps": found,
         "meta": {
@@ -558,8 +573,10 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
 def standing(ticket: str, root: Path | str | None = None) -> dict:
     """What the BUILDME lane reads: ``{ok, lack, record, ticket_sha256, live_sha256}``.
     ``ok`` iff the ticket's ``rehearsal`` pointer names a readable record that is clean and
-    whose ``ticket_sha256`` equals the sha256 of the live ticket bytes. Everything else is a
-    named lack — no pointer, an unreadable record, an unclean one, a stale hash."""
+    whose ``design_sha256`` equals ``design_sha`` of the live ticket — the DESIGN, so the cursor
+    moving does not stale it (ticket 9fb045a476dc). A record written before that carries no
+    ``design_sha256`` and stands on the whole bytes (``ticket_sha256``) as it did. Everything
+    else is a named lack — no pointer, an unreadable record, an unclean one, a stale design."""
     tk = ticket_file(ticket, root)
     if tk is None:
         return {"ok": False, "lack": "no ticket file", "record": None}
@@ -581,11 +598,15 @@ def standing(ticket: str, root: Path | str | None = None) -> dict:
     if not rec.get("clean"):
         return {"ok": False, "lack": f"rehearsal record {ptr} is not clean ({len(rec.get('gaps') or [])} gap(s))",
                 "record": ptr, "live_sha256": _sha(blob)}
-    if rec.get("ticket_sha256") != _sha(blob):
+    if rec.get("design_sha256"):
+        stale = rec["design_sha256"] != design_sha(blob)
+    else:   # a record written before ticket 9fb045a476dc stands on the whole bytes, as it did
+        stale = rec.get("ticket_sha256") != _sha(blob)
+    if stale:
         return {"ok": False, "lack": "the ticket was edited after its rehearsal — rehearse again",
                 "record": ptr, "ticket_sha256": rec.get("ticket_sha256"), "live_sha256": _sha(blob)}
-    return {"ok": True, "lack": None, "record": ptr, "ticket_sha256": rec["ticket_sha256"],
-            "live_sha256": _sha(blob)}
+    return {"ok": True, "lack": None, "record": ptr, "ticket_sha256": rec.get("ticket_sha256"),
+            "live_sha256": _sha(blob), "design_sha256": rec.get("design_sha256")}
 
 
 # ---------------------------------------------------------------------------

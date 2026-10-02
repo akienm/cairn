@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_unread_mail_is_not_kept.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-01T20:26:00",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.02s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_undeclared_device_keeps_no_mail",
+        "test_a_declared_device_keeps_exactly_the_mail_it_got",
+        "test_both_devices_accept_the_mail"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "0c2642901cb2834cb1be4bc81eed4cf58a01b692c02f9992657c38ee17ca7e49",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/scratch.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/proofs/test_unread_mail_is_not_kept.py",
+        "cairn/tools/data_recorder/__init__.py",
+        "cairn/tools/data_recorder/data_recorder.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-680571-rk6cc1kl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 4,
+          "paths": [
+            "logs/base/0/20261002.022600.268065._Undeclared.received.json",
+            "logs/base/0/20261002.022600.269207._Declared.received.json",
+            "logs/base/0/20261002.022600.270017._Undeclared.received.json",
+            "logs/base/0/20261002.022600.270380._Declared.received.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 259659501,
+          "disk_bytes": 277467136,
+          "entries": 7517,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

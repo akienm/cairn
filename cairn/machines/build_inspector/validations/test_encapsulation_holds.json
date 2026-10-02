@@ -2,12 +2,12 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-01T22:21:11",
+    "date": "2026-10-01T22:26:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green a_tool_reaching_into_a_device_is_into_device\n  green a_skill_importing_an_undeclared_module_reds_until_declared\n  green a_proof_reaching_into_a_device_reds\n  green a_published_device_client_is_reachable_through_its_declared_module\n  green a_component_with_no_public_interface_reds\n  green the_old_sieves_are_retired_and_encapsulation_holds_stands\n  green a_device_importing_another_device_is_into_device\n  green a_machine_importing_a_device_reds_by_file_and_module\n8 passed, 0 failed out of 8",
+      "stdout_tail": "  green a_tool_reaching_into_a_device_is_into_device\n  green a_skill_importing_an_undeclared_module_reds_until_declared\n  green a_proof_reaching_into_a_device_reds\n  green a_published_device_client_is_reachable_through_its_declared_module\n  green a_component_with_no_public_interface_reds\n  green the_old_sieves_are_retired_and_encapsulation_holds_stands\n  green a_device_importing_another_device_is_into_device\n  green a_machine_importing_a_device_reds_by_file_and_module\n  green the_live_into_device_findings_equal_an_independent_census\n9 passed, 0 failed out of 9",
       "stderr_tail": "",
       "teeth_green": [
         "a_tool_reaching_into_a_device_is_into_device",
@@ -17,7 +17,8 @@
         "a_component_with_no_public_interface_reds",
         "the_old_sieves_are_retired_and_encapsulation_holds_stands",
         "a_device_importing_another_device_is_into_device",
-        "a_machine_importing_a_device_reds_by_file_and_module"
+        "a_machine_importing_a_device_reds_by_file_and_module",
+        "the_live_into_device_findings_equal_an_independent_census"
       ],
       "teeth_red": [],
       "seal": {
@@ -28,7 +29,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "d90b67cf9b52841ad5acfbf7dd7335418f87b2a8554183f36c64f2cd54611bb5",
+      "source_fingerprint": "706bf58f05b196f577489904d80897be98180dc17c2be706ba5888ef4edc96ae",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -64,7 +65,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-733746-vxp_2xkb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-736335-wxdvdcwn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,33 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 137995124,
-          "disk_bytes": 157093888,
-          "entries": 7961,
+          "bytes": 138113163,
+          "disk_bytes": 157241344,
+          "entries": 7969,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "56d1aff4455e": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "a_component_with_no_public_interface_reds",
-            "a_proof_reaching_into_a_device_reds",
-            "a_published_device_client_is_reachable_through_its_declared_module",
-            "a_skill_importing_an_undeclared_module_reds_until_declared",
-            "a_tool_reaching_into_a_device_is_into_device",
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/build_inspector/sieves/encapsulation_holds.json": [
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/build_inspector/finding_baseline.json": [
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ],
-          "cairn/machines/openai_wire/intention+why.json": [
-            "a_component_with_no_public_interface_reds",
-            "the_old_sieves_are_retired_and_encapsulation_holds_stands"
-          ]
         }
       }
     },

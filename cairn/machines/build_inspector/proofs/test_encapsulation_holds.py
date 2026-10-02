@@ -52,7 +52,8 @@ PROVES = {
                      "3": "a_proof_reaching_into_a_device_reds",
                      "4": "a_published_device_client_is_reachable_through_its_declared_module",
                      "5": "a_component_with_no_public_interface_reds",
-                     "6": "the_old_sieves_are_retired_and_encapsulation_holds_stands"},
+                     "6": "the_old_sieves_are_retired_and_encapsulation_holds_stands",
+                     "7": "the_live_into_device_findings_equal_an_independent_census"},
     "76639374d9f9": {"a": "a_machine_importing_a_device_reds_by_file_and_module"},
 }
 
@@ -197,6 +198,47 @@ def a_machine_importing_a_device_reds_by_file_and_module():
         [("cairn/machines/m/m.py", "cairn.devices.db_domain.store", "into_device")], got
 
 
+def the_live_into_device_findings_equal_an_independent_census():
+    """Clause 7, kept as an invariant: the live into-device findings are exactly the edges an
+    independent census reads straight off import_sieve's sites, site for site. Both move together
+    as RULE 1's children close breaches, so equality holds at every commit, not just the first."""
+    import os
+    import re
+    from cairn.tools.import_sieve.sieve import SKIP_DIRS, import_sites
+    root = str(_REPO_ROOT)
+    comps = set()
+    for d, dirs, files in os.walk(root):
+        dirs[:] = [x for x in dirs if x not in SKIP_DIRS]
+        if "intention+why.json" in files:
+            comps.add(Path(d).relative_to(root).as_posix())
+
+    def comp_of(rel):
+        parts = Path(rel).parts
+        return next(("/".join(parts[:i]) for i in range(len(parts), 0, -1)
+                     if "/".join(parts[:i]) in comps), None)
+
+    def rel(p):
+        return Path(p).relative_to(root).as_posix() if os.path.isabs(str(p)) else str(p)
+
+    census = set()
+    for site in import_sites(root):
+        if not site.get("target"):
+            continue
+        f = rel(site["file"])
+        src, tgt = comp_of(f), comp_of(rel(site["target"]))
+        if src is None or tgt is None or src == tgt:
+            continue
+        dev = re.match(r"cairn/devices/[^/]+", tgt)
+        if dev and not (src == dev.group(0) or src.startswith(dev.group(0) + "/")):
+            census.add((f, site["line"], tgt))
+    found = {(b["file"], b["line"], b["target"]) for b in _inspector.encapsulation_breaches(root)
+             if b["reason"] == "into_device"}
+    assert census, "the census read no into-device edge at all — an empty census proves nothing"
+    assert found == census, (f"inspector {len(found)} vs census {len(census)}; "
+                             f"census-only {sorted(census - found)[:5]}; "
+                             f"inspector-only {sorted(found - census)[:5]}")
+
+
 TEETH = [
     a_tool_reaching_into_a_device_is_into_device,
     a_skill_importing_an_undeclared_module_reds_until_declared,
@@ -206,6 +248,7 @@ TEETH = [
     the_old_sieves_are_retired_and_encapsulation_holds_stands,
     a_device_importing_another_device_is_into_device,
     a_machine_importing_a_device_reds_by_file_and_module,
+    the_live_into_device_findings_equal_an_independent_census,
 ]
 
 if __name__ == "__main__":

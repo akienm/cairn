@@ -38,6 +38,7 @@ PROVES = {
         "2": "test_a_writes_to_directory_is_measured_per_file",
         "3": "test_an_unchanged_move_reads_unwritten",
         "4": "test_the_anchor_and_hollow_proofs_stay_green",
+        "5": "test_a_removed_file_takes_its_empty_directory_with_it",
     },
 }
 
@@ -185,6 +186,23 @@ def test_an_unchanged_move_reads_unwritten():
     assert "new/mod.py" not in f["hollow"], ("an unchanged move read hollow", f["hollow"])
     assert "new/mod.py" in f["unchanged"], (f["unchanged"], f["measured"], f["skipped"])
     assert f["measured"].get("pkg/subject.py") == [TOOTH], f["measured"]
+
+
+def test_a_removed_file_takes_its_empty_directory_with_it():
+    """FIXME 2, measured on efb670ff1dd8: the build added ground_loop/probes/__init__.py, and a
+    folder named probes/ IS a registration. Reverting by removal left the folder, empty, so the
+    device stayed registered and the file read HOLLOW. A clean checkout of the anchor has no such
+    folder; the reversion must not keep one. Here the subject reads its value off a directory."""
+    subject = ("from pathlib import Path\n"
+               "VALUE = 2 if (Path(__file__).parent / 'reg').is_dir() else 1\n")
+    repo, commons, berths, c = _fixture([
+        ("commit", "2020-01-01T00:00:00", "c0", {"pkg/subject.py": subject}, False),
+        ("cross", "2020-01-01T12:00:00", "TICKETME", "BUILDME", "forward"),
+        ("commit", "2020-01-02T00:00:00", "build", {"pkg/reg/marker.py": ""}, True),
+    ], ["pkg/reg/marker.py"])
+    f = _measure(repo, commons, berths)
+    assert f["measured"].get("pkg/reg/marker.py") == [TOOTH], \
+        ("the empty directory survived the reversion", f["measured"], f["hollow"])
 
 
 def test_the_anchor_and_hollow_proofs_stay_green():

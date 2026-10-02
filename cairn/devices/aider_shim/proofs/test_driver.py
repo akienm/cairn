@@ -45,11 +45,6 @@ from cairn.devices.aider_shim import driver, venv  # noqa: E402
 from cairn.devices.aider_shim.translate import Brief, Span  # noqa: E402
 from cairn.devices.tester.scratch import scratch_dir  # noqa: E402
 
-# Clause 3 of a1a2156a2a17: the real-coder drive runs in the live venv, so it is the tooth
-# that reds with ModuleNotFoundError when pydub cannot import audioop (Python 3.13+ without
-# the audioop-lts backport) — measured 2026-10-01, red before the apply, green after.
-PROVES = {"a1a2156a2a17": {"3": "test_the_drive_edits_through_the_real_coder"}}
-
 FAILURES = []
 MODEL = "qwen3-coder:30b"
 

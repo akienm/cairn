@@ -1,0 +1,67 @@
+[
+  {
+    "claim": "proof test_task_tickets_land_in_the_logs_tree.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T12:07:17",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green tickets_dir_is_the_logs_tree_address\n  green a_written_ticket_lands_in_the_logs_tree_and_reads_back\n  green the_old_address_holds_no_ticket\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "tickets_dir_is_the_logs_tree_address",
+        "a_written_ticket_lands_in_the_logs_tree_and_reads_back",
+        "the_old_address_holds_no_ticket"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "000c26fa5778fb722e8f82dd1feec41b1642f03aad042ba1982c2b4d1fcdf804",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/domain.py",
+        "cairn/devices/inference_domain/proofs/test_task_tickets_land_in_the_logs_tree.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1102682-fn0cdd6_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 91304399,
+          "disk_bytes": 108429312,
+          "entries": 7081,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

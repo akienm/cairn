@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_anchors_before_the_build_that_stands.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-02T13:50:08",
+    "date": "2026-10-02T14:04:06",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 15.35s",
+      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 25.59s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f9c2da5f3b5ceca1f664fb5f70906de25a7e3f75e1331dc669d89f1df5913f73",
+      "source_fingerprint": "dcfd863e0d6e2db0ebc7a3611426895a18da1bf82c0bd67faeccf7f8486fd47f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -80,56 +80,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1179457-f_d9zkf4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1184325-0b6tngb3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/tester/0/20261002.194954.203332.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.194955.836522.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.194957.562695.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.194959.281815.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.195000.922245.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.195002.550320.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.195004.240763.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.195005.865175.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.195007.478398.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.200342.605694.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200345.204100.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200348.097454.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200351.027991.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200354.054994.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200356.656204.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200359.507888.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200402.173755.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.200404.868704.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91710344,
-          "disk_bytes": 109178880,
-          "entries": 7210,
+          "bytes": 91750904,
+          "disk_bytes": 109240320,
+          "entries": 7218,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "06f0445e7a63": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
-            "test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build",
-            "test_a_recross_with_no_build_between_keeps_the_build_it_followed",
-            "test_an_anchor_holding_every_file_raises_naming_the_anchor",
-            "test_the_live_anchors_of_68f5_and_c691_are_their_build_parents",
-            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
-          ],
-          "cairn/tools/validation_store/validation_store.py": [
-            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "06f0445e7a63": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "782d3560cd045122d4b3050d810a6a7810cbd96f",
-          "anchor_first_build": "e182a85e1dcec9b252acbf242eaf3ee2b4f0fd05",
-          "commit": "4313a42d3e63dc77bf8667d02904a94deb393c9d"
+          "reuses": 6
         }
       }
     },

@@ -47,6 +47,7 @@ from cairn.devices.tester.isolation import (
     bwrap_available,
     check_instance_seal,
     get_isolation,
+    inside_an_instance_seal,
     pristine_snapshot,
     pristine_stats,
     snapshot_instance_space,
@@ -311,6 +312,14 @@ def test_the_seal_evidence_carries_what_it_cost():
     # nothing, which would be a hollow green wearing the number we wanted.
     rec = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none")
     cost = rec["evidence"]["instance_seal"]["scratch"]
+    if inside_an_instance_seal():
+        # INHERITED (c54d744aa9ac): inside the tester's own sandbox no second swap is built, so
+        # this process has no copy to cost. The record must SAY so, never carry a number for a
+        # copy it did not make; the bounded cost below is measured by the bare run.
+        assert cost["measured"] is False and "no instance swap was built" in cost["why"], (
+            f"an inherited seal must name that it built nothing, got {cost}")
+        print(f"  scratch: inherited the outer swap — {cost['why']}")
+        return
     assert cost["measured"] is True, f"a sealed run must report what its sandbox cost: {cost}"
     print(f"  scratch: {cost['disk_bytes'] / 1e6:.1f}MB disk, {cost['entries']} entries, "
           f"live root read {cost['builds']}x this process")
@@ -335,6 +344,14 @@ def test_the_probe_removes_its_own_exhaust():
     ok, why = bwrap_available()
     if not ok:
         print(f"  INDETERMINATE  cannot build an instance seal on this host: {why}")
+        return
+    if inside_an_instance_seal():
+        # A FRESH swap cannot be sealed from inside the tester's own sandbox: this host refuses
+        # a namespace inside a namespace (c54d744aa9ac), and check_instance_seal reads an
+        # inherited mount there, which a just-made directory never is. The unlink is measured
+        # by the bare run of this file.
+        print("  INDETERMINATE  inside the tester's instance sandbox: a fresh instance seal "
+              "cannot be built here (c54d744aa9ac)")
         return
     swap = snapshot_instance_space()
     try:

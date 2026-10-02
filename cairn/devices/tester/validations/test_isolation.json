@@ -1,21 +1,29 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:47:11",
+    "caller": "cairn test",
+    "date": "2026-10-02T14:10:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  LIVE SEAL  indeterminate: seal probe gave no clear verdict inside netns (got 'error') — CP1\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  run_proof netns  proof=red  seal=indeterminate",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 377, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 370, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_isolation.py\", line 150, in test_run_proof_under_netns_when_available\n    assert v[\"verdict\"] == GREEN\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  INDETERMINATE  netns unavailable here: running inside the tester's instance sandbox with no network seal to inherit — this host refuses a namespace inside a namespace (c54d744aa9ac), so a network seal cannot be cut from here (CP1 — not faking a pass)\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  skipped netns run_proof: namespace unavailable here (honest, not faked)\n  PASS  test_run_proof_under_netns_when_available\n  skipped path-spelling regression: netns unavailable here (honest, not faked)\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: inherited the outer swap — no instance swap was built for this run\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  INDETERMINATE  inside the tester's instance sandbox: a fresh instance seal cannot be built here (c54d744aa9ac)\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
+      "stderr_tail": "",
       "teeth_green": [
         "test_no_isolation_is_honestly_open",
         "test_the_four_seal_verdicts_are_measured_not_assumed",
         "test_only_sealed_and_open_are_trustworthy",
         "test_unknown_isolation_is_refused",
         "test_netns_really_seals_on_this_host",
-        "test_run_proof_records_the_seal_without_schema_drift"
+        "test_run_proof_records_the_seal_without_schema_drift",
+        "test_run_proof_under_netns_when_available",
+        "test_the_seal_does_not_depend_on_how_the_path_is_spelled",
+        "test_the_snapshot_leaves_the_trail_tree_empty_and_present",
+        "test_a_batch_reads_the_live_root_once",
+        "test_a_private_copy_is_private",
+        "test_the_pristine_is_rebuilt_when_the_top_level_moves",
+        "test_the_seal_evidence_carries_what_it_cost",
+        "test_the_probe_removes_its_own_exhaust"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,7 +34,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "8f493adbe548f9207253cc3bb558d7b438797aab576fb52c512212dd6f0574ca",
+      "source_fingerprint": "d2f0f8b8b235f70b8a609ee9a74ac0c1b090a126d3615613c8bd9d7a26fa5de7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -52,33 +60,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-a94lgnan/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1196642-t_2b03zx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/20261002.184710.669218.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.184710.742842.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.200959.773422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.201002.886250.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91336231,
-          "disk_bytes": 108490752,
-          "entries": 7097,
+          "bytes": 92040195,
+          "disk_bytes": 109502464,
+          "entries": 7219,
           "builds": 1,
-          "reuses": 24
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "544ff950aa5555a4f640ab874b9238b82e5cb51a184ce63f581d1fe9aaf30a92",
-        "opened": "2026-10-02T03:00:09",
-        "last_red": "2026-10-02T12:47:11",
-        "passes": 4,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

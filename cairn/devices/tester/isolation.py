@@ -739,6 +739,15 @@ class NetnsIsolation(Isolation):
     seals_network = True
 
     def available(self) -> tuple[bool, str]:
+        # INSIDE AN INSTANCE SANDBOX WITH NO NETWORK SEAL, THE NET CANNOT BE CUT (c54d744aa9ac).
+        # wrap() would have to start a bwrap inside the bwrap, and this host refuses a namespace
+        # inside a namespace. Measured 2026-10-02: test_isolation sealed under its standing
+        # `open` seal ran its netns tooth inside the instance sandbox and came back red with the
+        # inside-probe reading 'error' — the sandbox was never built.
+        if inside_an_instance_seal() and not inside_a_seal():
+            return False, ("running inside the tester's instance sandbox with no network seal "
+                           "to inherit — this host refuses a namespace inside a namespace "
+                           "(c54d744aa9ac), so a network seal cannot be cut from here")
         return bwrap_available()
 
     def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:

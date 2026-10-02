@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T01:25:46",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T03:16:55",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -78,7 +78,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3864f0edb291595c789d4c515bfef754599351fa72a6ba7fabadc9f3584266b3",
+      "source_fingerprint": "8b4866013b03ef098c7fc3d33e09989a96bb7370ab95f00363718dcf6ddbdf12",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -86,10 +86,6 @@
         "cairn/devices/codemother/machines/__init__.py",
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/verdict.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/device.py",
-        "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/validation_store.py",
         "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -105,9 +101,7 @@
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
         "cairn/tools/base/crossings.py",
-        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
@@ -134,29 +128,31 @@
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-821582-lu503koh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-869232-0cs_wbss/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/charter/0/20261002.072150.826059.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261002.072151.497478.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261002.072338.014723.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261002.072338.787587.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261002.091359.163730.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.091359.583210.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.091515.707791.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.091516.160738.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 143316767,
-          "disk_bytes": 163065856,
-          "entries": 8232,
+          "bytes": 147055659,
+          "disk_bytes": 167186432,
+          "entries": 8406,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       }
     },

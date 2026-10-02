@@ -119,6 +119,16 @@ def the_tool_stands():
     missing = [n for n in SURFACE if not callable(getattr(mod, n, None))]
     missing += [n for n in VOCABULARY if not hasattr(mod, n)]
     assert not missing, f"the tool does not expose {missing}"
+    # The vocabulary MOVED, so it has one home: the tester binds these names only by importing
+    # them from the tool, never by assigning them itself (two spellings of a record's words drift).
+    again = []
+    for rel in ("cairn/devices/tester/device.py", "cairn/devices/tester/isolation.py"):
+        for node in ast.parse((_REPO_ROOT / rel).read_text(encoding="utf-8")).body:
+            targets = node.targets if isinstance(node, ast.Assign) else \
+                [node.target] if isinstance(node, ast.AnnAssign) else []
+            again += [f"{rel}:{node.lineno} {t.id}" for t in targets
+                      if isinstance(t, ast.Name) and t.id in VOCABULARY]
+    assert not again, f"the tester still defines the record vocabulary itself: {again}"
 
 
 TEETH = [nothing_reaches_into_the_tester_for_the_store, the_old_address_is_gone, the_tool_stands]

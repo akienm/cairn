@@ -435,9 +435,9 @@ class TesterDevice(BaseDevice):
         # closure the subject reports, because "the code it proves" was always the files the
         # proof loads and never every file that shares its directory.
         #
-        # It rides inside `evidence`, never as a ninth field (the eight are ratified). Lazy
-        # import: validation_store imports this module for VALIDATION_FIELDS, so the
-        # dependency only runs one way at import time.
+        # It rides inside `evidence`, never as a ninth field (the eight are ratified). The
+        # store is a tool now (ticket fe1cba85cb12) and imports nothing from this module, so
+        # this import no longer has to be lazy; it stays here, beside its one use.
         from cairn.tools.validation_store.validation_store import source_fingerprint
         dir_fp_before = source_fingerprint(str(proof_path))
         # The runner's channel back. A host temp file, deliberately not instance-space: the

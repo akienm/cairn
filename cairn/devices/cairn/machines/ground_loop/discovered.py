@@ -114,12 +114,16 @@ class _FeedbackDevice:
         return self._recorder
 
     def receive(self, envelope: dict) -> dict:
-        self._get_recorder().write({
-            "finding": envelope.get("why", "bus message received"),
-            "inspector_target": self._device_id,
-            "probe_source": envelope.get("sender", "unknown"),
-            "envelope_id": envelope.get("id"),
-            "verb": envelope.get("verb", ""),
-            "body": envelope.get("body", {}),
-        })
+        # A mailbox nobody reads keeps nothing (ticket 0bcd51173524): with no
+        # declared reader the write would only grow an unread log, so the mail is
+        # accepted and not kept. A subclass that declares RECORDER_ON_READ records.
+        if type(self).RECORDER_ON_READ is not None:
+            self._get_recorder().write({
+                "finding": envelope.get("why", "bus message received"),
+                "inspector_target": self._device_id,
+                "probe_source": envelope.get("sender", "unknown"),
+                "envelope_id": envelope.get("id"),
+                "verb": envelope.get("verb", ""),
+                "body": envelope.get("body", {}),
+            })
         return {"accepted": True, "device": self._device_id}

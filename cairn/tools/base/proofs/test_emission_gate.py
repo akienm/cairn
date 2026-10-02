@@ -137,7 +137,7 @@ def _cleared(comp: Path) -> dict:
     is scaffolding, and it is honest scaffolding by construction — if it were not, the
     crossing would refuse.
     """
-    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    from cairn.tools.validation_store.validation_store import persist_validation, source_fingerprint
     proof = comp / "proofs" / "sealed_fixture.py"
     proof.parent.mkdir(parents=True, exist_ok=True)
     proof.write_text("# a real source file, so the fingerprint is a real fingerprint\n")

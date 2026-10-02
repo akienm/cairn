@@ -36,7 +36,7 @@ from datetime import date
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, once, owning_ticket
-from cairn.devices.tester.validation_store import isolation_for_seal
+from cairn.tools.validation_store.validation_store import isolation_for_seal
 
 _OWNING_TICKET = "481221f45884"
 

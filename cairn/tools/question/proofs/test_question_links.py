@@ -343,7 +343,7 @@ def teeth_beside() -> None:
     # names binds an added name at import, so nothing reads UNRAN), and, once a reading has
     # landed on this proof's own validation, that no written file read hollow or unreadable
     try:
-        from cairn.devices.tester import validation_store as V
+        from cairn.tools.validation_store import validation_store as V
         from cairn.tools.proof_coverage import proof_coverage as PC
         live = json.loads(next((LIVE_COMMONS / "tickets").glob(TICKET + "-*.json")).read_text(encoding="utf-8"))
         wrote = [w for w in PC._writes_to(live) if "/proofs/" not in w]

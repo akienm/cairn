@@ -1147,7 +1147,7 @@ def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[di
                              actual=f"ticket {ticket!r} has no demo flag — gate does not fire",
                              code=code, ticket=ticket)])
 
-    from cairn.devices.tester.validation_store import (
+    from cairn.tools.validation_store.validation_store import (
         read_validations, validations_path_for_artifact)
 
     val_path = validations_path_for_artifact(str(ticket_file))
@@ -1275,7 +1275,7 @@ def inspect_clearance(target: str, journal_extra: dict, *, history_path: str) ->
     if missing:
         return record
 
-    from cairn.devices.tester.validation_store import standing  # lazy: keep import dependency-light
+    from cairn.tools.validation_store.validation_store import standing  # lazy: keep import dependency-light
     # ONE-OR-MANY, THE SAME WAY THE HARBOR'S OWN RUNG READS IT (2026-09-09, trouble
     # clearance-gate-checks-one-proof-while-the-record-names-many). ``proven_by`` on a
     # crossing has read as one path OR a list since 2026-09-07, because A SEAM HAS ENDS IN
@@ -1796,7 +1796,7 @@ def _quorum_gate(validation_path: object, class_def: dict) -> tuple[str, list[di
     names its ticket; the gate reads the file and trusts nothing about it it did not read.
     A hand that types a path to a red seal, a code seal, or no file at all is refused with
     the lane naming which."""
-    from cairn.devices.tester.validation_store import read_validations
+    from cairn.tools.validation_store.validation_store import read_validations
 
     code = "transitions.py::inspect_quorum"
     expected = "a green VALIDATION sealed through the quorum signature gate names this crossing"

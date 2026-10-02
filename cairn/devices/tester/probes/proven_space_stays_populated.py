@@ -51,7 +51,7 @@ def survey_the_corpus() -> dict:
     cannot parse is skipped and reported — a probe that quietly treats an unreadable file as
     clean is the vacuous green its own subject matter is about.
     """
-    from cairn.devices.tester.validation_store import standing, validations_path_for
+    from cairn.tools.validation_store.validation_store import standing, validations_path_for
 
     proofs = sorted(_CLASS_SPACE.glob("**/proofs/test_*.py"))
     proofs = [p for p in proofs if "__pycache__" not in str(p)]

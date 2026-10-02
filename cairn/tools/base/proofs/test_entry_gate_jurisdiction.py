@@ -48,7 +48,7 @@ def _entry_world(d: Path, *, cast=("widget",), claims=()):
 
 
 def _cleared(comp: Path) -> dict:
-    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    from cairn.tools.validation_store.validation_store import persist_validation, source_fingerprint
     proof = comp / "proofs" / "sealed_fixture.py"
     proof.parent.mkdir(parents=True, exist_ok=True)
     proof.write_text("# fixture\n")

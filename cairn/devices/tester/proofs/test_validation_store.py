@@ -52,7 +52,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.tester import validation_store as vs
+from cairn.tools.validation_store import validation_store as vs
 from cairn.devices.tester.device import VALIDATION_FIELDS, TesterDevice
 from cairn.tools.base.address import log_path
 from cairn.tools.base.diagnostic import ModuleRaiser

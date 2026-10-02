@@ -26,7 +26,7 @@ from cairn.devices.tester.hollow import (  # noqa: E402
     HollowUnmeasurable, SKIP_INSTRUMENT, SKIP_RECORD, _restore, measure,
 )
 from cairn.tools.scratch.scratch import git_env, scratch_dir, scratch_worktree  # noqa: E402
-from cairn.devices.tester.validation_store import (  # noqa: E402
+from cairn.tools.validation_store.validation_store import (  # noqa: E402
     VALIDATION_FIELDS, read_validations, persist_validation, record_hollow,
 )
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402

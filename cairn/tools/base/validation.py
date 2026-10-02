@@ -40,19 +40,19 @@ def standing(proof_path):
     """Is this proof's code in proven-space RIGHT NOW?
 
     Returns ``{"proven": bool, "why": str, "seal": dict | None}``."""
-    from cairn.devices.tester.validation_store import standing as _standing
+    from cairn.tools.validation_store.validation_store import standing as _standing
     return _standing(proof_path)
 
 
 def source_fingerprint(path, *, closure=None):
     """One sha256 over what a proof proves — its import closure, or its component directory."""
-    from cairn.devices.tester.validation_store import source_fingerprint as _fp
+    from cairn.tools.validation_store.validation_store import source_fingerprint as _fp
     return _fp(path, closure=closure)
 
 
 def directory_fingerprint(root):
     """One sha256 over every ``*.py`` under ``root`` — the pre-closure recipe, explicit root."""
-    from cairn.devices.tester.validation_store import directory_fingerprint as _dir
+    from cairn.tools.validation_store.validation_store import directory_fingerprint as _dir
     return _dir(str(root))
 
 
@@ -64,7 +64,7 @@ def sealed_fingerprint_now(path, seal):
     forms (closure and directory) and a reader that picks the wrong one reports drift that
     is not there. Which form applies is a property of the SEAL, not of the caller.
     """
-    from cairn.devices.tester.validation_store import sealed_fingerprint_now as _now
+    from cairn.tools.validation_store.validation_store import sealed_fingerprint_now as _now
     return _now(path, seal)
 
 
@@ -76,7 +76,7 @@ def latest_seal(path, *, artifact=False):
     Either way the address is DERIVED from the sealed thing, never chosen by the caller,
     which is what keeps intent and proof at one address (Law 5).
     """
-    from cairn.devices.tester.validation_store import (
+    from cairn.tools.validation_store.validation_store import (
         read_validations, validations_path_for, validations_path_for_artifact)
     where = validations_path_for_artifact(str(path)) if artifact else validations_path_for(str(path))
     records = read_validations(path=where)

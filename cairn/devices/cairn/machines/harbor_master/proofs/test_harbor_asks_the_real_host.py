@@ -66,7 +66,7 @@ from cairn.machines.learning_block.learning_block import trace_root
 from cairn.devices.system_rackmount.rackmount import SystemRackmountDevice
 from cairn.devices.tester.device import TesterDevice
 from cairn.tools.scratch.scratch import scratch_dir
-from cairn.devices.tester.validation_store import persist_validation
+from cairn.tools.validation_store.validation_store import persist_validation
 
 _WF = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 

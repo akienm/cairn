@@ -28,7 +28,7 @@ database itself (`ensure_database`), so the manual surface is exactly one role.
 WHAT DURABLE STATE LIVES HERE (narrowed 2026-07-22): the relational / graph-tree data —
 the trees the database is uniquely good at. VALIDATIONS used to be db_domain's first
 consumer; they MOVED OUT to beside-code git-JSON, next to the ``proofs/`` they seal
-(``cairn/devices/tester/validation_store.py``; ruling in tickets/charter-state-history-split.json
+(``cairn/tools/validation_store/validation_store.py``; ruling in tickets/charter-state-history-split.json
 child b). Build-provenance is knowledge frozen at PROVED — it belongs beside the code it
 explains (Law 5), and git is already durable, so a truth record no longer sits in exactly
 one un-backed place. The database ends up holding ONLY what is genuinely relational.

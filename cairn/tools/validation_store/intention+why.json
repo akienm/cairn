@@ -1,0 +1,38 @@
+{
+  "component": "validation_store",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "record store",
+  "public_interface": [
+    "cairn.tools.validation_store.validation_store"
+  ],
+  "what": "The VALIDATION record's reader and writer: a proof at <component>/proofs/<stem>.py seals into <component>/validations/<stem>.json, one current record per proof. standing(proof) says whether a proof's code is in proven-space right now (its seal's source_fingerprint still matches the tree); persist_validation is the one door a seal is written through, announcing a verdict change as a trouble before the replace lands; record_hollow lands hollow evidence on the standing seal; read_validations, validations_path_for, source_fingerprint, directory_fingerprint and sealed_fingerprint_now are the reads every gate composes. It carries the record vocabulary: GREEN, RED, VALIDATION_FIELDS and the isolation verdicts SEALED, OPEN, INDETERMINATE, BREACHED.",
+  "why": "Every proven-space gate reads seals, and 27 encapsulation rows reached into the tester device to do it (measured 2026-10-02). RULE 1 lets a component reach another only through its public interface, and a device's is the bus; the store is a file reader/writer over each component's own validations/ and took nothing from the tester but record vocabulary, so it moved down a rung to a tool every user reaches the same way (ticket fe1cba85cb12). The tester still runs proofs and seals them; it does so through this tool like everyone else.",
+  "entry": "GRAFTED by git mv from cairn/devices/tester/validation_store.py, ticket fe1cba85cb12, 2026-10-02. The module's bytes moved unchanged but for its own address and the vocabulary that came with it from cairn/devices/tester/device.py and isolation.py; every caller's dotted path was rewritten.",
+  "invoke": "from cairn.tools.validation_store import validation_store as vs; vs.standing(proof_path). Gates outside the tester usually reach it through cairn/tools/base/validation.py. Prove: python3 cairn/tools/validation_store/proofs/test_validation_store_is_a_tool.py (exit 0 = green); the store's behaviour is proved where it is used, by cairn/devices/tester/proofs/test_validation_store.py.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): the seals it writes live in each component's validations/, gated by that component's holder. Its prior history rides cairn/devices/tester/history.json; this move rides ticket fe1cba85cb12.",
+  "proof": "proofs/test_validation_store_is_a_tool.py — three teeth for fe1cba85cb12: nothing reaches into the tester for the store; no code names the old address and the old file is gone; this charter declares exactly its module, the module imports nothing from cairn.devices, and it exposes the store's surface and vocabulary.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) reds any reach landing off this tool's declared module. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if any import lands on cairn.devices.tester.validation_store, if any code names that address, if this module imports device code, or if this charter stops declaring exactly cairn.tools.validation_store.validation_store.",
+  "learns": "It does not; it is a fixed record format and its door.",
+  "how_it_learns": "It does not; it is a fixed record format and its door.",
+  "traces_to": [
+    "RULE 1 (encapsulation — reach another component only through its public interface)",
+    "Law 5 (a proof's seal sits beside the proof)",
+    "Law 6 (a tool has users, not an owner)",
+    "Law 8 (the seal is what every proven-space gate reads)"
+  ],
+  "owner": "None — a tool has users (Law 6): the tester, which seals through it, and every gate that reads a seal. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "akien"
+  }
+}

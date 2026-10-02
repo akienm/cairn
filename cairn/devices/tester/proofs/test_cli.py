@@ -177,7 +177,7 @@ def _pose_standing(proof: Path, verdict: str) -> None:
     """
     if str(REPO) not in sys.path:
         sys.path.insert(0, str(REPO))
-    from cairn.devices.tester import validation_store as vs
+    from cairn.tools.validation_store import validation_store as vs
     from cairn.devices.tester.device import TesterDevice
 
     real = TesterDevice().run_proof(proof, sink="none", isolation="none")

@@ -626,7 +626,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None):
     never opens the file — so ``_TICKETS`` is pointed at the same directory to make the
     fixture boat cast.
     """
-    from cairn.devices.tester.validation_store import record_hollow
+    from cairn.tools.validation_store.validation_store import record_hollow
     from cairn.tools.base.address import ROOTS
     import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
     import cairn.devices.codemother.shim as _shim

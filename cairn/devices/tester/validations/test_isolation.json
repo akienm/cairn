@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T01:26:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T03:00:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -26,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1f2b95bd4ef806cadee879cf0ffa97606c859e9c0a1557ecf98018dedec8137b",
+      "source_fingerprint": "66b2ae9dd443e7a2b2bce59600aee9142311f3dbbe3379ade31a3decf3677fb7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -34,7 +34,6 @@
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_isolation.py",
-        "cairn/devices/tester/validation_store.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -47,28 +46,39 @@
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-824741-s0e70kfi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-851315-in7k2vtf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/20261002.072620.429105.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.072620.493315.TesterDevice.run_proof.json"
+            "logs/tester/0/20261002.090008.754414.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.090008.824774.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 143316463,
-          "disk_bytes": 163057664,
-          "entries": 8230,
+          "bytes": 145582201,
+          "disk_bytes": 165601280,
+          "entries": 8340,
           "builds": 1,
-          "reuses": 0
+          "reuses": 63
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "544ff950aa5555a4f640ab874b9238b82e5cb51a184ce63f581d1fe9aaf30a92",
+        "opened": "2026-10-02T03:00:09",
+        "last_red": "2026-10-02T03:00:09",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

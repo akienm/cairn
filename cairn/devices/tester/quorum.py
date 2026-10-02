@@ -42,7 +42,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, RED
-from cairn.devices.tester.validation_store import (artifact_fingerprint, persist_validation,
+from cairn.tools.validation_store.validation_store import (artifact_fingerprint, persist_validation,
                                            read_validations, validations_path_for_artifact)
 
 # Where a ruling lives when it is a ruling: the intake door (`cairn ruling open`) writes

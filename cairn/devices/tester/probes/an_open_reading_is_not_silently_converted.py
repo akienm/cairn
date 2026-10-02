@@ -41,7 +41,7 @@ from pathlib import Path
 
 from cairn.tools.base.probe import Probe, once, owning_ticket
 from cairn.devices.tester.isolation import OPEN, SEALED
-from cairn.devices.tester import validation_store as vs
+from cairn.tools.validation_store import validation_store as vs
 
 _OWNING_TICKET = "299d4f72ae40"
 

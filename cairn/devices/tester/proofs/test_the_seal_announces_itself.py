@@ -44,7 +44,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
 from cairn.tools.scratch.scratch import scratch_dir
-from cairn.devices.tester.validation_store import (
+from cairn.tools.validation_store.validation_store import (
     read_validations,
     standing_seal,
     validations_path_for,

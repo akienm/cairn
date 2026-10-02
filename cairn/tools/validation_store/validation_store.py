@@ -1,4 +1,4 @@
-"""tester/validation_store.py — a VALIDATION lands as git-JSON BESIDE THE PROOF it seals.
+"""tools/validation_store/validation_store.py — a VALIDATION lands as git-JSON BESIDE THE PROOF it seals.
 
 The tester is the one hand that both proves and attests (Law 4). What it attests — the
 VALIDATION — is build-provenance, frozen at PROVED: knowledge, not runtime state. So it
@@ -88,8 +88,31 @@ import json
 import os
 import tempfile
 
-from cairn.devices.tester.device import GREEN, VALIDATION_FIELDS
-from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
+# THE RECORD VOCABULARY LIVES WITH THE RECORD (ticket fe1cba85cb12, RULE 1). These names were
+# the tester's, and the store imported them from cairn/devices/tester/device.py and isolation.py;
+# a tool cannot reach into a device, and they describe the record, not the tester's state, so
+# they moved here and the tester imports them back through this module.
+GREEN = "green"
+RED = "red"
+
+# The ratified VALIDATION record shape (MAP.md:569). Exactly these eight — no more,
+# no fewer; cairn/devices/tester/proofs/test_tester.py pins the set so a drifted record reds.
+VALIDATION_FIELDS = (
+    "claim",
+    "caller",
+    "date",
+    "method",
+    "verdict",
+    "evidence",
+    "falsifier",
+    "horizon",
+)
+
+# The seal's four honest verdicts.
+SEALED = "sealed"                # asked for, confirmed from inside: no route.
+OPEN = "open"                    # not asked for; the route is open by construction, said so.
+INDETERMINATE = "indeterminate"  # asked for, could not be confirmed — CP1, and never GREEN.
+BREACHED = "breached"            # asked for, the route is STILL there — a measured failure (RED).
 
 # THE AXIS IS WHETHER ANYONE LOOKED, NOT HOW STRONG THE SEAL IS. isolation.py's own comments
 # draw it: `open` is "not asked for; the route is open by construction, said so" — the ONE

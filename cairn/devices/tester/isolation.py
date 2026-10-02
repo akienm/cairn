@@ -63,11 +63,8 @@ from pathlib import Path
 
 from cairn.tools.base.address import ROOTS
 
-# The seal's four honest verdicts.
-SEALED = "sealed"                # asked for, confirmed from inside: no route.
-OPEN = "open"                    # not asked for; the route is open by construction, said so.
-INDETERMINATE = "indeterminate"  # asked for, could not be confirmed — CP1, and never GREEN.
-BREACHED = "breached"            # asked for, the route is STILL there — a measured failure (RED).
+# The seal's four honest verdicts — record vocabulary, so it lives with the store (fe1cba85cb12).
+from cairn.tools.validation_store.validation_store import BREACHED, INDETERMINATE, OPEN, SEALED  # noqa: E402,F401
 
 # The probe's baseline: a near-universally reachable off-host route. The seal question is
 # "can a sealed run reach *anything* off this host?", not "is one named host up?" — so a

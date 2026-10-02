@@ -80,7 +80,7 @@ from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
-from cairn.devices.tester.validation_store import (
+from cairn.tools.validation_store.validation_store import (
     closure_of,
     component_root_for,
     isolation_for_seal,

@@ -34,7 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.device import BaseDevice
-from cairn.devices.tester import validation_store as vs
+from cairn.tools.validation_store import validation_store as vs
 from cairn.devices.tester.device import GREEN, RED, VALIDATION_FIELDS, TesterDevice
 
 EXPECTED_IDS = ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]

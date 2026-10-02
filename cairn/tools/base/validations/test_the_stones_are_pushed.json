@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_stones_are_pushed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T00:41:54",
+    "date": "2026-10-02T03:06:43",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.31s",
+      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.38s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
@@ -21,7 +21,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "635ee9475cc674dda835a04ea9930f9e22b21d32434e0ea6c6424b9fa793427f",
+      "source_fingerprint": "dd7af61f234209bd11e6e1ad80a8538c9f224f53323509a9bc2fc94a6beefc7f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -37,10 +37,6 @@
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/device.py",
-        "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/validation_store.py",
         "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -81,31 +77,33 @@
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-784693-sqj6602b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-851315-48mn2hu7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/bus/0/20261002.064153.718717.BusDevice.post.json",
-            "logs/bus/0/20261002.064153.730573.BusDevice.post.json",
-            "logs/bus/0/20261002.064153.747042.BusDevice.post.json",
-            "logs/charter/0/20261002.064153.703620.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261002.064153.730409.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261002.064153.746888.charter_projector_append_entry.append_entry.json"
+            "logs/bus/0/20261002.090642.935673.BusDevice.post.json",
+            "logs/bus/0/20261002.090642.948851.BusDevice.post.json",
+            "logs/bus/0/20261002.090642.967041.BusDevice.post.json",
+            "logs/charter/0/20261002.090642.922440.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.090642.948677.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261002.090642.966874.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 140058414,
-          "disk_bytes": 159432704,
-          "entries": 8088,
+          "bytes": 145583960,
+          "disk_bytes": 165617664,
+          "entries": 8346,
           "builds": 1,
-          "reuses": 75
+          "reuses": 99
         }
       }
     },

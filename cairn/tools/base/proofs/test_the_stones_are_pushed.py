@@ -108,7 +108,7 @@ def _berths(commons: Path) -> Path:
 def _cleared(d: Path, **extra) -> dict:
     """Copied from test_transitions._cleared: a REAL seal minted in the fixture's tempdir, so
     the clearance gate's re-read of the world passes and the durability lane alone decides."""
-    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    from cairn.tools.validation_store.validation_store import persist_validation, source_fingerprint
     proof = d / "proofs" / "sealed_fixture.py"
     proof.parent.mkdir(parents=True, exist_ok=True)
     proof.write_text("# a real source file, so the fingerprint is a real fingerprint\n")

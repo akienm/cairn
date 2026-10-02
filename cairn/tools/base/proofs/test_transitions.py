@@ -581,7 +581,7 @@ def _cleared(d: Path, **extra) -> dict:
     lives at harbor_master's door, never at base's. What base checks is that the Law 8
     evidence the record leans on is real and current.
     """
-    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    from cairn.tools.validation_store.validation_store import persist_validation, source_fingerprint
     proof = d / "proofs" / "sealed_fixture.py"
     proof.parent.mkdir(parents=True, exist_ok=True)
     proof.write_text("# a real source file, so the fingerprint is a real fingerprint\n")
@@ -1020,7 +1020,7 @@ def _two_ended(d: Path, *, second_green: bool = True) -> dict:
     horizon rung correctly refuses it. Measured 2026-09-09 on ticket 1accdc1781aa, where a
     fixture that sealed-then-wrote read "the code moved under the proof" and was right.
     """
-    from cairn.devices.tester.validation_store import persist_validation, source_fingerprint
+    from cairn.tools.validation_store.validation_store import persist_validation, source_fingerprint
     first = d / "proofs" / "sealed_fixture.py"
     second = d / "proofs" / "the_other_end.py"
     first.parent.mkdir(parents=True, exist_ok=True)

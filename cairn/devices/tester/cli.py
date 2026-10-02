@@ -57,7 +57,7 @@ from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
-from cairn.devices.tester.validation_store import (
+from cairn.tools.validation_store.validation_store import (
     SealConversionRefused,
     SealDowngradeRefused,
     isolation_for_seal,
@@ -286,7 +286,7 @@ def _announce_seals(tester, sealed_green: list) -> None:
         # the seal just landed. The message would have carried a field naming nothing on
         # disk, and a receiver has no way to tell that from a real address (Law 7: a record
         # of truth never collapses an error into a coherent shape).
-        from cairn.devices.tester.validation_store import validations_path_for
+        from cairn.tools.validation_store.validation_store import validations_path_for
 
         # REACHING CODEMOTHER ALONE MADE THE CROSSING IMPOSSIBLE, MEASURED 2026-09-09 ON
         # THE FIRST LIVE FIRE OF THIS SEAM. ``reach`` wires a delivery hook for each device

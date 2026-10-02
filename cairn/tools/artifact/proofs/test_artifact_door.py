@@ -197,7 +197,7 @@ def teeth_door(tmp: Path) -> None:
         check("an unknown verb is refused", True)
 
     print("THE WRITERS — the standing doors ride this one, each with its own verb")
-    from cairn.devices.tester import validation_store as vs
+    from cairn.tools.validation_store import validation_store as vs
     from cairn.tools.charter import projector
     from cairn.tools.base import transitions
     proof = cairn / "cairn" / "tools" / "x" / "proofs" / "test_x.py"

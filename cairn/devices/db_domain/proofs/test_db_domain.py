@@ -13,7 +13,7 @@ one. Teeth a hollow db_domain could not pass:
   - A JSONB ROW ROUND-TRIPS AS STRUCTURE. An owned write with a jsonb column greps back a
     dict, not a stringified blob — the property the graph-tree / relational data db_domain
     still holds depends on. (VALIDATIONS were db_domain's first consumer; they MOVED to
-    beside-code git-JSON — cairn/devices/tester/validation_store.py — so that round-trip is proven
+    beside-code git-JSON — cairn/tools/validation_store/validation_store.py — so that round-trip is proven
     there now, on the store that actually owns it.)
 
 Requires the one-time provisioning (an OS-named LOGIN CREATEDB role); db_domain creates the
@@ -99,7 +99,7 @@ def test_write_to_an_unowned_table_is_refused():
 def test_a_jsonb_row_round_trips_as_structure():
     # A real owned write with a jsonb column greps back as STRUCTURE, not a stringified blob —
     # the property graph-tree/relational data depends on (this is what db_domain still holds
-    # now that VALIDATIONS moved to beside-code git; see cairn/devices/tester/validation_store.py).
+    # now that VALIDATIONS moved to beside-code git; see cairn/tools/validation_store/validation_store.py).
     store.create_owned_table(_table("jsonb", {"claim": "text", "evidence": "jsonb"}), "tester", {"claim": "text", "evidence": "jsonb"})
     payload = {"seal": {"verdict": "open"}, "returncode": 0}
     store.write(_table("jsonb", {"claim": "text", "evidence": "jsonb"}), "tester", {"claim": _TEST_CLAIM, "evidence": payload})

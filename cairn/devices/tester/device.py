@@ -27,7 +27,7 @@ its design and the programmable Router (fixture/refuse/forward) do not — see
 ``isolation.py`` for the graft-vs-fresh ruling and the deferred Router.
 
 CLOSED EDGE (2026-07-22): VALIDATIONS are now **persisted**. The durable greppable home is
-``cairn/devices/tester/validation_store.py`` — beside-code git-JSON, next to the ``proofs/`` each one
+``cairn/tools/validation_store/validation_store.py`` — beside-code git-JSON, next to the ``proofs/`` each one
 seals (Law 5; ruling in tickets/charter-state-history-split.json child b), NOT a Postgres
 row. ``run_proof`` still returns the record and writes nothing itself (class-space stays
 state-free by run_proof); a caller — the standing-lesson gate — persists it explicitly, which
@@ -62,8 +62,7 @@ from cairn.devices.tester.isolation import (
     pristine_stats, snapshot_instance_space,
 )
 
-GREEN = "green"
-RED = "red"
+from cairn.tools.validation_store.validation_store import GREEN, RED  # the record vocabulary (fe1cba85cb12)
 
 # WHERE A VALIDATION GOES, named at every call site. Two values, because two are what the
 # corpus needs: seal through the store's door, or write nothing. There is deliberately no
@@ -71,18 +70,7 @@ RED = "red"
 # and build-minimal says a vocabulary grows against a need, not toward a symmetry.
 _SINKS = frozenset({"validations", "none"})
 
-# The ratified VALIDATION record shape (MAP.md:569). Exactly these eight — no more,
-# no fewer; proofs/test_tester.py pins the set so a drifted record reds.
-VALIDATION_FIELDS = (
-    "claim",
-    "caller",
-    "date",
-    "method",
-    "verdict",
-    "evidence",
-    "falsifier",
-    "horizon",
-)
+from cairn.tools.validation_store.validation_store import VALIDATION_FIELDS  # noqa: E402  the record shape lives with the store
 
 
 _CLOSURE_RUNNER = """
@@ -150,7 +138,7 @@ def _read_closure(path: str, proof_path: str) -> list[str] | None:
     it was taken for is not about this proof, and the honest report is ``None`` — fall back
     to the directory, which is what the re-check would have done anyway.
     """
-    from cairn.devices.tester.validation_store import repo_relative_closure
+    from cairn.tools.validation_store.validation_store import repo_relative_closure
     try:
         with open(path, encoding="utf-8") as fh:
             raw = json.load(fh)
@@ -450,7 +438,7 @@ class TesterDevice(BaseDevice):
         # It rides inside `evidence`, never as a ninth field (the eight are ratified). Lazy
         # import: validation_store imports this module for VALIDATION_FIELDS, so the
         # dependency only runs one way at import time.
-        from cairn.devices.tester.validation_store import source_fingerprint
+        from cairn.tools.validation_store.validation_store import source_fingerprint
         dir_fp_before = source_fingerprint(str(proof_path))
         # The runner's channel back. A host temp file, deliberately not instance-space: the
         # instance seal swaps that root out from under the subject, so a closure written there
@@ -635,7 +623,7 @@ class TesterDevice(BaseDevice):
             # seal at all.
             # Lazy import for the same reason as source_fingerprint above: validation_store
             # imports this module, so the dependency only runs one way at import time.
-            from cairn.devices.tester.validation_store import persist_validation
+            from cairn.tools.validation_store.validation_store import persist_validation
             persist_validation(record, proof_path=str(proof_path))
         self._proofs_run += 1
         self._last_verdict = verdict

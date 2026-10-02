@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.tester import quorum
 from cairn.devices.tester.device import GREEN, RED, VALIDATION_FIELDS
-from cairn.devices.tester.validation_store import (
+from cairn.tools.validation_store.validation_store import (
     announce_verdict_change as vs_announce,
     verdict_change as vs_verdict_change,
     read_validations,
@@ -148,7 +148,7 @@ def test_a_quorum_seal_stands_in_proven_space_until_the_piece_changes():
     concept-piece had ever crossed through the harbor. Now the seal carries a fingerprint
     over the artifact, ``standing`` reads a human-proved artifact by the artifact rule, and
     the seal EXPIRES when the prose moves — the same physics a code seal has (Law 3)."""
-    from cairn.devices.tester.validation_store import standing
+    from cairn.tools.validation_store.validation_store import standing
     with tempfile.TemporaryDirectory() as tmp:
         art, v = _seal(tmp)
         assert v["evidence"]["source_fingerprint"], "a quorum seal carries its horizon"
@@ -224,7 +224,7 @@ def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
     breadcrumb under its own log home and the trouble device folds it, so what is read back
     here is the raise, not a folded ticket. The assertion is unchanged in substance — both
     verdicts must be carried out of the door before the green lands."""
-    from cairn.devices.tester.validation_store import persist_validation
+    from cairn.tools.validation_store.validation_store import persist_validation
     from cairn.tools.base.address import log_path
     from cairn.tools.base.diagnostic import ModuleRaiser
 
@@ -259,7 +259,7 @@ def test_a_SECOND_REVIEW_replaces_the_first_AND_ANNOUNCES_THE_FLIP():
 
 
 def test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals():
-    from cairn.devices.tester.validation_store import persist_validation
+    from cairn.tools.validation_store.validation_store import persist_validation
     rec = {k: "x" for k in VALIDATION_FIELDS}
     for kwargs in ({}, {"proof_path": "a/proofs/b.py", "artifact_path": "a/b.md"}):
         try:

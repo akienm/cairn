@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_seal_inside_a_seal_inherits.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:10:19",
+    "date": "2026-10-02T02:57:21",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 4.88s",
+      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 5.37s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_nested_tester_run_reports_its_fixture_green",
@@ -23,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f1d7fc2748ac31a138166dcf2f0dce2715e9e5352130a48929901bf2c385750c",
+      "source_fingerprint": "a99df8a3065d5c5b35e1e65e618049abe99d1cabc4965c2d05b3a8d785fd9e55",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -38,52 +38,54 @@
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-0e9jxvqn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-851315-wgjkowyh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 27,
           "paths": [
             "devices/codemother/0/last_known.json",
             "devices/harbor_master/0/last_known.json",
-            "logs/bus/0/20261002.071015.584930.BusDevice.post.json",
-            "logs/bus/0/20261002.071015.610971.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.071015.770767.BusDevice.post.json",
-            "logs/bus/0/20261002.071015.918246.BusDevice.post.json",
-            "logs/bus/0/20261002.071016.123930.BusDevice.post.json",
-            "logs/bus/0/20261002.071016.124974.BusDevice.delivered.json",
-            "logs/bus/0/20261002.071017.993325.BusDevice.post.json",
-            "logs/bus/0/20261002.071018.021438.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.071018.199269.BusDevice.post.json",
-            "logs/bus/0/20261002.071018.355807.BusDevice.post.json",
-            "logs/bus/0/20261002.071018.552940.BusDevice.post.json",
-            "logs/bus/0/20261002.071018.553895.BusDevice.delivered.json",
-            "logs/codemother/0/20261002.071016.123666.CodeMotherDevice.sealed_heard.json",
-            "logs/codemother/0/20261002.071018.552685.CodeMotherDevice.sealed_heard.json",
-            "logs/ground_loop/0/20261002.071015.539657.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.071015.552897.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.071015.584491.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.071017.948729.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.071017.962208.GroundLoopDevice.subscribe.json",
-            "logs/ground_loop/0/20261002.071017.992891.GroundLoopDevice.subscribe.json",
+            "logs/bus/0/20261002.085717.791922.BusDevice.post.json",
+            "logs/bus/0/20261002.085717.818739.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.085717.968278.BusDevice.post.json",
+            "logs/bus/0/20261002.085718.132457.BusDevice.post.json",
+            "logs/bus/0/20261002.085718.369888.BusDevice.post.json",
+            "logs/bus/0/20261002.085718.370841.BusDevice.delivered.json",
+            "logs/bus/0/20261002.085720.261692.BusDevice.post.json",
+            "logs/bus/0/20261002.085720.287442.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261002.085720.436354.BusDevice.post.json",
+            "logs/bus/0/20261002.085720.576639.BusDevice.post.json",
+            "logs/bus/0/20261002.085720.797912.BusDevice.post.json",
+            "logs/bus/0/20261002.085720.798952.BusDevice.delivered.json",
+            "logs/codemother/0/20261002.085718.369614.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261002.085720.797656.CodeMotherDevice.sealed_heard.json",
+            "logs/ground_loop/0/20261002.085717.746557.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.085717.759868.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.085717.791481.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.085720.211657.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.085720.225972.GroundLoopDevice.subscribe.json",
+            "logs/ground_loop/0/20261002.085720.260950.GroundLoopDevice.subscribe.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261002.071015.918023.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261002.071018.355602.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261002.071015.521590.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.071017.931228.TesterDevice.run_proof.json"
+            "logs/harbor_master/0/20261002.085718.132236.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261002.085720.576414.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261002.085717.728705.TesterDevice.run_proof.json",
+            "logs/tester/0/20261002.085720.190794.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 141511535,
-          "disk_bytes": 161124352,
-          "entries": 8185,
+          "bytes": 145591448,
+          "disk_bytes": 165695488,
+          "entries": 8371,
           "builds": 1,
-          "reuses": 34
+          "reuses": 58
         }
       }
     },

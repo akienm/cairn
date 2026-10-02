@@ -617,7 +617,7 @@ def test_the_holding_class_is_not_re_exported_from_anywhere_outside_this_device(
     supposed to close it.
 
     HOW IT SURFACED, and it is the point worth keeping: ``cairn test --hollow 9579a6f9cec6``
-    reverted ``cairn/devices/tester/validation_store.py`` — whose change under that ticket was
+    reverted ``cairn/tools/validation_store/validation_store.py`` — whose change under that ticket was
     precisely swapping ``from cairn.tools.trouble import TroubleDevice`` for a ``ModuleRaiser``
     and a bus request — and NO declared tooth redded. HOLLOW, measured, on an instrument built
     to ask that question. The file's contribution to that ticket was unproven for two days.

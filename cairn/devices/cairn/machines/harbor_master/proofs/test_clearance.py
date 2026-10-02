@@ -141,7 +141,7 @@ from cairn.devices.cairn.machines.harbor_master import register as _register
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.devices.tester.device import TesterDevice
 from cairn.tools.scratch.scratch import scratch_dir
-from cairn.devices.tester.validation_store import persist_validation, record_hollow
+from cairn.tools.validation_store.validation_store import persist_validation, record_hollow
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════

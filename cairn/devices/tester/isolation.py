@@ -54,6 +54,7 @@ import errno
 import itertools
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -280,7 +281,18 @@ def _snapshot_ignore(directory: str, names: list[str]) -> set:
         return set(names)
     if Path(directory) == Path(_INSTANCE_ROOT) / _LOGS:
         return set(names)
-    return set()
+    # A unix socket or a fifo is a live process's endpoint, not state: a copy names nothing
+    # and copytree cannot make one (ENXIO). Since ticket 48519f4789b1 the bus process keeps
+    # ``bus.sock`` in its instance folder, and every sealed run snapshots instance-space.
+    return {n for n in names if _is_endpoint(os.path.join(directory, n))}
+
+
+def _is_endpoint(path: str) -> bool:
+    try:
+        mode = os.lstat(path).st_mode
+    except OSError:
+        return False
+    return stat.S_ISSOCK(mode) or stat.S_ISFIFO(mode)
 
 
 def venvs_under_instance_space() -> list[str]:

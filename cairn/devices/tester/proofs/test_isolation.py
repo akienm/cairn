@@ -260,6 +260,30 @@ def test_the_snapshot_leaves_the_trail_tree_empty_and_present():
             "a venv is still skipped by pyvenv.cfg and still leaves its mount point")
 
 
+def test_the_snapshot_steps_over_a_live_socket():
+    # Since ticket 48519f4789b1 the bus process keeps a listening ``bus.sock`` in its instance
+    # folder, and copytree cannot copy a socket (ENXIO): measured 2026-10-03, every sealed run
+    # died in pristine_snapshot. The socket is a live process's endpoint, not state — it is
+    # left out, and the lock beside it (a regular file) is still carried.
+    import socket as _socket
+    root = _fixture_root()
+    bus_dir = root / "devices" / "cairn" / "machines" / "bus" / "0"
+    bus_dir.mkdir(parents=True)
+    (bus_dir / "bus.lock").write_text("123\n")
+    listener = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
+    listener.bind(str(bus_dir / "bus.sock"))
+    listener.listen(1)
+    try:
+        with _FixtureRoot(root):
+            snap = Path(pristine_snapshot())
+            assert (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.lock").read_text() == "123\n", (
+                "the regular file beside the socket must still be carried")
+            assert not (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.sock").exists(), (
+                "a socket was carried into the snapshot — a copy of an endpoint names no process")
+    finally:
+        listener.close()
+
+
 def test_a_batch_reads_the_live_root_once():
     # The falsifier's second clause: "a batch of N proofs copies the instance root once".
     # N here is 4 private copies; the live tree may be walked exactly once for all of them.
@@ -377,6 +401,7 @@ def _main() -> int:
         test_run_proof_under_netns_when_available,
         test_the_seal_does_not_depend_on_how_the_path_is_spelled,
         test_the_snapshot_leaves_the_trail_tree_empty_and_present,
+        test_the_snapshot_steps_over_a_live_socket,
         test_a_batch_reads_the_live_root_once,
         test_a_private_copy_is_private,
         test_the_pristine_is_rebuilt_when_the_top_level_moves,

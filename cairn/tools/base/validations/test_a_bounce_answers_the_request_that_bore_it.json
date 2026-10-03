@@ -2,18 +2,20 @@
   {
     "claim": "proof test_a_bounce_answers_the_request_that_bore_it.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T20:50:48",
+    "date": "2026-10-02T22:05:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.13s",
+      "returncode": 1,
+      "stdout_tail": "        # drained into a throwaway instance would be receipted and lost.\n        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../bus_client/remote.py:179: ConnectionError\n=========================== short test summary info ============================\nFAILED test_a_bounce_answers_the_request_that_bore_it.py::test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n1 failed, 1 passed in 15.14s",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to",
-        "test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce"
+        "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce",
+        "test_a_bounce_answers_the_request_that_bore_it"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -22,77 +24,59 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "2d136b649b895ea1d59a8311fc5038248942eab3b75e1d81e6ce9eec3bbe8190",
+      "source_fingerprint": "3e5314251316131cc677bbef2c9343824142131d5fbb432a03178719f457e87c",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/bus/shim.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/device.py",
-        "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/shim.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_a_bounce_answers_the_request_that_bore_it.py",
         "cairn/tools/base/shim.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
         "cairn/tools/bus_client/roster.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
         "cairn/tools/liveness/__init__.py",
         "cairn/tools/liveness/liveness.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/rack/__init__.py",
-        "cairn/tools/rack/rack.py",
         "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
-        "cairn/tools/validation_store/__init__.py",
-        "cairn/tools/validation_store/validation_store.py"
+        "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1363479-vlhrkjni/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1402769-vuf7f7op/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 10,
+          "count": 3,
           "paths": [
             "devices/one_verb_device_60cc/0/last_known.json",
-            "devices/tester/0/last_known.json",
-            "logs/bus/0/20261003.025047.945968.BusDevice.post.json",
-            "logs/bus/0/20261003.025047.971621.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.025047.984886.BusDevice.post.json",
-            "logs/bus/0/20261003.025047.998164.BusDevice.post.json",
-            "logs/bus/0/20261003.025047.999502.BusDevice.delivered.json",
-            "logs/bus/0/20261003.025047.999657.BusDevice.delivered.json",
-            "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261003.025047.999322.TesterShim.bounce_sent.json"
+            "logs/bus.log",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 94355793,
-          "disk_bytes": 112390144,
-          "entries": 7435,
+          "bytes": 95013260,
+          "disk_bytes": 113168384,
+          "entries": 7485,
           "builds": 1,
-          "reuses": 47
+          "reuses": 28
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "c51c523049638f1b3e488df5eb32e5bf8c69fe6bc8533b36a046fd762cc60db1",
+        "opened": "2026-10-02T22:05:46",
+        "last_red": "2026-10-02T22:05:46",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

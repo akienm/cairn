@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T14:10:03",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T21:59:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_no_isolation_is_honestly_open\n  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  INDETERMINATE  netns unavailable here: running inside the tester's instance sandbox with no network seal to inherit — this host refuses a namespace inside a namespace (c54d744aa9ac), so a network seal cannot be cut from here (CP1 — not faking a pass)\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  skipped netns run_proof: namespace unavailable here (honest, not faked)\n  PASS  test_run_proof_under_netns_when_available\n  skipped path-spelling regression: netns unavailable here (honest, not faked)\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: inherited the outer swap — no instance swap was built for this run\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  INDETERMINATE  inside the tester's instance sandbox: a fresh instance seal cannot be built here (c54d744aa9ac)\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
+      "stdout_tail": "  PASS  test_the_four_seal_verdicts_are_measured_not_assumed\n  PASS  test_only_sealed_and_open_are_trustworthy\n  PASS  test_unknown_isolation_is_refused\n  INDETERMINATE  netns unavailable here: running inside the tester's instance sandbox with no network seal to inherit — this host refuses a namespace inside a namespace (c54d744aa9ac), so a network seal cannot be cut from here (CP1 — not faking a pass)\n  PASS  test_netns_really_seals_on_this_host\n  PASS  test_run_proof_records_the_seal_without_schema_drift\n  skipped netns run_proof: namespace unavailable here (honest, not faked)\n  PASS  test_run_proof_under_netns_when_available\n  skipped path-spelling regression: netns unavailable here (honest, not faked)\n  PASS  test_the_seal_does_not_depend_on_how_the_path_is_spelled\n  PASS  test_the_snapshot_leaves_the_trail_tree_empty_and_present\n  PASS  test_the_snapshot_steps_over_a_live_socket\n  PASS  test_a_batch_reads_the_live_root_once\n  PASS  test_a_private_copy_is_private\n  PASS  test_the_pristine_is_rebuilt_when_the_top_level_moves\n  scratch: inherited the outer swap — no instance swap was built for this run\n  PASS  test_the_seal_evidence_carries_what_it_cost\n  INDETERMINATE  inside the tester's instance sandbox: a fresh instance seal cannot be built here (c54d744aa9ac)\n  PASS  test_the_probe_removes_its_own_exhaust\ngreen — the tester owns a MEASURED network seal; the hollow-seal case is caught",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_isolation_is_honestly_open",
@@ -19,6 +19,7 @@
         "test_run_proof_under_netns_when_available",
         "test_the_seal_does_not_depend_on_how_the_path_is_spelled",
         "test_the_snapshot_leaves_the_trail_tree_empty_and_present",
+        "test_the_snapshot_steps_over_a_live_socket",
         "test_a_batch_reads_the_live_root_once",
         "test_a_private_copy_is_private",
         "test_the_pristine_is_rebuilt_when_the_top_level_moves",
@@ -34,7 +35,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "d2f0f8b8b235f70b8a609ee9a74ac0c1b090a126d3615613c8bd9d7a26fa5de7",
+      "source_fingerprint": "53cccde99e692bd742da37a45d73836cd738ff3ffbdeab3c36ecafb562f4dc92",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -60,23 +61,23 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1196642-t_2b03zx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1402769-np52o1s2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/20261002.200959.773422.TesterDevice.run_proof.json",
-            "logs/tester/0/20261002.201002.886250.TesterDevice.run_proof.json"
+            "logs/tester/0/20261003.035929.383446.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.035930.832834.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 92040195,
-          "disk_bytes": 109502464,
-          "entries": 7219,
+          "bytes": 95012963,
+          "disk_bytes": 113168384,
+          "entries": 7487,
           "builds": 1,
-          "reuses": 0
+          "reuses": 14
         }
       }
     },

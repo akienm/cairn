@@ -778,25 +778,44 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
         _shim._crossing_roots = real_shim_roots
 
 
+@contextlib.contextmanager
+def _in_process(*names):
+    """A scratch bus IN THIS PROCESS holding ``names`` — for the teeth that patch the corpus.
+
+    ``_the_boat_is_covered`` substitutes module attributes, and a patch lives only in the
+    process that made it. Since the instance's devices are held in its one bus process
+    (ticket 48519f4789b1), ``reach()`` asks codemother and the harbor THERE, where the fixture
+    corpus does not exist — measured 2026-10-03: six teeth red with "boat 'cfa17e00b0a7' has
+    no ticket" while the fixture ticket stood on disk here. So the devices are held here, on
+    a bus of their own, exactly as the instance holds them (decision 7's shape, as in
+    test_librarian_chat)."""
+    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.tools.bus_client import _load_device_shim
+    with BusDevice.scratch("bus_codemother") as bus:
+        for name in names:
+            shim = _load_device_shim(name, bus)
+            assert shim is not None, f"no shim answers to {name!r}"
+            shim._wire_delivery()
+        yield bus
+
+
 def _ask_codemother_to_cross(comp, proof, *, boat=_HARBOR_BOAT):
     """Fire ONE `cross` at codemother over the bus and return the reply body.
 
     This is the exact path `cairn codemother cross` walks — the CLI is a mouth over
     this request and nothing else — so the tooth measures the seam, not a helper.
     """
-    from cairn.tools.bus_client import reach
-
-    bus = reach("codemother", "harbor_master")
-    # request() answers with the reply ENVELOPE; the device's answer is its body.
-    reply = bus.request(
-        sender="cc", to="codemother", verb="cross",
-        why="proof: codemother crosses a boat as herself",
-        body={"ticket": boat, "target": "PROVED", "workflow": _FIXTURE_WORKFLOW,
-              "proven_by": str(proof),
-              "history_path": str(comp / "history.json"),
-              "state_path": str(comp / "state.json"),
-              "timeout": 120.0},
-        timeout=180)
+    with _in_process("codemother", "harbor_master") as bus:
+        # request() answers with the reply ENVELOPE; the device's answer is its body.
+        reply = bus.request(
+            sender="cc", to="codemother", verb="cross",
+            why="proof: codemother crosses a boat as herself",
+            body={"ticket": boat, "target": "PROVED", "workflow": _FIXTURE_WORKFLOW,
+                  "proven_by": str(proof),
+                  "history_path": str(comp / "history.json"),
+                  "state_path": str(comp / "state.json"),
+                  "timeout": 120.0},
+            timeout=180)
     assert reply, "codemother never answered the cross request"
     return reply.get("body") or {}
 
@@ -1125,15 +1144,13 @@ def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
     and returns a dict either way, which is what clause (4)'s tooth relies on when the
     same message arrives by ``post`` and is drained off the mailbox instead.
     """
-    from cairn.tools.bus_client import reach
-
-    bus = reach("codemother", "harbor_master")
-    reply = bus.request(
-        sender="tester", to="codemother", verb="sealed",
-        why=f"proof: a green seal on {proof} crosses the boat it proves",
-        body={"proof": str(proof), "verdict": verdict,
-              "source_fingerprint": "", "validations_path": ""},
-        timeout=180)
+    with _in_process("codemother", "harbor_master") as bus:
+        reply = bus.request(
+            sender="tester", to="codemother", verb="sealed",
+            why=f"proof: a green seal on {proof} crosses the boat it proves",
+            body={"proof": str(proof), "verdict": verdict,
+                  "source_fingerprint": "", "validations_path": ""},
+            timeout=180)
     assert reply, "codemother never answered the sealed message"
     return reply.get("body") or {}
 

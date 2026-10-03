@@ -55,7 +55,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "f50706ba15c3"
 
 # Class-space root: this file is cairn/devices/tester/probes/<name>.py.
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
@@ -224,9 +226,10 @@ PROBE = Probe(
         "running through it is a fact about live traffic, and this system has already watched "
         "a sealed door with green proofs get routed around by six voyages in two days",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

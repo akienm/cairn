@@ -50,7 +50,9 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+
+_TICKET_ID = "4431cf2bc625"
 
 # Class-space root: this file is cairn/devices/tester/probes/<name>.py.
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
@@ -221,9 +223,10 @@ PROBE = Probe(
         "keeps its seal measurements is a fact about live traffic, and the loss this ticket "
         "was cast against happened while every proof in the corpus was green",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

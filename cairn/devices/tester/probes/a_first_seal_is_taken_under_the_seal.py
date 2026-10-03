@@ -35,7 +35,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 from cairn.tools.validation_store.validation_store import isolation_for_seal
 
 _OWNING_TICKET = "481221f45884"
@@ -191,9 +191,10 @@ PROBE = Probe(
         "about live traffic, and the 54 open readings this ticket was cast against accumulated "
         "while every proof in the corpus was green",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

@@ -39,7 +39,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 from cairn.devices.tester.isolation import OPEN, SEALED
 from cairn.tools.validation_store import validation_store as vs
 
@@ -240,9 +240,10 @@ PROBE = Probe(
         "about live traffic, and the 54 readings this ticket was cast against sat convertible "
         "by one sweep while every proof in the corpus was green",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

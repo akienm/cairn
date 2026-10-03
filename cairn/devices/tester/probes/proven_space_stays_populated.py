@@ -36,7 +36,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "652965bec418"
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
 
@@ -184,9 +186,10 @@ PROBE = Probe(
         "census measures the fraction as a diagnostic, and enough clears when at least one "
         "crossing is refused for an unproven proven_by (the horizon condition)",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

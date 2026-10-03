@@ -67,7 +67,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "a48f95c51a41"
 
 # Class-space root: this file is cairn/devices/tester/probes/<name>.py.
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
@@ -192,9 +194,10 @@ PROBE = Probe(
         "question about live traffic that no fixture can answer, and the same store already "
         "lost this exact bet once, two days after its physics went green",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

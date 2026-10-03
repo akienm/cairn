@@ -1,21 +1,18 @@
 [
   {
-    "claim": "proof test_the_instrument_is_run.py passes under python3",
+    "claim": "proof test_verdict_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T17:43:14",
+    "date": "2026-10-03T17:43:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_extraction_declines_rather_than_guesses\n.\n  ok   test_a_non_zero_success_exit_is_read_from_the_declaration\n.\n  ok   test_a_contradicted_outcome_is_refused\n.\n  ok   test_a_timeout_is_refused_by_its_own_name\n.\n  ok   test_the_observed_run_lands_in_the_berthed_artifact\n.\n  ok   test_the_probe_is_armed_and_can_be_made_to_fire\n                                                                   [100%]\n6 passed in 2.07s",
+      "stdout_tail": "  PASS  test_every_standing_verdict_probe_posts_watch\n  PASS  test_every_standing_verdict_spec_names_the_receiver\n  PASS  test_verdict_probes_report_to_the_watch\ngreen — every standing verdict probe reports {ticket, holds, finding} to the watch verb",
       "stderr_tail": "",
       "teeth_green": [
-        "test_extraction_declines_rather_than_guesses",
-        "test_a_non_zero_success_exit_is_read_from_the_declaration",
-        "test_a_contradicted_outcome_is_refused",
-        "test_a_timeout_is_refused_by_its_own_name",
-        "test_the_observed_run_lands_in_the_berthed_artifact",
-        "test_the_probe_is_armed_and_can_be_made_to_fire"
+        "test_every_standing_verdict_probe_posts_watch",
+        "test_every_standing_verdict_spec_names_the_receiver",
+        "test_verdict_probes_report_to_the_watch"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "dd28c54f13eff5a34ecc4749005a2d4dd94fdcd2e99badf474c14beaaddc59b2",
+      "source_fingerprint": "a22f15b693dd648794caaabd4a24888391d43b0420c71186291852f8a00192de",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -34,32 +31,33 @@
         "cairn/devices/codemother/machines/__init__.py",
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/probes/__init__.py",
+        "cairn/devices/codemother/machines/verdict/probes/discriminating_observation_probe.py",
         "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py",
-        "cairn/devices/codemother/machines/verdict/proofs/test_the_instrument_is_run.py",
-        "cairn/devices/codemother/machines/verdict/verdict.py",
+        "cairn/devices/codemother/machines/verdict/proofs/test_verdict_probes_report_to_the_watch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
         "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2069347-41xjcr6y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2069347-cjpuh5_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,7 +70,7 @@
           "disk_bytes": 144408576,
           "entries": 9073,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       }
     },

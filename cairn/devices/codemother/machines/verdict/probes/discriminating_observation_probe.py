@@ -24,7 +24,9 @@ import glob
 import json
 import re
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "ebf5392c8f93"
 
 _OWNING_TICKET = "an-instrument-that-cannot-bite-is-refused-at-the-verdict"
 _PACKETS = "/home/akien/.cairn/devices/chart/0/packets"
@@ -138,6 +140,14 @@ def _carry(context: dict) -> dict:
 
 _HORIZON = 1000
 
+
+def _holds(context: dict) -> bool:
+    """The trigger speaks on any new verdict carrying the field; the fault is the early stop —
+    four or more observations and fewer than half naming a second tree (835b5736bf2b child)."""
+    s = once(context, "survey", survey)
+    return not (s["total"] >= 4 and s["fraction_naming_tree"] < 0.5)
+
+
 PROBE = Probe(
     why="the discriminating_observation field was built to stop hollow instruments — "
         "but a non-empty string that names no second tree is itself hollow, and the "
@@ -149,7 +159,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the_discriminating_observation_names_a_second_tree"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

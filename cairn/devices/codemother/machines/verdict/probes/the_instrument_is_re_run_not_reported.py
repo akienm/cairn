@@ -43,7 +43,7 @@ import re
 import shlex
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "8e5db5f3edb2"
 _PACKETS = str(instance_path("chart", 0) / "packets")
@@ -195,9 +195,10 @@ PROBE = Probe(
         "fact about live traffic, and the ticket's own WRONG INTENT clause names "
         "trivially-green instruments as the way this build fails while reading green",
     trigger=_trigger,
-    to="codemother",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

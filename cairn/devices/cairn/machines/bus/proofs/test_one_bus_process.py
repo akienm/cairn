@@ -234,7 +234,11 @@ def tooth_d1_flush(home: Path) -> None:
     name = "the spawned pulse flushes the ring through the bus process"
     _py(home, "from cairn.tools.bus_client.remote import RemoteBus\n"
               "RemoteBus().post(sender='bus_proof_courier', to='bus_proof_nobody', channel='personal',\n"
-              "                 why='one-bus proof, throwaway', body={})\n")
+              "                 why='one-bus proof, throwaway', body={},\n"
+              "                 reply_to='bus-proof-throwaway')\n")
+    # A REPLY, on purpose (ticket 7cb1989e7825): an uncorrelated letter to a name no shim
+    # answers is now returned and raised as a mail trouble — into the LIVE logs tree, since the
+    # scratch bus still files its diagnostics there. A reply is its asker's to take and sits.
     r = subprocess.run([sys.executable, "-m", _MODULE, "pulse", "--home", str(home)], env=_env(home),
                        cwd=str(_REPO), capture_output=True, text=True, timeout=60)
     depth = _py(home, "import json\nfrom cairn.tools.bus_client.remote import RemoteBus\n"

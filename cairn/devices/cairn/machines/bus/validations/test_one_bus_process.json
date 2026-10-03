@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_one_bus_process.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T23:32:40",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-03T00:32:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   two couriers leave one bus process for the instance\n         -> bus processes for the home=[1485370] couriers named=[1485370, 1485370]\n  ok   a post from one process is taken from the ring by a shim registered from another\n         -> held=['bus_proof_echo'] receipted=True db_reads_during=0 bus_pid=1485370 poster_pid=1485394\n  ok   nothing outside the bus package calls BusDevice\n         -> callers=[]\n  ok   a launcher line round-trips through the bus process in under 1s\n         -> rc=0 round_trip=0.016s shims_built_in_caller=[] answered_by_pid=1485370 bus_pids=[1485370]\n  ok   the spawned pulse flushes the ring through the bus process\n         -> rc=0 out=bus pulse: flushed {\"flushed\": 5, \"receipts\": 1} err= ring_depth=0\n  ok   the pulse exits 0 when no bus process is running\n         -> rc=0 out=bus pulse: no bus process at /tmp/bus-proof-empty-v4eyj3i6/bus.sock — nothing in any ring\n  ok   a request from a class root the bus does not serve is refused as stale\n         -> reply={'ok': False, 'stale': True, 'root': '/home/akien/dev/src/cairn'}\n  ok   a shim the bus hosts can reach the bus while it is being held, and nothing waits\n         -> held=['bus_proof_echo', 'bus_proof_reentrant']\n  ok   a caller in another mount namespace gets a bus in that namespace, not a unit outside it\n         -> courier=mnt:[4026533167] bus=mnt:[4026533167] manager=mnt:[4026531832] wrapped=False\n\nGREEN — one bus process per instance, every shim inside it, the ring shared across callers.",
+      "stdout_tail": "  ok   two couriers leave one bus process for the instance\n         -> bus processes for the home=[1510200] couriers named=[1510200, 1510200]\n  ok   a post from one process is taken from the ring by a shim registered from another\n         -> held=['bus_proof_echo'] receipted=True db_reads_during=0 bus_pid=1510200 poster_pid=1510237\n  ok   nothing outside the bus package calls BusDevice\n         -> callers=[]\n  ok   a launcher line round-trips through the bus process in under 1s\n         -> rc=0 round_trip=0.020s shims_built_in_caller=[] answered_by_pid=1510200 bus_pids=[1510200]\n  ok   the spawned pulse flushes the ring through the bus process\n         -> rc=0 out=bus pulse: flushed {\"flushed\": 5, \"receipts\": 1} err= ring_depth=0\n  ok   the pulse exits 0 when no bus process is running\n         -> rc=0 out=bus pulse: no bus process at /tmp/bus-proof-empty-wjfb9of1/bus.sock — nothing in any ring\n  ok   a request from a class root the bus does not serve is refused as stale\n         -> reply={'ok': False, 'stale': True, 'root': '/home/akien/dev/src/cairn'}\n  ok   a shim the bus hosts can reach the bus while it is being held, and nothing waits\n         -> held=['bus_proof_echo', 'bus_proof_reentrant']\n  ok   a caller in another mount namespace gets a bus in that namespace, not a unit outside it\n         -> courier=mnt:[4026533169] bus=mnt:[4026533169] manager=mnt:[4026531832] wrapped=False\n\nGREEN — one bus process per instance, every shim inside it, the ring shared across callers.",
       "stderr_tail": "",
       "teeth_green": [
         "two couriers leave one bus process for the instance",
@@ -26,90 +26,97 @@
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 3,
+        "dropped": 54,
         "tables": [
-          "bus_proc_1485213_2332295633_delivery",
-          "bus_proc_1485213_2332295633",
-          "bus_proc_1485276_2332319124"
+          "bus_proc_1485370_2332378451_delivery",
+          "bus_proc_1485370_2332378451",
+          "bus_proc_1485433_2332402577",
+          "bus_proc_1486426_2334588062_delivery",
+          "bus_proc_1486426_2334588062",
+          "bus_proc_1486503_2335012957",
+          "bus_proc_1487201_2337104297_delivery",
+          "bus_proc_1487201_2337104297",
+          "bus_proc_1488107_2337580494",
+          "bus_proc_1488537_2338180728_delivery",
+          "bus_proc_1488537_2338180728",
+          "bus_proc_1488593_2338205327",
+          "bus_proc_1488632_2338221274_delivery",
+          "bus_proc_1488632_2338221274",
+          "bus_proc_1488694_2338246009",
+          "bus_proc_1488738_2338262083_delivery",
+          "bus_proc_1488738_2338262083",
+          "bus_proc_1488800_2338287342",
+          "bus_proc_1488837_2338303097_delivery",
+          "bus_proc_1488837_2338303097",
+          "bus_proc_1488943_2338344352_delivery",
+          "bus_proc_1488943_2338344352",
+          "bus_proc_1489006_2338369463",
+          "bus_proc_1489657_2340059835_delivery",
+          "bus_proc_1489657_2340059835",
+          "bus_proc_1490397_2342176753_delivery",
+          "bus_proc_1490397_2342176753",
+          "bus_proc_1491288_2343062775",
+          "bus_proc_1491702_2343262464_delivery",
+          "bus_proc_1491702_2343262464",
+          "bus_proc_1491760_2343286865",
+          "bus_proc_1491808_2343302553_delivery",
+          "bus_proc_1491808_2343302553",
+          "bus_proc_1491876_2343342760",
+          "bus_proc_1491916_2343358476_delivery",
+          "bus_proc_1491916_2343358476",
+          "bus_proc_1491980_2343383372",
+          "bus_proc_1492020_2343398632_delivery",
+          "bus_proc_1492020_2343398632",
+          "bus_proc_1492083_2343423709",
+          "bus_proc_1492123_2343453490_delivery",
+          "bus_proc_1492123_2343453490",
+          "bus_proc_1492184_2343478365",
+          "bus_proc_1492290_2344090513_delivery",
+          "bus_proc_1492290_2344090513",
+          "bus_proc_1492355_2344114089",
+          "bus_proc_1492597_2344380444_delivery",
+          "bus_proc_1492597_2344380444",
+          "bus_proc_1507585_0029270361_delivery",
+          "bus_proc_1507585_0029270361",
+          "bus_proc_1507648_0029293587_delivery",
+          "bus_proc_1507648_0029293587",
+          "bus_proc_1508714_0030217568_delivery",
+          "bus_proc_1508714_0030217568"
         ]
       },
-      "source_fingerprint": "f6e4f65c4321af388f5fc5ce9eeb08e7f76ed5191d2a49003728fda62728b1e7",
+      "source_fingerprint": "0af6f6c48dd46ee2aa172a4560a3b070cd1927c96d7a496d5954d867cb49841c",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/proofs/test_one_bus_process.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1485333-y5iq0k1h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1510114-y176as9h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 9,
+          "count": 12,
           "paths": [
             "logs/bus.log",
-            "logs/bus/0/20261003.053238.035210.BusDevice.post.json",
-            "logs/bus/0/20261003.053238.084923.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.053238.149239.BusDevice.post.json",
-            "logs/bus/0/20261003.053238.149446.BusDevice.post.json",
-            "logs/bus/0/20261003.053238.150595.BusDevice.post.json",
-            "logs/bus/0/20261003.053238.151630.BusDevice.delivered.json",
-            "logs/bus/0/20261003.053239.743026.BusDevice.post.json",
-            "logs/bus/0/20261003.053240.079426.BusDevice.post.json"
+            "logs/bus/0/20261003.063250.253563.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.063250.356346.BusDevice.post.json",
+            "logs/bus/0/20261003.063250.416931.BusDevice.post.json",
+            "logs/bus/0/20261003.063250.417151.BusDevice.post.json",
+            "logs/bus/0/20261003.063250.418246.BusDevice.post.json",
+            "logs/bus/0/20261003.063250.418932.BusDevice.delivered.json",
+            "logs/bus/0/20261003.063250.419044.BusProofEchoShim.clear_trouble.json",
+            "logs/bus/0/20261003.063250.419177.BusProofEchoShim.clear_trouble.json",
+            "logs/bus/0/20261003.063252.228766.BusDevice.post.json",
+            "logs/bus/0/20261003.063252.579477.BusDevice.post.json",
+            "logs/bus/0/20261003.063252.809639.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96717338,
-          "disk_bytes": 115122176,
-          "entries": 7616,
+          "bytes": 97862084,
+          "disk_bytes": 116453376,
+          "entries": 7705,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "48519f4789b1": {
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "a launcher line round-trips through the bus process in under 1s",
-            "a post from one process is taken from the ring by a shim registered from another",
-            "two couriers leave one bus process for the instance"
-          ],
-          "cairn/devices/cairn/machines/bus/__main__.py": [
-            "a launcher line round-trips through the bus process in under 1s",
-            "a post from one process is taken from the ring by a shim registered from another",
-            "two couriers leave one bus process for the instance"
-          ],
-          "cairn/devices/cairn/machines/bus/bus.py": [
-            "a launcher line round-trips through the bus process in under 1s",
-            "a post from one process is taken from the ring by a shim registered from another",
-            "two couriers leave one bus process for the instance"
-          ],
-          "cairn/tools/bus_client/remote.py": [
-            "a launcher line round-trips through the bus process in under 1s",
-            "a post from one process is taken from the ring by a shim registered from another",
-            "two couriers leave one bus process for the instance"
-          ],
-          "cairn/tools/base/shim.py": [
-            "a launcher line round-trips through the bus process in under 1s"
-          ],
-          "cairn/tools/bus_client/bus_client.py": [
-            "nothing outside the bus package calls BusDevice"
-          ],
-          "cairn/tools/base/transitions.py": [
-            "nothing outside the bus package calls BusDevice"
-          ],
-          "cairn/tools/operator_inbox/inbox.py": [
-            "nothing outside the bus package calls BusDevice"
-          ],
-          "bin/cmd/probescan": [
-            "nothing outside the bus package calls BusDevice"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "48519f4789b1": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "c72f1489bdf62a76c0b8d0900bc4314920e9ccf3",
-          "anchor_first_build": "1a1417576b3f03823bb16fc2139f6c076d29028b",
-          "commit": "6f3abc6aca05c4bade4ae7fcc6eeec4c570cacd6"
         }
       }
     },

@@ -33,7 +33,9 @@ bus of its own would mean firing a ground-loop beat from inside a ground-loop be
 """
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "7a1265439f54"
 
 
 def _trigger(now, context: dict) -> bool:
@@ -96,7 +98,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "triage", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=100,
 )

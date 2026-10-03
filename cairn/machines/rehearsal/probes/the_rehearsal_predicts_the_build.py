@@ -20,7 +20,9 @@ import json
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "cf80bdb57205"
 
 ENOUGH_PROVED = 10
 ENOUGH_CLEAN = 8
@@ -91,7 +93,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "cairn/machines/rehearsal/state.json", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

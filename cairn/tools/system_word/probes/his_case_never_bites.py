@@ -41,7 +41,9 @@ import tempfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "e3cf75c6dc8f"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
@@ -199,7 +201,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "codemother", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

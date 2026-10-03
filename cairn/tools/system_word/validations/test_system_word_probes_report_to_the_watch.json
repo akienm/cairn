@@ -1,0 +1,101 @@
+[
+  {
+    "claim": "proof test_system_word_probes_report_to_the_watch.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-03T14:20:45",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_standing_system_word_probe_posts_watch\n  PASS  test_every_standing_system_word_spec_names_the_receiver\n  PASS  test_system_word_probes_report_to_the_watch\ngreen — every standing system_word probe reports {ticket, holds, finding} to the watch verb",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_standing_system_word_probe_posts_watch",
+        "test_every_standing_system_word_spec_names_the_receiver",
+        "test_system_word_probes_report_to_the_watch"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "060f632df398acd6a0448aad926a4042ef03f25eb0406768922a02171dc1b67a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/cli.py",
+        "cairn/devices/cairn/machines/harbor_master/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/device.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/ruling/__init__.py",
+        "cairn/machines/ruling/cli.py",
+        "cairn/machines/ruling/ruling.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/__main__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/probes/his_case_never_bites.py",
+        "cairn/tools/system_word/proofs/test_system_word_probes_report_to_the_watch.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1971093-50pit0q3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "logs/boot"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119108522,
+          "disk_bytes": 140185600,
+          "entries": 8849,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_teeth_that_measure_the_tester.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T22:04:24",
+    "date": "2026-10-03T01:53:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG\n.\n  ok   test_tester_cli_takes_uppercase_flags\n.\n  ok   test_hollow_reads_unran_exactly_the_file_the_sieve_names\n.\n  ok   test_a_seal_sweeps_first_and_says_so\n                                                                     [100%]\n4 passed in 24.92s",
+      "stdout_tail": ".\n  ok   test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG\n.\n  ok   test_tester_cli_takes_uppercase_flags\n.\n  ok   test_hollow_reads_unran_exactly_the_file_the_sieve_names\n.\n  ok   test_a_seal_sweeps_first_and_says_so\n                                                                     [100%]\n4 passed in 12.28s",
       "stderr_tail": "",
       "teeth_green": [
         "test_THE_BUILDME_TIME_HAS_NO_COARSER_FALLBACK_LEFT_TO_BE_WRONG",
@@ -24,7 +24,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "000ce3518254b260b1050e465ca92b2643aed2cc7e22e28e53df25f9c23cc2bf",
+      "source_fingerprint": "c40d5c88dd255057f741216338d08c82ef0fe5afb6514d32d1e918b77a79c86b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -85,29 +85,48 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1402769-w4t9v1n9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1545473-zv19lese/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 27,
           "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/codemother/0/last_known.json",
+            "devices/harbor_master/0/last_known.json",
+            "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/tester/0/20261003.040401.211917.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040402.763653.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040404.358145.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040405.915833.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040407.564391.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040409.340128.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.040424.416651.TesterDevice.sealed_announce_failed.json"
+            "logs/bus/0/20261003.075344.643532.BusDevice.post.json",
+            "logs/bus/0/20261003.075344.648171.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.075344.677145.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.075344.870585.BusDevice.post.json",
+            "logs/bus/0/20261003.075344.890191.BusDevice.post.json",
+            "logs/bus/0/20261003.075344.900315.BusDevice.post.json",
+            "logs/bus/0/20261003.075345.388914.BusDevice.post.json",
+            "logs/bus/0/20261003.075345.389153.BusDevice.delivered.json",
+            "logs/bus/0/20261003.075345.389350.BusDevice.delivered.json",
+            "logs/codemother/0/20261003.075345.388349.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261003.075345.388753.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261003.075345.389444.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261003.075345.389567.CodeMotherShim.clear_trouble.json",
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/20261003.075335.100296.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075336.795082.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075338.512715.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075340.715158.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075342.611092.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075344.470222.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.075345.389026.TesterShim.reply_disposed.json",
+            "logs/tester/0/20261003.075345.389247.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95014768,
-          "disk_bytes": 113192960,
-          "entries": 7493,
+          "bytes": 99400737,
+          "disk_bytes": 118300672,
+          "entries": 7838,
           "builds": 1,
-          "reuses": 24
+          "reuses": 6
         }
       }
     },

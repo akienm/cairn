@@ -228,7 +228,8 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
         the bounding back-edge, because a kick-back INTO BUILDME has no forward re-cross, so the
         latest forward crossing predates the rebuild it is supposed to stand before;
       - the build's: the parent of the first commit after that bound that names the ticket id
-        and changes a writes_to file.
+        and changes a writes_to file — one ``_classify`` measures, never an instrument or a
+        record (ticket 479f75cc0917).
     The bound is the latest back-edge out of BUILDME or PROVEME that has a build commit after
     it; a back-edge with no build after it is a retreat-and-recross and bounds nothing.
     A back-edge INTO FIXME bounds nothing either: a repair stands on the build it repairs
@@ -243,7 +244,11 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     tid = str(ticket.get("id") or "")
     crossing = _buildme_crossing(ticket, roots)
     at = _buildme_at(ticket, crossing, repo_root)
-    builds = _build_commits(tid, files, repo_root)
+    # A build commit changes a file this run would MEASURE. A commit that names the ticket but
+    # touches only instruments or records (whatever _classify skips) is a repair of the proof,
+    # not a new build, so it neither bounds nor anchors (ticket 479f75cc0917, measured on
+    # 7cb1989e7825: its proofs-only repair c3f72a3f anchored the hollow after the build).
+    builds = _build_commits(tid, [f for f in files if _classify(f) is None], repo_root)
     # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
     # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
     # anchored the hollow at the repair's parent, and the build itself fell outside the window).

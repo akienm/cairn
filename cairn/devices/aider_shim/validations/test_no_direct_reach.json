@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_direct_reach.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:14:13",
+    "date": "2026-10-02T23:27:58",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../tools/bus_client/remote.py:198: ConnectionError\n=========================== short test summary info ============================\nFAILED test_no_direct_reach.py::test_the_seam_answers_the_same_stack_as_the_view\nFAILED test_no_direct_reach.py::test_aider_shim_reaches_inference_domain_only_through_a_door\n2 failed, 7 passed in 30.43s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_device_has_modules_to_measure\n.\n  ok   test_no_module_in_aider_shim_imports_inference_domain\n.\n  ok   test_no_module_in_aider_shim_spells_a_path_into_inference_domain\n.\n  ok   test_the_instrument_would_catch_a_repointed_path\n.\n  ok   test_the_surface_asks_the_bus_for_the_models_stack\n.\n  ok   test_an_injected_stack_never_touches_the_bus\n.\n  ok   test_inference_domain_declares_a_models_view_that_returns_the_stack\n.\n  ok   test_the_seam_answers_the_same_stack_as_the_view\n.\n  ok   test_aider_shim_reaches_inference_domain_only_through_a_door\n                                                                [100%]\n9 passed in 4.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_device_has_modules_to_measure",
@@ -16,22 +16,26 @@
         "test_the_instrument_would_catch_a_repointed_path",
         "test_the_surface_asks_the_bus_for_the_models_stack",
         "test_an_injected_stack_never_touches_the_bus",
-        "test_inference_domain_declares_a_models_view_that_returns_the_stack"
-      ],
-      "teeth_red": [
+        "test_inference_domain_declares_a_models_view_that_returns_the_stack",
         "test_the_seam_answers_the_same_stack_as_the_view",
-        "test_aider_shim_reaches_inference_domain_only_through_a_door",
-        "test_no_direct_reach"
+        "test_aider_shim_reaches_inference_domain_only_through_a_door"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 5,
+        "tables": [
+          "bus_proc_1478738_2327317340_delivery",
+          "bus_proc_1478738_2327317340",
+          "bus_proc_1478796_2327341120",
+          "bus_proc_1478831_2327399317_delivery",
+          "bus_proc_1478831_2327399317"
+        ]
       },
-      "source_fingerprint": "0dcc26a8709f6cda47b711325c2d7f6c2017ce5d44e197b2d39906acc48fd8f1",
+      "source_fingerprint": "366612760e800c0a97dae3fd89336373e967758ec5aecc12b3f57206ee8a7e21",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -70,32 +74,47 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-r9ke9q_r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-glb9rm21/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 13,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/inference_domain/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052758.364567.BusDevice.post.json",
+            "logs/bus/0/20261003.052758.410479.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052758.425950.BusDevice.post.json",
+            "logs/bus/0/20261003.052758.427769.BusDevice.post.json",
+            "logs/bus/0/20261003.052758.428705.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052758.428828.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052758.548804.BusDevice.post.json",
+            "logs/bus/0/20261003.052758.549332.BusDevice.post.json",
+            "logs/bus/0/20261003.052758.549967.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052758.550083.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95844174,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96284785,
+          "disk_bytes": 114634752,
+          "entries": 7588,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "e4ef991cd0083a194741d404e355d1553347a0700150ef9f8c5b097ba8af2ef9",
         "opened": "2026-10-02T22:17:29",
         "last_red": "2026-10-02T23:14:13",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-aider-shim",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:27:58",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "e4ef991cd0083a194741d404e355d1553347a0700150ef9f8c5b097ba8af2ef9"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

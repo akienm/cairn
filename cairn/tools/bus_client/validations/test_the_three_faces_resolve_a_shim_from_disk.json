@@ -2,24 +2,22 @@
   {
     "claim": "proof test_the_three_faces_resolve_a_shim_from_disk.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:19:56",
+    "date": "2026-10-02T23:29:39",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  RED  test_iv_reach_refuses_a_name_no_shim_answers_to: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (86 file(s) named it · 40 module(s) imported for real · 50 parsed)\n  RED  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\nRED: 2 failing",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (86 file(s) named it · 40 module(s) imported for real · 50 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
       "stderr_tail": "",
       "teeth_green": [
         "test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost",
         "test_ii_all_three_faces_go_to_disk_for_the_named_device",
         "test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says",
-        "test_v_every_importer_in_class_space_imports_at_the_new_address"
-      ],
-      "teeth_red": [
         "test_iv_reach_refuses_a_name_no_shim_answers_to",
-        "test_vi_the_ground_loop_fronts_the_loop_it_was_built_in",
-        "2 failing"
+        "test_v_every_importer_in_class_space_imports_at_the_new_address",
+        "test_vi_the_ground_loop_fronts_the_loop_it_was_built_in"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -28,7 +26,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "2f374420da710d22c7d6f7a69cdc6bece1a40dc8aa7571e861777f7ac1cac073",
+      "source_fingerprint": "fba77c61e9a96a325bae21e0b6562a38383f7e1fda6af537ee67c31cb83dc0ef",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -43,6 +41,7 @@
         "cairn/devices/cairn/machines/bus/server.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovered.py",
+        "cairn/devices/cairn/machines/ground_loop/shim.py",
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/groundloop/pulse.py",
         "cairn/devices/codemother/__init__.py",
@@ -172,33 +171,46 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-z23u6jyi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-flact0e4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
+          "count": 12,
           "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cc/0/last_known.json",
+            "devices/ground_loop/0/last_known.json",
             "logs/bus.log",
-            "logs/ground_loop_nohup.log"
+            "logs/bus/0/20261003.052937.781196.BusDevice.post.json",
+            "logs/bus/0/20261003.052937.831767.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052938.032454.BusDevice.post.json",
+            "logs/bus/0/20261003.052938.081040.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052938.319734.BusDevice.post.json",
+            "logs/bus/0/20261003.052938.407532.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052939.357339.BusDevice.post.json",
+            "logs/bus/0/20261003.052939.424622.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95849741,
-          "disk_bytes": 114106368,
-          "entries": 7545,
+          "bytes": 96284780,
+          "disk_bytes": 114626560,
+          "entries": 7586,
           "builds": 1,
-          "reuses": 12
+          "reuses": 10
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "7b86d9bb2cc9da43d76caf5d70febfff8e95c1df97fd0bd1ba6dd57dc488046d",
         "opened": "2026-10-02T22:06:29",
         "last_red": "2026-10-02T23:19:56",
         "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-bus-client",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:29:39",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "7b86d9bb2cc9da43d76caf5d70febfff8e95c1df97fd0bd1ba6dd57dc488046d"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

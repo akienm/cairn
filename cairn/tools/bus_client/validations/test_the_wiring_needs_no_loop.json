@@ -2,22 +2,21 @@
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:21:28",
+    "date": "2026-10-02T23:29:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED  the three faces never import the old loop module\n         -> rc=0 stdout=['ABSENT', \"ERRORS ['reach: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)', 'connect_bus: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)', 'connect_system: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)']\"] stderr=\n  RED  connect_system's roster lists exactly the deviceness members\n         -> ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n  RED  reach of the heartbeat's own shim answers a request\n         -> ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n  ok   loop.py and staleness.py are gone and nothing names them\n         -> still standing=[] grep hits=0 []\n  RED  the web server's start holds no heartbeat shim of its own\n         -> rc=1 [] stderr=ror(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\nRED — 4 failure(s):\n  - the three faces never import the old loop module: rc=0 stdout=['ABSENT', \"ERRORS ['reach: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)', 'connect_bus: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)', 'connect_system: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)']\"] stderr=\n  - connect_system's roster lists exactly the deviceness members: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n  - reach of the heartbeat's own shim answers a request: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n  - the web server's start holds no heartbeat shim of its own: rc=1 [] stderr=ror(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
+      "returncode": 0,
+      "stdout_tail": "the wiring needs no loop\n  ok   the three faces never import the old loop module\n         -> rc=0 stdout=['ABSENT', 'ERRORS []'] stderr=\n  ok   connect_system's roster lists exactly the deviceness members\n         -> missing=[] extra=[]\n  ok   reach of the heartbeat's own shim answers a request\n         -> body keys=['age_s', 'record', 'reports', 'verdict']\n  ok   loop.py and staleness.py are gone and nothing names them\n         -> still standing=[] grep hits=0 []\n  ok   the web server's start holds no heartbeat shim of its own\n         -> rc=0 ['HELD []'] stderr=\n\nGREEN — no private loop, the roster is deviceness, reach answers, the loop is gone.",
       "stderr_tail": "",
       "teeth_green": [
-        "loop.py and staleness.py are gone and nothing names them"
-      ],
-      "teeth_red": [
         "the three faces never import the old loop module",
         "connect_system's roster lists exactly the deviceness members",
         "reach of the heartbeat's own shim answers a request",
+        "loop.py and staleness.py are gone and nothing names them",
         "the web server's start holds no heartbeat shim of its own"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,46 +25,66 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "78e6ced165f110648269b703a335f6961eaf766f02d00deb122aaefbeb07cf3f",
+      "source_fingerprint": "29b2544db1b40dd00d223319f4aed9f40c1909a2d0c70224f22f643403d2bc0a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
         "cairn/tools/base/deviceness.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py",
         "cairn/tools/bus_client/remote.py",
-        "cairn/tools/bus_client/roster.py"
+        "cairn/tools/bus_client/roster.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-ez8pkp_j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-z_x6laln/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 13,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/ground_loop/0/last_known.json",
+            "devices/librarian/0/last_known.json",
+            "devices/trouble/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052940.991739.BusDevice.post.json",
+            "logs/bus/0/20261003.052941.038911.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052941.054937.BusDevice.post.json",
+            "logs/bus/0/20261003.052941.055514.BusDevice.post.json",
+            "logs/bus/0/20261003.052941.056779.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052941.056983.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052941.247967.BusDevice.post.json",
+            "logs/bus/0/20261003.052941.276666.BusDevice.post.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95845634,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96284309,
+          "disk_bytes": 114626560,
+          "entries": 7586,
           "builds": 1,
-          "reuses": 13
+          "reuses": 11
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "81d52f1fe7ae785836cd6ddb4329aa5e53a061da8a557420f10cc6b585b25214",
         "opened": "2026-10-02T22:27:48",
         "last_red": "2026-10-02T23:21:28",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-bus-client",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:29:41",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "81d52f1fe7ae785836cd6ddb4329aa5e53a061da8a557420f10cc6b585b25214"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

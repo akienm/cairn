@@ -2,23 +2,21 @@
   {
     "claim": "proof test_inference_rides_the_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:14:46",
+    "date": "2026-10-02T23:28:05",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../../../tools/bus_client/remote.py:198: ConnectionError\n=========================== short test summary info ============================\nFAILED test_inference_rides_the_bus.py::test_the_reach_bus_is_real_and_inference_domain_answers_on_it\nFAILED test_inference_rides_the_bus.py::test_every_inference_call_rides_the_bus\n2 failed, 3 passed in 31.19s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inference_domain\n.\n  ok   test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inference_domain_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                    [100%]\n5 passed in 4.82s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_source_outside_the_owner_imports_inference_domain",
         "test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus",
-        "test_the_tools_models_stack_is_a_get_on_the_bus"
-      ],
-      "teeth_red": [
+        "test_the_tools_models_stack_is_a_get_on_the_bus",
         "test_the_reach_bus_is_real_and_inference_domain_answers_on_it",
-        "test_every_inference_call_rides_the_bus",
-        "test_inference_rides_the_bus"
+        "test_every_inference_call_rides_the_bus"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -27,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f6b8d998e7233b287895eafb244014d2f444704b290f442d7686a4489a07b863",
+      "source_fingerprint": "2ebabb150c33c4f37665f90e1fe20e242dadffa65b162cc4301c05dbce4e5f9e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -53,32 +51,47 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-2iik_7ij/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-m7eaau22/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 13,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/inference_domain/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052804.293297.BusDevice.post.json",
+            "logs/bus/0/20261003.052804.339553.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052804.354575.BusDevice.post.json",
+            "logs/bus/0/20261003.052804.356389.BusDevice.post.json",
+            "logs/bus/0/20261003.052804.357326.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052804.357449.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052804.881101.BusDevice.post.json",
+            "logs/bus/0/20261003.052804.881611.BusDevice.post.json",
+            "logs/bus/0/20261003.052804.882200.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052804.882309.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95844174,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96284745,
+          "disk_bytes": 114634752,
+          "entries": 7588,
           "builds": 1,
           "reuses": 1
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "a5f0563eb5b06958892369640759355d44bb75cff6f17288883d80db3c9031be",
         "opened": "2026-10-02T22:18:18",
         "last_red": "2026-10-02T23:14:46",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cairn-machines-bus",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:28:05",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "a5f0563eb5b06958892369640759355d44bb75cff6f17288883d80db3c9031be"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

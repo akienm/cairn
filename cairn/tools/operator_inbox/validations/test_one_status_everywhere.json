@@ -2,7 +2,7 @@
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:21:45",
+    "date": "2026-10-02T23:29:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -29,7 +29,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "6663293923e7767ee671eaaaf0ae390563552b69b0ab6e2275cef6117b10a457",
+      "source_fingerprint": "4c0f9be82ea54f2749bc899f5dddd3a0df74355c2d0c0d286b98710c5faf2c1a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -73,25 +73,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-z3l0vkq5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-6eaua6b9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 6,
           "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
             "logs/bus.log",
-            "logs/harbor_master/0/20261003.052129.236723.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261003.052129.429441.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261003.052145.100998.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20261003.052943.351804.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20261003.052942.763901.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261003.052942.945626.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261003.052943.817830.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95844739,
-          "disk_bytes": 114110464,
-          "entries": 7549,
+          "bytes": 96283340,
+          "disk_bytes": 114610176,
+          "entries": 7584,
           "builds": 1,
-          "reuses": 14
+          "reuses": 12
         }
       }
     },

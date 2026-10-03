@@ -2,12 +2,12 @@
   {
     "claim": "proof test_chart_constrain.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:16:39",
+    "date": "2026-10-02T23:28:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_the_check_set_is_discovered_never_enumerated\n  RED   test_a_named_check_is_never_reported_unrun :: AssertionError: a planted FAILING proof was reported ['unrunnable'] — a report that cannot say red was never produced by a run\n  RED   test_one_red_check_does_not_blanket_the_report :: AssertionError: three instruments in three states collapsed to ['unrunnable']\n  PASS  test_a_check_source_must_name_the_instrument_not_merely_resolve\n  PASS  test_floor_kinds_names_every_kind_the_floor_emits\n  PASS  test_provenance_is_measured_not_declared\n  PASS  test_the_floor_label_is_reachable_and_both_mutations_red\n  PASS  test_a_misdeclared_floor_label_is_refused_not_corrected\n  PASS  test_schema_gate_refuses_hollow_shapes\n  PASS  test_the_door_composes_the_installed_judges\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_deposit_back_is_gated\n  PASS  test_the_write_door_measures_the_label_and_the_deposit_door_reads_it\n  PASS  test_the_deposit_door_itself_reads_rather_than_measures\n  PASS  test_reading_the_stored_label_is_not_skipping_the_gate\n  PASS  test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one\n  PASS  test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one\n  PASS  test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them\n  PASS  test_import_allowlist\nred — chart/constrain, 2 of 27 teeth: test_a_named_check_is_never_reported_unrun, test_one_red_check_does_not_blanket_the_report",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_check_set_is_discovered_never_enumerated\n  PASS  test_a_named_check_is_never_reported_unrun\n  PASS  test_one_red_check_does_not_blanket_the_report\n  PASS  test_a_check_source_must_name_the_instrument_not_merely_resolve\n  PASS  test_floor_kinds_names_every_kind_the_floor_emits\n  PASS  test_provenance_is_measured_not_declared\n  PASS  test_the_floor_label_is_reachable_and_both_mutations_red\n  PASS  test_a_misdeclared_floor_label_is_refused_not_corrected\n  PASS  test_schema_gate_refuses_hollow_shapes\n  PASS  test_the_door_composes_the_installed_judges\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_deposit_back_is_gated\n  PASS  test_the_write_door_measures_the_label_and_the_deposit_door_reads_it\n  PASS  test_the_deposit_door_itself_reads_rather_than_measures\n  PASS  test_reading_the_stored_label_is_not_skipping_the_gate\n  PASS  test_measuring_is_the_default_so_an_unlabelled_caller_is_the_strict_one\n  PASS  test_the_deposit_takes_the_berths_label_and_refuses_a_forged_one\n  PASS  test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them\n  PASS  test_import_allowlist\ngreen — chart/constrain, 27 teeth: stage 2 fills only from a berthed stage 1; a ref reaches its component BY NAME OR BY PATH and the DEEPEST owner wins, never the holder; the floor AUTHORS constraints (charter falsifier/gates/owner, verbatim, with their address) and unknowns (with the why), and returns None rather than an empty list when it has nothing; the floor DISCOVERS the instruments that judge the ref'd components (composing the tester's own collector, agreeing with it set for set) and RUNS them — a proof planted at a ref'd address appears with no code change, a failing one is reported red and rides out as an unknown, a vanished one is reported unrunnable rather than dropped, three instruments in three states never collapse to one verdict, a check whose source RESOLVES but does not name a discovered instrument is refused, and every kind the floor emits is named in FLOOR_KINDS; provenance for those two is MEASURED by re-running the floor, the 'floor' label is reachable and BOTH mutations (drop one, forge one) red it, and a misdeclared label is refused rather than quietly corrected, and that measurement happens at the WRITE door while the DEPOSIT door reads the label the write door already derived — a switch whose default is the strict side, and reading is not skipping: a stored label that is missing, uncovering, unknown-stratum or forged against the berth still refuses at the deposit door, and the sentence telling a sender to leave those keys out is reachable at the write door and unreachable at the deposit one; the schema gate refuses hollow shapes, the door composes the inspector's own judges (by identity), the berth round-trips, the deposit-back is gated, and the brick's doors are exactly the three composed ones",
       "stderr_tail": "",
       "teeth_green": [
         "test_request_identity_is_physics",
@@ -19,6 +19,8 @@
         "test_the_floor_authors_constraints_and_unknowns",
         "test_an_empty_floor_is_None_and_not_an_empty_list",
         "test_the_check_set_is_discovered_never_enumerated",
+        "test_a_named_check_is_never_reported_unrun",
+        "test_one_red_check_does_not_blanket_the_report",
         "test_a_check_source_must_name_the_instrument_not_merely_resolve",
         "test_floor_kinds_names_every_kind_the_floor_emits",
         "test_provenance_is_measured_not_declared",
@@ -36,10 +38,7 @@
         "test_the_leave_those_keys_out_sentence_reaches_only_the_sender_who_wrote_them",
         "test_import_allowlist"
       ],
-      "teeth_red": [
-        "test_a_named_check_is_never_reported_unrun",
-        "test_one_red_check_does_not_blanket_the_report"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -48,7 +47,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "11e7af6f3eaf95321dcb8d2201dd242b0633c87d607542fa652c9d13873fa2a6",
+      "source_fingerprint": "8c9944a280ccdd69fd4c03fe5aa52fe1be10d18c4ce410157b049a232a797d11",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -104,32 +103,64 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-h0ixy5en/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-v02mn44r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 30,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/tester/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052809.679682.BusDevice.post.json",
+            "logs/bus/0/20261003.052809.723947.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052809.738763.BusDevice.post.json",
+            "logs/bus/0/20261003.052811.317117.BusDevice.post.json",
+            "logs/bus/0/20261003.052811.318061.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052811.318175.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052811.348093.BusDevice.post.json",
+            "logs/bus/0/20261003.052812.874513.BusDevice.post.json",
+            "logs/bus/0/20261003.052812.875119.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052812.875226.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052812.900697.BusDevice.post.json",
+            "logs/bus/0/20261003.052814.512575.BusDevice.post.json",
+            "logs/bus/0/20261003.052814.513207.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052814.513319.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052814.539639.BusDevice.post.json",
+            "logs/bus/0/20261003.052816.082769.BusDevice.post.json",
+            "logs/bus/0/20261003.052816.083404.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052816.083519.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052816.115574.BusDevice.post.json",
+            "logs/bus/0/20261003.052817.659897.BusDevice.post.json",
+            "logs/bus/0/20261003.052817.660488.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052817.660601.BusDevice.delivered.json",
+            "logs/tester/0/20261003.052811.316007.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.052812.873319.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.052814.511258.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.052816.081367.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.052817.658682.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95845269,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96289235,
+          "disk_bytes": 114704384,
+          "entries": 7607,
           "builds": 1,
-          "reuses": 5
+          "reuses": 3
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "a577c8a1e947cbecbda11c217f77848abb2678ce0b51baf75e86539849fc1e00",
         "opened": "2026-10-02T21:51:09",
         "last_red": "2026-10-02T23:16:39",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-constrain",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:28:19",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "a577c8a1e947cbecbda11c217f77848abb2678ce0b51baf75e86539849fc1e00"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -282,6 +282,35 @@ def tooth_reentry(home: Path) -> None:
     ok(name, "bus_proof_reentrant" in held and "bus_proof_echo" in held, f"held={held}")
 
 
+def tooth_sandbox(home: Path) -> None:
+    """A caller in a mount namespace the user manager does not share (the tester's instance
+    seal is bwrap) gets a bus spawned beside it, in its own namespace — a unit would run in
+    the manager's and serve a filesystem the caller cannot see (measured 2026-10-03)."""
+    name = "a caller in another mount namespace gets a bus in that namespace, not a unit outside it"
+    if shutil.which("bwrap") is None:
+        ok(name, False, "bwrap is not installed — the namespace this tooth needs cannot be made")
+        return
+    sandboxed = home / "sandboxed"
+    code = ("import json, os\n"
+            "from cairn.tools.bus_client.remote import ensure_bus, RemoteBus\n"
+            "pid = ensure_bus()['pid']\n"
+            "print(json.dumps({'mine': os.readlink('/proc/self/ns/mnt'),\n"
+            "                  'bus': os.readlink(f'/proc/{pid}/ns/mnt'), 'pid': pid}))\n"
+            "RemoteBus().shutdown()\n")
+    env = _env(sandboxed)
+    env.pop("CAIRN_BUS_UNIT", None)
+    try:
+        r = subprocess.run(["bwrap", "--dev-bind", "/", "/", sys.executable, "-c", code],
+                           env=env, cwd=str(_REPO), capture_output=True, text=True, timeout=60)
+        got = json.loads(r.stdout.strip().splitlines()[0])
+    except Exception as exc:  # noqa: BLE001
+        ok(name, False, f"{type(exc).__name__}: {str(exc)[-200:]} "
+                        f"{getattr(locals().get('r'), 'stderr', '')[-300:]}")
+        return
+    ok(name, got["mine"] == got["bus"] and got["mine"] != os.readlink("/proc/self/ns/mnt"),
+       f"courier={got['mine']} bus={got['bus']} outside={os.readlink('/proc/self/ns/mnt')}")
+
+
 def main() -> int:
     print("one bus per instance hosts every shim")
     home = Path(tempfile.mkdtemp(prefix="bus-proof-home-"))
@@ -295,6 +324,7 @@ def main() -> int:
         tooth_d1_nobody(empty)
         tooth_stale(home)
         tooth_reentry(home)
+        tooth_sandbox(home)
     finally:
         _teardown(home)
         shutil.rmtree(home, ignore_errors=True)

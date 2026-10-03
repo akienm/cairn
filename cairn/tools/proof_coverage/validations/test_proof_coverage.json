@@ -2,13 +2,13 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:22:02",
+    "date": "2026-10-02T23:30:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH\n  ok   test_a_concept_piece_with_a_review_record_is_covered\n  ok   test_a_concept_piece_with_no_review_record_reds\n  ok   test_a_declared_tooth_that_never_ran_green_is_named\n  ok   test_a_flat_falsifier_is_one_clause_and_still_needs_a_tooth\n  ok   test_a_fully_covered_ticket_produces_no_finding\n  ok   test_a_lettered_falsifier_enumerates_its_clauses_and_prose_letters_do_not\n  ok   test_a_marker_word_at_the_LEFT_MARGIN_mints_no_tooth\n  ok   test_a_marker_word_in_prose_does_not_mint_a_tooth\n  ok   test_a_proof_is_never_imported_to_read_its_declaration\n  ok   test_a_proof_that_declares_nothing_for_this_ticket_is_named\n  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece",
-      "stderr_tail": "    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 809, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 139, in test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n    record = reach(\"tester\").request(\n             ~~~~~^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 198, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n  ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n  ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n  ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n  ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n  ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n  ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n  ok   test_an_undeclared_clause_is_named_by_its_number\n  ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n  ok   test_every_printing_style_in_the_corpus_is_read\n  ok   test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing\n  ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n  ok   test_the_live_corpus_reds_every_ticket_at_proveme\n  ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n  ok   test_this_very_proof_declares_the_ticket_that_built_it\n  ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n\n29/29 green",
+      "stderr_tail": "",
       "teeth_green": [
         "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
         "test_a_concept_piece_with_a_review_record_is_covered",
@@ -23,7 +23,22 @@
         "test_a_proof_that_declares_nothing_for_this_ticket_is_named",
         "test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth",
         "test_a_red_tooth_is_never_recorded_green",
-        "test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece"
+        "test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece",
+        "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
+        "test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof",
+        "test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered",
+        "test_a_ticket_below_proveme_is_not_asked_for_coverage",
+        "test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot",
+        "test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier",
+        "test_an_undeclared_clause_is_named_by_its_number",
+        "test_each_proof_in_a_list_is_still_checked_on_its_own_terms",
+        "test_every_printing_style_in_the_corpus_is_read",
+        "test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing",
+        "test_the_latest_crossing_wins_when_a_ticket_was_kicked_back",
+        "test_the_live_corpus_reds_every_ticket_at_proveme",
+        "test_the_printer_writes_names_THIS_MODULE_can_read_back",
+        "test_this_very_proof_declares_the_ticket_that_built_it",
+        "test_wrong_intent_clauses_are_not_demanded_as_teeth"
       ],
       "teeth_red": [],
       "seal": {
@@ -34,13 +49,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "54cfe37da58fde0b79d582742a26e998f56e03e83e9b0c4ca1b49f67fed02722",
+      "source_fingerprint": "66c66aca59b8cb0980a82a1bc7d3f3ecbcd99468c1107f138c42c8f268605cd2",
       "fingerprint_closure": [
         "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/crossings.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/validation.py",
         "cairn/tools/bus_client/__init__.py",
@@ -50,8 +72,13 @@
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/proof_coverage/__init__.py",
@@ -64,32 +91,44 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-d7ujt459/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-d5shngsn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 10,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/tester/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052945.494612.BusDevice.post.json",
+            "logs/bus/0/20261003.052945.553805.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052945.579054.BusDevice.post.json",
+            "logs/bus/0/20261003.052947.578389.BusDevice.post.json",
+            "logs/bus/0/20261003.052947.579309.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052947.579424.BusDevice.delivered.json",
+            "logs/tester/0/20261003.052947.577202.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95843809,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96284048,
+          "disk_bytes": 114622464,
+          "entries": 7587,
           "builds": 1,
-          "reuses": 15
+          "reuses": 13
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "4614dee3411e1b91c82cf1e0d48f11bdbaf54136f69f53f04b568ce395e0c51b",
         "opened": "2026-10-02T22:06:45",
         "last_red": "2026-10-02T23:22:02",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-proof-coverage",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:30:08",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "4614dee3411e1b91c82cf1e0d48f11bdbaf54136f69f53f04b568ce395e0c51b"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

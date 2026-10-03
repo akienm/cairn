@@ -2,21 +2,19 @@
   {
     "claim": "proof test_the_tester_is_reached_only_through_its_interface.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:18:32",
+    "date": "2026-10-02T23:29:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        # drained into a throwaway instance would be receipted and lost.\n        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../tools/bus_client/remote.py:198: ConnectionError\n=========================== short test summary info ============================\nFAILED test_the_tester_is_reached_only_through_its_interface.py::test_the_run_verb_answers_with_the_testers_verdict\n1 failed, 2 passed in 20.31s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_no_foreign_row_lands_on_the_tester\n.\n  ok   test_the_run_verb_answers_with_the_testers_verdict\n.\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n3 passed in 8.73s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_foreign_row_lands_on_the_tester",
+        "test_the_run_verb_answers_with_the_testers_verdict",
         "test_the_tool_floor_stands_on_no_device"
       ],
-      "teeth_red": [
-        "test_the_run_verb_answers_with_the_testers_verdict",
-        "test_the_tester_is_reached_only_through_its_interface"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -25,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "187578edbe99b6018a4eab7b8885852774c0a6bf03a049f13b859a9cff28351a",
+      "source_fingerprint": "756a343684f22746a06456f325f30f8c626f014c807003414a313da2e1cb4f22",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -74,32 +72,53 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1462810-ulvksrtz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479073-ypgxq8hr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 19,
           "paths": [
-            "logs/bus.log"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/tester/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.052921.613293.BusDevice.post.json",
+            "logs/bus/0/20261003.052921.657700.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.052921.672371.BusDevice.post.json",
+            "logs/bus/0/20261003.052923.246282.BusDevice.post.json",
+            "logs/bus/0/20261003.052923.247270.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052923.247389.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052923.273084.BusDevice.post.json",
+            "logs/bus/0/20261003.052924.809395.BusDevice.post.json",
+            "logs/bus/0/20261003.052924.810005.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052924.810115.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052924.835438.BusDevice.post.json",
+            "logs/bus/0/20261003.052924.835632.BusDevice.post.json",
+            "logs/bus/0/20261003.052924.836221.BusDevice.delivered.json",
+            "logs/bus/0/20261003.052924.836328.BusDevice.delivered.json",
+            "logs/tester/0/20261003.052923.245100.TesterDevice.run_proof.json",
+            "logs/tester/0/20261003.052924.808167.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95843809,
-          "disk_bytes": 114098176,
-          "entries": 7544,
+          "bytes": 96286553,
+          "disk_bytes": 114659328,
+          "entries": 7596,
           "builds": 1,
-          "reuses": 8
+          "reuses": 6
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "abf032e9bcbd2afae1a007f8f587f8371912f616777cf5a25418c42243d911cf",
         "opened": "2026-10-02T22:04:47",
         "last_red": "2026-10-02T23:18:32",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-02T23:29:26",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "abf032e9bcbd2afae1a007f8f587f8371912f616777cf5a25418c42243d911cf"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

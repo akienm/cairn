@@ -110,6 +110,13 @@ def _answers(home) -> dict | None:
         return None
 
 
+def _last_answer(home) -> str:
+    try:
+        return repr(exchange({"op": "stats"}, home, timeout=5))[:300]
+    except Exception as exc:  # noqa: BLE001 — this IS the report of what went wrong
+        return f"{type(exc).__name__}: {exc}"
+
+
 def _note(text: str) -> None:
     log = _LOG.expanduser()
     try:
@@ -120,11 +127,32 @@ def _note(text: str) -> None:
         pass
 
 
-def _spawn(home: Path, scratch: bool) -> str:
+def _beside_the_manager() -> bool:
+    """Whether this process sees the filesystem the systemd user manager sees. A unit runs in
+    the MANAGER's mount namespace: a caller inside a sandbox that swapped ``~/.cairn`` (the
+    tester's instance seal) would start a bus serving the real home, never the one it can see
+    — measured 2026-10-03, every proof that reached the bus under that seal read "spawned:
+    none" against the live unit's name. The manager reports its namespace through a transient
+    unit (measured 23ms); no systemd at all reads as beside it, and the setsid path runs."""
+    try:
+        r = subprocess.run(["systemd-run", "--user", "--wait", "--pipe", "--quiet", "--",
+                            "readlink", "/proc/self/ns/mnt"],
+                           capture_output=True, text=True, timeout=30)
+        mine = os.readlink("/proc/self/ns/mnt")
+    except (OSError, subprocess.SubprocessError):
+        return True
+    return r.returncode != 0 or r.stdout.strip() == mine
+
+
+def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
     """Start the bus process — ``ensure_ground_loop``'s systemd-run block, spelled again for
-    the bus (unit, SuccessExitStatus=3, append log, reset-failed retry, setsid fall-through)."""
+    the bus (unit, SuccessExitStatus=3, append log, reset-failed retry, setsid fall-through).
+    ``via_unit=False`` goes straight to setsid: the caller's filesystem is not the manager's."""
     log = _LOG.expanduser()
     log.parent.mkdir(parents=True, exist_ok=True)
+    if not via_unit:
+        return _setsid(home, scratch, log, "this process's mount namespace is not the user "
+                                           "manager's — bus spawned with setsid beside it")
     unit = _unit(home)
     cmd = ["python3", "-m", _BUS_MODULE, "serve", "--home", str(home)]
     if scratch:
@@ -156,10 +184,19 @@ def _spawn(home: Path, scratch: bool) -> str:
             _note(f"{unit}.service refused the start — the name is held, so a bus already "
                   f"holds it: {((r2.stderr or '') + (r2.stdout or '')).strip()[:200]}")
             return "none"
+    return _setsid(home, scratch, log,
+                   "systemd-run unavailable — bus spawned with setsid (dies with this session)")
+
+
+def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
+    cmd = ["python3", "-m", _BUS_MODULE, "serve",
+           "--home", str(home)]
+    if scratch:
+        cmd.append("--scratch")
     with open(log, "a", encoding="utf-8") as fh:
         subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), start_new_session=True,
                          stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
-    _note("systemd-run unavailable — bus spawned with setsid (dies with this session)")
+    _note(why)
     return "setsid"
 
 
@@ -184,7 +221,11 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
     # A bus at any home but the live instance's rides a throwaway table (decision 11): a
     # proof's scratch HOME holds every shim it asks for, and holding drains mail — live mail
     # drained into a throwaway instance would be receipted and lost.
-    spawned = _spawn(home, scratch or home != _live_home())
+    beside = _beside_the_manager()
+    # Beside a different filesystem the bus rides a throwaway table too: the home it serves
+    # is a sandbox's copy, and mail drained into it would be receipted and lost.
+    scratch = scratch or home != _live_home() or not beside
+    spawned = _spawn(home, scratch, via_unit=beside)
     deadline = time.monotonic() + _START_WAIT_S
     while time.monotonic() < deadline:
         found = _answers(home)
@@ -193,10 +234,12 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
         if spawned == "none" and not _unit_active(home):
             # The name was held by a bus on its way out (a stale one just shut down); once
             # the unit is gone the name is free, so start ours.
-            spawned = _spawn(home, scratch or home != _live_home())
+            spawned = _spawn(home, scratch, via_unit=beside)
         time.sleep(0.05)
+    # What the socket last said is the diagnosis (Law 7): silence, a refusal, or stale.
     raise ConnectionError(f"no bus process answered at {home / 'bus.sock'} within "
-                          f"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})")
+                          f"{_START_WAIT_S:.0f}s (spawned: {spawned}; last answer: "
+                          f"{_last_answer(home)}; log {_LOG})")
 
 
 def _replace(home: Path) -> None:

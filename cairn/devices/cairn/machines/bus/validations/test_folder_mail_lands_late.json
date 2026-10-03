@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_folder_mail_lands_late.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T16:49:34",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T22:17:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ac90111948624a4f18f741665c5761306b9d8a30b9d35b9ed2c3dee4ea678d1f",
+      "source_fingerprint": "905d37c15ac678feaac212432667dcc39b24e262241048218a01f4caa80d55ee",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -50,50 +50,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1276649-28zdot_7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1429686-j99tm52v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261002.224934.370120.BusDevice.post.json",
-            "logs/bus/0/20261002.224934.414683.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.224934.429204.BusDevice.post.json",
-            "logs/bus/0/20261002.224934.430072.BusDevice.delivered.json",
-            "logs/bus/0/20261002.224934.436905.BusDevice.delivered.json"
+            "logs/bus/0/20261003.041745.403856.BusDevice.post.json",
+            "logs/bus/0/20261003.041745.477368.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.041745.493874.BusDevice.post.json",
+            "logs/bus/0/20261003.041745.494727.BusDevice.delivered.json",
+            "logs/bus/0/20261003.041745.495001.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 93537130,
-          "disk_bytes": 111349760,
-          "entries": 7346,
+          "bytes": 95075627,
+          "disk_bytes": 113278976,
+          "entries": 7503,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "cff5a197b3c4": {
-          "cairn/devices/tester/shim.py": [
-            "a_refused_seal_is_printed_at_the_exchange"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "the_tester_clears_its_own_reply"
-          ],
-          "cairn/devices/cairn/machines/bus/bus.py": [
-            "folder_mail_lands_late_and_cairn_owns_press_office"
-          ],
-          "cairn/devices/cairn/intention+why.json": [
-            "folder_mail_lands_late_and_cairn_owns_press_office"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "cff5a197b3c4": {
-          "anchor_rule": "journal",
-          "anchor_journal": "b809c7499de60f72cb3c57604601770091b8e4dd",
-          "anchor_first_build": "d2f9ecd111d9416ee61439b31601666880a931ed",
-          "commit": "b809c7499de60f72cb3c57604601770091b8e4dd"
+          "reuses": 11
         }
       }
     },

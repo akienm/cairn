@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_direct_reach.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T20:44:23",
+    "date": "2026-10-02T22:17:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_device_has_modules_to_measure\n.\n  ok   test_no_module_in_aider_shim_imports_inference_domain\n.\n  ok   test_no_module_in_aider_shim_spells_a_path_into_inference_domain\n.\n  ok   test_the_instrument_would_catch_a_repointed_path\n.\n  ok   test_the_surface_asks_the_bus_for_the_models_stack\n.\n  ok   test_an_injected_stack_never_touches_the_bus\n.\n  ok   test_inference_domain_declares_a_models_view_that_returns_the_stack\n.\n  ok   test_the_seam_answers_the_same_stack_as_the_view\n.\n  ok   test_aider_shim_reaches_inference_domain_only_through_a_door\n                                                                [100%]\n9 passed in 7.29s",
+      "returncode": 1,
+      "stdout_tail": "        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../tools/bus_client/remote.py:179: ConnectionError\n=========================== short test summary info ============================\nFAILED test_no_direct_reach.py::test_the_seam_answers_the_same_stack_as_the_view\nFAILED test_no_direct_reach.py::test_aider_shim_reaches_inference_domain_only_through_a_door\n2 failed, 7 passed in 30.44s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_device_has_modules_to_measure",
@@ -16,11 +16,13 @@
         "test_the_instrument_would_catch_a_repointed_path",
         "test_the_surface_asks_the_bus_for_the_models_stack",
         "test_an_injected_stack_never_touches_the_bus",
-        "test_inference_domain_declares_a_models_view_that_returns_the_stack",
-        "test_the_seam_answers_the_same_stack_as_the_view",
-        "test_aider_shim_reaches_inference_domain_only_through_a_door"
+        "test_inference_domain_declares_a_models_view_that_returns_the_stack"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "test_the_seam_answers_the_same_stack_as_the_view",
+        "test_aider_shim_reaches_inference_domain_only_through_a_door",
+        "test_no_direct_reach"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -29,7 +31,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "96c5ed6d109d6a52449e5fdedfa56d33e50fb040b7f4d7be65bfa4fd1e4cc4d8",
+      "source_fingerprint": "e9f3b9b3999be617841774b201362536226746dd9bdeed3b483366bc2a1e02ad",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -37,11 +39,6 @@
         "cairn/devices/aider_shim/fence.py",
         "cairn/devices/aider_shim/interceptor.py",
         "cairn/devices/aider_shim/proofs/test_no_direct_reach.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/bus/shim.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -52,7 +49,6 @@
         "cairn/devices/inference_domain/machines/__init__.py",
         "cairn/devices/inference_domain/machines/route/__init__.py",
         "cairn/devices/inference_domain/machines/route/route.py",
-        "cairn/devices/inference_domain/shim.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -61,55 +57,45 @@
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
         "cairn/tools/bus_client/roster.py",
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/rack/__init__.py",
-        "cairn/tools/rack/rack.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1363479-vycw2f71/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1429686-lesorzlv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
+          "count": 1,
           "paths": [
-            "devices/inference_domain/0/last_known.json",
-            "logs/bus/0/20261003.024419.791710.BusDevice.post.json",
-            "logs/bus/0/20261003.024419.818086.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.024419.830029.BusDevice.post.json",
-            "logs/bus/0/20261003.024419.842180.BusDevice.post.json",
-            "logs/bus/0/20261003.024419.843261.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024419.843384.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024423.406339.BusDevice.post.json",
-            "logs/bus/0/20261003.024423.431590.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.024423.443339.BusDevice.post.json",
-            "logs/bus/0/20261003.024423.455533.BusDevice.post.json",
-            "logs/bus/0/20261003.024423.456235.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024423.456357.BusDevice.delivered.json"
+            "logs/bus.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 94355121,
-          "disk_bytes": 112406528,
-          "entries": 7437,
+          "bytes": 95074877,
+          "disk_bytes": 113262592,
+          "entries": 7497,
           "builds": 1,
-          "reuses": 3
+          "reuses": 2
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "e4ef991cd0083a194741d404e355d1553347a0700150ef9f8c5b097ba8af2ef9",
+        "opened": "2026-10-02T22:17:29",
+        "last_red": "2026-10-02T22:17:29",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-aider-shim",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_question.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T16:49:06",
+    "date": "2026-10-02T22:32:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-e119b350a7f6'] child_born_of=open-f4ebd5bca63d\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-d4cda5536714 is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-666194286ebd' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-flw049vs/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
+      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-46fc4df2b126'] child_born_of=open-62acab8270f4\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-9fa30af248df is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-06be41d88286' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-ejcv5x81/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
@@ -30,18 +30,10 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4d05bb963617257bc1e935a5cdaec96382cd84bfd2928239deb406514f9d8489",
+      "source_fingerprint": "88eac5780f57a22cf3dcc4d1ceaa877a42e0ebb02bdfded602b4d087e0cd27e8",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/trouble.py",
         "cairn/machines/__init__.py",
@@ -66,6 +58,10 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
+        "cairn/tools/bus_client/roster.py",
         "cairn/tools/cgroup/__init__.py",
         "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/charter/__init__.py",
@@ -84,22 +80,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1266864-14_oar_z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1429686-93wuudg5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/bus/0/20261002.224903.846334.BusDevice.transit_table_ensured.json"
+            "logs/bus.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 93463316,
-          "disk_bytes": 111214592,
-          "entries": 7328,
+          "bytes": 95074512,
+          "disk_bytes": 113262592,
+          "entries": 7497,
           "builds": 1,
-          "reuses": 56
+          "reuses": 48
         }
       }
     },

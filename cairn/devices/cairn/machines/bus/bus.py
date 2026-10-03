@@ -57,6 +57,7 @@ FILED EDGES (children of this stone — not faked):
 
 from __future__ import annotations
 
+import json
 import re
 import threading
 import uuid
@@ -404,7 +405,11 @@ class BusDevice(BaseDevice):
             "kind": kind,
             "verb": verb,
             "why": why,
-            "body": body or {},
+            # JSON-safe at the door (ticket 48519f4789b1): a body that only json.dumps(default=
+            # str) could carry — a Decimal cost read from the store, measured 2026-10-03 — would
+            # otherwise sit in the ring and fail every flush after it, the shutdown's included.
+            # The socket path already crossed this way; an in-process post now matches it.
+            "body": json.loads(json.dumps(body or {}, default=str)),
             "reply_to": reply_to,
             "date": datetime.now().isoformat(timespec="seconds"),
         }
@@ -608,6 +613,42 @@ class BusDevice(BaseDevice):
             self._ring_delivered.difference_update(r["envelope"] for r in to_receipt)
         self._flushed += len(to_flush)
         return {"flushed": len(to_flush), "receipts": len(to_receipt)}
+
+    def spill(self, path) -> dict:
+        """Write what the ring still holds to ``path`` as JSON lines and clear it — the bus's
+        last act when a flush has failed and the process must still end (ticket 48519f4789b1).
+        Appends, so a second failed exit before a restore loses nothing either. Each line is
+        ``{"envelope": {...}}`` or ``{"receipt": {...}}``."""
+        with self._lock:
+            envs, self._ring = self._ring, []
+            rcpts, self._ring_receipts = self._ring_receipts, []
+        if not envs and not rcpts:
+            return {"spilled": 0, "receipts": 0}
+        with open(path, "a", encoding="utf-8") as fh:
+            for env in envs:
+                fh.write(json.dumps({"envelope": env}, default=str) + "\n")
+            for rcpt in rcpts:
+                fh.write(json.dumps({"receipt": rcpt}, default=str) + "\n")
+        return {"spilled": len(envs), "receipts": len(rcpts)}
+
+    def restore(self, path) -> dict:
+        """Put a spill back in the ring ahead of anything newer; the next ``flush()`` writes it.
+        The file is the caller's to retire once that flush lands."""
+        envs, rcpts = [], []
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if "envelope" in row:
+                    envs.append(row["envelope"])
+                elif "receipt" in row:
+                    rcpts.append(row["receipt"])
+        with self._lock:
+            self._ring = envs + self._ring
+            self._ring_receipts = rcpts + self._ring_receipts
+            self._ring_delivered.update(r["envelope"] for r in rcpts)
+        return {"restored": len(envs), "receipts": len(rcpts)}
 
     @property
     def db_reads(self) -> int:

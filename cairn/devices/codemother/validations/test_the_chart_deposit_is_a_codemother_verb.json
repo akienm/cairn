@@ -2,20 +2,21 @@
   {
     "claim": "proof test_the_chart_deposit_is_a_codemother_verb.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T20:47:51",
+    "date": "2026-10-02T22:20:50",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green the_skill_holds_no_reach\n  green codemother_answers_deposit_and_drain\n  green the_code_moved_once\n  green a_real_deposit_rides_the_bus\n4 passed, 0 failed out of 4",
+      "returncode": 1,
+      "stdout_tail": "  green the_skill_holds_no_reach\n  green codemother_answers_deposit_and_drain\n  green the_code_moved_once\n  RED   a_real_deposit_rides_the_bus: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n3 passed, 1 failed out of 4",
       "stderr_tail": "",
       "teeth_green": [
         "the_skill_holds_no_reach",
         "codemother_answers_deposit_and_drain",
-        "the_code_moved_once",
-        "a_real_deposit_rides_the_bus"
+        "the_code_moved_once"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "a_real_deposit_rides_the_bus: ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)"
+      ],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -24,15 +25,10 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "859dadce884d91032d73f7a1dd005af4947a824fbbf0e2061fa9db8b8e20030b",
+      "source_fingerprint": "0d91e01b837c4cdc07450b4e40bd62d9953fe1d805d55c0986132dded9a1b15e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/bus/shim.py",
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/deposit.py",
         "cairn/devices/codemother/machines/__init__.py",
@@ -58,14 +54,6 @@
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/devices/inference_domain/__init__.py",
-        "cairn/devices/inference_domain/device.py",
-        "cairn/devices/inference_domain/domain.py",
-        "cairn/devices/inference_domain/host.py",
-        "cairn/devices/inference_domain/machines/__init__.py",
-        "cairn/devices/inference_domain/machines/route/__init__.py",
-        "cairn/devices/inference_domain/machines/route/route.py",
-        "cairn/devices/inference_domain/shim.py",
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/machines/__init__.py",
@@ -85,6 +73,7 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
         "cairn/tools/bus_client/roster.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
@@ -96,14 +85,8 @@
         "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/rack/__init__.py",
-        "cairn/tools/rack/rack.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
@@ -113,39 +96,32 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1363479-kgx03vxy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1429686-kxkp_y54/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 17,
+          "count": 1,
           "paths": [
-            "devices/codemother/0/last_known.json",
-            "devices/inference_domain/0/last_known.json",
-            "logs/bus/0/20261003.024746.062907.BusDevice.post.json",
-            "logs/bus/0/20261003.024746.093178.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.024750.387365.BusDevice.post.json",
-            "logs/bus/0/20261003.024750.461471.BusDevice.post.json",
-            "logs/bus/0/20261003.024750.489212.BusDevice.post.json",
-            "logs/bus/0/20261003.024750.556143.BusDevice.post.json",
-            "logs/bus/0/20261003.024750.584269.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024750.584455.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024751.575658.BusDevice.post.json",
-            "logs/bus/0/20261003.024751.576892.BusDevice.delivered.json",
-            "logs/bus/0/20261003.024751.577043.BusDevice.delivered.json",
-            "logs/ground_loop_nohup.log",
-            "logs/inference_domain/0/20261003.024750.539906.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20261003.024750.555857.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/tickets/20261003T024750554230-e5239a0d113c-1367419-1.json"
+            "logs/bus.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 94392390,
-          "disk_bytes": 112451584,
-          "entries": 7443,
+          "bytes": 95074512,
+          "disk_bytes": 113262592,
+          "entries": 7497,
           "builds": 1,
-          "reuses": 29
+          "reuses": 20
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "3663855ee4ba4f88af90e758efad60f7d43366714336fa333d6bc6552c0134e8",
+        "opened": "2026-10-02T22:20:50",
+        "last_red": "2026-10-02T22:20:50",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-codemother",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

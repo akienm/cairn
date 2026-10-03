@@ -209,7 +209,10 @@ class _Handler(socketserver.StreamRequestHandler):
             req = {}
         else:
             if req.get("op") == "shutdown":
-                reply = self.server.process.op_flush(req)
+                # A shutdown ENDS the process whatever the flush does: a bus that cannot stop
+                # is a stale bus nothing can replace (measured 2026-10-03 — one Decimal in the
+                # ring failed every flush, so every shutdown, so every caller after it).
+                reply = final_flush(self.server.process.bus, self.server.home)
                 self._send(reply)
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return
@@ -232,6 +235,37 @@ class _Server(socketserver.ThreadingUnixStreamServer):
             print(f"bus: {self.home} is gone — exiting", file=sys.stderr, flush=True)
             threading.Thread(target=self.shutdown, daemon=True).start()
             self.home = None
+
+
+SPILL = "bus.unflushed.jsonl"
+
+
+def final_flush(bus: BusDevice, home: Path | None) -> dict:
+    """Flush the ring; if the store refuses, spill it to ``<home>/bus.unflushed.jsonl`` so the
+    next bus at this home lands it (``land_spill``). Loud either way (Law 7): the error is in
+    the reply and the log, and nothing the ring held is dropped."""
+    try:
+        return {"ok": True, "json": bus.flush()}
+    except Exception as exc:  # noqa: BLE001 — reported and spilled, never swallowed
+        error = f"{type(exc).__name__}: {exc}"
+        spilled = bus.spill(home / SPILL) if home is not None else None
+        print(f"bus: flush failed ({error}); spilled {spilled} to {home}/{SPILL}",
+              file=sys.stderr, flush=True)
+        return {"ok": False, "error": f"flush failed: {error}", "spilled": spilled}
+
+
+def land_spill(bus: BusDevice, home: Path) -> dict | None:
+    """A spill left by the bus before this one goes back in the ring and is flushed now; the
+    file is renamed ``.landed-<stamp>`` only after that flush commits."""
+    spill = home / SPILL
+    if not spill.exists():
+        return None
+    restored = bus.restore(spill)
+    flushed = bus.flush()
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    spill.rename(home / f"{SPILL}.landed-{stamp}")
+    print(f"bus: landed spill {restored} → {flushed}", file=sys.stderr, flush=True)
+    return {"restored": restored, "flushed": flushed}
 
 
 def claim(home: Path):
@@ -267,15 +301,16 @@ def serve(home: Path, bus: BusDevice) -> int:
     os.chmod(sock, 0o600)
     server.process = BusProcess(bus)
     server.home = home
+    try:
+        land_spill(bus, home)
+    except Exception as exc:  # noqa: BLE001 — the spill stays on disk for the next start
+        print(f"bus: spill did not land: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
     print(f"bus: serving {sock} pid {os.getpid()} root {ROOT}", file=sys.stderr, flush=True)
     try:
         server.serve_forever()
     finally:
         server.server_close()
-        try:
-            bus.flush()
-        except Exception as exc:  # noqa: BLE001 — the last flush is reported, not swallowed
-            print(f"bus: final flush failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        final_flush(bus, home)
         sock.unlink(missing_ok=True)
         held.close()
     return 0

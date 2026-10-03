@@ -175,6 +175,50 @@ def test_flush_writes_receipts_to_db():
     assert receipts[0]["by"] == "b"
 
 
+def test_a_decimal_body_does_not_poison_the_flush():
+    """A body only ``json.dumps(default=str)`` can carry (a Decimal cost read from the store)
+    is made JSON-safe at post, so the flush after it lands. Measured 2026-10-03: one such
+    envelope in the live ring failed every flush, and with it every shutdown (ticket 48519f4789b1)."""
+    from decimal import Decimal
+    bus = _fresh_bus()
+    bus.post(sender="a", to="b", channel="personal", why="decimal proof",
+             body={"cost": Decimal("0.0123")})
+    result = bus.flush()
+    assert result["flushed"] == 1, result
+    rows = store.read(bus.table)
+    assert rows and rows[0]["body"]["cost"] == "0.0123", rows
+
+
+def test_a_failed_flush_spills_and_the_next_bus_lands_it():
+    """The bus's exit never drops the ring: a flush the store refuses spills it to
+    ``bus.unflushed.jsonl`` (and says so, ok False), and the next bus at that home restores and
+    flushes it, retiring the file only after the flush commits."""
+    import tempfile
+    from cairn.devices.cairn.machines.bus.server import SPILL, final_flush, land_spill
+    with tempfile.TemporaryDirectory(prefix="cairn-bus-proof-spill-") as tmp:
+        home = Path(tmp)
+        dying = _fresh_bus()
+        sent = dying.post(sender="a", to="b", channel="personal", why="spill proof", body={"n": 1})
+        dying.record_delivery(sent["id"], to="b", by="spill proof")
+
+        def refuse():
+            raise RuntimeError("the store refused (spill proof)")
+        dying.flush = refuse
+        reply = final_flush(dying, home)
+        assert reply["ok"] is False and "refused" in reply["error"], reply
+        assert reply["spilled"] == {"spilled": 1, "receipts": 1}, reply
+        assert (home / SPILL).exists(), "a failed flush left no spill"
+        assert dying.ring_depth == 0
+
+        # The store takes writes again: the same table, as the next bus at this home sees it.
+        del dying.flush
+        assert store.read(dying.table) == [], "the refused flush wrote anyway"
+        landed = land_spill(dying, home)
+        assert landed["flushed"] == {"flushed": 1, "receipts": 1}, landed
+        assert not (home / SPILL).exists(), "the spill was not retired after it landed"
+        assert [r["id"] for r in store.read(dying.table)] == [sent["id"]]
+
+
 if __name__ == "__main__":
     checks = [
         test_post_does_not_hit_db,
@@ -184,6 +228,8 @@ if __name__ == "__main__":
         test_receipt_in_ring_prevents_redelivery,
         test_flush_empty_ring_is_noop,
         test_flush_writes_receipts_to_db,
+        test_a_decimal_body_does_not_poison_the_flush,
+        test_a_failed_flush_spills_and_the_next_bus_lands_it,
     ]
     failures = 0
     try:

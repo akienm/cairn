@@ -1,0 +1,95 @@
+[
+  {
+    "claim": "proof test_mail_without_a_receiver.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-03T01:06:22",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green the_bus_answers_get_status\n  green a_sleeping_addressee_is_woken_by_its_mail\n  green a_device_nobody_mails_is_never_held\n  green a_reply_to_a_shimless_requester_is_neither_woken_nor_bounced\n  green a_bounce_answering_a_waiting_request_is_the_askers_to_take\n  green unreachable_addressed_mail_returns_to_its_sender\n  green an_undeliverable_bounce_is_raised_not_re_bounced\n  green the_standing_backlog_takes_the_path_at_start\n8 passed, 0 failed out of 8",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the_bus_answers_get_status",
+        "a_sleeping_addressee_is_woken_by_its_mail",
+        "a_device_nobody_mails_is_never_held",
+        "a_reply_to_a_shimless_requester_is_neither_woken_nor_bounced",
+        "a_bounce_answering_a_waiting_request_is_the_askers_to_take",
+        "unreachable_addressed_mail_returns_to_its_sender",
+        "an_undeliverable_bounce_is_raised_not_re_bounced",
+        "the_standing_backlog_takes_the_path_at_start"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "a5fb912b114fb8471ce1f81b5e99f8dfd1cef0888d710259960e2cade3435f69",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_mail_without_a_receiver.py",
+        "cairn/devices/cairn/machines/bus/server.py",
+        "cairn/devices/cairn/machines/bus/shim.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/deviceness.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/roster.py",
+        "cairn/tools/instanceizer/__init__.py",
+        "cairn/tools/instanceizer/instanceizer.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1525671-mlxum8gy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 4,
+          "paths": [
+            "devices/bus/0/last_known.json",
+            "devices/testing-7cb1-mailed/0/last_known.json",
+            "devices/testing-7cb1-sleeper/0/last_known.json",
+            "devices/testing-7cb1-writer/0/last_known.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 98931320,
+          "disk_bytes": 117678080,
+          "entries": 7781,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

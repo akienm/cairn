@@ -44,7 +44,14 @@ from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.server import BusProcess  # noqa: E402
 
+# "all" IS THE KEY THE CLEARANCE GATE JOINS ON: proof_coverage.clauses() reads (N) markers
+# off proves_red and this falsifier is unnumbered prose, so it asks for exactly one clause —
+# measured 2026-10-03, lacks() named "clause (all) is undeclared" against the descriptive map
+# alone. The descriptive keys stay: the hollow runner reads every declared tooth to attribute
+# a reverted file. "all" names the tooth aimed at the falsifier's subject — mail nobody can
+# take comes back marked.
 PROVES = {"7cb1989e7825": {
+    "all": "unreachable_addressed_mail_returns_to_its_sender",
     "every device answers a health query": "the_bus_answers_get_status",
     "a message for a sleeping component wakes it":
         "a_sleeping_addressee_is_woken_by_its_mail",

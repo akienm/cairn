@@ -24,6 +24,7 @@ Diagnostics go to a list receiver; the bus is a spy. Every name is ``testing-7cb
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -33,13 +34,19 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.shim import BaseShim  # noqa: E402
 
+# "all" is the key the clearance gate joins on (this falsifier carries no (N) markers — see
+# the bus proof's note); the descriptive keys let the hollow runner attribute each file.
 PROVES = {"7cb1989e7825": {
+    "all": "a_returned_letter_raises_the_addressees_mail_trouble",
     "a raised trouble names the addressee's defect, raised by the sender":
         "a_returned_letter_raises_the_addressees_mail_trouble",
     "a raised trouble clears on a measured green":
         "taking_mail_clears_the_trouble_a_bounce_is_not_a_take",
     "a recurrence writes a FRESH ticket rather than bumping a count":
         "a_recurrence_after_the_clear_is_a_fresh_trouble",
+    "the watch counts the post-era mail lane, fires on a stale or crowding one, clears on a "
+    "worked one": "the_mail_lane_watch_reads_the_store_from_its_era_floor",
+    "the watch is armed in the emission gate's own sense": "the_mail_lane_watch_is_armed",
 }}
 
 PASS = 0
@@ -177,9 +184,115 @@ def a_recurrence_after_the_clear_is_a_fresh_trouble():
         f"the raise after a clear was suppressed or renamed: {raised}")
 
 
+# ── the WATCHME probe (cairn/tools/base/probes/does_the_mail_lane_get_worked.py) ──────────
+# Driven over a fixture store and a fixture history, never the live commons: the era floor
+# is read from a history the tooth writes, so the probe's real readers run on files this
+# proof owns (a hollow worktree has no commons beside it).
+
+def _history(tmp: Path, entries: list) -> Path:
+    path = tmp / "history.json"
+    path.write_text(json.dumps(entries), encoding="utf-8")
+    return path
+
+
+def _trouble(root: Path, ident: str, first_seen: str, *, cleared_at: str | None = None,
+             prior: int = 0) -> None:
+    rec = {"id": ident, "standing": "CLEARED" if cleared_at else "LIVE", "why": "testing-7cb1",
+           "count": 1, "first_seen": first_seen, "last_seen": first_seen,
+           "prior_attempts": prior,
+           "cleared_by": ([{"by": "cc", "at": cleared_at, "what_changed": "testing-7cb1"}]
+                          if cleared_at else [])}
+    (root / f"{ident}.json").write_text(json.dumps(rec), encoding="utf-8")
+
+
+def _probe_reads(root: Path, history: Path, now) -> tuple[bool, bool, dict]:
+    from cairn.tools.base.probes import does_the_mail_lane_get_worked as SUT
+    survey = SUT.survey_mail_lane(root=root, history=history, now=now)
+    ctx = {"survey": survey}
+    return SUT._trigger(now, ctx), SUT._enough(ctx), SUT._carry(ctx)
+
+
+def the_mail_lane_watch_reads_the_store_from_its_era_floor():
+    import tempfile
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime(2026, 12, 1, tzinfo=timezone.utc)
+    floor = (now - timedelta(days=40)).isoformat()
+    at = lambda days_ago: (now - timedelta(days=days_ago)).isoformat()  # noqa: E731
+    proved = [{"ticket": "7cb1989e7825", "to": "PROVEME", "at": at(41)},
+              {"ticket": "7cb1989e7825", "to": "PROVED", "at": floor}]
+    with tempfile.TemporaryDirectory(prefix="testing-7cb1-lane-") as tmp_s:
+        tmp = Path(tmp_s)
+        root = tmp / "troubles"
+        root.mkdir()
+
+        # HOLLOW: the history holds no entry for the ticket — fire so the floor is repaired.
+        fired, done, carry = _probe_reads(root, _history(tmp, [{"ticket": "other"}]), now)
+        assert fired and not done and "HOLLOW" in carry["finding"], carry["finding"]
+
+        # NOT BEGUN: entries, but no PROVED crossing — nothing to count, neither fire nor clear.
+        _trouble(root, "mail-testing-7cb1-old-has-no-receiver", at(5))
+        fired, done, carry = _probe_reads(root, _history(tmp, proved[:1]), now)
+        assert not fired and not done and carry["counts"]["raised"] == 0, carry
+
+        history = _history(tmp, proved)
+        # A trouble first seen BEFORE the floor is the builder's own, never counted.
+        _trouble(root, "mail-testing-7cb1-before-has-no-receiver", at(45))
+        # WORKED: 8 raised after the floor, 6 cleared, 2 live and young, 1 recurred.
+        for n in range(6):
+            _trouble(root, f"mail-testing-7cb1-w{n}-has-no-receiver", at(30 - n),
+                     cleared_at=at(28 - n), prior=1 if n == 0 else 0)
+        for n in range(2):
+            _trouble(root, f"mail-testing-7cb1-young{n}-has-no-receiver", at(3))
+        # (and the NOT BEGUN fixture above is post-floor, so it is live and young too)
+        fired, done, carry = _probe_reads(root, history, now)
+        assert carry["counts"] == {"raised": 9, "cleared": 6, "live": 3, "recurred": 1}, carry
+        assert not fired and done, f"a worked lane fired={fired} cleared={done}: {carry}"
+        assert carry["era_floor"] == floor and carry["recurred_ids"] == [
+            "mail-testing-7cb1-w0-has-no-receiver"], carry
+
+        # STALE: one live trouble past 14 days — fire, and the watch may not clear.
+        _trouble(root, "mail-testing-7cb1-stale-has-no-receiver", at(20))
+        fired, done, carry = _probe_reads(root, history, now)
+        assert fired and not done, f"a stale lane fired={fired} cleared={done}"
+        assert "mail-testing-7cb1-stale-has-no-receiver" in carry["finding"], carry["finding"]
+
+    # CROWDED: > 20 live, all young, but older than the lane takes to clear — fire.
+    with tempfile.TemporaryDirectory(prefix="testing-7cb1-crowd-") as tmp_s:
+        tmp = Path(tmp_s)
+        root = tmp / "troubles"
+        root.mkdir()
+        for n in range(21):
+            _trouble(root, f"mail-testing-7cb1-c{n}-has-no-receiver", at(10))
+        _trouble(root, "mail-testing-7cb1-quick-has-no-receiver", at(12), cleared_at=at(11))
+        fired, done, carry = _probe_reads(root, _history(tmp, proved), now)
+        assert fired and not done and "fills faster than it drains" in carry["finding"], carry
+        # ...and 21 live that are YOUNGER than the clear time is not crowding.
+        _trouble(root, "mail-testing-7cb1-quick-has-no-receiver", at(30), cleared_at=at(10))
+        fired, _done, carry = _probe_reads(root, _history(tmp, proved), now)
+        assert not fired, f"21 live under the median clear time fired: {carry['finding']}"
+
+
+def the_mail_lane_watch_is_armed():
+    """Armed through the gate's own instrument, over the spec the ticket names (its probe path
+    copied here, not read from the commons, so a hollow worktree measures the same thing)."""
+    from cairn.tools.base import watchme_spec
+    from cairn.tools.base.probe import Probe
+    from cairn.tools.base.probes import does_the_mail_lane_get_worked as SUT
+
+    spec = {"object": "does-the-mail-lane-get-worked",
+            "probe": "cairn/tools/base/probes/does_the_mail_lane_get_worked.py"}
+    err = watchme_spec.armed_error(spec, root=_REPO_ROOT)
+    assert err is None, err
+    assert isinstance(SUT.PROBE, Probe) and SUT.PROBE.carry and SUT.PROBE.enough
+    assert SUT.PROBE.to == "harbor_master", SUT.PROBE.to
+
+
 TEETH = [a_returned_letter_raises_the_addressees_mail_trouble,
          taking_mail_clears_the_trouble_a_bounce_is_not_a_take,
-         a_recurrence_after_the_clear_is_a_fresh_trouble]
+         a_recurrence_after_the_clear_is_a_fresh_trouble,
+         the_mail_lane_watch_reads_the_store_from_its_era_floor,
+         the_mail_lane_watch_is_armed]
 
 
 def _tooth(fn):

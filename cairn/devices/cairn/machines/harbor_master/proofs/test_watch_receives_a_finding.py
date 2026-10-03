@@ -40,6 +40,34 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.cairn.machines.harbor_master import clearance as _clearance  # noqa: E402
 from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
 
+def _main_tree() -> Path:
+    import subprocess
+    common = subprocess.run(["git", "-C", str(_REPO_ROOT), "rev-parse", "--path-format=absolute",
+                             "--git-common-dir"], capture_output=True, text=True)
+    return Path(common.stdout.strip()).parent if common.returncode == 0 else _REPO_ROOT
+
+
+def _root_the_class_defs_if_this_is_a_worktree() -> None:
+    """The hollow runs this proof in a /tmp worktree with no CairnCommons beside it, so
+    emit's ``load_class_def`` finds no ``code-seam`` and the red-finding tooth reads red at
+    HEAD (measured 2026-10-03). The node classes are read from the main tree's commons —
+    the test_clearance.py ``_correct_the_corpus_roots_if_this_is_a_worktree`` precedent,
+    narrowed to the one reader this proof reaches; the fixture ticket stays in its world."""
+    if _REPO_ROOT.resolve() == _main_tree().resolve():
+        return
+    from cairn.tools.base import transitions as _t
+    classes, real_load = _main_tree().parent / "CairnCommons" / "node_classes", _t.load_class_def
+
+    def _rooted_load(node_class, *, root=None):
+        if root is None or not Path(root).is_dir():
+            root = classes
+        return real_load(node_class, root=root)
+
+    _t.load_class_def = _rooted_load
+
+
+_root_the_class_defs_if_this_is_a_worktree()
+
 PROVES = {
     "a88d6a368cfb": {
         "all": "test_the_watch_verb_receives_a_finding",

@@ -34,7 +34,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "042b131b7d6c"
 
 _OWNING_TICKET = "yield-report-names-its-refusals"
 
@@ -161,9 +163,10 @@ PROBE = Probe(
         "misses + refused is the thing that must hold, and the next verdict value is the "
         "thing that could break it",
     trigger=_trigger,
-    to="inference_domain",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

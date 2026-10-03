@@ -42,7 +42,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 
 _OWNING_TICKET = "548dd13fb4db"
 
@@ -163,9 +163,10 @@ PROBE = Probe(
         "cannot settle is whether the caller driving a real tool-using conversation was built "
         "with it, and a cache hit there is a silent infinite loop rather than an error",
     trigger=_trigger,
-    to="inference_domain",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

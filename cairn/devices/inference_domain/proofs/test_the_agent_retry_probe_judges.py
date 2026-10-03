@@ -85,7 +85,8 @@ def test_the_probe_is_armed_in_the_emission_gates_shape():
     assert callable(p.trigger) and callable(p.carry) and callable(p.enough), \
         "trigger, carry and enough are all required — a probe that fires and reports nothing " \
         "teaches nobody, and one that cannot clear watches forever"
-    assert p.to == "inference_domain", "a probe berths with WHAT IT WATCHES"
+    assert p.to == "harbor_master" and p.verb == "watch", \
+        "the probe berths with what it watches and reports to harbor_master's watch verb (8d3c36e1fe59)"
 
 
 def test_a_replayed_tool_carrying_call_is_the_finding():

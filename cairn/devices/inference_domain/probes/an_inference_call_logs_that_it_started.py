@@ -61,7 +61,9 @@ import json
 from collections import Counter
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "fd5331d3879a"
 
 _OWNING_TICKET = "an-inference-call-logs-that-it-started"
 
@@ -224,9 +226,10 @@ PROBE = Probe(
         "record of the same events; the proofs settle that they agree in a fixture world on "
         "the day it shipped, and whether they keep agreeing is a fact about live traffic",
     trigger=_trigger,
-    to="inference_domain",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

@@ -1,27 +1,18 @@
 [
   {
-    "claim": "proof test_an_inference_call_logs_that_it_started.py passes under python3",
+    "claim": "proof test_inference_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T05:48:52",
+    "date": "2026-10-03T05:50:04",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_miss_lands_a_line_that_names_the_far_end\n  PASS  test_a_hit_records_the_crossing_that_did_not_happen\n  PASS  test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged\n  PASS  test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null\n  PASS  test_the_trail_and_the_meter_agree\n  PASS  test_the_probe_cannot_clear_before_it_can_fire\n  PASS  test_the_probe_fires_on_a_call_the_trail_missed\n  PASS  test_the_probe_fires_on_a_trail_line_the_store_never_got\n  PASS  test_the_probe_sees_the_absence_that_looks_like_nothing\n  PASS  test_the_probe_counts_repeats_rather_than_comparing_sets\n  PASS  test_the_probe_ignores_everything_before_its_era\n  PASS  test_the_probe_reads_the_address_the_device_declares\ngreen — an inference call leaves a record in the device's own trail, and the trail agrees with the meter",
+      "stdout_tail": "  PASS  test_every_standing_inference_probe_posts_watch\n  PASS  test_every_standing_inference_spec_names_the_receiver\n  PASS  test_inference_probes_report_to_the_watch\ngreen — every standing inference_domain probe reports {ticket, holds, finding} to the watch verb",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_miss_lands_a_line_that_names_the_far_end",
-        "test_a_hit_records_the_crossing_that_did_not_happen",
-        "test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged",
-        "test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null",
-        "test_the_trail_and_the_meter_agree",
-        "test_the_probe_cannot_clear_before_it_can_fire",
-        "test_the_probe_fires_on_a_call_the_trail_missed",
-        "test_the_probe_fires_on_a_trail_line_the_store_never_got",
-        "test_the_probe_sees_the_absence_that_looks_like_nothing",
-        "test_the_probe_counts_repeats_rather_than_comparing_sets",
-        "test_the_probe_ignores_everything_before_its_era",
-        "test_the_probe_reads_the_address_the_device_declares"
+        "test_every_standing_inference_probe_posts_watch",
+        "test_every_standing_inference_spec_names_the_receiver",
+        "test_inference_probes_report_to_the_watch"
       ],
       "teeth_red": [],
       "seal": {
@@ -32,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3be66ba5566e9fff9c696e2bf6f7d05bb31c1cd2e3fdc454f1c7a0eca12ecc68",
+      "source_fingerprint": "6347543e03272b7f3c8c9babc8f9fe1dcd01ba3787146ae4ce15aa14066dc434",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -46,32 +37,42 @@
         "cairn/devices/inference_domain/machines/route/__init__.py",
         "cairn/devices/inference_domain/machines/route/route.py",
         "cairn/devices/inference_domain/probes/__init__.py",
+        "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
+        "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
+        "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
         "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py",
-        "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py",
+        "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py",
+        "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py",
+        "cairn/devices/inference_domain/probes/the_meter_accounts_for_every_verdict.py",
+        "cairn/devices/inference_domain/probes/the_ticket_comes_back_whole.py",
+        "cairn/devices/inference_domain/proofs/test_inference_probes_report_to_the_watch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/sieve.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1721121-sn3t9nw_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1721121-45p78bi1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -84,7 +85,7 @@
           "disk_bytes": 124125184,
           "entries": 8114,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
       }
     },

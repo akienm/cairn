@@ -40,7 +40,11 @@ class BusShim(BaseShim):
     postman adds no new registry of who exists, which is the thing that would go stale.
     """
 
-    def __init__(self, bus, heartbeat, limit: int = DRAIN_LIMIT) -> None:
+    def __init__(self, bus, heartbeat=None, limit: int = DRAIN_LIMIT) -> None:
+        # The heartbeat is OPTIONAL (ticket 7cb1989e7825): the roster builds every shim as
+        # ``cls(bus=bus)``, and a required heartbeat made ``bus get status`` a TypeError — the
+        # one device every other answer rides on could not say how it was. Only the drain
+        # reads the heartbeat's roster; without one the drain names that lack.
         super().__init__(bus=bus)
         self._heartbeat = heartbeat
         self._limit = limit
@@ -70,6 +74,10 @@ class BusShim(BaseShim):
         addressee = envelope.get("addressee")
         outcome = {"envelope": envelope.get("id"), "to": addressee,
                    "channel": envelope.get("channel"), "why": envelope.get("why")}
+        if self._heartbeat is None:
+            return {**outcome, "outcome": "no_shim",
+                    "lack": "no heartbeat roster held — this bus shim was built to answer, "
+                            "not to drain"}
         shim = self._heartbeat.shim_for(addressee) if addressee else None
         if shim is None:
             return {**outcome, "outcome": "no_shim",

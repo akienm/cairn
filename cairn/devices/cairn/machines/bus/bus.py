@@ -193,6 +193,13 @@ class BusDevice(BaseDevice):
         self._flushed = 0
         self._last_envelope: dict | None = None
         self._delivery_hooks: dict[str, "Callable"] = {}
+        # Called with a personal envelope nobody is wired to take (ticket 7cb1989e7825). The
+        # bus process installs it to wake the addressee's shim or return the letter; a bare
+        # bus (a proof, a CLI read) has none and the envelope waits, as it always did.
+        self._no_receiver: "Callable[[dict], Any] | None" = None
+        # Ids of requests whose asker is inside ``request()`` right now: a bounce answering one
+        # is the asker's to take by correlation, never the no-receiver path's (ticket 7cb1989e7825).
+        self._asked: set[str] = set()
         self._channel_toggles: dict[str, dict[str, bool]] = {}
         self._ring: list[dict] = []
         self._ring_receipts: list[dict] = []
@@ -232,6 +239,17 @@ class BusDevice(BaseDevice):
     def unwire_delivery(self, device_id: str) -> None:
         self._delivery_hooks.pop(device_id, None)
         self._channel_toggles.pop(device_id, None)
+
+    def set_no_receiver(self, callback: "Callable[[dict], Any] | None") -> None:
+        """Name who is told when a personal post finds no wired receiver (ticket 7cb1989e7825).
+
+        The charter's falsifier (6): *a message for a sleeping component is lost instead of
+        waking it*. The bus cannot wake anyone — shims live in the bus PROCESS, not on this
+        object — so the process hands the bus this callback and the post calls it at once, in
+        the same call, with no clock. A reply (``reply_to`` set) is never handed over: it is
+        its asker's to take (ticket 6b1e13704e17). A returned letter is, because it must reach
+        its sender's shim or be raised."""
+        self._no_receiver = callback
 
     @staticmethod
     def _instance_folder(addressee: str):
@@ -388,7 +406,7 @@ class BusDevice(BaseDevice):
 
     def post(self, *, sender: str, to: str, channel: str, why: str,
              verb: str = "", body: dict | None = None,
-             reply_to: str | None = None) -> dict:
+             reply_to: str | None = None, _asked: bool = False) -> dict:
         """Send one message — the SOLE path for inter-device communication. Builds the envelope
         (carrying why + causality, Law 5), appends it to the in-memory ring, and fires the
         delivery hook. Zero DB on the hot path — ``flush()`` batch-writes the ring to Postgres
@@ -417,6 +435,8 @@ class BusDevice(BaseDevice):
             self._ring.append(envelope)
             if channel == "personal":
                 self._pending[envelope["id"]] = envelope
+            if _asked:
+                self._asked.add(envelope["id"])
             self._posted += 1
         self._last_envelope = envelope
         self.emit("post", pointer=envelope["id"], values={
@@ -434,6 +454,15 @@ class BusDevice(BaseDevice):
                     })
             elif self._try_folder_delivery(to, envelope):
                 pass
+            elif (hook is None and self._no_receiver is not None
+                  and (reply_to is None or (envelope["body"].get("is_bounce")
+                                            and reply_to not in self._asked))):
+                try:
+                    self._no_receiver(envelope)
+                except Exception as exc:  # noqa: BLE001 — the envelope still sits; say so loud
+                    self.emit("no_receiver_failed", pointer=envelope["id"], values={
+                        "addressee": to, "error": f"{type(exc).__name__}: {exc}",
+                    })
         return envelope
 
     # --- the record (full truth) and the view (collapsible) -----------------
@@ -494,20 +523,23 @@ class BusDevice(BaseDevice):
         undelivered because nothing receipted them) — unless the poke chain already
         receipted it for a wired requester, which the ``_ring_delivered`` guard reads."""
         envelope = self.post(sender=sender, to=to, channel=channel, why=why,
-                             verb=verb, body=body)
-        ring_replies = self._ring_matches(reply_to=envelope["id"])
-        if ring_replies:
-            return self._taken(ring_replies[0], sender)
-        replies = self.read(reply_to=envelope["id"])
-        if replies:
-            return self._taken(replies[0], sender)
-        import time
-        deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
-            time.sleep(min(0.1, deadline - time.monotonic()))
+                             verb=verb, body=body, _asked=True)
+        try:
+            ring_replies = self._ring_matches(reply_to=envelope["id"])
+            if ring_replies:
+                return self._taken(ring_replies[0], sender)
             replies = self.read(reply_to=envelope["id"])
             if replies:
                 return self._taken(replies[0], sender)
+            import time
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                time.sleep(min(0.1, deadline - time.monotonic()))
+                replies = self.read(reply_to=envelope["id"])
+                if replies:
+                    return self._taken(replies[0], sender)
+        finally:
+            self._asked.discard(envelope["id"])
         raise TimeoutError(
             f"no reply to envelope {envelope['id'][:8]}… from {to} "
             f"within {timeout}s — the target did not reply (CP1: loud, not empty)"

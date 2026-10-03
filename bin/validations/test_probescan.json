@@ -2,7 +2,7 @@
   {
     "claim": "proof test_probescan.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T20:42:38",
+    "date": "2026-10-03T00:50:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,10 +22,15 @@
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 4,
+        "tables": [
+          "bus_proc_1510200_0032501650_delivery",
+          "bus_proc_1510200_0032501650",
+          "bus_proc_1510281_0032527327_delivery",
+          "bus_proc_1510281_0032527327"
+        ]
       },
-      "source_fingerprint": "e947850e340a4ee957148b48bda7ab3abb48b27ff2ed9c176bf3b77eb98f4f43",
+      "source_fingerprint": "2551980471792557776f449acbfe61afc8ff7cd980bcd95be89d2a36a9f3069c",
       "fingerprint_closure": [
         "bin/proofs/test_probescan.py",
         "cairn/__init__.py",
@@ -57,6 +62,8 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
+        "cairn/tools/bus_client/roster.py",
         "cairn/tools/liveness/__init__.py",
         "cairn/tools/liveness/liveness.py",
         "cairn/tools/rack/__init__.py",
@@ -66,20 +73,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1363479-f5gp_jga/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1514655-z7sxv6hy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 5,
           "paths": [
-            "devices/librarian/0/last_known.json"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/librarian/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261003.065026.715069.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.065026.721411.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 94351965,
-          "disk_bytes": 112357376,
-          "entries": 7423,
+          "bytes": 97947012,
+          "disk_bytes": 116523008,
+          "entries": 7704,
           "builds": 1,
           "reuses": 0
         }

@@ -90,6 +90,10 @@ class BusProcess:
         self._shim_locks: dict[str, threading.RLock] = {}
         self._by_spec: dict[str, object] = {}
         self._wired: set[str] = set()
+        # MAIL ARRIVES, AND WHAT CANNOT MARKS ITSELF (ticket 7cb1989e7825): a personal post
+        # nobody is wired to take wakes its addressee's shim here, in the same call, or comes
+        # back to its sender. Installed at construction so no post can slip past it.
+        bus.set_no_receiver(self.no_receiver)
 
     # --- holding ----------------------------------------------------------------------
 
@@ -97,7 +101,7 @@ class BusProcess:
         """Wire a held shim's delivery onto the ring — ``_wire_delivery``, the one step of a
         first pulse that is about mail — once, then wrap the poke it registered in that
         shim's own lock. Not a pulse (decision 12): a pulse fires probes and stamps snapshots."""
-        if shim.device_id in self._wired:
+        if shim.device_id in self._wired and shim.device_id in self.bus._delivery_hooks:
             return
         lock = self._shim_locks.setdefault(shim.device_id, threading.RLock())
         with lock:
@@ -142,6 +146,79 @@ class BusProcess:
             if wire:
                 self._wire(shim)
             return shim
+
+    # --- mail nobody was wired to take (ticket 7cb1989e7825) ---------------------------
+
+    def _still_waiting(self, envelope: dict) -> bool:
+        return envelope["id"] in self.bus._pending
+
+    def no_receiver(self, envelope: dict) -> None:
+        """Wake the addressee's shim for ``envelope``, or return the letter to its sender.
+
+        Waking is ``hold_name(wire=True)``: wiring drains the shim's mailbox, this envelope
+        included, through ``_check_mail`` — the same take every wired post gets. Mail is the
+        ONLY thing that wakes a device here; nobody mailed is never held. If no shim answers,
+        or the shim could not take it (a shim that cannot wake a device), the bus bounces once
+        and the envelope leaves transit. A returned letter that cannot land is never bounced
+        again: the bus raises the addressee's mail trouble itself and receipts the bounce."""
+        if not self._still_waiting(envelope):
+            return
+        to = envelope.get("addressee") or ""
+        body = envelope.get("body") or {}
+        reason = None
+        try:
+            self.hold_name(to, wire=True)
+        except LookupError as exc:
+            reason = str(exc)
+        if not self._still_waiting(envelope):
+            return
+        if reason is None:
+            reason = f"{to}'s shim could not take the envelope — it cannot wake a device to receive it"
+        if body.get("is_bounce"):
+            self._raise_undeliverable_bounce(envelope, reason)
+        else:
+            self._return_to_sender(envelope, reason)
+
+    def _return_to_sender(self, envelope: dict, reason: str) -> None:
+        to = envelope.get("addressee") or ""
+        sender = envelope.get("sender") or ""
+        self.bus.post(
+            sender="bus", to=sender, channel="personal", why=f"bounced: {reason}",
+            body={"is_bounce": True, "reason": reason,
+                  "original_verb": envelope.get("verb", ""), "original_addressee": to,
+                  "original_sender": sender, "trouble": f"mail-{to}-has-no-receiver"},
+            reply_to=envelope["id"])
+        self.bus.record_delivery(envelope["id"], to=to, by="bus-bounced-no-receiver")
+
+    def _raise_undeliverable_bounce(self, bounce: dict, reason: str) -> None:
+        body = bounce.get("body") or {}
+        sender = bounce.get("addressee") or ""
+        receiver = body.get("original_addressee") or ""
+        identity = body.get("trouble") or f"mail-{receiver}-bounced"
+        self.bus.raise_trouble(
+            identity,
+            why=f"bounced: {body.get('reason', '?')} — and the sender {sender} could not take "
+                f"the returned letter ({reason})",
+            detail={"sender": sender, "receiver": receiver, "bounce": True,
+                    "envelope": bounce.get("reply_to"), "bounce_envelope": bounce["id"]})
+        self.bus.record_delivery(bounce["id"], to=sender, by="bus-bounce-undeliverable")
+
+    def return_the_backlog(self) -> dict:
+        """One pass, at start, over the envelopes standing undelivered when this process came
+        up: each takes the path a fresh post takes. An event (the start), never a beat."""
+        seen = woken = 0
+        for envelope in self.bus.undelivered(limit=1_000_000):
+            if envelope.get("reply_to") and not (envelope.get("body") or {}).get("is_bounce"):
+                continue
+            seen += 1
+            try:
+                self.no_receiver(envelope)
+            except Exception as exc:  # noqa: BLE001 — one envelope cannot stop the pass
+                self.bus.emit("no_receiver_failed", pointer=envelope.get("id"),
+                              values={"error": f"{type(exc).__name__}: {exc}"})
+            else:
+                woken += 1
+        return {"seen": seen, "passed": woken}
 
     # --- ops --------------------------------------------------------------------------
 
@@ -320,6 +397,17 @@ def serve(home: Path, bus: BusDevice) -> int:
     except Exception as exc:  # noqa: BLE001 — the spill stays on disk for the next start
         print(f"bus: spill did not land: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
     print(f"bus: serving {sock} pid {os.getpid()} root {ROOT}", file=sys.stderr, flush=True)
+
+    def _backlog() -> None:
+        # After the bind (ticket 7cb1989e7825): a woken shim may dial this bus back, so the
+        # socket must already answer. The pass is the start event's, never a beat's.
+        try:
+            print(f"bus: backlog {process.return_the_backlog()}", file=sys.stderr, flush=True)
+        except Exception as exc:  # noqa: BLE001 — the backlog waits for the next start, loud
+            print(f"bus: backlog pass failed: {type(exc).__name__}: {exc}",
+                  file=sys.stderr, flush=True)
+
+    threading.Thread(target=_backlog, name="bus-backlog", daemon=True).start()
     try:
         server.serve_forever()
     finally:

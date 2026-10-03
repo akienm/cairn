@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_bounce_answers_the_request_that_bore_it.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:29:30",
+    "date": "2026-10-03T00:54:07",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.37s",
+      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.22s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to",
@@ -22,7 +22,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "34c9adf494bb3d0fd740d2fc783b1bbb42e511e9035868ae6ac0774dac3d4906",
+      "source_fingerprint": "18b25677d24c40ec780e4441635eae21d71fd0227f5bfb8bb8cdb7e6fbfdc71c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -47,45 +47,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1479073-poxa4yzo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1514655-6h_qdbpy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 11,
+          "count": 12,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/one_verb_device_60cc/0/last_known.json",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.052930.319108.BusDevice.post.json",
-            "logs/bus/0/20261003.052930.395316.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.052930.421200.BusDevice.post.json",
-            "logs/bus/0/20261003.052930.421574.BusDevice.post.json",
-            "logs/bus/0/20261003.052930.423470.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052930.423652.BusDevice.delivered.json",
-            "logs/tester/0/20261003.052930.423219.TesterShim.bounce_sent.json"
+            "logs/bus/0/20261003.065406.651084.BusDevice.post.json",
+            "logs/bus/0/20261003.065406.671822.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.065406.681974.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.065406.696703.BusDevice.post.json",
+            "logs/bus/0/20261003.065406.696914.BusDevice.post.json",
+            "logs/bus/0/20261003.065406.698098.BusDevice.delivered.json",
+            "logs/bus/0/20261003.065406.698211.BusDevice.delivered.json",
+            "logs/tester/0/20261003.065406.697933.TesterShim.bounce_sent.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96284179,
-          "disk_bytes": 114622464,
-          "entries": 7587,
+          "bytes": 97948781,
+          "disk_bytes": 116547584,
+          "entries": 7712,
           "builds": 1,
-          "reuses": 8
+          "reuses": 49
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "c51c523049638f1b3e488df5eb32e5bf8c69fe6bc8533b36a046fd762cc60db1",
-        "opened": "2026-10-02T22:05:46",
-        "last_red": "2026-10-02T23:19:06",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base",
-        "ruling": null,
-        "closed_at": "2026-10-02T23:29:30",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "c51c523049638f1b3e488df5eb32e5bf8c69fe6bc8533b36a046fd762cc60db1"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

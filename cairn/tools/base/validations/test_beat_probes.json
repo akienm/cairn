@@ -2,12 +2,12 @@
   {
     "claim": "proof test_beat_probes.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:48:34",
+    "date": "2026-10-03T00:54:09",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "a device fires its own clock probes on its own pulse — the shared firer\n  ok   a trigger that stays true pokes once across two beats\n         -> beat1 fired=1 beat2 held=[{'why': 'fixture probe standing for test_beat_probes', 'to': 'fixture_target', 'reason': 'still true — already poked at the crossing'}]\n  ok   a while_true probe pokes on every beat\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-2'}] beat2=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-5'}]\n  ok   a raising trigger is recorded refused and the rest still fire\n         -> broken=[{'to': 'fixture_target', 'why': 'fixture probe broken for test_beat_probes', 'outcome': 'refused', 'error': 'RuntimeError: the fixture trigger raises on purpose'}] others_fired=['standing', 'chatty', 'done', 'needs_bus']\n  ok   a probe whose enough holds is cleared and then held as cleared\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe done for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-3', 'cleared': 'gathered enough — retired'}] beat2=[{'why': 'fixture probe done for test_beat_probes', 'to': 'fixture_target', 'reason': 'cleared — gathered enough, retired'}]\n  ok   a named probe with no module is recorded missing, never raised\n         -> missing=[{'name': 'no_such_probe', 'reason': 'no module at /tmp/test_beat_probes-6plq18z4/fixture_device/probes/no_such_probe.py'}]\n  ok   the bus rides the pulse context\n         -> needs_bus=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe needs_bus for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-4'}]\n  ok   the firer flushes its bus once per beat and records it\n         -> flushes=2 one={'flushed': 1} two={'flushed': 2}\n  ok   a bus factory is called on the first beat, never at construction\n         -> calls at construction=0, after two beats=1\n\nGREEN — crossings, while_true, refusal, clearing, missing, bus, flush, lazy bus.",
+      "stdout_tail": "a device fires its own clock probes on its own pulse — the shared firer\n  ok   a trigger that stays true pokes once across two beats\n         -> beat1 fired=1 beat2 held=[{'why': 'fixture probe standing for test_beat_probes', 'to': 'fixture_target', 'reason': 'still true — already poked at the crossing'}]\n  ok   a while_true probe pokes on every beat\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-2'}] beat2=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe chatty for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-5'}]\n  ok   a raising trigger is recorded refused and the rest still fire\n         -> broken=[{'to': 'fixture_target', 'why': 'fixture probe broken for test_beat_probes', 'outcome': 'refused', 'error': 'RuntimeError: the fixture trigger raises on purpose'}] others_fired=['standing', 'chatty', 'done', 'needs_bus']\n  ok   a probe whose enough holds is cleared and then held as cleared\n         -> beat1=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe done for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-3', 'cleared': 'gathered enough — retired'}] beat2=[{'why': 'fixture probe done for test_beat_probes', 'to': 'fixture_target', 'reason': 'cleared — gathered enough, retired'}]\n  ok   a named probe with no module is recorded missing, never raised\n         -> missing=[{'name': 'no_such_probe', 'reason': 'no module at /tmp/test_beat_probes-zqb3g5c6/fixture_device/probes/no_such_probe.py'}]\n  ok   the bus rides the pulse context\n         -> needs_bus=[{'to': 'fixture_target', 'verb': '', 'channel': 'personal', 'why': 'fixture probe needs_bus for test_beat_probes', 'outcome': 'ok', 'envelope': 'env-4'}]\n  ok   the firer flushes its bus once per beat and records it\n         -> flushes=2 one={'flushed': 1} two={'flushed': 2}\n  ok   a bus factory is called on the first beat, never at construction\n         -> calls at construction=0, after two beats=1\n\nGREEN — crossings, while_true, refusal, clearing, missing, bus, flush, lazy bus.",
       "stderr_tail": "",
       "teeth_green": [
         "a trigger that stays true pokes once across two beats",
@@ -28,7 +28,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "14d3ba4e5f8d0173c8aef23b73ea5b62dc1bb4288fa55ae2534d218b6779c2f7",
+      "source_fingerprint": "86c58435ac234c6c4a9bdea7424175e51b2286e78f8ac5b7aa8d9717b7fc64cd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -48,22 +48,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-xr2254qa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1514655-6ejxonz4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "logs/ground_loop_nohup.log"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91336712,
-          "disk_bytes": 108486656,
-          "entries": 7094,
+          "bytes": 97946158,
+          "disk_bytes": 116510720,
+          "entries": 7698,
           "builds": 1,
-          "reuses": 37
+          "reuses": 51
         }
       }
     },

@@ -204,6 +204,11 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         # envelope already in flight, so genuinely new mail arriving during a handler is still
         # delivered on the same poke.
         self._in_flight: set = set()
+        # The mail troubles this process has already cleared (ticket 7cb1989e7825): a take
+        # is a measured green, and one clear per identity per process is enough — the trouble
+        # shim declines a clear on a non-live identity, so the first is cheap and the rest
+        # would be noise.
+        self._mail_cleared: set = set()
         self._device = None      # the heavier process, instantiated on demand
         self._presence = NEVER_BOOTED
         self._pulses = 0
@@ -542,7 +547,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             eid = envelope.get("id")
             self._in_flight.add(eid)
             try:
-                self.deliver(envelope)
+                taken = self.deliver(envelope)
             except NotImplementedError:
                 return {"waiting": len(waiting), "outcome": "no_receiver",
                         "lack": f"{self.device_id} cannot wake a device to receive mail"}
@@ -558,6 +563,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             except Exception:  # noqa: BLE001 — unreceipted is at-least-once, not lost
                 pass
             delivered.append(envelope.get("id"))
+            self._clear_mail_troubles(envelope, taken)
         result = {"waiting": len(waiting), "delivered": delivered}
         if refused:
             result["refused"] = refused
@@ -737,12 +743,14 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                 declared = list(verbs) if verbs else "none"
                 reason = (f"{self.device_id} has no verb {verb!r} — declared verbs: "
                           f"{declared}")
-                return self._bounce_to_sender(envelope, reason)
+                return self._bounce_to_sender(
+                    envelope, reason, trouble=f"mail-{self.device_id}-has-no-verb-{verb}")
             handler = verbs[verb]
             if not callable(handler):
                 reason = (f"{self.device_id} declares verb {verb!r} but its handler is "
                           "not callable")
-                return self._bounce_to_sender(envelope, reason)
+                return self._bounce_to_sender(
+                    envelope, reason, trouble=f"mail-{self.device_id}-has-no-verb-{verb}")
             result = handler(envelope)
             if isinstance(result, dict) and self._bus is not None:
                 self._bus.post(
@@ -755,10 +763,32 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         if not callable(receive):
             reason = (f"{self.device_id} was delivered mail but its device declares no "
                       "receive() and the envelope carries no verb")
-            return self._bounce_to_sender(envelope, reason)
+            return self._bounce_to_sender(
+                envelope, reason, trouble=f"mail-{self.device_id}-has-no-receive")
         return receive(envelope)
 
-    def _bounce_to_sender(self, envelope: dict, reason: str):
+    def _clear_mail_troubles(self, envelope: dict, taken) -> None:
+        """A genuine take clears this device's mail troubles (ticket 7cb1989e7825): the list
+        Akien ruled the sender raises must shrink by itself once the receiver is built, or it
+        is a hand-kept list again. A returned letter is not a take, and neither is mail this
+        shim had to bounce."""
+        if (envelope.get("body") or {}).get("is_bounce"):
+            return
+        if isinstance(taken, dict) and taken.get("bounced") is True:
+            return
+        identities = [f"mail-{self.device_id}-has-no-receiver"]
+        verb = envelope.get("verb") or ""
+        if verb:
+            identities.append(f"mail-{self.device_id}-has-no-verb-{verb}")
+        for identity in identities:
+            if identity in self._mail_cleared:
+                continue
+            self._mail_cleared.add(identity)
+            self.clear_trouble(identity, by="cc", what_changed=(
+                f"{self.device_id} took envelope {envelope.get('id')} from "
+                f"{envelope.get('sender', '?')}"))
+
+    def _bounce_to_sender(self, envelope: dict, reason: str, *, trouble: str | None = None):
         """Post a bounce message back to the sender via the bus. If no bus or no sender,
         raise — the bounce cannot be delivered, so the original error surfaces instead."""
         sender = envelope.get("sender")
@@ -771,7 +801,9 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             why=f"bounced: {reason}",
             body={"is_bounce": True, "reason": reason,
                   "original_verb": envelope.get("verb", ""),
-                  "original_addressee": envelope.get("addressee", "")},
+                  "original_addressee": envelope.get("addressee", ""),
+                  # the addressee's defect, named for the sender to raise (ticket 7cb1989e7825)
+                  "trouble": trouble or f"mail-{self.device_id}-bounced"},
             # THE BOUNCE ANSWERS THE REQUEST THAT BORE IT (ticket 60cc220da787): Bus.request
             # correlates by reply_to alone, so without it a synchronous asker sat out its whole
             # timeout and was told the target "did not reply" when it had.
@@ -790,6 +822,16 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         self.emit("bounced_mail", pointer=bounce_envelope.get("id"),
                   values={"reason": reason, "original_verb": original_verb,
                           "from": bounce_envelope.get("sender", "?")})
+        # THE SENDER RAISES (Akien 2026-08-11, ticket 7cb1989e7825): *"the trouble ticket
+        # comes from the device that received the return to sender"*. The identity names the
+        # ADDRESSEE's defect, so every sender's returned letter folds into one trouble.
+        receiver = body.get("original_addressee") or ""
+        self.raise_trouble(
+            body.get("trouble") or f"mail-{receiver}-bounced",
+            why=bounce_envelope.get("why") or f"bounced: {reason}",
+            detail={"sender": self.device_id, "receiver": receiver, "bounce": True,
+                    "original_verb": original_verb,
+                    "envelope": bounce_envelope.get("reply_to")})
         return {"handled": False, "reason": reason}
 
     @property

@@ -57,9 +57,11 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.tools.trees.trees import NODES
+
+_TICKET_ID = "fed44fb61986"
 
 _OWNING_TICKET = "revision-with-receipts"
 
@@ -264,7 +266,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

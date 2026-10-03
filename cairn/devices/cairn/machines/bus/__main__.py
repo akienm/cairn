@@ -11,20 +11,18 @@ from __future__ import annotations
 
 import argparse
 import json
-import socket
 import sys
 
 
 def _pulse(home) -> int:
+    # THROUGH THE PUBLISHED CLIENT, never a socket of its own: a second dialer here was a
+    # second door, and the sole-path sieve reds any `socket` import outside inference_domain.
     from cairn.devices.cairn.machines.bus.server import bus_home
+    from cairn.tools.bus_client.remote import exchange
 
     sock = bus_home(home) / "bus.sock"
     try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
-            conn.settimeout(60)
-            conn.connect(str(sock))
-            conn.sendall((json.dumps({"op": "flush"}) + "\n").encode())
-            reply = json.loads(conn.makefile().readline() or "{}")
+        reply = exchange({"op": "flush"}, home, timeout=60)
     except (FileNotFoundError, ConnectionRefusedError):
         print(f"bus pulse: no bus process at {sock} — nothing in any ring")
         return 0

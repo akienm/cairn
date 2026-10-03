@@ -57,11 +57,13 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.devices.cairn.machines.harbor_master.clearance import (
     CAIRN_ROOT, COMMONS_ROOT, REFUSED, RetirementUnreadable,
     read_attempts, retirement_of, riders_of,
 )
+
+_TICKET_ID = "2b16d2d8b056"
 
 _REPO_ROOT = Path(CAIRN_ROOT)
 _COMMONS = Path(COMMONS_ROOT)
@@ -318,7 +320,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

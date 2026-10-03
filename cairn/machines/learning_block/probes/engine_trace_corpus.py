@@ -34,8 +34,10 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.machines.learning_block.engine import RUN_EVENT, answers_five_questions, rejected_count
+
+_TICKET_ID = "4b2338feed4d"
 
 # Env-first, default second, resolved PER CALL — a probe that froze the path at import
 # would keep reading a root the instance had already left (the precedent probe's rule).
@@ -117,6 +119,14 @@ def _carry(context: dict) -> dict:
 # Re-tune when the beat becomes a real number.
 _HORIZON = 1000
 
+
+def _holds(context: dict) -> bool:
+    """A growth report, not a failure watch: the trigger says the corpus exists and the carry
+    reports how far it has grown toward the casting condition, so nothing it measures is a
+    fault; a survey that raises reads as holds False through watch_carry (835b5736bf2b child)."""
+    return True
+
+
 PROBE = Probe(
     why="does the engine's training corpus actually accumulate — and accumulate RECORDS "
         "THE COMPILE STEP CAN READ? Five wire-thin lines would look like readiness and "
@@ -125,7 +135,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "sorted", "kind": "casting-condition", "ticket": _TICKET},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

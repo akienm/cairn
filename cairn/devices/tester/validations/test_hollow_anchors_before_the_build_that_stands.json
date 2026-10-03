@@ -105,6 +105,32 @@
           "builds": 1,
           "reuses": 2
         }
+      },
+      "hollow": {
+        "06f0445e7a63": {
+          "cairn/devices/tester/hollow.py": [
+            "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
+            "test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build",
+            "test_a_recross_with_no_build_between_keeps_the_build_it_followed",
+            "test_an_anchor_holding_every_file_raises_naming_the_anchor",
+            "test_the_live_anchors_of_68f5_and_c691_are_their_build_parents",
+            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
+          ],
+          "cairn/tools/validation_store/validation_store.py": [
+            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
+          ],
+          "cairn/devices/tester/cli.py": [
+            "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "06f0445e7a63": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "782d3560cd045122d4b3050d810a6a7810cbd96f",
+          "anchor_first_build": "e182a85e1dcec9b252acbf242eaf3ee2b4f0fd05",
+          "commit": "4313a42d3e63dc77bf8667d02904a94deb393c9d"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

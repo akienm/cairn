@@ -2,13 +2,13 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T22:06:45",
+    "date": "2026-10-02T23:22:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "  ok   test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH\n  ok   test_a_concept_piece_with_a_review_record_is_covered\n  ok   test_a_concept_piece_with_no_review_record_reds\n  ok   test_a_declared_tooth_that_never_ran_green_is_named\n  ok   test_a_flat_falsifier_is_one_clause_and_still_needs_a_tooth\n  ok   test_a_fully_covered_ticket_produces_no_finding\n  ok   test_a_lettered_falsifier_enumerates_its_clauses_and_prose_letters_do_not\n  ok   test_a_marker_word_at_the_LEFT_MARGIN_mints_no_tooth\n  ok   test_a_marker_word_in_prose_does_not_mint_a_tooth\n  ok   test_a_proof_is_never_imported_to_read_its_declaration\n  ok   test_a_proof_that_declares_nothing_for_this_ticket_is_named\n  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece",
-      "stderr_tail": "    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 809, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 139, in test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n    record = reach(\"tester\").request(\n             ~~~~~^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 179, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
+      "stderr_tail": "    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 809, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py\", line 139, in test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n    record = reach(\"tester\").request(\n             ~~~~~^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 198, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
       "teeth_green": [
         "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
         "test_a_concept_piece_with_a_review_record_is_covered",
@@ -34,7 +34,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0f382031ebf7cc847c1d0c6ca42f057964b5b68d9b5da2a180ea6c5a7de76f3a",
+      "source_fingerprint": "54cfe37da58fde0b79d582742a26e998f56e03e83e9b0c4ca1b49f67fed02722",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -64,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1402769-vwzb5ncf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1462810-d7ujt459/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -75,18 +75,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 95012664,
-          "disk_bytes": 113164288,
-          "entries": 7484,
+          "bytes": 95843809,
+          "disk_bytes": 114098176,
+          "entries": 7544,
           "builds": 1,
-          "reuses": 31
+          "reuses": 15
         }
       },
       "reseal_ladder": {
         "proof_sha256": "4614dee3411e1b91c82cf1e0d48f11bdbaf54136f69f53f04b568ce395e0c51b",
         "opened": "2026-10-02T22:06:45",
-        "last_red": "2026-10-02T22:06:45",
-        "passes": 1,
+        "last_red": "2026-10-02T23:22:02",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-proof-coverage",
         "ruling": null

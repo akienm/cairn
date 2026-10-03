@@ -69,10 +69,29 @@ def _unit(home: Path) -> str:
     return "cairn-bus-" + hashlib.sha1(str(home).encode()).hexdigest()[:10]
 
 
+# The bus process registers itself here (``answer_in_process``), so code it hosts — a shim
+# whose handler calls ``reach()`` — is answered on its OWN thread, never over the socket.
+# Measured 2026-10-03: codemother's commit handler, running inside the bus under the hold
+# lock, reached the bus through the socket; a second handler thread then waited on that lock
+# for ever. On the same thread the bus's RLocks re-enter, as they did in one process before.
+_IN_PROCESS: tuple[Path, object] | None = None
+
+
+def answer_in_process(home: Path, answer) -> None:
+    """Called once by the bus process at ``home``: requests to that home from inside the
+    process go to ``answer(req) -> reply`` directly."""
+    global _IN_PROCESS
+    _IN_PROCESS = (Path(home), answer)
+
+
 def exchange(request: dict, home: str | Path | None = None, *, timeout: float = _TIMEOUT_S) -> dict:
     """One JSON line out, one back. ``root`` is filled with this class root unless the
     request names one. ConnectionRefusedError / FileNotFoundError propagate: no bus."""
     req = {"root": str(_CLASS_ROOT), **request}
+    if _IN_PROCESS is not None and bus_home(home) == _IN_PROCESS[0]:
+        # The wire's shape both ways, so a caller cannot tell which path answered it.
+        req = json.loads(json.dumps(req, default=str))
+        return json.loads(json.dumps(_IN_PROCESS[1](req), default=str))
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
         conn.settimeout(timeout)
         conn.connect(str(bus_home(home) / "bus.sock"))

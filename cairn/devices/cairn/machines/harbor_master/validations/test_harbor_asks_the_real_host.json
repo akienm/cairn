@@ -2,13 +2,13 @@
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T21:49:50",
+    "date": "2026-10-02T23:15:21",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "",
-      "stderr_tail": "    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py\", line 110, in <module>\n    _PROVEN = _proven()\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py\", line 103, in _proven\n    validation = reach(\"tester\").request(\n                 ~~~~~^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 179, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
+      "stderr_tail": "    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py\", line 110, in <module>\n    _PROVEN = _proven()\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py\", line 103, in _proven\n    validation = reach(\"tester\").request(\n                 ~~~~~^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 198, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
@@ -19,7 +19,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "fc068b047db288e4603834f814c8cd5cd7116bedbf303f3026ce1414db96af01",
+      "source_fingerprint": "b11a66b31fb237bb448935d4ea9abe81cbe047e23b11e8f6dac69753bf8b8617",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -64,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1402769-l8qup81x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1462810-g33mnmhc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -75,18 +75,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 95012664,
-          "disk_bytes": 113164288,
-          "entries": 7484,
+          "bytes": 95843809,
+          "disk_bytes": 114098176,
+          "entries": 7544,
           "builds": 1,
-          "reuses": 1
+          "reuses": 4
         }
       },
       "reseal_ladder": {
         "proof_sha256": "2ab7d6ae5527a09a921de44579e37e63719feae2841c649a2f449674a47d91c3",
         "opened": "2026-10-02T21:49:50",
-        "last_red": "2026-10-02T21:49:50",
-        "passes": 1,
+        "last_red": "2026-10-02T23:15:21",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cairn-machines-harbor-master",
         "ruling": null

@@ -25,10 +25,12 @@ and nothing else; the client shuts this process down and starts one from its own
 """
 from __future__ import annotations
 
+import faulthandler
 import fcntl
 import importlib
 import json
 import os
+import signal
 import socketserver
 import sys
 import threading
@@ -182,11 +184,14 @@ class BusProcess:
                                     "__file__", None)
                       for name in self.roster.held}}}
 
-    def answer(self, req: dict) -> dict:
+    def answer(self, req: dict, *, in_process: bool = False) -> dict:
+        # A request from code this process hosts runs this process's code by definition, so
+        # it is never stale against it; only a caller across the socket can be.
         root = req.get("root")
-        if root is not None and str(root) != str(ROOT):
+        if not in_process and root is not None and str(root) != str(ROOT):
             return {"ok": False, "stale": True, "root": str(ROOT)}
-        if req.get("op") not in ("shutdown", "flush") and code_stamp() > self.stamp:
+        if (not in_process and req.get("op") not in ("shutdown", "flush")
+                and code_stamp() > self.stamp):
             return {"ok": False, "stale": True, "root": str(ROOT)}
         handler = getattr(self, f"op_{req.get('op')}", None)
         if handler is None:
@@ -286,6 +291,9 @@ def claim(home: Path):
 
 
 def serve(home: Path, bus: BusDevice) -> int:
+    # A wedged bus is a diagnostic surface (Law 7): ``kill -USR1 <pid>`` writes every
+    # thread's stack to the bus log without stopping the process or needing ptrace rights.
+    faulthandler.register(signal.SIGUSR1, all_threads=True)
     held = claim(home)
     if held is None:
         print(f"bus: {home}/bus.lock is held — one bus per instance; exiting {EXIT_HELD}",
@@ -301,6 +309,12 @@ def serve(home: Path, bus: BusDevice) -> int:
     os.chmod(sock, 0o600)
     server.process = BusProcess(bus)
     server.home = home
+    # A hosted shim that reaches the bus is answered on its own thread (see remote.py), and
+    # reaches THIS bus: a shim hosted at a scratch home must never dial the live instance.
+    from cairn.tools.bus_client import remote
+    os.environ["CAIRN_BUS_HOME"] = str(home)
+    process = server.process
+    remote.answer_in_process(home, lambda req: process.answer(req, in_process=True))
     try:
         land_spill(bus, home)
     except Exception as exc:  # noqa: BLE001 — the spill stays on disk for the next start

@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_client_reaches_and_never_beats.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T22:25:43",
+    "date": "2026-10-02T23:19:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "",
-      "stderr_tail": "  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_a_client_reaches_and_never_beats.py\", line 195, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_a_client_reaches_and_never_beats.py\", line 94, in test_i_every_client_helper_reaches_without_beating\n    bus = helper()\n  File \"/home/akien/dev/src/cairn/skills/chart/live.py\", line 43, in _bus\n    _BUS = reach(\"codemother\", \"inference_domain\")\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 179, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
+      "stderr_tail": "  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_a_client_reaches_and_never_beats.py\", line 195, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_a_client_reaches_and_never_beats.py\", line 94, in test_i_every_client_helper_reaches_without_beating\n    bus = helper()\n  File \"/home/akien/dev/src/cairn/skills/chart/live.py\", line 43, in _bus\n    _BUS = reach(\"codemother\", \"inference_domain\")\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 73, in reach\n    bus, _roster = _wire(devices=list(devices), beat=False)\n                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/bus_client.py\", line 41, in _wire\n    ensure_bus()\n    ~~~~~~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/bus_client/remote.py\", line 198, in ensure_bus\n    raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                          f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)",
       "teeth_green": [],
       "teeth_red": [],
       "seal": {
@@ -19,7 +19,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5157491a7915b240a257dcf9cc4e23537feb7716337e325bb26e022001ee7dbd",
+      "source_fingerprint": "c9679b36e7bf68b4038fb66b047fec46f24e95bc2bc31f71903010756234fc20",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -75,7 +75,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1429686-0y59wxr5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1462810-k9i6gkn0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -86,18 +86,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 95074512,
-          "disk_bytes": 113262592,
-          "entries": 7497,
+          "bytes": 95843809,
+          "disk_bytes": 114098176,
+          "entries": 7544,
           "builds": 1,
-          "reuses": 42
+          "reuses": 11
         }
       },
       "reseal_ladder": {
         "proof_sha256": "99e0fb680b5365255494986309f6b1dea0254fe01bd2a5af1a4526df4f4181c4",
         "opened": "2026-10-02T22:25:43",
-        "last_red": "2026-10-02T22:25:43",
-        "passes": 1,
+        "last_red": "2026-10-02T23:19:23",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-bus-client",
         "ruling": null

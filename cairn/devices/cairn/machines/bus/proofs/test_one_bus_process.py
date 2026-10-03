@@ -268,6 +268,20 @@ def tooth_stale(home: Path) -> None:
     ok(name, reply.get("ok") is False and reply.get("stale") is True, f"reply={reply}")
 
 
+def tooth_reentry(home: Path) -> None:
+    name = "a shim the bus hosts can reach the bus while it is being held, and nothing waits"
+    spec = "cairn.devices.cairn.machines.bus.proofs.bus_proof_echo:BusProofReentrantShim"
+    try:
+        r = _py(home, "import json\n"
+                      "from cairn.tools.bus_client.remote import RemoteBus\n"
+                      f"print(json.dumps(RemoteBus().hold_shim({spec!r})))\n", timeout=30)
+        held = json.loads(r.stdout.strip().splitlines()[-1]).get("held") or []
+    except Exception as exc:  # noqa: BLE001 — a timeout here IS the deadlock
+        ok(name, False, f"{type(exc).__name__}: {str(exc)[-300:]}")
+        return
+    ok(name, "bus_proof_reentrant" in held and "bus_proof_echo" in held, f"held={held}")
+
+
 def main() -> int:
     print("one bus per instance hosts every shim")
     home = Path(tempfile.mkdtemp(prefix="bus-proof-home-"))
@@ -280,11 +294,13 @@ def main() -> int:
         tooth_d1_flush(home)
         tooth_d1_nobody(empty)
         tooth_stale(home)
+        tooth_reentry(home)
     finally:
         _teardown(home)
         shutil.rmtree(home, ignore_errors=True)
         shutil.rmtree(empty, ignore_errors=True)
         shutil.rmtree(Path.home() / ".cairn" / "devices" / "bus_proof_echo", ignore_errors=True)
+        shutil.rmtree(Path.home() / ".cairn" / "devices" / "bus_proof_reentrant", ignore_errors=True)
     print()
     if FAILURES:
         print(f"RED — {len(FAILURES)} failure(s):")

@@ -58,3 +58,24 @@ class BusProofEchoShim(BaseShim):
         dev = BusProofEchoDevice(self._bus)
         self._presence = ONLINE
         return dev
+
+
+REENTRANT_ID = "bus_proof_reentrant"
+_ECHO_SPEC = "cairn.devices.cairn.machines.bus.proofs.bus_proof_echo:BusProofEchoShim"
+
+
+class BusProofReentrantShim(BusProofEchoShim):
+    """A hosted shim whose wiring reaches the bus — what codemother's commit handler does
+    (``watch._bus`` → ``reach()``), measured 2026-10-03 deadlocking the bus: the wiring runs
+    under the hold lock, and a reach over the socket waits on it from another thread for ever.
+    Held, it asks the bus (through the client's public face) to hold the echo fixture too."""
+
+    @property
+    def device_id(self) -> str:
+        return REENTRANT_ID
+
+    def _wire_delivery(self):
+        result = super()._wire_delivery()
+        from cairn.tools.bus_client.remote import RemoteBus
+        RemoteBus().hold_shim(_ECHO_SPEC)
+        return result

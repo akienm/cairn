@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_direct_reach.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T22:17:29",
+    "date": "2026-10-02T23:14:13",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../tools/bus_client/remote.py:179: ConnectionError\n=========================== short test summary info ============================\nFAILED test_no_direct_reach.py::test_the_seam_answers_the_same_stack_as_the_view\nFAILED test_no_direct_reach.py::test_aider_shim_reaches_inference_domain_only_through_a_door\n2 failed, 7 passed in 30.44s",
+      "stdout_tail": "        spawned = _spawn(home, scratch or home != _live_home())\n        deadline = time.monotonic() + _START_WAIT_S\n        while time.monotonic() < deadline:\n            found = _answers(home)\n            if found is not None and found.get(\"ok\"):\n                return found[\"json\"]\n            if spawned == \"none\" and not _unit_active(home):\n                # The name was held by a bus on its way out (a stale one just shut down); once\n                # the unit is gone the name is free, so start ours.\n                spawned = _spawn(home, scratch or home != _live_home())\n            time.sleep(0.05)\n>       raise ConnectionError(f\"no bus process answered at {home / 'bus.sock'} within \"\n                              f\"{_START_WAIT_S:.0f}s (spawned: {spawned}; log {_LOG})\")\nE       ConnectionError: no bus process answered at /home/akien/.cairn/devices/cairn/machines/bus/0/bus.sock within 15s (spawned: none; log ~/.cairn/logs/bus.log)\n\n../../../tools/bus_client/remote.py:198: ConnectionError\n=========================== short test summary info ============================\nFAILED test_no_direct_reach.py::test_the_seam_answers_the_same_stack_as_the_view\nFAILED test_no_direct_reach.py::test_aider_shim_reaches_inference_domain_only_through_a_door\n2 failed, 7 passed in 30.43s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_device_has_modules_to_measure",
@@ -31,7 +31,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "e9f3b9b3999be617841774b201362536226746dd9bdeed3b483366bc2a1e02ad",
+      "source_fingerprint": "0dcc26a8709f6cda47b711325c2d7f6c2017ce5d44e197b2d39906acc48fd8f1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -70,7 +70,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1429686-lesorzlv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1462810-r9ke9q_r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -81,18 +81,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 95074877,
-          "disk_bytes": 113262592,
-          "entries": 7497,
+          "bytes": 95844174,
+          "disk_bytes": 114098176,
+          "entries": 7544,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
       },
       "reseal_ladder": {
         "proof_sha256": "e4ef991cd0083a194741d404e355d1553347a0700150ef9f8c5b097ba8af2ef9",
         "opened": "2026-10-02T22:17:29",
-        "last_red": "2026-10-02T22:17:29",
-        "passes": 1,
+        "last_red": "2026-10-02T23:14:13",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-aider-shim",
         "ruling": null

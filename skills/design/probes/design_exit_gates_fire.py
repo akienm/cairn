@@ -27,7 +27,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "adc0e42b74cf"
 
 _BERTH_ENV = "CAIRN_SKILL_BERTHS"
 _BERTH_DEFAULT = Path.home() / ".cairn/devices/skill_block/0/berths"
@@ -111,7 +113,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

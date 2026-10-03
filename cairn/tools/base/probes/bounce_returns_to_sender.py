@@ -35,7 +35,9 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import resolve
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "4a105acd1190"
 
 _OWNING_TICKET = "undeliverable-mail-returns-to-sender"
 
@@ -148,7 +150,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

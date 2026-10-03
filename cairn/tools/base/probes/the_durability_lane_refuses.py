@@ -20,7 +20,9 @@ import re
 from pathlib import Path
 
 from cairn.tools.base import sail_record
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "c2460ae6c3d1"
 
 _OWNING_TICKET = "c2460ae6c3d1"
 _LANE = "the_stones_are_pushed"
@@ -143,7 +145,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the-durability-lane-refuses-and-is-not-exempted"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

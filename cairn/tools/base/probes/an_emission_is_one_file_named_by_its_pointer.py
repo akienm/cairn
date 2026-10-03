@@ -42,7 +42,9 @@ from pathlib import Path
 
 from cairn.tools.base.address import resolve
 from cairn.tools.base.breadcrumb_log import RECORD_NAME
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "73c9d3093973"
 
 _OWNING_TICKET = "an-emission-is-one-file-named-by-its-pointer"
 
@@ -236,7 +238,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

@@ -34,7 +34,9 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.cast import classify
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+
+_TICKET_ID = "23089d52d805"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _COMMONS = _REPO_ROOT.parent / "CairnCommons"
@@ -117,6 +119,14 @@ def _trigger(now, context: dict) -> bool:
     return s["arrivals"] >= 1 and not _enough(context)
 
 
+def _holds(context: dict) -> bool:
+    """The falsifier holds while no ticket arrives beside the door: none journaled beside it
+    and none unjournaled. The trigger cannot say this — it fires on ANY arrival, including the
+    casts through the door that are the claim succeeding (8ecb99998254)."""
+    s = _survey(context)
+    return not s["journaled_beside"] and not s["unjournaled"]
+
+
 def _carry(context: dict) -> dict:
     s = _survey(context)
     if s["journaled_beside"] or s["unjournaled"]:
@@ -143,7 +153,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

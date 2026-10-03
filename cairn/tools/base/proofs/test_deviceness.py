@@ -175,7 +175,10 @@ def test_the_probe_fires_at_arming_and_names_names():
     for key in ("ruled_devices", "claims_device_by_inheritance", "inherits_but_not_ruled",
                 "ruled_but_inherits_nothing"):
         assert isinstance(payload[key], list), f"{key} must ride as NAMES, never a count"
-    assert payload["ticket"].endswith("device-ness-is-decided-at-the-shim.json")
+    # since 8ecb99998254 the probe reports to the watch verb: the id rides as ``ticket`` and
+    # the address owning_ticket ships rides beside it as ``ticket_path``
+    assert payload["ticket_path"].endswith("device-ness-is-decided-at-the-shim.json")
+    assert payload["ticket"] == "74d4124bc0e7", payload["ticket"]
 
     # A virgin shim has fired nothing, so a true trigger CROSSES and pokes.
     class _Shim(BaseShim):

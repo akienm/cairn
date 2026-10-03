@@ -17,7 +17,9 @@ from __future__ import annotations
 import json
 import os
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "1796a5f72895"
 
 _OWNING_TICKET = "the-buildme-gates-guard-a-crossing-not-a-state"
 _TICKETS_DIR = os.path.expanduser("~/dev/src/CairnCommons/tickets")
@@ -150,7 +152,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "no_component_reaches_proved_with_an_uncharted_build"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

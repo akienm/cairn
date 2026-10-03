@@ -29,6 +29,7 @@ shim, it is the old clock-driven shape awaiting removal, not the design.
 from __future__ import annotations
 
 import copy as _copy
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path, PurePath
@@ -166,6 +167,61 @@ def by_text(template: str, *, as_: str = "text") -> Callable[[dict], dict]:
 
     def carrier(context: dict) -> dict:
         return {as_: template.format_map(_Loud(context))}
+    return carrier
+
+
+_TICKET_ID_SHAPE = re.compile(r"[0-9a-f]{12}")
+_NO_FINDING = "the probe reads its ticket's falsifier as failing and its carry names no finding"
+
+
+def watch_carry(ticket_id: str, carry: Callable[[dict], dict] | None = None, *,
+                fails: Callable[[object, dict], bool] | None = None,
+                holds: Callable[[dict], bool] | None = None) -> Callable[[dict], dict]:
+    """The carry for a probe whose consumer is harbor_master's ``watch`` verb: the probe's own
+    carry, plus ``{ticket, holds, finding}`` stated against ITS ticket's falsifier (835b5736bf2b
+    D2; the verb and its contract are a88d6a368cfb's). Exactly one predicate says how:
+
+      - ``fails`` — trigger-shaped ``(now, context) -> bool``, TRUE when the falsifier is
+        failing. Most probes already have one: their trigger.
+      - ``holds`` — ``(context) -> bool``, TRUE when the falsifier holds. For a probe whose
+        trigger means "speak", not "something is wrong" — a door that got a caller, a dial that
+        moved — inverting the trigger would send a succeeding ticket to FIXME.
+
+    The rule lives here once, not in every carry (Law 1). The address ``owning_ticket`` ships
+    (the 2026-08-05 ruling) still rides, as ``ticket_path``: ``ticket`` is the 12-hex id because
+    the receiver moves tickets by id. A carry or predicate that raises reads as ``holds False``
+    with the raise as the finding — a broken probe is a broken WATCHME, and a raise that
+    vanished would be a green nobody measured (Law 7)."""
+    if not isinstance(ticket_id, str) or not _TICKET_ID_SHAPE.fullmatch(ticket_id):
+        raise ValueError(f"watch_carry needs a ticket's 12-hex id, not {ticket_id!r}")
+    if callable(fails) == callable(holds):
+        raise TypeError("watch_carry takes exactly one of fails= or holds=")
+
+    def carrier(context: dict) -> dict:
+        finding = ""
+        try:
+            out = dict(carry(context)) if carry else {}
+        except Exception as exc:  # noqa: BLE001
+            out, broke = {}, f"the probe's carry raised: {type(exc).__name__}: {exc}"
+        else:
+            broke = ""
+        if "ticket" in out:
+            out["ticket_path"] = out.pop("ticket")
+        if broke:
+            held, finding = False, broke
+        else:
+            try:
+                held = (not bool(fails(None, context))) if fails else bool(holds(context))
+            except Exception as exc:  # noqa: BLE001
+                held = False
+                finding = (f"the probe's {'fails' if fails else 'holds'} predicate raised: "
+                           f"{type(exc).__name__}: {exc}")
+            if not finding:
+                said = out.get("finding")
+                finding = said if isinstance(said, str) else ""
+        if not held and not finding.strip():
+            finding = _NO_FINDING
+        return {**out, "ticket": ticket_id, "holds": held, "finding": finding}
     return carrier
 
 

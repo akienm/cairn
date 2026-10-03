@@ -42,7 +42,9 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import component_dirs, resolve
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "c6017f156442"
 
 _OWNING_TICKET = "every-boundary-crossing-lands-in-the-logs-tree"
 
@@ -221,7 +223,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

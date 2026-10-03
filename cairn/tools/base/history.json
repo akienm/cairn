@@ -27851,5 +27851,87 @@
     "fingerprint": "b47e3c008711015dcbb2cf8d665d517c802a08afc75b00583d8bdb2fa83e578a",
     "at": "2026-10-03T04:39:12",
     "seq": 146
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(gate-parameters-adjust-from-feedback) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "b0c0c47835c1",
+    "actor": "cc",
+    "missing": [
+      "[watchme] its probe gate_parameters_adjust_from_feedback carries an LLM-proposed gate-parameter adjustment through a resolver nobody injects, and only the gate's own door — unbuilt — could receive it; no receiver can use the data (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)"
+    ],
+    "why": "a WATCHME finding: its probe gate_parameters_adjust_from_feedback carries an LLM-proposed gate-parameter adjustment through a resolver nobody injects, and only the gate's own door — unbuilt — could receive it; no receiver can use the data (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)",
+    "fingerprint": "69b5d668d39aecce9608861e747d742585251ce6887b8e8e8a08ced206eec3df",
+    "at": "2026-10-03T04:41:15",
+    "seq": 147
   }
 ]

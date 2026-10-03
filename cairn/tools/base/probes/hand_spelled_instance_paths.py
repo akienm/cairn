@@ -58,8 +58,10 @@ that re-opens this node is the owner's act at the register (Law 6).
 from __future__ import annotations
 
 from cairn.tools.base import address_rule
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.import_sieve import HollowScan
+
+_TICKET_ID = "968fdf52a10f"
 
 _OWNING_TICKET = "one-owner-for-the-instance-address"
 
@@ -185,7 +187,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

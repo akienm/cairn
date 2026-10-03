@@ -15,8 +15,10 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import tool_path
-from cairn.tools.base.probe import Probe, by_copy, owning_ticket, once
+from cairn.tools.base.probe import Probe, by_copy, owning_ticket, once, watch_carry
 from cairn.tools.base.transitions import BUILD_GATE
+
+_TICKET_ID = "13758831632c"
 
 _SEEDS_DIR = Path(__file__).resolve().parents[3] / "machines" / "build_inspector" / "sieves"
 _INSTANCE_TREE = tool_path("builder", 0, "gate") / "build_gate"
@@ -50,8 +52,16 @@ def _compute_delta() -> dict:
 
 
 def _trigger(now, context: dict) -> bool:
+    """Any gate tree in hand speaks — DELTA (a dial moved) and NONE (constructed, never moved)
+    alike; SEEDED (no living tree yet) stays quiet. Before 8ecb99998254 only DELTA fired, which
+    is the claim HOLDING, so a watch reading the trigger as a fault would have read success as
+    one: whether the claim holds is ``_holds``."""
     d = once(context, "delta", _compute_delta)
-    return d["status"] == "DELTA"
+    return d["status"] in ("DELTA", "NONE")
+
+
+def _holds(context: dict) -> bool:
+    return once(context, "delta", _compute_delta)["status"] != "NONE"
 
 
 def _enough(context: dict) -> bool:
@@ -67,7 +77,8 @@ def _enough(context: dict) -> bool:
 def _carry(context: dict) -> dict:
     d = once(context, "delta", _compute_delta)
     return {
-        "finding": "seed-versus-living delta detected",
+        "finding": ("seed-versus-living delta detected" if d["status"] == "DELTA" else
+                    "the gate tree stands constructed and no dial has moved off its seed"),
         "delta": d,
         "ticket": owning_ticket(_OWNING_TICKET),
     }
@@ -79,7 +90,8 @@ PROBE = Probe(
     trigger=_trigger,
     to=BUILD_GATE.notifies,
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=500,
 )

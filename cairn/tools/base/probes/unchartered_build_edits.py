@@ -23,8 +23,10 @@ import json
 import os
 import subprocess
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.chain.chain import charted_paths, uncharted_modifications
+
+_TICKET_ID = "8529f0e413b2"
 
 _OWNING_TICKET = "a-build-discovery-re-enters-the-chain"
 _TICKETS_DIR = os.path.expanduser("~/dev/src/CairnCommons/tickets")
@@ -231,7 +233,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "build-time-discoveries-that-never-re-entered"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

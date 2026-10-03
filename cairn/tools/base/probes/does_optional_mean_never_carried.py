@@ -34,7 +34,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "78cab05e93af"
 
 _TICKETS = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "tickets"
 
@@ -152,7 +154,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

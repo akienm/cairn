@@ -12,7 +12,10 @@ proof holds the four clauses of the ticket's falsifier:
   (3) reach('ground_loop') wires delivery so a request answers, not a timeout: the heartbeat's
       page loads from disk like every other device's shim, with no loop handed to it;
   (4) loop.py and staleness.py do not exist, and the ticket's grep over cairn/, bin/ and
-      skills/ *.py is empty.
+      skills/ *.py is empty;
+  (5) the web server's start (listener.main) holds no ground_loop shim in its own roster — a
+      held shim is pulsed with the roster, so holding the heartbeat's shim IS a private loop
+      (FIXME 2, measured 2026-10-03: the hollow reverted listener.py and no tooth redded).
 
 The grep's pattern is assembled from pieces, so this file is not its own hit. Every face is
 called inside a tooth, never at import, so a build taken away reds teeth instead of crashing
@@ -35,6 +38,7 @@ PROVES = {"efb670ff1dd8": {
     "2": "connect_system's roster lists exactly the deviceness members",
     "3": "reach of the heartbeat's own shim answers a request",
     "4": "loop.py and staleness.py are gone and nothing names them",
+    "5": "the web server's start holds no heartbeat shim of its own",
 }}
 GL = _REPO / "cairn" / "devices" / "cairn" / "machines" / "ground_loop"
 OLD_LOOP = "cairn.devices.cairn.machines.ground_loop." + "loop"
@@ -116,6 +120,32 @@ def tooth_4(T) -> None:
         ok(T["4"], False, f"{type(e).__name__}: {e}")
 
 
+_CHILD_LISTENER = f"""
+import sys
+sys.path.insert(0, {str(_REPO)!r})
+import cairn.devices.web_server.listener as listener
+real = listener.connect_system
+def recording(*, devices=None, beat=True):
+    bus, roster = real(devices=devices, beat=False)
+    print("HELD", sorted(roster.held))
+    raise SystemExit(0)
+listener.connect_system = recording
+listener.main(["--port", "0"])
+print("NEVER_WIRED")
+"""
+
+
+def tooth_5(T) -> None:
+    try:
+        out = subprocess.run([sys.executable, "-c", _CHILD_LISTENER], capture_output=True,
+                             text=True, timeout=300, cwd=str(_REPO))
+        held = [ln for ln in out.stdout.splitlines() if ln.startswith("HELD ")]
+        ok(T["5"], out.returncode == 0 and len(held) == 1 and "'ground_loop'" not in held[0],
+           f"rc={out.returncode} {held} stderr={out.stderr.strip()[-300:]}")
+    except Exception as e:  # noqa: BLE001
+        ok(T["5"], False, f"{type(e).__name__}: {e}")
+
+
 def main() -> int:
     print("the wiring needs no loop")
     T = PROVES["efb670ff1dd8"]
@@ -123,6 +153,7 @@ def main() -> int:
     tooth_2(T)
     tooth_3(T)
     tooth_4(T)
+    tooth_5(T)
     return _verdict()
 
 

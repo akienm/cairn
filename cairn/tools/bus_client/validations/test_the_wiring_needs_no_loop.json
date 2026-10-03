@@ -1,19 +1,20 @@
 [
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T16:51:45",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T19:03:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "the wiring needs no loop\n  ok   the three faces never import the old loop module\n         -> rc=0 stdout=['ABSENT', 'ERRORS []'] stderr=\n  ok   connect_system's roster lists exactly the deviceness members\n         -> missing=[] extra=[]\n  ok   reach of the heartbeat's own shim answers a request\n         -> body keys=['age_s', 'record', 'reports', 'verdict']\n  ok   loop.py and staleness.py are gone and nothing names them\n         -> still standing=[] grep hits=0 []\n\nGREEN — no private loop, the roster is deviceness, reach answers, the loop is gone.",
+      "stdout_tail": "the wiring needs no loop\n  ok   the three faces never import the old loop module\n         -> rc=0 stdout=['ABSENT', 'ERRORS []'] stderr=\n  ok   connect_system's roster lists exactly the deviceness members\n         -> missing=[] extra=[]\n  ok   reach of the heartbeat's own shim answers a request\n         -> body keys=['age_s', 'record', 'reports', 'verdict']\n  ok   loop.py and staleness.py are gone and nothing names them\n         -> still standing=[] grep hits=0 []\n  ok   the web server's start holds no heartbeat shim of its own\n         -> rc=0 [\"HELD ['bus', 'librarian', 'trouble']\"] stderr=\n\nGREEN — no private loop, the roster is deviceness, reach answers, the loop is gone.",
       "stderr_tail": "",
       "teeth_green": [
         "the three faces never import the old loop module",
         "connect_system's roster lists exactly the deviceness members",
         "reach of the heartbeat's own shim answers a request",
-        "loop.py and staleness.py are gone and nothing names them"
+        "loop.py and staleness.py are gone and nothing names them",
+        "the web server's start holds no heartbeat shim of its own"
       ],
       "teeth_red": [],
       "seal": {
@@ -24,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "2ad2da771802cfffacbfa30e154e771baf6998bdc2b6d932362a7720b57fd337",
+      "source_fingerprint": "f8af94d973ae4b547f86b268b4f880b18763d06e97885cffabe3dfafbfcd65b5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -63,66 +64,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1279218-mwi4kqrv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1334255-xn7xp7m4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/ground_loop/0/last_known.json",
-            "logs/bus/0/20261002.225145.164233.BusDevice.post.json",
-            "logs/bus/0/20261002.225145.192413.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.225145.204008.BusDevice.post.json",
-            "logs/bus/0/20261002.225145.214220.BusDevice.post.json",
-            "logs/bus/0/20261002.225145.215475.BusDevice.delivered.json",
-            "logs/bus/0/20261002.225145.215647.BusDevice.delivered.json"
+            "logs/bus/0/20261003.010348.429904.BusDevice.post.json",
+            "logs/bus/0/20261003.010348.455241.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.010348.465771.BusDevice.post.json",
+            "logs/bus/0/20261003.010348.476327.BusDevice.post.json",
+            "logs/bus/0/20261003.010348.477398.BusDevice.delivered.json",
+            "logs/bus/0/20261003.010348.477530.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 93547209,
-          "disk_bytes": 111386624,
-          "entries": 7355,
+          "bytes": 93666160,
+          "disk_bytes": 111611904,
+          "entries": 7392,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "efb670ff1dd8": {
-          "cairn/tools/bus_client/roster.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "reach of the heartbeat's own shim answers a request",
-            "the three faces never import the old loop module"
-          ],
-          "cairn/tools/liveness/liveness.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/shim.py": [
-            "loop.py and staleness.py are gone and nothing names them",
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/tools/bus_client/bus_client.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "loop.py and staleness.py are gone and nothing names them",
-            "reach of the heartbeat's own shim answers a request",
-            "the three faces never import the old loop module"
-          ],
-          "cairn/devices/web_server/listener.py": [],
-          "cairn/devices/cairn/machines/ground_loop/probes/__init__.py": [
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/discovered.py": [
-            "loop.py and staleness.py are gone and nothing names them"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "efb670ff1dd8": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "855ed40a382c16fd833cc3f9590034eef5471d73",
-          "anchor_first_build": "2a99235e23ffd3bc579b483e791a54fbcae6ec94",
-          "commit": "1923f2548f62cca6a26210228717f9001c7cfc12"
         }
       }
     },

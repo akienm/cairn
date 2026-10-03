@@ -43,8 +43,10 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 from cairn.tools.base.address import instance_path
+
+_TICKET_ID = "59a66e1c4a1a"
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _OWNING_TICKET = "probescan-resolves-the-real-shim-not-a-discovered-one"
@@ -211,6 +213,14 @@ def _carry(context: dict) -> dict:
     }
 
 
+def _holds(context: dict) -> bool:
+    """The trigger speaks on BOTH outcomes — a stuck needle (the failure) and a column seen
+    to vary (the success); only the stuck needle is a fault (835b5736bf2b child)."""
+    s = context.get("survey") or survey()
+    context["survey"] = s
+    return not s["stuck_needle"]
+
+
 PROBE = Probe(
     why="the shim resolution is structural (a proof pins it) but a structural "
         "fix that produces the same column every time it runs is the stuck "
@@ -221,7 +231,8 @@ PROBE = Probe(
     body={"nexus": "ground_loop", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "probescans_device_column_varies_with_the_world"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

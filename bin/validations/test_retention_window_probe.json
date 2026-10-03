@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_retention_window_probe.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-01T22:16:30",
+    "caller": "cairn test",
+    "date": "2026-10-03T07:15:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "proof: the retention-window probe — berth=bin/probes/retention_window.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_namespace_is_identified_by_grammar_not_by_name\n  PASS  test_a_kept_copy_is_not_a_second_namespace\n  PASS  test_a_full_window_holding_one_process_is_a_peephole\n  PASS  test_a_window_that_has_not_filled_is_not_judged\n  PASS  test_a_surviving_trim_mark_counts_as_turnover_on_its_own\n  PASS  test_an_absent_log_directory_is_not_a_finding\n  PASS  test_the_window_under_test_is_read_from_the_environment\n  PASS  test_the_datum_points_at_the_ticket_and_carries_the_rows\n  PASS  test_it_reaches_nowhere",
-      "stderr_tail": "  FAIL  test_the_probe_is_armed_the_way_the_emission_gate_means_it: WATCHME(retention-window) spec names no receiver — a probe with nothing that USES its data is trash (Akien, 2026-10-01) — give receiver: {\"what\": <the code that receives>, \"in\": <component dir>}\n\n1 FAILED: test_the_probe_is_armed_the_way_the_emission_gate_means_it",
+      "returncode": 0,
+      "stdout_tail": "proof: the retention-window probe — berth=bin/probes/retention_window.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_namespace_is_identified_by_grammar_not_by_name\n  PASS  test_a_kept_copy_is_not_a_second_namespace\n  PASS  test_a_full_window_holding_one_process_is_a_peephole\n  PASS  test_a_window_that_has_not_filled_is_not_judged\n  PASS  test_a_surviving_trim_mark_counts_as_turnover_on_its_own\n  PASS  test_an_absent_log_directory_is_not_a_finding\n  PASS  test_the_window_under_test_is_read_from_the_environment\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_datum_points_at_the_ticket_and_carries_the_rows\n  PASS  test_it_reaches_nowhere\n\nall green",
+      "stderr_tail": "",
       "teeth_green": [
         "test_the_watch_can_never_clear_before_it_could_fire",
         "test_fire_and_clear_are_mutually_exclusive",
@@ -20,6 +20,7 @@
         "test_a_surviving_trim_mark_counts_as_turnover_on_its_own",
         "test_an_absent_log_directory_is_not_a_finding",
         "test_the_window_under_test_is_read_from_the_environment",
+        "test_the_probe_is_armed_the_way_the_emission_gate_means_it",
         "test_the_datum_points_at_the_ticket_and_carries_the_rows",
         "test_it_reaches_nowhere"
       ],
@@ -32,13 +33,10 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4bae06a3e467c7ba61c55035f4f627e79758213eb6e429e1f55d949e71b0f30e",
+      "source_fingerprint": "a4e08375ec1eb943e215f4b2cdc58622d6e36a4376f88a44ee44d5fdb1838e69",
       "fingerprint_closure": [
         "bin/proofs/test_retention_window_probe.py",
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -57,12 +55,14 @@
         "cairn/tools/gate/gate.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-731637-rni4g_at/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1805791-un2w8lmh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,21 +71,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 137710865,
-          "disk_bytes": 156766208,
-          "entries": 7945,
+          "bytes": 117473181,
+          "disk_bytes": 138330112,
+          "entries": 8759,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "9313c9452f53375d1bbf4ad2490fdf8f9b373483402b1a2ee143fa6f696467cb",
-        "opened": "2026-10-01T19:38:52",
-        "last_red": "2026-10-01T22:16:30",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-bin",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

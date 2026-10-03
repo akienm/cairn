@@ -1,0 +1,121 @@
+[
+  {
+    "claim": "proof test_bin_probes_report_to_the_watch.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-03T07:15:45",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_standing_bin_probe_posts_watch\n  PASS  test_every_standing_bin_spec_names_the_receiver\n  PASS  test_bin_probes_report_to_the_watch\ngreen — every standing bin probe reports {ticket, holds, finding} to the watch verb",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_standing_bin_probe_posts_watch",
+        "test_every_standing_bin_spec_names_the_receiver",
+        "test_bin_probes_report_to_the_watch"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "d6e9184ecabec3e278d88ae44937dedcf64195e959da8d23fdffa6706c58fd54",
+      "fingerprint_closure": [
+        "bin/probes/probescans_device_column_varies_with_the_world.py",
+        "bin/probes/retention_window.py",
+        "bin/proofs/test_bin_probes_report_to_the_watch.py",
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/device.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/device.py",
+        "cairn/devices/inference_domain/domain.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/chat.py",
+        "cairn/devices/librarian/device.py",
+        "cairn/devices/librarian/library.py",
+        "cairn/devices/librarian/live.py",
+        "cairn/devices/librarian/loop.py",
+        "cairn/devices/librarian/summarize.py",
+        "cairn/devices/librarian/tools/trees/trees.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1805791-t7x7yilg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 8,
+          "paths": [
+            "devices/cairn/0/last_known.json",
+            "devices/cairn/0/machines/ground_loop/probes/device_column_history.jsonl",
+            "devices/cc/0/last_known.json",
+            "devices/codemother/0/last_known.json",
+            "devices/inference_domain/0/last_known.json",
+            "devices/librarian/0/last_known.json",
+            "devices/tester/0/last_known.json",
+            "devices/trouble/0/last_known.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 117475385,
+          "disk_bytes": 138330112,
+          "entries": 8759,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

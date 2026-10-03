@@ -47,7 +47,9 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "ff2869a09043"
 
 _OWNING_TICKET = "the-instance-address-is-resolved-never-spelled"
 
@@ -218,7 +220,8 @@ PROBE = Probe(
     # where tickets live to do anything with it, and seven probes once re-derived exactly that.
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET), "object": "the_address_gate_bites"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

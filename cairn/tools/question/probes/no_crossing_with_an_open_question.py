@@ -19,8 +19,10 @@ import collections
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
 from cairn.tools.question import question as Q
+
+_TICKET_ID = "9adc6fddf185"
 
 GATE_BORN = "2026-09-14T00:00:00"
 ENOUGH_CROSSINGS = 20
@@ -117,7 +119,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

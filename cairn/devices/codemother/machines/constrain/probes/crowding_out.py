@@ -47,8 +47,10 @@ import os
 from pathlib import Path
 from statistics import median
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.devices.codemother.machines.constrain.constrain import FLOOR_AUTHORED, FLOOR_KINDS
+
+_TICKET_ID = "ee2390602f52"
 
 # Instance-space, resolved per call and never captured at import — a probe that froze the
 # path would keep reading a root the system had already left.
@@ -226,7 +228,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

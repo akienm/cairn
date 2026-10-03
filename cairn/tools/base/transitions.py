@@ -1695,44 +1695,6 @@ def _enqueue_verdict(ticket: str) -> str | None:
     return _enqueue(ticket)
 
 
-def _notify_harbor(history_path: str, record: dict) -> None:
-    """Post a crossing notification to harbor_master via the bus.
-
-    Fires AFTER the record is written — a notification that the crossing
-    happened, not a gate. Sending side only; the harbor's receive() accepts
-    it. Failures are loud (Law 7) but do not roll back the crossing.
-    """
-    try:
-        import importlib
-        bus_mod = importlib.import_module("cairn.devices.cairn.machines.bus.bus")
-        component = str(history_path).replace("/history.json", "").replace("\\", "/")
-        gates_fired = [
-            k for k in ("build_gate", "entry_gate", "exit_gate",
-                        "clearance_gate", "emission_gate", "demo_gate")
-            if record.get(k) is not None and record[k] != "not_applicable"
-        ]
-        bus = bus_mod.BusDevice()
-        bus.post(
-            sender=component,
-            to="harbor_master",
-            channel="personal",
-            why="crossing notification — %s → %s" % (record["from"], record["to"]),
-            verb="crossing",
-            body={
-                "component": component,
-                "from": record["from"],
-                "to": record["to"],
-                "direction": record.get("direction", "forward"),
-                "gates_fired": gates_fired,
-                "ticket": record.get("ticket"),
-                "fingerprint": record.get("fingerprint"),
-            },
-        )
-    except Exception as exc:
-        import sys
-        print("harbor notification failed: %s" % exc, file=sys.stderr)
-
-
 def inspect_build(history_path: str) -> list[dict]:
     """THE BUILD GATE'S PROOF RECORD — the guard lane, then the INSPECTOR'S OWN RECORD.
 
@@ -2222,7 +2184,12 @@ def emit(
         }
         record["fingerprint"] = _crossing_fingerprint(record)
         projector.append_entry(history_path, state_path, record)
-        _notify_harbor(history_path, record)
+        # No bus post to harbor_master here (removed, ticket 48519f4789b1 decision 14). It
+        # posted through a private BusDevice whose ring nothing flushed: measured 2026-10-02,
+        # 563 crossing notices reached the bus table up to 2026-09-02 and none since, while
+        # the harbor's own scan from disk kept its register current. Posting through the one
+        # bus process instead would put a socket on the inspector's verdict path (the
+        # inspector imports this module). The journal written above IS the crossing's record.
     _stamp_sail(journal_extra.get("ticket"), new_str)
     return new_str
 

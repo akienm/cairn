@@ -95,15 +95,21 @@ def _fork_minter(prefix: str, *, with_bus: bool) -> tuple[int, str]:
     if pid == 0:  # the child
         os.close(r)
         try:
-            from cairn.devices.cairn.machines.bus.bus import (
-                _BUS_OWNER, _TRAFFIC_COLUMNS, BusDevice)
-            owner, cols = (_BUS_OWNER, _TRAFFIC_COLUMNS) if with_bus else (_OWNER, _COLUMNS)
-            with store.scratch(owner, prefix, cols) as table:
-                if with_bus:
-                    BusDevice(table=table, device_id=f"{prefix}_rider").read()
-                os.write(w, table.encode())
-                os.close(w)
-                signal.pause()
+            from cairn.devices.cairn.machines.bus.bus import BusDevice
+            # The bus rides its own door, BusDevice.scratch — the one way a proof gets a bus
+            # table (ticket 48519f4789b1: nothing outside the bus package constructs one).
+            # read() registers the _delivery companion the killed-minter tooth sweeps.
+            if with_bus:
+                with BusDevice.scratch(prefix, device_id=f"{prefix}_rider") as bus:
+                    bus.read()
+                    os.write(w, bus.table.encode())
+                    os.close(w)
+                    signal.pause()
+            else:
+                with store.scratch(_OWNER, prefix, _COLUMNS) as table:
+                    os.write(w, table.encode())
+                    os.close(w)
+                    signal.pause()
         finally:
             os._exit(0)
     os.close(w)

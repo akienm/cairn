@@ -1038,13 +1038,36 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
 
 
 def cli_main(shim_cls, argv: list[str]) -> int:
-    """The mouth every self-named launcher speaks through (ticket b41b0c0fff0e): construct the
-    shim, resolve the line, print the text — stdout on 0, stderr otherwise — and hand back the
-    exit code. One function, so `cairn tester show status hot` and `cairn cc show status hot`
-    cannot differ in anything but the device."""
+    """The mouth every self-named launcher speaks through (ticket b41b0c0fff0e): resolve the
+    line, print the text — stdout on 0, stderr otherwise — and hand back the exit code. One
+    function, so `cairn tester show status hot` and `cairn cc show status hot` cannot differ in
+    anything but the device.
+
+    IT CONSTRUCTS NO SHIM (ticket 48519f4789b1 decision 6). The shim lives in the instance's
+    one bus process, named by its address ``module:Class``, and the line is resolved there —
+    a command no longer pays a private beat to wire a roster that dies with it (89.3s,
+    measured 2026-09-06). A bus that cannot be reached is exit 1, said on stderr.
+
+    THE ONE SHIM IT STILL BUILDS (decision 10): a class defined in ``__main__`` has no address
+    another process can import, so the bus process cannot host it; it is resolved here, in
+    the process that defined it. Every launcher's shim lives in a module, so only a proof's
+    inline fixture takes this branch."""
     import sys
-    shim = shim_cls()
-    result = shim.resolve(list(argv))
+
+    if shim_cls.__module__ == "__main__":
+        result = shim_cls().resolve(list(argv))
+        stream = sys.stdout if result["exit"] == 0 else sys.stderr
+        print(result["text"], file=stream)
+        return int(result["exit"])
+    from cairn.tools.bus_client.remote import RemoteBus, ensure_bus  # deferred: keep shim.py light
+
+    try:
+        ensure_bus()
+        result = RemoteBus().verbs(f"{shim_cls.__module__}:{shim_cls.__name__}", list(argv))
+    except (OSError, RuntimeError, ValueError) as exc:
+        print(f"{shim_cls.__name__}: the bus process did not answer — {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+        return 1
     stream = sys.stdout if result["exit"] == 0 else sys.stderr
     print(result["text"], file=stream)
     return int(result["exit"])

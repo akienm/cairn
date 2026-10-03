@@ -408,14 +408,17 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
     try:
         from cairn.devices.cairn.machines.bus.bus import BusDevice
         from cairn.tools.bus_client import _load_device_shim
-        bus = BusDevice()
-        shim = _load_device_shim("inference_domain", bus)
-        shim._wire_delivery()
-        seam = live.dual_seam(bus)
-        seam({"kind": "generate",
-              "prompt": "please write a python function that reverses a linked list"})
-        seam({"kind": "embed", "prompt": "what does the settled record say?"})
-        seam({"kind": "generate", "prompt": "x", "domain": "coding"})
+        # A private scratch bus IN THIS PROCESS on purpose: the capture patches resolve here,
+        # so the inference shim must answer here, never in the instance's bus process
+        # (ticket 48519f4789b1 decision 7).
+        with BusDevice.scratch("bus_libchat") as bus:
+            shim = _load_device_shim("inference_domain", bus)
+            shim._wire_delivery()
+            seam = live.dual_seam(bus)
+            seam({"kind": "generate",
+                  "prompt": "please write a python function that reverses a linked list"})
+            seam({"kind": "embed", "prompt": "what does the settled record say?"})
+            seam({"kind": "generate", "prompt": "x", "domain": "coding"})
     finally:
         domain_module.resolve = real
 

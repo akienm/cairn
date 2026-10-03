@@ -174,7 +174,10 @@ def the_standing_pile_is_drained_by_the_shim():
         bus.flush()
     left = bus.undelivered(to="tester", limit=1000)
     assert not left, f"the tester shim left {len(left)} of 3 standing replies undelivered"
-    live = BusDevice().undelivered(to="tester", limit=10000)
+    # The LIVE bus is the instance's one bus process, asked through its client tool
+    # (ticket 48519f4789b1 decision 7) — never a BusDevice built here.
+    from cairn.tools.bus_client import reach
+    live = reach().undelivered(to="tester", limit=10000)
     assert not live, f"{len(live)} envelope(s) stand undelivered to the tester on the live bus"
 
 

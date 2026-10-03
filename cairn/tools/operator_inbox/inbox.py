@@ -512,9 +512,10 @@ def read_ideas(*, ideas_dir: Path | None = None,
 def read_email() -> dict:
     """Undelivered bus messages — a live measurement, never stored."""
     try:
-        from cairn.devices.cairn.machines.bus.bus import BusDevice
-        bus = BusDevice()
-        waiting = bus.undelivered(limit=10000)
+        # Through the instance's one bus process (ticket 48519f4789b1) — never a BusDevice
+        # built here, whose private ring would miss every envelope the bus has not flushed.
+        from cairn.tools.bus_client import reach
+        waiting = reach().undelivered(limit=10000)
     except Exception:
         return {"count": 0, "note": "bus unavailable"}
     if not waiting:

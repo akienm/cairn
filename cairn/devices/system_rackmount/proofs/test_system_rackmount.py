@@ -59,21 +59,13 @@ from cairn.devices.system_rackmount.rackmount import (
     _default_sampler,
 )
 
-_SCRATCH = contextlib.ExitStack()   # the one bus table this proof owns rides store.scratch(): dropped at close, swept by pid if not
-_HELD: list[BusDevice] = []
-
-
-def _table() -> str:
-    """The proof's one bus table, minted on first use through BusDevice.scratch()."""
-    if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(BusDevice.scratch("bus_sysrm")))
-    return _HELD[0].table
+_SCRATCH = contextlib.ExitStack()   # each rig's bus table rides BusDevice.scratch(): dropped at close, swept by pid if not
 
 
 def _rig(reading: dict):
     """Wire the full chain: a DeviceRoster, a real bus, the system device (with an injected,
     mutable reading), and its shim held for the pulse. Returns them for the test to drive."""
-    bus = BusDevice(table=_table())
+    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_sysrm"))
     dev = SystemRackmountDevice(sampler=lambda: reading)
     shim = SystemRackmountShim(dev, bus)
     gl = DeviceRoster(None)

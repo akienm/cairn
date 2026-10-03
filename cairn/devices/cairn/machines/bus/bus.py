@@ -58,6 +58,7 @@ FILED EDGES (children of this stone — not faked):
 from __future__ import annotations
 
 import re
+import threading
 import uuid
 from contextlib import contextmanager
 from datetime import datetime
@@ -196,6 +197,19 @@ class BusDevice(BaseDevice):
         self._ring_receipts: list[dict] = []
         self._ring_delivered: set[str] = set()
         self._folder_recorders: dict[str, Any] = {}
+        # ONE BUS PER INSTANCE (ticket 48519f4789b1 D3). The bus process is the sole writer of
+        # transit, so after ONE db read of an addressee's backlog the undelivered mail is known
+        # in memory: ``_pending`` holds every personal envelope not yet receipted (post adds,
+        # record_delivery removes, flush keeps), ``_loaded`` names the addressees whose backlog
+        # has been read (``_loaded_all`` when to=None was asked). A poke then delivers with
+        # zero db reads, and a delivery that raised is still offered again on the next poke.
+        self._pending: dict[str, dict] = {}
+        self._loaded: set[str] = set()
+        self._loaded_all = False
+        self._db_reads = 0
+        # Guards ring/receipt/pending mutation only — microseconds, never a handler — so the
+        # bus process's per-connection threads cannot lose a post into a flush (D3, D8).
+        self._lock = threading.Lock()
 
     @classmethod
     @contextmanager
@@ -394,8 +408,11 @@ class BusDevice(BaseDevice):
             "reply_to": reply_to,
             "date": datetime.now().isoformat(timespec="seconds"),
         }
-        self._ring.append(envelope)
-        self._posted += 1
+        with self._lock:
+            self._ring.append(envelope)
+            if channel == "personal":
+                self._pending[envelope["id"]] = envelope
+            self._posted += 1
         self._last_envelope = envelope
         self.emit("post", pointer=envelope["id"], values={
             "sender": sender, "addressee": to, "channel": channel,
@@ -451,6 +468,7 @@ class BusDevice(BaseDevice):
             params.append(reply_to)
         where = (" AND ".join(clauses) + " ORDER BY ctid") if clauses else "TRUE ORDER BY ctid"
         db_rows = store.read(self._table, where=where, params=tuple(params))
+        self._db_reads += 1
         ring_rows = self._ring_matches(to=to, channel=channel, reply_to=reply_to)
         return db_rows + ring_rows
 
@@ -500,31 +518,39 @@ class BusDevice(BaseDevice):
     # --- delivery: the half that was missing --------------------------------
 
     def undelivered(self, *, to: str | None = None, limit: int = 200) -> list[dict]:
-        """Mail that was POSTED to a personal channel and never ARRIVED.
+        """Mail that was POSTED to a personal channel and never ARRIVED, oldest first.
 
-        Merges two sources: DB rows whose receipt hasn't flushed yet (the anti-join), and
-        ring rows that haven't been delivered in-memory. DB rows come first (oldest);
-        ring rows append. ``_ring_delivered`` tracks in-memory receipts so a flushed
-        envelope whose receipt is still in the ring isn't reported as undelivered."""
-        self._ensure()
-        clauses = [sql_missing_receipt(self._table, self._delivery_table),
-                   "channel = 'personal'"]
-        params: list = []
-        if to is not None:
-            clauses.append("addressee = %s")
-            params.append(to)
-        where = " AND ".join(clauses) + f" ORDER BY ctid LIMIT {int(limit)}"
-        db_rows = store.read(self._table, where=where, params=tuple(params))
-        db_filtered = [env for env in db_rows
-                       if env.get("id") not in self._ring_delivered]
-        ring_undelivered = [
-            env for env in self._ring
-            if env.get("channel") == "personal"
-            and (to is None or env.get("addressee") == to)
-            and env.get("id") not in self._ring_delivered
-        ]
-        combined = db_filtered + ring_undelivered
-        return combined[:limit]
+        ONE DB READ PER ADDRESSEE, then memory (ticket 48519f4789b1 D3). The first ask for
+        ``to`` (or for everyone, ``to=None``) reads the store's anti-join — the backlog from
+        before this bus was born — and folds it into ``_pending`` ahead of what this bus has
+        posted since. Every later ask answers from ``_pending`` alone: the bus is the sole
+        writer of transit, so nothing can land in the table that it did not post. Envelopes
+        already receipted in memory (``_ring_delivered``, kept until their receipt is
+        committed) are never folded back in."""
+        if not (self._loaded_all or (to is not None and to in self._loaded)):
+            self._ensure()
+            clauses = [sql_missing_receipt(self._table, self._delivery_table),
+                       "channel = 'personal'"]
+            params: list = []
+            if to is not None:
+                clauses.append("addressee = %s")
+                params.append(to)
+            where = " AND ".join(clauses) + " ORDER BY ctid"
+            db_rows = store.read(self._table, where=where, params=tuple(params))
+            self._db_reads += 1
+            with self._lock:
+                merged = {env["id"]: env for env in db_rows
+                          if env.get("id") not in self._ring_delivered}
+                merged.update(self._pending)
+                self._pending = merged
+                if to is None:
+                    self._loaded_all = True
+                else:
+                    self._loaded.add(to)
+        with self._lock:
+            waiting = [env for env in self._pending.values()
+                       if to is None or env.get("addressee") == to]
+        return waiting[:limit]
 
     def record_delivery(self, envelope_id: str, *, to: str, by: str) -> dict:
         """Write the receipt to the in-memory ring. APPEND, never a rewrite.
@@ -537,9 +563,11 @@ class BusDevice(BaseDevice):
                              "would silently mark the whole inbox delivered")
         receipt = {"envelope": envelope_id, "addressee": to, "by": by,
                    "date": datetime.now().isoformat(timespec="seconds")}
-        self._ring_receipts.append(receipt)
-        self._ring_delivered.add(envelope_id)
-        self._delivered += 1
+        with self._lock:
+            self._ring_receipts.append(receipt)
+            self._ring_delivered.add(envelope_id)
+            self._pending.pop(envelope_id, None)
+            self._delivered += 1
         self.emit("delivered", pointer=envelope_id, values={"addressee": to, "by": by})
         return receipt
 
@@ -552,11 +580,12 @@ class BusDevice(BaseDevice):
         if not self._ring and not self._ring_receipts:
             return {"flushed": 0, "receipts": 0}
         self._ensure()
-        to_flush = list(self._ring)
-        to_receipt = list(self._ring_receipts)
-        self._ring.clear()
-        self._ring_receipts.clear()
-        self._ring_delivered.clear()
+        # THE SWAP IS ATOMIC (ticket 48519f4789b1 D3): what is posted while this batch is
+        # being written lands in the NEXT flush, never cleared unseen. A failed write puts
+        # the batch back ahead of anything newer, so a down store loses no record.
+        with self._lock:
+            to_flush, self._ring = self._ring, []
+            to_receipt, self._ring_receipts = self._ring_receipts, []
         conn = store.connect()
         conn.autocommit = False
         try:
@@ -567,11 +596,24 @@ class BusDevice(BaseDevice):
             conn.commit()
         except Exception:
             conn.rollback()
+            with self._lock:
+                self._ring = to_flush + self._ring
+                self._ring_receipts = to_receipt + self._ring_receipts
             raise
         finally:
             conn.close()
+        # A receipt is in the store now, so the anti-join excludes its envelope; only now may
+        # the in-memory mark go.
+        with self._lock:
+            self._ring_delivered.difference_update(r["envelope"] for r in to_receipt)
         self._flushed += len(to_flush)
         return {"flushed": len(to_flush), "receipts": len(to_receipt)}
+
+    @property
+    def db_reads(self) -> int:
+        """How many times this bus has read the store — the instrument the one-bus proof
+        measures a ring hit with (ticket 48519f4789b1 falsifier 2)."""
+        return self._db_reads
 
     @property
     def ring_depth(self) -> int:

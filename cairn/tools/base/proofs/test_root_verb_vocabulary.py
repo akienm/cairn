@@ -169,7 +169,18 @@ def home():
     try:
         yield h
     finally:
+        _stop_bus(h)
         shutil.rmtree(h, ignore_errors=True)
+
+
+def _stop_bus(home: Path) -> None:
+    """cli_main resolves through the instance's one bus process (ticket 48519f4789b1), so the
+    scratch HOME grew its own; it goes with the HOME."""
+    from cairn.tools.bus_client.remote import RemoteBus
+    try:
+        RemoteBus(home / ".cairn/devices/cairn/machines/bus/0").shutdown()
+    except OSError:
+        pass
 
 
 # --- the teeth --------------------------------------------------------------------------

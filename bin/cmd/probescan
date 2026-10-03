@@ -289,18 +289,16 @@ def scan_mail(devices: set[str]) -> dict:
     picked up, is anyone writing to an address that is not a device, and is one probe
     saying the same thing over and over.
     """
-    from cairn.devices.bus.bus import BusDevice
-    from cairn.devices.db_domain import store
+    # Through the instance's one bus process (ticket 48519f4789b1): the traffic is the bus's
+    # read(), and what was picked up is every personal envelope the bus no longer holds as
+    # undelivered — the receipt table is the bus's internal and is not read here (RULE 1).
+    from cairn.tools.bus_client import reach
 
-    bus = BusDevice()
-    conn = store.connect()
-    try:
-        traffic = store.read(bus._table, conn=conn)
-        receipts = store.read(bus.delivery_table, conn=conn)
-    finally:
-        conn.close()
-
-    picked_up = {r.get("envelope_id") or r.get("id") for r in receipts}
+    bus = reach()
+    traffic = bus.read()
+    waiting = {env.get("id") for env in bus.undelivered(limit=10_000_000)}
+    picked_up = {env.get("id") for env in traffic
+                 if env.get("channel") == "personal" and env.get("id") not in waiting}
     rows = []
     for env in traffic:
         addressee = env.get("addressee")
@@ -322,7 +320,7 @@ def scan_mail(devices: set[str]) -> dict:
     storms = Counter((r["sender"], r["why"]) for r in rows)
     return {
         "envelopes": len(rows),
-        "receipts": len(receipts),
+        "receipts": len(picked_up),
         "never_delivered": sum(1 for r in rows if not r["delivered"]),
         "orphan_addressee": [r for r in rows if not r["addressee_is_device"]],
         "orphan_sender": [r for r in rows if not r["sender_is_device"]],

@@ -9,8 +9,9 @@ A device's shim.py on disk IS its bus declaration — no registry, no boolean fl
 ``cairn/devices/inference_domain/shim.py`` and holds it in a ``DeviceRoster``
 (``roster.py``) — no ground loop is built inside a client (ticket efb670ff1dd8).
 
-Today: in-process construction. The wiring lives here rather than in each caller —
-one seam to change when the process model advances.
+Since ticket 48519f4789b1: one bus process per instance hosts every shim, and this tool
+hands callers a ``RemoteBus`` (``remote.py``) speaking to it. The wiring lives here rather
+than in each caller — the one seam that changed when the process model advanced.
 """
 from __future__ import annotations
 
@@ -24,80 +25,61 @@ _CLASS_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _wire(*, devices: list[str] | None = None, beat: bool = True):
-    """Internal: a bus, a DeviceRoster holding the bus's own shim and each named device's
-    shim, and — with ``beat`` — one pulse of those held shims. Returns ``(bus, roster)``.
+    """Internal: the instance's one bus process (started if it is not answering), a
+    ``RemoteBus`` speaking to it, and a ``DeviceRoster`` over that remote. Returns
+    ``(bus, roster)``.
 
-    No ground loop is built here (ticket efb670ff1dd8): the heartbeat is the resident one,
-    and no device is special-cased — ``ground_loop`` loads its own shim from disk like any
-    other name."""
-    from datetime import datetime, timezone
-
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
-    from cairn.devices.cairn.machines.bus.shim import BusShim
+    ONE BUS PER INSTANCE (ticket 48519f4789b1 decision 7). Until then this built a private
+    ``BusDevice`` and held private shims in the caller's own process — two commands were two
+    rings. Now the named devices are HELD IN THE BUS PROCESS, where holding wires each one's
+    delivery onto the one ring (decision 12 — wired, never pulsed); nothing is held here. ``beat`` is kept for the
+    callers' signature: a hold in the bus process is the only wiring there is, so a client
+    that names devices gets them wired either way, and one that names none touches no shim."""
+    from cairn.tools.bus_client.remote import RemoteBus, ensure_bus
     from cairn.tools.bus_client.roster import DeviceRoster
 
-    bus = BusDevice()
-    roster = DeviceRoster(bus)
-    roster.hold(BusShim(bus, roster))
-
-    for name in (devices or []):
-        shim = roster.shim_for(name)
-        if shim is not None:
-            roster.hold(shim)
-
-    if beat:
-        roster.pulse(datetime.now(timezone.utc))
-
-    return bus, roster
+    ensure_bus()
+    bus = RemoteBus()
+    if devices:
+        bus.hold(*devices)
+    return bus, DeviceRoster(bus)
 
 
 def connect_bus(*, devices: list[str] | None = None, beat: bool = True):
-    """Return a working BusDevice with named device shims held.
+    """Return a bus handle (a ``RemoteBus`` on the instance's one bus process) with the named
+    devices held in that process.
 
-    devices: device names whose shims should handle bus verbs. Each is loaded from
-             ``<device folder>/shim.py`` — a file that declares a BaseShim subclass is its
-             own registration — or, for a fitted device with no shim.py, a DiscoveredShim.
-    beat:    pulse the held shims once (the bus's own shim first, then each named one),
-             which wires their delivery. True when you mean to RUN the system. A CLIENT
-             that wants to ASK a device one question calls ``reach(<device>)`` instead; the
-             probe at ``probes/a_client_reaches_and_never_beats.py`` reds any Call of this
-             face outside the runner roster. False is for a fixture that inspects the
-             wiring before the first pulse.
+    devices: device names whose shims should handle bus verbs. Each is loaded IN THE BUS
+             PROCESS from ``<device folder>/shim.py`` — a file that declares a BaseShim
+             subclass is its own registration — or, for a fitted device with no shim.py, a
+             DiscoveredShim. A name no shim answers to raises LookupError.
+    beat:    kept for the signature; see ``_wire``. A CLIENT that wants to ASK a device one
+             question calls ``reach(<device>)``; the probe at
+             ``probes/a_client_reaches_and_never_beats.py`` reds any Call of this face outside
+             the runner roster.
     """
     bus, _roster = _wire(devices=devices, beat=beat)
     return bus
 
 
 def reach(*devices: str):
-    """A bus that can ASK the named devices — one exchange, no heartbeat.
-
-    ``BaseShim._wire_delivery`` hands the bus a poke channel for its device, and until some
-    pulse does that, ``request`` posts into silence and times out. So this pulses exactly the
-    shims being addressed — which wires their delivery, fires their own probes, and touches
-    nothing else. That is the difference between RUNNING the system and USING it.
+    """A bus that can ASK the named devices — each held (and so wired) in the bus process,
+    with no beat: a client asks a question, it never pays for the system's heartbeat
+    (ticket fc93d8cd5961). Named with no devices it is the bus alone, for reading and posting.
 
     Raises LookupError for a name no shim answers to. Use ``connect_bus``/``connect_system``
     when you mean to run the system; use this when you mean to ask.
     """
-    from datetime import datetime, timezone
-
-    bus, roster = _wire(devices=list(devices), beat=False)
-    now = datetime.now(timezone.utc)
-    for name in devices:
-        shim = roster.shim_for(name)
-        if shim is None:
-            raise LookupError(
-                f"no shim answers to {name!r} — a device's bus presence IS "
-                f"cairn/devices/{name}/shim.py on disk, and nothing was discovered there")
-        shim.on_pulse(now)
+    bus, _roster = _wire(devices=list(devices), beat=False)
     return bus
 
 
 def connect_system(*, devices: list[str] | None = None, beat: bool = True):
     """Return ``(bus, roster)`` — for process entry points that run the system.
 
-    The roster is a ``DeviceRoster``: the web server's nav (every fitted device on disk) and
-    the source of each device's shim (``shim_for``). Most callers want only the bus.
+    The roster is a ``DeviceRoster`` over the remote bus: the web server's nav (every fitted
+    device on disk) and the source of each device's shim for rendering (``shim_for``). The
+    bus's own shim lives in the bus process, never here. Most callers want only the bus.
     """
     return _wire(devices=devices, beat=beat)
 

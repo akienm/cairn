@@ -182,35 +182,43 @@ def test_ii_all_three_faces_go_to_disk_for_the_named_device():
     resolution, which happens in ``_wire`` before any pulse. ``reach`` takes no beat flag
     because it never beats — that is its whole contract (ticket fc93d8cd5961), and the
     probe beside this one reds any client that calls the other two."""
-    seen = []
-    real_loader = bus_client._load_device_shim
-
-    def recording(device_name, bus):
-        got = real_loader(device_name, bus)
-        seen.append((device_name, got))
-        return got
-
-    bus_client._load_device_shim = recording
+    # SINCE TICKET 48519f4789b1 THE LOADER RUNS IN THE BUS PROCESS, so a recording wrapper
+    # installed here would see nothing. Each face is pointed at its own fresh bus home (a
+    # scratch bus, its own process and table) and the bus is asked what it holds and where
+    # each held shim's class was loaded from: a face that resolved anything but the one named
+    # device, or built it from anywhere but that device's shim.py, reads here.
+    import os
+    from cairn.tools.bus_client.remote import RemoteBus
+    expected = (_REPO_ROOT / "cairn" / "devices" / LIVE_DEVICE / "shim.py").resolve()
+    prior = os.environ.get("CAIRN_BUS_HOME")
     try:
         for face, call in (
                 ("connect_bus", lambda: bus_client.connect_bus(devices=[LIVE_DEVICE], beat=False)),
                 ("reach", lambda: bus_client.reach(LIVE_DEVICE)),
                 ("connect_system", lambda: bus_client.connect_system(devices=[LIVE_DEVICE], beat=False)),
         ):
-            before = len(seen)
-            result = call()
-            assert result is not None, "%s handed back nothing" % face
-            new = seen[before:]
-            assert [n for n, _ in new] == [LIVE_DEVICE], \
-                "%s resolved %r, not the one device it was given" % (face, [n for n, _ in new])
-            shim = new[0][1]
-            assert shim is not None, "%s resolved no shim for %r" % (face, LIVE_DEVICE)
-            origin = Path(sys.modules[type(shim).__module__].__file__).resolve()
-            expected = (_REPO_ROOT / "cairn" / "devices" / LIVE_DEVICE / "shim.py").resolve()
-            assert origin == expected, \
-                "%s built its shim from %s, not from %s" % (face, origin, expected)
+            home = scratch_dir("cairn-busclient-%s-bushome-" % face.replace("_", ""))
+            os.environ["CAIRN_BUS_HOME"] = str(home)
+            try:
+                result = call()
+                assert result is not None, "%s handed back nothing" % face
+                stats = RemoteBus(home).stats()
+                assert stats["held"] == [LIVE_DEVICE], \
+                    "%s resolved %r, not the one device it was given" % (face, stats["held"])
+                origin = stats["shims"].get(LIVE_DEVICE)
+                assert origin is not None, "%s resolved no shim for %r" % (face, LIVE_DEVICE)
+                assert Path(origin).resolve() == expected, \
+                    "%s built its shim from %s, not from %s" % (face, origin, expected)
+            finally:
+                try:
+                    RemoteBus(home).shutdown()
+                except OSError:
+                    pass
     finally:
-        bus_client._load_device_shim = real_loader
+        if prior is None:
+            os.environ.pop("CAIRN_BUS_HOME", None)
+        else:
+            os.environ["CAIRN_BUS_HOME"] = prior
     print("  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device")
 
 

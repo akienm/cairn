@@ -34,7 +34,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "ef58fe6fad61"
 
 _OWNING_TICKET = "a-false-statement-in-a-trouble-record-can-be-corrected-in-place"
 
@@ -181,7 +183,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

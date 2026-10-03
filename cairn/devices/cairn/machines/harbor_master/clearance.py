@@ -1024,7 +1024,8 @@ def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
 
 
 def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor: str,
-                   history_path: str | None, state_path: str | None) -> str:
+                   history_path: str | None, state_path: str | None,
+                   why: str | None = None) -> str:
     """A coverage refusal is DESIGN WORK THE TICKET OWNS — send the boat back to FIXME.
 
     Akien, 2026-10-01 (ticket 973574dddb77): "whoever asked is the ticket itself. recording
@@ -1044,6 +1045,9 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
     record of truth and is already on its way up (Law 7). A boat whose workflow has no FIXME
     (only code-seam@v2 registers one, measured 2026-10-01) or whose ticket does not resolve
     stays where it is, and the sentence SAYS so rather than going quiet.
+
+    ``why`` names the cause on the journal record and the ticket write. ``None`` keeps the
+    refused-PROVED wording; the ``watch`` verb passes its WATCHME finding (a88d6a368cfb).
     """
     import glob as _glob
     from cairn.tools.artifact.artifact import write as _write
@@ -1051,7 +1055,7 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
     try:
         new = emit(workflow_str, "FIXME", history_path=history_path, state_path=state_path,
                    ticket=boat_id, actor=actor, missing=missing,
-                   why=f"clearance refused at PROVED: {len(lacks)} lack(s)")
+                   why=why or f"clearance refused at PROVED: {len(lacks)} lack(s)")
     except Exception as exc:  # noqa: BLE001 — see the docstring
         return (f"The boat could not be sent to FIXME ({type(exc).__name__}: {exc}); it stays "
                 "where it is.")
@@ -1068,8 +1072,9 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
         doc["fixme"] = [{"n": i, "kind": one["kind"], "missing": one["why"]}
                         for i, one in enumerate(lacks, 1)]
         _write(hits[0], json.dumps(doc, indent=2, ensure_ascii=False) + "\n", verb="cast",
-               why=f"{boat_id}: clearance refused at PROVED — sent to FIXME with "
-                   f"{len(lacks)} missing")
+               why=f"{boat_id}: {why}" if why else (
+                   f"{boat_id}: clearance refused at PROVED — sent to FIXME with "
+                   f"{len(lacks)} missing"))
     except Exception as exc:  # noqa: BLE001 — see the docstring
         return (f"The boat was sent to FIXME ({new}) but its ticket write failed "
                 f"({type(exc).__name__}: {exc}).")

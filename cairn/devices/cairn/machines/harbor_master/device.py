@@ -16,6 +16,8 @@ Receives mail through three paths:
     the actor. This is the harbor door's bus face: a device that may not import
     harbor_master (device isolation, 2026-08-31) can still ask it to move a boat, and
     the answer is the door's, not the asker's.
+  - verb "watch" — a WATCHME probe's finding {ticket, holds, finding}: a red finding
+    sends that ticket back to FIXME with the finding as its lack (ticket a88d6a368cfb)
   - verbless receive() — BaseDevice default records to DataRecorder
 """
 
@@ -54,7 +56,8 @@ class HarborMasterDevice(BaseDevice):
     def declared_verbs(self) -> dict:
         return {**super().declared_verbs(),
                 "crossing": self._handle_crossing,
-                "clear": self._handle_clear}
+                "clear": self._handle_clear,
+                "watch": self._handle_watch}
 
     def declared_views(self) -> dict:
         return {"map": self._fleet_map}
@@ -145,6 +148,101 @@ class HarborMasterDevice(BaseDevice):
         return {"accepted": True, "verb": "clear", "device": self.device_id,
                 "actor": actor, "boat_id": body["boat_id"], "target": body["target"],
                 "workflow": new_workflow}
+
+    def _handle_watch(self, envelope: dict) -> dict:
+        """Verb handler: receive a WATCHME probe's finding about its own ticket.
+
+        The receiver 835b5736bf2b's decision D2 names, built first by Akien's answer to
+        open-291189a9766a (WATCHME = probe + receiver: "for all watchmes that we built
+        probes for but not recievers, i think we just build the recievers"). The body is
+        ``{ticket, holds, finding}``: ``holds`` is whether the ticket's falsifier still
+        holds under live use. True changes nothing. False is design work the ticket owns
+        (973574dddb77), so the ticket takes the same back-edge a refused PROVED takes,
+        ``clearance._send_to_fixme``, with the finding as its one ``watchme`` lack.
+
+        THE ACTOR IS THE ENVELOPE'S SENDER, as in ``_handle_clear``: the bus stamps it.
+
+        THE CROSSING IS JOURNALED AT THE COMPONENT HOLDING THE PROBE. None of the standing
+        WATCHME tickets names an owning component (measured 2026-10-03, 0 of 90), and every
+        probe path resolves upward to a charter, so the walk from ``watchme.probe`` is the
+        address. A ticket whose probe resolves to no charter is refused rather than moved
+        unjournaled: the hollow reads crossings from the journals only.
+
+        Only a ticket at a rest (PROVED or WATCHME) is moved; anything else is left where
+        it stands and the reply says so. Refusals come back as data (Law 7).
+        """
+        from cairn.devices.cairn.machines.harbor_master import clearance
+        from cairn.tools.base.transitions import parse_workflow
+
+        def refuse(reason: str) -> dict:
+            return {"accepted": False, "verb": "watch", "device": self.device_id,
+                    "reason": reason}
+
+        body = envelope.get("body", {}) or {}
+        actor = envelope.get("sender") or ""
+        if not actor:
+            return refuse("this envelope names no sender, and the sender IS the actor "
+                          "(Law 6)")
+        tid = body.get("ticket")
+        if not isinstance(tid, str) or not tid:
+            return refuse("watch needs a ticket: the id of the ticket whose falsifier "
+                          "was measured")
+        holds = body.get("holds")
+        if not isinstance(holds, bool):
+            return refuse(f"holds must be true or false, got {holds!r}")
+        finding = body.get("finding")
+        if holds is False and (not isinstance(finding, str) or not finding.strip()):
+            return refuse("a red watch needs a finding: it becomes the ticket's lack")
+
+        roots = clearance._crossing_roots()
+        tickets = Path(roots["commons"]) / "tickets" if roots else Path(clearance.TICKETS_DIR)
+        repo = Path(roots["repo"]) if roots else Path(clearance.CAIRN_ROOT)
+        hits = sorted(tickets.glob(f"{tid}-*.json")) or sorted(tickets.glob(f"{tid}.json"))
+        if len(hits) != 1:
+            return refuse(f"ticket {tid} resolves to {len(hits)} file(s) under {tickets}, "
+                          "not one")
+        try:
+            doc = json.loads(hits[0].read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            return refuse(f"ticket {tid} does not read: {type(exc).__name__}: {exc}")
+        spec = doc.get("watchme")
+        probe = spec.get("probe") if isinstance(spec, dict) else None
+        if not isinstance(probe, str) or not probe:
+            return refuse(f"ticket {tid}'s watchme names no probe, so no component's "
+                          "history can take the crossing")
+        comp = (repo / probe).parent
+        while comp != repo and comp != comp.parent and not (comp / "intention+why.json").is_file():
+            comp = comp.parent
+        if not (comp / "intention+why.json").is_file() or comp == repo:
+            return refuse(f"ticket {tid}'s probe {probe} sits under no component charter")
+
+        if holds:
+            return {"accepted": True, "verb": "watch", "device": self.device_id,
+                    "ticket": tid, "acted": "none",
+                    "said": "the falsifier holds; nothing changes"}
+        workflow = doc.get("workflow_and_state", "")
+        try:
+            here = parse_workflow(workflow).here
+        except Exception as exc:  # noqa: BLE001 — a refusal is the answer
+            return refuse(f"ticket {tid}'s workflow does not parse: {exc}")
+        if here not in ("PROVED", "WATCHME"):
+            return {"accepted": True, "verb": "watch", "device": self.device_id,
+                    "ticket": tid, "acted": "none",
+                    "said": f"the ticket stands at {here}, not at a rest; a WATCHME finding "
+                            "moves only a PROVED or WATCHME ticket"}
+        said = clearance._send_to_fixme(
+            workflow, tid, [{"kind": "watchme", "why": finding}], actor=actor,
+            history_path=str(comp / "history.json"), state_path=str(comp / "state.json"),
+            why=f"a WATCHME finding: {finding}")
+        try:
+            after = json.loads(hits[0].read_text(encoding="utf-8")).get("workflow_and_state")
+        except (OSError, ValueError):
+            after = workflow
+        acted = "fixme" if after != workflow else "none"
+        self.debug_sink.emit("watch_received", pointer=tid,
+                             values={"actor": actor, "acted": acted})
+        return {"accepted": True, "verb": "watch", "device": self.device_id,
+                "ticket": tid, "acted": acted, "said": said}
 
     def _patch_fleet(self, crossing: dict) -> None:
         """Patch the cached register from a single crossing notification.

@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_reported_but_unfixed_probe.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-01T22:17:07",
+    "caller": "cairn test",
+    "date": "2026-10-03T14:26:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "proof: the reported-but-unfixed-floor probe — berth=launchers/probes/reported_but_unfixed_floor.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_the_floor_is_at_least_the_patience\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch\n  PASS  test_an_unparseable_line_is_skipped_not_guessed_at\n  PASS  test_an_absent_record_is_not_a_finding\n  PASS  test_the_bypass_is_counted_but_does_not_fire\n  PASS  test_the_berth_is_where_the_ticket_says_it_is\n  PASS  test_the_datum_points_at_the_ticket_and_does_not_copy_it\n  PASS  test_it_reaches_nowhere",
-      "stderr_tail": "  FAIL  test_the_probe_is_armed_the_way_the_emission_gate_means_it: WATCHME(reported-but-unfixed-floor) spec names no receiver — a probe with nothing that USES its data is trash (Akien, 2026-10-01) — give receiver: {\"what\": <the code that receives>, \"in\": <component dir>}\n\n1 FAILED: test_the_probe_is_armed_the_way_the_emission_gate_means_it",
+      "returncode": 0,
+      "stdout_tail": "proof: the reported-but-unfixed-floor probe — berth=launchers/probes/reported_but_unfixed_floor.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_the_floor_is_at_least_the_patience\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch\n  PASS  test_an_unparseable_line_is_skipped_not_guessed_at\n  PASS  test_an_absent_record_is_not_a_finding\n  PASS  test_the_bypass_is_counted_but_does_not_fire\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_berth_is_where_the_ticket_says_it_is\n  PASS  test_the_datum_points_at_the_ticket_and_does_not_copy_it\n  PASS  test_it_reaches_nowhere\n\nall green",
+      "stderr_tail": "",
       "teeth_green": [
         "test_the_watch_can_never_clear_before_it_could_fire",
         "test_the_floor_is_at_least_the_patience",
@@ -18,6 +18,7 @@
         "test_an_unparseable_line_is_skipped_not_guessed_at",
         "test_an_absent_record_is_not_a_finding",
         "test_the_bypass_is_counted_but_does_not_fire",
+        "test_the_probe_is_armed_the_way_the_emission_gate_means_it",
         "test_the_berth_is_where_the_ticket_says_it_is",
         "test_the_datum_points_at_the_ticket_and_does_not_copy_it",
         "test_it_reaches_nowhere"
@@ -31,12 +32,9 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "32eb470b8c2ded3eed90b2a82aaa6a9089ffc545536bb92297821631cb2a8314",
+      "source_fingerprint": "fc9b399eec25a2beb86df74387473e3726a6d107912173a23bde7dc9bf6bea61",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/scratch.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,13 +53,15 @@
         "cairn/tools/gate/gate.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "launchers/proofs/test_reported_but_unfixed_probe.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-731637-xe85fftu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1977713-l4ytrwj0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,21 +70,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 137710865,
-          "disk_bytes": 156766208,
-          "entries": 7945,
+          "bytes": 119608114,
+          "disk_bytes": 140828672,
+          "entries": 8900,
           "builds": 1,
-          "reuses": 10
+          "reuses": 2
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "bed23dce535f2dcea67328f79cb401265418a59f127b0062f32fec634e6383fb",
-        "opened": "2026-10-01T19:39:02",
-        "last_red": "2026-10-01T22:17:07",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-launchers",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

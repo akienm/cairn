@@ -781,5 +781,175 @@
     "note": "PROVED. THE DEFECT, in one sentence a year from now will still parse: setsid detaches a terminal and does nothing whatever to a cgroup, so the ground loop the launcher started lived inside the session's own scope and died with the window. Measured before the fix, not suspected — the kernel reported ONE cgroup string for both loop and caller, and the beat counter froze at 1 the instant the caller's tree was killed. THE FIX: a transient user unit via systemd-run --user, so the process is forked and owned by the manager. THE PREDICATE THAT MAKES IT CHECKABLE, and the part worth carrying to other problems: a '.scope' is a cgroup built AROUND processes someone else forked, so its lifetime is the forker's; a '.service' is one the manager forked and owns. Green is 'service', red is 'scope'. That is why the probe needs no list of what counts as a terminal — konsole, tmux, sshd, and whatever ships next all fall out of the second clause without ever being named, and the watch cannot go stale against a terminal nobody thought of. The chart raised the enumeration problem as an open unknown; it dissolved rather than being solved. THREE THINGS THE SHAPE COSTS, each non-obvious and each now in the charter: SuccessExitStatus=3 because the singleton guard's loser exits 3 BY DESIGN and a nonzero exit leaves a transient unit loaded in 'failed', holding its own name against every later launch; --setenv=HOME and --setenv=PATH because systemd-run hands the unit the MANAGER's environment, not the caller's, and a PATH without ~/.cairn/venv/bin is a loop that cannot import itself; and a HELD NAME must never fall through to the setsid spawn, because that spawn would be a second claimant racing the first (ticket the-beater-holds-the-claim). Only an UNREACHABLE systemd is a fall-through. RESHAPED MID-BUILD BY ITS OWN COST MEASUREMENT. The ticket's falsifier lists DELAY as wrong intent, so the first working draft's three round trips to the manager were attacked down to one. The liveness probe is gone because THE START ATTEMPT IS THE PROBE — and that is the stricter test, not merely the cheaper one: the old shape committed to the systemd path the moment its proxy passed, and a start that then failed left the launch with no loop at all. reset-failed moved to the retry, where the state it clears actually exists. Cost, n=15, arms INTERLEAVED, real launcher driven to exec: setsid 76.1ms median, unit 118.0ms. ~42ms, recorded WITHOUT a gate because one reading is not a threshold. NON-HOLLOW: red first at 16:23 against the unmodified tree at 124442b — exactly 5 of 24 arms failing, the 19 passing including all five prime-directive arms — then green four times, sealed twice under the tester in netns. The kill is a CGROUP kill, not the killpg the chart's own instrument specified: setsid has already left the process group, so a killpg would spare the loop wherever it lived and buy a green that means nothing. FOUR FINDINGS ABOUT THE INSTRUMENTS RATHER THAN THE BUILD, kept because the next voyage inherits them: criterion 1 named the wrong weapon (killpg) for its own claim; criterion 7's grep cannot tell a mention from a read and returns 10 hits for 1 reader; criterion 6 assumed the probe's smoke surface took a pid when it silently ignored one, so the reading it asked for was not performable as written; and a cost harness leaked 14 orphaned loops into this session by cleaning up with 'systemctl stop <unit>' while its own control arm had no unit — the leak then loaded the machine and inflated the very numbers being measured. AND THE CROSSING WAS REFUSED ONCE ON THE WAY HERE, by the build gate, on a defect this voyage did not create: launchers/probes/reported_but_unfixed_floor.py spelled the instance root by hand. Fixed, not triaged — Law 9 has no pre-existing clause. It composes address.resolve now; log_path() is deliberately NOT what it uses, because that indexes by device and 'boot' is the machine's own trail. THE WATCH STANDS AND IS NOT RETIRED BY THIS VOYAGE. The live fire drove the real launcher with a stand-in that exits at once, so outlived_its_spawner came back True against a 70-second-old loop — the FIXTURE meeting 'enough', not a caller dying. The ticket ruled on this in advance: enough is 'at least one caller die while the loop kept beating'. In production the spawner IS the claude session, via exec, and it lives for hours. What the watch is waiting for is a real session's death. TWO DOORS REFUSED THIS CROSSING AND BOTH WERE RIGHT. (1) The harbor's clearance gate: launchers' charter declared its owner only in prose — 'Akien owns the launch contract; CC drafts' — and prose cannot gate, because matching an actor against a 60-character English sentence is a substring scan that goes green for the wrong reason. Added gated_by ['Akien','CC'], which is a TRANSLATION of the sentence already on file and not a new grant, with the reason beside it; recompile gate poked in the same act. (2) Then the seal, correctly: the charter and probe edits moved the source under the proof, so the horizon closed (fingerprint d894ee3b -> 40ccd53c) and the harbor refused to clear onto code that was no longer the code that was proved. Re-ran and re-sealed green at the new fingerprint. That is Law 3 doing exactly its job on my own edits, and it caught them inside the same minute.",
     "at": "2026-08-18T17:03:56",
     "seq": 3
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'c73ad76844b0', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'launchers' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'launchers' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "c73ad76844b0",
+          "component": "launchers",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'c73ad76844b0' is cast",
+        "actual": "named ticket 'c73ad76844b0' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "c73ad76844b0",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/c73ad76844b0-launchers-probes-report-to-the-watch.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c73ad76844b0"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c73ad76844b0"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c73ad76844b0"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c73ad76844b0"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "c73ad76844b0"
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "c73ad76844b0",
+    "actor": "cc",
+    "why": "835b5736bf2b child: rehearsed CLEAN; building the probes' watch receiver",
+    "fingerprint": "28e62e13efa2aaab9509fc8de1e52c04160d9a6a43c41ba56d00a29f73bcd2a3",
+    "at": "2026-10-03T14:26:16",
+    "seq": 4
   }
 ]

@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_bootstrap.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-03T14:26:25",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "proof: the preflight floor — repo=/home/akien/dev/src/cairn\n  PASS  test_the_negative_fixture_is_genuinely_absent\n  PASS  test_verify_refuses_an_absent_venv_and_names_the_repair\n  PASS  test_apply_cannot_fake_a_floor_it_did_not_lay\n  PASS  test_a_finding_never_asserts_a_cause_it_did_not_measure\n  PASS  test_the_report_is_silent_when_the_floor_is_up\n  PASS  test_the_report_is_loud_when_it_is_not\n  PASS  test_the_report_leaves_a_durable_record\n  PASS  test_bootstrap_sets_no_errexit_because_it_is_sourced\n  PASS  test_a_broken_preflight_still_reaches_claude\n  PASS  test_a_working_preflight_adds_nothing_to_the_launch\n  PASS  test_the_live_floor_is_up\n  PASS  test_cairn_imports_from_outside_the_repo\n  PASS  test_the_declared_dependency_is_actually_installed\n  PASS  test_every_third_party_import_is_declared\n  PASS  test_this_proof_wrote_nothing_into_the_real_flight_recorder\n\nall green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_negative_fixture_is_genuinely_absent",
+        "test_verify_refuses_an_absent_venv_and_names_the_repair",
+        "test_apply_cannot_fake_a_floor_it_did_not_lay",
+        "test_a_finding_never_asserts_a_cause_it_did_not_measure",
+        "test_the_report_is_silent_when_the_floor_is_up",
+        "test_the_report_is_loud_when_it_is_not",
+        "test_the_report_leaves_a_durable_record",
+        "test_bootstrap_sets_no_errexit_because_it_is_sourced",
+        "test_a_broken_preflight_still_reaches_claude",
+        "test_a_working_preflight_adds_nothing_to_the_launch",
+        "test_the_live_floor_is_up",
+        "test_cairn_imports_from_outside_the_repo",
+        "test_the_declared_dependency_is_actually_installed",
+        "test_every_third_party_import_is_declared",
+        "test_this_proof_wrote_nothing_into_the_real_flight_recorder"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "a0ac0efe57ca98f5fae98a8f7f0bdc2518d7defa848906e44ebe0a3fa5268afa",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "launchers/proofs/test_bootstrap.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1977713-a0kbil3c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 5,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/preflight.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119609884,
+          "disk_bytes": 140836864,
+          "entries": 8901,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

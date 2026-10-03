@@ -52,7 +52,9 @@ from collections import defaultdict
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "835af7f398ce"
 
 # The namespace ``superclaude`` exports for its own launch. The OVERRIDE and the SEGMENT are
 # this probe's to know — they are the same two things ``launchers/superclaude`` and
@@ -210,7 +212,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

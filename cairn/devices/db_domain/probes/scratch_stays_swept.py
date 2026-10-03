@@ -23,7 +23,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 
 _OWNING_TICKET = "201a37bf1613"
 _ENOUGH_AFTER = timedelta(days=7)
@@ -127,7 +127,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "scratch-stays-swept"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

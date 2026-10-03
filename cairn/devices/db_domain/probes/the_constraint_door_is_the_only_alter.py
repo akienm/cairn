@@ -18,7 +18,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "db059208bbd9"
 
 REPO = Path(__file__).resolve().parents[4]
 STORE = Path("cairn/devices/db_domain/tools/client/store.py")
@@ -139,7 +141,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_heartbeat.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:43:40",
+    "date": "2026-10-02T20:44:58",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=1136972 vs 1136972\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
+      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=1365305 vs 1365305\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -21,6 +21,7 @@
         "one call per trigger per beat",
         "the runner beats and writes its record",
         "the record carries pid, last_run, and the heartbeat state",
+        "the beat record's device list is the rack",
         "recorded and current mtimes name the watched file, unchanged",
         "the triggers called this beat are listed, class and instance level",
         "a second loop exits 3 while one runs and is LIVE",
@@ -43,7 +44,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "688650f2054cc7c199c8d7d46072496a693034bdcffa3ec2b0aa21b1e485ca3f",
+      "source_fingerprint": "c57d142491d5bc7478d86c7f2ecacf3d474f08f0a5f022d5a85ba2ecfe17c0c4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,11 +57,13 @@
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/probe.py"
+        "cairn/tools/base/probe.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-oungxcqg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1363479-ty71ez1o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,11 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91335540,
-          "disk_bytes": 108482560,
-          "entries": 7093,
+          "bytes": 94351965,
+          "disk_bytes": 112357376,
+          "entries": 7423,
           "builds": 1,
-          "reuses": 4
+          "reuses": 15
         }
       }
     },

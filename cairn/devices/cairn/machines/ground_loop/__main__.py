@@ -5,7 +5,8 @@ What it does, all of it (Akien, 2026-09-30):
   - claims the singleton; a second loop exits while one runs and is LIVE;
   - records the mtimes of its own files;
   - each beat: compares them, calls every groundloop/pulse.py and lists the calls, writes
-    one JSON (liveness.json) with the recorded and current mtimes and the calls;
+    one JSON (liveness.json) with the recorded and current mtimes, the calls, and the
+    devices found — the rack's ids (``cairn.tools.rack``, ticket a808e21d646f);
   - COMMAND_EXIT stops it; a changed own file re-execs it in place unless
     COMMAND_DO_NOT_RESTART is set.
 
@@ -41,6 +42,7 @@ from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
 from cairn.devices.cairn.machines.ground_loop.heartbeat import Triggers, changed, mtimes, own_files
 from cairn.tools.liveness.liveness import read_liveness, write_liveness
+from cairn.tools.rack.rack import rack_ids
 
 CADENCE_S = 60.0  # the ruled cadence: once per minute (Akien, 2026-08-22)
 EXIT_ALREADY_RUNNING = 3   # the loser's exit: not 1 (a crash), not 2 (argparse)
@@ -97,7 +99,8 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
     recorded = mtimes(own_files(watch))
     triggers = Triggers()
     state = {"beats": 0, "started": started, "recorded_mtimes": recorded,
-             "current_mtimes": recorded, "changed": [], "triggers": []}
+             "current_mtimes": recorded, "changed": [], "triggers": [],
+             "devices": rack_ids(class_root)}
     write_liveness(_now(), state, os.getpid(), home)
 
     stop = threading.Event()
@@ -110,7 +113,7 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
         calls = triggers.fire(now, pulse_sites(class_root, instance_home))
         state = {"beats": state["beats"] + 1, "started": started,
                  "recorded_mtimes": recorded, "current_mtimes": current,
-                 "changed": diff, "triggers": calls}
+                 "changed": diff, "triggers": calls, "devices": rack_ids(class_root)}
         write_liveness(_now(), state, os.getpid(), home)
         if (home / COMMAND_EXIT).exists():
             break

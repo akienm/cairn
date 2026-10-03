@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_bounce_answers_the_request_that_bore_it.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T16:45:51",
+    "date": "2026-10-02T20:50:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.15s",
+      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.13s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to",
@@ -22,7 +22,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3ac03906546afc9f4fb23cdd4ca9e73eec5a17bdc1eddd0ea2c759200f8418d7",
+      "source_fingerprint": "2d136b649b895ea1d59a8311fc5038248942eab3b75e1d81e6ce9eec3bbe8190",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -58,6 +58,8 @@
         "cairn/tools/liveness/liveness.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "cairn/tools/validation_store/__init__.py",
@@ -65,31 +67,31 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1266864-ew_olyzk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1363479-vlhrkjni/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 10,
           "paths": [
             "devices/one_verb_device_60cc/0/last_known.json",
             "devices/tester/0/last_known.json",
-            "logs/bus/0/20261002.224550.696341.BusDevice.post.json",
-            "logs/bus/0/20261002.224550.725153.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261002.224550.739110.BusDevice.post.json",
-            "logs/bus/0/20261002.224550.753292.BusDevice.post.json",
-            "logs/bus/0/20261002.224550.754792.BusDevice.delivered.json",
-            "logs/bus/0/20261002.224550.754914.BusDevice.delivered.json",
+            "logs/bus/0/20261003.025047.945968.BusDevice.post.json",
+            "logs/bus/0/20261003.025047.971621.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.025047.984886.BusDevice.post.json",
+            "logs/bus/0/20261003.025047.998164.BusDevice.post.json",
+            "logs/bus/0/20261003.025047.999502.BusDevice.delivered.json",
+            "logs/bus/0/20261003.025047.999657.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261002.224550.754597.TesterShim.bounce_sent.json"
+            "logs/tester/0/20261003.025047.999322.TesterShim.bounce_sent.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 93466833,
-          "disk_bytes": 111243264,
-          "entries": 7337,
+          "bytes": 94355793,
+          "disk_bytes": 112390144,
+          "entries": 7435,
           "builds": 1,
-          "reuses": 34
+          "reuses": 47
         }
       }
     },

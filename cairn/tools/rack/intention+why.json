@@ -1,0 +1,37 @@
+{
+  "component": "rack",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "path reader",
+  "public_interface": [
+    "cairn.tools.rack.rack"
+  ],
+  "what": "Which devices exist, read from folder names alone. rack(root=None) returns [(device_id, folder, shim_path_or_None)] sorted, one per folder directly under <root>/cairn/devices/ (names starting '_' or '.', and __pycache__, are not devices; a missing devices folder is an empty rack); rack_ids(root=None) is its ids; shim_of(name, root=None) is the shim.py that answers mail to name — cairn/devices/<name>/shim.py, else the one cairn/devices/<d>/machines/<name>/shim.py, else None; repo_root() is the class-space root derived from the tool's own address.",
+  "why": "A probes/ folder made anything a device: measured 2026-09-30 that rule named 42 'devices' — tools such as base, question and artifact among them — against 13 rack folders, so the nav, the sleep rotation and the roster all listed things that are not processes. Akien 2026-08-13: 'a DEVICE is a top level thingie. it's it's own process ... it goes in the rack.' The roster has to be the rack, and every user has to read it the same way, without reaching into the cairn device's ground loop to ask (RULE 1). The mail address is a separate question because a held machine (harbor_master, 83 probes post to it) keeps its own shim; narrowing the roster must not cut a delivery address.",
+  "entry": "BUILT by ticket a808e21d646f, 2026-10-03, replacing the probes/-folder walk (ground_loop.discovery.device_folders) for every roster caller.",
+  "invoke": "from cairn.tools.rack.rack import rack_ids, shim_of; rack_ids(); shim_of('harbor_master'). Prove: python3 cairn/tools/rack/proofs/test_the_roster_is_the_rack.py (exit 0 = green).",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it reads folder names on every call and caches nothing. Its history rides ticket a808e21d646f.",
+  "proof": "proofs/test_the_roster_is_the_rack.py — eight teeth for a808e21d646f: rack names only and every device folder, a shimless folder is listed with shim None, nothing outside discovery asks device_folders, the sleep roster is the rack devices whose latest menu carries sleep, the beat record's device list is the rack, no roster import crosses into a device, and mail to a nested machine still finds its own shim.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) reds any reach landing off this tool's declared module. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if rack() names anything that is not a folder directly under cairn/devices, omits one, drops a shimless folder, if any roster caller walks probes/ folders instead, if the module imports device code, or if shim_of stops resolving a held machine's own shim.",
+  "learns": "It does not; the rack is whatever folders stand under cairn/devices at the moment it is asked.",
+  "how_it_learns": "It does not; the rack is whatever folders stand under cairn/devices at the moment it is asked.",
+  "traces_to": [
+    "RULE 1 (encapsulation — reach another component only through its public interface)",
+    "Law 6 (a tool has users, not an owner)",
+    "CLAUDE.md: a device is its own process and goes in the rack"
+  ],
+  "owner": "None — a tool has users (Law 6): deviceness, the bus client's roster and mail walk, probescan, the sleep cycle's token and the ground loop's beat record. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "akien"
+  }
+}

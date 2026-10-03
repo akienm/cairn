@@ -101,11 +101,12 @@ class _Shim(BaseShim):
 
 
 def _members(*names):
-    """A class root holding ``<id>/probes/`` for each name, so the roster lists exactly those.
-    mkdtemp, not a context manager: the roster reads it at serve time, after ``_wired`` returns."""
+    """A class root holding ``cairn/devices/<id>/`` for each name — the rack (ticket
+    a808e21d646f) — so the roster lists exactly those. mkdtemp, not a context manager: the
+    roster reads it at serve time, after ``_wired`` returns."""
     root = Path(tempfile.mkdtemp(prefix="ws-proof-roster-"))
     for name in names:
-        (root / name / "probes").mkdir(parents=True)
+        (root / "cairn" / "devices" / name).mkdir(parents=True)
     return root
 
 

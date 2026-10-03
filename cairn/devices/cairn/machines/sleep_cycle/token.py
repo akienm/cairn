@@ -16,11 +16,13 @@ no verbs) while a verb-less one lands in the device's inbound ``DataRecorder`` t
 the close, so a complete rotation over n devices leaves exactly n+1 records for its cycle_id,
 and "did the rotation complete?" is a read of the feed, never a memory.
 
-THE ROSTER IS OPT-IN BY FILE (D3). The ground loop's roster (``discovery.device_folders``)
-held 43 probes folders on 2026-09-18 and none of them carried a sleep probe; a token handed
-to a device with nothing to answer it would stall at position 0 forever. So the roster here is
-that list FILTERED to folders holding ``SLEEP_PROBE`` — a device joins the rotation by
-berthing that one file and leaves by deleting it, the same physics as the roster itself.
+THE ROSTER IS OPT-IN BY MENU (D3, re-pointed by ticket a808e21d646f). A token handed to a
+device with nothing to answer it would stall at position 0 forever, so the rotation is the
+rack devices (``cairn.tools.rack``) whose LATEST announced verb menu carries ``sleep``. A
+device joins by declaring the verb and leaves by dropping it; its shim publishes the menu
+on its own announce channel at wiring (``BaseShim._announce_menu``). Until a808 a device
+joined by berthing a probe file in a ``probes/`` folder, and the folder walk that read it
+named tools as devices.
 
 THE STANDING CYCLE IS INSTANCE STATE (D4): ``cycle.json`` under the cairn instance, rewritten
 atomically on every change; a mint over an open cycle appends the old one to
@@ -36,13 +38,11 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.devices.cairn.machines.ground_loop.discovery import device_folders
 from cairn.tools.base.address import instance_path
+from cairn.tools.rack.rack import rack_ids
 
-# The one file that puts a device on the sleep rotation — berthed in its probes/ folder,
-# three lines long (cairn/tools/base/mail_probe.py). Named so a reader of the folder can
-# tell what it does without opening it.
-SLEEP_PROBE = "sleeps_when_the_token_arrives.py"
+# The verb that puts a device on the sleep rotation, read from its announced menu.
+SLEEP_VERB = "sleep"
 
 # The body key every hand carries and every answer echoes. The handler results below
 # NEVER carry it: the shim posts a verb's result back to the sender as a reply, which lands
@@ -59,12 +59,26 @@ def _now(now=None) -> str:
 
 # ── the roster ──────────────────────────────────────────────────────────────
 
-def roster(root: Path | None = None) -> list[str]:
-    """Alpha-sorted device ids whose probes/ folder holds ``SLEEP_PROBE`` — read from disk
-    every call, never cached, so the rotation can never hold a device that has left."""
-    ids = {device_id for device_id, folder in device_folders(root)
-           if (Path(folder) / SLEEP_PROBE).is_file()}
-    return sorted(ids)
+def roster(bus, root: Path | None = None) -> list[str]:
+    """Alpha-sorted rack ids whose newest announced verb menu carries ``SLEEP_VERB`` — read
+    from the bus every call, never cached, so the rotation can never hold a device that has
+    left. A record without a ``verbs`` list (the rotation's own hand records) is not a menu;
+    a device that never announced one is off the rotation."""
+    on = []
+    for device in rack_ids(root):
+        verbs = None
+        for rec in bus.read(to=device, channel="announce"):
+            body = rec.get("body")
+            if isinstance(body, str):
+                try:
+                    body = json.loads(body)
+                except ValueError:
+                    continue
+            if isinstance(body, dict) and isinstance(body.get("verbs"), list):
+                verbs = body["verbs"]
+        if verbs is not None and SLEEP_VERB in verbs:
+            on.append(device)
+    return on
 
 
 # ── the standing cycle ──────────────────────────────────────────────────────
@@ -119,7 +133,7 @@ def mint(bus, *, roots: dict | None = None, roster_root: Path | None = None, now
         d.mkdir(parents=True, exist_ok=True)
         with open(d / "superseded.jsonl", "a", encoding="utf-8") as fh:
             fh.write(json.dumps({**old, "superseded_at": _now(now)}, sort_keys=True) + "\n")
-    cycle = {"cycle_id": uuid.uuid4().hex, "roster": roster(roster_root), "position": 0,
+    cycle = {"cycle_id": uuid.uuid4().hex, "roster": roster(bus, roster_root), "position": 0,
              "visited": [], "opened_at": _now(now), "closed_at": None, "closed_by": None}
     if cycle["roster"]:
         _hand(bus, cycle)

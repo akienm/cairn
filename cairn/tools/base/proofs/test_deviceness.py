@@ -1,24 +1,25 @@
 """Proof for DEVICE-NESS — the ruled predicate, and the probe that makes its divergence loud.
 
 Ticket ``device-ness-is-decided-at-the-shim``. Akien ruled the axis on 2026-08-11: a shim
-fits TO the device, and the unit is the FOLDER — a device is a directory with a ``probes/``
-subdirectory, its id the directory's own name. This proof holds the pieces to that ruling.
+fits TO the device, and the unit is the FOLDER — since ticket a808e21d646f, a folder directly
+under ``cairn/devices/`` (the rack), its id the folder's own name. This proof holds the pieces
+to that ruling.
 
 Teeth a hollow build could not pass:
 
-  - THE CALIBRE TOOTH, ON A FIXTURE THIS FILE BUILDS. A directory with a ``probes/`` folder,
+  - THE CALIBRE TOOTH, ON A FIXTURE THIS FILE BUILDS. A rack folder and nothing in it,
     no Python device object, no class, no import of anything in ``cairn`` — the external,
     inheriting-nothing member the old axis could not represent — is a device. This is the
     ticket's falsifier stated as a test rather than as a sentence, and it is run against a
     tree made for it so the pass cannot be an accident of the live corpus.
   - AND THE INVERSE, WHICH IS WHERE A HOLLOW BUILD WOULD PASS: a component that subclasses
-    ``BaseDevice`` and has no ``probes/`` folder is NOT a device. A predicate that quietly
+    ``BaseDevice`` and sits outside the rack is NOT a device. A predicate that quietly
     ORed the two axes together would satisfy every other tooth here and fail this one.
   - IT COMPOSES, IT DOES NOT RE-DERIVE. ``fitted_device_ids`` is checked to agree exactly
-    with ``ground_loop.discovery.device_folders`` on an arbitrary fixture tree — so a second,
+    with ``cairn.tools.rack.rack.rack_ids`` on an arbitrary fixture tree — so a second,
     drifting roster cannot be introduced behind the predicate's back.
   - INVARIANTS, NOT SNAPSHOTS, over live data. The live-corpus teeth assert relationships
-    (every discovered id answers true; the ruled set equals discovery's set; the axes are
+    (every discovered id answers true; the ruled set equals the rack's set; the axes are
     named per component) and never a frozen count. A proof that pinned "19" would go red the
     day the divergence improved — the failure shape where a check reds at the moment its
     condition is satisfied.
@@ -58,27 +59,28 @@ from cairn.tools.base.deviceness import (
     fitted_device_ids,
     is_device,
 )
-from cairn.devices.cairn.machines.ground_loop.discovery import device_folders
+from cairn.tools.rack.rack import rack_ids
 
 
 def _fixture_tree(root: Path) -> None:
     """A tiny corpus built for these teeth: one Calibre-shaped member, one inheritance-only
     member, one member that is both. Written as files because the predicate reads DISK — a
     fixture that monkeypatched the walk would prove the mock, not the rule."""
-    # (1) CALIBRE: a probes/ folder and nothing else. No class, no import, not even Python
-    #     beside it. This is the member the inheritance axis is structurally blind to.
-    (root / "calibre" / "probes").mkdir(parents=True)
+    devices = root / "cairn" / "devices"
+    # (1) CALIBRE: a rack folder and nothing else. No class, no import, not even Python
+    #     inside it. This is the member the inheritance axis is structurally blind to.
+    (devices / "calibre").mkdir(parents=True)
 
-    # (2) INHERITANCE-ONLY: subclasses BaseDevice, owns no probes/ folder.
-    (root / "legacy").mkdir(parents=True)
-    (root / "legacy" / "legacy.py").write_text(
+    # (2) INHERITANCE-ONLY: subclasses BaseDevice, sits outside the rack (a tool).
+    (root / "cairn" / "tools" / "legacy").mkdir(parents=True)
+    (root / "cairn" / "tools" / "legacy" / "legacy.py").write_text(
         "from cairn.tools.base.device import BaseDevice\n\n\nclass LegacyDevice(BaseDevice):\n    pass\n",
         encoding="utf-8",
     )
 
     # (3) BOTH — so the teeth below cannot pass by simply inverting the old axis.
-    (root / "both" / "probes").mkdir(parents=True)
-    (root / "both" / "both.py").write_text(
+    (devices / "both").mkdir(parents=True)
+    (devices / "both" / "both.py").write_text(
         "from cairn.tools.base.device import BaseDevice\n\n\nclass BothDevice(BaseDevice):\n    pass\n",
         encoding="utf-8",
     )
@@ -87,9 +89,8 @@ def _fixture_tree(root: Path) -> None:
 def test_a_calibre_shaped_member_is_a_device():
     """THE TICKET'S FALSIFIER, RUN: external, folder only, inheriting nothing — and it passes."""
     with tempfile.TemporaryDirectory() as tmp:
-        # parents[1] is the root the census walks, so nest one level to mirror cairn/<comp>.
         root = Path(tmp)
-        _fixture_tree(root / "pkg")
+        _fixture_tree(root)
 
         assert is_device("calibre", root=root), "the Calibre shape must be admitted"
         assert "calibre" not in claims_device_by_inheritance(root=root), (
@@ -102,7 +103,7 @@ def test_inheritance_alone_is_not_device_ness():
     two axes would satisfy every other tooth in this file."""
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        _fixture_tree(root / "pkg")
+        _fixture_tree(root)
 
         assert "legacy" in claims_device_by_inheritance(root=root), "fixture check"
         assert not is_device("legacy", root=root), (
@@ -117,10 +118,10 @@ def test_the_predicate_composes_discovery_rather_than_re_deriving_it():
     failure the folder ruling was made to end, one layer up."""
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        _fixture_tree(root / "pkg")
+        _fixture_tree(root)
 
-        assert fitted_device_ids(root) == {d for d, _ in device_folders(root)}, (
-            "the predicate must ANSWER FROM discovery, not agree with it by coincidence"
+        assert fitted_device_ids(root) == set(rack_ids(root)) == {"calibre", "both"}, (
+            "the predicate must ANSWER FROM the rack, not agree with it by coincidence"
         )
 
 

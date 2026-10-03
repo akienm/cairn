@@ -18,6 +18,9 @@ the roster, and the only way to leave the roster is to stop existing.
 
 RETIRED 2026-09-30 — the next paragraph is CC's gloss, never Akien's words, and the
 2026-08-13 decision retired it (a device is a shim + its component; see the bus charter).
+The roster is the rack now: a device is a folder directly under ``cairn/devices/``, read by
+``cairn.tools.rack`` (ticket a808e21d646f). ``device_folders`` only finds the ``probes/``
+folders ``discover()`` arms, and nothing outside discovery asks it which devices exist.
 Probes do not ride the beat at all now ("all probes respond to events"). This module goes
 with the cleanup ticket.
 

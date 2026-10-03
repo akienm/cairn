@@ -3,7 +3,8 @@
 Ticket bf146e9e3967 (token-rotation-mechanism). The falsifier is unnumbered, so this proof
 declares ONE composite tooth against clause ``all`` and it asserts, in one run:
 
-  (1) the roster is the alpha-sorted list of devices holding ``SLEEP_PROBE`` — [a, b, c];
+  (1) the roster is the alpha-sorted list of rack devices whose latest announced menu carries
+      ``sleep`` — [a, b, c] (re-pointed by ticket a808e21d646f: menus, not a probe file);
   (2) after a mint and enough beats the cycle is closed, ``visited`` is exactly [a, b, c] in
       that order, and each fixture device's own recorder holds its one work record;
   (3) at every point at most one device holds an unanswered token;
@@ -11,6 +12,11 @@ declares ONE composite tooth against clause ``all`` and it asserts, in one run:
   (5) an answer carrying a stale cycle_id is refused ``accepted: False`` and the standing
       cycle is untouched;
   (6) an empty roster closes at mint with ``nothing to visit``.
+
+And ticket a808e21d646f's clause 5, at this address because the roster is this component's:
+``token.roster(bus, root)`` is the rack devices whose LATEST announced menu carries ``sleep``
+— three rack folders: one whose menu carries sleep (then a newer verb-less record on its
+channel, skipped), one whose newer menu dropped it, one silent — so the roster is [alpha].
 
 What a hollow build cannot pass (Law 8): a ``token.py`` that never hands (no inbound record
 at a, (2)); one that hands to everyone at once ((3) reads three holders); one that forgets the
@@ -57,6 +63,9 @@ _TICKET = "bf146e9e3967"
 PROVES = {
     "bf146e9e3967": {
         "all": "test_the_token_rotates_through_the_roster_and_returns_to_cairn",
+    },
+    "a808e21d646f": {
+        "5": "test_the_sleep_roster_is_the_rack_devices_whose_latest_menu_carries_sleep",
     },
 }
 
@@ -132,9 +141,10 @@ class FixtureCairnShim(CairnShim):
 
 
 def _fixture_world(tmp: Path) -> tuple[dict, Path]:
-    """Three devices under ``tmp/devices``, each holding the three-line probe."""
+    """Three rack devices under ``tmp/cairn/devices``, each holding the three-line probe (the
+    probe is how a fixture device answers the token; its menu is what puts it on the roster)."""
     for dev in FIXTURE_DEVICES:
-        probes = tmp / "devices" / dev / "probes"
+        probes = tmp / "cairn" / "devices" / dev / "probes"
         probes.mkdir(parents=True)
         (probes / "sleeps_when_the_token_arrives.py").write_text(_SLEEP_PROBE_SOURCE)
     roots = {"repo": tmp, "commons": tmp, "instance": tmp / "instance"}
@@ -159,7 +169,7 @@ def _rig(bus, roots: dict, roster_root: Path):
     loop.hold(cairn_shim)
     boxes = {}
     for dev in reversed(FIXTURE_DEVICES):        # c, b, a — see the module docstring
-        probe_file = roster_root / "devices" / dev / "probes" / "sleeps_when_the_token_arrives.py"
+        probe_file = roster_root / "cairn" / "devices" / dev / "probes" / "sleeps_when_the_token_arrives.py"
         probe = load_module(probe_file).PROBE
         boxes[dev] = FixtureMailbox(dev, roots)
         loop.hold(FixtureShim(dev, boxes[dev], probe, bus=bus))
@@ -200,13 +210,20 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     bus = _SCRATCH.enter_context(BusDevice.scratch("sleep_cycle"))
     loop, cairn_shim, boxes = _rig(bus, roots, roster_root)
 
-    # (1) the roster is read from disk, filtered to the sleep probe, alpha order.
-    assert token.roster(roster_root) == list(FIXTURE_DEVICES), token.roster(roster_root)
     assert token.standing(roots) is None
 
-    # Beat 0 wires every shim's delivery (nothing pending, nothing fires).
+    # Beat 0 wires every shim's delivery (nothing pending, nothing fires). Wiring announces
+    # each fixture shim's own menu, which declares no verbs.
     loop.pulse(NOW, {"roots": roots})
     assert _holders(roots) == [], _holders(roots)
+    assert token.roster(bus, roster_root) == [], token.roster(bus, roster_root)
+
+    # (1) each fixture device declares the sleep verb on its announce channel; the roster is
+    # the rack filtered to the latest menus carrying it, alpha order.
+    for dev in reversed(FIXTURE_DEVICES):
+        bus.post(sender=dev, to=dev, channel="announce", why="fixture menu: joins the rotation",
+                 body={"verbs": ["sleep", "sleep-token"]})
+    assert token.roster(bus, roster_root) == list(FIXTURE_DEVICES), token.roster(bus, roster_root)
 
     # Mint through the operator's verb on the bus — the hand lands inside post() (the bus
     # pokes a's shim at post time), and the reply to us rides personal.
@@ -275,7 +292,7 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     # (6) an empty roster closes at mint with "nothing to visit" — one announce record.
     empty_root = Path(_SCRATCH.enter_context(tempfile.TemporaryDirectory(prefix="sleep_cycle_empty_")))
     empty_roots = {"repo": empty_root, "commons": empty_root, "instance": empty_root / "instance"}
-    assert token.roster(empty_root) == []
+    assert token.roster(bus, empty_root) == []
     nothing = token.mint(bus, roots=empty_roots, roster_root=empty_root)
     assert nothing["roster"] == [] and nothing["closed_by"] == "nothing to visit", nothing
     assert [e["body"]["event"] for e in _announces(bus, nothing["cycle_id"])] == ["closed"]
@@ -284,11 +301,33 @@ def test_the_token_rotates_through_the_roster_and_returns_to_cairn():
     print("  green: rotation a->b->c closed in 3 beats, 4 announce records, stale/out-of-turn refused, empty roster closes")
 
 
+def test_the_sleep_roster_is_the_rack_devices_whose_latest_menu_carries_sleep() -> None:
+    import time
+    from cairn.devices.cairn.machines.sleep_cycle import token
+
+    root = Path(_SCRATCH.enter_context(tempfile.TemporaryDirectory(prefix="a808-the-sleep-roster-is-announced-")))
+    for name in ("alpha", "beta", "gamma"):
+        (root / "cairn" / "devices" / name).mkdir(parents=True)
+    bus = _SCRATCH.enter_context(BusDevice.scratch(prefix="a808_sleep_roster"))
+
+    def menu(dev, body):
+        bus.post(sender=dev, to=dev, channel="announce", why="a808 proof: a scratch menu", body=body)
+        time.sleep(0.01)
+
+    menu("alpha", {"verbs": ["show", "sleep"]})
+    menu("beta", {"verbs": ["show", "sleep"]})
+    menu("beta", {"verbs": ["show"]})                  # beta's latest menu dropped sleep
+    menu("alpha", {"cycle_id": "c0", "kind": "hand"})  # verb-less: skipped
+    # gamma announces nothing: not on the bus, so not on the rotation
+    got = token.roster(bus, root)
+    assert got == ["alpha"], got
+
+
 def _run_all() -> int:
     rc = 0
     try:
-        for k in sorted(PROVES[_TICKET]):
-            t = globals()[PROVES[_TICKET][k]]
+        for tid, k in sorted((tid, k) for tid in PROVES for k in PROVES[tid]):
+            t = globals()[PROVES[tid][k]]
             try:
                 t()
                 print(f"  PASS  {t.__name__}")

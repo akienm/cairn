@@ -2,7 +2,7 @@
   {
     "claim": "proof test_web_server_chat.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:41:45",
+    "date": "2026-10-02T20:50:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,14 +27,10 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "7b24f6a4c984234ac1b9d6f97d8487b008d05be25dcbf1488be077e915cda33f",
+      "source_fingerprint": "452a75c8ae50083b836c7c3e589da234ca8cfe14166a0bfaddb7ff9ed98c4f8a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -42,8 +38,6 @@
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/shim.py",
-        "cairn/devices/librarian/tools/__init__.py",
-        "cairn/devices/librarian/tools/trees/__init__.py",
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/devices/web_server/__init__.py",
         "cairn/devices/web_server/proofs/test_web_server_chat.py",
@@ -69,6 +63,8 @@
         "cairn/tools/gate/gate.py",
         "cairn/tools/liveness/__init__.py",
         "cairn/tools/liveness/liveness.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
@@ -76,22 +72,23 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1132427-qpek6r2y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1363479-icyeelny/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 2,
           "paths": [
-            "devices/librarian/0/last_known.json"
+            "devices/librarian/0/last_known.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91312557,
-          "disk_bytes": 108457984,
-          "entries": 7087,
+          "bytes": 94355441,
+          "disk_bytes": 112361472,
+          "entries": 7424,
           "builds": 1,
-          "reuses": 22
+          "reuses": 45
         }
       }
     },

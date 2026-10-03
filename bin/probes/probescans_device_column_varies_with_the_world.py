@@ -68,15 +68,16 @@ def _load_probescan():
 
 
 def _sample_column() -> dict:
-    """Build the device column by composing can_receive for each discovered device.
+    """Build the device column by composing can_receive for each rack device.
 
     Returns ``{device_id: rung_string}`` — the same data probescan's receive
-    column carries, built from the same function.
+    column carries, built from the same function. The devices are the rack's
+    (``cairn.tools.rack``, ticket a808e21d646f), not every owner of a probes/ folder.
     """
     probescan = _load_probescan()
-    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders
+    from cairn.tools.rack.rack import rack_ids
 
-    devices = sorted({d for d, _ in device_folders(_REPO_ROOT)})
+    devices = rack_ids(_REPO_ROOT)
     return {d: probescan.can_receive(d, _REPO_ROOT)["rung"] for d in devices}
 
 

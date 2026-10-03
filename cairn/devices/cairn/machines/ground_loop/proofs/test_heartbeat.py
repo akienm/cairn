@@ -12,6 +12,11 @@ The whole of what the loop does, each clause a tooth:
      mtimes, and the triggers called;
   5. a second loop exits (3) while one runs and is LIVE.
 
+And ticket a808e21d646f's clause 6, at this address because the beat record is this
+component's: the record's state carries ``devices``, the rack's ids under its class root
+(``cairn.tools.rack``) — a fixture rack of two folders, so neither a missing key nor a
+constant reads green.
+
 WHY TOOTH 1 READS THE REAL FOLDER. The old predicate (bytecode comparison, staleness.py)
 called an untouched tree stale on Python 3.14 and restarted the loop 61 times. The new
 predicate is an mtime compare, and the proof runs it over the loop's own real folder on
@@ -50,6 +55,8 @@ PROVES = {"bae622881f03": {
     "7": "a second loop exits 3 while one runs and is LIVE",
     "8": "the loop carries no probes of its own",
     "9": "the charter describes only the heartbeat",
+}, "a808e21d646f": {
+    "6": "the beat record's device list is the rack",
 }}
 FAILURES: list[str] = []
 CADENCE = 0.3   # the fixture runner's cadence; the live one is 60s
@@ -200,6 +207,8 @@ def teeth_runner() -> None:
         watch = td / "watch"
         watch.mkdir()
         (watch / "loop_file.py").write_text("")
+        for dev in ("rack_one", "rack_two"):
+            (class_root / "cairn" / "devices" / dev).mkdir(parents=True)
         src = _runner_src(td, class_root, watch)
         proc = _spawn(src)
         try:
@@ -216,6 +225,11 @@ def teeth_runner() -> None:
             ok("the record carries pid, last_run, and the heartbeat state",
                rec.get("pid") == proc.pid and "last_run" in rec and want <= set(st),
                f"missing={sorted(want - set(st))}")
+            from cairn.tools.rack.rack import rack_ids
+            want_rack = rack_ids(class_root)
+            ok("the beat record's device list is the rack",
+               st.get("devices") == want_rack == ["rack_one", "rack_two"],
+               f"record devices={st.get('devices')} rack={want_rack}")
             ok("recorded and current mtimes name the watched file, unchanged",
                list(st.get("recorded_mtimes", {})) == [str(watch / "loop_file.py")]
                and st.get("changed") == [], f"changed={st.get('changed')}")

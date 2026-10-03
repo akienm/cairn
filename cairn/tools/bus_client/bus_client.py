@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Class-space root, derived from this file's own address (cairn/tools/bus_client/bus_client.py →
 # three parents up). Never configured: a tool is discovered-from where it is installed, the
-# same rule ``discovery.repo_root`` states for the ground loop.
+# same rule ``cairn.tools.rack.rack.repo_root`` states for the rack.
 _CLASS_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -148,38 +148,26 @@ def models_stack() -> dict:
 
 
 def _device_shim_module(device_name: str) -> str | None:
-    """The dotted module path of ``<device folder>/shim.py``, found the way DISCOVERY
-    finds a device — by walking class-space, not by assuming a shape.
+    """The dotted module path of the ``shim.py`` that answers mail to ``device_name`` —
+    ``cairn.tools.rack.rack.shim_of``: the device's own ``cairn/devices/<name>/shim.py``,
+    else a held machine's ``cairn/devices/<d>/machines/<name>/shim.py``.
 
     THE MEASUREMENT THAT BORE IT (2026-09-09, ticket 8754ae677af6): ``reach("harbor_master")``
-    raised ``LookupError``, and the reason was that this loader spelled the address
-    ``cairn.devices.<name>.shim`` while ``discovery.device_folders`` derives a device_id from
-    the parent of ANY ``probes/`` folder at ANY depth. The two disagreed about exactly one
-    device and it was the harbor: ``harbor_master`` is a machine held by the ``cairn`` device,
-    so its shim sits at ``cairn/devices/cairn/machines/harbor_master/shim.py``. Discovery saw
-    a device there; this loader could not, so the concrete ``HarborMasterShim`` had zero
-    callers and the harbor was fronted on every beat by a generic ``DiscoveredShim`` whose
-    ``_FeedbackDevice`` declares no verbs. Thirteen probes posting ``to="harbor_master"`` were
-    landing in a mailbox, and the device's own ``crossing`` verb was unreachable over the bus.
+    raised ``LookupError`` because this loader spelled the address
+    ``cairn.devices.<name>.shim``, and ``harbor_master`` is a machine held by the ``cairn``
+    device, its shim at ``cairn/devices/cairn/machines/harbor_master/shim.py``. Probes posting
+    ``to="harbor_master"`` landed in a mailbox and its ``crossing`` verb was unreachable.
 
-    So the rule is discovery's rule, stated once here too: **the folder that holds the
-    device's ``probes/`` is the folder that holds its ``shim.py``**, wherever that folder
-    sits. The common case still resolves without touching disk — the walk is the fallback,
-    not the path.
+    The mail address is NOT the roster (ticket a808e21d646f): a held machine is not a rack
+    device, yet 83 probes post to it (measured 2026-10-03), so the address book is wider than
+    the rack on purpose and narrowing the roster must not cut a delivery address.
     """
-    common = f"cairn.devices.{device_name}.shim"
-    if (_CLASS_ROOT / "cairn" / "devices" / device_name / "shim.py").is_file():
-        return common
-    from cairn.devices.cairn.machines.ground_loop import discovery
+    from cairn.tools.rack.rack import shim_of
 
-    for device_id, folder in discovery.device_folders(_CLASS_ROOT):
-        if device_id != device_name:
-            continue
-        shim_file = folder.parent / "shim.py"
-        if shim_file.is_file():
-            rel = shim_file.relative_to(_CLASS_ROOT).with_suffix("")
-            return ".".join(rel.parts)
-    return None
+    shim_file = shim_of(device_name, _CLASS_ROOT)
+    if shim_file is None:
+        return None
+    return ".".join(shim_file.relative_to(_CLASS_ROOT).with_suffix("").parts)
 
 
 def _load_device_shim(device_name: str, bus):

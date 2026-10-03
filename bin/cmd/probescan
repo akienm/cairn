@@ -155,30 +155,29 @@ def scan_probes(root: Path, devices: set[str]) -> list[dict]:
 
 
 def _find_shim_class(device_id: str, root: Path):
-    """Find the registered shim class for a device from its ``shim.py`` on disk.
+    """Find the registered shim class for a device from the ``shim.py`` that answers its mail.
 
     The same preference ``DeviceRoster.shim_for`` performs — a held or concrete
-    shim takes precedence over a DiscoveredShim — borrowed as a disk convention: a
-    device whose directory holds a ``shim.py`` with a ``BaseShim`` subclass has a
-    registered shim. Returns the class, or ``None``.
+    shim takes precedence over a DiscoveredShim — and the same address:
+    ``cairn.tools.rack.rack.shim_of``, which finds a held machine's shim too (ticket
+    a808e21d646f). A ``shim.py`` with a ``BaseShim`` subclass is a registered shim.
+    Returns the class, or ``None``.
     """
-    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders, load_module
+    from cairn.devices.cairn.machines.ground_loop.discovery import load_module
     from cairn.tools.base.shim import BaseShim
+    from cairn.tools.rack.rack import shim_of
 
-    for did, folder in device_folders(root):
-        if did != device_id:
-            continue
-        shim_path = folder.parent / "shim.py"
-        if not shim_path.is_file():
-            continue
-        try:
-            mod = load_module(shim_path)
-        except Exception:  # noqa: BLE001
-            continue
-        for attr_name in dir(mod):
-            obj = getattr(mod, attr_name)
-            if isinstance(obj, type) and issubclass(obj, BaseShim) and obj is not BaseShim:
-                return obj
+    shim_path = shim_of(device_id, root)
+    if shim_path is None:
+        return None
+    try:
+        mod = load_module(shim_path)
+    except Exception:  # noqa: BLE001
+        return None
+    for attr_name in dir(mod):
+        obj = getattr(mod, attr_name)
+        if isinstance(obj, type) and issubclass(obj, BaseShim) and obj is not BaseShim:
+            return obj
     return None
 
 
@@ -207,7 +206,7 @@ def can_receive(device_id: str, root: Path | None = None) -> dict:
     re-implemented — and falls back to ``DISCOVERED_ONLY`` only when no registered shim
     exists. Each failure is the REAL exception from the REAL code, not a guess about it.
     """
-    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root
+    from cairn.tools.rack.rack import repo_root
 
     root = Path(root) if root is not None else repo_root()
     result = {"device": device_id, "rung": NO_SHIM, "detail": None, "shim_class": None}
@@ -335,10 +334,12 @@ def scan_mail(devices: set[str]) -> dict:
 
 def scan(root: Path | None = None) -> dict:
     """The whole check. Importable, so a future standing watch composes it (Law 1)."""
-    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders, repo_root
+    from cairn.tools.rack.rack import rack_ids, repo_root
 
     root = Path(root) if root is not None else repo_root()
-    devices = {d for d, _ in device_folders(root)}
+    # The devices a probe may be owned by or addressed to: every owner of a probes/ folder
+    # (the folders discovery arms) and every rack device (ticket a808e21d646f).
+    devices = {p.parent.parent.name for p in probe_modules(root)} | set(rack_ids(root))
 
     probes = scan_probes(root, devices)
 

@@ -8,9 +8,8 @@ thing it talks to.
 CORRECTED 2026-09-30: this header used to set a second line beside that one as his words —
 "a device is a directory with a ``probes/`` subdirectory". Those were CC's gloss, not his;
 the 2026-08-13 decision (``CairnCommons/decisions/2026-08-13-a-device-is-its-own-process-and-
-the-roster-is-sorted.json``) retired the probes/ folder as the registration path. The code
-below still reads membership from ground_loop discovery — the probes/ rule — and so still
-counts tools as devices; that is the gap, not the design.
+the-roster-is-sorted.json``) retired the probes/ folder as the registration path. Since
+ticket a808e21d646f membership is the rack: a folder directly under ``cairn/devices/``.
 
 WHY THIS FILE EXISTS AT ALL. Device-ness was decided by INHERITANCE — a thing was a device
 if it subclassed ``BaseDevice`` — and that axis cannot see an external device. Calibre was a
@@ -21,14 +20,12 @@ device-ness by reading ``BaseDevice`` inheritance TWICE. A rule that loses to a 
 one session is not a rule yet (Law 4) — so it is a function now, and the function is the
 rule.
 
-THIS COMPOSES, IT DOES NOT RE-DERIVE. Membership is ``cairn.devices.cairn.machines.ground_loop.discovery``'s to
-know: it is the mechanism Akien ruled, it shipped, and it is what the running loop actually
-fits shims to (``loop.py::_reconcile``). Asking it here is Law 1 — the answered question
-became structure, and a second parallel roster would be exactly the failure the folder rule
-was ruled to end. The import is DEFERRED into the call rather than taken at module level
-because ``ground_loop`` imports ``base``: the dependency genuinely points that way, and the
-lazy import is the honest way to say "base asks ground_loop" without inverting a layering
-that three live charters are red on.
+THIS COMPOSES, IT DOES NOT RE-DERIVE. Membership is ``cairn.tools.rack``'s to know: the
+roster is the rack, read from folder names alone by one tool every caller uses (ticket
+a808e21d646f). Asking it here is Law 1 — the answered question became structure, and a
+second parallel roster would be exactly the failure the folder rule was ruled to end. Until
+a808 this asked ground_loop's probes/ walk, which named 42 "devices" (tools such as base,
+question and artifact among them) against 13 rack folders, measured 2026-09-30.
 
 CLAUSE 1 ONLY, AND THE OTHER CLAUSE IS DECLARED, NOT OMITTED. The ticket's falsifier names
 TWO clauses: a shim is fitted (this), AND the thing answers a health query over the bus.
@@ -65,15 +62,14 @@ HEALTH_QUERY_CLAUSE = (
 
 
 def fitted_device_ids(root: Path | str | None = None) -> set[str]:
-    """The device roster, as the running loop knows it — the ruled predicate, RUN.
+    """The device roster — the rack, the ruled predicate, RUN.
 
-    Composed from ``cairn.devices.cairn.machines.ground_loop.discovery.device_folders``, never reimplemented: the
-    folder walk, its pruning, and its ``probes/`` convention are ground_loop's to own, and a
-    second copy here would drift from the one the beat actually uses.
+    Composed from ``cairn.tools.rack.rack.rack_ids``, never reimplemented: which folders
+    are devices is the rack tool's to know, and a second copy here would drift from it.
     """
-    from cairn.devices.cairn.machines.ground_loop.discovery import device_folders  # deferred: ground_loop imports base
+    from cairn.tools.rack.rack import rack_ids
 
-    return {device_id for device_id, _folder in device_folders(root)}
+    return set(rack_ids(root))
 
 
 def is_device(candidate: str, root: Path | str | None = None) -> bool:
@@ -88,6 +84,22 @@ def is_device(candidate: str, root: Path | str | None = None) -> bool:
     it is the whole point — see ``divergence()``.
     """
     return candidate in fitted_device_ids(root)
+
+
+_TIERS = {"devices", "tools", "machines"}
+
+
+def _component_of(rel: Path, path: Path) -> str:
+    """The component a file belongs to: the folder after the first tier folder
+    (``devices``/``tools``/``machines``) in its path, else the second path part. Measured
+    2026-10-03 (a808e21d646f): taking ``parts[1]`` alone named the TIERS — ``devices`` for
+    every BaseDevice, ``devices``/``tools`` for every BaseShim — once the repo nested
+    components under tier folders, so the inheritance axis named no component at all."""
+    parts = rel.parts
+    for i, part in enumerate(parts[:-2]):
+        if part in _TIERS:
+            return parts[i + 1]
+    return parts[1] if len(parts) > 1 else path.stem
 
 
 def _class_census(root: Path, base_name: str) -> dict[str, list[str]]:
@@ -114,7 +126,7 @@ def _class_census(root: Path, base_name: str) -> dict[str, list[str]]:
                 name = base.attr if isinstance(base, ast.Attribute) else getattr(base, "id", None)
                 if name == base_name:
                     rel = path.relative_to(root)
-                    component = rel.parts[1] if len(rel.parts) > 1 else path.stem
+                    component = _component_of(rel, path)
                     hits.setdefault(component, []).append(f"{rel}::{node.name}")
     return hits
 
@@ -125,7 +137,7 @@ def claims_device_by_inheritance(root: Path | str | None = None) -> set[str]:
     Kept because the divergence is the finding. Deleting the old measure would make the two
     axes agree by making one of them unaskable.
     """
-    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root  # deferred, same reason as above
+    from cairn.tools.rack.rack import repo_root
 
     root = Path(root) if root is not None else repo_root()
     return set(_class_census(root, "BaseDevice"))
@@ -134,12 +146,12 @@ def claims_device_by_inheritance(root: Path | str | None = None) -> set[str]:
 def has_fitted_shim_class(root: Path | str | None = None) -> set[str]:
     """Components declaring a ``BaseShim`` subclass — the in-Python half of "a shim fits to it".
 
-    A THIRD number, and not a synonym for ``fitted_device_ids``: a discovered device may have
-    no Python shim at all (``DiscoveredShim`` is fitted TO it by the loop, at ``ground_loop``'s
-    address, not at the device's). That gap is precisely what makes a Calibre-shaped member
+    A THIRD number, and not a synonym for ``fitted_device_ids``: a rack device may have no
+    Python shim at all (``DiscoveredShim`` is fitted TO it by the bus client's roster, from
+    ``ground_loop``'s address, not the device's). That gap is precisely what makes a Calibre-shaped member
     representable, so the two are reported separately rather than reconciled into one count.
     """
-    from cairn.devices.cairn.machines.ground_loop.discovery import repo_root  # deferred, same reason as above
+    from cairn.tools.rack.rack import repo_root
 
     root = Path(root) if root is not None else repo_root()
     return set(_class_census(root, "BaseShim"))

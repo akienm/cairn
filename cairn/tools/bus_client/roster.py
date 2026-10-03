@@ -11,7 +11,7 @@ private one, and nothing else:
     record. It never counts beats itself; the heartbeat is the only thing that beats.
   * ``shim_for(name)`` — a device's shim, loaded from disk the first time it is asked for: the
     concrete ``<device folder>/shim.py`` when there is one, else a ``DiscoveredShim`` fronting
-    the device's ``probes/`` folder. Every answer found is held.
+    the rack device's ``probes/`` folder. Every answer found is held.
   * ``hold(shim)`` / ``pulse(now)`` — the shims a client wires, pulsed once, in the order held.
     A pulse wires each shim's delivery; it is not a heartbeat and it has no cadence.
 """
@@ -58,16 +58,18 @@ class DeviceRoster:
         return shim
 
     def _discovered(self, name: str):
+        """A ``DiscoveredShim`` fronting a rack device's ``probes/`` folder, or None when
+        ``name`` is not in the rack (ticket a808e21d646f)."""
         from cairn.tools.base.deviceness import fitted_device_ids
 
         if name not in fitted_device_ids(self._root):
             return None
-        from cairn.devices.cairn.machines.ground_loop import discovery
         from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
+        from cairn.tools.rack.rack import rack
 
-        for device_id, folder in discovery.device_folders(self._root):
+        for device_id, folder, _shim in rack(self._root):
             if device_id == name:
-                return DiscoveredShim(name, str(folder), bus=self._bus)
+                return DiscoveredShim(name, str(folder / "probes"), bus=self._bus)
         return None
 
     # --- the nav ------------------------------------------------------------

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T19:41:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-02T20:51:22",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f8af94d973ae4b547f86b268b4f880b18763d06e97885cffabe3dfafbfcd65b5",
+      "source_fingerprint": "37adab417298a573f14ffe804f38c2af60bb3d31e40ad9b0ad6ef654ed04c851",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -35,7 +35,6 @@
         "cairn/devices/cairn/machines/bus/bus.py",
         "cairn/devices/cairn/machines/bus/shim.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/shim.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
@@ -59,75 +58,36 @@
         "cairn/tools/instanceizer/instanceizer.py",
         "cairn/tools/liveness/__init__.py",
         "cairn/tools/liveness/liveness.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1343275-27bydxtw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1363479-wsu0pdgf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 8,
           "paths": [
             "devices/ground_loop/0/last_known.json",
-            "logs/bus/0/20261003.014143.925087.BusDevice.post.json",
-            "logs/bus/0/20261003.014143.951467.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.014143.961307.BusDevice.post.json",
-            "logs/bus/0/20261003.014143.971627.BusDevice.post.json",
-            "logs/bus/0/20261003.014143.972673.BusDevice.delivered.json",
-            "logs/bus/0/20261003.014143.972800.BusDevice.delivered.json"
+            "logs/bus/0/20261003.025122.256288.BusDevice.post.json",
+            "logs/bus/0/20261003.025122.287714.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.025122.300044.BusDevice.post.json",
+            "logs/bus/0/20261003.025122.312364.BusDevice.post.json",
+            "logs/bus/0/20261003.025122.313641.BusDevice.delivered.json",
+            "logs/bus/0/20261003.025122.313789.BusDevice.delivered.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 93675663,
-          "disk_bytes": 111628288,
-          "entries": 7394,
+          "bytes": 94358853,
+          "disk_bytes": 112390144,
+          "entries": 7432,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "efb670ff1dd8": {
-          "cairn/tools/bus_client/roster.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "reach of the heartbeat's own shim answers a request",
-            "the three faces never import the old loop module",
-            "the web server's start holds no heartbeat shim of its own"
-          ],
-          "cairn/tools/liveness/liveness.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/shim.py": [
-            "loop.py and staleness.py are gone and nothing names them",
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/tools/bus_client/bus_client.py": [
-            "connect_system's roster lists exactly the deviceness members",
-            "loop.py and staleness.py are gone and nothing names them",
-            "reach of the heartbeat's own shim answers a request",
-            "the three faces never import the old loop module",
-            "the web server's start holds no heartbeat shim of its own"
-          ],
-          "cairn/devices/web_server/listener.py": [
-            "the web server's start holds no heartbeat shim of its own"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/probes/__init__.py": [
-            "reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/discovered.py": [
-            "loop.py and staleness.py are gone and nothing names them"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "efb670ff1dd8": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "3373c0ff40f08c2c0bcc04c2354077402c74a5bf",
-          "anchor_first_build": "2a99235e23ffd3bc579b483e791a54fbcae6ec94",
-          "commit": "1923f2548f62cca6a26210228717f9001c7cfc12"
+          "reuses": 52
         }
       }
     },

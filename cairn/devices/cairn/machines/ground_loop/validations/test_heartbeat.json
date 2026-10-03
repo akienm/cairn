@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_heartbeat.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T20:44:58",
+    "caller": "cairn test",
+    "date": "2026-10-02T20:52:51",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=1365305 vs 1365305\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
+      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=1373412 vs 1373412\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -63,7 +63,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1363479-ty71ez1o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1373387-rrdteonj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,11 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 94351965,
-          "disk_bytes": 112357376,
-          "entries": 7423,
+          "bytes": 94471750,
+          "disk_bytes": 112521216,
+          "entries": 7443,
           "builds": 1,
-          "reuses": 15
+          "reuses": 0
         }
       }
     },

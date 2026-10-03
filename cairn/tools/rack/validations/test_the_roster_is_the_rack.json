@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_the_roster_is_the_rack.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T20:52:42",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "the device roster is the rack\n  ok   rack names only folders directly under cairn/devices\n         -> names=['alpha', 'beta', 'gamma'] stray=[]\n  ok   rack omits no device folder\n         -> names=['alpha', 'beta', 'gamma']\n  ok   a shimless device folder is listed with shim None\n         -> gamma=('gamma', PosixPath('/tmp/a808-the-roster-is-the-rack-ys03thvb/cairn/devices/gamma'), None) alpha=('alpha', PosixPath('/tmp/a808-the-roster-is-the-rack-ys03thvb/cairn/devices/alpha'), PosixPath('/tmp/a808-the-roster-is-the-rack-ys03thvb/cairn/devices/alpha/shim.py'))\n  ok   nothing outside discovery asks device_folders\n         -> rc=0 hits=[]\n  ok   no roster import crosses into a device\n         -> charter=True breaches=[]\n  ok   mail to a nested machine still finds its own shim\n         -> harbor_master=/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/shim.py trouble=/home/akien/dev/src/cairn/cairn/devices/trouble/shim.py unknown=None\n\nGREEN — the roster is the rack, the sleep roster is announced, nothing walks probes/ for it.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "rack names only folders directly under cairn/devices",
+        "rack omits no device folder",
+        "a shimless device folder is listed with shim None",
+        "nothing outside discovery asks device_folders",
+        "no roster import crosses into a device",
+        "mail to a nested machine still finds its own shim"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "cd069ac33e8e8370052ffc45cbc60e206f925d541ec935b18790b2c80ee45e15",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py",
+        "cairn/tools/rack/rack.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1373163-9b_h6dku/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 94471750,
+          "disk_bytes": 112521216,
+          "entries": 7443,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

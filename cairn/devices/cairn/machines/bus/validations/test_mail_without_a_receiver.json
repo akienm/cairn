@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_mail_without_a_receiver.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T02:45:43",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-03T04:43:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a5fb912b114fb8471ce1f81b5e99f8dfd1cef0888d710259960e2cade3435f69",
+      "source_fingerprint": "7666ae727b55de70ac021a8938eb57d773db53d9126d2d591435e2d96a42c64a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -67,7 +67,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1580056-8tkfc5_5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1628302-g3438834/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
@@ -81,53 +81,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 99639641,
-          "disk_bytes": 118505472,
-          "entries": 7831,
+          "bytes": 102619197,
+          "disk_bytes": 121753600,
+          "entries": 7973,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "7cb1989e7825": {
-          "cairn/devices/cairn/machines/bus/shim.py": [
-            "the_bus_answers_get_status"
-          ],
-          "cairn/devices/cairn/machines/bus/bus.py": [
-            "a_bounce_answering_a_waiting_request_is_the_askers_to_take",
-            "a_device_nobody_mails_is_never_held",
-            "a_reply_to_a_shimless_requester_is_neither_woken_nor_bounced",
-            "a_sleeping_addressee_is_woken_by_its_mail",
-            "an_undeliverable_bounce_is_raised_not_re_bounced",
-            "the_bus_answers_get_status",
-            "the_standing_backlog_takes_the_path_at_start",
-            "unreachable_addressed_mail_returns_to_its_sender"
-          ],
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "a_bounce_answering_a_waiting_request_is_the_askers_to_take",
-            "a_device_nobody_mails_is_never_held",
-            "a_sleeping_addressee_is_woken_by_its_mail",
-            "an_undeliverable_bounce_is_raised_not_re_bounced",
-            "the_standing_backlog_takes_the_path_at_start",
-            "unreachable_addressed_mail_returns_to_its_sender"
-          ],
-          "cairn/tools/base/shim.py": [
-            "a_recurrence_after_the_clear_is_a_fresh_trouble",
-            "a_returned_letter_raises_the_addressees_mail_trouble",
-            "taking_mail_clears_the_trouble_a_bounce_is_not_a_take"
-          ],
-          "cairn/tools/base/probes/does_the_mail_lane_get_worked.py": [
-            "the_mail_lane_watch_is_armed",
-            "the_mail_lane_watch_reads_the_store_from_its_era_floor"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7cb1989e7825": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ab8d52d336cf6270ff5ae1d6c5e34a77311ba81d",
-          "anchor_first_build": "209bae6576f98b57c7d4022777e37f43184e2238",
-          "commit": "ab8d52d336cf6270ff5ae1d6c5e34a77311ba81d"
+          "reuses": 8
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_counting_block.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T00:54:03",
+    "date": "2026-10-03T04:50:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green the_table_compiles_from_both_journals_and_is_byte_identical_when_recompiled\n  green an_unseen_triple_raises_exactly_one_trouble_and_a_seen_one_raises_nothing\n  green an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not\n  green the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_once_per_raise\n        live corpus: 33 rows over 19488 entries (590.5:1)\n  green over_the_live_corpus_rows_are_well_under_entries\n5 passed, 0 failed out of 5",
+      "stdout_tail": "  green the_table_compiles_from_both_journals_and_is_byte_identical_when_recompiled\n  green an_unseen_triple_raises_exactly_one_trouble_and_a_seen_one_raises_nothing\n  green an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not\n  green the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_once_per_raise\n        live corpus: 36 rows over 19734 entries (548.2:1)\n  green over_the_live_corpus_rows_are_well_under_entries\n5 passed, 0 failed out of 5",
       "stderr_tail": "",
       "teeth_green": [
         "the_table_compiles_from_both_journals_and_is_byte_identical_when_recompiled",
@@ -25,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "963ee3df1caff865dc9d2a20413345f2571abc8dcdb0c0823186931b765632ed",
+      "source_fingerprint": "bb0695d0077655a9aa86226b21219e198804972b6958846de23dd36bc8c45810",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -63,26 +63,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1514655-bru4cuqn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1628302-t6pu1crr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 6,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261003.065403.086849.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261003.065403.125899.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261003.065403.127832.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261003.065403.129769.TroubleDevice.raise_trouble.json"
+            "logs/ground_loop_nohup.log",
+            "logs/trouble/0/20261003.105015.824280.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261003.105015.873687.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261003.105015.875645.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261003.105015.877613.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 97943313,
-          "disk_bytes": 116523008,
-          "entries": 7704,
+          "bytes": 102617520,
+          "disk_bytes": 121769984,
+          "entries": 7980,
           "builds": 1,
-          "reuses": 47
+          "reuses": 57
         }
       }
     },

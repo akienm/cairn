@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_client_reaches_and_never_beats.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T23:31:48",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-03T04:51:34",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c951261ee8d7636d4047ab6bef2fdbbf6cd3fae0a8735362fa9561c59b634882",
+      "source_fingerprint": "5965a1bab28ee9b976f88f3633879b468ac5a8a6613f5aeb48cf3102f868215d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -84,28 +84,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1481095-twwhonwq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1628302-jjo7o4_1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 9,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/codemother/0/last_known.json",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.053144.013525.BusDevice.post.json",
-            "logs/bus/0/20261003.053144.062343.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.053147.464390.BusDevice.post.json"
+            "logs/bus/0/20261003.105129.360567.BusDevice.post.json",
+            "logs/bus/0/20261003.105129.368160.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.105129.391628.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.105132.838403.BusDevice.post.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96715037,
-          "disk_bytes": 115101696,
-          "entries": 7612,
+          "bytes": 102621765,
+          "disk_bytes": 121778176,
+          "entries": 7982,
           "builds": 1,
-          "reuses": 25
+          "reuses": 90
         }
       }
     },

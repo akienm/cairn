@@ -486,6 +486,18 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
     if probe.returncode != 0:
         if target.exists():
             target.unlink()
+        # THE FOLDER GOES TOO, where the anchor had none: a clean checkout of the anchor has no
+        # empty directory, and a directory can BE the thing a proof reads (measured 2026-10-02 on
+        # efb670ff1dd8 — an empty probes/ kept ground_loop registered, so its file read HOLLOW).
+        d = target.parent
+        while d != worktree and worktree in d.parents and d.is_dir() and not any(d.iterdir()):
+            had = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e",
+                                  f"{commit}:{d.relative_to(worktree).as_posix()}"],
+                                 capture_output=True, text=True, env=git_env())
+            if had.returncode == 0:
+                break
+            d.rmdir()
+            d = d.parent
         return "removed (absent before the build)"
     blob = subprocess.run(["git", "-C", str(repo_root), "show", f"{commit}:{rel}"],
                           capture_output=True, env=git_env())
@@ -555,9 +567,12 @@ def seal_isolation(proof: Path) -> str:
         return "none"
 
 
-def _expand_dirs(files: list[str], commit: str, repo_root: Path) -> tuple[list[str], list[dict]]:
-    """A writes_to entry naming a directory is measured file by file over the files changed
-    between the anchor and HEAD (ticket e08c996f939c). Measured 2026-10-02 on efb670ff1dd8:
+def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) -> tuple[list[str], list[dict]]:
+    """A writes_to entry naming a directory is measured file by file over the files THIS TICKET'S
+    OWN build commits (those naming ``tid`` after the anchor) changed under it (ticket e08c996f939c).
+    A plain anchor..HEAD diff is not that: measured 2026-10-02 on efb670ff1dd8, it pulled in four
+    files other tickets edited after the anchor, and each read HOLLOW — the proof blamed for
+    another hand's edit. Measured 2026-10-02 on efb670ff1dd8:
     its chart named cairn/devices/cairn/machines/ground_loop/, a directory present at HEAD and
     holding the repair, and the file loop skipped it as "not present at HEAD" — a reason that
     was false. A directory the build left unchanged comes back as a skip, never silently."""
@@ -567,12 +582,14 @@ def _expand_dirs(files: list[str], commit: str, repo_root: Path) -> tuple[list[s
         if not (Path(repo_root) / rel).is_dir():
             out.append(rel)
             continue
-        proc = _git_ok(repo_root, "diff", "--name-only", commit, "HEAD", "--", rel)
+        proc = _git_ok(repo_root, "log", "--format=", "--name-only", "-F", f"--grep={tid}",
+                       f"{commit}..HEAD", "--", rel)
         changed = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+        changed = [c for c in dict.fromkeys(changed) if (Path(repo_root) / c).is_file()]
         if changed:
             out.extend(changed)
         else:
-            skips.append({"file": rel, "why": "a directory the build left unchanged since the anchor"})
+            skips.append({"file": rel, "why": "a directory no build commit of this ticket changed since the anchor"})
     return list(dict.fromkeys(out)), skips
 
 
@@ -593,7 +610,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
     anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root)
     commit, at = anchor["commit"], anchor["buildme_at"]
-    files, dir_skips = _expand_dirs(files, commit, repo_root)
+    files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own

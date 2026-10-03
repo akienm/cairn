@@ -34,7 +34,9 @@ import json
 import subprocess
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "e17dc0dea64b"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _CLASS_SPACE = _REPO_ROOT / "cairn"
@@ -151,9 +153,10 @@ PROBE = Probe(
         "registered vocabulary. Fires when any charter carries an unresolvable node_class or "
         "is missing the field entirely.",
     trigger=_trigger,
-    to="charter",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

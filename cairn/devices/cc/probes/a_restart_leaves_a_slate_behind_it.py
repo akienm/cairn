@@ -37,7 +37,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
 _TICKET = "15b80c0c393c"
 _STAMP_FORMAT = "%Y%m%dT%H%M%S"
@@ -167,16 +167,33 @@ def _enough(context: dict) -> bool:
     return all(_pair(name)["paired"] for name in consumed[-_ENOUGH_RUN:])
 
 
+def _carry_watched(context: dict) -> dict:
+    """The pairing, kept in context so _holds reads the restart this carry just moved the
+    watermark past (watch_carry runs the carry before the predicate; 835b5736bf2b child)."""
+    out = _carry(context)
+    context["_pairing"] = out
+    if out.get("consumed") is not None and not out.get("paired"):
+        out["finding"] = (f"restart {out['consumed']} has no slate written within the minute "
+                          "before its consumed stamp")
+    return out
+
+
+def _holds(context: dict) -> bool:
+    """A restart with no slate behind it is the failure; no fresh restart is not one."""
+    p = context.get("_pairing") or {}
+    return p.get("consumed") is None or bool(p.get("paired"))
+
+
 PROBE = Probe(
     why="a restart that leaves no slate behind it is the failure this skill exists "
         "to prevent, and a probe that never fires gathers nothing while looking "
         "like learning. This watches whether the slate is really there.",
     trigger=_trigger,
     to="harbor_master",
-    verb="",
     channel="personal",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET, _carry_watched, holds=_holds),
     while_true=False,
     enough=_enough,
     horizon=100,

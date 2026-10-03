@@ -19,7 +19,9 @@ import os
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "a6cf55a6dd6d"
 
 _SERIES_PATH = address.instance_path("cc", 0) / "memory_series.jsonl"
 _TICKET = "the-memory-curve-is-recorded-not-eyeballed"
@@ -60,6 +62,12 @@ def _enough(context: dict) -> bool:
         return False
 
 
+def _holds(context: dict) -> bool:
+    """The trigger says "speak" (a recorded sample), not "something is wrong": the recorder
+    holds while the series has entries (835b5736bf2b child)."""
+    return _series_count() > 0
+
+
 PROBE = Probe(
     why="the memory curve must actually be recorded, not just built — a probe that "
         "never fires gathers nothing while looking like learning. This watches the "
@@ -67,7 +75,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=100,
 )

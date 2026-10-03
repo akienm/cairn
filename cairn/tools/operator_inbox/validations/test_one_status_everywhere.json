@@ -2,26 +2,25 @@
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:01:21",
+    "date": "2026-10-03T04:05:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  FAIL  test_source_one_label_deriving_function_no_private_cursor_regex: AssertionError: the cursor is parsed only by the inbox's reader (through transitions.parse_workflow): ['cairn/tools/operator_inbox/inbox.py:103', 'cairn/devices/cairn/machines/harbor_master/device.py:225']\n    (live map: 88 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 88 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 88 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 94 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\nRED — 1 tooth/teeth bit",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 88 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 88 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 88 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 94 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
       "teeth_green": [
         "test_fixture_one_label_per_id_across_all_three",
         "test_fixture_headers_sum_with_no_other",
         "test_fixture_prose_standing_is_a_finding_not_a_status",
         "test_crossing_patch_reloads_the_ticket_not_the_target",
+        "test_source_one_label_deriving_function_no_private_cursor_regex",
         "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
         "test_live_every_open_ticket_carries_owning_intention",
         "test_live_one_label_per_id_across_the_three_reports",
         "test_live_akienupdate_reports_agree"
       ],
-      "teeth_red": [
-        "test_source_one_label_deriving_function_no_private_cursor_regex"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -30,7 +29,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5bede52a6f08e279a8e0d788302411564ae4a4f13a9274e58ddc581d01ee6031",
+      "source_fingerprint": "68a30079d1970ef4aa63dc054dcfbb73f8414281b83c942e8e2bbd4c9b35ecd1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -74,38 +73,41 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1608836-hty_238w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1611358-ybg59l8t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "logs/bus.log",
-            "logs/bus/0/20261003.100120.852985.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.100120.859352.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20261003.100120.398884.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261003.100120.592704.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261003.100121.343289.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20261003.100517.584423.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.100517.596650.BusDevice.transit_table_ensured.json",
+            "logs/harbor_master/0/20261003.100517.127679.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261003.100517.330093.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261003.100518.033760.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 101413617,
-          "disk_bytes": 120418304,
-          "entries": 7912,
+          "bytes": 101627532,
+          "disk_bytes": 120672256,
+          "entries": 7928,
           "builds": 1,
-          "reuses": 6
+          "reuses": 2
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "9c7ae01002c6cf0dbfa644b1d5e1e51357ff578eec9c41b676ef2f7aebd819a3",
         "opened": "2026-10-03T04:01:21",
         "last_red": "2026-10-03T04:01:21",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-operator-inbox",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-03T04:05:18",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "9c7ae01002c6cf0dbfa644b1d5e1e51357ff578eec9c41b676ef2f7aebd819a3"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

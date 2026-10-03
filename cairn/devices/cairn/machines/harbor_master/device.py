@@ -172,7 +172,6 @@ class HarborMasterDevice(BaseDevice):
         it stands and the reply says so. Refusals come back as data (Law 7).
         """
         from cairn.devices.cairn.machines.harbor_master import clearance
-        from cairn.tools.base.transitions import parse_workflow
 
         def refuse(reason: str) -> dict:
             return {"accepted": False, "verb": "watch", "device": self.device_id,
@@ -221,10 +220,10 @@ class HarborMasterDevice(BaseDevice):
                     "ticket": tid, "acted": "none",
                     "said": "the falsifier holds; nothing changes"}
         workflow = doc.get("workflow_and_state", "")
-        try:
-            here = parse_workflow(workflow).here
-        except Exception as exc:  # noqa: BLE001 — a refusal is the answer
-            return refuse(f"ticket {tid}'s workflow does not parse: {exc}")
+        token = cursor_of(workflow)   # the one cursor reader (one-status-everywhere)
+        if token is None:
+            return refuse(f"ticket {tid}'s workflow does not parse: {workflow!r}")
+        here = token.split("(")[0].split(":")[0]
         if here not in ("PROVED", "WATCHME"):
             return {"accepted": True, "verb": "watch", "device": self.device_id,
                     "ticket": tid, "acted": "none",

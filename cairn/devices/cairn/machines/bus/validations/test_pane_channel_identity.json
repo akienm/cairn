@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_pane_channel_identity.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T22:18:21",
+    "caller": "cairn test",
+    "date": "2026-10-02T23:30:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,8 +24,11 @@
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_1481995_2330485702_delivery",
+          "bus_proc_1481995_2330485702"
+        ]
       },
       "source_fingerprint": "6b227bf5c506240d9f5372aafcd06100c01b49cddcd85c2046873fd2c2aa795b",
       "fingerprint_closure": [
@@ -55,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1429686-0cr4r110/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1481095-ig19ptrf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,11 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 95074127,
-          "disk_bytes": 113258496,
-          "entries": 7496,
+          "bytes": 96713882,
+          "disk_bytes": 115085312,
+          "entries": 7605,
           "builds": 1,
-          "reuses": 14
+          "reuses": 12
         }
       }
     },

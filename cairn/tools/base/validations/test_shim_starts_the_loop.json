@@ -2,12 +2,12 @@
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-02T20:53:19",
+    "date": "2026-10-02T23:31:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['none', 'unit'], one pid)\ntest_shim_starts_the_loop: green",
+      "stdout_tail": "ok test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\ntest_shim_starts_the_loop: green",
       "stderr_tail": "",
       "teeth_green": [
         "test_check_lives_in_the_base_only",
@@ -39,7 +39,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1373647-dplg72s_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1481095-rftj6dev/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -48,11 +48,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 94471750,
-          "disk_bytes": 112521216,
-          "entries": 7443,
+          "bytes": 96713882,
+          "disk_bytes": 115085312,
+          "entries": 7605,
           "builds": 1,
-          "reuses": 0
+          "reuses": 24
         }
       }
     },

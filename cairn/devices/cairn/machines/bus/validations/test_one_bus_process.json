@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_one_bus_process.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-02T23:32:40",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   two couriers leave one bus process for the instance\n         -> bus processes for the home=[1485370] couriers named=[1485370, 1485370]\n  ok   a post from one process is taken from the ring by a shim registered from another\n         -> held=['bus_proof_echo'] receipted=True db_reads_during=0 bus_pid=1485370 poster_pid=1485394\n  ok   nothing outside the bus package calls BusDevice\n         -> callers=[]\n  ok   a launcher line round-trips through the bus process in under 1s\n         -> rc=0 round_trip=0.016s shims_built_in_caller=[] answered_by_pid=1485370 bus_pids=[1485370]\n  ok   the spawned pulse flushes the ring through the bus process\n         -> rc=0 out=bus pulse: flushed {\"flushed\": 5, \"receipts\": 1} err= ring_depth=0\n  ok   the pulse exits 0 when no bus process is running\n         -> rc=0 out=bus pulse: no bus process at /tmp/bus-proof-empty-v4eyj3i6/bus.sock — nothing in any ring\n  ok   a request from a class root the bus does not serve is refused as stale\n         -> reply={'ok': False, 'stale': True, 'root': '/home/akien/dev/src/cairn'}\n  ok   a shim the bus hosts can reach the bus while it is being held, and nothing waits\n         -> held=['bus_proof_echo', 'bus_proof_reentrant']\n  ok   a caller in another mount namespace gets a bus in that namespace, not a unit outside it\n         -> courier=mnt:[4026533167] bus=mnt:[4026533167] manager=mnt:[4026531832] wrapped=False\n\nGREEN — one bus process per instance, every shim inside it, the ring shared across callers.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "two couriers leave one bus process for the instance",
+        "a post from one process is taken from the ring by a shim registered from another",
+        "nothing outside the bus package calls BusDevice",
+        "a launcher line round-trips through the bus process in under 1s",
+        "the spawned pulse flushes the ring through the bus process",
+        "the pulse exits 0 when no bus process is running",
+        "a request from a class root the bus does not serve is refused as stale",
+        "a shim the bus hosts can reach the bus while it is being held, and nothing waits",
+        "a caller in another mount namespace gets a bus in that namespace, not a unit outside it"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 3,
+        "tables": [
+          "bus_proc_1485213_2332295633_delivery",
+          "bus_proc_1485213_2332295633",
+          "bus_proc_1485276_2332319124"
+        ]
+      },
+      "source_fingerprint": "f6e4f65c4321af388f5fc5ce9eeb08e7f76ed5191d2a49003728fda62728b1e7",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/bus/proofs/test_one_bus_process.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1485333-y5iq0k1h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 9,
+          "paths": [
+            "logs/bus.log",
+            "logs/bus/0/20261003.053238.035210.BusDevice.post.json",
+            "logs/bus/0/20261003.053238.084923.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.053238.149239.BusDevice.post.json",
+            "logs/bus/0/20261003.053238.149446.BusDevice.post.json",
+            "logs/bus/0/20261003.053238.150595.BusDevice.post.json",
+            "logs/bus/0/20261003.053238.151630.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053239.743026.BusDevice.post.json",
+            "logs/bus/0/20261003.053240.079426.BusDevice.post.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 96717338,
+          "disk_bytes": 115122176,
+          "entries": 7616,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

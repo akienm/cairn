@@ -287,9 +287,17 @@ def tooth_sandbox(home: Path) -> None:
     seal is bwrap) gets a bus spawned beside it, in its own namespace — a unit would run in
     the manager's and serve a filesystem the caller cannot see (measured 2026-10-03)."""
     name = "a caller in another mount namespace gets a bus in that namespace, not a unit outside it"
-    if shutil.which("bwrap") is None:
-        ok(name, False, "bwrap is not installed — the namespace this tooth needs cannot be made")
-        return
+    manager = subprocess.run(["systemd-run", "--user", "--wait", "--pipe", "--quiet", "--",
+                              "readlink", "/proc/self/ns/mnt"],
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+    # Under the tester's instance seal this proof is ALREADY in a namespace the manager does
+    # not share, and the host refuses a second one; outside it, bwrap makes one.
+    wrap = []
+    if os.readlink("/proc/self/ns/mnt") == manager:
+        if shutil.which("bwrap") is None:
+            ok(name, False, "bwrap is not installed — the namespace this tooth needs cannot be made")
+            return
+        wrap = ["bwrap", "--dev-bind", "/", "/"]
     sandboxed = home / "sandboxed"
     code = ("import json, os\n"
             "from cairn.tools.bus_client.remote import ensure_bus, RemoteBus\n"
@@ -299,16 +307,17 @@ def tooth_sandbox(home: Path) -> None:
             "RemoteBus().shutdown()\n")
     env = _env(sandboxed)
     env.pop("CAIRN_BUS_UNIT", None)
+    r = None
     try:
-        r = subprocess.run(["bwrap", "--dev-bind", "/", "/", sys.executable, "-c", code],
+        r = subprocess.run([*wrap, sys.executable, "-c", code],
                            env=env, cwd=str(_REPO), capture_output=True, text=True, timeout=60)
         got = json.loads(r.stdout.strip().splitlines()[0])
     except Exception as exc:  # noqa: BLE001
         ok(name, False, f"{type(exc).__name__}: {str(exc)[-200:]} "
-                        f"{getattr(locals().get('r'), 'stderr', '')[-300:]}")
+                        f"{(r.stderr if r is not None else '')[-300:]}")
         return
-    ok(name, got["mine"] == got["bus"] and got["mine"] != os.readlink("/proc/self/ns/mnt"),
-       f"courier={got['mine']} bus={got['bus']} outside={os.readlink('/proc/self/ns/mnt')}")
+    ok(name, bool(manager) and got["mine"] == got["bus"] and got["mine"] != manager,
+       f"courier={got['mine']} bus={got['bus']} manager={manager} wrapped={bool(wrap)}")
 
 
 def main() -> int:

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_inference_rides_the_bus.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:28:05",
+    "caller": "cairn test",
+    "date": "2026-10-02T23:30:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inference_domain\n.\n  ok   test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inference_domain_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                    [100%]\n5 passed in 4.82s",
+      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inference_domain\n.\n  ok   test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inference_domain_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                    [100%]\n5 passed in 4.70s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_source_outside_the_owner_imports_inference_domain",
@@ -51,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1479073-m7eaau22/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1481095-w45lvu5_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
@@ -59,39 +59,27 @@
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.052804.293297.BusDevice.post.json",
-            "logs/bus/0/20261003.052804.339553.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.052804.354575.BusDevice.post.json",
-            "logs/bus/0/20261003.052804.356389.BusDevice.post.json",
-            "logs/bus/0/20261003.052804.357326.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052804.357449.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052804.881101.BusDevice.post.json",
-            "logs/bus/0/20261003.052804.881611.BusDevice.post.json",
-            "logs/bus/0/20261003.052804.882200.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052804.882309.BusDevice.delivered.json"
+            "logs/bus/0/20261003.053045.153846.BusDevice.post.json",
+            "logs/bus/0/20261003.053045.205019.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.053045.220983.BusDevice.post.json",
+            "logs/bus/0/20261003.053045.222871.BusDevice.post.json",
+            "logs/bus/0/20261003.053045.223850.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053045.223979.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053045.722726.BusDevice.post.json",
+            "logs/bus/0/20261003.053045.723206.BusDevice.post.json",
+            "logs/bus/0/20261003.053045.723785.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053045.723889.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96284745,
-          "disk_bytes": 114634752,
-          "entries": 7588,
+          "bytes": 96716826,
+          "disk_bytes": 115130368,
+          "entries": 7619,
           "builds": 1,
-          "reuses": 1
+          "reuses": 9
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "a5f0563eb5b06958892369640759355d44bb75cff6f17288883d80db3c9031be",
-        "opened": "2026-10-02T22:18:18",
-        "last_red": "2026-10-02T23:14:46",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cairn-machines-bus",
-        "ruling": null,
-        "closed_at": "2026-10-02T23:28:05",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "a5f0563eb5b06958892369640759355d44bb75cff6f17288883d80db3c9031be"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

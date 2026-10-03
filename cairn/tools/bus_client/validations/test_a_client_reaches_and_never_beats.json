@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_client_reaches_and_never_beats.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:29:36",
+    "caller": "cairn test",
+    "date": "2026-10-02T23:31:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -84,7 +84,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1479073-k2qjz8qr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1481095-twwhonwq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
@@ -93,32 +93,20 @@
             "devices/codemother/0/last_known.json",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.052931.939770.BusDevice.post.json",
-            "logs/bus/0/20261003.052931.985836.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.052935.587506.BusDevice.post.json"
+            "logs/bus/0/20261003.053144.013525.BusDevice.post.json",
+            "logs/bus/0/20261003.053144.062343.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.053147.464390.BusDevice.post.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96282956,
-          "disk_bytes": 114606080,
-          "entries": 7581,
+          "bytes": 96715037,
+          "disk_bytes": 115101696,
+          "entries": 7612,
           "builds": 1,
-          "reuses": 9
+          "reuses": 25
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "99e0fb680b5365255494986309f6b1dea0254fe01bd2a5af1a4526df4f4181c4",
-        "opened": "2026-10-02T22:25:43",
-        "last_red": "2026-10-02T23:19:23",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-bus-client",
-        "ruling": null,
-        "closed_at": "2026-10-02T23:29:36",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "99e0fb680b5365255494986309f6b1dea0254fe01bd2a5af1a4526df4f4181c4"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

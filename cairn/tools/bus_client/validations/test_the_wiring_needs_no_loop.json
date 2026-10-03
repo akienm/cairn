@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T23:29:41",
+    "caller": "cairn test",
+    "date": "2026-10-02T23:31:54",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -44,7 +44,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1479073-z_x6laln/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1481095-r_11hyy7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
@@ -54,37 +54,25 @@
             "devices/librarian/0/last_known.json",
             "devices/trouble/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.052940.991739.BusDevice.post.json",
-            "logs/bus/0/20261003.052941.038911.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.052941.054937.BusDevice.post.json",
-            "logs/bus/0/20261003.052941.055514.BusDevice.post.json",
-            "logs/bus/0/20261003.052941.056779.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052941.056983.BusDevice.delivered.json",
-            "logs/bus/0/20261003.052941.247967.BusDevice.post.json",
-            "logs/bus/0/20261003.052941.276666.BusDevice.post.json"
+            "logs/bus/0/20261003.053153.824119.BusDevice.post.json",
+            "logs/bus/0/20261003.053153.868217.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261003.053153.883480.BusDevice.post.json",
+            "logs/bus/0/20261003.053153.883994.BusDevice.post.json",
+            "logs/bus/0/20261003.053153.885032.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053153.885155.BusDevice.delivered.json",
+            "logs/bus/0/20261003.053154.072828.BusDevice.post.json",
+            "logs/bus/0/20261003.053154.102291.BusDevice.post.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 96284309,
-          "disk_bytes": 114626560,
-          "entries": 7586,
+          "bytes": 96716390,
+          "disk_bytes": 115122176,
+          "entries": 7617,
           "builds": 1,
-          "reuses": 11
+          "reuses": 28
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "81d52f1fe7ae785836cd6ddb4329aa5e53a061da8a557420f10cc6b585b25214",
-        "opened": "2026-10-02T22:27:48",
-        "last_red": "2026-10-02T23:21:28",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-bus-client",
-        "ruling": null,
-        "closed_at": "2026-10-02T23:29:41",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "81d52f1fe7ae785836cd6ddb4329aa5e53a061da8a557420f10cc6b585b25214"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

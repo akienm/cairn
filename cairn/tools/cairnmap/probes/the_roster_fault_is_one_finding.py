@@ -43,7 +43,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 from cairn.tools.cairnmap import cairnmap
 from cairn.tools.gate import gate
 
@@ -245,9 +245,10 @@ PROBE = Probe(
         "findings this ticket was cast against accumulated while every tooth in cairnmap's "
         "own proof was green — because the fixture wrote the key the corpus had retired",
     trigger=_trigger,
-    to="cairnmap",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

@@ -1,0 +1,77 @@
+[
+  {
+    "claim": "proof test_bus_client_probes_report_to_the_watch.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-03T14:21:48",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_standing_bus_client_probe_posts_watch\n  PASS  test_every_standing_bus_client_spec_names_the_receiver\n  PASS  test_bus_client_probes_report_to_the_watch\ngreen — every standing bus_client probe reports {ticket, holds, finding} to the watch verb",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_standing_bus_client_probe_posts_watch",
+        "test_every_standing_bus_client_spec_names_the_receiver",
+        "test_bus_client_probes_report_to_the_watch"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "ac71469e56158b3f7fc9db8a47fb366f81f5a0be042afa6e8f14609c6b8994ee",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/probes/__init__.py",
+        "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py",
+        "cairn/tools/bus_client/proofs/test_bus_client_probes_report_to_the_watch.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1973276-ywf23db7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119244338,
+          "disk_bytes": 140361728,
+          "entries": 8862,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

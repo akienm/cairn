@@ -55,8 +55,10 @@ import ast
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.base.settled import settled
+
+_TICKET_ID = "fc93d8cd5961"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -181,7 +183,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

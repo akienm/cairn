@@ -264,24 +264,21 @@ def test_the_snapshot_steps_over_a_live_socket():
     # Since ticket 48519f4789b1 the bus process keeps a listening ``bus.sock`` in its instance
     # folder, and copytree cannot copy a socket (ENXIO): measured 2026-10-03, every sealed run
     # died in pristine_snapshot. The socket is a live process's endpoint, not state — it is
-    # left out, and the lock beside it (a regular file) is still carried.
-    import socket as _socket
+    # left out, and the lock beside it (a regular file) is still carried. The socket inode is
+    # made with mknod, not the socket module: copytree reds on it with the same ENXIO, and a
+    # proof importing socket is a second door to the inference host (sole_path_holds).
+    import stat as _stat
     root = _fixture_root()
     bus_dir = root / "devices" / "cairn" / "machines" / "bus" / "0"
     bus_dir.mkdir(parents=True)
     (bus_dir / "bus.lock").write_text("123\n")
-    listener = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
-    listener.bind(str(bus_dir / "bus.sock"))
-    listener.listen(1)
-    try:
-        with _FixtureRoot(root):
-            snap = Path(pristine_snapshot())
-            assert (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.lock").read_text() == "123\n", (
-                "the regular file beside the socket must still be carried")
-            assert not (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.sock").exists(), (
-                "a socket was carried into the snapshot — a copy of an endpoint names no process")
-    finally:
-        listener.close()
+    os.mknod(bus_dir / "bus.sock", _stat.S_IFSOCK | 0o600)
+    with _FixtureRoot(root):
+        snap = Path(pristine_snapshot())
+        assert (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.lock").read_text() == "123\n", (
+            "the regular file beside the socket must still be carried")
+        assert not (snap / "devices" / "cairn" / "machines" / "bus" / "0" / "bus.sock").exists(), (
+            "a socket was carried into the snapshot — a copy of an endpoint names no process")
 
 
 def test_a_batch_reads_the_live_root_once():

@@ -9,7 +9,7 @@ press_office/history.json with no hand-editing.
 import json
 import os
 
-from cairn.tools.base.probe import Probe, by_pointer, owning_ticket
+from cairn.tools.base.probe import Probe, by_pointer, owning_ticket, watch_carry
 
 _TICKET = "eba8503cc18c"
 _HISTORY = os.path.join(os.path.dirname(__file__), "..", "history.json")
@@ -37,12 +37,21 @@ def _enough(context):
     return len(crossings) >= 3
 
 
+def _holds(context: dict) -> bool:
+    """The trigger speaks from the first concept-piece crossing in press_office/history.json, so a
+    post before THREE crossings is the count growing toward enough, not a fault; this probe cannot
+    see a revision that failed to journal, so no single post is a failing falsifier, and a survey
+    that raises reads as holds False through watch_carry (835b5736bf2b child)."""
+    return True
+
+
 PROBE = Probe(
     why="a concept-piece revision that journals automatically proves the voyage machinery works "
         "for press_office documents — the question this WATCHME carries",
     trigger=_trigger,
-    to="press_office",
+    to="harbor_master",
     body={"watch": "concept-piece-voyages-journal"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET, _carry, holds=_holds),
     enough=_enough,
 )

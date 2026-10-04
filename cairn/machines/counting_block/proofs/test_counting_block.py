@@ -62,6 +62,18 @@ FAIL = 0
 _TMP: list[str] = []
 
 
+def _runs_the_block(argv):
+    """True when argv is a python running cairn.machines.counting_block — by -m or by a file in it."""
+    if not argv or not Path(argv[0]).name.startswith("python"):
+        return False
+    for i, a in enumerate(argv[1:], 1):
+        if a == "-m" and i + 1 < len(argv) and argv[i + 1].startswith("cairn.machines.counting_block"):
+            return True
+        if "machines/counting_block/" in a and "/proofs/" not in a:
+            return True
+    return False
+
+
 def _scratch(prefix):
     d = str(scratch_dir(prefix))
     _TMP.append(d)
@@ -350,9 +362,17 @@ def the_block_runs_on_the_commit_with_no_process_of_its_own_and_the_probe_fires_
     assert refused["installed"] is False, refused
     assert theirs.read_text(encoding="utf-8") == "#!/bin/sh\nexit 0\n", "a foreign hook was eaten"
     # nothing else runs it: no process of the block's own between commits
+    # A process RUNS the block only if it is a python whose argv runs the module (-m) or a file
+    # inside it; a command line that merely names the word (a commit message did) is not one
+    # (Akien, open-d3e1c50a7334: "yes").
     ps = subprocess.run(["ps", "-eo", "args"], capture_output=True, text=True, check=True).stdout
-    mine = [l for l in ps.splitlines() if "counting_block" in l and "proofs/test_counting_block" not in l]
+    mine = [l for l in ps.splitlines() if _runs_the_block(l.split())]
     assert mine == [], f"a counting_block process is running: {mine}"
+    assert _runs_the_block(["python3", "-m", "cairn.machines.counting_block", "pulse"]), "tooth reads -m"
+    assert _runs_the_block(["/usr/bin/python3.13", "cairn/machines/counting_block/hook.py"]), "tooth reads a file"
+    assert not _runs_the_block(["git", "commit", "-m", "counting_block: fold"]), "a word is not a run"
+    assert not _runs_the_block(["python3", "cairn/machines/counting_block/proofs/test_counting_block.py"]), \
+        "this proof is not the block"
     # the module verb is the whole entry point: calling it IS a commit's fold, over scratch
     w = World()
     try:

@@ -12,7 +12,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "075cccec5b5d"
 
 _ACTED_MARKER = address.instance_path("corrosion", 0) / "genuine_catch.json"
 
@@ -43,7 +45,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

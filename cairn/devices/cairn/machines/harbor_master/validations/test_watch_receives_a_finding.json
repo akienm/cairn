@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_watch_receives_a_finding.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:07:16",
+    "caller": "cairn test",
+    "date": "2026-10-04T16:10:05",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "15e3d6285ea611d00def8023ba72d528d7b66b2246039f247441c46584704dce",
+      "source_fingerprint": "536ce8800f739bae9676c9baffb87b826360cbf2b2fcf18a2bd07cd6440003a5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,44 +66,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1612425-rbfmc_39/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2693978-wwsevjwo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261003.100716.205347.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261003.100716.211246.charter_projector_append_entry.append_entry.json",
-            "logs/harbor_master/0/20261003.100716.206565.HarborMasterDevice.watch_received.json",
-            "logs/harbor_master/0/20261003.100716.212033.HarborMasterDevice.watch_received.json"
+            "logs/charter/0/20261004.221005.361185.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261004.221005.366784.charter_projector_append_entry.append_entry.json",
+            "logs/harbor_master/0/20261004.221005.362378.HarborMasterDevice.watch_received.json",
+            "logs/harbor_master/0/20261004.221005.367549.HarborMasterDevice.watch_received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 101754249,
-          "disk_bytes": 120815616,
-          "entries": 7935,
+          "bytes": 131987829,
+          "disk_bytes": 154652672,
+          "entries": 9583,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "a88d6a368cfb": {
-          "cairn/devices/cairn/machines/harbor_master/clearance.py": [
-            "test_the_watch_verb_receives_a_finding"
-          ],
-          "cairn/devices/cairn/machines/harbor_master/device.py": [
-            "test_the_watch_verb_receives_a_finding"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a88d6a368cfb": {
-          "anchor_rule": "journal",
-          "anchor_journal": "8152501ed0a9d6c8ea0188fa9b2bf5e699831bdc",
-          "anchor_first_build": "628be5bde6216dc1a3548760343570f277ab61ef",
-          "commit": "8152501ed0a9d6c8ea0188fa9b2bf5e699831bdc"
+          "reuses": 8
         }
       }
     },

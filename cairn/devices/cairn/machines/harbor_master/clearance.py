@@ -663,6 +663,10 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
         make the proof survive its subject being taken away — resolve the build's new names
         at call time rather than binding them at import, and give the run a timeout that
         outlasts the waits a reverted world creates — and then take the reading again.
+      - the key is present and a file reads ``{"notified": <notice id>}`` -> covered: the
+        tester found the revert unseen by any tooth and sent it to the operator (ticket
+        df05d93da4c0, Akien's answer to open-ed0a56ce6357: complete AND notify). A blank or
+        null id is not a notice and reads unreadable.
       - the key is present and every measured file redded a tooth -> covered.
 
     AND THE READING EXPIRES WITH THE CODE. It rides ``evidence`` beside the
@@ -713,7 +717,15 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
                 f"repo files the build writes, then `cairn test --hollow {tid} --seal`",
                 proof=str(one)))
             continue
-        unreadable = sorted(f for f, r in reading.items() if not isinstance(r, list))
+        # A NOTIFIED FILE IS COVERED (ticket df05d93da4c0). Akien's answer to
+        # open-ed0a56ce6357: a green the teeth cannot vouch for completes AND notifies him —
+        # the tester seals such a file as {"notified": <notice id>}, so the operator, not
+        # this rung, is its reader. A blank or null id is no notice and stays unreadable.
+        notified = {f for f, r in reading.items()
+                    if isinstance(r, dict) and isinstance(r.get("notified"), str)
+                    and r["notified"].strip()}
+        unreadable = sorted(f for f, r in reading.items()
+                            if not isinstance(r, list) and f not in notified)
         if unreadable:
             out.append(_lack(
                 tid, "hollow_unreadable",

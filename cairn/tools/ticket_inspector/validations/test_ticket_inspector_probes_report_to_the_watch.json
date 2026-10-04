@@ -1,19 +1,18 @@
 [
   {
-    "claim": "proof test_groundloop_pulse.py passes under python3",
+    "claim": "proof test_ticket_inspector_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-04T00:17:28",
+    "date": "2026-10-04T00:17:31",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ticket_inspector fires its own clock probes on its own pulse\n  ok   the heartbeat's discovery lists ticket_inspector's pulse at class level\n         -> sites=[{'device_id': 'ticket_inspector', 'level': 'class', 'path': PosixPath('/home/akien/dev/src/cairn/cairn/tools/ticket_inspector/groundloop/pulse.py')}]\n  ok   the pulse names exactly ticket_inspector's clock probes and each resolves to a Probe\n         -> roster=['the_corpus_gets_cleaner'] loaded=1\n  ok   no other probe in ticket_inspector's probes folder is in the roster\n         -> others=[] roster=['the_corpus_gets_cleaner']\n  ok   one pulse covers exactly ticket_inspector's clock probes in fired and held\n         -> covered 1 entries; missing=[]\n\nGREEN — ticket_inspector's pulse fires the_corpus_gets_cleaner, and nothing else.",
+      "stdout_tail": "  PASS  test_every_standing_ticket_inspector_probe_posts_watch\n  PASS  test_every_standing_ticket_inspector_spec_names_the_receiver\n  PASS  test_ticket_inspector_probes_report_to_the_watch\ngreen — every standing ticket_inspector probe reports {ticket, holds, finding} to the watch verb",
       "stderr_tail": "",
       "teeth_green": [
-        "the heartbeat's discovery lists ticket_inspector's pulse at class level",
-        "the pulse names exactly ticket_inspector's clock probes and each resolves to a Probe",
-        "no other probe in ticket_inspector's probes folder is in the roster",
-        "one pulse covers exactly ticket_inspector's clock probes in fired and held"
+        "test_every_standing_ticket_inspector_probe_posts_watch",
+        "test_every_standing_ticket_inspector_spec_names_the_receiver",
+        "test_ticket_inspector_probes_report_to_the_watch"
       ],
       "teeth_red": [],
       "seal": {
@@ -24,25 +23,17 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "217bdb975babb60dc2bd1e787cde7118c2b2a7ea8093a02c2d61d5d350e3f945",
+      "source_fingerprint": "591a01d7b7f5d5f19518050a5d4432cc8cf7574d3dc032866e98a2ce3b5d0574",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/beat_probes.py",
         "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
-        "cairn/tools/base/shim.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
         "cairn/tools/chain/__init__.py",
@@ -51,19 +42,19 @@
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "cairn/tools/ticket_inspector/__init__.py",
         "cairn/tools/ticket_inspector/inspector.py",
-        "cairn/tools/ticket_inspector/proofs/test_groundloop_pulse.py"
+        "cairn/tools/ticket_inspector/probes/__init__.py",
+        "cairn/tools/ticket_inspector/probes/the_corpus_gets_cleaner.py",
+        "cairn/tools/ticket_inspector/proofs/test_ticket_inspector_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2270791-5wgt4s4x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2270791-zc1r4eos/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,7 +67,7 @@
           "disk_bytes": 146862080,
           "entries": 9263,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       }
     },

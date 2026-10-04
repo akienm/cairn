@@ -27,8 +27,10 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 from cairn.tools.ticket_inspector.inspector import inspect_corpus
+
+_TICKET_ID = "3fecd170a1a6"
 
 _OWNING_TICKET = "ticket-inspector"
 _ENOUGH_THRESHOLD = 50
@@ -95,7 +97,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

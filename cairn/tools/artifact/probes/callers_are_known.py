@@ -20,7 +20,9 @@ import collections
 import json
 
 from cairn.tools.artifact import artifact as door
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "30531f6e1c5d"
 
 ENOUGH_WRITES = 500
 
@@ -95,7 +97,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

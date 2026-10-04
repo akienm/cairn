@@ -1,18 +1,18 @@
 [
   {
     "claim": "proof test_artifact_door.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:50:30",
+    "caller": "cairn test",
+    "date": "2026-10-04T00:04:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 5015 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 14725 → 14725 lines, 0 scratch entries\n\nGREEN",
+      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 5390 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 15336 → 15336 lines, 0 scratch entries\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "this proof's own process classifies as cc or akien (it was started by one of them)  — cc /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope",
-        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-1634413.service",
-        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 1634413",
+        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-2264049.service",
+        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 2264049",
         "a plain child of CC reads as cc",
         "a live process in a login-session or desktop-app scope reads as AKIEN  — [(73483, 'akien'), (73491, 'akien'), (74481, 'akien'), (75197, 'akien')]",
         "no live hand-at-a-terminal process has a cc ancestor (the ancestry walk does not over-reach)",
@@ -81,7 +81,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "8e936a19a0520d0e88ae91eb9634bc829cb42a65e3f8b15c69aeb4fa597d83b9",
+      "source_fingerprint": "5c1cb30f18b1b76468da3292ea4a1f5c97b42dab69b02830bb6bfa23caaf20de",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -110,22 +110,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-pj3hb5li/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2264022-8p06yo0h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/charter/0/20261003.105029.891844.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261004.060434.742869.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619836,
-          "disk_bytes": 121757696,
-          "entries": 7976,
+          "bytes": 124616148,
+          "disk_bytes": 146685952,
+          "entries": 9252,
           "builds": 1,
-          "reuses": 63
+          "reuses": 0
         }
       }
     },

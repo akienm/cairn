@@ -26,7 +26,9 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "892a0f9cd925"
 
 _REPO = Path(__file__).resolve().parents[4]
 _SET = _REPO / "cairn" / "machines" / "exemptions" / "exemption_set.json"
@@ -138,7 +140,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

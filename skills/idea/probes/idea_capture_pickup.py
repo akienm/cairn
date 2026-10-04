@@ -42,7 +42,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "1baf0b52b218"
 
 # Read the live roots the way the components themselves do — env first, default second —
 # resolved per call, never captured at import: a probe that froze the path at import
@@ -159,7 +161,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

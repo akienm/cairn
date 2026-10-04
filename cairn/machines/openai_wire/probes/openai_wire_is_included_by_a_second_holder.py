@@ -38,8 +38,10 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 from cairn.tools.import_sieve import sieve as import_sieve
+
+_TICKET_ID = "76639374d9f9"
 
 _OWNING_TICKET = "openai-wire-is-a-machine-anybody-can-include"
 _MODULE = "cairn.machines.openai_wire"
@@ -116,6 +118,15 @@ def _carry(context: dict) -> dict:
 # yet a real number; 1000 pulses is "clearly a long standing" until it is.
 _HORIZON = 1000
 
+
+def _holds(context: dict) -> bool:
+    """One holder is the watch still counting toward TWO, not a fault: the trigger fires from the
+    first holder so the count means something, and "one holder forever" is a finding only the
+    horizon can name (BaseShim.overdue at _HORIZON pulses), never a single post. A survey that
+    raises reads as holds False through watch_carry (835b5736bf2b child)."""
+    return True
+
+
 PROBE = Probe(
     why="openai_wire was built as its own machine on Akien's word that anybody can then include "
         "it; the world confirms that word by a count of distinct holders, and two is the number "
@@ -123,7 +134,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "decompose", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

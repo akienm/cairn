@@ -6535,5 +6535,164 @@
     "fingerprint": "56e618455dfcc58a57c5ec8599ae95514ad0efe932eaaf64d87cfeec38813811",
     "at": "2026-10-04T02:11:32",
     "seq": 66
+  },
+  {
+    "from": "PROVEME",
+    "to": "DROPPED",
+    "standing": "DROPPED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [DROPPED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'DROPPED' in the code-seam@v2 vocabulary",
+        "actual": "'DROPPED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "DROPPED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> DROPPED moves the cursor off position 3",
+        "actual": "PROVEME -> DROPPED moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "DROPPED",
+          "cursor": 3,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> DROPPED",
+        "actual": "PROVEME -> DROPPED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "DROPPED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e24386e75704",
+    "actor": "cc",
+    "why": "DROPPED: the one probe this ticket converts (cairn/devices/librarian/proofs/probe_three_table_schema.py) is deleted. Akien 2026-10-04, foreground-decisions item 5 (follow-up to open-97c97e36335e), verbatim: \"yes, delete it the schema watching probe.\" It supersedes the '(a) move it to probes/' answer. No receiver uses the probe's data: the librarian's own resolution cycle already fails loudly if the schema is wrong.",
+    "fingerprint": "b757b0dbd849fa56cf53b287028cd03fbd608a461d4ee9f3f6208557f2540a87",
+    "at": "2026-10-04T14:36:45",
+    "seq": 67
+  },
+  {
+    "from": "PROVED",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(node-embedding-leaf-schema) -> PROVED",
+    "direction": "back",
+    "severity": 4,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME moves the cursor off position 6",
+        "actual": "PROVED -> FIXME moves the cursor off position 6",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 6,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> FIXME",
+        "actual": "PROVED -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "FIXME",
+            "PROVEME",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "95f8c561e742",
+    "actor": "cc",
+    "missing": [
+      "[watchme_probe_absent] cairn/devices/librarian/proofs/probe_three_table_schema.py — deleted 2026-10-04. Akien 2026-10-04, foreground-decisions item 5 (follow-up to open-97c97e36335e), verbatim: \"yes, delete it the schema watching probe.\" It supersedes the '(a) move it to probes/' answer. No receiver uses the probe's data: the librarian's own resolution cycle already fails loudly if the schema is wrong."
+    ],
+    "why": "item 5: the WATCHME's probe is deleted, so the watch has no probe",
+    "fingerprint": "634769c2de9fb29d38fffb82a4d0202706ce8cddd5afc80377d7b0af1e1ffe4f",
+    "at": "2026-10-04T14:36:45",
+    "seq": 68
   }
 ]

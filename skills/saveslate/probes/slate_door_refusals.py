@@ -26,7 +26,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "95cfce2b0074"
 
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
 _TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
@@ -98,7 +100,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "saveslate", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

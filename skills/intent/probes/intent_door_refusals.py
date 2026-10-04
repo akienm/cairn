@@ -45,7 +45,9 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "2db333d857dd"
 
 # Read the live roots the way the components themselves do — env first, default second —
 # so an instance that moved its roots is measured where it actually lives, not where this
@@ -165,7 +167,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

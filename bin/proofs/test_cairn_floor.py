@@ -103,8 +103,17 @@ def test_down_db_refuses_named_and_never_resolves() -> None:
         assert r.stderr.startswith("cairn: floor: db — "), r.stderr
         assert str(nosock / ".s.PGSQL.5432") in r.stderr, r.stderr
         assert r.stdout == "", f"the resolver ran: {r.stdout!r}"
-        # The refusal carries the remedy: sudo's own words and the one line to lay, or the relay.
-        assert "sudorelay" in r.stderr and "systemctl start postgresql.service" in r.stderr, r.stderr
+        # Which branch fires is MEASURED, never assumed: since open-f4c0d8bc4f94 was answered
+        # (2026-09-28, "yes add it") the sudoers line is laid, so sudo -n permits the start and
+        # the started branch is the live reading; on a box without the line the refusal carries
+        # the remedy — sudo's own words and the one line to lay, or the relay.
+        permitted = subprocess.run(["sudo", "-n", "-l", "systemctl", "start", "postgresql.service"],
+                                   capture_output=True, text=True).returncode == 0
+        if permitted:
+            assert "postgres was started (systemctl start postgresql.service returned 0)" in r.stderr \
+                and "did not appear within 15s" in r.stderr, r.stderr
+        else:
+            assert "sudorelay" in r.stderr and "systemctl start postgresql.service" in r.stderr, r.stderr
         print("ok test_down_db_refuses_named_and_never_resolves")
     finally:
         shutil.rmtree(home, ignore_errors=True)

@@ -26,7 +26,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "95f8c561e742"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "node-embedding-leaf-separation"
@@ -89,6 +91,15 @@ def _carry(context: dict) -> dict:
 
 _HORIZON = 1000
 
+
+def _holds(context: dict) -> bool:
+    """The trigger speaks while no real resolution cycle has completed, which is the watch still
+    waiting, not a fault; what the spec's enough refuses is a cycle that errored, so the post
+    holds while the librarian history records no error (835b5736bf2b child)."""
+    s = once(context, "counts", _count_resolution_cycles)
+    return s["errors"] == 0
+
+
 PROBE = Probe(
     why="does the three-table schema work under real resolution load? — built "
         "and proved under fixtures, but not yet exercised by the librarian's "
@@ -96,7 +107,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

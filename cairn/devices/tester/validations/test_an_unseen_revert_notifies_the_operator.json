@@ -1,21 +1,20 @@
 [
   {
-    "claim": "proof test_hollow_anchors_before_the_build_that_stands.py passes under python3",
+    "claim": "proof test_an_unseen_revert_notifies_the_operator.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T16:54:33",
+    "date": "2026-10-04T16:51:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 17.35s",
+      "stdout_tail": "  ok   test_measure_carries_the_unseen_file_and_its_diff_and_stays_green\n  ok   test_the_seal_posts_one_notice_and_seals_it_notified\n  ok   test_a_run_without_seal_posts_nothing\n  ok   test_the_notices_verbs_list_mark_and_rate\n  ok   test_the_hard_reds_stand\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
-        "test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build",
-        "test_a_recross_with_no_build_between_keeps_the_build_it_followed",
-        "test_an_anchor_holding_every_file_raises_naming_the_anchor",
-        "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates",
-        "test_the_live_anchors_of_68f5_and_c691_are_their_build_parents"
+        "test_measure_carries_the_unseen_file_and_its_diff_and_stays_green",
+        "test_the_seal_posts_one_notice_and_seals_it_notified",
+        "test_a_run_without_seal_posts_nothing",
+        "test_the_notices_verbs_list_mark_and_rate",
+        "test_the_hard_reds_stand"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,7 +25,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c0ebb59e7bb6719037c3b7fc3dbfaac7b7eddd2e494ad015ce0e5960ec3995c6",
+      "source_fingerprint": "b918c941b4c5606421453dec6483d9351d5db38cc2fcae6a1a0e7366dd904474",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -36,14 +35,12 @@
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/notices.py",
-        "cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py",
+        "cairn/devices/tester/proofs/test_an_unseen_revert_notifies_the_operator.py",
         "cairn/devices/tester/scratch_sweep.py",
         "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
@@ -54,8 +51,6 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -81,30 +76,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2717714-r1fuk6ah/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2717714-evoidbue/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 9,
+          "count": 12,
           "paths": [
-            "logs/tester/0/20261004.225417.326234.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225419.102104.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225420.910405.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225422.689456.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225424.522496.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225426.302701.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225428.262386.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225430.047889.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.225432.004044.TesterDevice.run_proof.json"
+            "logs/tester/0/20261004.225114.602520.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225116.368059.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225118.164330.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225119.994505.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225121.771370.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225123.575096.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225125.634833.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225127.460175.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225129.316745.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225131.084676.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225132.859623.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.225134.655163.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132788918,
-          "disk_bytes": 155582464,
-          "entries": 9635,
+          "bytes": 132789707,
+          "disk_bytes": 155594752,
+          "entries": 9638,
           "builds": 1,
-          "reuses": 7
+          "reuses": 4
         }
       }
     },

@@ -830,8 +830,17 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
 
     hollow_files = [f for f, teeth in measured.items() if not teeth]
     reasons: list[str] = []
-    for f in hollow_files:
-        reasons.append(f"hollow: {f} reverted, no declared tooth redded")
+    # AN UNSEEN REVERT COMPLETES AND NOTIFIES; IT IS NOT A RED (df05d93da4c0, b5871526384a).
+    # Akien's answer to open-ed0a56ce6357: a green the measurement cannot vouch for — this
+    # file's revert redded no declared tooth — "we let it complete AND notify me". So the file
+    # stays named in `hollow` and rides out in `unseen` with its diff; the sealing run turns
+    # each into one operator notice. A file whose proof never ran is NOT unseen: it is
+    # unreadable below, and that red stands.
+    unseen = {
+        f: subprocess.run(["git", "-C", str(repo_root), "diff", commit, "HEAD", "--", f]
+                          + ([moved[f]] if f in moved else []),
+                          capture_output=True, text=True, env=git_env()).stdout
+        for f in hollow_files if f not in unran}
     for f in unchanged:
         reasons.append(
             f"unwritten: {f} is byte-identical at the pre-build commit — the decompose berth "
@@ -861,7 +870,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "proofs": proofs, "declared": declared_teeth, "silent_proofs": silent,
             "isolation": depth,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
-            "measured": measured, "skipped": skipped, "hollow": hollow_files, "unran": unran,
+            "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
             "unchanged": unchanged, "moved": moved,
             "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],
             "anchor_first_build": anchor["anchor_first_build"],

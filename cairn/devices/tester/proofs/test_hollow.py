@@ -34,7 +34,7 @@ from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: 
 PROVES = {
     "d0f2b03952e3": {
         "1": "test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow",
-        "2": "test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero",
+        "2": "test_the_same_run_names_the_hollow_file_and_the_verb_completes",
         "3": "test_the_live_tree_is_byte_identical_after_a_run_that_raises_midway",
         "4": "test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand",
         "5": "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
@@ -213,7 +213,7 @@ def test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_i
     return True
 
 
-def test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero():
+def test_the_same_run_names_the_hollow_file_and_the_verb_completes():
     """A finding nobody's exit code carries is a finding that does not gate anything.
 
     THE EXIT CODE IS READ OFF THE FIXTURE, NOT OFF A LIVE TICKET — and that is the claiming
@@ -226,13 +226,19 @@ def test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero():
     redded outright on the day someone wrote 9579's missing teeth. That is the day the system got
     BETTER. The fixture is hollow BY CONSTRUCTION and cannot move under anyone's later work; the
     live verb keeps its own tooth below, which asserts invariants and never the day's counts.
+
+    SUPERSEDED 2026-10-04 by Akien's answer to open-ed0a56ce6357 (ticket b5871526384a): a
+    hollow file COMPLETES AND NOTIFIES — "we let it complete AND notify me". It no longer exits
+    non-zero; the run still names it, and --seal sends it to the operator as one notice
+    (proofs/test_an_unseen_revert_notifies_the_operator.py). The fixture reasoning above
+    stands: the file is hollow by construction, so the naming is read off the fixture.
     """
     tmp = scratch_dir("cairn-hollowproof-")
     repo, commons = _fixture(tmp)
     f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
-    assert f["verdict"] == "red", f["verdict"]
-    assert any("hollow: unchecked.py reverted, no declared tooth redded" == r
-               for r in f["reasons"]), f["reasons"]
+    assert f["verdict"] == "green", f["reasons"]
+    assert f["hollow"] == ["unchecked.py"], f["hollow"]
+    assert not any("unchecked.py" in r for r in f["reasons"]), f["reasons"]
 
     # The CLI is what actually returns the code, so the code is read from the CLI, not inferred.
     # The child points the verb's two roots at the fixture and changes NOTHING else: it runs the
@@ -249,8 +255,9 @@ def test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero():
          "sys.exit(cli.main(['--hollow', %r, '-q']))\n"
          % (str(_REPO_ROOT), str(commons), str(_berths_root(tmp)), str(repo), FIXTURE)],
         cwd=str(_REPO_ROOT), capture_output=True, text=True)
-    assert child.returncode == 1, (child.returncode, child.stdout[-2000:], child.stderr[-2000:])
-    # The exit code and the NAMED file come from the same run — a bare non-zero could be a crash.
+    assert child.returncode == 0, (child.returncode, child.stdout[-2000:], child.stderr[-2000:])
+    # The exit code and the NAMED file come from the same run — the verb completes and still
+    # names the file it could not vouch for.
     assert "unchecked.py" in child.stdout, child.stdout
     return True
 
@@ -400,7 +407,7 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     CLI subprocess and again in-process for the invariants — so it paid the full cost twice and
     threw the expensive half away. That is why a session asserting "under 300s" took 455s of
     wall to do it. The CLI return path keeps its own tooth above
-    (test_the_same_run_names_the_hollow_file_and_exits_the_verb_non_zero), which drives the real
+    (test_the_same_run_names_the_hollow_file_and_the_verb_completes), which drives the real
     `_hollow_run` over the fixture world, so nothing is uncovered by measuring once here.
     """
     import time

@@ -141,6 +141,15 @@ def _hollow_run(args) -> int:
         reading = {f: t for f, t in finding["measured"].items()}
         for f, broke in finding["unran"].items():
             reading[f] = {"unreadable": sorted(broke)}
+        # AN UNSEEN FILE IS TOLD TO THE OPERATOR, ONCE, AND SEALED AS TOLD (b5871526384a).
+        # Akien's answer to open-ed0a56ce6357: the crossing completes and he is notified. The
+        # notice id hashes (ticket, file, diff), so a re-seal of the same reading tells him
+        # once; harbor_master reads {"notified": id} as covered (0069ce6b8681).
+        from cairn.devices.tester import notices
+        for f, diff in sorted(finding.get("unseen", {}).items()):
+            nid = notices.post(finding["ticket"], f, diff)
+            reading[f] = {"notified": nid}
+            print(f"  NOTIFIED {f} -> {nid} (operator inbox: the tester's notices verb)")
         persisted = 0
         # THE SEAL THAT COMPLETES THE RECORD IS THE ONE CODEMOTHER MUST HEAR (ticket
         # 9bdbeeaa1f8b). The reading can only be taken AFTER a seal stands, so the sealing
@@ -168,6 +177,8 @@ def _hollow_run(args) -> int:
             # builds one, and an empty landing builds nothing at all.
             _announce_seals(TesterDevice(), landed_green)
     else:
+        for f in sorted(finding.get("unseen", {})):
+            print(f"  unseen   {f} — --seal sends it to the operator")
         print("NOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the "
               "reading as evidence.hollow on the proofs' standing validations.")
     return 1 if finding["verdict"] == "red" else 0

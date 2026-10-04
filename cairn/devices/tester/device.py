@@ -362,8 +362,26 @@ class TesterDevice(BaseDevice):
         than importing ``TesterDevice``: a device's public interface is the bus. The verb runs
         ONE proof with ``sink="none"`` and hands the record back; a caller that seals lands it
         through ``validation_store.persist_validation`` itself, so the store's guards meet
-        every sealer at the same door."""
-        return {**super().declared_verbs(), "run": self._handle_run}
+        every sealer at the same door.
+
+        ``notices`` and ``notice-seen`` (df05d93da4c0, b5871526384a) — the operator's read of
+        the unvouched greens the hollow run completed and told: the unseen notices plus the
+        rate, and marking one seen. The inbox asks these verbs, never the store (RULE 1)."""
+        return {**super().declared_verbs(), "run": self._handle_run,
+                "notices": self._handle_notices, "notice-seen": self._handle_notice_seen}
+
+    def _handle_notices(self, envelope: dict) -> dict:
+        """``{"unseen": [...], "rate": {total, first, days, per_day}}``."""
+        from cairn.devices.tester import notices
+        return {"unseen": notices.unseen(), "rate": notices.rate()}
+
+    def _handle_notice_seen(self, envelope: dict) -> dict:
+        """``{"seen": id}``, or ``{"refused": why}`` naming an id no notice carries."""
+        from cairn.devices.tester import notices
+        nid = str((envelope.get("body") or {}).get("id") or "")
+        if notices.seen(nid):
+            return {"seen": nid}
+        return {"refused": f"no notice {nid!r} — nothing was marked"}
 
     def _handle_run(self, envelope: dict) -> dict:
         """``{"record": <VALIDATION>}`` for a proof file, or ``{"refused": why}`` for a path

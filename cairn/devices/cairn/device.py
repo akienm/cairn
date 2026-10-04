@@ -59,16 +59,32 @@ class CairnDevice(BaseDevice):
             # Loud, not silent (Law 7): a stale or out-of-turn answer is the one thing a
             # rotation can get wrong without anyone noticing.
             self.emit("sleep_token_refused", pointer=str(result.get("device")), values=dict(result))
+        if result.get("closed"):
+            result["logs"] = self._forget_logs()
         return result
 
     def _handle_sleep_cycle(self, envelope: dict) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import token
         act = (envelope.get("body") or {}).get("act")
         if act == "mint":
-            return {"cycle": token.mint(self._bus, roots=self._roots, roster_root=self._roster_root)}
+            cycle = token.mint(self._bus, roots=self._roots, roster_root=self._roster_root)
+            if cycle.get("closed_at") is None:
+                return {"cycle": cycle}
+            return {"cycle": cycle, "logs": self._forget_logs()}
         if act == "show":
             return {"cycle": token.standing(self._roots)}
         return {"accepted": False, "reason": f"sleep-cycle takes act mint|show, got {act!r}"}
+
+    def _forget_logs(self) -> dict:
+        """The cairn device's own sleep work: forget the logs tree past 30 days (ticket
+        ff881672ac57; Akien, open-9d9c0b1ac3a9: "cairn device's sleep cycle should be where that
+        cleanup happens"). Run when a rotation this device runs CLOSES — every device on the
+        roster has done its own maintenance, or there was none to visit — so the hub sweeps last.
+        The counts ride the verb's result and land on this device's own trail."""
+        from cairn.devices.cairn.logs_sweep import sweep_logs
+        counts = sweep_logs(older_than_days=30, roots=self._roots)
+        self.emit("logs_swept", values=counts)
+        return counts
 
     def declared_panes(self) -> list[dict]:
         return [

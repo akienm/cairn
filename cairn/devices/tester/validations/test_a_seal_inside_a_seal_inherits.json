@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_seal_inside_a_seal_inherits.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T21:55:54",
+    "caller": "cairn test",
+    "date": "2026-10-04T17:06:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 33.66s",
+      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 5.23s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_nested_tester_run_reports_its_fixture_green",
@@ -44,26 +44,50 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1402769-nsh_uf58/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2731984-zw3dre80/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 29,
           "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/codemother/0/last_known.json",
+            "devices/harbor_master/0/last_known.json",
+            "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/tester/0/20261003.035522.412512.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.035537.478857.TesterDevice.sealed_announce_failed.json",
-            "logs/tester/0/20261003.035539.280957.TesterDevice.run_proof.json",
-            "logs/tester/0/20261003.035554.319963.TesterDevice.sealed_announce_failed.json"
+            "logs/bus/0/20261004.230612.592713.BusDevice.post.json",
+            "logs/bus/0/20261004.230612.614741.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261004.230612.624190.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261004.230612.809270.BusDevice.post.json",
+            "logs/bus/0/20261004.230612.811782.BusDevice.post.json",
+            "logs/bus/0/20261004.230612.820783.BusDevice.post.json",
+            "logs/bus/0/20261004.230613.370618.BusDevice.post.json",
+            "logs/bus/0/20261004.230613.370853.BusDevice.delivered.json",
+            "logs/bus/0/20261004.230613.371048.BusDevice.delivered.json",
+            "logs/bus/0/20261004.230615.280498.BusDevice.post.json",
+            "logs/bus/0/20261004.230615.746067.BusDevice.post.json",
+            "logs/bus/0/20261004.230615.746288.BusDevice.delivered.json",
+            "logs/bus/0/20261004.230615.746388.BusDevice.delivered.json",
+            "logs/codemother/0/20261004.230613.369986.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261004.230613.370423.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261004.230613.371151.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261004.230613.371264.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261004.230615.745706.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261004.230615.745913.CodeMotherDevice.sealed_heard.json",
+            "logs/tester/0/20261004.230612.435456.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.230613.370728.TesterShim.reply_disposed.json",
+            "logs/tester/0/20261004.230613.370948.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261004.230615.251480.TesterDevice.run_proof.json",
+            "logs/tester/0/20261004.230615.746173.TesterShim.reply_disposed.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 95014525,
-          "disk_bytes": 113180672,
-          "entries": 7490,
+          "bytes": 132938940,
+          "disk_bytes": 155820032,
+          "entries": 9669,
           "builds": 1,
-          "reuses": 8
+          "reuses": 3
         }
       }
     },

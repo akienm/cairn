@@ -20,9 +20,11 @@ import glob
 import json
 import os
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.base.address import instance_path
 from cairn.tools.chain.grammar import ticket_path
+
+_TICKET_ID = "f8aab31a917d"
 
 _OWNING_TICKET = "a-validate-criterion-is-runnable-before-the-crossing"
 _PACKETS = str(instance_path("chart") / "packets")
@@ -147,7 +149,8 @@ PROBE = Probe(
     body={"nexus": "validate", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the_refusal_names_a_criterion_a_builder_would_have_shipped"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

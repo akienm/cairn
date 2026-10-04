@@ -48,7 +48,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
 _OWNING_TICKET = "fb988505c5cb"
 _ENOUGH_RENDERS = 20
@@ -164,11 +164,12 @@ PROBE = Probe(
         "had to re-raise is the wrong intent (Akien 2026-09-15: buried in things he has "
         "to look at again)",
     trigger=_trigger,
-    to="codemother",
+    to="harbor_master",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "fb988505c5cb (5) + WRONG INTENT: terminal-ticket berths in "
                              "the lane must be 0; drained decisions re-raised must be 0"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,
 )

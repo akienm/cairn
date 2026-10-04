@@ -35,7 +35,7 @@ import json
 import re
 from datetime import date, datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3ed960cc402e"
 _STALE_DAYS = 14
@@ -126,11 +126,12 @@ PROBE = Probe(
         "two weeks is the reader missing a door, or Akien's real backlog — the probe carries "
         "which, so the inbox never reads 65 again",
     trigger=_trigger,
-    to="codemother",
+    to="harbor_master",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "3ed960cc402e: an idea reported open after a firing, a ticket "
                              "or acted_on took it up"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

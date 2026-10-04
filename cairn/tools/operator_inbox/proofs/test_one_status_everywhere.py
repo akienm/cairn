@@ -64,8 +64,11 @@ _READERS = (
     "cairn/devices/cairn/machines/harbor_master/register.py",
     "cairn/devices/cairn/machines/harbor_master/device.py",
 )
-# The five components whose history standing is prose: on the map only as a finding line.
-_PROSE_STANDING = ("cc", "diagnostic_inspector", "system_rackmount", "sudo_relay", "charter")
+# Which components' history standing is prose is MEASURED each run from the register's own
+# findings, never listed here: the list of five frozen at 3feb201c84ea went stale when cc and
+# charter returned to stage-token standing (measured 2026-10-04, e4138780377a build).
+def _prose_standing(w) -> list[str]:
+    return sorted({f["component"].rsplit("/", 1)[-1] for f in w.register()["findings"]})
 
 
 class _world:
@@ -402,7 +405,7 @@ def test_source_one_label_deriving_function_no_private_cursor_regex():
 def test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary():
     """(4) + (6) live: on the open map every row under a status group carries a date and a
     12-hex id; every status group name is a stage token of transitions' vocabulary (or the
-    one loud UNPARSED); and the five prose-standing components appear only as a FINDING line
+    one loud UNPARSED); and every prose-standing component (measured from the register's findings) appears only as a FINDING line
     naming the prose, never as a berth or a status group."""
     w = _world()
     hmap = _live_map(w)
@@ -422,7 +425,7 @@ def test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary():
     # (6): the prose-standing components berth no group and no row on the map — the only
     # line naming them as a component is the finding that names the prose
     port_groups = _groups(in_port)
-    for comp in _PROSE_STANDING:
+    for comp in _prose_standing(w):
         berthed = [g for g in port_groups if re.search(rf"(^|/){comp}$", g)]
         assert not berthed, f"{comp} berths a lane on the map instead of a finding line: {berthed}"
         named = [l for l in hmap.splitlines()

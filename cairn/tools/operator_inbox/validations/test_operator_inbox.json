@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_operator_inbox.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:51:50",
+    "caller": "cairn test",
+    "date": "2026-10-03T20:01:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_adjudication_shows_berth_and_skill\n.\n  ok   test_format_uses_operator_not_akien\n.\n  ok   test_format_summary_carries_ticket_breakdown\n.\n  ok   test_show_artifact_unknown_id\n.\n  ok   test_show_artifact_known_prefix\n.\n  ok   test_read_lap_empty\n.\n  ok   test_read_lap_surfaces_unresolved\n.\n  ok   test_gather_all_includes_lap\n.\n  ok   test_the_lane_probe_is_armed_and_measures_a_scratch_world\n                                               [100%]\n26 passed in 4.87s",
+      "stdout_tail": ".\n  ok   test_adjudication_shows_berth_and_skill\n.\n  ok   test_format_uses_operator_not_akien\n.\n  ok   test_format_summary_carries_ticket_breakdown\n.\n  ok   test_show_artifact_unknown_id\n.\n  ok   test_show_artifact_known_prefix\n.\n  ok   test_read_lap_empty\n.\n  ok   test_read_lap_surfaces_unresolved\n.\n  ok   test_gather_all_includes_lap\n.\n  ok   test_the_lane_probe_is_armed_and_measures_a_scratch_world\n                                               [100%]\n26 passed in 5.73s",
       "stderr_tail": "",
       "teeth_green": [
         "test_troubles_match_independent_read",
@@ -46,7 +46,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5ad081e669a90141aef0a13c4aa91864b994c211b98a9f271bcadc7a9c762520",
+      "source_fingerprint": "3d1acb95f08589373032801b9cca362d347051399429c1c53e428fe4dcef8d57",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -100,24 +100,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-ocrlxxqd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2128165-m1r8xfsu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 4,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "logs/bus.log",
-            "logs/bus/0/20261003.105146.105901.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261004.020104.835850.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261004.020104.845369.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619840,
-          "disk_bytes": 121761792,
-          "entries": 7978,
+          "bytes": 123356493,
+          "disk_bytes": 145092608,
+          "entries": 9131,
           "builds": 1,
-          "reuses": 97
+          "reuses": 2
         }
       }
     },

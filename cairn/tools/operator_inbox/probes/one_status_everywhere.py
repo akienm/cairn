@@ -32,7 +32,7 @@ import json
 import re
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3feb201c84ea"
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
@@ -136,10 +136,11 @@ PROBE = Probe(
     why="a ticket has one status; the three reports are venn diagrams of one reader, "
         "and an id wearing two labels across them is the bug Akien named 2026-09-06",
     trigger=_trigger,
-    to="codemother",
+    to="harbor_master",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "3feb201c84ea (1): one id, two labels across the three reports"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,
 )

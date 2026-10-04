@@ -459,7 +459,8 @@ def test_the_lane_probe_is_armed_and_measures_a_scratch_world():
 
     probe = probe_mod.PROBE
     assert callable(probe.trigger) and callable(probe.carry) and callable(probe.enough)
-    assert probe.to == "codemother"
+    # the receiver is harbor_master's watch verb since e4138780377a (835b5736bf2b child)
+    assert probe.to == "harbor_master" and probe.verb == "watch"
 
     root = scratch_dir("lane-probe-proof-")
     berths, tickets, ideas, questions = (root / "berths", root / "tickets",

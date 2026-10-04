@@ -21,7 +21,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+
+_TICKET_ID = "7a67ea9907c1"
 
 _OWNING_TICKET = "operator-inbox-is-deterministic-python"
 
@@ -173,9 +175,10 @@ PROBE = Probe(
         "reports a figure that is not true, which is the founding defect this script was "
         "built to kill (the old LLM skill could invent counts)",
     trigger=_trigger,
-    to="cairn",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,
 )

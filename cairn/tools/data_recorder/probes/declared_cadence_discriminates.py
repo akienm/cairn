@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, once
+from cairn.tools.base.probe import Probe, once, watch_carry
 from cairn.tools.data_recorder.probes.reading_is_declared_and_current import _recorders
 
 TICKET = "a4c2be029f49"
@@ -80,6 +80,21 @@ def _enough(context: dict) -> bool:
     return discriminates(pop)
 
 
+def _holds(context: dict) -> bool:
+    """Before ENOUGH a post is the population growing toward the bar, not a fault. At ENOUGH
+    the spec names two closings: the overdue judgement DISCRIMINATES (at least one read-against
+    recorder overdue and at least one current) and the watch closes green; or none is overdue,
+    the WRONG INTENT branch, and the ticket goes to FIXME, where the frequency is stripped. The
+    census is the at-rest probe's own pure judgement at this beat's clock (835b5736bf2b child)."""
+    from cairn.tools.data_recorder.probes.reading_is_declared_and_current import OVERDUE, census
+    pop = once(context, "recorder_population", lambda: population())
+    if not discriminates(pop):
+        return True
+    c = census(datetime.now(timezone.utc))
+    overdue = sum(1 for identity in c["troubles"] if identity.startswith(OVERDUE))
+    return overdue >= 1 and len(c["current"]) >= 1
+
+
 PROBE = Probe(
     why="the ticket's falsifier: a declared reading cadence that nobody ever meets is a "
         "field, not a measurement. This watches the live population for the first read "
@@ -88,7 +103,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy", "ticket": TICKET},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(TICKET, _carry, holds=_holds),
     enough=_enough,
     horizon=2000,
 )

@@ -17,7 +17,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "c5b6b128a376"
 
 SIEVE_BORN = "2026-09-14T15:00:00"
 ENOUGH_READINGS = 20
@@ -123,7 +125,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

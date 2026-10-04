@@ -1,32 +1,33 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_deposit_survives_a_move) -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
     "direction": "forward",
-    "exit_gate": "clean — no unanswered chart claim stands against ticket 'a-deposit-stands-downstream-of-a-move'; clean — the exit gate proved 1 check(s): the_claiming_chart_is_answered",
-    "clearance_gate": "cleared by 'CC' onto cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py (seal 2026-08-17T21:46:27, re-read at the door); clean — the clearance gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
-    "emission_gate": "clean — the emission gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(the_deposit_survives_a_move) emitted the probe berthed at cairn/devices/codemother/machines/survey/probes/does_a_deposit_survive_a_move.py (ticket 'a-deposit-stands-downstream-of-a-move')",
-    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260817T214933-973cb0f9e05d.json",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'aee6e994fb04', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'PROVED' in the code-seam@v2 vocabulary",
-        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
           ]
         }
       },
@@ -34,90 +35,47 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED moves the cursor off position 4",
-        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
-          "cursor": 4,
-          "resolved": 5
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> PROVED",
-        "actual": "WATCHME -> PROVED",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "PROVED",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
-            "PROVED",
-            "PROVEME",
-            "THINKME",
-            "TICKETME"
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_names_a_cast_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "a cast ticket for the WATCHME(the_deposit_survives_a_move) crossing",
-        "actual": "a cast ticket for the WATCHME(the_deposit_survives_a_move) crossing",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "a-deposit-stands-downstream-of-a-move",
-          "watch_object": "the_deposit_survives_a_move",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/7fef19d619ae-a-deposit-stands-downstream-of-a-move.json"
-        }
-      },
-      {
-        "identity": "the_ticket_carries_a_spec_for_this_watch",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "ticket 'a-deposit-stands-downstream-of-a-move' carries a watchme spec for 'the_deposit_survives_a_move'",
-        "actual": "ticket 'a-deposit-stands-downstream-of-a-move' carries a watchme spec for 'the_deposit_survives_a_move'",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "a-deposit-stands-downstream-of-a-move",
-          "watch_object": "the_deposit_survives_a_move",
-          "findings": []
-        }
-      },
-      {
-        "identity": "the_promised_probe_is_berthed_and_armed",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_emission",
-        "expected": "the probe the spec promised is berthed and armed",
-        "actual": "the probe the spec promised is berthed and armed",
-        "fatality": "none",
-        "source": "transitions.inspect_emission",
-        "values": {
-          "ticket": "a-deposit-stands-downstream-of-a-move",
-          "watch_object": "the_deposit_survives_a_move",
-          "berth": "cairn/devices/codemother/machines/survey/probes/does_a_deposit_survive_a_move.py",
-          "findings": []
         }
       },
       {
         "identity": "the_crossing_shows_its_ticket_or_its_exemption",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the PROVED crossing, or 'survey' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the PROVED crossing, or 'survey' on _EXEMPT_ROSTER",
+        "expected": "a ticket named on the BUILDME crossing, or 'survey' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'survey' on _EXEMPT_ROSTER",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "a-deposit-stands-downstream-of-a-move",
+          "target": "BUILDME",
+          "ticket": "aee6e994fb04",
           "component": "survey",
           "exempt": false,
           "roster": []
@@ -127,103 +85,89 @@
         "identity": "the_named_ticket_is_cast",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'a-deposit-stands-downstream-of-a-move' is cast",
-        "actual": "named ticket 'a-deposit-stands-downstream-of-a-move' is cast",
+        "expected": "named ticket 'aee6e994fb04' is cast",
+        "actual": "named ticket 'aee6e994fb04' is cast",
         "fatality": "none",
         "source": "transitions.inspect_named_ticket",
         "values": {
-          "target": "PROVED",
-          "ticket": "a-deposit-stands-downstream-of-a-move",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/7fef19d619ae-a-deposit-stands-downstream-of-a-move.json"
+          "target": "BUILDME",
+          "ticket": "aee6e994fb04",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aee6e994fb04-survey-probes-report-to-the-watch.json"
         }
       },
       {
-        "identity": "the_claiming_chart_is_answered",
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_exit",
+        "code": "transitions.py::inspect_entry",
         "expected": [],
         "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_exit",
+        "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "a-deposit-stands-downstream-of-a-move"
+          "ticket": "aee6e994fb04"
         }
       },
       {
-        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "identity": "the_ticket_names_its_intent_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'survey' is on _CLEARANCE_EXEMPT_ROSTER",
-        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'survey' is on _CLEARANCE_EXEMPT_ROSTER",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "component": "survey",
-          "cleared_by": "CC",
-          "exempt": false,
-          "roster": []
+          "findings": [],
+          "ticket": "aee6e994fb04"
         }
       },
       {
-        "identity": "the_witness_is_whole",
+        "identity": "the_ticket_names_its_sorted_door_firing",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness carries every field the harbor's gate stamps",
-        "actual": "the witness carries every field the harbor's gate stamps",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "cleared_by": "CC",
-          "missing": [],
-          "demanded": [
-            "proven_by",
-            "proven_seal_date"
-          ]
+          "findings": [],
+          "ticket": "aee6e994fb04"
         }
       },
       {
-        "identity": "the_named_proof_stands_in_proven_space",
+        "identity": "the_ticket_has_every_answer_it_needs",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py stands in proven-space",
-        "actual": "cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py stands in proven-space",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py",
-          "why": "sealed green 2026-08-17T21:46:27 by a-deposit-stands-downstream-of-a-move, and the component's source fingerprint still matches what was proved (c190f9711966…)"
+          "findings": [],
+          "ticket": "aee6e994fb04"
         }
       },
       {
-        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "identity": "the_ticket_rehearses_clean",
         "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_clearance",
-        "expected": "the witness dates cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py's seal at '2026-08-17T21:46:27'",
-        "actual": "the witness dates cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py's seal at '2026-08-17T21:46:27'",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
         "fatality": "none",
-        "source": "transitions.inspect_clearance",
+        "source": "transitions.inspect_entry",
         "values": {
-          "target": "PROVED",
-          "proof": "cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py",
-          "seal": "2026-08-17T21:46:27",
-          "claimed": "2026-08-17T21:46:27"
+          "findings": [],
+          "ticket": "aee6e994fb04"
         }
       }
     ],
-    "checks_proved": 13,
-    "cleared_by": "CC",
-    "actor": "CC",
-    "proven_by": "cairn/devices/codemother/machines/survey/proofs/test_deposit_survives_a_move.py",
-    "proven_seal_date": "2026-08-17T21:46:27",
-    "delegated": false,
-    "ticket": "a-deposit-stands-downstream-of-a-move",
-    "note": "THE DEPOSIT WAS THE THIRD MOUTH OF judge_survey AND NOBODY COUNTED IT FOR EIGHTEEN DAYS. The berth door keeps a flat address rule on purpose; the promotion sieve disposes through the successor order on the stated ground that it 'alone stands downstream of a move'. It does not — deposit_survey runs on the far side of the build the packet was charted for, and it was re-running the door's flat rule. It now runs validate_survey_at_deposit, which is the door plus exactly one tolerance: the holdings-resolve ADDRESS finding, filtered through the ONE successor body via a new public name resolves_to that delegates rather than restating the precedence. MEASURED, 57 berths: 45 carried a moved address, 352 findings disposed, 3 still refused. WHAT THE VOYAGE GOT WRONG, AND IT IS THE SAME SHAPE THREE TIMES: a number written from a model of a mechanism instead of from the mechanism. The pre-build sweep modelled judge_survey and not the door's full shape record, so hypothesis 1 and criteria 3 and 4 all said 43-and-2 where the built path says 42-and-3 — hypothesis 1 is KILLED by its own falsifier clause and the criteria were restated as INVARIANTS and re-berthed. Criterion 6 asked for a trail_link, a field retired on 2026-08-16 when the hash chain went; restated against the 0444 mode bit, the exact eight-field set, and standing()'s fingerprint. And the probe's first draft read the wire broken while it was fine, because it borrowed a template berth by SHAPE and got one the door refuses for an unrelated 2026-08-03 identity rule — the template is chosen by the door now. THIS CROSSING ALSO ADDED gated_by:['CC'] TO THE SURVEY CHARTER, because the clearance gate refused without it: the owner was prose, and prose cannot gate. CENSUS TAKEN RATHER THAN THE INSTANCE FIXED ALONE — 27 of 39 beside-code charters carry no gated_by, including four of the seven chart stages and verdict, so every one of them is a boat that cannot enter proven-space today. A ticket is owed; widening the fix here would be outside this voyage's bounds. THE THIRD STILL-REFUSED BERTH IS THE NEXT TICKET, not a defect here: survey-20260728T170650 is held by a request-identity rule added 2026-08-03 that retro-reds a 2026-07-28 packet. That is a deposit standing downstream of a change to the RULES rather than to the WORLD — the sibling of this finding, named in the validate berth's unknowns and owed a cast.",
-    "at": "2026-08-17T21:51:24",
-    "seq": 3
+    "checks_proved": 10,
+    "ticket": "aee6e994fb04",
+    "actor": "cc",
+    "why": "835b5736bf2b child: rehearsed CLEAN; building the probes' watch receiver",
+    "fingerprint": "1c18055961a284eb5012f43b53801f3da0d5b8969e1f1040ee45d45f9cfa98b6",
+    "at": "2026-10-03T18:30:12",
+    "seq": 4
   },
   "window": [
     {
@@ -1011,7 +955,177 @@
       "note": "THE DEPOSIT WAS THE THIRD MOUTH OF judge_survey AND NOBODY COUNTED IT FOR EIGHTEEN DAYS. The berth door keeps a flat address rule on purpose; the promotion sieve disposes through the successor order on the stated ground that it 'alone stands downstream of a move'. It does not — deposit_survey runs on the far side of the build the packet was charted for, and it was re-running the door's flat rule. It now runs validate_survey_at_deposit, which is the door plus exactly one tolerance: the holdings-resolve ADDRESS finding, filtered through the ONE successor body via a new public name resolves_to that delegates rather than restating the precedence. MEASURED, 57 berths: 45 carried a moved address, 352 findings disposed, 3 still refused. WHAT THE VOYAGE GOT WRONG, AND IT IS THE SAME SHAPE THREE TIMES: a number written from a model of a mechanism instead of from the mechanism. The pre-build sweep modelled judge_survey and not the door's full shape record, so hypothesis 1 and criteria 3 and 4 all said 43-and-2 where the built path says 42-and-3 — hypothesis 1 is KILLED by its own falsifier clause and the criteria were restated as INVARIANTS and re-berthed. Criterion 6 asked for a trail_link, a field retired on 2026-08-16 when the hash chain went; restated against the 0444 mode bit, the exact eight-field set, and standing()'s fingerprint. And the probe's first draft read the wire broken while it was fine, because it borrowed a template berth by SHAPE and got one the door refuses for an unrelated 2026-08-03 identity rule — the template is chosen by the door now. THIS CROSSING ALSO ADDED gated_by:['CC'] TO THE SURVEY CHARTER, because the clearance gate refused without it: the owner was prose, and prose cannot gate. CENSUS TAKEN RATHER THAN THE INSTANCE FIXED ALONE — 27 of 39 beside-code charters carry no gated_by, including four of the seven chart stages and verdict, so every one of them is a boat that cannot enter proven-space today. A ticket is owed; widening the fix here would be outside this voyage's bounds. THE THIRD STILL-REFUSED BERTH IS THE NEXT TICKET, not a defect here: survey-20260728T170650 is held by a request-identity rule added 2026-08-03 that retro-reds a 2026-07-28 packet. That is a deposit standing downstream of a change to the RULES rather than to the WORLD — the sibling of this finding, named in the validate berth's unknowns and owed a cast.",
       "at": "2026-08-17T21:51:24",
       "seq": 3
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'aee6e994fb04', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'survey' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'survey' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "aee6e994fb04",
+            "component": "survey",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'aee6e994fb04' is cast",
+          "actual": "named ticket 'aee6e994fb04' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "aee6e994fb04",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/aee6e994fb04-survey-probes-report-to-the-watch.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aee6e994fb04"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aee6e994fb04"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aee6e994fb04"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aee6e994fb04"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "aee6e994fb04"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "ticket": "aee6e994fb04",
+      "actor": "cc",
+      "why": "835b5736bf2b child: rehearsed CLEAN; building the probes' watch receiver",
+      "fingerprint": "1c18055961a284eb5012f43b53801f3da0d5b8969e1f1040ee45d45f9cfa98b6",
+      "at": "2026-10-03T18:30:12",
+      "seq": 4
     }
   ],
-  "count": 4
+  "count": 5
 }

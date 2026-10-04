@@ -44,11 +44,13 @@ import json
 import os
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 from cairn.machines.build_inspector.inspector import judge_survey, resolves_to
 from cairn.devices.codemother.machines.survey.survey import (
     SurveyRefused, deposit_survey, validate_survey, validate_survey_at_deposit,
 )
+
+_TICKET_ID = "7fef19d619ae"
 
 _TICKET = owning_ticket("a-deposit-stands-downstream-of-a-move")
 
@@ -240,7 +242,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "survey", "kind": "efficacy", "ticket": _TICKET},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

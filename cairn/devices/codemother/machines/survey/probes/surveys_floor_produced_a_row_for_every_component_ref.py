@@ -27,8 +27,10 @@ import json
 import os
 
 from cairn.tools.chain.grammar import component_of, CAIRN_ROOT
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.base.address import instance_path
+
+_TICKET_ID = "743a09ca5e92"
 
 _OWNING_TICKET = "surveys-floor-keys-on-names-while-orient-hands-it-paths"
 _PACKETS = str(instance_path("chart") / "packets")
@@ -178,7 +180,8 @@ PROBE = Probe(
     body={"nexus": "survey", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "surveys_floor_produced_a_row_for_every_component_ref"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,
 )

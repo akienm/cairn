@@ -1,0 +1,150 @@
+[
+  {
+    "claim": "proof test_the_hollow_skips_only_the_instrument.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T05:51:34",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "        writes_to beside the subject, both are skipped and the subject is still measured.\"\"\"\n        repo, commons, berths, _ = _fixture(\n            {SUBJECT: _SUBJECT_CLEAN, INSTRUMENT: _PROOF_SRC + \"# touched\\n\",\n             HELPER: _HELPER_SRC + \"# touched\\n\"},\n            [SUBJECT, INSTRUMENT, HELPER])\n        f = _measure(repo, commons, berths)\n        skips = _skips(f)\n        assert skips.get(INSTRUMENT) == SKIP_INSTRUMENT, skips\n        assert skips.get(HELPER) == SKIP_INSTRUMENT, skips\n>       assert f[\"measured\"].get(SUBJECT) == [TOOTH], (f[\"measured\"], skips)\nE       AssertionError: ({}, {'other/proofs/test_other.py': 'under proofs/ — reverting the instrument makes the reading meaningless', 'proofs/...he reading meaningless', 'proofs/helper.py': 'under proofs/ — reverting the instrument makes the reading meaningless'})\nE       assert None == ['test_the_subject_proof_is_clean']\nE        +  where None = <built-in method get of dict object at 0x761528174900>('other/proofs/test_other.py')\nE        +    where <built-in method get of dict object at 0x761528174900> = {}.get\n\ntest_the_hollow_skips_only_the_instrument.py:146: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_hollow_skips_only_the_instrument.py::test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured\nFAILED test_the_hollow_skips_only_the_instrument.py::test_the_instrument_and_what_it_imports_are_still_skipped\n2 failed, 2 passed in 919.85s (0:15:19)",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_build_of_only_the_instrument_still_measures_nothing",
+        "test_the_standing_hollow_proofs_stay_green"
+      ],
+      "teeth_red": [
+        "test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured",
+        "test_the_instrument_and_what_it_imports_are_still_skipped",
+        "test_the_hollow_skips_only_the_instrument"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d084e43ef0b66636b840d7aca9702356433eb0a0c030cb1fdb0807875162a834",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 2700,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "daeca8b3f12d778cb9ae5a5eb2f9554b43077fb4eb174c9622dc0f59fbcd1a43",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/hollow.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_the_hollow_skips_only_the_instrument.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3223077-0n3_rr9y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 994,
+          "paths": [
+            "devices/trouble/0/last_known.json",
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/20261005.113615.647670.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113617.578876.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113619.389192.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113621.488404.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113623.177647.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113624.860530.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113626.601137.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113628.314350.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113630.010449.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113631.776999.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113633.513409.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113635.197932.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113644.157759.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113646.422881.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113648.585424.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113656.298427.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113658.555741.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113700.735730.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113707.971813.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113710.104043.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113712.267666.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113719.887743.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113721.993572.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113724.244828.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113731.976862.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113734.091459.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113736.335101.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113744.240857.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113746.346604.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113748.679270.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113752.455028.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113754.543896.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113756.829685.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113804.982830.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113807.147025.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113809.432437.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113817.500755.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.113819.695160.TesterDevice.run_proof.json"
+          ],
+          "elided": 954
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 150143810,
+          "disk_bytes": 179179520,
+          "entries": 11729,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

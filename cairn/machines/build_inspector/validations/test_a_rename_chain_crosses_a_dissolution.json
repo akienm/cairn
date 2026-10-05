@@ -1,0 +1,97 @@
+[
+  {
+    "claim": "proof test_a_rename_chain_crosses_a_dissolution.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T02:41:00",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_the_chain_crosses_the_deleting_tickets_order: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_no_order_at_the_chain_end_resolves_nothing: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_the_charting_tickets_own_order_still_wins: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_an_order_never_answers_for_an_address_its_chain_never_reached: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_the_deleting_tickets_order_wins_over_a_disagreeing_copy: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_orders_that_disagree_with_no_deleter_answer_nothing: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\n  FAIL test_the_live_ground_loop_addresses_resolve: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'continued_successor'\nRED",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_the_chain_crosses_the_deleting_tickets_order",
+        "test_no_order_at_the_chain_end_resolves_nothing",
+        "test_the_charting_tickets_own_order_still_wins",
+        "test_an_order_never_answers_for_an_address_its_chain_never_reached",
+        "test_the_deleting_tickets_order_wins_over_a_disagreeing_copy",
+        "test_orders_that_disagree_with_no_deleter_answer_nothing",
+        "test_the_live_ground_loop_addresses_resolve"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "b8912cca4f6d8ade0341072d051016aa583bb359a13a0b656df81e6eb6018663",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "ee805d628fa7609fc1ba6ebb130d56e749b3c821c08ef5439ee06ad0a8aad5ec",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_a_rename_chain_crosses_a_dissolution.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3103934-rz8oief9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 145087650,
+          "disk_bytes": 169648128,
+          "entries": 10435,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_import_sieve.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T02:08:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T03:12:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -60,7 +60,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -68,7 +68,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "8e903bfcb63874523e15dea86313e6cbb47ca89db5109a0ac36a2523c55f51e7",
+      "source_fingerprint": "94eef1b69a6a6e331cc3503a75507fed19b3758d433bcb19c2c5171de332c106",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -100,7 +100,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3083562-2p2a9r2f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3105765-mmddywn4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -109,18 +109,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 144149146,
-          "disk_bytes": 168558592,
-          "entries": 10365,
+          "bytes": 145130123,
+          "disk_bytes": 169701376,
+          "entries": 10439,
           "builds": 1,
-          "reuses": 0
+          "reuses": 61
         }
-      },
-      "conditions_moved": {
-        "notified": "n-d25348edc7ae",
-        "changed": [
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

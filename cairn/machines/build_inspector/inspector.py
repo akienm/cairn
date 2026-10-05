@@ -369,7 +369,13 @@ def _forwarding_map(ticket_id) -> dict:
             ticket = json.load(fh)
     except (OSError, json.JSONDecodeError):
         return {}  # forwarding_order_resolves owns the unreadable-ticket finding
-    order = ticket.get("forwarding")
+    return _valid_orders(ticket.get("forwarding"))
+
+
+def _valid_orders(order) -> dict:
+    """The VALID entries of one forwarding order, ``{from: to}`` — the one filter
+    both hand-order readers apply, so the charting ticket's order and the
+    cross-ticket index cannot disagree about which entries count."""
     if not isinstance(order, dict):
         return {}
     good = {}
@@ -383,6 +389,108 @@ def _forwarding_map(ticket_id) -> dict:
             continue
         good[old] = to
     return good
+
+
+# ── THE CHAIN CROSSES A DISSOLUTION ──────────────────────────────────────────
+# (ticket a-rename-chain-continues-through-a-later-dissolutions-forwarding-order,
+# 2026-10-05)
+#
+# Git can say where a file went; only a hand can say what a deletion meant. When a
+# rename is followed by a later ticket's build deleting the renamed file, the
+# derived chain ends at an address that is gone, and the one record of where it
+# went is the DELETING ticket's forwarding order — which the charting ticket never
+# carries. Measured on the day: 21 of the sweep's 23 address findings were
+# cairn/devices/ground_loop/ addresses that 6ae83e7e renamed and efb670ff1dd8's
+# build (4313a42d) deleted, and efb670ff1dd8's order already named loop.py's and
+# staleness.py's successors. The answer existed and was unreachable.
+#
+# The read is NOT "any ticket may answer for any address". An order is reached
+# only at the end of the address's own rename chain. The DELETING ticket speaks
+# first — git names the commit that removed the file, and a build commit's subject
+# opens with its ticket id — because a dissolution can split one file several
+# ways, and a charting ticket that cared about one role writes its own order for
+# that role (5a4ec289bf15 forwards loop.py to the post-commit hook; efb670ff1dd8,
+# which deleted it, forwards it to the roster). Where the deleter wrote nothing,
+# the orders other tickets copied stand only if they all agree; two that disagree
+# answer nothing.
+
+_HAND_ORDER_INDEX: dict = {}
+
+
+def _hand_order_index() -> dict:
+    """Every filed ticket's valid forwarding entries, ``{from: to}``, once per
+    (process, tickets root). A ``from`` two tickets forward to different places is
+    left out: an address two hands disagree about has no successor."""
+    key = str(_TICKETS_ROOT)
+    if key not in _HAND_ORDER_INDEX:
+        import glob as _glob
+        tickets_dir = os.path.join(os.path.dirname(key), "CairnCommons", "tickets")
+        seen: dict = {}
+        for filed in sorted(_glob.glob(os.path.join(tickets_dir, "*.json"))):
+            try:
+                with open(filed, encoding="utf-8") as fh:
+                    ticket = json.load(fh)
+            except (OSError, json.JSONDecodeError):
+                continue  # forwarding_order_resolves owns the unreadable ticket
+            if not isinstance(ticket, dict):
+                continue
+            for old, to in _valid_orders(ticket.get("forwarding")).items():
+                seen.setdefault(old, set()).add(to)
+        _HAND_ORDER_INDEX[key] = {old: next(iter(tos))
+                                  for old, tos in seen.items() if len(tos) == 1}
+    return _HAND_ORDER_INDEX[key]
+
+
+_hand_order_index.cache_clear = _HAND_ORDER_INDEX.clear  # type: ignore[attr-defined]
+
+
+_DELETER_CACHE: dict = {}
+_TICKET_SUBJECT = re.compile(r"([0-9a-f]{12})\b")
+
+
+def _deleting_ticket(path: str, repo_root=None):
+    """The ticket id the commit that deleted ``path`` opens its subject with, or
+    ``None`` when that commit names no ticket. Raises GitUnreadable."""
+    key = (str(repo_root or ""), path)
+    if key not in _DELETER_CACHE:
+        lines = _git_lines(repo_root, "log", "--diff-filter=D", "-1",
+                           "--format=%s", "--", path)
+        m = _TICKET_SUBJECT.match(lines[0]) if lines else None
+        _DELETER_CACHE[key] = m.group(1) if m else None
+    return _DELETER_CACHE[key]
+
+
+_deleting_ticket.cache_clear = _DELETER_CACHE.clear  # type: ignore[attr-defined]
+
+
+def continued_successor(address, repo_root=None, exists=None):
+    """Where an address went when git's rename chain ends at a file a later build
+    deleted: the deleting ticket's order for that file, else the one place every
+    other order agrees on, else ``None``.
+
+    Only an address with a rename record is continued, and only from the chain's
+    final address — never from the address itself, which is the charting ticket's
+    own order's business."""
+    if not isinstance(address, str) or not address.strip():
+        return None
+    exists = exists or _default_exists
+    if exists(address):
+        return None
+    root = str(repo_root) if repo_root else CAIRN_ROOT
+    succ, finals, _tracked = _successor_index(str(repo_root) if repo_root else "")
+    key = _repo_relative(address, root)
+    if key not in succ:
+        return None
+    dress = (lambda p: os.path.join(root, p)) if key != address else (lambda p: p)
+    final = finals.get(key)
+    if not final or final == key or exists(dress(final)):
+        return None  # no settled chain, or derived_successor already answered it
+    deleter = _deleting_ticket(final, repo_root)
+    to = (_forwarding_map(deleter).get(final) if deleter else None) \
+        or _hand_order_index().get(final)
+    if to and exists(dress(to)):
+        return dress(to)
+    return None
 
 
 # ── THE SECOND SUCCESSOR DOOR: DERIVED, NOT AUTHORED ─────────────────────────
@@ -618,7 +726,9 @@ def resolves_to(address, ticket_id, repo_root=None, exists=None):
 def _resolves_to(address, ticket_id, repo_root=None, exists=None):
     """THE ONE SUCCESSOR RESOLVER the three address sieves compose.
 
-    Precedence: the ticket's hand-authored order first, git's rename record second.
+    Precedence: the ticket's hand-authored order first, git's rename record second,
+    and, where that record ends at a file a later build deleted, the deleting
+    ticket's order for that file third (continued_successor).
     One rule with one spelling — the neighbouring voyage
     (one-owner-for-the-instance-address) was born of the same rule spelled twice in
     two seats that then drifted apart, and two answers to 'where did this address
@@ -627,7 +737,8 @@ def _resolves_to(address, ticket_id, repo_root=None, exists=None):
     if hand:
         return hand
     try:
-        return derived_successor(address, repo_root=repo_root, exists=exists)
+        return (derived_successor(address, repo_root=repo_root, exists=exists)
+                or continued_successor(address, repo_root=repo_root, exists=exists))
     except GitUnreadable:
         return None  # the residue report owns the reader's failure and says so
                      # by name; a sieve's job is not to turn it into a finding
@@ -692,7 +803,8 @@ def forwarding_residue(comp_dir=None) -> dict:
             # behind them, purely because there was no ticket to look an order up
             # under.
             got = _resolves_to(addr, tid)
-            by = (tid if tid and _forwarding_map(tid).get(addr) == got else "git")
+            by = (tid if tid and _forwarding_map(tid).get(addr) == got
+                  else "git" if derived_successor(addr) == got else "dissolution")
         except GitUnreadable as e:                           # pragma: no cover
             got, by, reader_failed = None, None, str(e)
         if got is None and reader_failed is None:

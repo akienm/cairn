@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_a_change_reseals_only_its_own_components_proofs.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T15:07:02",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_users_proof_is_not_touched_by_its_tools_change\n  green the_changed_components_own_proofs_are_touched\n  green a_nested_components_change_does_not_touch_its_holder\n  green on_the_live_census_the_reach_stops_at_the_owner\n4 passed, 0 failed out of 4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_users_proof_is_not_touched_by_its_tools_change",
+        "the_changed_components_own_proofs_are_touched",
+        "a_nested_components_change_does_not_touch_its_holder",
+        "on_the_live_census_the_reach_stops_at_the_owner"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "9d56fc368f4e30238bbca6729130038ca2cdaa6b22c9c6f20b3a3a381a01b636",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 1200,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "66fa6f944a8e1a17dcd1afa5d03165c49a848a2e4a247da2a11e7f7e9353b904",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_a_change_reseals_only_its_own_components_proofs.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/scratch_sweep.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/origin.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3479190-nm9qlr9w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 167652165,
+          "disk_bytes": 194547712,
+          "entries": 11499,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,0 +1,90 @@
+[
+  {
+    "claim": "proof test_the_inbox_shows_the_tester_notices.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-04T19:23:11",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "\n-- INTENTIONS (1 open, no ticket yet; 18 moved on) -------------------------\n\n    I-the-cheapest-reader-proves-a-ticket-before-it-is-built\n\n\n-- IDEAS (4 open, not yet at intent; 86 moved on) --------------------------\n\n    2026-09-09  re-paths-lets-make-everything-either-cairn\n    2026-09-23  side-thought-this-might-be-an-idea\n    2026-09-24  a-clean-rehearsal-at-ticketme-waiting-never\n    2026-09-24  the-librarian-launcher-starts-the-ground-loop\n\n============================================================================\n\n  FAIL test_a_tester_that_cannot_be_asked_is_loud: AttributeError: module 'cairn.tools.operator_inbox.inbox' has no attribute 'read_notices'\n  FAIL test_the_summary_carries_the_count_and_the_rate: AssertionError: 63 live trouble(s) | 127 artifact(s) awaiting review | 0 open question(s) | 100 tickets (TICKETME:waiting 39, PROVEME:waiting 15, BUILDME:in-process 1, BUILDME:waiting 22, BUILDME:queued 4, WATCHME:waiting 10, FIXME:waiting 9) | 1 open intention(s) | 4 open idea(s)\n  FAIL test_notice_seen_asks_the_tester_verb: AssertionError: []\n  FAIL test_the_live_tester_answers_the_lane: AttributeError: module 'cairn.tools.operator_inbox.inbox' has no attribute 'read_notices'\nRED",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_the_reader_asks_the_tester_notices_verb",
+        "test_the_lane_shows_each_notice_and_the_rate_among_his_sections",
+        "test_a_tester_that_cannot_be_asked_is_loud",
+        "test_the_summary_carries_the_count_and_the_rate",
+        "test_notice_seen_asks_the_tester_verb",
+        "test_the_live_tester_answers_the_lane"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "bd7442d860e0b173c723a01afe04b5ffb76769b92465de26414cba79d61a42f5",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/trouble.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/machines/skill_block/__init__.py",
+        "cairn/machines/skill_block/skill_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
+        "cairn/tools/bus_client/roster.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/inbox.py",
+        "cairn/tools/operator_inbox/proofs/test_the_inbox_shows_the_tester_notices.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2815572-9e6i7igl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 3,
+          "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "logs/bus.log",
+            "logs/bus/0/20261005.012310.266576.BusDevice.transit_table_ensured.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 133922126,
+          "disk_bytes": 156889088,
+          "entries": 9711,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

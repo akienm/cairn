@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_the_ground_loop_reads_the_tools_cadence.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T12:16:54",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green the_loop_defines_no_cadence_of_its_own\n  green the_loop_imports_the_tools\n  green the_loop_beats_at_it\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the_loop_defines_no_cadence_of_its_own",
+        "the_loop_imports_the_tools",
+        "the_loop_beats_at_it"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "cfd9df0aa1e27920d5b7425d3355abe5e15b2e7a30803d4bc2adfd10d152ccce",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 1200,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "ce3c9477344cd3f57e3bd2b920bfb5dae1e35a0fbc3478328150ed764d658d0a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__main__.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_the_ground_loop_reads_the_tools_cadence.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/liveness/__init__.py",
+        "cairn/tools/liveness/liveness.py",
+        "cairn/tools/rack/__init__.py",
+        "cairn/tools/rack/rack.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3403455-pkew9nol/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 162596552,
+          "disk_bytes": 188858368,
+          "entries": 11207,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

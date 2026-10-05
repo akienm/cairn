@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_green_over_a_red_under_other_conditions_notifies.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-04T20:22:23",
+    "caller": "cairn test",
+    "date": "2026-10-04T20:22:59",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -32,7 +32,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -70,42 +70,36 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2854549-k66cxhcj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2854854-uxy15ugq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/tester/0/20261005.022200.518135.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022202.260765.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022203.984755.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022205.764094.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022207.511266.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022209.242968.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022210.915815.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022212.630044.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022214.337058.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022216.028923.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022217.758854.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022219.469633.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022221.194958.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022222.899254.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.022233.878050.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022235.567412.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022237.242182.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022238.890970.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022240.718257.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022242.377042.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022244.032035.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022245.713977.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022247.521360.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022249.620283.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022251.820477.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022254.004039.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022256.265088.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022258.682137.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134960982,
-          "disk_bytes": 158203904,
-          "entries": 9815,
+          "bytes": 134961575,
+          "disk_bytes": 158208000,
+          "entries": 9816,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "conditions_moved": {
-        "notified": "n-daf1b756e369",
-        "changed": [
-          "timeout"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

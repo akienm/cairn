@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_the_bus_client_is_admitted_to_the_sole_path.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T00:15:04",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_the_real_repo_has_one_door: AssertionError: [\"cairn/tools/bus_client/remote.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inference_domain/ is supposed to be the only one\"]\n  FAIL test_a_planted_dialer_is_still_caught: AssertionError: [\"cairn/tools/bus_client/bus_client.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inference_domain/ is supposed to be the only one\", \"cairn/tools/bus_client/remote.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inference_domain/ is supposed to be the only one\", \"skills/rogue/probe.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inference_domain/ is supposed to be the only one\"]\n  FAIL test_the_charter_names_the_answer: AssertionError: (6) any module OTHER than inference_domain opens the inference host (sole-path breached). ENFORCED as of 2026-08-06 by cairn/tools/import_sieve over the WHOLE tree at proof time, and as of 2026-08-08 at BUILD time too — build_inspector's sole_path_holds sieve runs the same mesh on every inspection (\nRED",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_the_real_repo_has_one_door",
+        "test_a_planted_dialer_is_still_caught",
+        "test_the_charter_names_the_answer"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "2e16fbaba58f8cb911c98debb695649bf680f99f1fa12ae1c602b99612b6e228",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "12ecacd6796dff627f2cddd9dbc2c6e2d6bbe05fffcd8aa64dd97e41ba4d6d16",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/host.py",
+        "cairn/devices/inference_domain/proofs/test_the_bus_client_is_admitted_to_the_sole_path.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3004942-fvnmjrq3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 140258298,
+          "disk_bytes": 164171776,
+          "entries": 10125,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

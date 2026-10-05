@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_every_watching_class_can_fixme.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T02:20:10",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "        \"\"\"\n        target = canon_target(wf, target, class_def)   # a stage token is a system word\n        record = inspect_rules(wf, target, class_def=class_def)\n        bad = _mismatches(record)\n        if bad:\n            e = bad[0]\n            detail = \"\"\n            if e[\"identity\"] == \"the_target_is_in_the_vocabulary\":\n                detail = \" %s\" % list(wf.path)\n            elif e[\"identity\"] == \"the_crossing_is_a_legal_edge\":\n                detail = (\" (legal from here: %s) — e.g. a forward skip past a gate summons is \"\n                          \"refused\" % sorted((e.get(\"values\") or {})[\"legal_from_here\"]))\n>           raise IllegalTransition(str(e[\"actual\"]) + detail)\nE           cairn.tools.base.transitions.IllegalTransition: 'FIXME' is not in the bug@v1 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\n\n../transitions.py:834: IllegalTransition\n=========================== short test summary info ============================\nFAILED test_every_watching_class_can_fixme.py::test_every_watching_class_that_builds_declares_the_fixme_edge\nFAILED test_every_watching_class_can_fixme.py::test_a_back_edge_lands_at_fixme_on_every_watching_class\n2 failed in 0.10s",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_every_watching_class_that_builds_declares_the_fixme_edge",
+        "test_a_back_edge_lands_at_fixme_on_every_watching_class",
+        "test_every_watching_class_can_fixme"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4f6c8b4854cceb99803a05bd486330d5bca7188dcbc8cc7ec825fb1084aec378",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "425a978d75ecebc7fe2d37f578653f82f77e5ed30ce69fcfc1e4f7a61a9e09ec",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_every_watching_class_can_fixme.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3091049-ittp0syt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 144317382,
+          "disk_bytes": 168792064,
+          "entries": 10395,
+          "builds": 1,
+          "reuses": 3
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

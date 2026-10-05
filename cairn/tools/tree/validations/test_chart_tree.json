@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_chart_tree.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:42:34",
+    "caller": "cairn test",
+    "date": "2026-10-05T02:23:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -31,7 +31,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "9c723f1fa67fb0de82cbed79efec745744aad259c6a455fb085ace31d9ac0c77",
+      "conditions": {
+        "proof": "45e26fbc7e1ae830c577f4b30156633d7fb44de1ef97fccd52cc579383a8eefb",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "0b8a0bc852ce93207d614b74e0a9140b7f464ab9ce4b749649e8f1f1b668c7fb",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -44,8 +57,6 @@
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
-        "cairn/devices/librarian/tools/__init__.py",
-        "cairn/devices/librarian/tools/trees/__init__.py",
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
@@ -68,7 +79,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1132427-gzh3akk8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3091049-f48wbm2_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,11 +88,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91312557,
-          "disk_bytes": 108457984,
-          "entries": 7087,
+          "bytes": 144317382,
+          "disk_bytes": 168792064,
+          "entries": 10395,
           "builds": 1,
-          "reuses": 29
+          "reuses": 8
         }
       }
     },

@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_groundloop_pulse.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T02:20:07",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "learning_block fires its own clock probes on its own pulse\n  RED  the heartbeat's discovery lists learning_block's pulse at class level\n         -> sites=[]\n  RED  the pulse names exactly learning_block's clock probes and each resolves to a Probe\n         -> FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'\n  RED  no other probe in learning_block's probes folder is in the roster\n         -> FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'\n  RED  one pulse covers exactly learning_block's clock probes in fired and held\n         -> FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'\n\nRED — 4 failure(s):\n  - the heartbeat's discovery lists learning_block's pulse at class level: sites=[]\n  - the pulse names exactly learning_block's clock probes and each resolves to a Probe: FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'\n  - no other probe in learning_block's probes folder is in the roster: FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'\n  - one pulse covers exactly learning_block's clock probes in fired and held: FileNotFoundError: [Errno 2] No such file or directory: '/home/akien/dev/src/cairn/cairn/machines/learning_block/groundloop/pulse.py'",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "the heartbeat's discovery lists learning_block's pulse at class level",
+        "the pulse names exactly learning_block's clock probes and each resolves to a Probe",
+        "no other probe in learning_block's probes folder is in the roster",
+        "one pulse covers exactly learning_block's clock probes in fired and held"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "47f19899c5ba23e23ed4c515e32b17b401734bbeeb0a3cc18e27441173abefe0",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "4deb2fe48927877ed2c6f8db4cbf5fbda5551e75c049243109034b7704251360",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/discovery.py",
+        "cairn/machines/learning_block/proofs/test_groundloop_pulse.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/probe.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3091049-y0dmv1z5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 144317382,
+          "disk_bytes": 168792064,
+          "entries": 10395,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

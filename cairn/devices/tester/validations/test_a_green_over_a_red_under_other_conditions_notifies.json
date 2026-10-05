@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_green_over_a_red_under_other_conditions_notifies.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T20:21:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:22:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_a_sealed_run_records_its_conditions_with_env_as_digests\n  ok   test_a_green_over_a_red_under_another_timeout_posts_one_notice\n  ok   test_a_green_over_a_red_under_the_same_conditions_posts_nothing\n  ok   test_a_red_that_predates_the_instrument_compares_nothing\n  ok   test_a_red_never_posts\n  ok   test_an_unsealed_run_never_posts\n  FAIL test_a_reseal_green_over_a_red_under_other_conditions_notifies: AssertionError: None\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_sealed_run_records_its_conditions_with_env_as_digests\n  ok   test_a_green_over_a_red_under_another_timeout_posts_one_notice\n  ok   test_a_green_over_a_red_under_the_same_conditions_posts_nothing\n  ok   test_a_red_that_predates_the_instrument_compares_nothing\n  ok   test_a_red_never_posts\n  ok   test_an_unsealed_run_never_posts\n  ok   test_a_reseal_green_over_a_red_under_other_conditions_notifies\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_sealed_run_records_its_conditions_with_env_as_digests",
@@ -15,11 +15,10 @@
         "test_a_green_over_a_red_under_the_same_conditions_posts_nothing",
         "test_a_red_that_predates_the_instrument_compares_nothing",
         "test_a_red_never_posts",
-        "test_an_unsealed_run_never_posts"
-      ],
-      "teeth_red": [
+        "test_an_unsealed_run_never_posts",
         "test_a_reseal_green_over_a_red_under_other_conditions_notifies"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -33,7 +32,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -41,7 +40,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "92c7d4dc26e7f485a01c965624c73a94cda1a45275be41a9b8ec84ff7a642427",
+      "source_fingerprint": "8b686331a990edb66be22db7de473d8ddf6227134fdc3a178e4dff9fe3851793",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -71,36 +70,42 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2853275-_vkvgnye/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2854549-k66cxhcj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/tester/0/20261005.022039.705729.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022041.517075.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022043.293713.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022045.126720.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022046.835462.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022048.572130.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022050.296826.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022052.028008.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022053.768595.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022055.490174.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022057.279149.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022058.993798.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022100.753927.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.022102.476732.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.022200.518135.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022202.260765.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022203.984755.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022205.764094.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022207.511266.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022209.242968.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022210.915815.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022212.630044.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022214.337058.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022216.028923.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022217.758854.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022219.469633.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022221.194958.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.022222.899254.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134876101,
-          "disk_bytes": 158097408,
-          "entries": 9807,
+          "bytes": 134960982,
+          "disk_bytes": 158203904,
+          "entries": 9815,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "conditions_moved": {
+        "notified": "n-daf1b756e369",
+        "changed": [
+          "timeout"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

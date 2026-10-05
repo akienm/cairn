@@ -78,6 +78,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
+from cairn.devices.tester.conditions import compare
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.tools.validation_store.validation_store import (
@@ -457,7 +458,11 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         if ladder:
             evidence["reseal_closed"] = {**ladder, "closed_at": _now(), "closed_by": CALLER,
                                          "closed_proof_sha256": now_hash}
-        persist_validation({**record, "evidence": evidence}, proof_path=str(proof))
+        # this door seals greens too, so a green over a red measured under other conditions
+        # notifies here exactly as it does through run_proof (ticket f0aad0cd0f56, D9)
+        sealed = {**record, "evidence": evidence}
+        compare(sealed, proof)
+        persist_validation(sealed, proof_path=str(proof))
         try:
             raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
                 f"{CALLER}: {rel} ran green and its seal was landed through the store's "

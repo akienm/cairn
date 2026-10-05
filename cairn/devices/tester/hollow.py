@@ -17,9 +17,13 @@ of the ticket's bounds for that reason, not because it is harder.
 TWO THINGS THIS DELIBERATELY REFUSES TO MEASURE, and both refusals are named on the record
 rather than silently skipped, because a skip list is the natural home of a hollow green:
 
-  1. **A file under ``proofs/``.** Reverting the instrument makes the reading meaningless — the
+  1. **The instrument: a proof this ticket's crossings name, or a ``proofs/`` module one of
+     them imports.** Reverting the instrument makes the reading meaningless — the
      reverted proof either errors out or simply no longer contains the teeth, so every declared
-     tooth reads "red" and the check passes trivially. That is a hollow check inside the hollow
+     tooth reads "red" and the check passes trivially. Any OTHER file under ``proofs/`` the
+     build wrote is the build's subject and is measured like source (ticket 763379e32e3b,
+     measured on 580ad3b46cd0: its build moved two checks out of another component's proof,
+     every file it wrote sat under ``proofs/``, and the run measured nothing). That is a hollow check inside the hollow
      checker, which is the one defect this module has no standing to ship. So proofs are
      skipped, LISTED, and — the part that keeps the list from becoming the escape hatch — a run
      in which EVERY file was skipped is a RED, not a pass over an empty set.
@@ -220,7 +224,8 @@ def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, env=git_env())
 
 
-def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path) -> dict:
+def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path,
+                 instrument: frozenset[str] = frozenset()) -> dict:
     """The commit the reversion lands on: BEFORE THE BUILD THAT STANDS (ticket 06f0445e7a63).
 
     THE RULE. Two candidates, and the earlier one wins:
@@ -248,7 +253,8 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     # touches only instruments or records (whatever _classify skips) is a repair of the proof,
     # not a new build, so it neither bounds nor anchors (ticket 479f75cc0917, measured on
     # 7cb1989e7825: its proofs-only repair c3f72a3f anchored the hollow after the build).
-    builds = _build_commits(tid, [f for f in files if _classify(f) is None], repo_root)
+    builds = _build_commits(tid, [f for f in files if _classify(f, instrument=instrument) is None],
+                            repo_root)
     # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
     # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
     # anchored the hollow at the repair's parent, and the build itself fell outside the window).
@@ -398,6 +404,70 @@ def proven_by(ticket: dict, roots: dict | None = None) -> list[str]:
     return seen
 
 
+def _module_files(name: str, repo_root: Path, here: Path) -> list[str]:
+    """The repo files a dotted module name can resolve to, from the repo root or from the
+    importing file's own directory (a proof that puts its directory on sys.path)."""
+    out = []
+    parts = [x for x in name.split(".") if x]
+    if not parts:
+        return out
+    for base in (Path(repo_root), here):
+        p = base.joinpath(*parts)
+        for f in (p.parent / (p.name + ".py"), p / "__init__.py"):
+            if f.is_file():
+                rel = _inside(str(f.resolve()), repo_root)
+                if not Path(rel).is_absolute():
+                    out.append(rel)
+    return out
+
+
+def instrument_set(proofs: list[str], repo_root: Path) -> frozenset[str]:
+    """THE TICKET'S INSTRUMENT: its proven_by proofs, plus every file under ``proofs/`` they
+    import, transitively (ticket 763379e32e3b). Only these are skipped as the instrument; any
+    other ``proofs/`` file the build wrote is reverted and watched like source.
+
+    The import closure is part of the instrument because reverting a helper the proof imports
+    breaks the proof the same way reverting the proof does. Measured 2026-10-05: proofs import
+    bus/proofs/bus_proof_echo, proof_coverage/proofs/fixtures and rehearsal/proofs/test_rehearsal.
+    Read by AST from the files at HEAD; an import by string the AST cannot resolve is missed.
+    """
+    import ast
+    root = Path(repo_root)
+    seen: set[str] = set()
+    todo = [_inside(p, root) for p in proofs]
+    while todo:
+        rel = todo.pop()
+        if rel in seen:
+            continue
+        seen.add(rel)
+        path = root / rel
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError, ValueError):
+            continue
+        for node in ast.walk(tree):
+            names: list[str] = []
+            if isinstance(node, ast.Import):
+                names = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                mod = node.module or ""
+                if node.level:
+                    pkg = path.parent
+                    for _ in range(node.level - 1):
+                        pkg = pkg.parent
+                    try:
+                        prefix = ".".join(pkg.resolve().relative_to(root.resolve()).parts)
+                    except ValueError:
+                        continue
+                    mod = ".".join(x for x in (prefix, mod) if x)
+                names = [mod] + [f"{mod}.{a.name}" if mod else a.name for a in node.names]
+            for name in names:
+                for f in _module_files(name, root, path.parent):
+                    if "proofs" in Path(f).parts and f not in seen:
+                        todo.append(f)
+    return frozenset(seen)
+
+
 def _inside(f: str, repo_root: Path) -> str:
     """An absolute path under the repo is the same address written another way — the chart
     is free to spell it either way, and the reversion is of the file, not the spelling.
@@ -415,13 +485,16 @@ def _inside(f: str, repo_root: Path) -> str:
         return f
 
 
-def _classify(rel: str) -> str | None:
+def _classify(rel: str, *, instrument: frozenset[str] = frozenset()) -> str | None:
     """Why this file is not measured, or None when it is. One place, so the run and the
-    report cannot disagree about which files were skipped and for what."""
+    report cannot disagree about which files were skipped and for what.
+
+    ``instrument`` is ``instrument_set()`` for the ticket. A file under ``proofs/`` outside it
+    is the build's subject, not its instrument, and is measured (ticket 763379e32e3b)."""
     p = Path(rel)
     if p.is_absolute() or rel.startswith("..") or "CairnCommons" in p.parts:
         return SKIP_OUTSIDE
-    if "proofs" in p.parts:
+    if "proofs" in p.parts and rel in instrument:
         return SKIP_INSTRUMENT
     # A RECORD CANNOT BE PINNED BY A PROOF, SO ITS REVERSION IS NOT EVIDENCE OF A HOLLOW BUILD.
     # This is the same reasoning the line above already makes about the instrument, applied to
@@ -613,7 +686,10 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     tid = str(ticket.get("id") or ticket_id)
     roots = _roots(repo_root, commons)
     files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
-    anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root)
+    # The instrument is read before the anchor, through the reader that does not raise, so a
+    # ticket with no BUILDME is still refused by build_anchor for THAT reason (test_hollow.py).
+    instrument = instrument_set(proven_by_since_buildme(tid, roots) or [], repo_root)
+    anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument)
     commit, at = anchor["commit"], anchor["buildme_at"]
     files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
     proofs = proven_by(ticket, roots)
@@ -753,13 +829,13 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         log(f"  skip   {s['file']}  ({s['why']})")
     moved: dict[str, str] = {}
     for rel in files:
-        why = _classify(rel)
+        why = _classify(rel, instrument=instrument)
         source = None
         if why is None and not (wt / rel).is_file():
             succ = moved_to(rel, tid, repo_root=repo_root, worktree=wt)
             if succ is None:
                 why = "not present at HEAD and no recorded successor — there is nothing to revert"
-            elif succ in measured or succ in moved or _classify(succ) is not None:
+            elif succ in measured or succ in moved or _classify(succ, instrument=instrument) is not None:
                 continue  # already read under its own name, or the successor is itself skippable
             else:
                 source, rel = rel, succ

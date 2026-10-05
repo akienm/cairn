@@ -2,7 +2,7 @@
   {
     "claim": "proof test_trouble_panel.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T15:37:01",
+    "date": "2026-10-05T12:06:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -34,7 +34,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "71fd85a773da7cb281008ddbb0d6c234ceac32a0d8d4a3f5709a774b87e0aa11",
+      "conditions": {
+        "proof": "b72c418ee0b86fa7054d00949611b28368efda706c205740a7fa1ec9edc6ae8c",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "d7d2f38603d907f88b32dcb1e3ac7a2fd167c3a963ac30e8479d352ce5d5bf80",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -78,25 +91,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2677263-d57jhoxh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3391799-nfo29nwf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261004.213700.611166.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261004.213700.613963.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261004.213700.614835.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20261005.180652.428549.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261005.180652.431270.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261005.180652.432150.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 131333202,
-          "disk_bytes": 153911296,
-          "entries": 9541,
+          "bytes": 161784228,
+          "disk_bytes": 187895808,
+          "entries": 11151,
           "builds": 1,
-          "reuses": 3
+          "reuses": 18
         }
       }
     },

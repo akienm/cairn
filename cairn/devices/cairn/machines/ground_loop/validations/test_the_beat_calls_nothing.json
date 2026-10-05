@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_beat_calls_nothing.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T07:27:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T12:06:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n.\n  ok   test_codemother_hears_the_commit_through_the_fanout\n                                                                   [100%]\n6 passed in 0.84s",
+      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n.\n  ok   test_codemother_hears_the_commit_through_the_fanout\n                                                                   [100%]\n6 passed in 0.90s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_pulse_file_and_no_beat_probes_are_tracked",
@@ -31,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -39,7 +39,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "310de1dc4b4fe11c8675eab813cbdabe5b30c8a42147e3f085448653c01784d4",
+      "source_fingerprint": "7e840b6b0c642492dd4a667d16f5b605f658d67c4ade7a285468908aca4583c4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -67,7 +67,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3300437-efsvrvkm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3391799-c433_9f9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,52 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 150672813,
-          "disk_bytes": 176078848,
-          "entries": 10803,
+          "bytes": 161783432,
+          "disk_bytes": 187883520,
+          "entries": 11146,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "164da559823d": {
-          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
-            "test_nothing_tracked_reaches_the_pulse_machinery",
-            "test_the_beat_calls_no_pulse_and_records_no_triggers"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
-            "test_nothing_tracked_reaches_the_pulse_machinery",
-            "test_the_beat_calls_no_pulse_and_records_no_triggers"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/discovery.py": [
-            "test_nothing_tracked_reaches_the_pulse_machinery"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/cli.py": {
-            "notified": "n-9c2b32e336af"
-          },
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py": {
-            "notified": "n-fe1940f31e8d"
-          },
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py": {
-            "notified": "n-9fa29ba6334e"
-          },
-          "cairn/machines/counting_block/block.py": {
-            "notified": "n-64816e78f709"
-          },
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": {
-            "notified": "n-249cd6c727f2"
-          },
-          ".artifact-journal.jsonl": {
-            "notified": "n-9127398314b9"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "164da559823d": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "22f08f0f5d226429212444ebb8004f3144e1d9ef",
-          "anchor_first_build": "302eefc5855224827c7468bda5e2cf7d187a54fd",
-          "commit": "bee3ba1bfc5810fcdca8829bf28a232e0c73331a"
+          "reuses": 16
         }
       }
     },

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_voyage_pane.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:25:00",
+    "date": "2026-10-05T12:10:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "bfa9b9f505f2c5c5cde163427415938724bf7a6c505042a20f7f2f2286a4cffa",
+      "conditions": {
+        "proof": "e79106d425136ffbe015597d43e4135d1599f7c05411344ab109ca15567eebef",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "b244eaa22e39123b47c599c902db141aa295ab71bd4397172e1970efd3d2c22e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -73,27 +86,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-4mc4mtad/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3391799-5dm0gl_c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 6,
+          "count": 7,
           "paths": [
-            "logs/web_server/0/20261005.012459.382472.WebServerDevice.serve.json",
-            "logs/web_server/0/20261005.012459.561328.WebServerDevice.serve.json",
-            "logs/web_server/0/20261005.012459.562221.WebServerDevice.serve.json",
-            "logs/web_server/0/20261005.012459.730481.WebServerDevice.serve.json",
-            "logs/web_server/0/20261005.012459.906363.WebServerDevice.serve.json",
-            "logs/web_server/0/20261005.012459.907209.WebServerDevice.serve.json"
+            "logs/ground_loop_nohup.log",
+            "logs/web_server/0/20261005.181024.451517.WebServerDevice.serve.json",
+            "logs/web_server/0/20261005.181024.651202.WebServerDevice.serve.json",
+            "logs/web_server/0/20261005.181024.652082.WebServerDevice.serve.json",
+            "logs/web_server/0/20261005.181024.847658.WebServerDevice.serve.json",
+            "logs/web_server/0/20261005.181025.060780.WebServerDevice.serve.json",
+            "logs/web_server/0/20261005.181025.061630.WebServerDevice.serve.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134008178,
-          "disk_bytes": 157011968,
-          "entries": 9722,
+          "bytes": 161787010,
+          "disk_bytes": 187912192,
+          "entries": 11155,
           "builds": 1,
-          "reuses": 6
+          "reuses": 30
         }
       }
     },

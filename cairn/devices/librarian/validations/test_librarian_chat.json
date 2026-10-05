@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_librarian_chat.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T02:10:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T12:09:56",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -37,7 +37,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "87acb80c88f351d2a5652463cfe1f98efc5ba054dd018488ea9f51fb07f48e78",
+      "conditions": {
+        "proof": "c442040bf63303740529303c26aee4e7a0cae6d5be685bd5e30e0132e0698f4a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "4c0f4a8306739beba5c55b0c948f98b26305fb0028349acf90bf0eca846e3626",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -92,49 +105,49 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2336032-rumdxy3y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3391799-m3wu53by/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 28,
           "paths": [
             "devices/inference_domain/0/last_known.json",
             "devices/librarian/0/last_known.json",
-            "logs/bus/0/20261004.081050.929341.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.976201.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261004.081050.982266.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.994487.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.995472.BusDevice.delivered.json",
-            "logs/bus/0/20261004.081050.995831.BusDevice.delivered.json",
-            "logs/bus/0/20261004.081050.995958.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.996207.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.996835.BusDevice.delivered.json",
-            "logs/bus/0/20261004.081050.996950.BusDevice.delivered.json",
-            "logs/bus/0/20261004.081050.997076.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.997317.BusDevice.post.json",
-            "logs/bus/0/20261004.081050.997940.BusDevice.delivered.json",
-            "logs/bus/0/20261004.081050.998052.BusDevice.delivered.json",
-            "logs/inference_domain/0/20261004.081050.994249.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/20261004.081050.995593.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261004.081050.995721.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261004.081050.996078.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/20261004.081050.997191.inference_domain_domain_resolve.resolve.json",
-            "logs/librarian/0/20261004.081046.508454.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261004.081046.522268.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081046.554208.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261004.081046.554414.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261004.081046.991295.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081047.056436.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261004.081047.056686.LibrarianDevice.chat.json"
+            "logs/bus/0/20261005.180955.051160.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.924029.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.180955.931133.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.944202.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.945253.BusDevice.delivered.json",
+            "logs/bus/0/20261005.180955.945628.BusDevice.delivered.json",
+            "logs/bus/0/20261005.180955.945759.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.946018.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.946667.BusDevice.delivered.json",
+            "logs/bus/0/20261005.180955.946786.BusDevice.delivered.json",
+            "logs/bus/0/20261005.180955.946922.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.947167.BusDevice.post.json",
+            "logs/bus/0/20261005.180955.947818.BusDevice.delivered.json",
+            "logs/bus/0/20261005.180955.947935.BusDevice.delivered.json",
+            "logs/inference_domain/0/20261005.180955.943966.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261005.180955.945374.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261005.180955.945505.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261005.180955.945884.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261005.180955.947039.inference_domain_domain_resolve.resolve.json",
+            "logs/librarian/0/20261005.180950.267309.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261005.180950.281556.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261005.180950.316986.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261005.180950.317201.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261005.180950.722538.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261005.180950.759560.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261005.180950.759810.LibrarianDevice.chat.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 125730489,
-          "disk_bytes": 148201472,
-          "entries": 9393,
+          "bytes": 161790667,
+          "disk_bytes": 187990016,
+          "entries": 11178,
           "builds": 1,
-          "reuses": 1
+          "reuses": 25
         }
       }
     },

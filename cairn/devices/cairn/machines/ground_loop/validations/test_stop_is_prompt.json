@@ -2,17 +2,17 @@
   {
     "claim": "proof test_stop_is_prompt.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T07:25:11",
+    "date": "2026-10-05T12:06:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
+      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.03s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
       "stderr_tail": "",
       "teeth_green": [
         "the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None",
         "it is still alive to be signalled (not a runner that exited early)",
-        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s",
+        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.03s",
         "the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0",
         "the stop was clean, not a crash  — rc=0"
       ],
@@ -38,7 +38,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "2b3ebe330e07c302f46b22d1b82f5b12f713f57055f1d6a8a3c2769f597f22cc",
+      "source_fingerprint": "8465af3026c5a0f840ac9be4253c6f6fb0cc141e3d39313aa2647aa0b47481e1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -59,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3298305-nl6d2rah/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3391799-vonb7qpv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,11 +68,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 150126719,
-          "disk_bytes": 175435776,
-          "entries": 10766,
+          "bytes": 161783432,
+          "disk_bytes": 187883520,
+          "entries": 11146,
           "builds": 1,
-          "reuses": 6
+          "reuses": 15
         }
       }
     },

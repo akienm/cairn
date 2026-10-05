@@ -38,12 +38,17 @@ from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 
+# THE CADENCE — RULED by Akien 2026-08-22: the ground loop beats once per minute.
+# This is the ONE class-space definition site; the ground loop and every proof that needs
+# the beat interval import it from here (RULE 1: nothing reaches into the cairn device for it).
+CADENCE_S = 60.0
+
 # THE STALENESS THRESHOLD — RULED by Akien 2026-07-31 (recorded on the ticket):
 # five missed ticks at the ruled cadence. Three-times-the-interval is the
 # standard heuristic; five gives slack for a loaded box. This is the ONE
 # class-space definition site; consumers read the verdict, not this.
 # Cadence moved from 1.0s to 60.0s (Akien, 2026-08-22).
-STALENESS_THRESHOLD_S = 300.0
+STALENESS_THRESHOLD_S = 5 * CADENCE_S
 
 RECORD_NAME = "liveness.json"
 

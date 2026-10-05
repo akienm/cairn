@@ -35,9 +35,9 @@ writes one emission into this machine's own log home and the trouble device fold
 its drain — one ticket per identity, counted, never raced. The identity names the triple,
 so the second raise of a triple is the same trouble as the first.
 
-WHO RUNS IT: nobody of its own. ``groundloop/pulse.py`` beside this file is discovered by
-the ground loop and ``on_pulse`` calls ``pulse()`` on the beat; the beat's pulse service
-is the poke the ticket's how called the door's probe poke (a --decide line on the ticket).
+WHO RUNS IT: nobody of its own. The post-commit hook (``hooks/post-commit``, ticket
+5a4ec289bf15) calls ``pulse()`` on every commit, not the beat — the beat calls nothing
+(ticket 164da559823d); the commit is the poke the ticket's how called the door's probe poke.
 No poller, no process, no registry — ``ps`` shows nothing (falsifier clause 4).
 """
 from __future__ import annotations

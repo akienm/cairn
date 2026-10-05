@@ -2,7 +2,7 @@
   {
     "claim": "proof test_memory_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:44:09",
+    "date": "2026-10-05T07:25:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b6550a98338fe85f5657abb5dff0400727e7dcd50792ddfae7f397b34a429f58",
+      "conditions": {
+        "proof": "2e4955b6f2acfa7f9d9a5d24c59ba1ebf0958f3ba8d4183194df9d8f62552809",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "f3cf5c9ca12bd6d6a753aa29bd6f16d57678b697f8d4b56e066f926b06b65eff",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -49,7 +62,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-8a_pnzfh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3298305-kdb1m3un/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,11 +71,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619193,
-          "disk_bytes": 121753600,
-          "entries": 7973,
+          "bytes": 150126719,
+          "disk_bytes": 175435776,
+          "entries": 10766,
           "builds": 1,
-          "reuses": 23
+          "reuses": 10
         }
       }
     },

@@ -1,23 +1,23 @@
 [
   {
     "claim": "proof test_the_beat_calls_nothing.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T02:20:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T07:25:14",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        assert found[\"verdict\"] == \"LIVE\", f\"the live heartbeat is {found['verdict']}: {found}\"\n        state = (found.get(\"record\") or {}).get(\"state\") or {}\n>       assert set(state) == _STATE_KEYS, f\"the live record's state keys are {sorted(state)} — \" \\\n                                          f\"the running loop still lists triggers\"\nE       AssertionError: the live record's state keys are ['beats', 'changed', 'current_mtimes', 'devices', 'recorded_mtimes', 'started', 'triggers'] — the running loop still lists triggers\nE       assert {'beats', 'ch...started', ...} == {'beats', 'ch...s', 'started'}\nE         \nE         Extra items in the left set:\nE         'triggers'\nE         'devices'\nE         Use -v to get more diff\n\ntest_the_beat_calls_nothing.py:155: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_beat_calls_nothing.py::test_no_pulse_file_and_no_beat_probes_are_tracked\nFAILED test_the_beat_calls_nothing.py::test_the_beat_calls_no_pulse_and_records_no_triggers\nFAILED test_the_beat_calls_nothing.py::test_the_build_deleted_no_probe - Asse...\nFAILED test_the_beat_calls_nothing.py::test_nothing_tracked_reaches_the_pulse_machinery\nFAILED test_the_beat_calls_nothing.py::test_the_live_heartbeat_beats_without_triggers\n5 failed, 1 passed in 0.94s",
+      "stdout_tail": ".\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n.\n  ok   test_codemother_hears_the_commit_through_the_fanout\n                                                                   [100%]\n=================================== FAILURES ===================================\n_______________________ test_the_build_deleted_no_probe ________________________\n\n    def test_the_build_deleted_no_probe():\n        builds = [h for h in _git(\"log\", \"--format=%H\", f\"--grep={_TICKET}: build\").split() if h]\n>       assert builds, f\"no commit whose message carries '{_TICKET}: build' — the build has not landed\"\nE       AssertionError: no commit whose message carries '164da559823d: build' — the build has not landed\nE       assert []\n\ntest_the_beat_calls_nothing.py:128: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_beat_calls_nothing.py::test_the_build_deleted_no_probe - Asse...\n1 failed, 5 passed in 0.83s",
       "stderr_tail": "",
       "teeth_green": [
+        "test_no_pulse_file_and_no_beat_probes_are_tracked",
+        "test_the_beat_calls_no_pulse_and_records_no_triggers",
+        "test_nothing_tracked_reaches_the_pulse_machinery",
+        "test_the_live_heartbeat_beats_without_triggers",
         "test_codemother_hears_the_commit_through_the_fanout"
       ],
       "teeth_red": [
-        "test_no_pulse_file_and_no_beat_probes_are_tracked",
-        "test_the_beat_calls_no_pulse_and_records_no_triggers",
         "test_the_build_deleted_no_probe",
-        "test_nothing_tracked_reaches_the_pulse_machinery",
-        "test_the_live_heartbeat_beats_without_triggers",
         "test_the_beat_calls_nothing"
       ],
       "seal": {
@@ -29,11 +29,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f69b78c8f621b45552f94b6a04c55c041bd33cf8cf4f824ebecc5107214a228f",
+        "proof": "531d7924976b5a77821f04be6915f41249a05403d4fc8c5371e71601962a8ef5",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -41,7 +41,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "e44417f1ba04ca341eff8be475cd063578e7e75f7893fda7cbcb4061cd07fca0",
+      "source_fingerprint": "310de1dc4b4fe11c8675eab813cbdabe5b30c8a42147e3f085448653c01784d4",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -49,7 +49,6 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/__init__.py",
@@ -57,7 +56,6 @@
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/probe.py",
         "cairn/tools/liveness/__init__.py",
         "cairn/tools/liveness/liveness.py",
         "cairn/tools/proof_coverage/__init__.py",
@@ -71,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3091049-cw04_som/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3298305-3rm03jao/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,12 +78,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 144317382,
-          "disk_bytes": 168792064,
-          "entries": 10395,
+          "bytes": 150126719,
+          "disk_bytes": 175435776,
+          "entries": 10766,
           "builds": 1,
-          "reuses": 0
+          "reuses": 7
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "531d7924976b5a77821f04be6915f41249a05403d4fc8c5371e71601962a8ef5",
+        "opened": "2026-10-05T07:25:14",
+        "last_red": "2026-10-05T07:25:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

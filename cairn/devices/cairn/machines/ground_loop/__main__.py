@@ -4,15 +4,16 @@ What it does, all of it (Akien, 2026-09-30):
 
   - claims the singleton; a second loop exits while one runs and is LIVE;
   - records the mtimes of its own files;
-  - each beat: compares them, calls every groundloop/pulse.py and lists the calls, writes
-    one JSON (liveness.json) with the recorded and current mtimes, the calls, and the
-    devices found — the rack's ids (``cairn.tools.rack``, ticket a808e21d646f);
+  - each beat: compares them and writes one JSON (liveness.json) with the recorded and
+    current mtimes — it calls nothing (ticket 164da559823d) — and the devices found, the
+    rack's ids (``cairn.tools.rack``, ticket a808e21d646f);
   - COMMAND_EXIT stops it; a changed own file re-execs it in place unless
     COMMAND_DO_NOT_RESTART is set.
 
-No bus, no probes, no shims, no web server, no import checks. Each of those belongs to
-something else: mail and probes to the device (on its own pulse file, or on the event that
-fires them), the web server to its own shim.
+No bus, no probes, no shims, no web server, no import checks, no pulse calls. Each of those
+belongs to something else: mail and probes to the device, fired by their event (a commit
+fires the post-commit hook's subscribers, ticket 5a4ec289bf15), the web server to its own
+shim.
 
 THE FLAGS (Akien's design 2026-08-19): the menu lives in <home>/flags/ (``ls`` shows what is
 available); a flag is active when a file of that name sits in <home> itself.
@@ -38,9 +39,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
-from cairn.devices.cairn.machines.ground_loop.heartbeat import Triggers, changed, mtimes, own_files
+from cairn.devices.cairn.machines.ground_loop.heartbeat import changed, mtimes, own_files
 from cairn.tools.liveness.liveness import read_liveness, write_liveness
 from cairn.tools.rack.rack import rack_ids
 
@@ -85,7 +85,6 @@ def _claim(home: Path):
 def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class_root=None) -> int:
     home = Path(home) if home is not None else (
         instance_path("cairn", 0, roots) / "machines" / "ground_loop")
-    instance_home = Path(roots["instance"]) / "devices" if roots else None
     claim = _claim(home)  # noqa: F841 — held for the process's whole life
     if claim is None:
         return EXIT_ALREADY_RUNNING
@@ -97,9 +96,8 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
 
     started = _now().isoformat()
     recorded = mtimes(own_files(watch))
-    triggers = Triggers()
     state = {"beats": 0, "started": started, "recorded_mtimes": recorded,
-             "current_mtimes": recorded, "changed": [], "triggers": [],
+             "current_mtimes": recorded, "changed": [],
              "devices": rack_ids(class_root)}
     write_liveness(_now(), state, os.getpid(), home)
 
@@ -110,10 +108,9 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
         now = _now()
         current = mtimes(own_files(watch))
         diff = changed(recorded, current)
-        calls = triggers.fire(now, pulse_sites(class_root, instance_home))
         state = {"beats": state["beats"] + 1, "started": started,
                  "recorded_mtimes": recorded, "current_mtimes": current,
-                 "changed": diff, "triggers": calls, "devices": rack_ids(class_root)}
+                 "changed": diff, "devices": rack_ids(class_root)}
         write_liveness(_now(), state, os.getpid(), home)
         if (home / COMMAND_EXIT).exists():
             break

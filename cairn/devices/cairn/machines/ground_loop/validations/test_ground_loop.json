@@ -2,7 +2,7 @@
   {
     "claim": "proof test_ground_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:43:13",
+    "date": "2026-10-05T07:25:04",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -31,7 +31,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "af9fefdbc01963bfc50fd207eb28ba09834592ccd34b0ea7e4a98244ff85c516",
+      "conditions": {
+        "proof": "395f3067e152eeb6153b627f0b2b00e445521f4d1f4d0ae096ff5823d5bfedc4",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "30c20e559ba1d53f38dd988fb0294f40b98e595e479629521d560349fec4e1ae",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -39,7 +52,6 @@
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py",
@@ -62,7 +74,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-rjr3v4gm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3298305-z9s42dun/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -73,11 +85,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619193,
-          "disk_bytes": 121753600,
-          "entries": 7973,
+          "bytes": 150126719,
+          "disk_bytes": 175435776,
+          "entries": 10766,
           "builds": 1,
-          "reuses": 13
+          "reuses": 4
         }
       }
     },

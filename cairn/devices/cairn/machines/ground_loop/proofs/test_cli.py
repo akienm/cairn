@@ -16,7 +16,7 @@ from unittest.mock import patch
 from cairn.devices.cairn.machines.ground_loop.cli import _status, _stop, _start, main
 from cairn.tools.liveness.liveness import write_liveness
 
-PROVES = {"bae622881f03": {"6": "status prints each trigger the record lists and the changed count"}}
+PROVES = {"bae622881f03": {"6": "status prints the changed count and no trigger lines"}}
 
 PASS = 0
 FAIL = 0
@@ -50,16 +50,15 @@ def test_status_reads_liveness():
         shutil.rmtree(d)
 
 
-def test_status_prints_triggers_and_changed():
-    """The heartbeat's record (ticket bae622881f03) carries the triggers called this beat and
-    the own files changed since start; status prints one line per trigger and the count."""
+def test_status_prints_the_changed_count():
+    """The heartbeat's record (ticket bae622881f03) carries the own files changed since start;
+    status prints the count. The beat calls nothing (ticket 164da559823d), so status prints no
+    trigger line."""
     global PASS, FAIL
     import contextlib, io, shutil
-    d = scratch_dir("gl_cli_triggers_")
+    d = scratch_dir("gl_cli_changed_")
     now = datetime.now(timezone.utc).astimezone()
-    state = {"beats": 3, "changed": ["/x/a.py"], "triggers": [
-        {"device_id": "alpha", "level": "class", "ok": True, "result": {}},
-        {"device_id": "broken", "level": "instance", "ok": False, "error": "RuntimeError: boom"}]}
+    state = {"beats": 3, "changed": ["/x/a.py"]}
     write_liveness(now, state, os.getpid(), Path(d))
     out = io.StringIO()
     try:
@@ -67,17 +66,15 @@ def test_status_prints_triggers_and_changed():
                 contextlib.redirect_stdout(out):
             _status()
         text = out.getvalue()
-        want = ["trigger:     alpha (class) ok",
-                "trigger:     broken (instance) FAILED RuntimeError: boom",
-                "changed:     1 own file(s) since start"]
+        want = ["changed:     1 own file(s) since start"]
         missing = [w for w in want if w not in text]
-        if not missing:
+        if not missing and "trigger:" not in text:
             PASS += 1
-            print("PASS: status prints each trigger the record lists and the changed count")
+            print("PASS: status prints the changed count and no trigger lines")
         else:
             FAIL += 1
-            print(f"FAIL: status prints each trigger the record lists and the changed count")
-            print(f"      missing {missing}")
+            print(f"FAIL: status prints the changed count and no trigger lines")
+            print(f"      missing {missing}; trigger line present: {'trigger:' in text}")
     finally:
         shutil.rmtree(d)
 
@@ -157,7 +154,7 @@ def test_dispatcher_exists_and_is_executable():
 
 if __name__ == "__main__":
     test_status_reads_liveness()
-    test_status_prints_triggers_and_changed()
+    test_status_prints_the_changed_count()
     test_stop_copies_flag()
     test_stop_idempotent()
     test_help_output()

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_probescan.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T22:10:47",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T07:24:57",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "614bb11ba6f4b259a066c14ff6d6e461b6e66ca9421f3bc5b33558351116fdff",
+      "conditions": {
+        "proof": "bf3a4ce6f1969db054ef850606992efca3862a77e6aeb535334eb8441ced021b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "5917d3786b96ff12fbc72174845506754c28656794aca8cd4d42492fd2267226",
       "fingerprint_closure": [
         "bin/proofs/test_probescan.py",
         "cairn/__init__.py",
@@ -68,26 +81,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2205240-wmc4lxt2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3298305-m0j9yt6m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 4,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/librarian/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261004.041046.769379.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261004.041046.777023.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261005.132457.186374.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 123844423,
-          "disk_bytes": 145698816,
-          "entries": 9176,
+          "bytes": 150127366,
+          "disk_bytes": 175443968,
+          "entries": 10771,
           "builds": 1,
-          "reuses": 8
+          "reuses": 1
         }
       }
     },

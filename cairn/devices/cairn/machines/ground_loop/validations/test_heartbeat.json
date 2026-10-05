@@ -2,12 +2,12 @@
   {
     "claim": "proof test_heartbeat.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:43:17",
+    "date": "2026-10-05T07:25:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=1629552 vs 1629552\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, triggers, one record, one loop. Nothing else.",
+      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3298536 vs 3298536\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -15,15 +15,10 @@
         "only .py files are watched",
         "a touched file is named as changed",
         "an added and a removed file are named too",
-        "every pulse.py found is called and listed",
-        "a raising trigger is listed with its error",
-        "the others still ran and returned",
-        "one call per trigger per beat",
         "the runner beats and writes its record",
         "the record carries pid, last_run, and the heartbeat state",
         "the beat record's device list is the rack",
         "recorded and current mtimes name the watched file, unchanged",
-        "the triggers called this beat are listed, class and instance level",
         "a second loop exits 3 while one runs and is LIVE",
         "the first loop is untouched by the second",
         "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
@@ -44,26 +39,35 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a8492f13cfaa69b8f670b14fd3c763f76bdce0983c4b396f752ad16265a56c86",
+      "conditions": {
+        "proof": "c5f9023ee60068d725f0063787bca367867d0ecf25c8162b08d18de76a331d05",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "1ef08025b94a020de25fe4812d4161f849db097664728422997d4f58c1c48baf",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/discovery.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py",
         "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/probe.py",
         "cairn/tools/rack/__init__.py",
         "cairn/tools/rack/rack.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-ilzea2m2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3298305-rqy5wdmv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,11 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619193,
-          "disk_bytes": 121753600,
-          "entries": 7973,
+          "bytes": 150126719,
+          "disk_bytes": 175435776,
+          "entries": 10766,
           "builds": 1,
-          "reuses": 14
+          "reuses": 5
         }
       }
     },

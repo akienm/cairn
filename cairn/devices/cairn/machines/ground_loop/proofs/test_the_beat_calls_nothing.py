@@ -43,7 +43,9 @@ PROVES = {
 }
 
 _TICKET = "164da559823d"
-_STATE_KEYS = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed"}
+# Exactly the heartbeat's keys: bae622881f03's four plus a808e21d646f's ``devices`` (the rack's
+# ids, its clause 6, proved in test_heartbeat.py). Exact, so a "triggers" key reads red.
+_STATE_KEYS = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed", "devices"}
 _PULSE_MACHINERY = ("beat_probes", "pulse_sites", "Triggers", "load_pulse")
 
 

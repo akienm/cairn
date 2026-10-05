@@ -5,11 +5,9 @@ The whole of what the loop does, each clause a tooth:
   1. on start it records the mtimes of its own files;
   2. each beat it compares them; a change re-execs the loop in place, unless
      COMMAND_DO_NOT_RESTART is set; COMMAND_EXIT stops it;
-  3. it calls every groundloop/pulse.py (class level and instance level) and lists
-     the calls made this beat, a raising trigger listed with its error and the rest
-     still called;
+  3. it calls nothing (ticket 164da559823d retired the pulse calls);
   4. it writes one JSON carrying the beat, the pid, the recorded and the current
-     mtimes, and the triggers called;
+     mtimes;
   5. a second loop exits (3) while one runs and is LIVE.
 
 And ticket a808e21d646f's clause 6, at this address because the beat record is this
@@ -23,8 +21,8 @@ predicate is an mtime compare, and the proof runs it over the loop's own real fo
 whatever interpreter runs the proof, which is the interpreter the loop runs on.
 
 EVERYTHING ELSE RUNS AGAINST TEMP TREES. The runner is a subprocess with its instance root,
-its class root, its watched folder and its cadence injected, so the live singleton's claim,
-the live liveness record and the live pulse files are never touched. Touching the watched
+its class root, its watched folder and its cadence injected, so the live singleton's claim
+and the live liveness record are never touched. Touching the watched
 folder of a fixture runner is what drives the restart teeth; the real loop's files are
 never touched by this proof.
 """
@@ -50,7 +48,6 @@ PROVES = {"bae622881f03": {
     "2": "a changed own file re-execs the loop in place (same pid, new start)",
     "3": "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
     "4": "COMMAND_EXIT stops the loop cleanly",
-    "5": "the triggers called this beat are listed, class and instance level",
     "6": "the record carries pid, last_run, and the heartbeat state",
     "7": "a second loop exits 3 while one runs and is LIVE",
     "8": "the loop carries no probes of its own",
@@ -72,33 +69,6 @@ def ok(name: str, passed: bool, detail: str = "") -> None:
         FAILURES.append(f"{name}: {detail}")
 
 
-PULSE_OK = '''
-from pathlib import Path
-def on_pulse(now, context=None):
-    p = Path(__file__).with_name("calls.txt")
-    p.write_text(p.read_text() + "x" if p.exists() else "x")
-    return {"called": True}
-'''
-PULSE_RAISES = '''
-def on_pulse(now, context=None):
-    raise RuntimeError("this trigger always raises")
-'''
-
-
-def _pulse_tree(td: Path) -> tuple[Path, Path]:
-    """A class root with two devices (one good, one raising) and an instance home with one."""
-    class_root = td / "class"
-    inst_home = td / "inst" / "devices"
-    for dev, body in (("alpha", PULSE_OK), ("broken", PULSE_RAISES)):
-        d = class_root / "devices" / dev / "groundloop"
-        d.mkdir(parents=True)
-        (d / "pulse.py").write_text(body)
-    d = inst_home / "beta" / "0" / "groundloop"
-    d.mkdir(parents=True)
-    (d / "pulse.py").write_text(PULSE_OK)
-    return class_root, inst_home
-
-
 def _now():
     return datetime.now(timezone.utc).astimezone()
 
@@ -109,7 +79,6 @@ def teeth_pure() -> None:
     except ImportError as exc:
         ok("heartbeat module exists", False, f"{type(exc).__name__}: {exc}")
         return
-    from cairn.devices.cairn.machines.ground_loop.discovery import pulse_sites
 
     # 1 — an untouched real folder never reads as changed, on this interpreter
     own = hb.own_files()
@@ -141,26 +110,6 @@ def teeth_pure() -> None:
         ch = hb.changed(rec, hb.mtimes(hb.own_files(w)))
         ok("an added and a removed file are named too",
            sorted(Path(c).name for c in ch) == ["a.py", "b.py", "c.py"], str(ch))
-
-        # 3 — every trigger called once, a raising one listed, the rest still called
-        class_root, inst_home = _pulse_tree(td)
-        sites = pulse_sites(class_root, inst_home)
-        trig = hb.Triggers()
-        calls = trig.fire(_now(), sites)
-        by = {(c["device_id"], c["level"]): c for c in calls}
-        ok("every pulse.py found is called and listed",
-           set(by) == {("alpha", "class"), ("broken", "class"), ("beta", "instance")}, str(sorted(by)))
-        ok("a raising trigger is listed with its error",
-           by.get(("broken", "class"), {}).get("ok") is False
-           and "always raises" in str(by.get(("broken", "class"), {}).get("error")),
-           str(by.get(("broken", "class"))))
-        ok("the others still ran and returned",
-           by.get(("alpha", "class"), {}).get("ok") is True
-           and by.get(("beta", "instance"), {}).get("result") == {"called": True},
-           str(by.get(("alpha", "class"))))
-        trig.fire(_now(), sites)
-        n = (class_root / "devices" / "alpha" / "groundloop" / "calls.txt").read_text()
-        ok("one call per trigger per beat", n == "xx", repr(n))
 
 
 def _runner_src(td: Path, class_root: Path, watch: Path) -> str:
@@ -203,7 +152,7 @@ def _spawn(src: str) -> subprocess.Popen:
 def teeth_runner() -> None:
     with tempfile.TemporaryDirectory(prefix="cairn-proof-heartbeat-runner-") as t:
         td = Path(t)
-        class_root, _ = _pulse_tree(td)
+        class_root = td / "class"
         watch = td / "watch"
         watch.mkdir()
         (watch / "loop_file.py").write_text("")
@@ -221,7 +170,7 @@ def teeth_runner() -> None:
                 err = proc.stderr.read() if proc.poll() is not None else ""
                 ok("runner alive for the remaining teeth", False, err[-400:])
                 return
-            want = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed", "triggers"}
+            want = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed"}
             ok("the record carries pid, last_run, and the heartbeat state",
                rec.get("pid") == proc.pid and "last_run" in rec and want <= set(st),
                f"missing={sorted(want - set(st))}")
@@ -233,10 +182,6 @@ def teeth_runner() -> None:
             ok("recorded and current mtimes name the watched file, unchanged",
                list(st.get("recorded_mtimes", {})) == [str(watch / "loop_file.py")]
                and st.get("changed") == [], f"changed={st.get('changed')}")
-            listed = sorted((c.get("device_id"), c.get("ok")) for c in st.get("triggers", []))
-            ok("the triggers called this beat are listed, class and instance level",
-               listed == [("alpha", True), ("beta", True), ("broken", False)], str(listed))
-
             # 5 — a second loop exits 3 while this one is LIVE
             second = _spawn(src)
             try:
@@ -324,7 +269,7 @@ def main() -> int:
         for f in FAILURES:
             print(f"  - {f}")
         return 1
-    print("GREEN — mtimes, flags, triggers, one record, one loop. Nothing else.")
+    print("GREEN — mtimes, flags, one record, one loop. Nothing else.")
     return 0
 
 

@@ -1236,7 +1236,10 @@ def _writes_to_frags(i: int, sp: dict) -> list[dict]:
     An address is judged on two things, and existence is NOT one of them: a build
     piece names the file it is about to create, so demanding existence would red
     exactly the case the field was added to carry. What is judged is that the address
-    is a non-empty string and that it is INSIDE the cairn repo. A directory is a valid
+    is a non-empty string and that it is INSIDE one of the two roots this system gates
+    writes to: the cairn repo or its sibling CairnCommons, which is git-tracked and
+    whose records pass the artifact door, and where a concept-piece's only output
+    lands (ticket fb85042b8342; Akien's answer to open-90d38cb2bdca). A directory is a valid
     writes_to destination — multi-file build output lands in a directory, and 13 of
     638 charted addresses in the corpus are directories (measured 2026-09-01).
     """
@@ -1253,6 +1256,7 @@ def _writes_to_frags(i: int, sp: dict) -> list[dict]:
                               "absence, which at least measures as absent.",
         }]
     root = str(_REPO_ROOT)
+    commons = str(_REPO_ROOT.parent / "CairnCommons")
     for addr in addrs:
         if not isinstance(addr, str) or not addr.strip():
             frags.append({
@@ -1265,16 +1269,19 @@ def _writes_to_frags(i: int, sp: dict) -> list[dict]:
             })
             continue
         resolved = os.path.normpath(os.path.join(root, addr))
-        if not (resolved == root or resolved.startswith(root + os.sep)):
+        if not any(resolved == r or resolved.startswith(r + os.sep) for r in (root, commons)):
             frags.append({
                 "judge": "decompose_composes_holdings",
-                "finding": "sub-problem %d writes_to %r — outside the cairn repo" % (i, addr),
+                "finding": "sub-problem %d writes_to %r — outside the cairn repo and "
+                           "CairnCommons" % (i, addr),
                 "evidence": {"index": i, "what": sp.get("what"), "entry": addr,
-                             "repo_root": root},
-                "why_it_matters": "a declared output outside the repo is a write this "
-                                  "system does not gate and git cannot see (Law 6, and "
-                                  "the class-space rule that runtime state never lands "
-                                  "here).",
+                             "repo_root": root, "commons_root": commons},
+                "why_it_matters": "a declared output outside the two roots this system "
+                                  "owns is a write it does not gate and git cannot see "
+                                  "(Law 6, and the class-space rule that runtime state "
+                                  "never lands here); CairnCommons is the second root: "
+                                  "git-tracked, its records pass the artifact door "
+                                  "(Akien, open-90d38cb2bdca).",
             })
     return frags
 

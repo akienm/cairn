@@ -2,12 +2,12 @@
   {
     "claim": "proof test_green_seal_names_a_tooth.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:30:59",
+    "date": "2026-10-04T21:48:55",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_green_seal_with_empty_teeth_fires\n.\n  ok   test_a_green_seal_with_no_teeth_key_fires\n.\n  ok   test_a_green_seal_naming_a_tooth_is_quiet\n.\n  ok   test_a_red_seal_is_quiet\n.\n  ok   test_an_orphan_seal_is_caught\n.\n  ok   test_the_seat_is_in_the_nest\n.\n  ok   test_the_live_corpus_has_no_green_seal_naming_no_tooth\n                                                                  [100%]\n7 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_a_green_seal_with_empty_teeth_fires\n.\n  ok   test_a_green_seal_with_no_teeth_key_fires\n.\n  ok   test_a_green_seal_naming_a_tooth_is_quiet\n.\n  ok   test_a_red_seal_is_quiet\n.\n  ok   test_an_orphan_seal_is_caught\n.\n  ok   test_the_seat_is_in_the_nest\n.\n  ok   test_the_live_corpus_has_no_green_seal_naming_no_tooth\n                                                                  [100%]\n7 passed in 0.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_green_seal_with_empty_teeth_fires",
@@ -27,7 +27,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b857cbcdc61e80d82ea31612a0568ef5778ef375d955b7b774ad0addfa23825a",
+      "conditions": {
+        "proof": "6d098230c4908bd4a37d2f9a49fbcf5db158435f188d4a9f50189bc810d9c183",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "33eb115a69a7c63ba1e534a03d0334afae89a19e404f999b8797c038b05d8c02",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -63,7 +76,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1011457-1env5ve6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-9ypokp53/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,11 +85,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 154898646,
-          "disk_bytes": 175882240,
-          "entries": 8763,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 45
+          "reuses": 37
         }
       }
     },

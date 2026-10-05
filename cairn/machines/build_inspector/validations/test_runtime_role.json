@@ -2,12 +2,12 @@
   {
     "claim": "proof test_runtime_role.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:33:08",
+    "date": "2026-10-04T21:51:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_census_rows_have_runtime_role\n.\n  ok   test_census_runtime_role_matches_charter\n.\n  ok   test_sieve_fires_on_missing_gated_by\n.\n  ok   test_sieve_clean_on_present_gated_by\n.\n  ok   test_sieve_fires_on_empty_gated_by\n.\n  ok   test_sieve_fires_on_non_list_gated_by\n.\n  ok   test_sieve_fires_on_empty_string_in_gated_by\n.\n  ok   test_sieve_clean_on_multi_hand_gated_by\n.\n  ok   test_roster_minimum\n                                                         [100%]\n16 passed in 0.94s",
+      "stdout_tail": ".\n  ok   test_census_rows_have_runtime_role\n.\n  ok   test_census_runtime_role_matches_charter\n.\n  ok   test_sieve_fires_on_missing_gated_by\n.\n  ok   test_sieve_clean_on_present_gated_by\n.\n  ok   test_sieve_fires_on_empty_gated_by\n.\n  ok   test_sieve_fires_on_non_list_gated_by\n.\n  ok   test_sieve_fires_on_empty_string_in_gated_by\n.\n  ok   test_sieve_clean_on_multi_hand_gated_by\n.\n  ok   test_roster_minimum\n                                                         [100%]\n16 passed in 1.44s",
       "stderr_tail": "",
       "teeth_green": [
         "test_at_least_40_charters",
@@ -36,7 +36,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3b7374e4070cf607cd40a62401b1c3f59c47664f8e72014d08a3b7ca81e671fa",
+      "conditions": {
+        "proof": "2c13165e16ac624f1fad971ba642932ad18eeb89d6f1a77dc630c6715f87a344",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "08d907a91ad50b2d606719d3cb14e5129ef1e961fac22c0c0e7c532cc5190242",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -70,7 +83,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1011457-90dvejlm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-ecjz2xom/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -79,11 +92,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 154898646,
-          "disk_bytes": 175882240,
-          "entries": 8763,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 49
+          "reuses": 41
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_orient_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T20:46:35",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:37:39",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1421382f51000f7dc0a1279d898bacc059ded3f03ba5bdbe10a34e572e5cc7d7",
+      "conditions": {
+        "proof": "a7e834ef523467387ea83dfcfa0e51df5b84b0506f967a0278d5ef603ae2151f",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "96cf3a1c1c4c0faf5ddf55f341b78c45c4af3ad61b1faa40bd95e235db3e889b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -79,7 +92,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2150673-mgdv_ah9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-d_w5_grb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -88,29 +101,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123636888,
-          "disk_bytes": 145436672,
-          "entries": 9153,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "193a852651ba": {
-          "cairn/devices/codemother/machines/orient/probes/a_berth_deposits_again.py": [
-            "test_orient_probes_report_to_the_watch"
-          ],
-          "cairn/devices/codemother/machines/orient/probes/floor_earns_its_label.py": [
-            "test_orient_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "193a852651ba": {
-          "anchor_rule": "journal",
-          "anchor_journal": "b08f129ea534b03a79094fc1f61d14dfde21c6fe",
-          "anchor_first_build": "78c84f704c25ae142b2fae48d1a46b857a015bf2",
-          "commit": "b08f129ea534b03a79094fc1f61d14dfde21c6fe"
+          "reuses": 7
         }
       }
     },

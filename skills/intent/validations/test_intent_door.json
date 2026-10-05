@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_intent_door.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T22:48:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:55:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -46,7 +46,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1cd484463c2942a38dbe930c1bae38fa7d4af46e419f12d1581d54d820830bd6",
+      "conditions": {
+        "proof": "7d9e3b9e811d8470bec59db193b47e9225e39f80827395b7649e8af728b206ee",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "dbb4895e3e7c8a96299c41b60c65ebb80080536ba06d08cd6588839d88c7357f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -85,7 +98,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2228053-47esf__8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-m2cepq7w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -94,11 +107,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 124136439,
-          "disk_bytes": 146067456,
-          "entries": 9201,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 0
+          "reuses": 66
         }
       }
     },

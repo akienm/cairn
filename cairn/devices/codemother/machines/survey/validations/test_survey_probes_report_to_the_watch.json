@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_survey_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T18:30:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:37:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "8fad59d12c6da51c99d45d3aca77fcc3663b14144e6b0090e280e0e0252a79a7",
+      "conditions": {
+        "proof": "c9dee2f6dbfd259dc584498751e62a0863e9503fa0fa0b963b6d6ed5306af997",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "3117981776710c97aff938e244a61df06615171af76ec32283dd3033ae90597d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -74,7 +87,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2089849-wzbnxban/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-l2e4q7m4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,29 +96,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123153724,
-          "disk_bytes": 144826368,
-          "entries": 9106,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "aee6e994fb04": {
-          "cairn/devices/codemother/machines/survey/probes/does_a_deposit_survive_a_move.py": [
-            "test_survey_probes_report_to_the_watch"
-          ],
-          "cairn/devices/codemother/machines/survey/probes/surveys_floor_produced_a_row_for_every_component_ref.py": [
-            "test_survey_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "aee6e994fb04": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6ad0637d1ae9c59cc8d2d67553ab5fecba982fc3",
-          "anchor_first_build": "7462b04f845443456bbdcb3d0e9e53abfa45aa03",
-          "commit": "6ad0637d1ae9c59cc8d2d67553ab5fecba982fc3"
+          "reuses": 10
         }
       }
     },

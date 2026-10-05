@@ -2,13 +2,13 @@
   {
     "claim": "proof test_import_sieve.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:35:56",
+    "date": "2026-10-04T21:53:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_reaches_refuses_a_start_it_never_read\n  PASS  test_an_import_of_nothing_is_a_dead_end_not_an_error\n  PASS  test_unreachable_catches_a_breach_two_hops_down\n  PASS  test_unreachable_spares_a_breacher_the_fire_path_cannot_reach\n  PASS  test_unreachable_catches_a_breach_at_the_start_itself\n  PASS  test_unreachable_is_clean_on_the_real_corpus\n  PASS  test_the_hollow_floor_guards_the_new_kind_too\n  PASS  test_phase_classifies_by_what_the_sieve_reads\n  PASS  test_phase_is_transitive_through_an_in_module_helper\n  PASS  test_phase_on_unparseable_source_is_empty\n  PASS  test_the_real_inspector_sieves_are_all_record\n  PASS  test_dynamic_import_of_guarded_module_reds\n  PASS  test_dynamic_import_of_unguarded_module_passes\n  PASS  test_subprocess_of_guarded_binary_reds\n  PASS  test_subprocess_of_unguarded_binary_passes\n  PASS  test_subprocess_with_computed_argument_is_opaque\n  PASS  test_device_isolation_catches_cross_device_import\n  PASS  test_device_isolation_spares_the_exempt_device\n  PASS  test_device_isolation_spares_self_import\ngreen — import_sieve: 35 teeth; the mesh tells a capability from a mention, a clean sieve from one that never ran, and a device from its neighbor",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_parse_is_not_a_dial\n  PASS  test_listening_is_not_dialing\n  PASS  test_prose_is_not_an_import\n  PASS  test_an_in_tree_leaf_import_is_visible\n  PASS  test_an_unparseable_file_is_not_a_door\n  PASS  test_a_sieve_over_nothing_raises_rather_than_passing\n  PASS  test_the_real_corpus_clears_the_floor\n  PASS  test_sole_path_catches_a_second_door",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 526, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 518, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 135, in test_sole_path_is_clean_on_the_real_corpus_for_both_domains\n    assert host == [], f\"a second door to the inference host: {host}\"\n           ^^^^^^^^^^\nAssertionError: a second door to the inference host: [\"cairn/tools/bus_client/remote.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inference_domain/ is supposed to be the only one\"]",
       "teeth_green": [
         "test_a_parse_is_not_a_dial",
         "test_listening_is_not_dialing",
@@ -17,34 +17,7 @@
         "test_an_unparseable_file_is_not_a_door",
         "test_a_sieve_over_nothing_raises_rather_than_passing",
         "test_the_real_corpus_clears_the_floor",
-        "test_sole_path_catches_a_second_door",
-        "test_sole_path_is_clean_on_the_real_corpus_for_both_domains",
-        "test_forbidden_catches_a_fork_breach_and_spares_everyone_else",
-        "test_an_unknown_sieve_kind_is_refused_not_silently_clean",
-        "test_importers_of_finds_the_live_carriers_of_a_primitive",
-        "test_importers_of_is_empty_for_a_module_nobody_imports",
-        "test_a_module_is_not_its_own_importer",
-        "test_module_name_folds_a_package_init",
-        "test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain",
-        "test_reaches_refuses_a_start_it_never_read",
-        "test_an_import_of_nothing_is_a_dead_end_not_an_error",
-        "test_unreachable_catches_a_breach_two_hops_down",
-        "test_unreachable_spares_a_breacher_the_fire_path_cannot_reach",
-        "test_unreachable_catches_a_breach_at_the_start_itself",
-        "test_unreachable_is_clean_on_the_real_corpus",
-        "test_the_hollow_floor_guards_the_new_kind_too",
-        "test_phase_classifies_by_what_the_sieve_reads",
-        "test_phase_is_transitive_through_an_in_module_helper",
-        "test_phase_on_unparseable_source_is_empty",
-        "test_the_real_inspector_sieves_are_all_record",
-        "test_dynamic_import_of_guarded_module_reds",
-        "test_dynamic_import_of_unguarded_module_passes",
-        "test_subprocess_of_guarded_binary_reds",
-        "test_subprocess_of_unguarded_binary_passes",
-        "test_subprocess_with_computed_argument_is_opaque",
-        "test_device_isolation_catches_cross_device_import",
-        "test_device_isolation_spares_the_exempt_device",
-        "test_device_isolation_spares_self_import"
+        "test_sole_path_catches_a_second_door"
       ],
       "teeth_red": [],
       "seal": {
@@ -55,39 +28,30 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "23673d794376c5a242931987a00f6f9ceeaf3874b5f94bc5d60fdd86e236cbb6",
+      "conditions": {
+        "proof": "84db29526cbaec0725a22ddc3beac65a3c2a6f7a9501cb5c4f9115747ab720ee",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "2b26cd644d7c3fb7bf3b23d8e7b647b1591bac1df6c204a8d18f93fad06175db",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
         "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/address_rule.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/import_sieve/sieve.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1011457-qb27utu_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-4iylbq0y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -96,12 +60,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 154898646,
-          "disk_bytes": 175882240,
-          "entries": 8763,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 88
+          "reuses": 57
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "84db29526cbaec0725a22ddc3beac65a3c2a6f7a9501cb5c4f9115747ab720ee",
+        "opened": "2026-10-04T21:53:55",
+        "last_red": "2026-10-04T21:53:55",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-import-sieve",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

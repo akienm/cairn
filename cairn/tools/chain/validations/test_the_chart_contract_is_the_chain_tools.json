@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_chart_contract_is_the_chain_tools.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T08:46:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:53:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "782b4abff8d7a6a5d50a25f5d6971113f537de7546a3d23a2ea2b333798c8b96",
+      "conditions": {
+        "proof": "956709de7b025650a2c449e93d7dc21a6155aa84719e104f5d6ab9934b4cc970",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "775756cb8f1fa11d88fe0d36ea408f54314db71498a209486dd7fc60dcfee181",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -55,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1026213-9qxcz9jn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-d1wcyfg5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,30 +77,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 156578366,
-          "disk_bytes": 177758208,
-          "entries": 8839,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 3
-        }
-      },
-      "hollow": {
-        "d8e8a2dc1176": {
-          "cairn/devices/codemother/machines/verdict/verdict.py": [
-            "codemother_binds_the_same_objects"
-          ],
-          "cairn/tools/chain/grammar.py": [
-            "codemother_binds_the_same_objects"
-          ],
-          "skills/chart/dial.py": [
-            "nothing_reaches_codemother_for_the_contract"
-          ],
-          "cairn/machines/build_inspector/inspector.py": [
-            "nothing_reaches_codemother_for_the_contract"
-          ],
-          "cairn/tools/base/transitions.py": [
-            "nothing_reaches_codemother_for_the_contract"
-          ]
+          "reuses": 55
         }
       }
     },

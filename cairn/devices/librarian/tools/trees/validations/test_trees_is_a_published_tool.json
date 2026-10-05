@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_trees_is_a_published_tool.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T13:29:00",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:38:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "8e0e2a6472c4d34aab6ba6476377a5a0aa456d87ae122210cc648049fa43429a",
+      "conditions": {
+        "proof": "7c3ed6f23f040718fb262b3c8b9e6467fd67e72578f25ef8c6b3576213937917",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "e30950172c0beb99b38711b4bfee936b9fb2601622b08c628d7447c3965715d0",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,7 +79,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1168945-4b1xofx5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-wn4v5zxw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,68 +88,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91621761,
-          "disk_bytes": 108969984,
-          "entries": 7167,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "883abe55d04c": {
-          "cairn/devices/librarian/tools/trees/trees.py": [
-            "the_old_address_is_gone",
-            "the_tool_is_published"
-          ],
-          "cairn/devices/librarian/device.py": [
-            "the_tool_is_published"
-          ],
-          "cairn/devices/librarian/loop.py": [
-            "the_old_address_is_gone",
-            "the_tool_is_published"
-          ],
-          "cairn/devices/librarian/ask.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/chat.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/library.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/live.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/migrate_to_three_tables.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/shim.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/summarize.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/probes/revisions_hold_under_live_use.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/probes/standing_moves_under_live_use.py": [
-            "the_old_address_is_gone"
-          ],
-          "cairn/devices/librarian/tools/trees/intention+why.json": [
-            "the_tool_is_published"
-          ],
-          "cairn/tools/tree/tree.py": [
-            "nothing_reaches_into_the_librarian_for_its_trees",
-            "the_old_address_is_gone"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "883abe55d04c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "9677a3f74abc172cc4c7b093b0b913d84561d291",
-          "anchor_first_build": "ef01e9ceb2a4ed4cba6fb481aee12fd2dd5bd310",
-          "commit": "9677a3f74abc172cc4c7b093b0b913d84561d291"
+          "reuses": 18
         }
       }
     },

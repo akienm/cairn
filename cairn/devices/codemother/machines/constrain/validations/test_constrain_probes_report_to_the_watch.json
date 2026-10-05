@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_constrain_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T17:56:04",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:37:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5d43630002f078449499f027cff2b9b6c577381cf61fe728fac8a7909923d2e2",
+      "conditions": {
+        "proof": "cc627716c3ed53630b19f5c748e55a58d07abe8b279322f7fc5171e5d7bbffd1",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "492e2d723692261f80ee685d9e01c5bcee0253342c2326aff86672758d1cac53",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -74,7 +87,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2075601-iw0uh2sz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-o86kclkl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,29 +96,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123009850,
-          "disk_bytes": 144650240,
-          "entries": 9092,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "307add13e959": {
-          "cairn/devices/codemother/machines/constrain/probes/crowding_out.py": [
-            "test_constrain_probes_report_to_the_watch"
-          ],
-          "cairn/devices/codemother/machines/constrain/probes/lookups_stop.py": [
-            "test_constrain_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "307add13e959": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5be7bb3d0d8fc16af0f6f1bb634293db26fdba90",
-          "anchor_first_build": "bafb39cd2ff9e2d17d7e8927836d0e6f2d668396",
-          "commit": "5be7bb3d0d8fc16af0f6f1bb634293db26fdba90"
+          "reuses": 3
         }
       }
     },

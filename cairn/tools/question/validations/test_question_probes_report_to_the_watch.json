@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_question_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:39:24",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T21:54:38",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1f44182db2f2507cc0b0867776ae0a1e8defae2d5fdc5a2a9ece32f73dd40bd0",
+      "conditions": {
+        "proof": "55a24716bd518be222df2afc194a22198082bb84641dc699595d4477cabd2b82",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "40c2914b1d951819afe1a8844276ad51e5938d21514390c878960c555bf9a0b5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -68,7 +81,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1989734-s4sxn7zt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2905637-nfte3wm9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,29 +90,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119942914,
-          "disk_bytes": 141250560,
-          "entries": 8934,
+          "bytes": 136942862,
+          "disk_bytes": 160382976,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "43875ad0eb34": {
-          "cairn/tools/question/probes/both_ends_agree.py": [
-            "test_question_probes_report_to_the_watch"
-          ],
-          "cairn/tools/question/probes/no_crossing_with_an_open_question.py": [
-            "test_question_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "43875ad0eb34": {
-          "anchor_rule": "journal",
-          "anchor_journal": "a6cb03c533237f8d436da32900a28392861f50fe",
-          "anchor_first_build": "3d26ea273bbd14e2e286d990d67395163f15d946",
-          "commit": "a6cb03c533237f8d436da32900a28392861f50fe"
+          "reuses": 61
         }
       }
     },

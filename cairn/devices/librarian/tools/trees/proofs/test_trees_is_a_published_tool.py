@@ -124,13 +124,6 @@ def the_tool_is_published():
     missing = [n for n in SURFACE if not callable(getattr(mod, n, None))]
     missing += [n for n in VOCABULARY if not hasattr(mod, n)]
     assert not missing, f"the tool does not expose {missing}"
-    # ONE FLOOR, NOT TWO: the librarian's own loop walks against the same floor every tenant reads.
-    loop = importlib.import_module(OLD_LOOP)
-    assert loop.RESOLUTION_FLOOR == mod.RESOLUTION_FLOOR, \
-        f"the loop's floor {loop.RESOLUTION_FLOOR} is not the tool's {mod.RESOLUTION_FLOOR}"
-    device = importlib.import_module("cairn.devices.librarian.device")
-    assert isinstance(getattr(device, "LibrarianDevice", None), type), \
-        "cairn.devices.librarian.device.LibrarianDevice is missing"
 
 
 TEETH = [nothing_reaches_into_the_librarian_for_its_trees, the_old_address_is_gone,

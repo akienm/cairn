@@ -2,20 +2,19 @@
   {
     "claim": "proof test_librarian_holds_its_trees_checks.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-05T04:56:49",
+    "date": "2026-10-05T04:57:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED   nothing_in_the_tool_reaches_its_holder: AssertionError: 1 reach(es) out of the trees tool: [('cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py', 131, 'cairn.devices.librarian.device', 'undeclared')]\n  RED   the_tools_proof_imports_none_of_the_librarian: AssertionError: the trees tool's proof imports the librarian: [(128, 'cairn.devices.librarian.loop'), (131, 'cairn.devices.librarian.device')]\n  ok    the_holder_keeps_one_floor\n1 passed, 2 failed out of 3",
+      "returncode": 0,
+      "stdout_tail": "  ok    nothing_in_the_tool_reaches_its_holder\n  ok    the_tools_proof_imports_none_of_the_librarian\n  ok    the_holder_keeps_one_floor\n3 passed, 0 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
+        "nothing_in_the_tool_reaches_its_holder",
+        "the_tools_proof_imports_none_of_the_librarian",
         "the_holder_keeps_one_floor"
       ],
-      "teeth_red": [
-        "nothing_in_the_tool_reaches_its_holder: AssertionError: 1 reach(es) out of the trees tool: [('cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py', 131, 'cairn.devices.librarian.device', 'undeclared')]",
-        "the_tools_proof_imports_none_of_the_librarian: AssertionError: the trees tool's proof imports the librarian: [(128, 'cairn.devices.librarian.loop'), (131, 'cairn.devices.librarian.device')]"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -80,7 +79,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3197869-9g7ujqux/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3198403-dgr5s_yl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,9 +88,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 148763869,
-          "disk_bytes": 173899776,
-          "entries": 10687,
+          "bytes": 148806543,
+          "disk_bytes": 173957120,
+          "entries": 10691,
           "builds": 1,
           "reuses": 0
         }

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_rackmount.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T12:09:59",
+    "date": "2026-10-05T12:42:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c48e0f39da0a92f4e05911fbdf4364bd3d939629a1cce0cbf04a3a856b66b33b",
+        "proof": "04dd4e038ec4d3e504c53b334916a4d0901ef0d36b596588bacd20c7f60a06da",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,18 +40,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "c0f786dc55a9a61332815301e920caee10c72caa0d45bd16929ea7a74f359f07",
+      "source_fingerprint": "d9e6c6c73c99e534c6e22134b0ed387ba2e7e9fc706ef3c543dbeb1c00f53eaa",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/bus/__init__.py",
-        "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/system_rackmount/__init__.py",
         "cairn/devices/system_rackmount/proofs/test_system_rackmount.py",
         "cairn/devices/system_rackmount/rackmount.py",
@@ -66,6 +58,7 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/remote.py",
         "cairn/tools/bus_client/roster.py",
         "cairn/tools/instanceizer/__init__.py",
         "cairn/tools/instanceizer/instanceizer.py",
@@ -76,28 +69,31 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3391799-6yenpl9t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3410693-dcjtbopm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 10,
           "paths": [
-            "logs/bus/0/20261005.180957.933162.BusDevice.post.json",
-            "logs/bus/0/20261005.180957.978578.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.180958.085989.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.180958.099099.BusDevice.post.json",
-            "logs/ground_loop_nohup.log",
-            "logs/system_rackmount/0/20261005.180957.932882.SystemRackmountDevice.subscribe.json",
-            "logs/system_rackmount/0/20261005.180958.036279.SystemRackmountDevice.subscribe.json"
+            "devices/cairn/machines/bus/0/bus.lock",
+            "logs/bus.log",
+            "logs/bus/0/20261005.184248.449968.BusDevice.post.json",
+            "logs/bus/0/20261005.184248.451503.BusDevice.delivered.json",
+            "logs/bus/0/20261005.184248.460774.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.184248.483129.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.184248.572939.BusDevice.post.json",
+            "logs/bus/0/20261005.184248.573422.BusDevice.delivered.json",
+            "logs/system_rackmount/0/20261005.184248.436858.SystemRackmountDevice.subscribe.json",
+            "logs/system_rackmount/0/20261005.184248.538495.SystemRackmountDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 161789086,
-          "disk_bytes": 187912192,
-          "entries": 11157,
+          "bytes": 163758715,
+          "disk_bytes": 190185472,
+          "entries": 11285,
           "builds": 1,
-          "reuses": 26
+          "reuses": 0
         }
       }
     },

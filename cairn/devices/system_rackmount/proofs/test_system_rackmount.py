@@ -30,8 +30,9 @@ Teeth a hollow system device could not pass:
     quantity/state enum — a trigger is any predicate.
   - IT IS A DEVICE / ITS SHIM IS A SHIM (Law 2 / Form v0 #2).
 
-Requires Postgres (the real bus rides db_domain). Self-cleaning: the ephemeral bus table is
-dropped on the way out.
+Rides the instance's live bus through bus_client (RULE 1: a device's interface is the bus), every
+name it puts there marked "testing-20a97889646e-" (ticket 20a97889646e). Self-cleaning: the
+testing inboxes are removed on the way out.
 
     python3 cairn/devices/system_rackmount/proofs/test_system_rackmount.py     # exit 0 = green
 """
@@ -44,6 +45,8 @@ import os
 import subprocess
 import sys
 import time
+import shutil
+import uuid
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -51,7 +54,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base.core_values import CoreValuesMixin
-from cairn.devices.cairn.machines.bus.bus import BusDevice
+from cairn.tools.base import address
+from cairn.tools.bus_client import bus_client
+from cairn.tools.instanceizer.instanceizer import ensure
 from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.system_rackmount.rackmount import (
     SystemRackmountDevice,
@@ -59,14 +64,46 @@ from cairn.devices.system_rackmount.rackmount import (
     _default_sampler,
 )
 
-_SCRATCH = contextlib.ExitStack()   # each rig's bus table rides BusDevice.scratch(): dropped at close, swept by pid if not
+_SCRATCH = contextlib.ExitStack()   # each run's testing inboxes, removed at close
+
+# TEST AGAINST LIVE, MARKED AS TESTING (ruled 2026-09-28, extended 2026-10-04; ticket
+# 20a97889646e): the bus is the instance's live one, reached through bus_client, and every name
+# this proof puts on it — the device it stands up, the inboxes it subscribes — carries this mark
+# so a reader can throw the traffic away.
+_MARK = "testing-20a97889646e-"
+
+
+class _TestingBus:
+    """The live bus, declining one thing: mail for the testing device. Holding the device in the
+    bus process is how a shim is wired for mail there, and no shim answers to a testing name —
+    the probes fire onto the live bus, and nothing is delivered to a device that exists only here."""
+
+    def __init__(self, bus):
+        self._bus = bus
+
+    def wire_delivery(self, device_id, _deliver=None):
+        return None
+
+    def __getattr__(self, name):
+        return getattr(self._bus, name)
+
+
+def _inbox(label: str) -> str:
+    """A subscriber address on the live bus: a testing folder unique to this run, carrying a
+    DataRecorder instanceizer so the bus files the poke there instead of bouncing it back."""
+    name = f"{_MARK}{label}-{uuid.uuid4().hex[:8]}"
+    fp = address.folder_path(name)
+    ensure(fp, tool_class="cairn.tools.data_recorder.data_recorder.DataRecorder")
+    _SCRATCH.callback(shutil.rmtree, fp, True)
+    return name
 
 
 def _rig(reading: dict):
-    """Wire the full chain: a DeviceRoster, a real bus, the system device (with an injected,
-    mutable reading), and its shim held for the pulse. Returns them for the test to drive."""
-    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_sysrm"))
-    dev = SystemRackmountDevice(sampler=lambda: reading)
+    """Wire the full chain: a DeviceRoster, the live bus, the system device (with an injected,
+    mutable reading, under a testing id), and its shim held for the pulse. Returns them for the
+    test to drive."""
+    bus = _TestingBus(bus_client.reach())
+    dev = SystemRackmountDevice(sampler=lambda: reading, device_id=f"{_MARK}sysrm-{uuid.uuid4().hex[:8]}")
     shim = SystemRackmountShim(dev, bus)
     gl = DeviceRoster(None)
     gl.hold(shim)
@@ -87,14 +124,15 @@ def test_it_advertises_a_menu_and_refuses_an_unadvertised_name():
 def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
     reading = {"cpu": 95}                      # the host is hot — over the line
     gl, bus, dev = _rig(reading)
-    dev.subscribe("cpu_threshold", address="ops/personal", why="page me when CPU is high", value=80)
+    ops = _inbox("ops")
+    dev.subscribe("cpu_threshold", address=ops, why="testing: page me when CPU is high", value=80)
 
     gl.pulse(now="t0")                          # one pulse drives the whole chain
 
-    pokes = bus.read(to="ops/personal", channel="personal")
+    pokes = bus.read(to=ops, channel="personal")
     assert len(pokes) == 1, "a beat over the line pokes the subscriber exactly once"
     poke = pokes[0]
-    assert poke["sender"] == "system_rackmount" and poke["why"] == "page me when CPU is high"
+    assert poke["sender"] == dev.device_id and poke["why"] == "testing: page me when CPU is high"
 
     # Law 6: the poke carries the caller's own line (80), but the device's private READING (95)
     # leaked NOWHERE. Scope the leak-check to what the DEVICE authored — the bus assigns the
@@ -103,13 +141,14 @@ def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
     # the reading was this proof's FLAKE: a red decided partly by a coin toss (Law 8), not a real
     # leak — the exact-body check above already proves the payload is clean.
     assert poke["body"] == {"alert": "cpu_threshold", "crossed": 80}
-    authored = {k: v for k, v in poke.items() if k not in ("id", "date")}
+    # The addressee and sender are this run's testing names, random hex the device never chose.
+    authored = {k: v for k, v in poke.items() if k not in ("id", "date", "addressee", "sender")}
     assert "95" not in json.dumps(authored), "the raw reading must never cross the bus (Law 6)"
 
     # Under the line, the same subscription pokes no one new.
     reading["cpu"] = 50
     gl.pulse(now="t1")
-    assert len(bus.read(to="ops/personal", channel="personal")) == 1, "under the line → no new poke"
+    assert len(bus.read(to=ops, channel="personal")) == 1, "under the line → no new poke"
 
 
 def test_the_ask_door_answers_the_same_predicate_as_the_subscribe_door():
@@ -117,16 +156,17 @@ def test_the_ask_door_answers_the_same_predicate_as_the_subscribe_door():
     # door — so drive the SAME device across the SAME readings and require they never disagree.
     reading = {"cpu": 10, "memory_available_mb": 8000}
     gl, bus, dev = _rig(reading)
-    dev.subscribe("cpu_threshold", address="admission/personal", why="watch", value=80)
+    admission = _inbox("admission")
+    dev.subscribe("cpu_threshold", address=admission, why="testing: watch", value=80)
 
     assert dev.ask("cpu_threshold", 80) is False, "10% is under an 80% line"
     gl.pulse(now="t0")
-    assert bus.read(to="admission/personal", channel="personal") == [], "and the poke door agrees"
+    assert bus.read(to=admission, channel="personal") == [], "and the poke door agrees"
 
     reading["cpu"] = 95
     assert dev.ask("cpu_threshold", 80) is True, "95% crosses an 80% line"
     gl.pulse(now="t1")
-    assert len(bus.read(to="admission/personal", channel="personal")) == 1, "and the poke door agrees"
+    assert len(bus.read(to=admission, channel="personal")) == 1, "and the poke door agrees"
 
     # A VERDICT, NOT A READING (Law 6). Checked as the TYPE, not by scanning the value for the
     # reading's digits: `95 not in True` is true of every possible bool, and a check that cannot
@@ -221,7 +261,8 @@ def test_it_is_a_device_and_its_shim_is_a_shim():
     assert isinstance(dev, CoreValuesMixin) and isinstance(shim, CoreValuesMixin), "Law 2"
     assert [v.id for v in dev.CORE_VALUES] == ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
     assert list(dev.introspect()) == ["intention", "state", "settings", "other"], "Form v0 #2 order"
-    assert shim.device_id == "system_rackmount", "the shim is the shim OF the system device"
+    assert shim.device_id == dev.device_id, "the shim is the shim OF the system device"
+    assert SystemRackmountDevice().device_id == "system_rackmount", "the device's own id, unmarked"
 
 
 def _main() -> int:

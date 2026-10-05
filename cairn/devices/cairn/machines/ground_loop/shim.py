@@ -37,7 +37,14 @@ class HeartbeatPage(BaseDevice):
         }]
 
     def declared_verbs(self) -> dict:
-        return {"liveness": lambda envelope: liveness_pane_data(datetime.now(timezone.utc).astimezone())}
+        return {"liveness": self._answer_liveness}
+
+    def _answer_liveness(self, envelope) -> dict:
+        """The page's one crossing: a ``liveness`` ask answered from the record. The answer
+        leaves a breadcrumb in this device's own log trail (emit, never the bus)."""
+        data = liveness_pane_data(datetime.now(timezone.utc).astimezone())
+        self.emit("liveness_answered", pointer=(envelope or {}).get("id"))
+        return data
 
     def intention(self) -> dict:
         return {

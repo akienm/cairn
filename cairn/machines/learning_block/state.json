@@ -1,22 +1,22 @@
 {
   "cursor": {
     "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-    "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket '3c035a838446', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "SUPERSEDED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -35,26 +35,26 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "SUPERSEDED",
           "cursor": 1,
-          "resolved": 2
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "SUPERSEDED",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
@@ -64,124 +64,22 @@
           ],
           "direction": "forward"
         }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'learning_block' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'learning_block' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "3c035a838446",
-          "component": "learning_block",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket '3c035a838446' is cast",
-        "actual": "named ticket '3c035a838446' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "3c035a838446",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3c035a838446-learning-block-probes-report-to-the-watch.json"
-        }
-      },
-      {
-        "identity": "a_berthed_chart_chain_claims_the_ticket",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "3c035a838446"
-        }
-      },
-      {
-        "identity": "the_ticket_names_its_intent_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "3c035a838446"
-        }
-      },
-      {
-        "identity": "the_ticket_names_its_sorted_door_firing",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "3c035a838446"
-        }
-      },
-      {
-        "identity": "the_ticket_has_every_answer_it_needs",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "3c035a838446"
-        }
-      },
-      {
-        "identity": "the_ticket_rehearses_clean",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_entry",
-        "expected": [],
-        "actual": [],
-        "fatality": "none",
-        "source": "transitions.inspect_entry",
-        "values": {
-          "findings": [],
-          "ticket": "3c035a838446"
-        }
       }
     ],
-    "checks_proved": 10,
-    "ticket": "3c035a838446",
-    "actor": "cc",
-    "why": "835b5736bf2b child: rehearsed CLEAN; building the probes' watch receiver",
-    "fingerprint": "79f04b4bec6b0f9b81d6aabece64bd5b94d87b6e12b9bb45c8454bd462ff8850",
-    "at": "2026-10-03T14:41:21",
-    "seq": 12
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py"
+    ],
+    "proven_seal_date": "2026-10-05T07:27:36",
+    "delegated": false,
+    "ticket": "6eb6c0f40842",
+    "fingerprint": "21da74a4b2e8d5c6154b0a61fb2d5678ba1d4f34b291c049467630cf89ea7406",
+    "at": "2026-10-05T07:30:27",
+    "seq": 13
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "WATCHME",
-      "standing": "WATCHME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [WATCHME(engine-trace-corpus)] -> PROVED",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 18 filters over learning_block",
-      "ticket": "engine-runs-one-block",
-      "note": "sealed under the tester (netns, green, validation 3 of 3 appended) and LIVE FIRED both ways: run 1 measured the lab CURRENT (45/45, nothing outdated) — no_op won, copy_stale_only rejected by both constraints; run 2 measured it STALE (the engine charter delta itself was the outdated source) — regenerate_whole won, no_op and copy_stale_only rejected, and the gate poke then performed the winning op for real. The live corpus now holds 2 engine runs, 3 rejected candidates, every record answering the five questions. The watch this crossing enters: probes/engine_trace_corpus.py, armed by the chokepoint own measure (armed_error None).",
-      "at": "2026-08-02T17:09:06",
-      "seq": 8
-    },
     {
       "from": "WATCHME",
       "to": "PROVED",
@@ -566,7 +464,87 @@
       "fingerprint": "79f04b4bec6b0f9b81d6aabece64bd5b94d87b6e12b9bb45c8454bd462ff8850",
       "at": "2026-10-03T14:41:21",
       "seq": 12
+    },
+    {
+      "from": "TICKETME",
+      "to": "SUPERSEDED",
+      "standing": "SUPERSEDED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+      "direction": "disposition",
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+          "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "SUPERSEDED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+          "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "SUPERSEDED",
+            "cursor": 1,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> SUPERSEDED",
+          "actual": "TICKETME -> SUPERSEDED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "SUPERSEDED",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py"
+      ],
+      "proven_seal_date": "2026-10-05T07:27:36",
+      "delegated": false,
+      "ticket": "6eb6c0f40842",
+      "fingerprint": "21da74a4b2e8d5c6154b0a61fb2d5678ba1d4f34b291c049467630cf89ea7406",
+      "at": "2026-10-05T07:30:27",
+      "seq": 13
     }
   ],
-  "count": 13
+  "count": 14
 }

@@ -1,25 +1,23 @@
 [
   {
     "claim": "proof test_the_beat_calls_nothing.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-05T07:25:14",
+    "caller": "cairn test",
+    "date": "2026-10-05T07:27:36",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": ".\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n.\n  ok   test_codemother_hears_the_commit_through_the_fanout\n                                                                   [100%]\n=================================== FAILURES ===================================\n_______________________ test_the_build_deleted_no_probe ________________________\n\n    def test_the_build_deleted_no_probe():\n        builds = [h for h in _git(\"log\", \"--format=%H\", f\"--grep={_TICKET}: build\").split() if h]\n>       assert builds, f\"no commit whose message carries '{_TICKET}: build' — the build has not landed\"\nE       AssertionError: no commit whose message carries '164da559823d: build' — the build has not landed\nE       assert []\n\ntest_the_beat_calls_nothing.py:128: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_beat_calls_nothing.py::test_the_build_deleted_no_probe - Asse...\n1 failed, 5 passed in 0.83s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n.\n  ok   test_codemother_hears_the_commit_through_the_fanout\n                                                                   [100%]\n6 passed in 0.84s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_pulse_file_and_no_beat_probes_are_tracked",
         "test_the_beat_calls_no_pulse_and_records_no_triggers",
+        "test_the_build_deleted_no_probe",
         "test_nothing_tracked_reaches_the_pulse_machinery",
         "test_the_live_heartbeat_beats_without_triggers",
         "test_codemother_hears_the_commit_through_the_fanout"
       ],
-      "teeth_red": [
-        "test_the_build_deleted_no_probe",
-        "test_the_beat_calls_nothing"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -33,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -69,7 +67,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3298305-3rm03jao/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3300437-efsvrvkm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,21 +76,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 150126719,
-          "disk_bytes": 175435776,
-          "entries": 10766,
+          "bytes": 150672813,
+          "disk_bytes": 176078848,
+          "entries": 10803,
           "builds": 1,
-          "reuses": 7
+          "reuses": 0
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "531d7924976b5a77821f04be6915f41249a05403d4fc8c5371e71601962a8ef5",
-        "opened": "2026-10-05T07:25:14",
-        "last_red": "2026-10-05T07:25:14",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

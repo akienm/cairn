@@ -1,0 +1,92 @@
+[
+  {
+    "claim": "proof test_the_decompose_judge_accepts_a_commons_output.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-04T21:32:12",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_a_commons_address_draws_no_finding: AssertionError: [{'judge': 'decompose_composes_holdings', 'finding': \"sub-problem 0 writes_to '/home/akien/dev/src/CairnCommons/intentions-not-beside-code/I-x.md' — outside the cairn repo\", 'evidence': {'index': 0, 'what': 'p', 'entry': '/home/akien/dev/src/CairnCommons/intentions-not-beside-code/I-x.md', 'repo_root': '/home/akien/dev/src/cairn'}, 'why_it_matters': 'a declared output outside the repo is a write this system does not gate and git cannot see (Law 6, and the class-space rule that runtime state never lands here).'}]\n  ok   test_an_address_outside_both_roots_still_reds\n  FAIL test_the_red_names_both_roots: AssertionError: sub-problem 0 writes_to '/etc/passwd' — outside the cairn repo\nRED",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_address_outside_both_roots_still_reds"
+      ],
+      "teeth_red": [
+        "test_a_commons_address_draws_no_finding",
+        "test_the_red_names_both_roots"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "81c496ff7e7e3b72b0bfcdba7c4ca263656257f2bb08ef450f28a54aa5cf9a21",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "7585ef39675e57661c8c8968cb7d7c0ed59f1315bd3854b1634d87586e01d108",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_the_decompose_judge_accepts_a_commons_output.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2901685-nlxquv7c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 136899786,
+          "disk_bytes": 160329728,
+          "entries": 9914,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

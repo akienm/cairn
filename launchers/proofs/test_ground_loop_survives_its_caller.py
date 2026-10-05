@@ -56,7 +56,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/pro
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 from cairn.tools.liveness import liveness as _gl_liveness  # noqa: E402
-from cairn.devices.cairn.machines.ground_loop.__main__ import CADENCE_S as _CADENCE_S  # noqa: E402
+from cairn.tools.liveness.liveness import CADENCE_S as _CADENCE_S  # noqa: E402
 
 # Resolved ONCE, before any arm hands a child a pruned PATH. The prime-directive arm makes
 # systemd-run unreachable to the LAUNCHER, and an early version of that arm made it

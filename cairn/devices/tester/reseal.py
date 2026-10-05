@@ -81,6 +81,7 @@ from pathlib import Path
 from cairn.devices.tester.conditions import compare
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
+from cairn.tools.base.address import component_of
 from cairn.tools.validation_store.validation_store import (
     closure_of,
     component_root_for,
@@ -269,27 +270,25 @@ def staged_files(root: Path | None = None) -> list[str]:
 
 def proofs_touching(staged: list[str], *, root: Path | None = None,
                     rows: list[dict] | None = None) -> list[Path]:
-    """Which censused proofs a staged change could have moved the ground under.
+    """Which censused proofs a staged change re-runs: the proofs of the component that OWNS
+    a staged file, and no one else's.
 
-    ASKED PER SEAL, UNDER THAT SEAL'S OWN RECIPE — the same rule ``sealed_fingerprint_now``
-    settled for the fingerprint itself. A seal carrying an import closure is touched when a
-    staged file is IN that closure; a seal predating closures was taken over its component
-    directory and is touched when a staged file is under that directory. Mixing the two
-    would re-red the 2026-09-08 wall: one edit to ``transitions.py`` reaching 60 seals that
-    never imported it."""
+    AKIEN'S ANSWER, 2026-10-05 (~/.cairn/foreground-decisions.md item 7): "tool proofs:
+    agreed" — when a tool changes, the proofs of the components that use it do not re-run;
+    only the tool's own do. This door used to ask each seal under its own recipe — touched
+    when a staged file sat in its import closure, or under its directory for a pre-closure
+    seal — and both crossed components: one line in liveness.py re-ran 55 proofs across 19
+    components (b9a7d9e5), and a diagnostic.py commit reached 64 components and ran past 30
+    minutes without landing (be4a7b3c7caa). The owner of a path is the deepest component
+    ancestor (``component_of``), so a nested machine's change does not reach its holder
+    either. A user whose ground did move is still told by ``component_color`` reading its
+    seal; this door only decides what the commit re-runs."""
     base = Path(root or REPO_ROOT)
-    want = set(staged)
+    owners = {component_of(base / s) for s in staged} - {None}
     out = []
     for row in (rows if rows is not None else census(base)):
-        proof, comp, seal = row["proof"], row["component"], row["seal"]
-        closure = closure_of(seal)
-        if closure:
-            if want & set(closure):
-                out.append(proof)
-            continue
-        comp_rel = str(comp.relative_to(base)) if comp.is_relative_to(base) else str(comp)
-        if any(s == comp_rel or s.startswith(comp_rel + "/") for s in want):
-            out.append(proof)
+        if Path(row["component"]).resolve() in owners:
+            out.append(row["proof"])
     return out
 
 

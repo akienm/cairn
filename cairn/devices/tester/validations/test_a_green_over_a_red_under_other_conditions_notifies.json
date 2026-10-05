@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_green_over_a_red_under_other_conditions_notifies.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T10:28:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T15:06:37",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -32,7 +32,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -40,7 +40,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "6069326c4aa7ca020269ebc1a8f847891bad0b7237f4e9b2d2c6c476e59508bf",
+      "source_fingerprint": "ed03ad9a7b65d699d715f0da41356595f12269a49935571cca5c94369ec6ff26",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -59,6 +59,7 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/scratch/__init__.py",
@@ -70,33 +71,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3372058-nae0jdlu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3478666-79_uruq3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
           "paths": [
-            "logs/tester/0/20261005.162757.181580.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162758.995778.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162800.796441.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162802.552858.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162804.322640.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162806.060345.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162807.830012.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162809.621862.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162811.407931.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162813.191841.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162814.974488.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162816.764988.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162818.537050.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.162820.339027.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.210613.566420.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210615.424447.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210617.223598.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210619.045025.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210620.912585.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210622.817017.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210624.673667.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210626.514018.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210628.345868.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210630.152952.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210631.960507.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210633.773260.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210635.546266.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.210637.314632.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 159781759,
-          "disk_bytes": 185745408,
-          "entries": 11060,
+          "bytes": 167571256,
+          "disk_bytes": 194494464,
+          "entries": 11507,
           "builds": 1,
           "reuses": 0
         }

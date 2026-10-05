@@ -45,8 +45,14 @@ def measure(proof_path, *, iso_name: str, seal_verdict: str, instance_seal_verdi
 
 
 def changed(before: dict, after: dict) -> list[str]:
-    """Only keys on both sides compare, so a condition key added later never notifies by itself."""
-    return sorted(k for k in before.keys() & after.keys() if before[k] != after[k])
+    """Only keys on both sides compare, so a condition key added later never notifies by itself.
+
+    The timeout is recorded but never compared (ticket 8383a32d20c5): a proof declares its own
+    PROOF_TIMEOUT_S, so a budget is the proof's byte rather than a condition the run was
+    measured under, and a green over a red that only the timeout explains posts no notice.
+    """
+    return sorted(k for k in before.keys() & after.keys()
+                  if k != "timeout" and before[k] != after[k])
 
 
 def _line(k: str, before: dict, after: dict) -> str:

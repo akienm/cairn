@@ -434,22 +434,25 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                  and evidence.get("returncode") is None
                  and "timed out after" in str(evidence.get("stderr_tail") or ""))
     if timed_out:
+        # the budget the run actually used: a proof's own PROOF_TIMEOUT_S beats --timeout
+        budget = (evidence.get("conditions") or {}).get("timeout", timeout)
         try:
             raiser.raise_trouble(identity, why=(
-                f"the reseal door could not REPROVE {rel} inside its {timeout}s budget — it "
+                f"the reseal door could not REPROVE {rel} inside its {budget}s budget — it "
                 f"timed out. This is the door's impatience, not the proof's verdict, so no "
                 f"seal was written and no repair was bounded: the standing record is "
                 f"untouched and the component stays red at rung 1 because its fingerprint "
-                f"moved. Re-run with a bigger --timeout to learn what the proof actually "
-                f"says."),
+                f"moved. Declare PROOF_TIMEOUT_S in the proof (ticket 8383a32d20c5), or "
+                f"re-run an undeclared proof with a bigger --timeout, to learn what the proof "
+                f"actually says."),
                 detail={"proof": rel, "component": _rel(component_root_for(str(proof))),
-                        "isolation": iso, "timeout": timeout, "rung": 3,
+                        "isolation": iso, "timeout": budget, "rung": 3,
                         "stderr_tail": evidence.get("stderr_tail")})
         except Exception:  # noqa: BLE001 — see the raise/clear lanes below
             pass
         return {"proof": rel, "outcome": "timeout", "rung": 3, "ran": True,
                 "trouble": identity, "stderr_tail": evidence.get("stderr_tail"),
-                "why": f"timed out after {timeout}s under isolation {iso!r}; nothing was written"}
+                "why": f"timed out after {budget}s under isolation {iso!r}; nothing was written"}
 
     if record["verdict"] == GREEN:
         # ── RUNG 2 CLOSES (or rung 4 does, when a ruling rode along) ──────────────────

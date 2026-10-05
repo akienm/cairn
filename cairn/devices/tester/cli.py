@@ -250,8 +250,9 @@ def _reseal_run(args) -> int:
     settled = [r for r in outcome["results"] if r["outcome"] == "settled-red"]
     timeouts = [r for r in outcome["results"] if r["outcome"] == "timeout"]
     if timeouts:
-        print(f"reseal: {len(timeouts)} proof(s) could not be reproven inside "
-              f"{args.timeout}s — re-run those with a bigger --timeout.")
+        print(f"reseal: {len(timeouts)} proof(s) could not be reproven inside their budgets — "
+              f"a proof that declares PROOF_TIMEOUT_S runs at that budget whatever --timeout "
+              f"says; declare one, or re-run an undeclared proof with a bigger --timeout.")
     if settled:
         print(f"reseal: {len(settled)} proof(s) are sealed RED over an unmoved closure — the "
               f"door did not re-run them because the answer is already taken (Law 1); they "
@@ -388,7 +389,7 @@ def main(argv: list[str] | None = None) -> int:
         help="persist each verdict as a VALIDATION through the store's door "
              "(default: run and report only, sealing nothing)",
     )
-    ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds (default 120)")
+    ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds for proofs that declare no PROOF_TIMEOUT_S (default 120)")
     ap.add_argument(
         "--hollow",
         metavar="TICKET",

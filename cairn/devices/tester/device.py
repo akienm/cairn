@@ -46,6 +46,7 @@ OPEN EDGES (filed, not faked — children of this stone):
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 import shutil
@@ -297,6 +298,41 @@ def _instance_writes(swap: str | None, before: dict | None) -> dict:
     }
 
 
+def declared_timeout(proof_path) -> int | None:
+    """The proof's own time limit: a top-level ``PROOF_TIMEOUT_S`` integer literal, or None.
+
+    Ticket 8383a32d20c5 (Akien, 2026-10-04: per-proof time limits). Read from the SOURCE by
+    AST, never by import — importing a proof runs it. Only module-level statements count, and
+    the last assignment wins, as it would at runtime. A proof that cannot be read or parsed
+    declares nothing (the run itself reports why). A declaration that is not a positive integer
+    literal raises ValueError: a budget the reader cannot see without evaluating code is not a
+    declaration, and falling back to the caller's budget would hide the mistake.
+    """
+    try:
+        tree = ast.parse(Path(proof_path).read_text(encoding="utf-8"))
+    except (SyntaxError, OSError, UnicodeDecodeError, ValueError):
+        return None
+    value = None
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            if any(isinstance(t, ast.Name) and t.id == "PROOF_TIMEOUT_S" for t in node.targets):
+                value = node.value
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            if isinstance(node.target, ast.Name) and node.target.id == "PROOF_TIMEOUT_S":
+                value = node.value
+    if value is None:
+        return None
+    if (isinstance(value, ast.Constant) and isinstance(value.value, int)
+            and not isinstance(value.value, bool) and value.value > 0):
+        return value.value
+    raise ValueError(f"PROOF_TIMEOUT_S must be a positive integer literal at the top level of "
+                     f"the proof; got {ast.unparse(value)!r}")
+
+
+class _BadBudget(Exception):
+    """A proof's PROOF_TIMEOUT_S declaration is malformed; the run is refused, red."""
+
+
 class TesterDevice(BaseDevice):
     """Runs proofs and attests verdicts — the spine's notary, minimal version.
 
@@ -458,6 +494,17 @@ class TesterDevice(BaseDevice):
         # matter how the caller spelled the path (Law 4: the guarantee is physics, not a
         # "remember to pass an absolute path" convention).
         proof_path = Path(proof_path).resolve()
+        # THE PROOF'S OWN BUDGET (ticket 8383a32d20c5). A declared PROOF_TIMEOUT_S beats the
+        # caller's timeout — hand seal, reseal door and hollow alike, since all three run
+        # here. A malformed declaration is held and refuses the run below, red, inside the
+        # same record shape as every other run.
+        bad_budget = None
+        try:
+            declared = declared_timeout(proof_path)
+        except ValueError as exc:
+            declared, bad_budget = None, str(exc)
+        if declared:
+            timeout = declared
         iso = get_isolation(isolation)
 
         # Measure the seal before trusting it (isolation.py: measured, never assumed).
@@ -548,6 +595,8 @@ class TesterDevice(BaseDevice):
                                       timeout=timeout, env=pinned),
             }
             try:
+                if bad_budget:
+                    raise _BadBudget(bad_budget)
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
                                       env=pinned)
                 verdict = GREEN if proc.returncode == 0 else RED
@@ -580,6 +629,18 @@ class TesterDevice(BaseDevice):
                     "stdout_tail": _tail(proc.stdout),
                     "stderr_tail": _tail(stderr),
                     **teeth,
+                    **base_evidence,
+                }
+            except _BadBudget as exc:
+                # A MALFORMED BUDGET IS A RED, NOT A FALLBACK (8383a32d20c5): the proof never
+                # ran, and the record says why instead of quietly using the caller's budget.
+                verdict = RED
+                evidence = {
+                    "returncode": None,
+                    "stdout_tail": "",
+                    "stderr_tail": f"refused to run: {exc}",
+                    "teeth_green": [],
+                    "teeth_red": [],
                     **base_evidence,
                 }
             except subprocess.TimeoutExpired:

@@ -1,23 +1,22 @@
 [
   {
     "claim": "proof test_a_proof_declares_its_own_time_limit.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T22:58:13",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T23:02:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL test_a_declared_limit_beats_the_callers_budget: AssertionError: timed out after 1s\n  ok   test_an_undeclared_proof_takes_the_callers_budget\n  FAIL test_a_bad_declaration_reds_the_run: AssertionError: ('PROOF_TIMEOUT_S = \"9\"', {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'the caller sealed nothing and swept nothing'}, 'conditions': {'proof': '8facaa48aeb32d52dc4ef0c4a90dedf530d46b036f4eadd6104ffbed426b48be', 'fixtures': None, 'interpreter': '/home/akien/.cairn/venv/bin/python3 3.14.4', 'isolation': 'none seal=open instance-seal=sealed', 'timeout': 30, 'env': {'CAIRN_COMMONS_ROOT': '0add539f947e', 'CAIRN_LOGTARGET': 'ecd2f9d0ee6b', 'CAIRN_ROOT': '36946d3d5f39', 'CAIRN_RUNTIME': '29aa6f71459e', 'CAIRN_TESTER_INSTANCE_SEALED': '6b86b273ff34', 'CAIRN_TESTER_SEALED': '6b86b273ff34'}}, 'source_fingerprint': 'c00e954a14d493fb4334e024649086c032bb5e1e4d4a866323c71dec760e2606', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}})\n  FAIL test_a_timeout_alone_is_not_a_changed_condition: AssertionError: \n  FAIL test_the_slow_tester_proofs_declare_a_limit: ImportError: cannot import name 'declared_timeout' from 'cairn.devices.tester.device' (/home/akien/dev/src/cairn/cairn/devices/tester/device.py)\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_declared_limit_beats_the_callers_budget\n  ok   test_an_undeclared_proof_takes_the_callers_budget\n  ok   test_a_bad_declaration_reds_the_run\n  ok   test_a_timeout_alone_is_not_a_changed_condition\n  ok   test_the_slow_tester_proofs_declare_a_limit\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_an_undeclared_proof_takes_the_callers_budget"
-      ],
-      "teeth_red": [
         "test_a_declared_limit_beats_the_callers_budget",
+        "test_an_undeclared_proof_takes_the_callers_budget",
         "test_a_bad_declaration_reds_the_run",
         "test_a_timeout_alone_is_not_a_changed_condition",
         "test_the_slow_tester_proofs_declare_a_limit"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -31,7 +30,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -39,7 +38,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "cf296346e3c83f409c5b1b3d3dcbbfd2e1d5b98f9fde5b8ab170649a0350de99",
+      "source_fingerprint": "2ed4519a3d5ffad55b63d4034f4bf0681d3089c4f64a0b1b8501724cd6982bbd",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -47,6 +46,7 @@
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
         "cairn/devices/tester/proofs/test_a_proof_declares_its_own_time_limit.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
@@ -66,24 +66,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2959535-z3wi8gv6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2961125-idugj5la/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 8,
           "paths": [
-            "logs/tester/0/20261005.045805.415929.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.045809.274441.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.045813.117300.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.050157.962901.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050201.754861.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050203.447850.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050205.094359.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050206.730354.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050208.328416.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050212.116708.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.050215.840033.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 139554756,
-          "disk_bytes": 163364864,
-          "entries": 10080,
+          "bytes": 139598914,
+          "disk_bytes": 163438592,
+          "entries": 10089,
           "builds": 1,
-          "reuses": 0
+          "reuses": 5
         }
       }
     },

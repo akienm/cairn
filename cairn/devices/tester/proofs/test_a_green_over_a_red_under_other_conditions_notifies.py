@@ -13,6 +13,7 @@ The teeth drive the real run_proof (and tooth 7 the real reseal door, decision D
 and write are replaced by recorders (the store REPLACES, so the standing record a green reads is
 the red it replaces); notices berth in scratch. Every tooth imports the tester INSIDE its body,
 so a reverted device.py or conditions.py reds teeth instead of breaking this file's import.
+Since ticket 8383a32d20c5 the timeout is recorded but not compared; the teeth move fixtures instead.
 """
 from __future__ import annotations
 
@@ -27,7 +28,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"f0aad0cd0f56": {
     "1": "test_a_sealed_run_records_its_conditions_with_env_as_digests",
-    "2": "test_a_green_over_a_red_under_another_timeout_posts_one_notice",
+    "2": "test_a_green_over_a_red_under_other_fixtures_posts_one_notice",
     "3": "test_a_green_over_a_red_under_the_same_conditions_posts_nothing",
     "4": "test_a_red_that_predates_the_instrument_compares_nothing",
     "5": "test_a_red_never_posts",
@@ -122,23 +123,23 @@ def test_a_sealed_run_records_its_conditions_with_env_as_digests():
     assert value not in json.dumps(rec), "a raw CAIRN_* value entered the record"
 
 
-def test_a_green_over_a_red_under_another_timeout_posts_one_notice():
+def test_a_green_over_a_red_under_other_fixtures_posts_one_notice():
     import json
     proof = _component("cairn-condproof-2-")
     home = proof.parents[2] / "notices"
     with _store([], home):
         first = _run(proof, sink="validations", timeout=60)
-    red = _red_like(first, timeout=30)
+    red = _red_like(first, fixtures="0" * 64)
     with _store([red], home) as persisted:
         rec = _run(proof, sink="validations", timeout=60)
     assert rec["verdict"] == "green", rec["evidence"].get("stderr_tail")
     moved = rec["evidence"].get("conditions_moved")
-    assert moved and moved["changed"] == ["timeout"] and moved["notified"].startswith("n-"), moved
+    assert moved and moved["changed"] == ["fixtures"] and moved["notified"].startswith("n-"), moved
     files = _notices(home)
     assert [p.stem for p in files] == [moved["notified"]], files
     n = json.loads(files[0].read_text())
     assert n["ticket"] == "aaaaaaaaaaaa" and n["file"] == str(proof), n
-    assert "timeout: 30 -> 60" in n["diff"] and "timeout" in n["line"], n
+    assert "fixtures: " + "0" * 64 in n["diff"] and "fixtures" in n["line"], n
     assert persisted and persisted[0] is rec, persisted
     with _store([red], home):
         again = _run(proof, sink="validations", timeout=60)
@@ -219,7 +220,7 @@ def test_a_reseal_green_over_a_red_under_other_conditions_notifies():
     home = proof.parents[2] / "notices"
     with _store([], home):
         first = _run(proof, sink="none", timeout=60)
-    red = _red_like(first, timeout=30)
+    red = _red_like(first, fixtures="0" * 64)
     from cairn.devices.tester import reseal as rs
     from cairn.devices.tester.device import TesterDevice
     persisted: list = []
@@ -236,10 +237,10 @@ def test_a_reseal_green_over_a_red_under_other_conditions_notifies():
         rs.standing, rs.read_ladder, rs.persist_validation, rs.sweep_scratch = saved
     assert out["outcome"] in ("sealed", "resealed") and len(persisted) == 1, (out, persisted)
     moved = persisted[0]["evidence"].get("conditions_moved")
-    assert moved and moved["changed"] == ["timeout"] and moved["notified"].startswith("n-"), moved
+    assert moved and moved["changed"] == ["fixtures"] and moved["notified"].startswith("n-"), moved
     files = _notices(home)
     assert [p.stem for p in files] == [moved["notified"]], files
-    assert "timeout: 30 -> 60" in json.loads(files[0].read_text())["diff"], files
+    assert "fixtures: " + "0" * 64 in json.loads(files[0].read_text())["diff"], files
 
 
 def main() -> int:

@@ -22,6 +22,8 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
+PROOF_TIMEOUT_S = 900  # measured 2026-10-04: times out at the reseal door's 120s, green at 900s (ticket 8383a32d20c5)
+
 from cairn.devices.tester.hollow import (  # noqa: E402
     HollowUnmeasurable, SKIP_INSTRUMENT, SKIP_RECORD, _restore, measure,
 )

@@ -708,8 +708,10 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                 rc = ev.get("returncode")
                 tail = (ev.get("stderr_tail") or "").strip()
                 if rc is None:
+                    budget = (ev.get("conditions") or {}).get("timeout", timeout)
                     why_none[rel] = (f"the proof did NOT fail — it never finished: {tail or 'killed'}. "
-                                     f"Re-run with a larger --timeout (currently {timeout}s).")
+                                     f"Declare PROOF_TIMEOUT_S in the proof, or re-run with a "
+                                     f"larger --timeout (this run's budget: {budget}s).")
                 else:
                     why_none[rel] = (f"the proof did NOT fail — it never reached a check "
                                      f"(exit {rc}, a broken import or a crash): "

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_an_unseen_revert_notifies_the_operator.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:06:38",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:06:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,12 +25,26 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b918c941b4c5606421453dec6483d9351d5db38cc2fcae6a1a0e7366dd904474",
+      "conditions": {
+        "proof": "468e140ceb8f731e30e3054110a41ce37e4b1d4336974fd1b9d060d855ba5685",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "cad816f31e5e91b72243fde9f5ed74210ad53720bc5af11727a165038687befa",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
@@ -76,63 +90,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-kjgnb91u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-19ytzt30/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261004.230618.979015.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230620.785071.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230622.501497.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230624.274009.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230625.978437.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230627.724162.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230629.563963.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230631.341515.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230633.051972.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230634.769465.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230636.494359.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230638.173281.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.020633.558823.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020635.339058.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020637.185513.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020638.989664.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020640.767822.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020642.583673.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020644.393200.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020646.166835.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020647.928239.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020649.745757.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020651.539100.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020653.302985.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132935045,
-          "disk_bytes": 155766784,
-          "entries": 9651,
+          "bytes": 134742150,
+          "disk_bytes": 157929472,
+          "entries": 9794,
           "builds": 1,
-          "reuses": 4
-        }
-      },
-      "hollow": {
-        "b5871526384a": {
-          "cairn/devices/tester/notices.py": [
-            "test_a_run_without_seal_posts_nothing",
-            "test_the_hard_reds_stand",
-            "test_the_notices_verbs_list_mark_and_rate",
-            "test_the_seal_posts_one_notice_and_seals_it_notified"
-          ],
-          "cairn/devices/tester/hollow.py": [
-            "test_a_run_without_seal_posts_nothing",
-            "test_measure_carries_the_unseen_file_and_its_diff_and_stays_green",
-            "test_the_seal_posts_one_notice_and_seals_it_notified"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_a_run_without_seal_posts_nothing",
-            "test_the_seal_posts_one_notice_and_seals_it_notified"
-          ],
-          "cairn/devices/tester/device.py": [
-            "test_the_notices_verbs_list_mark_and_rate"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b5871526384a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ffad2b17ce81ad98c7e293329d3c0f30014829d3",
-          "anchor_first_build": "dab42bdf24ab303aaa75e8edb97a940be0450c4e",
-          "commit": "ffad2b17ce81ad98c7e293329d3c0f30014829d3"
+          "reuses": 5
         }
       }
     },

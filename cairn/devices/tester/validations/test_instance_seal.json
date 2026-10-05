@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_instance_seal.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:09:58",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:10:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,11 +28,25 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "6a0fe4e60b9c1088438f7cee15377c7294d256a37fe17baac79992fa54e30fec",
+      "conditions": {
+        "proof": "0f7c0d79de2c26cbc70297b937a808a735c39f8f48d966410d2f8c323e0163da",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "75952680b553dc3487a3dcc77814ca8bf4c2c5bc71b87598401e51a3e318bd5c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_instance_seal.py",
@@ -54,27 +68,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-1lw9z9if/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-bi9oai3a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
             "SEEDED-BY-A-PROOF",
             "logs/fixture_device/0/diagnostics.jsonl",
-            "logs/tester/0/20261004.230951.264751.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230953.699565.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230956.031190.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230958.452213.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.021001.705886.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021004.751442.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021007.755921.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021010.865579.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132933161,
-          "disk_bytes": 155742208,
-          "entries": 9647,
+          "bytes": 134740266,
+          "disk_bytes": 157904896,
+          "entries": 9790,
           "builds": 1,
-          "reuses": 9
+          "reuses": 10
         }
       }
     },

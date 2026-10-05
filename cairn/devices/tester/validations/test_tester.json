@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_tester.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:11:35",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:11:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,13 +28,28 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a7a8e9b01b7a1313190d24fbf107226fcfcdf0ff1af371588b9c63e72bab324b",
+      "conditions": {
+        "proof": "db7c5f2427939114213866397f92024e9e8771ce92db75e6633a2ff2eb95be40",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "a62622100864d462eea7c84edb0633a8cdcc5440a75dbf363d8f29f002dfa98c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
         "cairn/devices/tester/proofs/test_tester.py",
         "cairn/tools/__init__.py",
         "cairn/tools/artifact/__init__.py",
@@ -59,29 +74,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-j0q4dnfy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-048xylu6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/tester/0/20261004.231113.192178.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231115.359451.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231117.562994.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231119.736978.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231127.156462.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231130.451049.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231132.815171.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231134.661671.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.021126.440740.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021128.175711.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021129.919019.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021131.752902.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021137.135422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021138.884236.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021140.704944.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021142.527971.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132934067,
-          "disk_bytes": 155750400,
-          "entries": 9647,
+          "bytes": 134741172,
+          "disk_bytes": 157913088,
+          "entries": 9790,
           "builds": 1,
-          "reuses": 16
+          "reuses": 17
         }
       }
     },

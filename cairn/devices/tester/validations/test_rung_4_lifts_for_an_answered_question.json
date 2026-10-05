@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_rung_4_lifts_for_an_answered_question.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:10:12",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:10:24",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,11 +23,25 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0807839c05568d5bce8f83864ebe625b99c981769c8fcbd13bcc3e033fd2d593",
+      "conditions": {
+        "proof": "81fffea7bb82c9c942c6cb6635d5a591f3d01b8b7bc8bd9d950af25b5fe98412",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "8189dd31d38ea23833b9f36d75e72997b13bd5c57db9cfb73ec5ed2d80579ee0",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_rung_4_lifts_for_an_answered_question.py",
@@ -64,7 +78,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-ixraky0y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-p00jj268/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,11 +87,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 132931777,
-          "disk_bytes": 155717632,
-          "entries": 9637,
+          "bytes": 134738882,
+          "disk_bytes": 157880320,
+          "entries": 9780,
           "builds": 1,
-          "reuses": 14
+          "reuses": 15
         }
       }
     },

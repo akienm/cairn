@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_isolation.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:10:04",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:10:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -35,11 +35,25 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "47748221e6a3a2e3cafb38a8ffee2a67545cccdfe3d80cb60f4798a3078bd3fd",
+      "conditions": {
+        "proof": "0f2f650af61f46f08426c720a0f7121b8ec67af06979a703a32db0498954e0f4",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "819fe9b86cc29e8787631c7bd364d484420fd7bc266842c9f4c1737526a277b7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_isolation.py",
@@ -61,23 +75,23 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-60nductj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-d72oi1e4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/20261004.231001.613259.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.231003.821357.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.021014.724141.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.021016.895861.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132932461,
-          "disk_bytes": 155725824,
-          "entries": 9641,
+          "bytes": 134739566,
+          "disk_bytes": 157888512,
+          "entries": 9784,
           "builds": 1,
-          "reuses": 10
+          "reuses": 11
         }
       }
     },

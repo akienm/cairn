@@ -1,16 +1,15 @@
 [
   {
     "claim": "proof test_a_green_over_a_red_under_other_conditions_notifies.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T20:03:54",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:06:21",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL test_a_sealed_run_records_its_conditions_with_env_as_digests: KeyError: 'conditions'\n  FAIL test_a_green_over_a_red_under_another_timeout_posts_one_notice: AssertionError: None\n  FAIL test_a_green_over_a_red_under_the_same_conditions_posts_nothing: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_a_red_that_predates_the_instrument_compares_nothing: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_a_red_never_posts: AssertionError: {'returncode': 1, 'stdout_tail': 'FAIL test_fixture_tooth', 'stderr_tail': '', 'teeth_green': [], 'teeth_red': ['test_fixture_tooth'], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_an_unsealed_run_never_posts: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'the caller sealed nothing and swept nothing'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_sealed_run_records_its_conditions_with_env_as_digests\n  ok   test_a_green_over_a_red_under_another_timeout_posts_one_notice\n  ok   test_a_green_over_a_red_under_the_same_conditions_posts_nothing\n  ok   test_a_red_that_predates_the_instrument_compares_nothing\n  ok   test_a_red_never_posts\n  ok   test_an_unsealed_run_never_posts\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_a_sealed_run_records_its_conditions_with_env_as_digests",
         "test_a_green_over_a_red_under_another_timeout_posts_one_notice",
         "test_a_green_over_a_red_under_the_same_conditions_posts_nothing",
@@ -18,6 +17,7 @@
         "test_a_red_never_posts",
         "test_an_unsealed_run_never_posts"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,11 +26,25 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "354bb4ee309c2f9cee278fb9a247d4b4708194aa93965d25ee0ec86be604d20a",
+      "conditions": {
+        "proof": "eea7ade2bfe960c78cd2ba5e144acd91287c6f94c3bd254cc800ff2dd5f60a98",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "e0db896eecbd98a49aa7a33c01e62d861fae4adfad9ed915d4ce47e5a9e8f529",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/notices.py",
@@ -53,29 +67,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2840904-8m32bfb9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-ko_xp6k9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 12,
           "paths": [
-            "logs/tester/0/20261005.020341.345343.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020343.124422.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020344.893910.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020346.681747.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020348.463370.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020350.214846.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020351.952962.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.020353.760551.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.020601.889856.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020603.661063.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020605.446565.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020607.169150.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020608.921481.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020610.677291.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020612.486429.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020614.236968.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020615.988715.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020617.774101.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020619.625078.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020621.418286.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134655990,
-          "disk_bytes": 157806592,
-          "entries": 9782,
+          "bytes": 134742322,
+          "disk_bytes": 157929472,
+          "entries": 9794,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       }
     },

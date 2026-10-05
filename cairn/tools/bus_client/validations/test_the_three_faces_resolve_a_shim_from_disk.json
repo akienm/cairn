@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_three_faces_resolve_a_shim_from_disk.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:25:05",
+    "date": "2026-10-04T20:17:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -26,7 +26,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "aa2bc278bb83f3f0940f9f7d915d34fa1a00d283aa39ad6837cbeddbe5bd4403",
+      "conditions": {
+        "proof": "7b86d9bb2cc9da43d76caf5d70febfff8e95c1df97fd0bd1ba6dd57dc488046d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "89fb92d4ec6ff053c91ea5c0ad25d5498d965b9390bc0873e9e18a47ad1313b9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -90,6 +103,7 @@
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/scratch_sweep.py",
@@ -172,35 +186,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-i24rk9jo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-py1sd32c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 14,
+          "count": 13,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cc/0/last_known.json",
             "devices/ground_loop/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261005.012503.338405.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012503.344762.BusDevice.post.json",
-            "logs/bus/0/20261005.012503.576652.BusDevice.post.json",
-            "logs/bus/0/20261005.012503.578112.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012503.612120.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012503.798637.BusDevice.post.json",
-            "logs/bus/0/20261005.012503.819837.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012503.832562.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012504.038759.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012504.777206.BusDevice.post.json"
+            "logs/bus/0/20261005.021720.820638.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.021720.848288.BusDevice.post.json",
+            "logs/bus/0/20261005.021721.096466.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.021721.115851.BusDevice.post.json",
+            "logs/bus/0/20261005.021721.342778.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.021721.360230.BusDevice.post.json",
+            "logs/bus/0/20261005.021721.586704.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.021722.638453.BusDevice.post.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134010469,
-          "disk_bytes": 157032448,
-          "entries": 9728,
+          "bytes": 134750097,
+          "disk_bytes": 157925376,
+          "entries": 9793,
           "builds": 1,
-          "reuses": 8
+          "reuses": 26
         }
       }
     },

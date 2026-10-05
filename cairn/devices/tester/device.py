@@ -56,6 +56,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
+from cairn.devices.tester.conditions import compare, measure  # f0aad0cd0f56
 from cairn.devices.tester.isolation import (
     _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
     get_isolation, inside_an_instance_seal,
@@ -533,15 +534,22 @@ class TesterDevice(BaseDevice):
                     # BOTH sides and still reads as nothing the proof did.
                     before = _manifest(swap)
 
+            pinned = _env_pinned_to(proof_path)
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
                             cwd=str(proof_path.parent), instance_swap=swap)
             base_evidence = {
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
                 "scratch_sweep": scratch_sweep,
+                # WHAT THIS RUN WAS MEASURED UNDER (ticket f0aad0cd0f56). Rides both the normal
+                # and the timeout branch, so a red at a short timeout says so — the motivating
+                # case. Env values are digests; the eight ratified fields are untouched.
+                "conditions": measure(proof_path, iso_name=iso.name, seal_verdict=seal.verdict,
+                                      instance_seal_verdict=instance_seal.verdict,
+                                      timeout=timeout, env=pinned),
             }
             try:
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
-                                      env=_env_pinned_to(proof_path))
+                                      env=pinned)
                 verdict = GREEN if proc.returncode == 0 else RED
                 teeth = _teeth(proc.stdout)
                 stderr = proc.stderr
@@ -663,6 +671,11 @@ class TesterDevice(BaseDevice):
             # seal at all.
             # Lazy import for the same reason as source_fingerprint above: validation_store
             # imports this module, so the dependency only runs one way at import time.
+            # A GREEN OVER A RED MEASURED ELSEWHERE completes AND tells the operator (ticket
+            # f0aad0cd0f56, Akien's answer to open-ed0a56ce6357) — read before the door
+            # replaces the standing red, which is why it sits here and nowhere later.
+            if verdict == GREEN:
+                compare(record, proof_path)
             from cairn.tools.validation_store.validation_store import persist_validation
             persist_validation(record, proof_path=str(proof_path))
         self._proofs_run += 1

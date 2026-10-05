@@ -10,6 +10,9 @@ The tester measured the case, so the tester owns the notices (Law 6): they berth
 instance address, one JSON file per notice. A notice's id is a hash of (ticket, file, diff), so
 re-sealing the same reading tells the operator once. rate() is the instrument he asked for —
 measured from the first notice, from day one (Law 3).
+
+A second kind rides the same store and the same rate (ticket f0aad0cd0f56): a sealed green that
+replaced a red measured under other conditions — post_conditions names what changed.
 """
 from __future__ import annotations
 
@@ -40,19 +43,31 @@ def notice_id(ticket: str, file: str, diff: str) -> str:
     return "n-" + hashlib.sha256(f"{ticket}\0{file}\0{diff}".encode()).hexdigest()[:12]
 
 
-def post(ticket: str, file: str, diff: str, *, now: datetime | None = None) -> str:
+def _write(ticket: str, file: str, line: str, diff: str, now: datetime | None) -> str:
     nid = notice_id(ticket, file, diff)
     path = home() / f"{nid}.json"
     if path.exists():
         return nid
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({
-        "id": nid, "ticket": ticket, "file": file,
-        "line": f"{ticket}: {file} reverted and no declared tooth redded — check the diff "
-                f"against the component's intention",
+        "id": nid, "ticket": ticket, "file": file, "line": line,
         "diff": diff, "posted_at": _stamp(now), "seen_at": None,
     }, indent=2, ensure_ascii=False) + "\n")
     return nid
+
+
+def post(ticket: str, file: str, diff: str, *, now: datetime | None = None) -> str:
+    return _write(ticket, file,
+                  f"{ticket}: {file} reverted and no declared tooth redded — check the diff "
+                  f"against the component's intention", diff, now)
+
+
+def post_conditions(ticket: str, file: str, diff: str, changed: list, *,
+                    now: datetime | None = None) -> str:
+    return _write(ticket, file,
+                  f"{ticket}: {file} sealed green over a red measured under other conditions "
+                  f"({', '.join(changed)}) — check that the green answers the component's "
+                  f"intention, not the changed measurement", diff, now)
 
 
 def _all() -> list[dict]:

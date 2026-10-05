@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_hollow_follows_a_move.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T17:09:46",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T20:09:56",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 9.35s",
+      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 9.17s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds",
@@ -23,11 +23,25 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "8f85906242cc5e5d7fc4d990aa9db92445b9bb3cbb69614107bc687f6b0987ec",
+      "conditions": {
+        "proof": "80e11dfd7f54c2967aaeb2058378cacc0e49fabf46d572a6953b10f462ea606a",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "822f8a9020130d2b77729bd2e7421d730ae2845aac094c3a7e290dca63ddfb50",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
@@ -69,25 +83,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2731984-ykk2lpla/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841949-vvj9u4_n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/tester/0/20261004.230938.780135.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230940.922080.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230943.112881.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.230945.450524.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.020948.602117.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020950.856612.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020953.140937.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020955.393568.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 132932945,
-          "disk_bytes": 155734016,
-          "entries": 9643,
+          "bytes": 134740050,
+          "disk_bytes": 157896704,
+          "entries": 9786,
           "builds": 1,
-          "reuses": 8
+          "reuses": 9
         }
       }
     },

@@ -29,6 +29,7 @@ PROVES = {"8383a32d20c5": {
     "3": "test_a_bad_declaration_reds_the_run",
     "4": "test_a_timeout_alone_is_not_a_changed_condition",
     "5": "test_the_slow_tester_proofs_declare_a_limit",
+    "6": "test_the_conditions_notice_proof_stays_green_on_fixtures",
 }}
 
 _BODY = '''import time
@@ -117,6 +118,18 @@ def test_the_slow_tester_proofs_declare_a_limit():
     here = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs"
     got = {name: declared_timeout(here / name) for name in _SLOW}
     assert all(v == 900 for v in got.values()), got
+
+
+def test_the_conditions_notice_proof_stays_green_on_fixtures():
+    import subprocess
+    neighbour = (_REPO_ROOT / "cairn" / "devices" / "tester" / "proofs"
+                 / "test_a_green_over_a_red_under_other_conditions_notifies.py")
+    source = neighbour.read_text()
+    assert source.count('fixtures="0" * 64') >= 2, "teeth 2 and 7 no longer move fixtures"
+    assert "under_other_fixtures_posts_one_notice" in source
+    done = subprocess.run([sys.executable, str(neighbour)], cwd=_REPO_ROOT,
+                          capture_output=True, text=True, timeout=600)
+    assert done.returncode == 0, done.stdout[-800:] + done.stderr[-800:]
 
 
 def main() -> int:

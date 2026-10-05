@@ -1,20 +1,21 @@
 [
   {
     "claim": "proof test_a_proof_declares_its_own_time_limit.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-04T23:02:16",
+    "caller": "cairn test",
+    "date": "2026-10-04T23:28:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_declared_limit_beats_the_callers_budget\n  ok   test_an_undeclared_proof_takes_the_callers_budget\n  ok   test_a_bad_declaration_reds_the_run\n  ok   test_a_timeout_alone_is_not_a_changed_condition\n  ok   test_the_slow_tester_proofs_declare_a_limit\nGREEN",
+      "stdout_tail": "  ok   test_a_declared_limit_beats_the_callers_budget\n  ok   test_an_undeclared_proof_takes_the_callers_budget\n  ok   test_a_bad_declaration_reds_the_run\n  ok   test_a_timeout_alone_is_not_a_changed_condition\n  ok   test_the_slow_tester_proofs_declare_a_limit\n  ok   test_the_conditions_notice_proof_stays_green_on_fixtures\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_declared_limit_beats_the_callers_budget",
         "test_an_undeclared_proof_takes_the_callers_budget",
         "test_a_bad_declaration_reds_the_run",
         "test_a_timeout_alone_is_not_a_changed_condition",
-        "test_the_slow_tester_proofs_declare_a_limit"
+        "test_the_slow_tester_proofs_declare_a_limit",
+        "test_the_conditions_notice_proof_stays_green_on_fixtures"
       ],
       "teeth_red": [],
       "seal": {
@@ -26,11 +27,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b201832049821e2690085ef51a19db6de6a660c1874b1e64eb19be176cab4a1f",
+        "proof": "403301b7ce551067ac4d993e8031483d7b6fb79a2637ab025d93bde96aaf284e",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -38,7 +39,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "2ed4519a3d5ffad55b63d4034f4bf0681d3089c4f64a0b1b8501724cd6982bbd",
+      "source_fingerprint": "1d5857af8fa25f89bceae8926025797bbc331a4597f198921f058c6e5640ae68",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,58 +67,43 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2961125-idugj5la/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2979768-p4q7sykt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 22,
           "paths": [
-            "logs/tester/0/20261005.050157.962901.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050201.754861.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050203.447850.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050205.094359.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050206.730354.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050208.328416.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050212.116708.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.050215.840033.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.052735.529193.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052739.395119.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052741.090453.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052742.889333.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052744.619197.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052746.297932.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052750.051191.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052753.930927.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052755.822272.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052757.664563.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052759.462699.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052801.182637.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052802.872422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052804.557453.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052806.274470.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052807.928336.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052809.670074.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052811.429462.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052813.195655.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052814.909441.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052816.615463.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.052818.338901.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 139598914,
-          "disk_bytes": 163438592,
-          "entries": 10089,
+          "bytes": 139762542,
+          "disk_bytes": 163688448,
+          "entries": 10119,
           "builds": 1,
-          "reuses": 5
-        }
-      },
-      "hollow": {
-        "8383a32d20c5": {
-          "cairn/devices/tester/device.py": [
-            "test_a_bad_declaration_reds_the_run",
-            "test_a_declared_limit_beats_the_callers_budget",
-            "test_the_slow_tester_proofs_declare_a_limit"
-          ],
-          "cairn/devices/tester/conditions.py": [
-            "test_a_timeout_alone_is_not_a_changed_condition"
-          ],
-          "cairn/devices/tester/reseal.py": {
-            "notified": "n-5e0ba6934e6e"
-          },
-          "cairn/devices/tester/hollow.py": {
-            "notified": "n-52fe6f71da5f"
-          },
-          "cairn/devices/tester/cli.py": {
-            "notified": "n-16a2ba0d44a8"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "8383a32d20c5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "9530e3f04ab16be870f40ce2451095636b8bece3",
-          "anchor_first_build": "b117091ff0b2761c3ead6c528c677eaa5e977ff0",
-          "commit": "9530e3f04ab16be870f40ce2451095636b8bece3"
+          "reuses": 0
         }
       }
     },

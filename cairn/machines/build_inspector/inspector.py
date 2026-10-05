@@ -2685,6 +2685,74 @@ def every_exemption_cites_a_ruling_or_an_impossibility(row: dict, comp_dir: Path
     return findings
 
 
+def sole_path_admissions_are_entered(row: dict, comp_dir: Path) -> list[dict]:
+    """A sole-path rule's single-file admission with no exemption entry at its seat reds.
+
+    Provenance: ticket b364df579e49. The sieve above checks set->code: an entry resolves and
+    its symbol stands at its path. Its own docstring names what it cannot see, "nothing here
+    discovers an exemption site nobody entered", and measurement bore that out on 2026-10-05.
+    A clone of 6b3e185b with the three bus_client admission entries removed reddened no sieve.
+
+    This one covers code->set for the one construct that can be found mechanically: a dict
+    literal carrying both 'modules' and 'only' (an import_sieve rule). A member that ends in
+    '/' is the door's own directory and needs no entry. Any other member admits a single file
+    past the door, and it counts as entered only when some entry's path is that literal's file
+    (repo-relative posix) and the member's text appears in that entry's symbol. The match is
+    seat + member, never a count. Rules assembled at runtime and rule literals under fixtures/
+    are out of reach by construction.
+    """
+    if row["component"] != "exemptions":
+        return []
+    try:
+        eset = json.loads((comp_dir / "exemption_set.json").read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []  # the sieve above already reds an absent or unreadable set
+    entries = [e for e in (eset.get("exemptions") or []) if isinstance(e, dict)] \
+        if isinstance(eset, dict) else []
+    import ast
+    repo_root = comp_dir
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    findings = []
+    for py in sorted(repo_root.rglob("*.py")):
+        rel = py.relative_to(repo_root)
+        if {"fixtures", ".git"} & set(rel.parts):
+            continue
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
+        except (SyntaxError, ValueError, OSError):
+            continue
+        seat = rel.as_posix()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Dict):
+                continue
+            keys = [k.value if isinstance(k, ast.Constant) else None for k in node.keys]
+            if "modules" not in keys or "only" not in keys:
+                continue
+            try:
+                only = ast.literal_eval(node.values[keys.index("only")])
+            except (ValueError, SyntaxError, TypeError):
+                continue
+            if isinstance(only, str):
+                only = (only,)
+            if not (isinstance(only, tuple) and all(isinstance(m, str) for m in only)):
+                continue
+            for member in only:
+                if member.endswith("/"):
+                    continue
+                if any(e.get("path") == seat and member in str(e.get("symbol", ""))
+                       for e in entries):
+                    continue
+                findings.append(_finding(
+                    "sole_path_admissions_are_entered", row["component"],
+                    "admission entered: %s::%s" % (seat, member),
+                    expected=True, actual=False, seat=seat, member=member,
+                    lack="add an exemption_set entry with path %s and a symbol "
+                         "containing %s" % (seat, member),
+                ))
+    return findings
+
+
 def question_links_agree(row: dict, comp_dir: Path, *, commons: Path | None = None) -> list[dict]:
     """A question and its ticket name each other, and an answer's spawned ids exist born of it.
 
@@ -3552,6 +3620,7 @@ SIEVES = {
     "constraint_enforcement_holds": constraint_enforcement_holds,
     "every_exemption_cites_a_ruling_or_an_impossibility":
         every_exemption_cites_a_ruling_or_an_impossibility,
+    "sole_path_admissions_are_entered": sole_path_admissions_are_entered,
     "history_integrity": history_integrity,
     "question_links_agree": question_links_agree,
     "component_color": component_color,

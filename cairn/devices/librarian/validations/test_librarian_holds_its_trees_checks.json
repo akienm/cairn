@@ -1,0 +1,103 @@
+[
+  {
+    "claim": "proof test_librarian_holds_its_trees_checks.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T04:56:49",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  RED   nothing_in_the_tool_reaches_its_holder: AssertionError: 1 reach(es) out of the trees tool: [('cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py', 131, 'cairn.devices.librarian.device', 'undeclared')]\n  RED   the_tools_proof_imports_none_of_the_librarian: AssertionError: the trees tool's proof imports the librarian: [(128, 'cairn.devices.librarian.loop'), (131, 'cairn.devices.librarian.device')]\n  ok    the_holder_keeps_one_floor\n1 passed, 2 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the_holder_keeps_one_floor"
+      ],
+      "teeth_red": [
+        "nothing_in_the_tool_reaches_its_holder: AssertionError: 1 reach(es) out of the trees tool: [('cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py', 131, 'cairn.devices.librarian.device', 'undeclared')]",
+        "the_tools_proof_imports_none_of_the_librarian: AssertionError: the trees tool's proof imports the librarian: [(128, 'cairn.devices.librarian.loop'), (131, 'cairn.devices.librarian.device')]"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "ccb252bf4b19acb6320aa09ea3d9d9ae7305e264bf89d377533a2df4e610b2aa",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "cabb7eb54655429ba7f05eec139bc62fb7f3eccbf841a9781210d55b8d31d6a7",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/tools/__init__.py",
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/store.py",
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/device.py",
+        "cairn/devices/librarian/loop.py",
+        "cairn/devices/librarian/proofs/test_librarian_holds_its_trees_checks.py",
+        "cairn/devices/librarian/tools/trees/trees.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3197869-9g7ujqux/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 148763869,
+          "disk_bytes": 173899776,
+          "entries": 10687,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

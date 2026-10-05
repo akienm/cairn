@@ -68,9 +68,28 @@ def test_an_unparseable_ticket_is_kept():
     assert "aaaaaaaaaa03" in active, sorted(active)
 
 
+def _live_tickets_root() -> str:
+    """A cairn checkout whose sibling holds the live commons: this repo when CairnCommons sits beside
+    it, else the home checkout — hollow's worktree under /tmp has no commons beside it, and the
+    ticket states this tooth reads live only there (hollow.py resolves it the same way)."""
+    if (_REPO_ROOT.parent / "CairnCommons" / "tickets").is_dir():
+        return str(_REPO_ROOT)
+    return str(Path.home() / "dev" / "src" / "cairn")
+
+
 def test_ground_loop_carries_no_superseded_chart():
     from cairn.machines.build_inspector import inspector
-    found = inspector.inspect(component="ground_loop")["findings"]
+    from cairn.tools.chain import grammar
+    live = _live_tickets_root()
+    saved_root, saved_exists = inspector._TICKETS_ROOT, inspector.ref_exists
+    try:
+        # the code under test, over the live records: ticket states and commons-relative
+        # refs (tickets/...) are read where the commons actually is
+        inspector._TICKETS_ROOT = live
+        inspector.ref_exists = lambda r: saved_exists(r) or grammar.ref_exists(r, live)
+        found = inspector.inspect(component="ground_loop")["findings"]
+    finally:
+        inspector._TICKETS_ROOT, inspector.ref_exists = saved_root, saved_exists
     assert isinstance(found, list), type(found)
     hits = [f for f in found if "b5b5e0483af1" in str(f)
             or "staleness-is-about-this-process-not-about-disk" in str(f)]

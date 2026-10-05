@@ -2,12 +2,12 @@
   {
     "claim": "proof test_unread_mail_is_not_kept.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:48:49",
+    "date": "2026-10-05T14:18:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_undeclared_device_keeps_no_mail",
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "29975ab674cc5cdb0311324798a5c457d826a0952ee1db6c5cdd50e1c769e29d",
+      "conditions": {
+        "proof": "180714c3664e6a923d08ce06aa8258cd06f47f8160d3e800c22fb6e701305108",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "e7217898e06018285ee181e8af49a39dcd71decd589f960fb33a37704e33cbeb",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -33,6 +46,7 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/proofs/test_unread_mail_is_not_kept.py",
         "cairn/tools/data_recorder/__init__.py",
         "cairn/tools/data_recorder/data_recorder.py",
@@ -45,25 +59,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-qoeir0cy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-npti2t_4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/base/0/20261002.184849.478162._Undeclared.received.json",
-            "logs/base/0/20261002.184849.479339._Declared.received.json",
-            "logs/base/0/20261002.184849.480171._Undeclared.received.json",
-            "logs/base/0/20261002.184849.480554._Declared.received.json"
+            "logs/base/0/20261005.201801.013213._Undeclared.received.json",
+            "logs/base/0/20261005.201801.015011._Declared.received.json",
+            "logs/base/0/20261005.201801.016257._Undeclared.received.json",
+            "logs/base/0/20261005.201801.016798._Declared.received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 91336436,
-          "disk_bytes": 108498944,
-          "entries": 7099,
+          "bytes": 164828291,
+          "disk_bytes": 191389696,
+          "entries": 11339,
           "builds": 1,
-          "reuses": 47
+          "reuses": 79
         }
       }
     },

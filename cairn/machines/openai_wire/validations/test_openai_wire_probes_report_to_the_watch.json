@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_openai_wire_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T01:37:34",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:12:54",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "81af718c217dc37768c977ebce77fde83d0f9a36ef3f62b79caf4317e26c9f36",
+      "conditions": {
+        "proof": "c8b8e66130d95b5fd204acc262ce9f3e50bf70342913686d117bff32b192bdff",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "6e9affb7ab4715a77193f156d6cbdfae60c96d6f9389cf723419cf3b94a24b34",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -39,6 +52,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -58,7 +72,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2315574-ilvsxmb2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-_x1j21sc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,26 +81,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 125447194,
-          "disk_bytes": 147742720,
-          "entries": 9333,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "4c18deb605f6": {
-          "cairn/machines/openai_wire/probes/openai_wire_is_included_by_a_second_holder.py": [
-            "test_openai_wire_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "4c18deb605f6": {
-          "anchor_rule": "journal",
-          "anchor_journal": "a0cc18769cf5c65664af70cb47a787ae9b6324df",
-          "anchor_first_build": "905ee40e7ca956bf8bcc13c7831615ec350d6f6b",
-          "commit": "a0cc18769cf5c65664af70cb47a787ae9b6324df"
+          "reuses": 37
         }
       }
     },

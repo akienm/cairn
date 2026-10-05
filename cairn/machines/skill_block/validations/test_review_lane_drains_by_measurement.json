@@ -2,12 +2,12 @@
   {
     "claim": "proof test_review_lane_drains_by_measurement.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:25:02",
+    "date": "2026-10-05T14:13:06",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.06s",
       "stderr_tail": "",
       "teeth_green": [
         "test_map_reads_the_cursor_state_for_each_named_berth",
@@ -36,7 +36,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c9c5b1d4fa454ea6aa23ea3d449b5edfce1160e5796f4c69b7771fe34a667614",
+      "conditions": {
+        "proof": "00e0c3b1d7a88e3ec565caee59a8b1f95dd364538c7c455664e73ab011dae8bc",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "f17f5df555514b8639117307bd8dde77dc7e54a40fae2342ac97a9be602fb83d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -51,6 +64,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
@@ -67,7 +81,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-rnxftby7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-4zeyq7rp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,11 +90,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 134006924,
-          "disk_bytes": 156987392,
-          "entries": 9714,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 7
+          "reuses": 40
         }
       }
     },

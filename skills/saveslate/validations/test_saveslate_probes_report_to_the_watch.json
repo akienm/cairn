@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_saveslate_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T23:42:49",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:22:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "712b03a04ee95414a9c6d51b9589f24c403524834fd53a472f3b96e9a8cadecf",
+      "conditions": {
+        "proof": "b86453117ab03762a911febd330d8db6b1b59df97e974360c11bea396a7bfa16",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "be918fe07c201d2429d7081fd99a29ff829cd9b7dddaea5061a7ecca93df9985",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2253619-hevzlfdr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-dp5ynh4s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,26 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 124476874,
-          "disk_bytes": 146505728,
-          "entries": 9235,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "7eb5f2732d47": {
-          "skills/saveslate/probes/slate_door_refusals.py": [
-            "test_saveslate_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7eb5f2732d47": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d1391c4a5db93a1c56b81fe6704377e276c5e7bc",
-          "anchor_first_build": "7579e7403d5db7a758a1a8d2264d0d8dcb4019ef",
-          "commit": "d1391c4a5db93a1c56b81fe6704377e276c5e7bc"
+          "reuses": 131
         }
       }
     },

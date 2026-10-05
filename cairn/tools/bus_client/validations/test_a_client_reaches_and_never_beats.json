@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_client_reaches_and_never_beats.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:21:46",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:18:22",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "57b5afbddd15981b7b62f9ef0026e8da78f8afac3e11544725a7c91c27a0d472",
+      "conditions": {
+        "proof": "99e0fb680b5365255494986309f6b1dea0254fe01bd2a5af1a4526df4f4181c4",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "cf2f2e3400db366767180e34f631e154b39ab5337ce839ae29a4e59ae1740910",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,6 +69,7 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/bus_client/__init__.py",
@@ -84,29 +98,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1973276-4jehtsq5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-o7p93ofs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 9,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/codemother/0/last_known.json",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.202141.397593.BusDevice.post.json",
-            "logs/bus/0/20261003.202141.417273.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.202141.428567.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.202144.972406.BusDevice.post.json"
+            "logs/bus/0/20261005.201813.648625.BusDevice.post.json",
+            "logs/bus/0/20261005.201813.652163.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.201813.695119.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.201820.251035.BusDevice.post.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119245738,
-          "disk_bytes": 140382208,
-          "entries": 8870,
+          "bytes": 164829967,
+          "disk_bytes": 191397888,
+          "entries": 11342,
           "builds": 1,
-          "reuses": 0
+          "reuses": 84
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_intentions_model_compiler_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T00:50:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:19:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5f2818a348b007a2bcd652da1be40dfadf2e4bee40f860faadd01f0fe9ed84d4",
+      "conditions": {
+        "proof": "a08e15f5158ed81a59a9a5a0e20b96c16cf72c4ac1deb869a0f338f5e6e1ee02",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "b46c9f5daec87f978b276ff4fc8b530dbc2d869d5fe72e01a167da1294305b88",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2286594-wgftkjmo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-0f0kbnby/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,26 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 125032742,
-          "disk_bytes": 147210240,
-          "entries": 9291,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "1c3b2f79010c": {
-          "cairn/tools/intentions_model_compiler/probes/present_tense_artifacts_carry_no_dated_appends.py": [
-            "test_intentions_model_compiler_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "1c3b2f79010c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "f798b67e4277583b15806e76e0a8e63be4d741cf",
-          "anchor_first_build": "7f63a3a2e6395f8aa5fe13adf71ab754ba9fb936",
-          "commit": "f798b67e4277583b15806e76e0a8e63be4d741cf"
+          "reuses": 99
         }
       }
     },

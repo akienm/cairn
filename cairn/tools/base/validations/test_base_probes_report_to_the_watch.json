@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_base_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T04:57:24",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:14:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "6a4b4e549d6d9d56da9898a366e529f9e5ae2d54b592cb0cd7a729ed45a629b5",
+      "conditions": {
+        "proof": "56f8e5a8ae7c8ca62e5c2699d1b6b4d2be2d23ec82a8b2f07396dc3b467da02e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "63871e8a0efc22c29d91c50b28e4b4d67ce6c22b9573e0d6ca6f4344caf73dfa",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -40,6 +53,7 @@
         "cairn/tools/base/deviceness.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/probes/__init__.py",
         "cairn/tools/base/probes/a_pickup_is_witnessed.py",
@@ -87,7 +101,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1641597-_9s3zk0_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-1xhf3dg8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -96,86 +110,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104028492,
-          "disk_bytes": 123297792,
-          "entries": 8062,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "8ecb99998254": {
-          "cairn/tools/base/probe.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/a_pickup_is_witnessed.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/an_emission_is_one_file_named_by_its_pointer.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/are_crossing_fingerprints_verified.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/bounce_returns_to_sender.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/device_claims_match_shims.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/does_optional_mean_never_carried.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/does_the_bounce_blame_the_right_party.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/does_the_gradation_find_a_reader.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/does_the_mail_lane_get_worked.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/every_boundary_crossing_lands_in_the_logs_tree.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/hand_spelled_instance_paths.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/no_component_reaches_proved_with_an_uncharted_build.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/no_ticket_carries_a_stored_chart_chain.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/no_ticket_carries_a_stored_crossing.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/the_casting_door_has_callers.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/the_durability_lane_refuses.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/the_seed_versus_living_delta.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/the_ticket_write_door_has_callers.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/the_vocabulary_is_written_not_just_legal.py": [
-            "test_base_probes_report_to_the_watch"
-          ],
-          "cairn/tools/base/probes/unchartered_build_edits.py": [
-            "test_base_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "8ecb99998254": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "837de6729633dd39854dcf2c3cfff3c792264668",
-          "anchor_first_build": "eeb6871ae93dc97c51b2f4afcf8ebc755faa9fa8",
-          "commit": "a84552943d37a64140db25c327f40f5a80d5a740"
+          "reuses": 46
         }
       }
     },

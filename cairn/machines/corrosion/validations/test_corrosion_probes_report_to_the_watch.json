@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_corrosion_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T20:29:58",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:12:26",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "44a360a61f703c3bd7810123dcbe3846a19010f1e254941c10e0a9b028e68071",
+      "conditions": {
+        "proof": "2950b0fba860fa03e77cfd5dfccf74a931ea730a46fb62e710db2a537c72d219",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "dbf61b5205a39ae936e2eece6fe1d17443b8ad4e48bdac2b7871f1217b63eb5a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -40,6 +53,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2142581-tl3k9yl3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-vt_uoiti/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,29 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123498177,
-          "disk_bytes": 145260544,
-          "entries": 9139,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "6c75219037b5": {
-          "cairn/machines/corrosion/probes/plaster_is_caught_not_argued.py": [
-            "test_corrosion_probes_report_to_the_watch"
-          ],
-          "cairn/machines/corrosion/probes/the_comparison_is_read.py": [
-            "test_corrosion_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "6c75219037b5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "f3fc8315280a3a808806524c7cf9a57269cd44af",
-          "anchor_first_build": "b57fbcdd5d2ac26e32a118c17c271f5660992984",
-          "commit": "f3fc8315280a3a808806524c7cf9a57269cd44af"
+          "reuses": 29
         }
       }
     },

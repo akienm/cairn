@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_every_watching_class_can_fixme.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T02:20:10",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:15:12",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        \"\"\"\n        target = canon_target(wf, target, class_def)   # a stage token is a system word\n        record = inspect_rules(wf, target, class_def=class_def)\n        bad = _mismatches(record)\n        if bad:\n            e = bad[0]\n            detail = \"\"\n            if e[\"identity\"] == \"the_target_is_in_the_vocabulary\":\n                detail = \" %s\" % list(wf.path)\n            elif e[\"identity\"] == \"the_crossing_is_a_legal_edge\":\n                detail = (\" (legal from here: %s) — e.g. a forward skip past a gate summons is \"\n                          \"refused\" % sorted((e.get(\"values\") or {})[\"legal_from_here\"]))\n>           raise IllegalTransition(str(e[\"actual\"]) + detail)\nE           cairn.tools.base.transitions.IllegalTransition: 'FIXME' is not in the bug@v1 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\n\n../transitions.py:834: IllegalTransition\n=========================== short test summary info ============================\nFAILED test_every_watching_class_can_fixme.py::test_every_watching_class_that_builds_declares_the_fixme_edge\nFAILED test_every_watching_class_can_fixme.py::test_a_back_edge_lands_at_fixme_on_every_watching_class\n2 failed in 0.10s",
+      "stdout_tail": "        \"\"\"\n        target = canon_target(wf, target, class_def)   # a stage token is a system word\n        record = inspect_rules(wf, target, class_def=class_def)\n        bad = _mismatches(record)\n        if bad:\n            e = bad[0]\n            detail = \"\"\n            if e[\"identity\"] == \"the_target_is_in_the_vocabulary\":\n                detail = \" %s\" % list(wf.path)\n            elif e[\"identity\"] == \"the_crossing_is_a_legal_edge\":\n                detail = (\" (legal from here: %s) — e.g. a forward skip past a gate summons is \"\n                          \"refused\" % sorted((e.get(\"values\") or {})[\"legal_from_here\"]))\n>           raise IllegalTransition(str(e[\"actual\"]) + detail)\nE           cairn.tools.base.transitions.IllegalTransition: 'FIXME' is not in the bug@v1 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\n\n../transitions.py:834: IllegalTransition\n=========================== short test summary info ============================\nFAILED test_every_watching_class_can_fixme.py::test_every_watching_class_that_builds_declares_the_fixme_edge\nFAILED test_every_watching_class_can_fixme.py::test_a_back_edge_lands_at_fixme_on_every_watching_class\n2 failed in 0.11s",
       "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -36,7 +36,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "425a978d75ecebc7fe2d37f578653f82f77e5ed30ce69fcfc1e4f7a61a9e09ec",
+      "source_fingerprint": "f07e418c3537997bff7d2b58747381d28033a9052369aea41e659d8012096cb2",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -45,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/proofs/test_every_watching_class_can_fixme.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/charter/__init__.py",
@@ -60,7 +61,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3091049-ittp0syt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-ypms33yx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,12 +70,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 144317382,
-          "disk_bytes": 168792064,
-          "entries": 10395,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 3
+          "reuses": 59
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "4f6c8b4854cceb99803a05bd486330d5bca7188dcbc8cc7ec825fb1084aec378",
+        "opened": "2026-10-05T14:15:12",
+        "last_red": "2026-10-05T14:15:12",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

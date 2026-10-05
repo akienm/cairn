@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_inbox_shows_the_tester_notices.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T19:26:06",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:20:21",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -26,7 +26,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "77e3e3978bc23212ed46c4b029ad9a2491a85871eeed6bfdcbb17a2b4770e8e7",
+      "conditions": {
+        "proof": "956cc7229fbb7305e288ed57399b03ca7326a7b8a9b1efee4457d68f969f185f",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "763b10c22c51ecda541691bd46f21701d01ba9df0369bee5840678a381b17021",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -45,6 +58,7 @@
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/bus_client/__init__.py",
@@ -63,56 +77,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2819161-wqxgveap/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-9o82r74u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 12,
+          "count": 13,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261005.012605.010692.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012605.020375.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.012606.167111.BusDevice.post.json",
-            "logs/bus/0/20261005.012606.177468.BusDevice.post.json",
-            "logs/bus/0/20261005.012606.177993.BusDevice.post.json",
-            "logs/bus/0/20261005.012606.179046.BusDevice.delivered.json",
-            "logs/bus/0/20261005.012606.179433.BusDevice.delivered.json",
-            "logs/tester/0/20261005.012606.179163.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261005.012606.179320.TesterShim.clear_trouble.json"
+            "logs/bus/0/20261005.202018.303239.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.202018.319614.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.202020.133590.BusDevice.post.json",
+            "logs/bus/0/20261005.202020.149010.BusDevice.post.json",
+            "logs/bus/0/20261005.202020.297502.BusDevice.post.json",
+            "logs/bus/0/20261005.202020.299169.BusDevice.delivered.json",
+            "logs/bus/0/20261005.202020.300327.BusDevice.delivered.json",
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/20261005.202020.299348.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261005.202020.299592.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 134010104,
-          "disk_bytes": 157028352,
-          "entries": 9729,
+          "bytes": 164830858,
+          "disk_bytes": 191418368,
+          "entries": 11349,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "81c41e528d6f": {
-          "cairn/tools/operator_inbox/inbox.py": [
-            "test_a_tester_that_cannot_be_asked_is_loud",
-            "test_notice_seen_asks_the_tester_verb",
-            "test_the_lane_shows_each_notice_and_the_rate_among_his_sections",
-            "test_the_live_tester_answers_the_lane",
-            "test_the_reader_asks_the_tester_notices_verb",
-            "test_the_summary_carries_the_count_and_the_rate"
-          ],
-          "cairn/tools/operator_inbox/intention+why.json": {
-            "notified": "n-767053e724e8"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "81c41e528d6f": {
-          "anchor_rule": "journal",
-          "anchor_journal": "23c94fab515ff3370b189cca75f34df287a09885",
-          "anchor_first_build": "b013ad900163681f20a92df1df99382b98d69f87",
-          "commit": "23c94fab515ff3370b189cca75f34df287a09885"
+          "reuses": 106
         }
       }
     },

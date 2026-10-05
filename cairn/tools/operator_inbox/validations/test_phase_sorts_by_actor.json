@@ -2,7 +2,7 @@
   {
     "claim": "proof test_phase_sorts_by_actor.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:25:29",
+    "date": "2026-10-05T14:20:05",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b696c9429bad82e4cd28bf9eb117e573b9679200b43d06daca443095105ff8be",
+      "conditions": {
+        "proof": "c2374a3bd2dc59da075ee5b1b8f70dc0b0cf445b8c6e53580ed8ce2d33204164",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "e2a53733dad0219369bc74a792b9fea0f27f4e387977ec36977ee18d968c1dfc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -37,6 +50,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/charter/__init__.py",
@@ -51,7 +65,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-rw6m8_n5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-1olgzf9h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 134006924,
-          "disk_bytes": 156987392,
-          "entries": 9714,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 13
+          "reuses": 104
         }
       }
     },

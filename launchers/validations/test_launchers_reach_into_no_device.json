@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_launchers_reach_into_no_device.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T12:19:42",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:22:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -34,7 +34,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "5d55c40d8651fc7b4d349783b2324ea8d8f5070918872849620981ddbe4658d2",
+      "source_fingerprint": "a976366f5f63ef615926598212e48ab8f34994eba8a8c0d7034557f9df495d23",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -48,6 +48,7 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/chain/__init__.py",
@@ -68,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3404999-aavoar39/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-4wuz6yue/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,26 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 162772756,
-          "disk_bytes": 189083648,
-          "entries": 11225,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "13b26f206519": {
-          "launchers/proofs/test_ground_loop_survives_its_caller.py": [
-            "launchers_reach_into_no_device"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "13b26f206519": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d1ae903a27a58d04f5501dd3452de2cddff95c54",
-          "anchor_first_build": "31d4ff6dce954d4f509d547ec06433a4c9ba3c1c",
-          "commit": "d1ae903a27a58d04f5501dd3452de2cddff95c54"
+          "reuses": 120
         }
       }
     },

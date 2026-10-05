@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_sorted_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T23:19:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:22:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "6f80202b8414958c901299c471d4d2b728db0083dcaeedc280e0a6588f8549d8",
+      "conditions": {
+        "proof": "9a298ed6fd350cd119bff1db18550e30505f3181821265218050a5e98daa6eff",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "cbc4b3f9c22db72236ede2e5b998796e74a40dd9d0412031bc7a36b20540755c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2242577-8jltoked/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-osgnl3ml/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,26 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 124325973,
-          "disk_bytes": 146313216,
-          "entries": 9220,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "b6ed8854be96": {
-          "skills/sorted/probes/sorted_door_refusals.py": [
-            "test_sorted_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b6ed8854be96": {
-          "anchor_rule": "journal",
-          "anchor_journal": "43125e22468973104fa07399791c1a2f0be0e458",
-          "anchor_first_build": "11864243f9e0aa7b855d9a6dde4c9fe1c5327fab",
-          "commit": "43125e22468973104fa07399791c1a2f0be0e458"
+          "reuses": 133
         }
       }
     },

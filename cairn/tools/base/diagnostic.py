@@ -99,6 +99,7 @@ from datetime import datetime, timezone
 
 from cairn.tools.base.address import component_of_module
 from cairn.tools.base.breadcrumb_log import BreadcrumbLog
+from cairn.tools.base.origin import test_origin
 
 
 class _NotWired:
@@ -292,6 +293,9 @@ class DiagnosticBase:
             "pointer": pointer,              # the ticket's id/address — the TIE the inspector crawls on
             "values": values or {},          # a fat snapshot ONLY when watching values (norm: thin, empty)
         }
+        born_of_a_test = test_origin()       # the testing mark, if a proof bore this process
+        if born_of_a_test:
+            record["origin"] = born_of_a_test
         receiver = self._receiver()
         if receiver is None:
             record["home"] = "held"

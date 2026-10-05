@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_rehearsal_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:19:10",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:13:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "57795bac816a7ece89efa36e02d6ddb7dde50f7d147a4f06c5a9543478905450",
+      "conditions": {
+        "proof": "8cfb50228376fc5c600efb61e7e39cfe53cbc23abe3c64c9c7039b21315e4c16",
+        "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "23341e74fd9f1838feba588310a834804dc5d6d563e5dbb78e1b0efe99b8c68e",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -38,6 +51,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1968497-ag1f3d3b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-anoghy58/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,26 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118969395,
-          "disk_bytes": 140001280,
-          "entries": 8834,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "84008a4d2b73": {
-          "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py": [
-            "test_rehearsal_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "84008a4d2b73": {
-          "anchor_rule": "journal",
-          "anchor_journal": "22f9b4e2db8f26be1caffd042e01f538adbe187e",
-          "anchor_first_build": "1ae35fdb7c81eb332af619b2bfdeb2debb3aa717",
-          "commit": "22f9b4e2db8f26be1caffd042e01f538adbe187e"
+          "reuses": 39
         }
       }
     },

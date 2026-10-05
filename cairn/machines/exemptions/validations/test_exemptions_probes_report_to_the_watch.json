@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_exemptions_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T00:38:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:12:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0919f871241d4608bd509a1b22c324c6ffa882146cce42e709b6df8b1304a3ae",
+      "conditions": {
+        "proof": "43b765619a521861a6672375623d7dc45cb451bf3c2eb9ae5f50c12fd5c853d5",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "8218becb98ff7d15ddb62182a8fed2ebc8e792ae32debe93b1ac7e504c9a9ee2",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -37,6 +50,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",
@@ -49,7 +63,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2280678-r872ftzb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-31s8yqzl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,26 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 124893256,
-          "disk_bytes": 147038208,
-          "entries": 9277,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "52964e061be2": {
-          "cairn/machines/exemptions/probes/every_exemption_cites_a_ruling_or_an_impossibility.py": [
-            "test_exemptions_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "52964e061be2": {
-          "anchor_rule": "journal",
-          "anchor_journal": "baf3c3d948565f890114fe4039706c50b0dd87e4",
-          "anchor_first_build": "d3590a4d5cf285ef5fa6c2a7c6a3ceebfad283b1",
-          "commit": "baf3c3d948565f890114fe4039706c50b0dd87e4"
+          "reuses": 35
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_bus_client_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:21:48",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:18:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ac71469e56158b3f7fc9db8a47fb366f81f5a0be042afa6e8f14609c6b8994ee",
+      "conditions": {
+        "proof": "04c7f225cc2508541cd040e2b99466bf1de8dda8ee89dd29a5fadab5952e8a6c",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "4ec9f64d5453a64134949ad8f43b4182b99e298462ac51820d649c267769a06a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -54,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1973276-ywf23db7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-h26i4ppu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,26 +77,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119244338,
-          "disk_bytes": 140361728,
-          "entries": 8862,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "0524116d3fd4": {
-          "cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py": [
-            "test_bus_client_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "0524116d3fd4": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5ab6d74b1e84b7b7ba689e94b3f510f375bdd5fb",
-          "anchor_first_build": "27c6f500032c871f22fdbf23ec317085a9a4f91e",
-          "commit": "5ab6d74b1e84b7b7ba689e94b3f510f375bdd5fb"
+          "reuses": 85
         }
       }
     },

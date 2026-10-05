@@ -2,12 +2,12 @@
   {
     "claim": "proof test_raise_trouble.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-09-18T01:51:55",
+    "date": "2026-10-05T14:15:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.10s",
+      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_raising_does_not_pull_the_trouble_DEVICE_into_the_process",
@@ -26,7 +26,24 @@
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
-      "source_fingerprint": "7cbaf9539d6f0d514fac856255201244439c161e8ea6f5fc89946e0ebb4397c1",
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "078dfd020ae307e955333f9cc24c2bdee956e83ac1e55aeb969e9f5d183a2256",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "2d0890a7b6928c57af7bdf53534bd7ca27505879d922900a7849ac0781b817f1",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -34,6 +51,7 @@
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/proofs/test_raise_trouble.py",
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -42,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3912269-touvjzww/cairn and not in /home/akien/.cairn; all 7 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-p9u2qx0w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -51,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161004579,
-          "disk_bytes": 173731840,
-          "entries": 5297,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 133
+          "reuses": 70
         }
       }
     },

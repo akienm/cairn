@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_charter_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:17:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:18:56",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "5817e1f21f8111e62abd9133977ac47898f68d4048118c4a4e1b15a613c53e6c",
+      "conditions": {
+        "proof": "fe4c58981938cfb578337a54cee7fd53ab444d13e22984ce1018c799266717ff",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "abe3c0fff696f40a91f9ccfd67eda9a4d0159e0b8a4eb18438c8db994947a730",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -52,7 +66,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1966895-vhf46ol0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-i1sbqw_v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,26 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118835392,
-          "disk_bytes": 139829248,
-          "entries": 8820,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "57f922043481": {
-          "cairn/tools/charter/probes/no_improvised_class_strings.py": [
-            "test_charter_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "57f922043481": {
-          "anchor_rule": "journal",
-          "anchor_journal": "de0a3670b50713012ad8a2493cc03135e675e6af",
-          "anchor_first_build": "be126a6e5fd57c260577cde9ba4f2c0d112599e5",
-          "commit": "de0a3670b50713012ad8a2493cc03135e675e6af"
+          "reuses": 92
         }
       }
     },

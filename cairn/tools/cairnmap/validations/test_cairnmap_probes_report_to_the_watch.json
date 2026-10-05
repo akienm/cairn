@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_cairnmap_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:24:43",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:18:42",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c1160b590aca510be5e4ddd9fb6896e71cd12d00d485b783b55de8263a6c25a8",
+      "conditions": {
+        "proof": "dd8e75234c231ea75760e9be4a09627bf8864013ebb07bf1d2408ab05d0cb412",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "b85bf9ab33dbaaf38fbe5e4a82513b4c793f92d4960642458861bc7e5112221d",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -54,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1974994-4zmyszi_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-skhk6b8e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,26 +77,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119337615,
-          "disk_bytes": 140480512,
-          "entries": 8872,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "2ba5c44fe40a": {
-          "cairn/tools/cairnmap/probes/the_roster_fault_is_one_finding.py": [
-            "test_cairnmap_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "2ba5c44fe40a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5c1704f6806ebec2f159275615628059f4dae354",
-          "anchor_first_build": "811c12e3acef970559a01798e56579c3e25d10b3",
-          "commit": "5c1704f6806ebec2f159275615628059f4dae354"
+          "reuses": 88
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_concept_piece_voyage.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T02:30:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:22:06",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -26,7 +26,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c57ad12ea80f1e28192ff0bd50fbb2245168679b04c726f4a7b7ba11ad556610",
+      "conditions": {
+        "proof": "ec141ae76190c732e849bde276319c3d9e95739877578b88c1fcd6dcd09a41ed",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "7bfd0f13f2746a724559c84c44430817424323bbf3deccdde1194231ae9cd70c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -35,6 +48,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
@@ -46,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2349480-68o391d5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-l660rvyc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 130431772,
-          "disk_bytes": 152911872,
-          "entries": 9493,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 0
+          "reuses": 122
         }
       }
     },

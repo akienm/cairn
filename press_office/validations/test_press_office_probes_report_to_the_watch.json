@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_press_office_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T02:30:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T14:22:08",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0d2449ea875865879bd33f68039c7b68f5f80e32b5aeb1ebe96329c4f1af3750",
+      "conditions": {
+        "proof": "ddbda81fe12e6ce7bd4585de9fa0243159b9831211009c5ce520d3c3a61149ec",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "26342199143ff6669d78c87f6676f54244e75ff1b48ab133cb9a274dac862e17",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -32,6 +45,7 @@
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/origin.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/transitions.py",
@@ -51,7 +65,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2349480-5ixdanr3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3441607-mug3aneh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,26 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 130431772,
-          "disk_bytes": 152911872,
-          "entries": 9493,
+          "bytes": 164827395,
+          "disk_bytes": 191373312,
+          "entries": 11333,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "b6349b1beafe": {
-          "press_office/probes/concept_piece_voyages_journal.py": [
-            "test_press_office_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b6349b1beafe": {
-          "anchor_rule": "journal",
-          "anchor_journal": "019bdd64f87d62a933c6db73101279063bbfe7e0",
-          "anchor_first_build": "1630baafd933275c4062bae77b46dec5622a7804",
-          "commit": "019bdd64f87d62a933c6db73101279063bbfe7e0"
+          "reuses": 123
         }
       }
     },

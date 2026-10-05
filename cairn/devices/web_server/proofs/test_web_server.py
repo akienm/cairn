@@ -40,7 +40,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 # The trace wire fires on every serve(); a proof run is not a real firing, so its
 # records go to a scratch berth — the live denominator stays honest.
-import os, tempfile  # noqa: E401
+import os
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
@@ -102,9 +102,9 @@ class _Shim(BaseShim):
 
 def _members(*names):
     """A class root holding ``cairn/devices/<id>/`` for each name — the rack (ticket
-    a808e21d646f) — so the roster lists exactly those. mkdtemp, not a context manager: the
-    roster reads it at serve time, after ``_wired`` returns."""
-    root = Path(tempfile.mkdtemp(prefix="ws-proof-roster-"))
+    a808e21d646f) — so the roster lists exactly those. scratch_dir, not a context manager: the
+    roster reads it at serve time, after ``_wired`` returns, and the sweep runs at exit."""
+    root = scratch_dir("ws-proof-roster-")
     for name in names:
         (root / "cairn" / "devices" / name).mkdir(parents=True)
     return root

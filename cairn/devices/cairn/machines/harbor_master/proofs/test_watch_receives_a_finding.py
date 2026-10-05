@@ -18,7 +18,7 @@ What a hollow build cannot pass (Law 8):
   - A ``_send_to_fixme`` that ignores the ``why`` it is handed fails the red-finding
     tooth, which reads the journal record's why.
 
-Every tooth runs in a fixture world under tempfile; ``clearance._crossing_roots`` is
+Every tooth runs in a fixture world under scratch_dir; ``clearance._crossing_roots`` is
 patched to name it (the test_clearance.py ``_fixture_journals`` precedent), so nothing
 is written under the live corpus.
 
@@ -30,7 +30,6 @@ from __future__ import annotations
 import contextlib
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
@@ -38,6 +37,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.cairn.machines.harbor_master import clearance as _clearance  # noqa: E402
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
 
 def _main_tree() -> Path:
@@ -80,7 +80,7 @@ NOT_AT_REST = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROV
 
 
 def _world(workflow: str = AT_REST, *, watchme=None) -> Path:
-    world = Path(tempfile.mkdtemp(prefix="watch-receives-a-finding-"))
+    world = scratch_dir("watch-receives-a-finding-")
     tickets = world / "commons" / "tickets"
     tickets.mkdir(parents=True)
     doc = {"id": TID, "title": "fixture-watched", "workflow_and_state": workflow,

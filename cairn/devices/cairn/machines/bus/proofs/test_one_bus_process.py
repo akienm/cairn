@@ -37,13 +37,14 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[6]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
     "48519f4789b1": {
@@ -326,8 +327,8 @@ def tooth_sandbox(home: Path) -> None:
 
 def main() -> int:
     print("one bus per instance hosts every shim")
-    home = Path(tempfile.mkdtemp(prefix="bus-proof-home-"))
-    empty = Path(tempfile.mkdtemp(prefix="bus-proof-empty-"))
+    home = scratch_dir("bus-proof-home-")
+    empty = scratch_dir("bus-proof-empty-")
     try:
         tooth_1(home)
         tooth_2(home)

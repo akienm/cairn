@@ -1,21 +1,20 @@
 [
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-04T21:54:50",
+    "caller": "cairn test",
+    "date": "2026-10-04T22:48:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  RED   the_tool_stands: AssertionError: test_scratch.py exit 1: ome = Path(tempfile.mkdtemp(prefix=\"bus-proof-home-\"))\n  cairn/devices/cairn/machines/bus/proofs/test_one_bus_process.py:330: empty = Path(tempfile.mkdtemp(prefix=\"bus-proof-empty-\"))\n  cairn/devices/cairn/machines/harbor_master/proofs/test_watch_receives_a_finding.py:83: world = Path(tempfile.mkdtemp(prefix=\"watch-receives-a-finding-\"))\n  cairn/devices/web_server/proofs/test_web_server.py:105: a808e21d646f) — so the roster lists exactly those. mkdtemp, not a context manager: the\n  cairn/devices/web_server/proofs/test_web_server.py:107: root = Path(tempfile.mkdtemp(prefix=\"ws-proof-roster-\"))\n\n2 passed, 1 failed out of 3",
+      "returncode": 0,
+      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  green the_tool_stands\n3 passed, 0 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
         "nothing_reaches_into_the_tester_for_scratch",
-        "the_old_address_is_gone"
+        "the_old_address_is_gone",
+        "the_tool_stands"
       ],
-      "teeth_red": [
-        "the_tool_stands: AssertionError: test_scratch.py exit 1: ome = Path(tempfile.mkdtemp(prefix=\"bus-proof-home-\"))"
-      ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -29,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -71,7 +70,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2905637-r784ful3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2954861-uzwd0lba/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,21 +79,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 136942862,
-          "disk_bytes": 160382976,
-          "entries": 9918,
+          "bytes": 139466955,
+          "disk_bytes": 163237888,
+          "entries": 10066,
           "builds": 1,
-          "reuses": 63
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
-        "proof_sha256": "c55fac7aafdf32dcbe70c0d716b66d323ec35d71bc5155ca954b62ea0fbbd62d",
-        "opened": "2026-10-04T21:54:50",
-        "last_red": "2026-10-04T21:54:50",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-scratch",
-        "ruling": null
+      "conditions_moved": {
+        "notified": "n-06f7e4821d89",
+        "changed": [
+          "timeout"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

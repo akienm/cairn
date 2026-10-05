@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_chart_deposit_is_a_codemother_verb.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:44:31",
+    "date": "2026-10-04T21:30:31",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4605ae54eb87486f56ba85a5472ea5aae788c8b32059f77c8abfc96debf1f4cc",
+      "conditions": {
+        "proof": "3663855ee4ba4f88af90e758efad60f7d43366714336fa333d6bc6552c0134e8",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "6c58962833af99d12b67e69f242e1f93fb50df39573816b12d9cd4859a674e5f",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -95,44 +108,45 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-isdxfstd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2899453-c9qhb1ng/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 23,
+          "count": 24,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/codemother/0/last_known.json",
-            "devices/codemother/0/mail/msg-20261003T104429-d9d90387.json",
+            "devices/codemother/0/mail/msg-20261005T033029-b96e1222.json",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.104426.295565.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.104426.314325.BusDevice.post.json",
-            "logs/bus/0/20261003.104429.850361.BusDevice.post.json",
-            "logs/bus/0/20261003.104429.901791.BusDevice.post.json",
-            "logs/bus/0/20261003.104429.916578.BusDevice.post.json",
-            "logs/bus/0/20261003.104429.960684.BusDevice.post.json",
-            "logs/bus/0/20261003.104429.961580.BusDevice.delivered.json",
-            "logs/bus/0/20261003.104429.961844.BusDevice.delivered.json",
-            "logs/bus/0/20261003.104430.759552.BusDevice.post.json",
-            "logs/bus/0/20261003.104430.760680.BusDevice.delivered.json",
-            "logs/bus/0/20261003.104430.760919.BusDevice.delivered.json",
-            "logs/codemother/0/20261003.104429.961690.CodeMotherShim.clear_trouble.json",
-            "logs/codemother/0/20261003.104430.760798.CodeMotherShim.clear_trouble.json",
-            "logs/inference_domain/0/20261003.104429.949038.inference_domain_domain_resolve.hit.json",
-            "logs/inference_domain/0/20261003.104429.959692.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/20261003.104429.961945.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261003.104429.962063.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/tickets/20261003T104429958909-7ff1f61c98d2-1630855-1.json"
+            "logs/bus/0/20261005.033025.828624.BusDevice.post.json",
+            "logs/bus/0/20261005.033025.846002.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.033025.860636.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.033029.823397.BusDevice.post.json",
+            "logs/bus/0/20261005.033029.875576.BusDevice.post.json",
+            "logs/bus/0/20261005.033029.886293.BusDevice.post.json",
+            "logs/bus/0/20261005.033029.926786.BusDevice.post.json",
+            "logs/bus/0/20261005.033029.927690.BusDevice.delivered.json",
+            "logs/bus/0/20261005.033029.927961.BusDevice.delivered.json",
+            "logs/bus/0/20261005.033030.749852.BusDevice.post.json",
+            "logs/bus/0/20261005.033030.750964.BusDevice.delivered.json",
+            "logs/bus/0/20261005.033030.751202.BusDevice.delivered.json",
+            "logs/codemother/0/20261005.033029.927804.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261005.033030.751082.CodeMotherShim.clear_trouble.json",
+            "logs/inference_domain/0/20261005.033029.915852.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20261005.033029.925802.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261005.033029.928064.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261005.033029.928185.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/tickets/20261005T033029925034-a7db31ea501c-2900072-1.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102700081,
-          "disk_bytes": 121905152,
-          "entries": 8001,
+          "bytes": 136720224,
+          "disk_bytes": 160157696,
+          "entries": 9918,
           "builds": 1,
-          "reuses": 29
+          "reuses": 6
         }
       }
     },

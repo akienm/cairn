@@ -1,22 +1,18 @@
 [
   {
-    "claim": "proof test_deposit.py passes under python3",
+    "claim": "proof test_the_decompose_door_accepts_a_commons_output.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-04T21:30:20",
+    "date": "2026-10-04T21:30:12",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_deposit_face_is_gated\n  PASS  test_the_drain_lands_through_the_one_door_and_never_twice\n  PASS  test_a_failed_deposit_stands_pending_and_is_named\n  PASS  test_each_part_lands_byte_identical_to_what_was_embedded\n  PASS  test_a_refused_part_is_loud_and_the_berth_stands_pending\n  PASS  test_no_character_ceiling_is_consulted_anywhere_in_the_deposit_path\n  PASS  test_the_deposit_lands_in_the_nexus_the_artifact_names\ngreen — codemother/deposit: the deposit face is gated, the drain lands through the one door exactly once and a failed deposit stands pending, each part lands byte-identical to what was embedded, a refused part is loud, no character ceiling is consulted, and the artifact names its own nexus",
+      "stdout_tail": "  ok   test_a_commons_address_lacks_nothing\n  ok   test_an_address_outside_both_roots_still_lacks\n  ok   test_the_lack_names_both_roots\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_deposit_face_is_gated",
-        "test_the_drain_lands_through_the_one_door_and_never_twice",
-        "test_a_failed_deposit_stands_pending_and_is_named",
-        "test_each_part_lands_byte_identical_to_what_was_embedded",
-        "test_a_refused_part_is_loud_and_the_berth_stands_pending",
-        "test_no_character_ceiling_is_consulted_anywhere_in_the_deposit_path",
-        "test_the_deposit_lands_in_the_nexus_the_artifact_names"
+        "test_a_commons_address_lacks_nothing",
+        "test_an_address_outside_both_roots_still_lacks",
+        "test_the_lack_names_both_roots"
       ],
       "teeth_red": [],
       "seal": {
@@ -28,7 +24,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f7a2e7c1a0320fb94b86f8daeb5df1469b54f2be6fd56637219c12d58e455c96",
+        "proof": "3eb2044f25a8e6df7bd34ef47bd58c73e9307c7c81ba8700c73d33282d9a9051",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -40,30 +36,17 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "b1ba42f772ad3b698fb62e78f5000970a6661f44ab4d49ccda23b92e891eb989",
+      "source_fingerprint": "74c32676f5190207118436ad4e583972bfb6c74c98e26674f9eb2b5bf54c2fa9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/deposit.py",
         "cairn/devices/codemother/machines/__init__.py",
-        "cairn/devices/codemother/machines/constrain/__init__.py",
-        "cairn/devices/codemother/machines/constrain/constrain.py",
         "cairn/devices/codemother/machines/decompose/__init__.py",
         "cairn/devices/codemother/machines/decompose/decompose.py",
-        "cairn/devices/codemother/machines/hypothesize/__init__.py",
-        "cairn/devices/codemother/machines/hypothesize/hypothesize.py",
-        "cairn/devices/codemother/machines/orient/__init__.py",
-        "cairn/devices/codemother/machines/orient/orient.py",
+        "cairn/devices/codemother/machines/decompose/proofs/test_the_decompose_door_accepts_a_commons_output.py",
         "cairn/devices/codemother/machines/survey/__init__.py",
         "cairn/devices/codemother/machines/survey/survey.py",
-        "cairn/devices/codemother/machines/triage/__init__.py",
-        "cairn/devices/codemother/machines/triage/triage.py",
-        "cairn/devices/codemother/machines/validate/__init__.py",
-        "cairn/devices/codemother/machines/validate/validate.py",
-        "cairn/devices/codemother/machines/verdict/__init__.py",
-        "cairn/devices/codemother/machines/verdict/verdict.py",
-        "cairn/devices/codemother/proofs/test_deposit.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/tools/__init__.py",
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -81,8 +64,6 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
-        "cairn/tools/bus_client/__init__.py",
-        "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -95,8 +76,6 @@
         "cairn/tools/import_sieve/sieve.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "cairn/tools/tree/__init__.py",
@@ -104,7 +83,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2899453-184h8v_0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2899453-tkln3a6z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -117,8 +96,14 @@
           "disk_bytes": 160002048,
           "entries": 9889,
           "builds": 1,
-          "reuses": 5
+          "reuses": 1
         }
+      },
+      "conditions_moved": {
+        "notified": "n-b187096a8deb",
+        "changed": [
+          "timeout"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

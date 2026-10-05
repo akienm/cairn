@@ -142,14 +142,18 @@ def writes_to_lacks(sub_problems, root: str = CAIRN_ROOT) -> list:
 
     EXISTENCE IS NOT CHECKED, and that is the point rather than an omission: a build
     piece names a file that does not exist YET. What is checked is that the address is a
-    string, non-empty, and IN-REPO — because the only reader downstream hands it to an
-    apprentice as an editable path, and an address outside the repo is a write this
-    system does not gate (Law 6).
+    string, non-empty, and inside one of the TWO ROOTS this system gates writes to — the
+    cairn repo or its sibling CairnCommons — because the only reader downstream hands it
+    to an apprentice as an editable path, and an address outside both is a write this
+    system does not gate (Law 6). The commons is the second root because a concept-piece's
+    only output is prose there, and it is git-tracked with every record write passing the
+    artifact door (ticket 9bd674040f48; Akien's answer to open-90d38cb2bdca).
 
     Returns one sentence per offending piece, in packet order; empty when every piece
     names where it writes.
     """
     lacks = []
+    commons = os.path.join(os.path.dirname(root), "CairnCommons")
     if is_skeleton(sub_problems):
         return lacks
     for i, sp in enumerate(sub_problems):
@@ -167,9 +171,10 @@ def writes_to_lacks(sub_problems, root: str = CAIRN_ROOT) -> list:
                              % (where, addr))
                 continue
             resolved = os.path.normpath(os.path.join(root, addr))
-            if not (resolved == root or resolved.startswith(root + os.sep)):
-                lacks.append("%s: `writes_to` %s is outside the cairn repo — a piece may "
-                             "only declare output this system gates writes to" % (where, addr))
+            if not any(resolved == r or resolved.startswith(r + os.sep) for r in (root, commons)):
+                lacks.append("%s: `writes_to` %s is outside the cairn repo and CairnCommons — a "
+                             "piece may only declare output this system gates writes to"
+                             % (where, addr))
     return lacks
 
 

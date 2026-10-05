@@ -9,7 +9,7 @@ environment as digests), and a green seal that replaces a red recorded under oth
 seals green AND posts one notice naming each changed condition. A red never posts, an unsealed
 run never posts, and a red that predates the instrument compares nothing and says so.
 
-The teeth drive the real run_proof over a one-tooth fixture proof in scratch. The store's read
+The teeth drive the real run_proof (and tooth 7 the real reseal door, decision D9) over a one-tooth fixture proof in scratch. The store's read
 and write are replaced by recorders (the store REPLACES, so the standing record a green reads is
 the red it replaces); notices berth in scratch. Every tooth imports the tester INSIDE its body,
 so a reverted device.py or conditions.py reds teeth instead of breaking this file's import.
@@ -32,6 +32,7 @@ PROVES = {"f0aad0cd0f56": {
     "4": "test_a_red_that_predates_the_instrument_compares_nothing",
     "5": "test_a_red_never_posts",
     "6": "test_an_unsealed_run_never_posts",
+    "7": "test_a_reseal_green_over_a_red_under_other_conditions_notifies",
 }}
 
 _FIXTURE = '''import sys
@@ -200,6 +201,45 @@ def test_an_unsealed_run_never_posts():
     assert rec["verdict"] == "green", rec["evidence"].get("stderr_tail")
     assert "conditions_moved" not in rec["evidence"] and persisted == [], rec["evidence"]
     assert _notices(home) == [], _notices(home)
+
+
+class _QuietRaiser:
+    """Stands in for the reseal door's trouble raiser: a fixture files no troubles."""
+
+    def raise_trouble(self, *a, **kw):
+        return None
+
+    def clear_trouble(self, *a, **kw):
+        return None
+
+
+def test_a_reseal_green_over_a_red_under_other_conditions_notifies():
+    import json
+    proof = _component("cairn-condproof-7-")
+    home = proof.parents[2] / "notices"
+    with _store([], home):
+        first = _run(proof, sink="none", timeout=60)
+    red = _red_like(first, timeout=30)
+    from cairn.devices.tester import reseal as rs
+    from cairn.devices.tester.device import TesterDevice
+    persisted: list = []
+    saved = (rs.standing, rs.read_ladder, rs.persist_validation, rs.sweep_scratch)
+    rs.standing = lambda p: {"proven": False, "seal": red, "why": "proof fixture: a standing red"}
+    rs.read_ladder = lambda p: None
+    rs.persist_validation = lambda record, **kw: persisted.append(record) or "recorded"
+    rs.sweep_scratch = lambda: dict(_SWEEP)
+    try:
+        with _store([red], home):
+            out = rs.reseal(proof, tester=TesterDevice(), raiser=_QuietRaiser(),
+                            timeout=60, isolation="none")
+    finally:
+        rs.standing, rs.read_ladder, rs.persist_validation, rs.sweep_scratch = saved
+    assert out["outcome"] in ("sealed", "resealed") and len(persisted) == 1, (out, persisted)
+    moved = persisted[0]["evidence"].get("conditions_moved")
+    assert moved and moved["changed"] == ["timeout"] and moved["notified"].startswith("n-"), moved
+    files = _notices(home)
+    assert [p.stem for p in files] == [moved["notified"]], files
+    assert "timeout: 30 -> 60" in json.loads(files[0].read_text())["diff"], files
 
 
 def main() -> int:

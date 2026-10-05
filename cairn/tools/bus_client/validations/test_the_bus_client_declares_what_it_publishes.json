@@ -2,18 +2,18 @@
   {
     "claim": "proof test_the_bus_client_declares_what_it_publishes.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-05T04:22:56",
+    "date": "2026-10-05T04:23:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED   the_charter_declares_both: AssertionError: public_interface does not declare ['cairn.tools.bus_client.remote', 'cairn.tools.bus_client.roster']: ['cairn.tools.bus_client', 'cairn.tools.bus_client.bus_client']\n  RED   nothing_reaches_bus_client_undeclared: AssertionError: 24 undeclared reach(es) into bus_client: ['cairn.tools.bus_client.remote', 'cairn.tools.bus_client.roster'] from ['cairn/devices/cairn/machines/bus/__main__.py', 'cairn/devices/cairn/machines/bus/proofs/bus_proof_echo.py', 'cairn/devices/cairn/machines/bus/proofs/test_a_requester_takes_its_reply.py', 'cairn/devices/cairn/machines/bus/proofs/test_announce_menu.py', 'cairn/devices/cairn/machines/bus/proofs/test_delivery.py', 'cairn/devices/cairn/machines/bus/proofs/test_delivery_poke.py']\n0 passed, 2 failed out of 2",
+      "returncode": 0,
+      "stdout_tail": "  ok    the_charter_declares_both\n  ok    nothing_reaches_bus_client_undeclared\n2 passed, 0 failed out of 2",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
-        "the_charter_declares_both: AssertionError: public_interface does not declare ['cairn.tools.bus_client.remote', 'cairn.tools.bus_client.roster']: ['cairn.tools.bus_client', 'cairn.tools.bus_client.bus_client']",
-        "nothing_reaches_bus_client_undeclared: AssertionError: 24 undeclared reach(es) into bus_client: ['cairn.tools.bus_client.remote', 'cairn.tools.bus_client.roster'] from ['cairn/devices/cairn/machines/bus/__main__.py', 'cairn/devices/cairn/machines/bus/proofs/bus_proof_echo.py', 'cairn/devices/cairn/machines/bus/proofs/test_a_requester_takes_its_reply.py', 'cairn/devices/cairn/machines/bus/proofs/test_announce_menu.py', 'cairn/devices/cairn/machines/bus/proofs/test_delivery.py', 'cairn/devices/cairn/machines/bus/proofs/test_delivery_poke.py']"
+      "teeth_green": [
+        "the_charter_declares_both",
+        "nothing_reaches_bus_client_undeclared"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -67,7 +67,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3172393-8u4a17ca/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3173003-h725dd7_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,9 +76,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 147152163,
-          "disk_bytes": 172011520,
-          "entries": 10569,
+          "bytes": 147237048,
+          "disk_bytes": 172118016,
+          "entries": 10577,
           "builds": 1,
           "reuses": 0
         }

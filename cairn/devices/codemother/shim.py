@@ -323,7 +323,7 @@ class CodeMotherDevice(BaseDevice):
                   values={"verdict": verdict, "boats": len(boats),
                           "fingerprint": body.get("source_fingerprint", "")})
         from cairn.tools.base.validation import latest_seal
-        from cairn.tools.system_word.system_word import is_word
+        from cairn.tools.system_word import is_word
 
         crossed, refused, awaiting_hollow = [], [], []
         for boat in boats:

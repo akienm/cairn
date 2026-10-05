@@ -347,7 +347,31 @@ def repo_relative_closure(files, proof_path: str) -> list[str]:
             continue
         if rel.endswith(".py"):
             out.add(rel)
-    return sorted(out)
+    return sorted(_owned_by_the_proofs_component(out, proof_path))
+
+
+def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
+    """Keep only the closure files the proof's own component owns, and the proof itself.
+
+    AKIEN'S ANSWER, 2026-10-05 (~/.cairn/foreground-decisions.md item 7): "tool proofs:
+    agreed" — a tool's change re-runs only the tool's own proofs (ticket 3e80b61b7acf). A seal
+    whose closure still named the tool's files would expire on that change with nothing to
+    re-run it, so the closure stops at the component boundary (ticket 184d211153ff): a file
+    another component owns is that component's proofs' business (RULE 1). Measured before the
+    build: 336 of 342 standing seals named foreign files, 7,543 entries. The owner is the
+    deepest component ancestor (``component_of``), so a holder's closure drops its nested
+    machines too. Only the files BESIDE the proof are asked, so the reader's
+    ``repo_relative_closure([], proof)`` pays nothing; a proof under no component keeps the
+    whole closure rather than guessing."""
+    from cairn.tools.base.address import component_of
+    mine = os.path.relpath(os.path.realpath(str(proof_path)), _REPO_ROOT)
+    others = rels - {mine}
+    if not others:
+        return rels
+    owner = component_of(os.path.join(_REPO_ROOT, mine))
+    if owner is None:
+        return rels
+    return {mine} | {r for r in others if component_of(os.path.join(_REPO_ROOT, r)) == owner}
 
 
 def standing(proof_path: str) -> dict:

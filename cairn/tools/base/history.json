@@ -28917,5 +28917,82 @@
     "fingerprint": "d20ec5db15b85430a77bc27dada4d5f5906d411c18ae6221917f077aa48267db",
     "at": "2026-10-05T12:59:48",
     "seq": 154
+  },
+  {
+    "from": "BUILDME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME moves the cursor off position 2",
+        "actual": "BUILDME -> TICKETME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 2,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME",
+        "actual": "BUILDME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "be4a7b3c7caa",
+    "actor": "cc",
+    "why": "re-plan 2026-10-05 (foreground-decisions 8c-8e): the mark becomes one kind-carrying definition {kind, test}; the DiagnosticBase stamp goes (no consumer). Kicked back to re-ticket.",
+    "fingerprint": "ddd4db410a39d158f8012aef54cc7da9e7fe2f7882cc39fd9132ae85977bceaf",
+    "at": "2026-10-05T15:15:36",
+    "seq": 155
   }
 ]

@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_the_inspector_admits_the_bus_client.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T00:15:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T00:45:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL test_the_real_bus_client_row_is_clean: AssertionError: [\"bus_client/remote.py imports ['socket'] — a SECOND door to the inference host; inference_domain/ is supposed to be the only one\"]\n  FAIL test_a_second_bus_client_dialer_is_caught: AssertionError: [\"bus_client/other.py imports ['socket'] — a SECOND door to the inference host; inference_domain/ is supposed to be the only one\", \"bus_client/remote.py imports ['socket'] — a SECOND door to the inference host; inference_domain/ is supposed to be the only one\"]\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_real_bus_client_row_is_clean\n  ok   test_a_second_bus_client_dialer_is_caught\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_the_real_bus_client_row_is_clean",
         "test_a_second_bus_client_dialer_is_caught"
       ],
+      "teeth_red": [],
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -27,7 +27,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -35,7 +35,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "8e621cd3b880e809e3f2007aee381ad80bc603de731948c531c241055b58c913",
+      "source_fingerprint": "1b640035eead69f3e132f9e23c9075cf604db7b5c6d14b2ed7d48a13af29a8f9",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -69,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3004973-c2xxbeer/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3009675-89yiavff/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,11 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 140258298,
-          "disk_bytes": 164171776,
-          "entries": 10125,
+          "bytes": 140345016,
+          "disk_bytes": 164274176,
+          "entries": 10132,
           "builds": 1,
-          "reuses": 0
+          "reuses": 44
         }
       }
     },

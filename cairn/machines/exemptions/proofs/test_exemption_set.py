@@ -298,11 +298,16 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
     # with the construct; the intent gate's 'none, because' exemption in the same file,
     # masked until then by that entry's path, took its place. The tooth keeps its name:
     # PROVES keys address it, and a renamed address silently drops the coverage on it.
-    _check("the live set carries 8 entries — 7 measured sites plus itself",
-           len(ex) == 8, len(ex))
+    # 2026-10-05 (ticket f5a344e6c629): Akien's answer to open-10941757e6b7 admitted
+    # cairn/tools/bus_client/remote.py to the inference sole-path rule at its three seats, and
+    # each seat is an entry (inspector.py's second; test_host.py's and test_import_sieve.py's new).
+    _check("the live set carries 11 entries — 10 measured sites plus itself",
+           len(ex) == 11, len(ex))
     want = {
         "cairn/machines/exemptions/exemption_set.json",
         "cairn/machines/build_inspector/inspector.py",
+        "cairn/devices/inference_domain/proofs/test_host.py",
+        "cairn/tools/import_sieve/proofs/test_import_sieve.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",

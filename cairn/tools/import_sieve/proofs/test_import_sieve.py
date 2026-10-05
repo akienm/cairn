@@ -130,8 +130,10 @@ def test_sole_path_is_clean_on_the_real_corpus_for_both_domains():
     """The other half of the pair. Measured 2026-08-06: one dialer (inference_domain/host.py),
     one driver importer (db_domain/tools/client/store.py). If this reds, a second door was built."""
     g = _corpus()
+    # remote.py's socket is the local AF_UNIX bus socket (open-10941757e6b7, ticket f5a344e6c629).
     host = sieve.catches(g, {"kind": "sole_path", "capability": "the inference host",
-                             "modules": DIALS, "only": "cairn/devices/inference_domain/"})
+                             "modules": DIALS,
+                             "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py")})
     assert host == [], f"a second door to the inference host: {host}"
     db = sieve.catches(g, {"kind": "sole_path", "capability": "port 5432",
                            "modules": ("psycopg2", "psycopg", "asyncpg", "pg8000", "sqlalchemy"),

@@ -39,7 +39,8 @@ _SOLE_PATH = {
     "capability": "the inference host",
     "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
                 "aiohttp", "socket", "ftplib", "telnetlib"),
-    "only": "cairn/devices/inference_domain/",
+    # bus_client/remote.py's socket is the local AF_UNIX bus socket (open-10941757e6b7, ticket f5a344e6c629).
+    "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py"),
 }
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_host.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T11:00:06",
+    "date": "2026-10-05T00:23:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -58,7 +58,20 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "f3b2645484c4b31d763951d847da0ca647c64fee546eae7de10b7c3be903868d",
+      "conditions": {
+        "proof": "054eed27d874ce71fcf30434f6fd74c6d0ad8b2633f02e8a8d4ef23204f51533",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "e6220d8bf18caf76b20ed600f6ac4bb7c6f6e43da0fd1b8d85d12ab78069e28b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -84,7 +97,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1079512-d7ws6w5y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3009675-v204vnot/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -93,11 +106,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 161334169,
-          "disk_bytes": 183099392,
-          "entries": 9080,
+          "bytes": 140345016,
+          "disk_bytes": 164274176,
+          "entries": 10132,
           "builds": 1,
-          "reuses": 8
+          "reuses": 18
         }
       }
     },

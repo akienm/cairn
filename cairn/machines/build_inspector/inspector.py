@@ -2250,12 +2250,13 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
 # test_host.py) — one rule, two moments. OUTBOUND ONLY, matched on the full dotted name:
 # a module that can DIAL is a potential door; one that can only LISTEN is not.
 # ``only`` is relative to the inspection root (the cairn package dir), not the repo.
+# "only" is a tuple since 2026-10-04 (ticket f5a344e6c629): bus_client/remote.py imports socket only for the local AF_UNIX bus socket, admitted by Akien's answer to CairnCommons/questions/open-10941757e6b7.json. Prefixes are relative to the graphed root (comp_dir.parent), so a tool reads as bus_client/<file>.
 _SOLE_PATH = {
     "kind": "sole_path",
     "capability": "the inference host",
     "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
                 "aiohttp", "socket", "ftplib", "telnetlib"),
-    "only": "inference_domain/",
+    "only": ("inference_domain/", "bus_client/remote.py"),
 }
 
 

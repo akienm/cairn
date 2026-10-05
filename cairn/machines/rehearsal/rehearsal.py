@@ -363,14 +363,32 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
 # ---------------------------------------------------------------------------
 # the diff (D6) — deterministic, by code
 
-def gaps(reads: list[dict]) -> list[dict]:
+_DECISION_ID = re.compile(r"\bD(\d+)\b")
+
+
+def cites_a_decision(step: str, assumption: str, decision_ids) -> bool:
+    """A reader's assumption is settled when it names ANOTHER decision the ticket carries
+    (Akien, open-ba8f0eaca8cd: "yes ... with that condition" — the id must resolve in the
+    same ticket). The step's own number never counts; an id the ticket does not carry never
+    counts."""
+    if not decision_ids or not assumption:
+        return False
+    own = re.fullmatch(r"D(\d+)", (step or "").strip())
+    own_n = int(own.group(1)) if own else None
+    return any(int(m) in decision_ids and int(m) != own_n for m in _DECISION_ID.findall(assumption))
+
+
+def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
     """D6, verbatim: *"any node not builds_as_written in any read; any step present in one
     read and absent in another after case-folding through cairn.tools.system_word; any two
     reads whose assumption text differs on the same step."* Steps fold (a word the reader
     could type); assumption text is free text and never folds. One gap per (kind, step),
     reads merged, sorted by (kind, step) so two runs over the same trees write the same
     list. Amended (open-d71a52522428): a step named ``unlisted: <text>`` in any read is a
-    gap of kind ``unlisted`` — the ticket owes the decision that would name it."""
+    gap of kind ``unlisted`` — the ticket owes the decision that would name it. Amended
+    (open-ba8f0eaca8cd): with ``decision_ids`` a builds_under_assumption node whose assumption
+    names another carried decision id (cites_a_decision) is settled — it raises no ``assumes``
+    gap and its text joins no ``assumption_differs`` comparison; without ids nothing settles."""
     by_kind_step: dict[tuple[str, str], dict] = {}
 
     def gap(kind: str, step: str, read_n: int, **more) -> None:
@@ -385,6 +403,10 @@ def gaps(reads: list[dict]) -> list[dict]:
             if v not in g[k]:
                 g[k].append(v)
 
+    def settled(node) -> bool:
+        return node["state"] == "builds_under_assumption" and cites_a_decision(
+            node["step"], node.get("assumption", "").strip(), decision_ids)
+
     steps_by_read: list[dict[str, dict]] = []
     for r in reads:
         seen: dict[str, dict] = {}
@@ -393,7 +415,7 @@ def gaps(reads: list[dict]) -> list[dict]:
             if node["step"].startswith(UNLISTED):
                 gap("unlisted", node["step"], r["read"],
                     would_settle=node.get("would_settle", "").strip())
-            if node["state"] == "builds_under_assumption":
+            if node["state"] == "builds_under_assumption" and not settled(node):
                 gap("assumes", node["step"], r["read"],
                     assumption=node.get("assumption", "").strip(),
                     would_settle=node.get("would_settle", "").strip())
@@ -409,10 +431,11 @@ def gaps(reads: list[dict]) -> list[dict]:
         name = steps_by_read[present[0]][folded]["step"]
         for r_n in absent:
             gap("step_absent", name, r_n, present_in=[reads[i]["read"] for i in present])
-        texts = {steps_by_read[i][folded].get("assumption", "").strip() for i in present}
+        live = [i for i in present if not settled(steps_by_read[i][folded])]
+        texts = {steps_by_read[i][folded].get("assumption", "").strip() for i in live}
         texts.discard("")
         if len(texts) > 1:
-            for i in present:
+            for i in live:
                 gap("assumption_differs", name, reads[i]["read"],
                     assumption=steps_by_read[i][folded].get("assumption", "").strip())
     out = sorted(by_kind_step.values(), key=lambda g: (g["kind"], fold(g["step"])))
@@ -516,7 +539,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         tree, attempts = read_tree(text, reader, n, ticket=ticket, sha=sha_at_read, decision_ids=ids)
         reads.append(tree)
         meta.extend(attempts)
-    found = gaps(reads)
+    found = gaps(reads, ids)
     clean = not found
     stamp = _stamp()
     rec_path = records_dir(root) / f"{ticket}-{stamp}.json"

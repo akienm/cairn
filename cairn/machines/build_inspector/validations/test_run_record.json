@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_run_record.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:16:24",
+    "caller": "cairn test",
+    "date": "2026-10-05T02:06:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,6 +27,19 @@
         "dropped": 0,
         "tables": []
       },
+      "conditions": {
+        "proof": "3dccd0e75deb797c963745786fb43b15e06fc247b9aadb0afddb78ae47a9e2ba",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
       "source_fingerprint": "1ee04a95693fc289d3664e8fad048847a3ac07f42036942981a52041ec87c572",
       "fingerprint_closure": [
         "cairn/__init__.py",
@@ -40,7 +53,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-5pdt4cuu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3078248-gqfc2auc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -49,11 +62,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 144013485,
+          "disk_bytes": 168386560,
+          "entries": 10352,
           "builds": 1,
-          "reuses": 50
+          "reuses": 1
         }
       }
     },

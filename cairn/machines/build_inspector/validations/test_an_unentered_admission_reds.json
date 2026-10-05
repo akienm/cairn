@@ -1,0 +1,95 @@
+[
+  {
+    "claim": "proof test_an_unentered_admission_reds.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T01:32:18",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_an_unentered_file_admission_reds_once: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'sole_path_admissions_are_entered'\n  FAIL test_an_entry_at_the_seat_clears_it: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'sole_path_admissions_are_entered'\n  FAIL test_a_directory_member_needs_no_entry: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'sole_path_admissions_are_entered'\n  FAIL test_a_rule_under_fixtures_is_skipped: AttributeError: module 'cairn.machines.build_inspector.inspector' has no attribute 'sole_path_admissions_are_entered'\n  FAIL test_the_live_repo_reads_clean: AssertionError: \nRED",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_an_unentered_file_admission_reds_once",
+        "test_an_entry_at_the_seat_clears_it",
+        "test_a_directory_member_needs_no_entry",
+        "test_a_rule_under_fixtures_is_skipped",
+        "test_the_live_repo_reads_clean"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f186649e7391fd87009f82178bc39f51cf84116f7fe9d55c39b1618ac5a595c1",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "f6b9cdb046ead550b992cc2a1d9c806a9e8f4bf08d7c28e25caec85713553415",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_an_unentered_admission_reds.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/chain.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/verdict_contract.py",
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/projector.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/sieve.py",
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3054921-x_q5e3ua/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 142782564,
+          "disk_bytes": 166989824,
+          "entries": 10272,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

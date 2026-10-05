@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_a_green_over_a_red_under_other_conditions_notifies.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-04T20:03:54",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_a_sealed_run_records_its_conditions_with_env_as_digests: KeyError: 'conditions'\n  FAIL test_a_green_over_a_red_under_another_timeout_posts_one_notice: AssertionError: None\n  FAIL test_a_green_over_a_red_under_the_same_conditions_posts_nothing: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_a_red_that_predates_the_instrument_compares_nothing: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_a_red_never_posts: AssertionError: {'returncode': 1, 'stdout_tail': 'FAIL test_fixture_tooth', 'stderr_tail': '', 'teeth_green': [], 'teeth_red': ['test_fixture_tooth'], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'proof fixture: a scratch component, nothing to sweep'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\n  FAIL test_an_unsealed_run_never_posts: AssertionError: {'returncode': 0, 'stdout_tail': 'ok   test_fixture_tooth', 'stderr_tail': '', 'teeth_green': ['test_fixture_tooth'], 'teeth_red': [], 'seal': {'verdict': 'open', 'detail': 'none: no seal requested — the route is open by construction, and the record says so'}, 'scratch_sweep': {'skipped': 'the caller sealed nothing and swept nothing'}, 'source_fingerprint': 'fa342ecdfc3d18591d477a93fdc8a5879ee22fa4cba38e4b1572762dd229e80d', 'fingerprint_closure_absent': 'the runner reported no closure it could attribute to this proof (a killed or timed-out proof imports nothing it can report, and a proof outside the repo cannot appear in a repo-relative closure) — sealed against the component directory', 'instance_seal': {'verdict': 'sealed', 'detail': \"writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness\", 'wrote_to_instance': {'measured': True, 'count': 0, 'paths': [], 'elided': 0}, 'scratch': {'measured': False, 'why': 'no instance swap was built for this run'}}}\nRED",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_a_sealed_run_records_its_conditions_with_env_as_digests",
+        "test_a_green_over_a_red_under_another_timeout_posts_one_notice",
+        "test_a_green_over_a_red_under_the_same_conditions_posts_nothing",
+        "test_a_red_that_predates_the_instrument_compares_nothing",
+        "test_a_red_never_posts",
+        "test_an_unsealed_run_never_posts"
+      ],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "source_fingerprint": "354bb4ee309c2f9cee278fb9a247d4b4708194aa93965d25ee0ec86be604d20a",
+      "fingerprint_closure": [
+        "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
+        "cairn/devices/tester/proofs/test_a_green_over_a_red_under_other_conditions_notifies.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
+        "cairn/tools/validation_store/__init__.py",
+        "cairn/tools/validation_store/validation_store.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2840904-8m32bfb9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 8,
+          "paths": [
+            "logs/tester/0/20261005.020341.345343.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020343.124422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020344.893910.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020346.681747.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020348.463370.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020350.214846.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020351.952962.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.020353.760551.TesterDevice.run_proof.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 134655990,
+          "disk_bytes": 157806592,
+          "entries": 9782,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

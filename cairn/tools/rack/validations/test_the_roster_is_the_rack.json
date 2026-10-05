@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_roster_is_the_rack.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T03:13:08",
+    "date": "2026-10-05T08:50:40",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "the device roster is the rack\n  ok   rack names only folders directly under cairn/devices\n         -> names=['alpha', 'beta', 'gamma'] stray=[]\n  ok   rack omits no device folder\n         -> names=['alpha', 'beta', 'gamma']\n  ok   a shimless device folder is listed with shim None\n         -> gamma=('gamma', PosixPath('/tmp/a808-the-roster-is-the-rack-5_jbie6f/cairn/devices/gamma'), None) alpha=('alpha', PosixPath('/tmp/a808-the-roster-is-the-rack-5_jbie6f/cairn/devices/alpha'), PosixPath('/tmp/a808-the-roster-is-the-rack-5_jbie6f/cairn/devices/alpha/shim.py'))\n  ok   nothing outside discovery asks device_folders\n         -> rc=0 hits=[]\n  ok   no roster import crosses into a device\n         -> charter=True breaches=[]\n  ok   mail to a nested machine still finds its own shim\n         -> harbor_master=/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/shim.py trouble=/home/akien/dev/src/cairn/cairn/devices/trouble/shim.py unknown=None\n\nGREEN — the roster is the rack, the sleep roster is announced, nothing walks probes/ for it.",
+      "stdout_tail": "the device roster is the rack\n  ok   rack names only folders directly under cairn/devices\n         -> names=['alpha', 'beta', 'gamma'] stray=[]\n  ok   rack omits no device folder\n         -> names=['alpha', 'beta', 'gamma']\n  ok   a shimless device folder is listed with shim None\n         -> gamma=('gamma', PosixPath('/tmp/a808-the-roster-is-the-rack-41eg51rq/cairn/devices/gamma'), None) alpha=('alpha', PosixPath('/tmp/a808-the-roster-is-the-rack-41eg51rq/cairn/devices/alpha'), PosixPath('/tmp/a808-the-roster-is-the-rack-41eg51rq/cairn/devices/alpha/shim.py'))\n  ok   nothing outside discovery asks device_folders\n         -> rc=0 hits=[]\n  ok   no roster import crosses into a device\n         -> charter=True breaches=[]\n  ok   mail to a nested machine still finds its own shim\n         -> harbor_master=/home/akien/dev/src/cairn/cairn/devices/cairn/machines/harbor_master/shim.py trouble=/home/akien/dev/src/cairn/cairn/devices/trouble/shim.py unknown=None\n\nGREEN — the roster is the rack, the sleep roster is announced, nothing walks probes/ for it.",
       "stderr_tail": "",
       "teeth_green": [
         "rack names only folders directly under cairn/devices",
@@ -39,7 +39,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "ea74db52ef40f1dbe25b83f178ed06ff93d510543d97540714b3ba2e70408260",
+      "source_fingerprint": "5c50f6de2be32e5243a8276f4a4f36981a4c26803c36f418bd1688d61de81688",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -51,8 +51,10 @@
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -73,7 +75,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3105765-29et9b2a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3336564-iqgxly1m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -82,11 +84,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 145130123,
-          "disk_bytes": 169701376,
-          "entries": 10439,
+          "bytes": 156656582,
+          "disk_bytes": 182206464,
+          "entries": 10868,
           "builds": 1,
-          "reuses": 66
+          "reuses": 26
         }
       }
     },

@@ -89,6 +89,7 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # same shape as sole_path_holds. It reaches ast, pathlib and import_sieve's walk, all of
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
+from cairn.tools.base.transitions import MalformedWorkflow, is_terminal, parse_workflow  # noqa: E402  (ticket e85878726213: terminal is the system's word, not the inspector's)
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
 
@@ -271,6 +272,19 @@ _CHART_BERTHS = resolve_address("instance/devices") / "chart"
 _TICKETS_ROOT = CAIRN_ROOT
 
 
+def _closed(state) -> bool:
+    """A ticket at any terminal state (transitions.TERMINAL_STATES) has its chart closed; an
+    unparseable workflow keeps the old substring test, so an unreadable cursor still reds
+    (ticket e85878726213)."""
+    if not isinstance(state, str):
+        return False
+    try:
+        wf = parse_workflow(state)
+    except MalformedWorkflow:
+        return "[PROVED]" in state
+    return is_terminal(wf.path[wf.cursor])
+
+
 def _component_tickets(comp_dir: Path) -> set:
     h = comp_dir / "history.json"
     if not h.exists():
@@ -295,7 +309,7 @@ def _component_tickets(comp_dir: Path) -> set:
             active.add(tid)
             continue
         state = tdata.get("workflow_and_state", "")
-        if not (isinstance(state, str) and "[PROVED]" in state):
+        if not _closed(state):
             # the history names the ticket one way; a packet may name it another
             active |= ticket_spellings(tid, root=_TICKETS_ROOT)
     return active

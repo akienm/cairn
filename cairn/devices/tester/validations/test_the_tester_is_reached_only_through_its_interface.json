@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_tester_is_reached_only_through_its_interface.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T03:04:01",
+    "date": "2026-10-05T08:39:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_foreign_row_lands_on_the_tester\n.\n  ok   test_the_run_verb_answers_with_the_testers_verdict\n.\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n3 passed in 11.99s",
+      "stdout_tail": ".\n  ok   test_no_foreign_row_lands_on_the_tester\n.\n  ok   test_the_run_verb_answers_with_the_testers_verdict\n.\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n3 passed in 9.71s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_foreign_row_lands_on_the_tester",
@@ -36,7 +36,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "649bbb82b77548bd2eeb2b42f20ca4fad75a54a499b683d66f622fbb17faf1b0",
+      "source_fingerprint": "8ed90189402f389e9485d0d9fe118fbc7a63cafdb90757357ae5ae4347d42322",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -56,8 +56,10 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/base/validation.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -86,74 +88,44 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3105765-hmtzm3vq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3315042-lv43eh3e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 22,
+          "count": 23,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261005.090354.059995.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.090354.091131.BusDevice.post.json",
-            "logs/bus/0/20261005.090354.102896.BusDevice.post.json",
-            "logs/bus/0/20261005.090356.395378.BusDevice.post.json",
-            "logs/bus/0/20261005.090356.396937.BusDevice.delivered.json",
-            "logs/bus/0/20261005.090356.397576.BusDevice.delivered.json",
-            "logs/bus/0/20261005.090356.450249.BusDevice.post.json",
-            "logs/bus/0/20261005.090359.096338.BusDevice.post.json",
-            "logs/bus/0/20261005.090359.097177.BusDevice.delivered.json",
-            "logs/bus/0/20261005.090359.097395.BusDevice.delivered.json",
-            "logs/bus/0/20261005.090359.131545.BusDevice.post.json",
-            "logs/bus/0/20261005.090359.131827.BusDevice.post.json",
-            "logs/bus/0/20261005.090359.132674.BusDevice.delivered.json",
-            "logs/bus/0/20261005.090359.132825.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143855.045292.BusDevice.post.json",
+            "logs/bus/0/20261005.143855.047007.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.143855.082946.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.143855.100191.BusDevice.post.json",
+            "logs/bus/0/20261005.143856.993157.BusDevice.post.json",
+            "logs/bus/0/20261005.143856.994902.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143856.995494.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143857.026580.BusDevice.post.json",
+            "logs/bus/0/20261005.143858.829964.BusDevice.post.json",
+            "logs/bus/0/20261005.143858.830620.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143858.830749.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143858.857031.BusDevice.post.json",
+            "logs/bus/0/20261005.143858.857251.BusDevice.post.json",
+            "logs/bus/0/20261005.143858.857921.BusDevice.delivered.json",
+            "logs/bus/0/20261005.143858.858037.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261005.090356.393570.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.090356.397138.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261005.090356.397331.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261005.090359.094683.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.143856.991181.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.143856.995120.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261005.143856.995337.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261005.143858.828621.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 145136137,
-          "disk_bytes": 169783296,
-          "entries": 10464,
+          "bytes": 156662803,
+          "disk_bytes": 182292480,
+          "entries": 10894,
           "builds": 1,
-          "reuses": 29
-        }
-      },
-      "hollow": {
-        "67b78ae59c1d": {
-          "cairn/devices/tester/device.py": [
-            "test_one_red_check_does_not_blanket_the_report",
-            "test_the_run_verb_answers_with_the_testers_verdict"
-          ],
-          "cairn/tools/proof_discovery/proof_discovery.py": [
-            "test_one_red_check_does_not_blanket_the_report",
-            "test_the_tool_floor_stands_on_no_device"
-          ],
-          "cairn/tools/base/validation.py": [
-            "test_no_foreign_row_lands_on_the_tester",
-            "test_one_red_check_does_not_blanket_the_report",
-            "test_the_tool_floor_stands_on_no_device"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_the_tool_floor_stands_on_no_device"
-          ],
-          "cairn/devices/codemother/machines/constrain/constrain.py": [
-            "test_one_red_check_does_not_blanket_the_report"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "67b78ae59c1d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "7c49dc613959742a6c8313d34b50562c2a88d3c1",
-          "anchor_first_build": "aabe6a8e06c4e4001c2fb519aac7bf1a188a3c10",
-          "commit": "7c49dc613959742a6c8313d34b50562c2a88d3c1"
+          "reuses": 32
         }
       }
     },

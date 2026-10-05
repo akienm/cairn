@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_librarian_holds_its_trees_checks.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T04:57:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T08:06:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -36,7 +36,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "cabb7eb54655429ba7f05eec139bc62fb7f3eccbf841a9781210d55b8d31d6a7",
+      "source_fingerprint": "34d3edb6f75b0480c35c4f64c4dbea39125193f792b0240d2041936f1ed3ad90",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -60,8 +60,10 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -79,7 +81,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3198403-dgr5s_yl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3315042-4u1naagu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -88,27 +90,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 148806543,
-          "disk_bytes": 173957120,
-          "entries": 10691,
+          "bytes": 156656582,
+          "disk_bytes": 182206464,
+          "entries": 10868,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "580ad3b46cd0": {
-          "cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py": [
-            "nothing_in_the_tool_reaches_its_holder",
-            "the_tools_proof_imports_none_of_the_librarian"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "580ad3b46cd0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "bbaf4c747ef3b99d50617d6f29d48194eb301b71",
-          "anchor_first_build": "095f2cb2f72e16096749853e4536d746abc12924",
-          "commit": "bbaf4c747ef3b99d50617d6f29d48194eb301b71"
+          "reuses": 21
         }
       }
     },

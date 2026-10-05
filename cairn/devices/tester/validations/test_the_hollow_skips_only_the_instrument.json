@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_hollow_skips_only_the_instrument.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T06:23:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T08:38:36",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured\n.\n  ok   test_the_instrument_and_what_it_imports_are_still_skipped\n.\n  ok   test_a_build_of_only_the_instrument_still_measures_nothing\n.\n  ok   test_the_standing_hollow_proofs_stay_green\n                                                                     [100%]\n4 passed in 948.64s (0:15:48)",
+      "stdout_tail": ".\n  ok   test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured\n.\n  ok   test_the_instrument_and_what_it_imports_are_still_skipped\n.\n  ok   test_a_build_of_only_the_instrument_still_measures_nothing\n.\n  ok   test_the_standing_hollow_proofs_stay_green\n                                                                     [100%]\n4 passed in 931.60s (0:15:31)",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured",
@@ -37,7 +37,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "b9f1ceac99619f7f6dfec57f7fe89b81378ed68c575669b06d6ca11f003e7ed6",
+      "source_fingerprint": "6f6629442513354bd62589891a3004c7f72120252cb88604841f3ac0083567ce",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -59,8 +59,10 @@
         "cairn/tools/base/crossings.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -84,77 +86,61 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3234204-u86j1riq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3315042-m4seqecr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 996,
           "paths": [
             "devices/trouble/0/last_known.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261005.120734.914502.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120736.729919.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120738.542488.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120740.336905.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120742.160856.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120744.260054.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120746.039239.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120747.812658.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120749.620703.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120751.459351.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120753.269319.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120755.130452.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120757.013054.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120758.873833.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120808.146134.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120810.345679.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120813.015060.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120822.990393.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120825.564064.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120827.942817.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120835.354123.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120837.526086.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120839.779283.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120847.709324.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120849.876756.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120852.277614.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120900.478113.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120902.637651.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120905.012831.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120913.159900.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120915.327126.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120917.600424.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120921.636790.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120923.819970.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120926.126142.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120934.612494.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120936.763779.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.120938.987749.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.142305.650790.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142307.317726.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142308.976369.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142310.671238.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142312.372272.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142314.333448.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142315.999683.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142318.123873.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142320.500137.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142322.771732.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142324.548507.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142326.330433.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142327.969973.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142329.668573.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142338.529573.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142340.587867.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142342.751485.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142350.279794.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142352.504045.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142355.333496.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142403.912513.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142406.060188.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142408.302885.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142416.157242.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142418.354378.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142420.710656.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142428.815784.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142431.009150.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142433.402181.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142441.455737.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142443.638179.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142445.984295.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142449.904945.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142452.113877.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142454.429917.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142502.820981.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142505.015751.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.142507.312680.TesterDevice.run_proof.json"
           ],
           "elided": 956
         },
         "scratch": {
           "measured": true,
-          "bytes": 150277095,
-          "disk_bytes": 179335168,
-          "entries": 11738,
+          "bytes": 157084278,
+          "disk_bytes": 186458112,
+          "entries": 11867,
           "builds": 1,
-          "reuses": 3
-        }
-      },
-      "hollow": {
-        "763379e32e3b": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured",
-            "test_the_instrument_and_what_it_imports_are_still_skipped"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "763379e32e3b": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ed7df2273e022f489539df2d6153e3924829a0c3",
-          "anchor_first_build": "4a54db95d901bb03188184fc7e1af4c46794e660",
-          "commit": "ed7df2273e022f489539df2d6153e3924829a0c3"
+          "reuses": 30
         }
       }
     },

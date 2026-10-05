@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_follows_a_move.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T06:24:30",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-05T08:10:53",
+    "method": "ran the proof as a subprocess (seal=indeterminate, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 7.15s",
+      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 7.62s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds",
@@ -16,8 +16,8 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "indeterminate",
+        "detail": "no baseline route to 1.1.1.1:53 bare (got 'error'); cannot prove the seal removed anything — CP1, so not green"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -27,7 +27,7 @@
         "proof": "80e11dfd7f54c2967aaeb2058378cacc0e49fabf46d572a6953b10f462ea606a",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "netns seal=indeterminate instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -36,7 +36,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "4e308720c2e3e7f024a941e1bf2c20b1bdf62a99c1125e2867a2caf23c2e8a3e",
+      "source_fingerprint": "a67b89873089a4f1e641e4c906c1c5098a1a730a37bb92f3434c5b326aa06f95",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -58,8 +58,10 @@
         "cairn/tools/base/crossings.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
@@ -83,25 +85,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3256444-h7x6sw8l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3315042-vdjfuwrr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/tester/0/20261005.122424.948836.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122426.684990.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122428.415019.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122430.102457.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.141046.973144.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141048.799545.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141050.663083.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141052.458821.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 149857805,
-          "disk_bytes": 175108096,
-          "entries": 10745,
+          "bytes": 156657750,
+          "disk_bytes": 182222848,
+          "entries": 10874,
           "builds": 1,
-          "reuses": 3
+          "reuses": 26
         }
       }
     },

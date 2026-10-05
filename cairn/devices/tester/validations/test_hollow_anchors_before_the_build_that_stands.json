@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_anchors_before_the_build_that_stands.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T06:24:21",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-05T08:10:40",
+    "method": "ran the proof as a subprocess (seal=indeterminate, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 16.42s",
+      "stdout_tail": ".\n  ok   test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent\n.\n  ok   test_a_kickback_and_rebuild_reverts_to_before_the_rebuild_not_the_first_build\n.\n  ok   test_a_recross_with_no_build_between_keeps_the_build_it_followed\n.\n  ok   test_an_anchor_holding_every_file_raises_naming_the_anchor\n.\n  ok   test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates\n.\n  ok   test_the_live_anchors_of_68f5_and_c691_are_their_build_parents\n                                                                   [100%]\n6 passed in 17.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_build_committed_before_its_journaled_crossing_is_reverted_to_its_parent",
@@ -19,8 +19,8 @@
       ],
       "teeth_red": [],
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "indeterminate",
+        "detail": "no baseline route to 1.1.1.1:53 bare (got 'error'); cannot prove the seal removed anything — CP1, so not green"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -30,7 +30,7 @@
         "proof": "7b8827f889ce6420a6c909394313195affa85510ecd2244f373c98e20940d2ab",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "netns seal=indeterminate instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -39,7 +39,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "76ad5e7bbb207eeb36db2b0f47573ff5f172009f4b71917d85451d75fa86aebb",
+      "source_fingerprint": "ce81912f89507c2ee4f11d1c4cd7d988cc2712022c9f8bd649f0daa6ab64af7b",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -66,8 +66,10 @@
         "cairn/tools/base/crossings.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/cgroup/__init__.py",
         "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/chain/__init__.py",
@@ -95,30 +97,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3256444-s0itiehi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3315042-pv6pwbzw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/tester/0/20261005.122406.784438.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122408.576724.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122410.323684.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122412.028551.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122413.857604.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122415.646297.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122417.381979.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122419.118776.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.122420.817756.TesterDevice.run_proof.json"
+            "logs/tester/0/20261005.141025.050162.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141026.880430.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141028.734509.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141030.530974.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141032.368085.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141034.155008.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141035.962646.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141037.799080.TesterDevice.run_proof.json",
+            "logs/tester/0/20261005.141039.620330.TesterDevice.run_proof.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 149859116,
-          "disk_bytes": 175128576,
-          "entries": 10750,
+          "bytes": 156659061,
+          "disk_bytes": 182243328,
+          "entries": 10879,
           "builds": 1,
-          "reuses": 2
+          "reuses": 25
         }
       }
     },

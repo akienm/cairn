@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_bus_client_declares_what_it_publishes.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T04:23:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T08:49:23",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,7 +27,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -35,7 +35,7 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "fbfcec621fb8b55cca4a466a0b789f16b6078da501daf414afd456a91bfc73f4",
+      "source_fingerprint": "5a74cd81d8606c5ce444b5de7ac4436f5ce5c5d3237bd3ea2605ace4f07a5e84",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/machines/__init__.py",
@@ -47,8 +47,10 @@
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/nest.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/bus_client/proofs/test_the_bus_client_declares_what_it_publishes.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
@@ -67,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3173003-h725dd7_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3336564-nr6xlvyb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,27 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 147237048,
-          "disk_bytes": 172118016,
-          "entries": 10577,
+          "bytes": 156656582,
+          "disk_bytes": 182206464,
+          "entries": 10868,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "80434313b6de": {
-          "cairn/tools/bus_client/intention+why.json": [
-            "nothing_reaches_bus_client_undeclared",
-            "the_charter_declares_both"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "80434313b6de": {
-          "anchor_rule": "journal",
-          "anchor_journal": "12eb75c5708cb908e3186da9f508f47692238420",
-          "anchor_first_build": "441ce7d0272d8170def2060c5cebe442fac64cd0",
-          "commit": "12eb75c5708cb908e3186da9f508f47692238420"
+          "reuses": 17
         }
       }
     },

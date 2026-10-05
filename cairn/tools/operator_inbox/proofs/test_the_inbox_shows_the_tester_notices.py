@@ -109,7 +109,12 @@ def test_the_lane_shows_each_notice_and_the_rate_among_his_sections():
     assert "(+12 more diff line(s))" in out, out
     assert "-old" in out and "+new" in out, out
     assert "mark seen with: cairn operator notice-seen <id>" in out, out
-    i_q, i_n, i_d = out.find("QUESTIONS"), out.find(head), out.find("DESIGN")
+    # Section HEADERS, anchored at line start: live artifact titles above can carry the words.
+    import re
+    def _header(word):
+        m = re.search(rf"^(?:  {word}: |-- {word} )", out, re.M)
+        return m.start() if m else -1
+    i_q, i_n, i_d = _header("QUESTIONS"), out.find(head), _header("DESIGN")
     assert -1 < i_q < i_n < i_d, (i_q, i_n, i_d)
     troubles = [i for i in (out.find("  TROUBLES:"), out.find("LIVE TROUBLES (")) if i > -1]
     assert troubles and i_n < min(troubles), (i_n, troubles)

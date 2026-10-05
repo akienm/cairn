@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_question.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T14:39:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T19:25:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-68d3f93e47e2'] child_born_of=open-ea53a10cb8ec\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-cbcceaea2cfc is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-1fa5de37a4fb' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-u6czn6p9/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
+      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-2a6441816047'] child_born_of=open-f199ebcf0e10\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-c575b6d551c0 is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-f96efd8c0481' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-1pgnmgji/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — ruling open rc=2 /ruled rc=2 hook_gone=True tellers=[] ruled_md_retired=True claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
@@ -30,7 +30,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "bd430b079ac609c15eca74e43980ad604e78161238d2e00e74ecfa3b1a27ccc4",
+      "source_fingerprint": "1b776367610d42d4f8d95f660f7f3e15d69bafa763648dec3a04b8b8cfac4bce",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -80,25 +80,32 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1989734-vuvzypvn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2816484-4p2skl6k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 11,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
+            "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261003.203916.847029.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.203916.856030.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261005.012539.316893.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.012539.458273.BusDevice.post.json",
+            "logs/bus/0/20261005.012539.467674.BusDevice.post.json",
+            "logs/bus/0/20261005.012539.468174.BusDevice.post.json",
+            "logs/bus/0/20261005.012539.469484.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012539.469901.BusDevice.delivered.json",
+            "logs/tester/0/20261005.012539.469633.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261005.012539.469790.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119943768,
-          "disk_bytes": 141262848,
-          "entries": 8940,
+          "bytes": 134009584,
+          "disk_bytes": 157024256,
+          "entries": 9728,
           "builds": 1,
-          "reuses": 0
+          "reuses": 16
         }
       }
     },

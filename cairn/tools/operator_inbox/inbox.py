@@ -67,6 +67,7 @@ SECTION_ORDER = [
     "adjudications",
     "lap",
     "questions",
+    "notices",
     "design",
     "troubles",
     "tickets",
@@ -527,6 +528,56 @@ def read_email() -> dict:
     return {"count": len(waiting), "by_addressee": by_addressee}
 
 
+# The tester's notices (ticket 81c41e528d6f, Akien's answer to open-ed0a56ce6357): a green the
+# measurement cannot vouch for completes "AND notify me" — and "if i get inundated, we'll change
+# it", so the lane always shows the per-day rate beside the count. Asked through the tester's
+# `notices` verb on the bus, never read from its store (RULE 1). A tester that cannot be asked
+# is an error, never "0 unseen" (Law 7).
+NOTICE_DIFF_HEAD = 8
+
+
+def read_notices(*, ask=None) -> dict:
+    """The tester's unseen notices and their rate: ``{unseen, count, rate, error}``."""
+    try:
+        if ask is None:
+            from cairn.tools.bus_client import reach
+            reply = reach("tester").request(
+                sender="operator_inbox", to="tester", verb="notices",
+                why="operator inbox: the tester's notices lane")
+        else:
+            reply = ask()
+        body = reply["body"]
+        unseen = list(body["unseen"])
+        return {"unseen": unseen, "count": len(unseen), "rate": body["rate"], "error": None}
+    except Exception as exc:  # noqa: BLE001 — the lane says it could not ask, loudly
+        return {"unseen": [], "count": None, "rate": None,
+                "error": f"could not ask the tester's notices verb — {type(exc).__name__}: {exc}"}
+
+
+def mark_notice_seen(nid: str, *, ask=None) -> int:
+    """Mark one notice seen through the tester's `notice-seen` verb; 0 on seen, 1 otherwise."""
+    body = {"id": nid}
+    try:
+        if ask is None:
+            from cairn.tools.bus_client import reach
+            reply = reach("tester").request(
+                sender="operator_inbox", to="tester", verb="notice-seen",
+                why="operator inbox: the operator marked a notice seen", body=body)
+        else:
+            reply = ask(body)
+        answer = reply["body"]
+    except Exception as exc:  # noqa: BLE001
+        print(f"could not ask the tester's notice-seen verb — {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+        return 1
+    if isinstance(answer, dict) and answer.get("seen"):
+        print(f"seen {answer['seen']}")
+        return 0
+    refusal = answer.get("refused") if isinstance(answer, dict) else None
+    print(refusal or f"the tester did not mark {nid!r} seen: {answer!r}", file=sys.stderr)
+    return 1
+
+
 def gather_all(**kw) -> dict:
     return {
         "troubles": read_troubles(path=kw.get("troubles_dir")),
@@ -534,6 +585,7 @@ def gather_all(**kw) -> dict:
         "adjudications": read_adjudications(),
         "lap": read_lap(adjudications_dir=kw.get("adjudications_dir")),
         "questions": read_questions(questions_dir=kw.get("questions_dir")),
+        "notices": read_notices(ask=kw.get("notices_ask")),
         "design": {},
         "tickets": read_tickets(tickets_dir=kw.get("tickets_dir")),
         "intentions": read_intentions(intentions_dir=kw.get("intentions_dir"),
@@ -593,6 +645,11 @@ def format_summary(data: dict) -> str:
         parts.append("0 live troubles")
     parts.append(f"{adjudications['count']} artifact(s) awaiting review")
     parts.append(f"{questions['count']} open question(s)")
+    notices = data.get("notices")
+    if not notices or notices.get("error"):
+        parts.append("notices: could not ask the tester")
+    else:
+        parts.append(f"{notices['count']} unseen notice(s) ({notices['rate']['per_day']}/day)")
 
     # Every label, in priority order, summing to the total — no 'other' bucket.
     # (Measured 2026-09-06: the header said 'other 39' against its own listing.)
@@ -703,6 +760,33 @@ def format_inbox(data: dict) -> str:
         lines.append("")
         lines.append('  answer with: cairn question answer <id> "your words" --spawned none | --spawned "<q?>"')
         lines.append("")
+
+    # NOTICES — the tester's unseen notices, with the rate (ticket 81c41e528d6f).
+    notices = data.get("notices") or {"error": "the notices lane was not read"}
+    if notices.get("error"):
+        lines.append(f"  !! NOTICES: {notices['error']}")
+    else:
+        rate = notices["rate"]
+        if not notices["count"]:
+            lines.append(f"  NOTICES: 0 unseen ({rate['total']} total, "
+                         f"{rate['per_day']}/day over {rate['days']} day(s))")
+        else:
+            lines.append("")
+            lines.append(_section_line(
+                f"NOTICES FROM THE TESTER ({notices['count']} unseen; "
+                f"{rate['per_day']}/day over {rate['days']} day(s), {rate['total']} total)"))
+            lines.append("")
+            for n in notices["unseen"]:
+                lines.append(f"    {n.get('id', '?')}  [{n.get('ticket') or '-'}]")
+                lines.append(f"      {n.get('line', '')}")
+                diff = (n.get("diff") or "").splitlines()
+                for d in diff[:NOTICE_DIFF_HEAD]:
+                    lines.append(f"        {d[:100]}")
+                if len(diff) > NOTICE_DIFF_HEAD:
+                    lines.append(f"        (+{len(diff) - NOTICE_DIFF_HEAD} more diff line(s))")
+            lines.append("")
+            lines.append("  mark seen with: cairn operator notice-seen <id>")
+            lines.append("")
 
     # DESIGN (THINKME tickets — not yet designed, need operator input)
     if not thinkme:
@@ -1153,6 +1237,8 @@ commands:
   show <slug|id>          any item the inbox lists — idea, question, trouble, ticket,
                           intention, adjudication, artifact — by the id or slug it printed;
                           exits 1 when nothing (or more than one thing) matches
+  notice-seen <id>        mark one tester notice seen, through the tester's notice-seen verb;
+                          exits 1 when the tester refuses or cannot be asked
 """
 
 
@@ -1193,6 +1279,12 @@ def main(argv: list[str] | None = None) -> int:
         print(result)
         return 0 if not (result.startswith("no pending artifact")
                          or result.startswith("ambiguous")) else 1
+
+    if is_word(args[0], "notice-seen"):
+        if len(args) < 2:
+            print(USAGE, file=sys.stderr)
+            return 2
+        return mark_notice_seen(args[1])
 
     # Bare invocation with no subcommand — show the inbox
     if len(args) == 1 and is_word(args[0], "inbox"):

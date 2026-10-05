@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_operator_inbox_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T20:01:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-04T19:25:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "33b0c3e71c4d96e6146d636ee59b109fa647d2f8234dc18bbeaf1e79f309d164",
+      "source_fingerprint": "1289cc52d926f8b301e3c705a17c8f6a7fbfe24188fa05479b01792dc4b1d79c",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -85,53 +85,61 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2128165-kmse_ca6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2816484-hd3n6q2m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 43,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
+            "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261004.020112.300985.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261004.020112.309078.BusDevice.transit_table_ensured.json",
-            "logs/harbor_master/0/20261004.020112.074220.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261004.020113.245801.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261004.020116.039834.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261004.020117.042632.HarborMasterDevice.reconciled.json"
+            "logs/bus/0/20261005.012520.229230.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261005.012520.374838.BusDevice.post.json",
+            "logs/bus/0/20261005.012520.384992.BusDevice.post.json",
+            "logs/bus/0/20261005.012520.385473.BusDevice.post.json",
+            "logs/bus/0/20261005.012520.386516.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012520.386896.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012520.800119.BusDevice.post.json",
+            "logs/bus/0/20261005.012520.800386.BusDevice.post.json",
+            "logs/bus/0/20261005.012520.801068.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012520.801190.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012521.457569.BusDevice.post.json",
+            "logs/bus/0/20261005.012521.457847.BusDevice.post.json",
+            "logs/bus/0/20261005.012521.458510.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012521.458639.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012521.848260.BusDevice.post.json",
+            "logs/bus/0/20261005.012521.848595.BusDevice.post.json",
+            "logs/bus/0/20261005.012521.849258.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012521.849375.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012524.298056.BusDevice.post.json",
+            "logs/bus/0/20261005.012524.298330.BusDevice.post.json",
+            "logs/bus/0/20261005.012524.298987.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012524.299104.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012524.694649.BusDevice.post.json",
+            "logs/bus/0/20261005.012524.694894.BusDevice.post.json",
+            "logs/bus/0/20261005.012524.695500.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012524.695616.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012525.359167.BusDevice.post.json",
+            "logs/bus/0/20261005.012525.359414.BusDevice.post.json",
+            "logs/bus/0/20261005.012525.360087.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012525.360199.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012525.756694.BusDevice.post.json",
+            "logs/bus/0/20261005.012525.756963.BusDevice.post.json",
+            "logs/bus/0/20261005.012525.757602.BusDevice.delivered.json",
+            "logs/bus/0/20261005.012525.757718.BusDevice.delivered.json",
+            "logs/harbor_master/0/20261005.012519.992256.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261005.012521.268203.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261005.012524.094165.HarborMasterDevice.reconciled.json"
           ],
-          "elided": 0
+          "elided": 3
         },
         "scratch": {
           "measured": true,
-          "bytes": 123357693,
-          "disk_bytes": 145108992,
-          "entries": 9137,
+          "bytes": 134017952,
+          "disk_bytes": 157155328,
+          "entries": 9762,
           "builds": 1,
-          "reuses": 3
-        }
-      },
-      "hollow": {
-        "e4138780377a": {
-          "cairn/tools/operator_inbox/probes/an_open_idea_that_went_stale.py": [
-            "test_operator_inbox_probes_report_to_the_watch"
-          ],
-          "cairn/tools/operator_inbox/probes/one_status_everywhere.py": [
-            "test_operator_inbox_probes_report_to_the_watch"
-          ],
-          "cairn/tools/operator_inbox/probes/operator_inbox_matches_live_state.py": [
-            "test_operator_inbox_probes_report_to_the_watch"
-          ],
-          "cairn/tools/operator_inbox/probes/the_lane_holds_only_his_decisions.py": [
-            "test_operator_inbox_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e4138780377a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "7b6058cd3c836aa61b2c979990e3ae10ccbea56f",
-          "anchor_first_build": "9bf11828995de174624035b32eea275f1ce04e2c",
-          "commit": "7b6058cd3c836aa61b2c979990e3ae10ccbea56f"
+          "reuses": 12
         }
       }
     },

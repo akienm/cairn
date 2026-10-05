@@ -312,9 +312,12 @@ def test_format_produces_output():
 def test_section_order_is_ruled():
     """Troubles moved below the operator's sections 2026-09-15 (ticket fb988505c5cb,
     Akien: "that leaves me ideas and intentions only") — a live trouble is CC's
-    deterministic red, rendered so he can see it, after everything that is his."""
+    deterministic red, rendered so he can see it, after everything that is his.
+    The tester's notices joined his sections after the questions 2026-10-04 (ticket
+    81c41e528d6f, Akien's answer to open-ed0a56ce6357: an unvouched green completes "AND
+    notify me") — above the troubles, because the notice is his to see."""
     assert SECTION_ORDER == [
-        "email", "adjudications", "lap", "questions", "design",
+        "email", "adjudications", "lap", "questions", "notices", "design",
         "troubles", "tickets", "intentions", "ideas",
     ]
 

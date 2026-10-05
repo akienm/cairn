@@ -120,10 +120,29 @@ def test_orders_that_disagree_with_no_deleter_answer_nothing():
     assert got == "c.py", got
 
 
+def _live_tickets_root() -> str:
+    """A cairn checkout whose sibling holds the live commons: this repo when CairnCommons sits beside
+    it, else the home checkout — hollow's worktree under /tmp has no commons beside it, and
+    the forwarding orders this tooth reads live only there (hollow.py resolves it the same way)."""
+    if (_REPO_ROOT.parent / "CairnCommons" / "tickets").is_dir():
+        return str(_REPO_ROOT)
+    return str(Path.home() / "dev" / "src" / "cairn")
+
+
 def test_the_live_ground_loop_addresses_resolve():
     from cairn.machines.build_inspector import inspector as insp
     assert callable(insp.continued_successor), "no continued_successor in inspector"
-    report = insp.inspect(component="ground_loop")
+    from cairn.tools.chain import grammar
+    live = _live_tickets_root()
+    saved_root, saved_exists = insp._TICKETS_ROOT, insp.ref_exists
+    try:
+        # the code under test, over the live repo's records: forwarding orders and
+        # commons-relative refs (tickets/...) are read where the commons actually is
+        insp._TICKETS_ROOT = live
+        insp.ref_exists = lambda r: saved_exists(r) or grammar.ref_exists(r, live)
+        report = insp.inspect(component="ground_loop")
+    finally:
+        insp._TICKETS_ROOT, insp.ref_exists = saved_root, saved_exists
     mine = [f for f in report["findings"]
             if f.get("method") in ("survey_holdings_resolve", "charted_refs_resolve")]
     assert mine == [], [(f.get("method"), (f.get("values") or {}).get("address") or f.get("about"))

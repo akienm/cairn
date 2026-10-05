@@ -24,11 +24,19 @@ PROVES = {"f5a344e6c629": {
     "1": "test_the_real_repo_has_one_door",
     "2": "test_a_planted_dialer_is_still_caught",
     "3": "test_the_charter_names_the_answer",
+    # The ticket's clause (3) quotes "inference_domain's charter falsifier (6)", and the
+    # coverage reader takes that "(6)" for a clause marker; tooth 3 is what measures that text.
+    "6": "test_the_charter_names_the_answer",
 }}
 
 _HERE = Path(__file__).resolve().parent
 _COMPONENT = _HERE.parent
-_QUESTION = _REPO_ROOT.parent / "CairnCommons" / "questions" / "open-10941757e6b7.json"
+# The commons as hollow.py resolves it: beside the repo when it is there, else the home path —
+# the hollow's /tmp worktree has no CairnCommons beside it.
+_COMMONS = next((p for p in (_REPO_ROOT.parent / "CairnCommons",
+                             Path.home() / "dev" / "src" / "CairnCommons") if p.is_dir()),
+                _REPO_ROOT.parent / "CairnCommons")
+_QUESTION = _COMMONS / "questions" / "open-10941757e6b7.json"
 
 
 def _rule() -> dict:

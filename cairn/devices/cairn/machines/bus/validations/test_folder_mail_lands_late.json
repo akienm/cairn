@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_folder_mail_lands_late.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-03T00:50:54",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:24:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,6 +13,7 @@
         "folder_mail_lands_late_and_cairn_owns_press_office"
       ],
       "teeth_red": [],
+      "test": "test-0df61bf154f9",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -21,55 +22,50 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "e00a28f382e413aebc1fe5a5ad254ed930ca518665d3cf80c3ea2fdfc85f4d0d",
+      "conditions": {
+        "proof": "b428611b2af77c599b4ae064cba13597e42da18e884fb21adf1b9491f1d3aef5",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0df61bf154f9",
+      "source_fingerprint": "4298b4e05bee761351dc208db6aa41b047e89cfe320762356033f9cddb8c4327",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/bus/proofs/test_folder_mail_lands_late.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/data_recorder/__init__.py",
-        "cairn/tools/data_recorder/data_recorder.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cairn/machines/bus/proofs/test_folder_mail_lands_late.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1514655-8e27bu8b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-5sdobniy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261003.065054.288524.BusDevice.post.json",
-            "logs/bus/0/20261003.065054.333201.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261003.065054.347981.BusDevice.post.json",
-            "logs/bus/0/20261003.065054.348852.BusDevice.delivered.json",
-            "logs/bus/0/20261003.065054.349136.BusDevice.delivered.json"
+            "logs/bus/0/20261006.062446.718178.BusDevice.post.json",
+            "logs/bus/0/20261006.062446.764518.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.062446.779124.BusDevice.post.json",
+            "logs/bus/0/20261006.062446.779988.BusDevice.delivered.json",
+            "logs/bus/0/20261006.062446.780267.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 97947658,
-          "disk_bytes": 116531200,
-          "entries": 7705,
+          "bytes": 177022041,
+          "disk_bytes": 205148160,
+          "entries": 12056,
           "builds": 1,
-          "reuses": 11
+          "reuses": 12
         }
       }
     },

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_rackmount_rides_the_live_bus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-05T12:43:06",
+    "date": "2026-10-06T00:31:57",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,13 +14,17 @@
         "its_bus_traffic_is_live_and_marked"
       ],
       "teeth_red": [],
+      "test": "test-5f470defb636",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3718435_0031487992_delivery",
+          "bus_proc_3718435_0031487992"
+        ]
       },
       "conditions": {
         "proof": "82579fa3237880de268908f71cdf5b465b808f3155d5278c230e089182a28569",
@@ -35,95 +39,48 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "34c378cca42b8c7d68cf94a8d8f92652e10f21559362e7b3bff056c763a56991",
+      "killed": [
+        {
+          "pid": 3718539,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5f470defb636",
+      "source_fingerprint": "d5b510fdddd15b4ca3c0020b02a9acb2cdc4cf6a69cd5afce58f447d82164a07",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/system_rackmount/__init__.py",
         "cairn/devices/system_rackmount/proofs/__init__.py",
         "cairn/devices/system_rackmount/proofs/test_system_rackmount.py",
         "cairn/devices/system_rackmount/proofs/test_system_rackmount_rides_the_live_bus.py",
-        "cairn/devices/system_rackmount/rackmount.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/address_rule.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/bus_client/__init__.py",
-        "cairn/tools/bus_client/bus_client.py",
-        "cairn/tools/bus_client/remote.py",
-        "cairn/tools/bus_client/roster.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/system_rackmount/rackmount.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3410957-mi5dixg0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-gi6o73ls/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 8,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "logs/bus.log",
-            "logs/bus/0/20261005.184305.551140.BusDevice.post.json",
-            "logs/bus/0/20261005.184305.552551.BusDevice.delivered.json",
-            "logs/bus/0/20261005.184305.576554.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.184305.584374.BusDevice.transit_table_ensured.json",
-            "logs/system_rackmount/0/20261005.184305.541281.SystemRackmountDevice.subscribe.json"
+            "logs/bus/0/20261006.063156.598964.BusDevice.post.json",
+            "logs/bus/0/20261006.063156.600484.BusDevice.delivered.json",
+            "logs/bus/0/20261006.063156.609955.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.063156.635033.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log",
+            "logs/system_rackmount/0/20261006.063156.587911.SystemRackmountDevice.subscribe.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 163842457,
-          "disk_bytes": 190279680,
-          "entries": 11290,
+          "bytes": 177022898,
+          "disk_bytes": 205156352,
+          "entries": 12061,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "20a97889646e": {
-          "cairn/devices/system_rackmount/proofs/test_system_rackmount.py": [
-            "its_bus_traffic_is_live_and_marked",
-            "system_rackmount_reaches_into_no_device"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "20a97889646e": {
-          "anchor_rule": "journal",
-          "anchor_journal": "31e41009dfdf558d9da98ce5085ada4c0cb2081a",
-          "anchor_first_build": "ba3e392f226be566fd5709610609f13f0287ce7a",
-          "commit": "31e41009dfdf558d9da98ce5085ada4c0cb2081a"
+          "reuses": 76
         }
       }
     },

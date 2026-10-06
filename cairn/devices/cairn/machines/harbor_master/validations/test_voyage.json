@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_voyage.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:24:56",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:26:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (12 gates; shared: BUILDME:queued, BUILDME:waiting, FIXME:waiting, KILLED, PROVEME:waiting, RETIRED, SUPERSEDED, TICKETME:waiting, WATCHME:waiting)\n  PASS  test_gates_are_emergent_and_shared\n    (mid-voyage flagged: 0, at-anchor: 299)\n  PASS  test_the_voyage_stitches_across_id_spelling_and_the_flag_is_sharpened\n  PASS  test_at_anchor_and_the_cursor_sharpening_on_a_constructed_fleet\n    (live: 121 at sea, 299 at-anchor)\n  PASS  test_the_live_fleet_partition_is_exact\n  PASS  test_the_image_owns_nothing\n  PASS  test_calm_when_healthy_partition\ngreen — the traffic image composes the real fleet into emergent gates (shared, non-hollow), stitches a boat's two vantages across id-spelling and flags only the in-workflow silently-stuck (the cursor sharpens it), sets DONE-but-unberthed boats apart as at-anchor, owns nothing (a projection over the register, Law 7), and keeps each gate's calm/flagged partition exact — harbor_master child c",
+      "stdout_tail": "    (11 gates; shared: BUILDME:queued, BUILDME:waiting, FIXME:waiting, KILLED, PROVEME:waiting, RETIRED, SUPERSEDED, TICKETME:waiting, WATCHME:waiting)\n  PASS  test_gates_are_emergent_and_shared\n    (mid-voyage flagged: 0, at-anchor: 333)\n  PASS  test_the_voyage_stitches_across_id_spelling_and_the_flag_is_sharpened\n  PASS  test_at_anchor_and_the_cursor_sharpening_on_a_constructed_fleet\n    (live: 121 at sea, 333 at-anchor)\n  PASS  test_the_live_fleet_partition_is_exact\n  PASS  test_the_image_owns_nothing\n  PASS  test_calm_when_healthy_partition\ngreen — the traffic image composes the real fleet into emergent gates (shared, non-hollow), stitches a boat's two vantages across id-spelling and flags only the in-workflow silently-stuck (the cursor sharpens it), sets DONE-but-unberthed boats apart as at-anchor, owns nothing (a projection over the register, Law 7), and keeps each gate's calm/flagged partition exact — harbor_master child c",
       "stderr_tail": "",
       "teeth_green": [
         "test_gates_are_emergent_and_shared",
@@ -18,6 +18,7 @@
         "test_calm_when_healthy_partition"
       ],
       "teeth_red": [],
+      "test": "test-056fa68adaf5",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,36 +27,32 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "587fda0fefc511fd071ca9d503ae1ef21841af75b336afbda2263276e58092b2",
+      "conditions": {
+        "proof": "7590cf4f23e2fd22200b239ed5a53ac5d0af3bc8d79dcd2c14aceb2ba11a2905",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-056fa68adaf5",
+      "source_fingerprint": "2aa36a5de41db1fbd1ff82ea0c1238280cbcfcdafeaee63517d668d042120cd2",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_voyage.py",
         "cairn/devices/cairn/machines/harbor_master/register.py",
-        "cairn/devices/cairn/machines/harbor_master/voyage.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/sail_record.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/operator_inbox/__init__.py",
-        "cairn/tools/operator_inbox/inbox.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cairn/machines/harbor_master/voyage.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-ns88pdle/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-1awml61z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 134006924,
-          "disk_bytes": 156987392,
-          "entries": 9714,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 4
+          "reuses": 28
         }
       }
     },

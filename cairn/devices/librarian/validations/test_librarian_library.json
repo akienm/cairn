@@ -2,7 +2,7 @@
   {
     "claim": "proof test_librarian_library.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-04T02:10:53",
+    "date": "2026-10-06T00:31:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,6 +24,7 @@
         "test_library_opens_no_door_of_its_own"
       ],
       "teeth_red": [],
+      "test": "test-d0be69cc712b",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -32,57 +33,55 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "69fe71b850ccbf17745721f8809d31534faf70a618a27e9035585194272d6043",
+      "conditions": {
+        "proof": "1e7cf2605f1721070486d1e4b1a8c64107aa8471f4541ff1b08841f4a0efd57e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d0be69cc712b",
+      "source_fingerprint": "fee794275ab00ee86435d918f6e556c40c8140784e095a7a8f1a5b93a34c9d48",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/library.py",
-        "cairn/devices/librarian/proofs/test_librarian_library.py",
-        "cairn/devices/librarian/tools/trees/trees.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/librarian/proofs/test_librarian_library.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2336032-1n9ue2zh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-bnmz_ikk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/librarian/0/20261004.081052.870323.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081052.887293.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081052.887504.LibrarianDevice.learn.json",
-            "logs/librarian/0/20261004.081052.920060.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081052.934034.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081052.934233.LibrarianDevice.learn.json",
-            "logs/librarian/0/20261004.081052.979363.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081053.012487.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261004.081053.012733.LibrarianDevice.learn.json"
+            "logs/librarian/0/20261006.063109.173953.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.197994.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.198205.LibrarianDevice.learn.json",
+            "logs/librarian/0/20261006.063109.236810.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.250645.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.250821.LibrarianDevice.learn.json",
+            "logs/librarian/0/20261006.063109.281018.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.305023.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261006.063109.305221.LibrarianDevice.learn.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 125725606,
-          "disk_bytes": 148131840,
-          "entries": 9372,
+          "bytes": 177022893,
+          "disk_bytes": 205164544,
+          "entries": 12060,
           "builds": 1,
-          "reuses": 2
+          "reuses": 65
         }
       }
     },

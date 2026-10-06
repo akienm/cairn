@@ -2,7 +2,7 @@
   {
     "claim": "proof test_task_ticket.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T05:50:06",
+    "date": "2026-10-06T00:30:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,6 +20,7 @@
         "test_every_inference_call_produces_a_complete_task_ticket"
       ],
       "teeth_red": [],
+      "test": "test-53df82bcf803",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -28,50 +29,36 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "e6ed6e4862fd765b5cfd8b973cdef1a058d67d786d05e4b5837478e71d10b3b5",
+      "conditions": {
+        "proof": "7c2dceff7249782c5a25f1a4a73e76591af6b07e96e2cee3a43c6a8980ac5245",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-53df82bcf803",
+      "source_fingerprint": "725a8db43b174f660182d26bd090fcecb701f0da9bbf6a0b32b7968aa1af74b5",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/device.py",
         "cairn/devices/inference_domain/domain.py",
         "cairn/devices/inference_domain/host.py",
         "cairn/devices/inference_domain/machines/__init__.py",
-        "cairn/devices/inference_domain/machines/route/__init__.py",
-        "cairn/devices/inference_domain/machines/route/route.py",
         "cairn/devices/inference_domain/probes/__init__.py",
         "cairn/devices/inference_domain/probes/are_inference_task_tickets_complete.py",
-        "cairn/devices/inference_domain/proofs/test_task_ticket.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/inference_domain/proofs/test_task_ticket.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1721121-4czf4jsy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-y7f2063o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,11 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104721397,
-          "disk_bytes": 124125184,
-          "entries": 8114,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 4
+          "reuses": 59
         }
       }
     },

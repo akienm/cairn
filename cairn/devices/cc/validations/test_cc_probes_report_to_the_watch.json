@@ -2,7 +2,7 @@
   {
     "claim": "proof test_cc_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T16:23:09",
+    "date": "2026-10-06T00:26:36",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,6 +16,7 @@
         "test_cc_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-beddd4e1fec2",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -24,38 +25,32 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "05aa408fa2851adafdc9debd717d9775ffeaac2fc6cd657f2a17a63ae16277af",
+      "conditions": {
+        "proof": "648cdec8e143117a6fc13aeafa9d7e1f535067651e1b6d35c322a6cf43c444a3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-beddd4e1fec2",
+      "source_fingerprint": "b983d15e0263da8faf1322cc74f5e02cdbed9264777d1cf90b2f0bf841a9d8fc",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py",
         "cairn/devices/cc/probes/is_the_memory_curve_recorded.py",
-        "cairn/devices/cc/proofs/test_cc_probes_report_to_the_watch.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cc/proofs/test_cc_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2034561-53vihln1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-8bdw6kka/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,29 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 122440842,
-          "disk_bytes": 143925248,
-          "entries": 9037,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "802b3e49ae70": {
-          "cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py": [
-            "test_cc_probes_report_to_the_watch"
-          ],
-          "cairn/devices/cc/probes/is_the_memory_curve_recorded.py": [
-            "test_cc_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "802b3e49ae70": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c35074865a221d1ad4c09da4ea85a155bf6f02e7",
-          "anchor_first_build": "e9a6a4cd009498ce7b35288a3cb9df1ea207828d",
-          "commit": "c35074865a221d1ad4c09da4ea85a155bf6f02e7"
+          "reuses": 35
         }
       }
     },

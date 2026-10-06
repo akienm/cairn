@@ -2,7 +2,7 @@
   {
     "claim": "proof test_verdict_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T17:43:16",
+    "date": "2026-10-06T00:27:54",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,6 +15,7 @@
         "test_verdict_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-a40dbed37c4a",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,41 +24,33 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "a22f15b693dd648794caaabd4a24888391d43b0420c71186291852f8a00192de",
+      "conditions": {
+        "proof": "2235aa3a8e197c8c0f5be342915cd9d8c0fca9c553d25f97b1b710e4829d2783",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a40dbed37c4a",
+      "source_fingerprint": "45ff3cc0f7336e6be7c1576e654b598b1a2018b183d73e084b08a940980d095c",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/machines/__init__.py",
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/probes/__init__.py",
         "cairn/devices/codemother/machines/verdict/probes/discriminating_observation_probe.py",
         "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py",
-        "cairn/devices/codemother/machines/verdict/proofs/test_verdict_probes_report_to_the_watch.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/codemother/machines/verdict/proofs/test_verdict_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2069347-cjpuh5_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-vbvob_0i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,29 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 122823606,
-          "disk_bytes": 144408576,
-          "entries": 9073,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "cb7c2c00940d": {
-          "cairn/devices/codemother/machines/verdict/probes/discriminating_observation_probe.py": [
-            "test_verdict_probes_report_to_the_watch"
-          ],
-          "cairn/devices/codemother/machines/verdict/probes/the_instrument_is_re_run_not_reported.py": [
-            "test_verdict_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "cb7c2c00940d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "44c0d8c17bffcdc2c45ae9cdeaef17943b2f3bac",
-          "anchor_first_build": "b74712b972df5fcfed39dab51970eb570cb6442d",
-          "commit": "44c0d8c17bffcdc2c45ae9cdeaef17943b2f3bac"
+          "reuses": 50
         }
       }
     },

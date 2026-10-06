@@ -2,7 +2,7 @@
   {
     "claim": "proof test_inference_domain.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T05:48:55",
+    "date": "2026-10-06T00:28:45",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -34,6 +34,7 @@
         "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest"
       ],
       "teeth_red": [],
+      "test": "test-e1ac77740a64",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -42,41 +43,38 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "0d3272f7a733ceb35c2e0a0683ce2b74ddcc2c637df5adb1421d08f55185c700",
+      "conditions": {
+        "proof": "7bc685f1f57f7b16d7dfefb9dfe85cb2a6ab0482d8b2515ef6463d32b8dc17ed",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1ac77740a64",
+      "source_fingerprint": "491657e9684f712797c10a1e7a5573d47a9a3d6f9ae44636b1ecde02a6bbefef",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
         "cairn/devices/inference_domain/host.py",
         "cairn/devices/inference_domain/machines/__init__.py",
-        "cairn/devices/inference_domain/machines/route/__init__.py",
-        "cairn/devices/inference_domain/machines/route/route.py",
         "cairn/devices/inference_domain/probes/__init__.py",
         "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
         "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
         "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py",
         "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py",
-        "cairn/devices/inference_domain/proofs/test_inference_domain.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py"
+        "cairn/devices/inference_domain/proofs/test_inference_domain.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1721121-rnfvhg_o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-v2935ihp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,11 +83,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104721397,
-          "disk_bytes": 124125184,
-          "entries": 8114,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 2
+          "reuses": 56
         }
       }
     },

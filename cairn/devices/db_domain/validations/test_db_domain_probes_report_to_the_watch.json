@@ -2,7 +2,7 @@
   {
     "claim": "proof test_db_domain_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T14:42:26",
+    "date": "2026-10-06T00:28:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,6 +15,7 @@
         "test_db_domain_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-037014869b76",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,41 +24,33 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ede76fa00ebfaa62baafe3c28c4c60d22c7983be2a30e911611652b0dd476779",
+      "conditions": {
+        "proof": "80968a3a7fcc2a63a4bebddb7b3a14ad1a01052df3868d1bb1c73ff17c17c341",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-037014869b76",
+      "source_fingerprint": "c5e2ec798e6c3cf7fc3522cebe8647d67278bf2aa1def04ebf5db809f8f5cbc7",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/probes/scratch_stays_swept.py",
         "cairn/devices/db_domain/probes/the_constraint_door_is_the_only_alter.py",
         "cairn/devices/db_domain/proofs/test_db_domain_probes_report_to_the_watch.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/db_domain/tools/__init__.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1992560-kof_nmx4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-wh3nlepr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,29 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 120121720,
-          "disk_bytes": 141479936,
-          "entries": 8952,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "95baf56d2d18": {
-          "cairn/devices/db_domain/probes/scratch_stays_swept.py": [
-            "test_db_domain_probes_report_to_the_watch"
-          ],
-          "cairn/devices/db_domain/probes/the_constraint_door_is_the_only_alter.py": [
-            "test_db_domain_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "95baf56d2d18": {
-          "anchor_rule": "journal",
-          "anchor_journal": "fc4cfe05cbffcf3c90951e3db9fb5ccc45ac54ba",
-          "anchor_first_build": "91b742179b63e7f616274dfcdd6a486501df6f9b",
-          "commit": "fc4cfe05cbffcf3c90951e3db9fb5ccc45ac54ba"
+          "reuses": 51
         }
       }
     },

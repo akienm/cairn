@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_mailbox_nobody_reads_keeps_nothing.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-03T04:43:08",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:25:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_undeclared_mailbox_keeps_no_mail\n.\n  ok   test_a_declared_mailbox_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_mailboxes_accept_the_mail\n                                                                      [100%]\n3 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_an_undeclared_mailbox_keeps_no_mail\n.\n  ok   test_a_declared_mailbox_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_mailboxes_accept_the_mail\n                                                                      [100%]\n3 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_undeclared_mailbox_keeps_no_mail",
@@ -15,6 +15,7 @@
         "test_both_mailboxes_accept_the_mail"
       ],
       "teeth_red": [],
+      "test": "test-a58620e64fca",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,36 +24,32 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "46f989415c0e14817b498da128c55dc60f3da519065b12fb86b2db0614318126",
+      "conditions": {
+        "proof": "f61cc232a0e72de91d58726b68b73608b854cb80bdef023fd00dfab39d0ae7c0",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a58620e64fca",
+      "source_fingerprint": "f05865d9deb2fbcaa0ca63d99ad571e5df123f6f88ef20b014ff2bf7b2fa0c82",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/discovered.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/data_recorder/__init__.py",
-        "cairn/tools/data_recorder/data_recorder.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628302-6xqb3cb6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-_6g1915v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,11 +58,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102619193,
-          "disk_bytes": 121753600,
-          "entries": 7973,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 11
+          "reuses": 18
         }
       }
     },

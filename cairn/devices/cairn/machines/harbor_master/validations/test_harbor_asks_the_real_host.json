@@ -2,7 +2,7 @@
   {
     "claim": "proof test_harbor_asks_the_real_host.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-04T16:09:56",
+    "date": "2026-10-06T00:26:10",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,6 +18,7 @@
         "test_this_proof_never_wrote_to_the_live_queue"
       ],
       "teeth_red": [],
+      "test": "test-68c03847a5a1",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,83 +27,66 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "40feacf517b172f641fee147a4b2b33eeb96bf4fa3858c05e67c46fa6e688b7d",
+      "conditions": {
+        "proof": "2ab7d6ae5527a09a921de44579e37e63719feae2841c649a2f449674a47d91c3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [
+        {
+          "pid": 3713456,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-68c03847a5a1",
+      "source_fingerprint": "40dddd3aeff4366134e037492fe0858dc22b19947ce75e970e48cfd2ee95e512",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
-        "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py",
-        "cairn/devices/system_rackmount/__init__.py",
-        "cairn/devices/system_rackmount/rackmount.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/learning_block/__init__.py",
-        "cairn/machines/learning_block/learning_block.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/validation.py",
-        "cairn/tools/bus_client/__init__.py",
-        "cairn/tools/bus_client/bus_client.py",
-        "cairn/tools/bus_client/remote.py",
-        "cairn/tools/bus_client/roster.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
-        "cairn/tools/validation_store/__init__.py",
-        "cairn/tools/validation_store/validation_store.py"
+        "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2693978-maeb8xhb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-0xi9sp8q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
+          "count": 15,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261004.220954.180586.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261004.220954.197494.BusDevice.post.json",
-            "logs/bus/0/20261004.220954.207562.BusDevice.post.json",
-            "logs/bus/0/20261004.220955.995201.BusDevice.post.json",
-            "logs/bus/0/20261004.220955.996259.BusDevice.delivered.json",
-            "logs/bus/0/20261004.220955.996617.BusDevice.delivered.json",
-            "logs/charter/0/20261004.220956.013433.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/20261004.220955.993890.TesterDevice.run_proof.json",
-            "logs/tester/0/20261004.220955.996371.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261004.220955.996496.TesterShim.clear_trouble.json"
+            "logs/bus/0/20261006.062607.165714.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.062607.188574.BusDevice.post.json",
+            "logs/bus/0/20261006.062607.198504.BusDevice.post.json",
+            "logs/bus/0/20261006.062609.173355.BusDevice.post.json",
+            "logs/bus/0/20261006.062609.174655.BusDevice.delivered.json",
+            "logs/bus/0/20261006.062609.175001.BusDevice.delivered.json",
+            "logs/charter/0/20261006.062609.190453.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/20261006.062609.171833.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.062609.174767.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261006.062609.174891.TesterShim.clear_trouble.json",
+            "logs/tester/0/runs/test-62985aea830f/stderr.txt",
+            "logs/tester/0/runs/test-62985aea830f/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 131989680,
-          "disk_bytes": 154681344,
-          "entries": 9593,
+          "bytes": 177024213,
+          "disk_bytes": 205176832,
+          "entries": 12071,
           "builds": 1,
-          "reuses": 4
+          "reuses": 25
         }
       }
     },

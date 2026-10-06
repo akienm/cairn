@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_sudo_relay.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T12:44:08",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:31:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,6 +21,7 @@
         "test_device_is_a_device_and_reports_the_window"
       ],
       "teeth_red": [],
+      "test": "test-688c88b24904",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,28 +30,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "ce141ea3dfe1ced2b6aa89696890f16cee1b3039fcd265caa4f0d83aad858432",
+      "conditions": {
+        "proof": "cb57541929a1240a546c6271208f862b5c121e10cbbeeba8e444c8adfda70ea1",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-688c88b24904",
+      "source_fingerprint": "6cb0d0d1996cd70a792ef864e2040b2adf3fcee8d02dba5d1ec71b300d309d03",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/sudo_relay/__init__.py",
         "cairn/devices/sudo_relay/proofs/test_sudo_relay.py",
-        "cairn/devices/sudo_relay/relay.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/sudo_relay/relay.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1136903-9lv5glc3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-c0p9afy0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,11 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91335540,
-          "disk_bytes": 108482560,
-          "entries": 7093,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 17
+          "reuses": 73
         }
       }
     },

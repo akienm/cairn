@@ -2,7 +2,7 @@
   {
     "claim": "proof test_task_tickets_land_in_the_logs_tree.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-02T12:13:21",
+    "date": "2026-10-06T00:30:46",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,6 +15,7 @@
         "the_old_address_holds_no_ticket"
       ],
       "teeth_red": [],
+      "test": "test-3a7bc2f80432",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,28 +24,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "000c26fa5778fb722e8f82dd1feec41b1642f03aad042ba1982c2b4d1fcdf804",
+      "conditions": {
+        "proof": "ae5d283699b7920aa97d9a259c3b75dcf1f08a4018829cf7b951d63f08504235",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3a7bc2f80432",
+      "source_fingerprint": "f20259aecf8708a5f4bd50c94e3da7ef4b8f85273ec31b4e347a838343270cfd",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
-        "cairn/devices/inference_domain/proofs/test_task_tickets_land_in_the_logs_tree.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py"
+        "cairn/devices/inference_domain/proofs/test_task_tickets_land_in_the_logs_tree.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1104840-8fc7a3i1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-phoe2e98/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -53,27 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 91306311,
-          "disk_bytes": 108433408,
-          "entries": 7082,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "07f415c15970": {
-          "cairn/devices/inference_domain/domain.py": [
-            "a_written_ticket_lands_in_the_logs_tree_and_reads_back",
-            "tickets_dir_is_the_logs_tree_address"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "07f415c15970": {
-          "anchor_rule": "journal",
-          "anchor_journal": "8749b3b01f8c2a49528ba977780935a61c291081",
-          "anchor_first_build": "1bdf534c8d6c3b106e33bc95a4ff91bc25e0297f",
-          "commit": "8749b3b01f8c2a49528ba977780935a61c291081"
+          "reuses": 60
         }
       }
     },

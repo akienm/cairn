@@ -2,7 +2,7 @@
   {
     "claim": "proof test_an_inference_call_logs_that_it_started.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T05:48:52",
+    "date": "2026-10-06T00:28:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,6 +24,7 @@
         "test_the_probe_reads_the_address_the_device_declares"
       ],
       "teeth_red": [],
+      "test": "test-746f5716030c",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -32,46 +33,34 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3be66ba5566e9fff9c696e2bf6f7d05bb31c1cd2e3fdc454f1c7a0eca12ecc68",
+      "conditions": {
+        "proof": "71346eb5b1b4af2c651b4f04f5a9d7b2d285377405cc5321902dbbabcc82acde",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-746f5716030c",
+      "source_fingerprint": "bff845ef1798d085eba4c511208acb9c83f63732a36d142c96edb7889de9c1b2",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
         "cairn/devices/inference_domain/machines/__init__.py",
-        "cairn/devices/inference_domain/machines/route/__init__.py",
-        "cairn/devices/inference_domain/machines/route/route.py",
         "cairn/devices/inference_domain/probes/__init__.py",
         "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py",
-        "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1721121-sn3t9nw_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-bk3uximf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104721397,
-          "disk_bytes": 124125184,
-          "entries": 8114,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 0
+          "reuses": 53
         }
       }
     },

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_harbor_register.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-04T19:24:53",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:26:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (fleet: 420 open, 83 in port, 3 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stdout_tail": "    (fleet: 454 open, 82 in port, 2 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
       "stderr_tail": "",
       "teeth_green": [
         "test_fleet_queries_both_berths_nonempty",
@@ -17,6 +17,7 @@
         "test_the_scan_reaches_both_roots"
       ],
       "teeth_red": [],
+      "test": "test-415b55781132",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -25,35 +26,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3a4895469eb4f42b385bc20a584582337bd731e59622fab91baaf55b1ac04a5c",
+      "conditions": {
+        "proof": "9d1135851328546387e1b6fa6f1c3333ca57bab278ea04a4117db58d4d9867d5",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-415b55781132",
+      "source_fingerprint": "c7eda1a7c0bf84a4a572fb81f14a9cd56cdbb68cb1a52be513668a7454591826",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py",
-        "cairn/devices/cairn/machines/harbor_master/register.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/sail_record.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/operator_inbox/__init__.py",
-        "cairn/tools/operator_inbox/inbox.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cairn/machines/harbor_master/register.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2816484-jdkolrx4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-830a7peq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 134006924,
-          "disk_bytes": 156987392,
-          "entries": 9714,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 3
+          "reuses": 27
         }
       }
     },

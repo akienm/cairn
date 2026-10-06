@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_verb.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-05T12:06:35",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:25:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,6 +20,7 @@
         "test_probe_default_verb_is_empty"
       ],
       "teeth_red": [],
+      "test": "test-54685131d045",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +34,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -41,55 +42,35 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "8b9901fd2fbf3c53740e4a8efdf434b0271cd19cac8db070cdda3e2b8ec3846f",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-54685131d045",
+      "source_fingerprint": "4bbbb17db1255fba77df3ed2767433ed82368bd16b1439e2bfb2e5b06fa4a182",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
-        "cairn/devices/cairn/machines/bus/proofs/test_verb.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/instanceizer/__init__.py",
-        "cairn/tools/instanceizer/instanceizer.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cairn/machines/bus/proofs/test_verb.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3391799-cxhh4hsm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-nloj0m_d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20261005.180635.105285.BusDevice.post.json",
-            "logs/bus/0/20261005.180635.129633.BusDevice.post.json",
-            "logs/bus/0/20261005.180635.201853.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261006.062459.680654.BusDevice.post.json",
+            "logs/bus/0/20261006.062459.704862.BusDevice.post.json",
+            "logs/bus/0/20261006.062459.787494.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 161784292,
-          "disk_bytes": 187895808,
-          "entries": 11151,
+          "bytes": 177021401,
+          "disk_bytes": 205139968,
+          "entries": 12054,
           "builds": 1,
-          "reuses": 11
+          "reuses": 17
         }
       }
     },

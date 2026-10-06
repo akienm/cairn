@@ -2,7 +2,7 @@
   {
     "claim": "proof test_librarian_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-04T02:11:01",
+    "date": "2026-10-06T00:31:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,6 +15,7 @@
         "test_librarian_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-62e1bcaf2f58",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -23,47 +24,34 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "818188a451403258832ff9c1f47feaccb6304bb4176dca911a0c341364423f05",
+      "conditions": {
+        "proof": "3559e8a80b7ed2ce7d96fb539944b39bc29fa501ad29b342f1dcafc2fd13c784",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-62e1bcaf2f58",
+      "source_fingerprint": "4601e0f996d8503d27100ddb3ba95a84cb8cfdd673b712660c5876bdba52871d",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/loop.py",
         "cairn/devices/librarian/probes/revisions_hold_under_live_use.py",
         "cairn/devices/librarian/probes/standing_moves_under_live_use.py",
-        "cairn/devices/librarian/proofs/test_librarian_probes_report_to_the_watch.py",
-        "cairn/devices/librarian/tools/trees/trees.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/librarian/proofs/test_librarian_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2336032-v048qu8q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-t0ayfm7y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,29 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 125723254,
-          "disk_bytes": 148094976,
-          "entries": 9361,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 4
-        }
-      },
-      "hollow": {
-        "90354d32aa72": {
-          "cairn/devices/librarian/probes/revisions_hold_under_live_use.py": [
-            "test_librarian_probes_report_to_the_watch"
-          ],
-          "cairn/devices/librarian/probes/standing_moves_under_live_use.py": [
-            "test_librarian_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "90354d32aa72": {
-          "anchor_rule": "journal",
-          "anchor_journal": "1a45e5147462d510b5bf8e1c02ab7a0e6869db2e",
-          "anchor_first_build": "55b8f302deac44c85a927e50d17bafce090272ef",
-          "commit": "1a45e5147462d510b5bf8e1c02ab7a0e6869db2e"
+          "reuses": 67
         }
       }
     },

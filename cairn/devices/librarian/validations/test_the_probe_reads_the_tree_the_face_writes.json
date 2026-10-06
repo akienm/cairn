@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_probe_reads_the_tree_the_face_writes.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-04T02:11:22",
+    "date": "2026-10-06T00:31:36",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,6 +17,7 @@
         "test_the_probe_declares_a_probe_and_stays_a_reader"
       ],
       "teeth_red": [],
+      "test": "test-75cdfa5e370a",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -25,36 +26,34 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "020999890ac4145a87cf39237d147e0dd7637b5798341fb9783ae8ac770f2c69",
+      "conditions": {
+        "proof": "518a25db7c67687468f02487003a29b6136a71608476095e144897154ea9f2dd",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-75cdfa5e370a",
+      "source_fingerprint": "499cd8bcfb8d136f797509bae3f19c2c8bbb87e5658977b71887ec29245afc91",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/loop.py",
         "cairn/devices/librarian/probes/standing_moves_under_live_use.py",
         "cairn/devices/librarian/proofs/test_the_probe_reads_the_tree_the_face_writes.py",
-        "cairn/devices/librarian/shim.py",
-        "cairn/devices/librarian/tools/trees/trees.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/librarian/shim.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2336032-pche9ukd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3711591-zmxfdkbn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,11 +62,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 125723254,
-          "disk_bytes": 148094976,
-          "entries": 9361,
+          "bytes": 177020541,
+          "disk_bytes": 205127680,
+          "entries": 12049,
           "builds": 1,
-          "reuses": 9
+          "reuses": 71
         }
       }
     },

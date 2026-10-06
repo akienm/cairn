@@ -71,6 +71,9 @@ PROVES = {
         "10": "test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_zero_alone",
         "11": "test_the_watch_probe_reports_a_carrier_that_reappears_and_does_not_clear_on_zero_alone",
     },
+    "45000a1642cb": {
+        "all": "test_a_record_a_named_proof_reads_is_reverted_and_its_tooth_watched",
+    },
 }
 
 FIXTURE = "f1x7u2e00001"
@@ -618,6 +621,67 @@ def test_every_writes_to_file_being_a_record_is_still_a_red_not_a_free_green():
     assert any("measured nothing" in r for r in f["reasons"]), f["reasons"]
     return True
 
+
+_PROOF_READS_RECORD_SRC = '''\
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import subject
+
+RECORD = "comp/history.json"
+
+def test_value_is_two():
+    return subject.VALUE == 2
+
+def test_the_record_holds_what_the_build_wrote():
+    p = Path(__file__).resolve().parents[1] / RECORD
+    return p.is_file() and "by the build" in p.read_text()
+
+if __name__ == "__main__":
+    bad = 0
+    for t in (test_value_is_two, test_the_record_holds_what_the_build_wrote):
+        try:
+            ok = t()
+        except Exception:
+            ok = False
+        bad += not ok
+        print(("ok" if ok else "FAIL") + " " + t.__name__)
+    raise SystemExit(1 if bad else 0)
+'''
+
+
+def test_a_record_a_named_proof_reads_is_reverted_and_its_tooth_watched():
+    """SKIP_RECORD HOLDS ONLY WHERE ITS OWN PREMISE DOES (ticket 45000a1642cb). The skip says a
+    record is one "no proof asserts over it" — true of the fixture records two teeth above, which
+    no proof reads, and false of a record the ticket's own proof names. Measured on ba8c62b8203e:
+    its whole build is two history.json rows its proof reads, and the skip left the hollow nothing
+    to measure. Here the instrument proof names comp/history.json; the run must revert it and
+    watch that proof's tooth red, never skip it as a record."""
+    tmp = scratch_dir("cairn-hollowproof-")
+    repo, commons = _fixture(tmp)
+    env = {**git_env(), "GIT_AUTHOR_NAME": "fixture", "GIT_AUTHOR_EMAIL": "f@x",
+           "GIT_COMMITTER_NAME": "fixture", "GIT_COMMITTER_EMAIL": "f@x"}
+    (repo / "comp").mkdir(parents=True, exist_ok=True)
+    (repo / "comp" / "history.json").write_text('[{"written": "by the build"}]\n')
+    (repo / "proofs" / "test_fixture.py").write_text(
+        'PROVES = {"%s": {"1": "test_value_is_two", "2": "test_the_record_holds_what_the_build_wrote"}}\n\n'
+        % FIXTURE + _PROOF_READS_RECORD_SRC)
+    _git(repo, "add", "-A", env=env)
+    _git(repo, "commit", "-qm", "the build writes a record its proof reads",
+         env={**env, "GIT_AUTHOR_DATE": "2020-01-03T01:00:00",
+              "GIT_COMMITTER_DATE": "2020-01-03T01:00:00"})
+    berth = json.loads(_berth_path(tmp).read_text())
+    berth["sub_problems"][0]["writes_to"].append("comp/history.json")
+    _berth_path(tmp).write_text(json.dumps(berth))
+
+    f = measure(FIXTURE, repo_root=repo, commons=commons,
+                berths_root=_berths_root(tmp), timeout=60)
+    skipped = {s["file"]: s["why"] for s in f["skipped"]}
+    assert "comp/history.json" not in skipped, skipped
+    assert f["measured"].get("comp/history.json") == ["test_the_record_holds_what_the_build_wrote"], f["measured"]
+    assert "comp/history.json" not in f["hollow"], f["hollow"]
+    assert f["measured"]["subject.py"] == ["test_value_is_two"], f["measured"]
+    return True
 
 def test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree():
     """THE ASSUMPTION THE WHOLE DESIGN RESTS ON, MEASURED THE WAY A REAL PROOF RUNS.

@@ -41,6 +41,8 @@ PROVES = {
         "2": "test_the_run_verb_answers_with_the_testers_verdict",
         "3": "test_the_tool_floor_stands_on_no_device",
     },
+    # 45c168cc1ff1 clause (1): no row from the loop proof reaches into the tester.
+    "45c168cc1ff1": {"1": "test_no_foreign_row_lands_on_the_tester"},
 }
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"

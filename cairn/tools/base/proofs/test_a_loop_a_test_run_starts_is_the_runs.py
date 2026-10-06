@@ -45,7 +45,9 @@ PROVES = {"2120e74dcf44": {
     "2": "test_a_loop_started_in_a_run_collects_itself",
     "3": "test_a_tester_run_that_starts_a_loop_leaves_no_unit",
     "4": "test_outside_a_run_the_loop_is_unchanged",
-}}
+},
+    # 45c168cc1ff1 clause (2): the unit tooth runs its fixture through bin/cairn test.
+    "45c168cc1ff1": {"2": "test_a_tester_run_that_starts_a_loop_leaves_no_unit"}}
 
 _ENV = "CAIRN_TESTER_TEST_ID"
 _TAG = str(os.getpid())

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_loop_a_test_run_starts_is_the_runs.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T23:39:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T11:19:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,21 +16,24 @@
         "test_outside_a_run_the_loop_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-2695f75dfca1",
+      "test": "test-434f499e11b9",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3945841_1112582328_delivery",
+          "bus_proc_3945841_1112582328"
+        ]
       },
       "conditions": {
-        "proof": "8c1cf27924cbe36d43f498a144fb9b491f3d1da21be1cfe9052571fbe17efbf3",
+        "proof": "68a1535d6531ac4a8a13a745eda1addeaa7fa193c19dda3a85f5a77a6f94cd61",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -40,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2695f75dfca1",
-      "source_fingerprint": "6565706482e2b7a283cbb0a9822974fdacf9a80395879b3548a88776c46a79e9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-434f499e11b9",
+      "source_fingerprint": "4acb23f3db3fadb4d6998452f223785d9aea2cbfb023a22bf7b5718745ec69d2",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -53,41 +56,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3694895-l82yhfpy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3947333-xfwo8ioi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261006.053954.555365.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-9e7d38bbb3d7/stderr.txt",
-            "logs/tester/0/runs/test-9e7d38bbb3d7/stdout.txt"
+            "logs/tester/0/20261006.171940.949676.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-7f95a477f336/stderr.txt",
+            "logs/tester/0/runs/test-7f95a477f336/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 175185769,
-          "disk_bytes": 203108352,
-          "entries": 11959,
+          "bytes": 102556152,
+          "disk_bytes": 123416576,
+          "entries": 8568,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "2120e74dcf44": {
-          "cairn/tools/base/shim.py": [
-            "test_a_loop_started_in_a_run_carries_its_test_id",
-            "test_a_loop_started_in_a_run_collects_itself",
-            "test_a_tester_run_that_starts_a_loop_leaves_no_unit"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "2120e74dcf44": {
-          "anchor_rule": "journal",
-          "anchor_journal": "9e04330ce429a7691664472668b518600472f645",
-          "anchor_first_build": "6f34ecdebdd699a5017d73fca10324a535b12ff0",
-          "commit": "9e04330ce429a7691664472668b518600472f645"
         }
       }
     },

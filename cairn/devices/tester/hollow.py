@@ -27,8 +27,13 @@ rather than silently skipped, because a skip list is the natural home of a hollo
      checker, which is the one defect this module has no standing to ship. So proofs are
      skipped, LISTED, and — the part that keeps the list from becoming the escape hatch — a run
      in which EVERY file was skipped is a RED, not a pass over an empty set.
-  2. **A file outside this repo** (a ``writes_to`` under CairnCommons). There is no worktree of
-     it to revert in and no proof that imports it; it is out of the ticket's bounds.
+  2. **A file outside this repo AND outside the commons.** There is no worktree of it to revert
+     in. A CairnCommons file is no longer one of these (ticket b312ff041558, Akien's answer to
+     open-90d38cb2bdca, "a agreed"): node classes are read as code by transitions, so they are
+     proved like code. The commons gets a worktree of its own at its HEAD, linked beside the
+     repo's worktree under the name every reader spells (``_REPO_ROOT.parent / "CairnCommons"``),
+     and a commons file is reverted there to the commons repo's OWN pre-build commit — the same
+     anchor rule, asked of the commons history.
 
 AND ONE THING IT CANNOT MEASURE, MEASURED RATHER THAN GUESSED AT: a proof that is not
 WORKTREE-PORTABLE. A worktree is a checkout of this repo at another path, so a proof that
@@ -106,6 +111,10 @@ COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
 
 SKIP_INSTRUMENT = "under proofs/ — reverting the instrument makes the reading meaningless"
 SKIP_OUTSIDE = "not a path in this repo — nothing to revert in a worktree of it"
+SKIP_COMMONS_UNTRACKED = ("a commons path, and the commons is not a git repository — there is "
+                          "no commit to revert it to")
+COMMONS_NAME = "CairnCommons"  # the name every repo-relative reader spells beside the repo
+COMMONS_KEY = COMMONS_NAME + "/"  # how a commons file is named in the finding
 SKIP_RECORD = ("a record, not source — the system writes it and no proof asserts over it, "
                "so reverting it can only ever red nothing")
 
@@ -485,6 +494,30 @@ def _inside(f: str, repo_root: Path) -> str:
         return f
 
 
+def _commons_rel(f: str, commons: Path) -> str | None:
+    """The path of ``f`` inside the commons, or None when it is not a commons path.
+
+    The chart spells a commons file two ways, both measured in the berth store (2026-10-05):
+    ``CairnCommons/<rel>`` (relative to the directory both repos sit in) and absolutely."""
+    p = Path(f)
+    if p.is_absolute():
+        try:
+            return str(p.resolve().relative_to(Path(commons).resolve()))
+        except ValueError:
+            return None
+    parts = p.parts
+    if parts[:1] == (COMMONS_NAME,) and len(parts) > 1:
+        return str(Path(*parts[1:]))
+    if parts[:2] == ("..", COMMONS_NAME) and len(parts) > 2:
+        return str(Path(*parts[2:]))
+    return None
+
+
+def _is_repo(root: Path) -> bool:
+    proc = _git_ok(Path(root), "rev-parse", "--show-toplevel")
+    return proc.returncode == 0 and Path(proc.stdout.strip()).resolve() == Path(root).resolve()
+
+
 def _classify(rel: str, *, instrument: frozenset[str] = frozenset()) -> str | None:
     """Why this file is not measured, or None when it is. One place, so the run and the
     report cannot disagree about which files were skipped and for what.
@@ -685,13 +718,30 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     ticket = json.loads(_ticket_path(ticket_id, commons).read_text(encoding="utf-8"))
     tid = str(ticket.get("id") or ticket_id)
     roots = _roots(repo_root, commons)
-    files = [_inside(f, repo_root) for f in writes_to(ticket, berths_root=berths_root)]
+    commons = Path(commons)
+    files: list[str] = []
+    cfiles: list[str] = []  # commons files, as paths inside the commons (ticket b312ff041558)
+    for f in writes_to(ticket, berths_root=berths_root):
+        c = _commons_rel(f, commons)
+        if c is None:
+            files.append(_inside(f, repo_root))
+        elif c not in cfiles:
+            cfiles.append(c)
     # The instrument is read before the anchor, through the reader that does not raise, so a
     # ticket with no BUILDME is still refused by build_anchor for THAT reason (test_hollow.py).
     instrument = instrument_set(proven_by_since_buildme(tid, roots) or [], repo_root)
     anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument)
     commit, at = anchor["commit"], anchor["buildme_at"]
     files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
+    # THE COMMONS HAS ITS OWN HISTORY, so its anchor is asked of it: the same rule over the
+    # commons commits that name the ticket and change a commons writes_to file.
+    c_tracked = bool(cfiles) and _is_repo(commons)
+    canchor, ccommit = None, None
+    if c_tracked:
+        canchor = build_anchor(ticket, cfiles, roots=roots, repo_root=commons)
+        ccommit = canchor["commit"]
+        cfiles, cdir_skips = _expand_dirs(cfiles, ccommit, commons, tid=tid)
+        dir_skips += [{**s, "file": COMMONS_KEY + s["file"]} for s in cdir_skips]
     proofs = proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
@@ -740,6 +790,20 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                           capture_output=True, text=True, env=git_env()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
+    # THE COMMONS BESIDE THE WORKTREE. Readers find the commons at ``<repo>.parent/CairnCommons``
+    # and a scratch worktree has nothing there, so a proof over a commons file read the live
+    # commons (or nothing) and no reversion could reach it. Only a ticket that names a commons
+    # file gets one, so every other run measures exactly what it measured before.
+    cwt = None
+    if cfiles:
+        beside = wt.parent / COMMONS_NAME
+        if c_tracked:
+            chead = _git_ok(commons, "rev-parse", "HEAD").stdout.strip()
+            cwt = scratch_worktree(chead, repo_root=commons, prefix="cairn-hollow-commons-")
+            beside.symlink_to(cwt, target_is_directory=True)
+        else:
+            # Nothing in it can be reverted, so the baseline reads the standing commons.
+            beside.symlink_to(commons.resolve(), target_is_directory=True)
     depth = {rel: seal_isolation(repo_root / rel) for rel in proofs}
     log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} ({anchor['anchor_rule']}; BUILDME at {at})")
 
@@ -828,47 +892,60 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     for s in dir_skips:
         log(f"  skip   {s['file']}  ({s['why']})")
     moved: dict[str, str] = {}
-    for rel in files:
-        why = _classify(rel, instrument=instrument)
+    # Each file is reverted in ITS repo's worktree to ITS repo's anchor; a commons file is named
+    # in the finding as ``CairnCommons/<rel>`` so the two roots cannot collide on one key.
+    where: dict[str, tuple[Path, Path | None, str | None, str]] = {}  # key -> (root, worktree, commit, rel)
+    sides = [(rel, repo_root, wt, commit, "") for rel in files]
+    sides += [(rel, commons, cwt, ccommit, COMMONS_KEY) for rel in cfiles]
+    for rel, root, wtree, at_commit, prefix in sides:
+        key = prefix + rel
+        if prefix and not c_tracked:
+            skipped.append({"file": key, "why": SKIP_COMMONS_UNTRACKED})
+            log(f"  skip   {key}  ({SKIP_COMMONS_UNTRACKED})")
+            continue
+        why = _classify(rel, instrument=instrument if not prefix else frozenset())
         source = None
-        if why is None and not (wt / rel).is_file():
-            succ = moved_to(rel, tid, repo_root=repo_root, worktree=wt)
+        if why is None and not (wtree / rel).is_file():
+            succ = moved_to(rel, tid, repo_root=root, worktree=wtree)
             if succ is None:
                 why = "not present at HEAD and no recorded successor — there is nothing to revert"
-            elif succ in measured or succ in moved or _classify(succ, instrument=instrument) is not None:
+            elif (prefix + succ) in measured or (prefix + succ) in moved \
+                    or _classify(succ, instrument=instrument if not prefix else frozenset()) is not None:
                 continue  # already read under its own name, or the successor is itself skippable
             else:
                 source, rel = rel, succ
-                moved[rel] = source
+                key = prefix + rel
+                moved[key] = prefix + source
         if why is not None:
-            skipped.append({"file": rel, "why": why})
-            log(f"  skip   {rel}  ({why})")
+            skipped.append({"file": key, "why": why})
+            log(f"  skip   {key}  ({why})")
             continue
-        how = _revert(wt, commit, rel, repo_root=repo_root)
+        where[key] = (root, wtree, at_commit, rel)
+        how = _revert(wtree, at_commit, rel, repo_root=root)
         src_noop = True
         if source is not None:
             # THE COUNTERFACTUAL OF A MOVE IS BOTH HALVES: the successor as it was before the
             # build (usually absent — removed, not emptied) AND the source back where it stood.
             # A no-op on both halves stays "unchanged" and reads UNWRIT (ticket e08c996f939c: the
             # suffix used to be added first, so a no-op move read HOLLOW).
-            src_was = (wt / source).exists()
-            src_how = _revert(wt, commit, source, repo_root=repo_root)
+            src_was = (wtree / source).exists()
+            src_how = _revert(wtree, at_commit, source, repo_root=root)
             src_noop = src_how == "unchanged" or (src_how.startswith("removed") and not src_was)
             if not (how == "unchanged" and src_noop):
-                how = f"{how}; moved from {source}, restored there"
+                how = f"{how}; moved from {prefix + source}, restored there"
         if how == "unchanged":
-            unchanged.append(rel)
-            _restore(wt, rel)
-            if source is not None and not src_was and (wt / source).exists():
-                (wt / source).unlink()
-            log(f"  UNWRIT {rel}  (identical at the pre-build commit — the build did not write it)")
+            unchanged.append(key)
+            _restore(wtree, rel)
+            if source is not None and not src_was and (wtree / source).exists():
+                (wtree / source).unlink()
+            log(f"  UNWRIT {key}  (identical at the pre-build commit — the build did not write it)")
             continue
         try:
             after, after_ran, _ = run_all()
         finally:
-            _restore(wt, rel)
-            if source is not None and (wt / source).exists():
-                (wt / source).unlink()  # absent at HEAD; checkout cannot restore an absence
+            _restore(wtree, rel)
+            if source is not None and (wtree / source).exists():
+                (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
         # DECLARED TEETH ONLY, and the filter is the ticket's bound rather than a nicety.
         # Without it, the reading counts any tooth in the file that went red — including the
         # 55 teeth these three proofs hold for OTHER tickets. A neighbour's tooth reddening
@@ -878,11 +955,11 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                          if t in declared_teeth[p]})
         # Which proofs stopped RUNNING under this reversion, rather than running and failing.
         broke = sorted(p for p in proofs if baseline_ran[p] and after_ran[p] == 0)
-        measured[rel] = redded
+        measured[key] = redded
         if broke:
-            unran[rel] = broke
+            unran[key] = broke
         mark = "HOLLOW" if not redded else ("UNRAN " if broke else "ok    ")
-        log(f"  {mark} {rel}  ({how}) → " +
+        log(f"  {mark} {key}  ({how}) → " +
             (", ".join(redded) if redded else "no declared tooth redded")
             # WHAT WAS SEEN, NOT WHY. This line used to read "the import broke", which is a
             # cause nothing here observed: all that was measured is a tooth count of zero, and
@@ -914,11 +991,13 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     # stays named in `hollow` and rides out in `unseen` with its diff; the sealing run turns
     # each into one operator notice. A file whose proof never ran is NOT unseen: it is
     # unreadable below, and that red stands.
-    unseen = {
-        f: subprocess.run(["git", "-C", str(repo_root), "diff", commit, "HEAD", "--", f]
-                          + ([moved[f]] if f in moved else []),
-                          capture_output=True, text=True, env=git_env()).stdout
-        for f in hollow_files if f not in unran}
+    def _diff(f: str) -> str:
+        root, _, at_commit, rel = where[f]
+        prefix = COMMONS_KEY if root == commons and f.startswith(COMMONS_KEY) else ""
+        extra = [moved[f][len(prefix):]] if f in moved else []
+        return subprocess.run(["git", "-C", str(root), "diff", at_commit, "HEAD", "--", rel] + extra,
+                              capture_output=True, text=True, env=git_env()).stdout
+    unseen = {f: _diff(f) for f in hollow_files if f not in unran}
     for f in unchanged:
         reasons.append(
             f"unwritten: {f} is byte-identical at the pre-build commit — the decompose berth "
@@ -941,7 +1020,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # that proved nothing, and reporting it green would make "add it to the skip list" the
         # cheapest way past this check forever.
         reasons.append(
-            f"hollow: every writes_to file was skipped ({len(skipped)} of {len(files)}), so this "
+            f"hollow: every writes_to file was skipped ({len(skipped)} of {len(files) + len(cfiles)}), so this "
             f"run measured nothing. A measurement of the empty set is not a pass.")
 
     return {"ticket": tid, "commit": commit, "buildme_at": at, "worktree": str(wt),
@@ -950,6 +1029,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
             "unchanged": unchanged, "moved": moved,
+            "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
+            "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,
             "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],
             "anchor_first_build": anchor["anchor_first_build"],
             "verdict": "red" if reasons else "green", "reasons": reasons}

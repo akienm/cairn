@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_every_built_probe_spec_names_a_file.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-01T22:28:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T02:30:51",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_proved_ticket_names_a_missing_probe\n.\n  ok   test_a_ticket_sent_back_for_an_absent_probe_names_it\n.\n  ok   test_the_census_reds_a_missing_probe\n.\n  ok   test_every_built_probe_spec_names_a_file\n                                                                     [100%]\n4 passed in 0.16s",
+      "stdout_tail": ".\n  ok   test_no_proved_ticket_names_a_missing_probe\n.\n  ok   test_a_ticket_sent_back_for_an_absent_probe_names_it\n.\n  ok   test_the_census_reds_a_missing_probe\n.\n  ok   test_every_built_probe_spec_names_a_file\n                                                                     [100%]\n4 passed in 0.18s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_proved_ticket_names_a_missing_probe",
@@ -16,6 +16,7 @@
         "test_every_built_probe_spec_names_a_file"
       ],
       "teeth_red": [],
+      "test": "test-b5fa6ca5f039",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -24,21 +25,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "044b23788c8302af9839f514d749e4225a453736f3a92eb58d8818906eae40ba",
+      "conditions": {
+        "proof": "dab52979b153c92a6e2264df86c4f8c5479ff4fe0c25900ecd3753ac37b7e333",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b5fa6ca5f039",
+      "source_fingerprint": "136b97d7d354d0627850044cb9f1356d20a42fa0ab7a32442d1f42887717b059",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/proofs/test_every_built_probe_spec_names_a_file.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/base/watchme_spec.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-737199-52lrqwkm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3746960-0bdcw5en/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -47,18 +58,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 138187443,
-          "disk_bytes": 157327360,
-          "entries": 7974,
+          "bytes": 101870874,
+          "disk_bytes": 122281984,
+          "entries": 8394,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "693e9f45e6f2": {
-          "cairn/tools/base/watchme_spec.py": [
-            "test_every_built_probe_spec_names_a_file"
-          ]
+          "reuses": 5
         }
       }
     },

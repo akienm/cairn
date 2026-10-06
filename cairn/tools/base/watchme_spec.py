@@ -314,6 +314,33 @@ def absent_probes(ticket: dict, *, root: Path | str = _REPO_ROOT) -> list[str]:
     return out
 
 
+def stands_watch(ticket: dict, spec: dict, *, root: Path | str = _REPO_ROOT) -> bool:
+    """DOES THIS SPEC'S WATCH STAND — is its probe in the population that reports to the watch?
+
+    Ticket 8e37bf2be2dc, 2026-10-06. A ticket at PROVED or WATCHME stands unconditionally, as
+    the hand rule counted it. A ticket at FIXME or PROVEME stands when ``armed_error`` finds its
+    probe installed: it got off rest THROUGH the watch, the probe is still firing, and dropping
+    it drops exactly the probes most likely to be red. Measured: the cairn device's population
+    proof counted only resting tickets, so 7a1265439f54 — sent to FIXME by its own watch —
+    emptied the population and could not cross into the WATCHME that would refill it. Anywhere
+    else (before the build has crossed BUILDME) the watch does not stand yet.
+
+    What a WATCHME spec means is this module's question, so readers ask here rather than
+    re-deciding it (Law 1). harbor_master's rest check is a different question — which ticket
+    a finding may move — and does not read this."""
+    from cairn.tools.base.transitions import parse_workflow
+
+    try:
+        here = parse_workflow(ticket["workflow_and_state"]).here
+    except Exception:  # noqa: BLE001 — a ticket with no parseable cursor stands nowhere
+        return False
+    if here in ("PROVED", "WATCHME"):
+        return True
+    if here in ("FIXME", "PROVEME"):
+        return armed_error(spec, root=root) is None
+    return False
+
+
 def require_watchme_spec(ticket: dict) -> None:
     """The refusing face, for a caller that wants the raise rather than the text."""
     err = watchme_spec_error(ticket)

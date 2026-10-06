@@ -1,0 +1,78 @@
+[
+  {
+    "claim": "proof test_a_watch_stands_while_its_probe_is_installed.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T02:33:16",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_ticket_off_rest_with_an_ARMED_probe_stands\n.\n  ok   test_a_resting_ticket_stands_UNCONDITIONALLY\n.\n  ok   test_an_unarmed_or_unbuilt_watch_does_NOT_stand\n.\n  ok   test_the_widening_only_ADDS_over_the_real_corpus\n                                                                     [100%]\n4 passed in 0.07s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_ticket_off_rest_with_an_ARMED_probe_stands",
+        "test_a_resting_ticket_stands_UNCONDITIONALLY",
+        "test_an_unarmed_or_unbuilt_watch_does_NOT_stand",
+        "test_the_widening_only_ADDS_over_the_real_corpus"
+      ],
+      "teeth_red": [],
+      "test": "test-c5304db5e810",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "33b6c712acb3b69187521c4bfe01ab094bd82fde58ae0f51fbbeb887e02e297c",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c5304db5e810",
+      "source_fingerprint": "e0843fa28fa2a5d74d19f49f1dc64b0ad84db12a37660a61f8fbfd2d0e87d053",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_a_watch_stands_while_its_probe_is_installed.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3751973-242i66y3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 101871897,
+          "disk_bytes": 122286080,
+          "entries": 8395,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

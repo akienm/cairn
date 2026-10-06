@@ -36,6 +36,7 @@ from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import canon
 from cairn.tools.base.address import instance_path
+from cairn.tools.base import testing_mark
 
 
 NEVER_BOOTED = "NEVER_BOOTED"
@@ -187,6 +188,28 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
     on-demand device start (``_start_device``). The bus is injected so firing has somewhere to
     poke; a shim with no bus records what it *would* have fired (honest, not silent).
     """
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        """A SHIM THAT OVERRIDES deliver() STILL RETURNS MARKED MAIL (ticket 3bf728e5328d).
+        cc_0 persists every envelope, codemother persists verbless mail and the tester takes
+        replies, all without calling the base; the return has to run before any of them, so the
+        override is wrapped here, once, where every shim class is made. An unmarked envelope
+        reaches the override untouched."""
+        super().__init_subclass__(**kwargs)
+        own = cls.__dict__.get("deliver")
+        if own is None or getattr(own, "_returns_marked_mail", False):
+            return
+
+        def deliver(self, envelope: dict, _own=own):
+            returned = self._return_if_marked(envelope)
+            if returned is not None:
+                return returned
+            return _own(self, envelope)
+
+        deliver.__doc__ = own.__doc__
+        deliver.__wrapped__ = own
+        deliver._returns_marked_mail = True
+        cls.deliver = deliver
 
     def __init__(self, bus=None) -> None:
         super().__init__()
@@ -728,6 +751,9 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         always-on (``_presence`` ONLINE from birth, like a discovered one) never enters the lazy
         start, so asking ``_presence`` would answer "ONLINE" about a shim holding no
         device at all."""
+        returned = self._return_if_marked(envelope)
+        if returned is not None:
+            return returned
         if envelope.get("body", {}).get("is_bounce"):
             return self.handle_bounce(envelope)
         self._ensure_device()
@@ -774,7 +800,8 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         shim had to bounce."""
         if (envelope.get("body") or {}).get("is_bounce"):
             return
-        if isinstance(taken, dict) and taken.get("bounced") is True:
+        if isinstance(taken, dict) and (taken.get("bounced") is True
+                                        or taken.get("returned") is True):
             return
         identities = [f"mail-{self.device_id}-has-no-receiver"]
         verb = envelope.get("verb") or ""
@@ -787,6 +814,43 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             self.clear_trouble(identity, by="cc", what_changed=(
                 f"{self.device_id} took envelope {envelope.get('id')} from "
                 f"{envelope.get('sender', '?')}"))
+
+    def _return_if_marked(self, envelope: dict) -> dict | None:
+        """RETURN TO SENDER, UNACTED ON (ticket 3bf728e5328d; Akien 2026-10-05: "the shim. device
+        gets the "perform this test" kind later"). A body carrying a ``return``-kind testing mark
+        goes back to its sender with the mark and ``is_return``, answering the envelope by
+        ``reply_to``; the device is never woken and no handler runs. The return is the "got here".
+        A return that arrives here goes to ``handle_return`` and is never returned again. Any
+        other kind passes through. Returns None when the envelope is not this shim's to return."""
+        body = envelope.get("body") or {}
+        mark = testing_mark.mark_of(body)
+        if mark is None:
+            return None
+        if body.get("is_return"):
+            return self.handle_return(envelope)
+        if mark["kind"] != testing_mark.RETURN:
+            return None
+        sender = envelope.get("sender")
+        if not sender or self._bus is None:
+            raise NotImplementedError(
+                f"{self.device_id} cannot return test {mark['test']!r}: "
+                f"{'no sender on envelope' if not sender else 'no bus on shim'}")
+        self._bus.post(
+            sender=self.device_id, to=sender, channel="personal",
+            why=f"returned: test {mark['test']}",
+            body={testing_mark.FIELD: mark, "is_return": True,
+                  "original_verb": envelope.get("verb", ""),
+                  "original_addressee": envelope.get("addressee", "")},
+            reply_to=envelope.get("id"))
+        return {"returned": True, "test": mark["test"], "to": sender}
+
+    def handle_return(self, envelope: dict) -> dict:
+        """A returned test envelope reached this shim. The base records it and stops; the tester
+        overrides this to match the return to its test (re-plan step 4)."""
+        mark = testing_mark.mark_of(envelope.get("body") or {}) or {}
+        self.emit("test_returned", pointer=envelope.get("reply_to"),
+                  values={"test": mark.get("test"), "from": envelope.get("sender", "?")})
+        return {"returned": True, "handled": False, "test": mark.get("test")}
 
     def _bounce_to_sender(self, envelope: dict, reason: str, *, trouble: str | None = None):
         """Post a bounce message back to the sender via the bus. If no bus or no sender,

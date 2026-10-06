@@ -163,6 +163,20 @@ def trouble_identity(proof_path) -> str:
     return _SLUG.sub("-", f"seal-red-{comp}".lower()).strip("-")
 
 
+def unreproduced_siblings(proof_path) -> list[str]:
+    """The OTHER proofs in this proof's component that carry a seal ``standing()`` no longer
+    reads proven — what still holds the component's one trouble open (ticket 86b6bf19ed2a).
+    A proof with no validations file was never sealed, so it is not counted."""
+    proof = Path(proof_path).resolve()
+    out = []
+    for sib in sorted((Path(component_root_for(str(proof))) / "proofs").glob("*.py")):
+        if sib.resolve() == proof or not Path(validations_path_for(str(sib))).is_file():
+            continue
+        if not standing(str(sib))["proven"]:
+            out.append(_rel(sib))
+    return out
+
+
 def read_ladder(proof_path) -> dict | None:
     """The OPEN ladder on this proof's standing seal, or ``None``.
 
@@ -465,16 +479,27 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         sealed = {**record, "evidence": evidence}
         compare(sealed, proof)
         persist_validation(sealed, proof_path=str(proof))
-        try:
-            raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
-                f"{CALLER}: {rel} ran green and its seal was landed through the store's "
-                f"door — the fingerprint reproduces again"))
-        except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
-            pass           #   (loud and wrong beats quiet and wrong; Law 7)
+        # THE TROUBLE IS THE COMPONENT'S, SO ONE PROOF'S GREEN IS NOT ITS CLEAR (ticket
+        # 86b6bf19ed2a). Measured 2026-10-06: test_transitions.py timed out at commit, the
+        # door raised seal-red-cairn-tools-base, and test_watchme_spec.py's green cleared it
+        # 1.8s later — the stale seal stood with nothing on any record saying so. The clear
+        # waits for the green that leaves no SEALED sibling unreproduced; a never-sealed
+        # sibling is not a seal that stopped reproducing, so it does not hold the clear.
+        still = unreproduced_siblings(proof)
+        if not still:
+            try:
+                raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
+                    f"{CALLER}: {rel} ran green and its seal was landed through the store's "
+                    f"door — no sealed proof in the component is left unreproduced"))
+            except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
+                pass           #   (loud and wrong beats quiet and wrong; Law 7)
         return {"proof": rel, "outcome": "resealed" if ladder or before["seal"] else "sealed",
                 "rung": 4 if ruling_id else (2 if ladder else 1), "ran": True,
                 "ruling": ruling_id, "ladder_closed": bool(ladder),
-                "why": f"ran green under isolation {iso!r}; the seal was replaced"}
+                "still_unreproduced": still,
+                "why": f"ran green under isolation {iso!r}; the seal was replaced"
+                       + (f" — the component's trouble stands for {', '.join(still)}"
+                          if still else "")}
 
     # ── RUNG 3: the red stands, and it becomes attention ──────────────────────────────
     # THE BOUND IS TODAY'S HASH, AND THE CARRY-FORWARD IT REPLACED WAS DEAD CODE — told

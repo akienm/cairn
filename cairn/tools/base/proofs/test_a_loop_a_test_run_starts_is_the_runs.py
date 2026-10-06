@@ -126,11 +126,11 @@ def test_a_tester_run_that_starts_a_loop_leaves_no_unit():
         f"r = subprocess.run([sys.executable, '-c', {(_CALL % str(ROOT))!r}], env=env, capture_output=True, text=True)\n"
         "assert r.returncode == 0 and '\"spawned\": \"unit\"' in r.stdout, r.stdout + r.stderr\n"
         "print('ok   test_fixture_tooth')\n")
-    from cairn.devices.tester.device import TesterDevice
-    rec = TesterDevice().run_proof(proof, sink="none", caller="proof-fixture-loopmark",
-                                   timeout=120, isolation="none")
-    assert rec["verdict"] == "green", rec["evidence"].get("stderr_tail")
-    assert _gone(unit), f"{unit} outlived the run: {_show(unit, 'ActiveState')!r}; killed={rec['evidence'].get('killed')!r}"
+    # The tester is reached only through its interface, bin/cairn test (45c168cc1ff1).
+    r = subprocess.run([str(ROOT / "bin" / "cairn"), "test", str(proof)],
+                       capture_output=True, text=True, timeout=300)
+    assert r.returncode == 0 and f"  green  {proof}" in r.stdout.splitlines(), r.stdout + r.stderr
+    assert _gone(unit), f"{unit} outlived the run: {_show(unit, 'ActiveState')!r}"
 
 
 def test_outside_a_run_the_loop_is_unchanged():

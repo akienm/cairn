@@ -69,6 +69,7 @@ ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
 PROOF_PATH = re.compile(r"(?:^|/)proofs/(?:[^/]+/)*test_[^/]*\.py$")
 PROOF_MODULE = re.compile(r"(?:^|\.)proofs\.(?:\w+\.)*test_\w+$")
 PROOF_GLOB = re.compile(r"proofs/\S*test_")
+PY_OPTS_WITH_ARG = {"-W", "-X", "-Q"}
 
 REFUSAL = """REFUSED — pytest runs a proof outside the tester's instance seal.
 
@@ -126,13 +127,23 @@ def _judged(word: str) -> bool:
 
 
 def _runs_a_proof(args: list[str], whole: str) -> bool:
-    for k, a in enumerate(args):
-        if PROOF_PATH.search(a):
-            return True
-        if a == "-m" and k + 1 < len(args) and PROOF_MODULE.search(args[k + 1]):
-            return True
-        if a.startswith("$") and PROOF_GLOB.search(whole):
-            return True
+    """Judged by the SCRIPT SLOT, never by any argument (ticket 72a37498c601): ``python3 <proof>``,
+    ``python3 -m <proof module>``, or a ``$var`` whose loop walks a proofs/ glob. A proof path
+    handed to some other script as its argument runs no proof."""
+    k = 0
+    while k < len(args):
+        a = args[k]
+        if a == "-m":
+            return k + 1 < len(args) and bool(PROOF_MODULE.search(args[k + 1]))
+        if a in ("-c", "-"):
+            return False
+        if a in PY_OPTS_WITH_ARG:
+            k += 2
+            continue
+        if a.startswith("-"):
+            k += 1
+            continue
+        return bool(PROOF_PATH.search(a)) or (a.startswith("$") and bool(PROOF_GLOB.search(whole)))
     return False
 
 

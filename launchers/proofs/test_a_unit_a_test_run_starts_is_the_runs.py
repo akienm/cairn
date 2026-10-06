@@ -14,13 +14,15 @@ kill (which finds what carries the id) cannot reach the units the run caused. A 
 has no process left to kill at all, and a transient unit that failed lingers until somebody runs
 reset-failed — which the proof's own cleanup does, unless the proof was killed first.
 
-  1. A UNIT THE LAUNCHER STARTS IN A RUN CARRIES ITS TEST ID: the ground-loop unit's main
-     process environment holds the CAIRN_TESTER_TEST_ID the launcher was given.
+  1. A UNIT THE LAUNCHER STARTS IN A RUN CARRIES ITS TEST ID: the user manager records the
+     ground-loop unit as handed the CAIRN_TESTER_TEST_ID the launcher was given.
   2. A FAILED UNIT OF A RUN COLLECTS ITSELF: the ground-loop unit killed with SIGKILL, and the web
      unit failing to bind its port, are both gone from the user manager afterwards — not left
      behind as failed corpses.
   3. A RUN KILLED BY ITS TIMEOUT LEAVES NO UNIT: `cairn test --timeout 25` over the launcher
-     proof that drives the real launcher leaves no cairn-proof-* unit that it created.
+     proof that drives the real launcher leaves no cairn-proof-* unit that it created. Under
+     the seal the inner run's kill can reach the unit only through the user manager, which is
+     ticket c64adc092835's half; this tooth measures the two together.
   4. OUTSIDE A RUN THE UNITS ARE UNCHANGED: with no test id, the ground-loop unit carries none
      and keeps the manager's default CollectMode, so a live unit that fails stays where a human
      looks.
@@ -86,12 +88,13 @@ def _show(unit: str, prop: str) -> str:
     return _run("systemctl", "--user", "show", "-p", prop, "--value", f"{unit}.service").stdout.strip()
 
 
-def _environ(pid: str) -> dict:
-    try:
-        raw = Path(f"/proc/{pid}/environ").read_bytes()
-    except OSError:
-        return {}
-    return dict(kv.split("=", 1) for kv in raw.decode(errors="replace").split("\0") if "=" in kv)
+def _environ(unit: str) -> dict:
+    """What the user manager handed the unit, read from the manager's own record. Never
+    /proc/<pid>/environ: inside the tester's seal (a bwrap user namespace) that read is refused
+    for every process outside it, and a unit's process is always outside it (measured
+    2026-10-05: this tooth read None under the seal and the right id bare)."""
+    raw = _show(unit, "Environment")
+    return dict(kv.split("=", 1) for kv in raw.split() if "=" in kv)
 
 
 def _ss_shim() -> str:
@@ -159,7 +162,7 @@ def test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id() -> tuple[str,
     test_id = f"test-unitmark{_TAG}"
     proc, loop, _web, _out = _drive(1, test_id=test_id)
     started = _wait(lambda: bool(_main_pid(loop)))
-    env = _environ(_main_pid(loop)) if started else {}
+    env = _environ(loop) if started else {}
     ok("test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id",
        env.get(TEST_ID_ENV) == test_id,
        f"loop unit started={started}, its {TEST_ID_ENV}={env.get(TEST_ID_ENV)!r}, want {test_id!r}")
@@ -205,7 +208,7 @@ def test_a_run_killed_by_its_timeout_leaves_no_unit() -> None:
 def test_outside_a_run_the_units_are_unchanged() -> None:
     proc, loop, _web, _out = _drive(3, test_id=None)
     started = _wait(lambda: bool(_main_pid(loop)))
-    env = _environ(_main_pid(loop)) if started else {}
+    env = _environ(loop) if started else {}
     collect = _show(loop, "CollectMode")
     _stop_caller(proc)
     ok("test_outside_a_run_the_units_are_unchanged",

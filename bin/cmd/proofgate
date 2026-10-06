@@ -126,10 +126,17 @@ def _judged(word: str) -> bool:
     return bool(PYTHON.match(word)) or word in PYTEST_WORDS or word in SHELLS or word in ("eval", "cairn")
 
 
-def _runs_a_proof(args: list[str], whole: str) -> bool:
+def _loop_vars(segments: list[list[str]]) -> set[str]:
+    """The NAMEs of every ``for NAME in ...`` header in the command whose words walk a proofs/ glob."""
+    return {t[1] for t in segments
+            if len(t) > 2 and t[0] == "for" and t[2] == "in" and any(PROOF_GLOB.search(w) for w in t[3:])}
+
+
+def _runs_a_proof(args: list[str], loop_vars: set[str]) -> bool:
     """Judged by the SCRIPT SLOT, never by any argument (ticket 72a37498c601): ``python3 <proof>``,
-    ``python3 -m <proof module>``, or a ``$var`` whose loop walks a proofs/ glob. A proof path
-    handed to some other script as its argument runs no proof."""
+    ``python3 -m <proof module>``, or a ``$var`` that a for-loop in the same command binds to a
+    proofs/ glob (ticket 66ae6f4a2c0e). A proof path handed to some other script as its argument,
+    or named in another segment, runs no proof."""
     k = 0
     while k < len(args):
         a = args[k]
@@ -143,7 +150,9 @@ def _runs_a_proof(args: list[str], whole: str) -> bool:
         if a.startswith("-"):
             k += 1
             continue
-        return bool(PROOF_PATH.search(a)) or (a.startswith("$") and bool(PROOF_GLOB.search(whole)))
+        if a.startswith("$"):
+            return a[1:].removeprefix("{").removesuffix("}") in loop_vars
+        return bool(PROOF_PATH.search(a))
     return False
 
 
@@ -153,7 +162,9 @@ def _verdict(command: str, depth: int = 0) -> str | None:
     ``cairn test`` seals only itself. A ``bash -c``/``sh -c``/``eval`` string is judged as the
     command it is."""
     found = None
-    for toks in _segments(command):
+    segments = _segments(command)
+    loop_vars = _loop_vars(segments)
+    for toks in segments:
         at = _command_word(toks)
         if at is None:
             continue
@@ -173,7 +184,7 @@ def _verdict(command: str, depth: int = 0) -> str | None:
             if inner == "refuse":
                 return "refuse"
             found = found or inner
-        if PYTHON.match(word) and _runs_a_proof(args, command):
+        if PYTHON.match(word) and _runs_a_proof(args, loop_vars):
             found = "rewrite"
     return found
 

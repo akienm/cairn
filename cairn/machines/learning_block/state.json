@@ -1,27 +1,30 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "SUPERSEDED",
-    "standing": "SUPERSEDED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
-    "direction": "disposition",
+    "from": "WATCHME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "skill@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(akien-gate-dial) -> PROVED",
+    "direction": "back",
+    "severity": 3,
     "entry_gate": "not_applicable",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
-        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "expected": "'FIXME' in the skill@v2 vocabulary",
+        "actual": "'FIXME' in the skill@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "FIXME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
+            "FIXME",
             "BUILDME",
             "PROVEME",
+            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -35,65 +38,53 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
-        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "expected": "WATCHME -> FIXME moves the cursor off position 5",
+        "actual": "WATCHME -> FIXME moves the cursor off position 5",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "SUPERSEDED",
-          "cursor": 1,
-          "resolved": 5
+          "target": "FIXME",
+          "cursor": 5,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED",
-        "actual": "TICKETME -> SUPERSEDED",
+        "expected": "WATCHME -> FIXME",
+        "actual": "WATCHME -> FIXME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "FIXME",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
+            "FIXME",
+            "PROVED",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
-          "direction": "forward"
+          "direction": "back"
         }
       }
     ],
     "checks_proved": 3,
-    "cleared_by": "CC",
-    "actor": "CC",
-    "proven_by": [
-      "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py"
+    "ticket": "18693659d16b",
+    "actor": "cc",
+    "missing": [
+      "[watchme] its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)"
     ],
-    "proven_seal_date": "2026-10-05T07:27:36",
-    "delegated": false,
-    "ticket": "6eb6c0f40842",
-    "fingerprint": "21da74a4b2e8d5c6154b0a61fb2d5678ba1d4f34b291c049467630cf89ea7406",
-    "at": "2026-10-05T07:30:27",
-    "seq": 13
+    "why": "a WATCHME finding: its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)",
+    "fingerprint": "ca8db845d2beceec169b980b59258ff08f80cd3a5af237b03518ae89ece151a2",
+    "at": "2026-10-05T19:12:40",
+    "seq": 14
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(engine-trace-corpus) -> [PROVED]",
-      "direction": "forward",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'engine-runs-one-block'",
-      "emission_gate": "clean — WATCHME(engine-trace-corpus) emitted the probe berthed at cairn/machines/learning_block/probes/engine_trace_corpus.py (ticket 'engine-runs-one-block')",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260802T170933-cd533608696a.json",
-      "ticket": "engine-runs-one-block",
-      "note": "the Learning Block has its inner engine, and the first block reasons on the record: one branchless loop (engine.py) instantiated from a data-only spec berthed beside its tenant (intentions_model_compiler/block_spec.json), every run landing input/candidates/killers/winner-why/escalation in a training trace the compile step can read. Chart answered whole (verdict-20260802T170933-cd533608696a: 6 criteria pass, 7 hypotheses confirmed). What a year-later reader should know: the tenant was chosen by MEASUREMENT (16 traces, no tie); the non-vacuity rejections came from real domain truth (an incremental copier cannot see a vanished source), not a rigged fixture; and the corpus watch (engine-trace-corpus, enough >= 5 answering all five questions) is what casts infer-compile-reads-the-traces — the staircase continues at the probe, not in anyone memory.",
-      "at": "2026-08-02T17:09:48",
-      "seq": 9
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -544,7 +535,92 @@
       "fingerprint": "21da74a4b2e8d5c6154b0a61fb2d5678ba1d4f34b291c049467630cf89ea7406",
       "at": "2026-10-05T07:30:27",
       "seq": 13
+    },
+    {
+      "from": "WATCHME",
+      "to": "FIXME",
+      "standing": "FIXME",
+      "workflow": "skill@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(akien-gate-dial) -> PROVED",
+      "direction": "back",
+      "severity": 3,
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'FIXME' in the skill@v2 vocabulary",
+          "actual": "'FIXME' in the skill@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "FIXME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> FIXME moves the cursor off position 5",
+          "actual": "WATCHME -> FIXME moves the cursor off position 5",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "FIXME",
+            "cursor": 5,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "WATCHME -> FIXME",
+          "actual": "WATCHME -> FIXME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "FIXME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "FIXME",
+              "PROVED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "back"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "18693659d16b",
+      "actor": "cc",
+      "missing": [
+        "[watchme] its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)"
+      ],
+      "why": "a WATCHME finding: its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)",
+      "fingerprint": "ca8db845d2beceec169b980b59258ff08f80cd3a5af237b03518ae89ece151a2",
+      "at": "2026-10-05T19:12:40",
+      "seq": 14
     }
   ],
-  "count": 14
+  "count": 15
 }

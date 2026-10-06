@@ -2,7 +2,7 @@
   {
     "claim": "proof test_codemother_reaches_system_word_through_its_package.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T08:05:50",
+    "date": "2026-10-05T23:44:29",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,13 +13,19 @@
         "nothing_in_codemother_reaches_system_word_undeclared"
       ],
       "teeth_red": [],
+      "test": "test-6a9e049766e7",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 4,
+        "tables": [
+          "bus_proc_3696526_2342228219_delivery",
+          "bus_proc_3696526_2342228219",
+          "bus_codemother_3696519_2343279111_delivery",
+          "bus_codemother_3696519_2343279111"
+        ]
       },
       "conditions": {
         "proof": "2ca0a4f9ebd907665357f35cc4ac6d9114fe907d8b6962b5e1c527554efa2204",
@@ -34,41 +40,16 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "72822ce4c773ae0f55669ceec8c8bb537f12f79ba0b0842785e647142b1f994d",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6a9e049766e7",
+      "source_fingerprint": "b1e04914d5e1b8fb1fd45bb5ef65cf989954f58114e9d8684159a48949bd237d",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/codemother/proofs/test_codemother_reaches_system_word_through_its_package.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/address_rule.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/codemother/proofs/test_codemother_reaches_system_word_through_its_package.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3315042-d8z5gfzr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3696417-01ano76k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,11 +58,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 156656582,
-          "disk_bytes": 182206464,
-          "entries": 10868,
+          "bytes": 175281278,
+          "disk_bytes": 203223040,
+          "entries": 11962,
           "builds": 1,
-          "reuses": 16
+          "reuses": 2
         }
       }
     },

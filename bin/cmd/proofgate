@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""cairn proofgate — the PreToolUse gate on proofs run by hand outside ``cairn test``.
+
+THE MEASURED LEAK, 2026-10-06 (ticket 1af0564c0db3, child of dda0e72b9c67). A census ran
+every proof under raw pytest with ``strace -f``: 88 of 290 wrote into live ~/.cairn, 2705
+paths — dated emissions, inference tickets, tester run files, appends to bus.log and
+last_known. The same day a CC session's own ``python3 <proof>`` run of e9a2's proof landed
+6 fixture inference tickets in the live log. ``cairn test`` runs a proof inside the
+tester's instance seal; a hand that skips it runs against the operator's world, and the
+operator cannot tell the fixture records from real ones.
+
+WHY IT REWRITES THE python3 HAND INSTEAD OF REFUSING IT. 313 files of standing advice say
+``python3 <proof>``. A refusal would leave every one of them contradicting the gate and cost
+each follower a retyped command; a rewrite keeps them true in effect. So a Bash command
+that runs a file under a ``proofs/`` directory by python is handed back to Claude Code as
+``<repo>/bin/cairn test --exec '<the original, shlex-quoted>'`` through
+``hookSpecificOutput.updatedInput`` — the tester's published sealed exec (2c9eeab2da87) runs
+the whole original text, pipes and all, under the seal. The session is told it was
+rewritten, so nobody reads sealed output believing it ran bare.
+
+WHY pytest IS REFUSED. There is no sealed pytest and nothing in the repo uses pytest
+(cairn/devices/tester/cli.py); a refusal naming ``cairn test`` is the whole way through.
+
+WHAT IT DOES NOT TOUCH, and the bound is the point: any command already carrying
+``cairn test`` (so a rewritten command never rewrites again), reads of a proof (``cat``,
+``sed``, ``grep`` — a grep FOR the word python3 in a proof included, because only a segment
+whose command word is python counts), and python that runs no proof. A script FILE that
+runs proofs carries no proof path in its text and passes; census 2026-10-06 measured 0 such
+executors besides codemother's verdict (68cef2ddd8ef closes that hand).
+
+It reads segments, not a shell grammar: the text is cut at ``; && || | do then`` and each
+segment's command word is found past ``VAR=value`` assignments and a short list of prefix
+commands (timeout, strace, env, ...). Shaped like bin/cmd/deletegate, which explains why a
+hook stays short of a shell parser.
+
+Contract: stdin JSON ``{tool_name, tool_input.command}``; exit 0 silent allows; exit 0 with
+hookSpecificOutput allows the rewritten input; exit 2 blocks with stderr fed back.
+Registered at ``.claude/settings.json`` under ``hooks.PreToolUse`` with matcher ``Bash``.
+
+Proof: ``bin/proofs/test_proof_gate.py``.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shlex
+import sys
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_CAIRN = f"{_REPO_ROOT}/bin/cairn"
+
+ALREADY_SEALED = re.compile(r"(?:^|[\s;&|(/])cairn\s+test\b")
+PYTEST = re.compile(r"(?:^|[\s;&|(/])(?:py\.test|pytest)(?:\s|$)|(?:^|\s)-m\s+pytest\b")
+SEGMENT = re.compile(r"&&|\|\||[;|\n]|\bdo\b|\bthen\b")
+PYTHON = re.compile(r"python[0-9.]*$")
+PREFIXES = {"timeout", "strace", "env", "nice", "nohup", "stdbuf", "time", "ionice", "setsid", "exec"}
+ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+PROOF_PATH = re.compile(r"(?:^|/)proofs/(?:[^/]+/)*test_[^/]*\.py$")
+PROOF_MODULE = re.compile(r"(?:^|\.)proofs\.(?:\w+\.)*test_\w+$")
+PROOF_GLOB = re.compile(r"proofs/\S*test_")
+
+REFUSAL = """REFUSED — pytest runs a proof outside the tester's instance seal.
+
+  blocked: {command}
+
+Measured 2026-10-06: 88 of 290 proofs write into live ~/.cairn when run outside the seal.
+There is no sealed pytest, and nothing in the repo uses it. Run the proof through the
+tester instead:
+
+  bin/cairn test <proof or directory>          run and report
+  bin/cairn test --seal <proof>                land the verdict
+  bin/cairn test --exec '<any command>'        any command, under the same seal
+
+(bin/cmd/proofgate, ticket 1af0564c0db3)"""
+
+TOLD = ("proofgate rewrote this command: it runs a proof outside the tester's instance seal, "
+        "so it now runs as `bin/cairn test --exec '<original>'` — same command, same output, "
+        "under the seal (88 of 290 proofs write live ~/.cairn when run bare; ticket 1af0564c0db3).")
+
+
+def _tokens(segment: str) -> list[str]:
+    try:
+        return shlex.split(segment, comments=False)
+    except ValueError:
+        return segment.split()
+
+
+def _runs_a_proof(segment: str, whole: str) -> bool:
+    toks = _tokens(segment)
+    i = 0
+    while i < len(toks) and ASSIGNMENT.match(toks[i]):
+        i += 1
+    if i >= len(toks):
+        return False
+    first = os.path.basename(toks[i])
+    if PYTHON.match(first):
+        at = i
+    elif first in PREFIXES:
+        at = next((j for j in range(i + 1, len(toks)) if PYTHON.match(os.path.basename(toks[j]))), None)
+        if at is None:
+            return False
+    else:
+        return False
+    args = toks[at + 1:]
+    for k, a in enumerate(args):
+        if PROOF_PATH.search(a):
+            return True
+        if a == "-m" and k + 1 < len(args) and PROOF_MODULE.search(args[k + 1]):
+            return True
+        if a.startswith("$") and PROOF_GLOB.search(whole):
+            return True
+    return False
+
+
+def judge(command: str) -> dict | None:
+    """``None`` to leave the command alone; ``{"action": "refuse"}`` for pytest;
+    ``{"action": "rewrite", "command": ...}`` for a python proof run. The whole judgement, so
+    the proof measures what the hook does."""
+    if not command or ALREADY_SEALED.search(command):
+        return None
+    if PYTEST.search(command):
+        return {"action": "refuse"}
+    if any(_runs_a_proof(s, command) for s in SEGMENT.split(command)):
+        return {"action": "rewrite", "command": f"{_CAIRN} test --exec {shlex.quote(command)}"}
+    return None
+
+
+def main() -> int:
+    try:
+        event = json.load(sys.stdin)
+    except ValueError:
+        return 0
+    if event.get("tool_name") != "Bash":
+        return 0
+    command = (event.get("tool_input") or {}).get("command") or ""
+    v = judge(command)
+    if v is None:
+        return 0
+    if v["action"] == "refuse":
+        print(REFUSAL.format(command=command), file=sys.stderr)
+        return 2
+    print(json.dumps({"hookSpecificOutput": {
+        "hookEventName": "PreToolUse",
+        "permissionDecision": "allow",
+        "permissionDecisionReason": TOLD,
+        "additionalContext": TOLD,
+        "updatedInput": {**(event.get("tool_input") or {}), "command": v["command"]},
+    }}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -248,8 +248,11 @@ def _render_trouble(data) -> str:
     light = (f'<span class="red-light" style="display:inline-block;width:.8rem;height:.8rem;'
              f'border-radius:50%;background:{light_color};vertical-align:middle;margin-right:.4rem;">'
              f'</span>')
-    header = f'{light}<strong>{_esc(len(live))}</strong> live trouble{"" if len(live) == 1 else "s"}'
+    header = (f'{light}<strong>{_esc(len(live))}</strong> live trouble{"" if len(live) == 1 else "s"}'
+              f' <span class="trouble-readonly">read-only — troubles are raised and cleared by '
+              f'the system, never from this page</span>')
     rows = ""
+    sections = ""
     for t in data:
         if not isinstance(t, dict):
             continue
@@ -260,15 +263,23 @@ def _render_trouble(data) -> str:
         first = _esc(t.get("first_seen", ""))
         last = _esc(t.get("last_seen", ""))
         rows += (f'<tr data-id="{tid}">'
-                 f'<td>{tid}</td><td>{standing}</td><td>{count}</td>'
+                 f'<td><a href="#trouble-{tid}">{tid}</a></td><td>{standing}</td><td>{count}</td>'
                  f'<td class="trouble-why">{why}</td>'
                  f'<td>{first}</td><td>{last}</td></tr>')
+        # THE DETAIL IS THE RECORD, NOT A SUMMARY (7a1265439f54 clause (4), ticket
+        # 1cafb10c2983): the list may clip the why to a line, so the whole finding lives
+        # here, one section per trouble, shown by :target when its id is selected — a
+        # plain anchor, so the page stays script-free.
+        sections += (f'<section id="trouble-{tid}" class="trouble-full">'
+                     f'<h3>{tid}</h3><p>{standing} · count {count} · first seen {first} · '
+                     f'last seen {last}</p><pre class="trouble-finding">{why}</pre></section>')
     table_html = (
         '<table class="trouble-list"><thead><tr>'
         '<th>id</th><th>standing</th><th>count</th><th>why</th>'
         '<th>first seen</th><th>last seen</th>'
         '</tr></thead><tbody>' + rows + '</tbody></table>')
-    detail_html = '<div class="trouble-detail"><p class="trouble-detail-hint">Select a trouble from the list.</p></div>'
+    detail_html = ('<div class="trouble-detail"><p class="trouble-detail-hint">Select a trouble '
+                   'from the list.</p>' + sections + '</div>')
     return (f'<div class="trouble-panel"><p class="trouble-header">{header}</p>'
             f'<div class="trouble-split">{table_html}{detail_html}</div></div>')
 
@@ -417,6 +428,10 @@ nav a.dev.harbor { border-color: #a86; }
 .trouble-list .trouble-why { max-width: 20rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .trouble-detail { border: 1px solid #8884; border-radius: .5rem; padding: .6rem .9rem; min-height: 8rem; }
 .trouble-detail-hint { opacity: .6; font-style: italic; }
+.trouble-readonly { opacity: .6; font-size: .85rem; margin-left: .6rem; }
+.trouble-full { display: none; }
+.trouble-full:target { display: block; }
+.trouble-full .trouble-finding { white-space: pre-wrap; word-break: break-word; margin: .3rem 0; }
 .pane dl.record { margin: .3rem 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem .8rem; }
 .pane dl.record dt { font-weight: 600; opacity: .8; }
 .pane dl.record dd { margin: 0; }

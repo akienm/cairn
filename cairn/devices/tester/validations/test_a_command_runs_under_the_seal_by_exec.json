@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_a_command_runs_under_the_seal_by_exec.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T04:19:26",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_exit_code_and_stdout_pass_through_unchanged: AssertionError: exit 3 came back as 2: usage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT]\n                  [--hollow TICKET] [--reseal] [--ruling ID] [--stage]\n                  [--reseal-install] [--reseal-verify] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: --exec\n\n  FAIL  test_no_bwrap_and_no_inherited_seal_refuses_never_bare: AssertionError: expected exit 2, got 1: Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\n    raise SystemExit(d.TesterDevice().run_exec(\"touch /tmp/exec-proof-ran-bare-3815706\", timeout=30))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'TesterDevice' object has no attribute 'run_exec'\n\n  FAIL  test_the_charter_publishes_the_entry: AssertionError: the tester charter's public_interface does not name `cairn test --exec` / run_exec: []\n  FAIL  test_the_whole_falsifier_holds_end_to_end: AssertionError: --exec exit 2: usage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT]\n                  [--hollow TICKET] [--reseal] [--ruling ID] [--stage]\n                  [--reseal-install] [--reseal-verify] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: --exec\n\nred — 6 of 6 teeth failed",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_exec_runs_the_command_with_the_seal_marker",
+        "test_a_write_inside_exec_never_reaches_the_live_root",
+        "test_exit_code_and_stdout_pass_through_unchanged",
+        "test_no_bwrap_and_no_inherited_seal_refuses_never_bare",
+        "test_the_charter_publishes_the_entry",
+        "test_the_whole_falsifier_holds_end_to_end"
+      ],
+      "test": "test-90700d89fbae",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7bf12262f1d14da510fb6c314b227f75bd2682fe4ef92161d47726baf92923a9",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 300,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90700d89fbae",
+      "source_fingerprint": "1e9a1bdf27470ae438efe145c4f3fdeff159da45ca23fed9674979808880f625",
+      "fingerprint_closure": [
+        "cairn/devices/tester/proofs/test_a_command_runs_under_the_seal_by_exec.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3815684-0bk8vvap/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 102241850,
+          "disk_bytes": 122839040,
+          "entries": 8466,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

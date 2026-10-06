@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_proof_gate.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T04:11:23",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_python3_by_path_is_refused_with_the_way_through: no gate at bin/cmd/proofgate\n  FAIL  test_pytest_in_any_spelling_is_refused: no gate at bin/cmd/proofgate\n  FAIL  test_cairn_test_reads_and_other_python_pass: no gate at bin/cmd/proofgate\n  FAIL  test_settings_register_the_gate_under_pretooluse_bash: no PreToolUse Bash entry runs bin/cmd/proofgate in .claude/settings.json\n  FAIL  test_every_census_command_is_refused_before_a_proof_starts: no gate at bin/cmd/proofgate\n  FAIL  test_the_whole_falsifier_holds_end_to_end: no gate at bin/cmd/proofgate\nred — 6 of 6 teeth failed",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_python3_by_path_is_refused_with_the_way_through",
+        "test_pytest_in_any_spelling_is_refused",
+        "test_cairn_test_reads_and_other_python_pass",
+        "test_settings_register_the_gate_under_pretooluse_bash",
+        "test_every_census_command_is_refused_before_a_proof_starts",
+        "test_the_whole_falsifier_holds_end_to_end"
+      ],
+      "test": "test-eb46be998dc4",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 3,
+        "tables": [
+          "build_inspector_failures_3791787_0342102208_nodes",
+          "orient_corrections_3803245_0351324023_nodes",
+          "chart_orient_3805231_0353476039_nodes"
+        ]
+      },
+      "conditions": {
+        "proof": "f50a9b2e28d60fb3df41043490ce63cf49c064cfaa155c34d938ddc6855ce880",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb46be998dc4",
+      "source_fingerprint": "e9ffd2237f096f65c92a31e5a0b179bf98eee39cdcf7ffdceb2931b123926e98",
+      "fingerprint_closure": [
+        "bin/proofs/test_proof_gate.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3813867-2qqih01g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 102192313,
+          "disk_bytes": 122773504,
+          "entries": 8460,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

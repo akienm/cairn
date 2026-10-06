@@ -42,10 +42,12 @@ from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.tools.base.address import instance_path, tool_path
+from cairn.tools.base.address import log_path, tool_path
 
-_INSTANCE_ROOT = instance_path("codemother", 0)
-_MAIL_DIR = _INSTANCE_ROOT / "mail"
+# MAIL SHE CANNOT DISPATCH IS EXHAUST (ticket d10668f76c45): the replies to her own requests, which
+# nothing reads, are what HAPPENED to her, so they berth in the logs tree and age out with it.
+# Kept in instance space they grew to 3,666 files / 79MB and rode into every tester seal.
+_MAIL_DIR = log_path("codemother", 0) / "mail"
 
 # THE CHARTER TOOL'S HELD INSTANCE (ticket 65b34c57ab71) — the first code ownership transfer
 # from CC to another device. Charter is a tool and a tool has users, not an owner (Law 6),

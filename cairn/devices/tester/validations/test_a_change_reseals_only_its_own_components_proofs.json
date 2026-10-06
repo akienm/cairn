@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_change_reseals_only_its_own_components_proofs.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T15:07:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T17:06:56",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -29,7 +29,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -37,33 +37,19 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "66fa6f944a8e1a17dcd1afa5d03165c49a848a2e4a247da2a11e7f7e9353b904",
+      "source_fingerprint": "8f70f4adfb6afdebc2385a2fe6d5fc0e6908e18d314d25f12784af93a6b6ec41",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_a_change_reseals_only_its_own_components_proofs.py",
         "cairn/devices/tester/reseal.py",
-        "cairn/devices/tester/scratch_sweep.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
-        "cairn/tools/validation_store/__init__.py",
-        "cairn/tools/validation_store/validation_store.py"
+        "cairn/devices/tester/scratch_sweep.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3479190-nm9qlr9w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3533642-s5pv4tyu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,28 +58,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 167652165,
-          "disk_bytes": 194547712,
-          "entries": 11499,
+          "bytes": 169610577,
+          "disk_bytes": 196800512,
+          "entries": 11623,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "3e80b61b7acf": {
-          "cairn/devices/tester/reseal.py": [
-            "a_nested_components_change_does_not_touch_its_holder",
-            "a_users_proof_is_not_touched_by_its_tools_change",
-            "on_the_live_census_the_reach_stops_at_the_owner"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "3e80b61b7acf": {
-          "anchor_rule": "journal",
-          "anchor_journal": "cc0f1a1fbe9f7a8d74ee85294602ffd723e479a4",
-          "anchor_first_build": "adc1b5df8af5b6cbed722474c1238d2ebc708167",
-          "commit": "cc0f1a1fbe9f7a8d74ee85294602ffd723e479a4"
         }
       }
     },

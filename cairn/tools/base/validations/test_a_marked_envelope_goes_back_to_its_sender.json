@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_a_marked_envelope_goes_back_to_its_sender.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-05T19:26:21",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS test_a_return_marked_envelope_is_posted_back_to_its_sender_unacted_on\nPASS test_a_subclass_that_overrides_deliver_still_returns_it\nPASS test_everything_else_is_unchanged\nPASS test_a_return_is_never_returned_again",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_return_marked_envelope_is_posted_back_to_its_sender_unacted_on",
+        "test_a_subclass_that_overrides_deliver_still_returns_it",
+        "test_everything_else_is_unchanged",
+        "test_a_return_is_never_returned_again"
+      ],
+      "teeth_red": [],
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "5d622c75fb38ad5babf8c11de714d9b93837875239b07e5d0d81cfee5fd6107d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "source_fingerprint": "3021ee7be3ae1183b5967a34f24180f9e56956d47beaa7d68c65c0243caccd69",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_a_marked_envelope_goes_back_to_its_sender.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3593436-yt974fog/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 1,
+          "paths": [
+            "devices/marked_mail_fixture_3bf7/0/last_known.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 171639120,
+          "disk_bytes": 199098368,
+          "entries": 11743,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

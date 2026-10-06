@@ -1,0 +1,70 @@
+[
+  {
+    "claim": "proof test_a_var_script_slot_runs_a_proof_only_through_its_loop.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T10:46:45",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_proof_in_another_segment_binds_no_var\n  PASS  test_a_proof_as_the_scripts_argument_binds_no_var\n  PASS  test_the_loop_over_a_proofs_glob_still_binds\n  PASS  test_the_whole_falsifier_holds_end_to_end\ngreen — proofgate: a $var script slot runs a proof only through the loop that binds it",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_proof_in_another_segment_binds_no_var",
+        "test_a_proof_as_the_scripts_argument_binds_no_var",
+        "test_the_loop_over_a_proofs_glob_still_binds",
+        "test_the_whole_falsifier_holds_end_to_end"
+      ],
+      "teeth_red": [],
+      "test": "test-d8a5ecf3e1e5",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "ee778474e0cd9cda5a1c842498f88d6b7f63f2d88eb2b27c42558cb363c17837",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d8a5ecf3e1e5",
+      "source_fingerprint": "8186a4e982fa8bf8768919672229bb27bf986d8605cfba57fabb99d4e2170426",
+      "fingerprint_closure": [
+        "bin/proofs/test_a_var_script_slot_runs_a_proof_only_through_its_loop.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3938855-6wnhtkc2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 102519296,
+          "disk_bytes": 123318272,
+          "entries": 8541,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

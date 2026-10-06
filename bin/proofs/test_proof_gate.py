@@ -63,6 +63,8 @@ PROVES = {"1af0564c0db3": {
     "1": "test_the_word_as_an_argument_passes_untouched",
     "2": "test_pytest_as_a_command_word_is_still_refused",
     "3": "test_a_separator_inside_an_assignment_hides_no_proof_run",
+    "4": "test_a_wrapped_command_is_judged_as_the_command_it_is",
+    "5": "test_cairn_test_seals_only_its_own_segment",
 }}
 
 _HELD: list = []
@@ -260,6 +262,14 @@ AS_COMMAND = PYTEST + [
 # D9 on 1af0564c0db3: the split cut inside the quotes, so the python3 segment never began.
 IN_ASSIGNMENT = f'X="a;b" python3 {P}'
 
+# The whole-text match refused these; a per-segment walk that stopped at bash would not.
+WRAPPED_REFUSED = [f'bash -c "{_W} x.py"', f"sh -c '{_W} -q {P}'", f'eval "{_W} x.py"']
+WRAPPED_REWRITTEN = [f'bash -c "python3 {P}"']
+WRAPPED_UNTOUCHED = [f'bash -c "echo {_W}"']
+
+# The whole-text `cairn test` match let a bare proof run ride beside the words.
+SEALED_BESIDE = [f'echo "cairn test"; python3 {P}', f"bin/cairn test {P}; python3 {P}"]
+
 
 def test_the_word_as_an_argument_passes_untouched():
     g = _gate()
@@ -287,10 +297,31 @@ def test_a_separator_inside_an_assignment_hides_no_proof_run():
     assert _rewritten(IN_ASSIGNMENT) == _wrapped(IN_ASSIGNMENT)
 
 
+def test_a_wrapped_command_is_judged_as_the_command_it_is():
+    g = _gate()
+    leaked = [c for c in WRAPPED_REFUSED if (g.judge(c) or {}).get("action") != "refuse"]
+    assert not leaked, f"wrapped spellings not refused: {leaked}"
+    bare = [c for c in WRAPPED_REWRITTEN if (g.judge(c) or {}).get("command") != _wrapped(c)]
+    assert not bare, f"wrapped proof runs not rewritten: {bare}"
+    judged = [c for c in WRAPPED_UNTOUCHED if g.judge(c) is not None]
+    assert not judged, f"a wrapped argument was judged: {judged}"
+
+
+def test_cairn_test_seals_only_its_own_segment():
+    g = _gate()
+    bare = [c for c in SEALED_BESIDE if (g.judge(c) or {}).get("command") != _wrapped(c)]
+    assert not bare, f"a proof run beside `cairn test` passed bare: {bare}"
+    assert _rewritten(SEALED_BESIDE[0]) == _wrapped(SEALED_BESIDE[0])
+    once = _wrapped(SEALED_BESIDE[0])
+    assert g.judge(once) is None, f"a rewritten command must not rewrite again: {g.judge(once)}"
+
+
 def test_the_whole_fix_holds_end_to_end():
     test_the_word_as_an_argument_passes_untouched()
     test_pytest_as_a_command_word_is_still_refused()
     test_a_separator_inside_an_assignment_hides_no_proof_run()
+    test_a_wrapped_command_is_judged_as_the_command_it_is()
+    test_cairn_test_seals_only_its_own_segment()
 
 
 def test_the_whole_falsifier_holds_end_to_end():
@@ -316,6 +347,8 @@ def _main() -> int:
         test_the_word_as_an_argument_passes_untouched,
         test_pytest_as_a_command_word_is_still_refused,
         test_a_separator_inside_an_assignment_hides_no_proof_run,
+        test_a_wrapped_command_is_judged_as_the_command_it_is,
+        test_cairn_test_seals_only_its_own_segment,
         test_the_whole_fix_holds_end_to_end,
     ]
     # EVERY TOOTH PRINTS, red ones too, so a red names which clause fell.

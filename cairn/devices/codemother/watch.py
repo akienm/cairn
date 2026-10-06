@@ -93,6 +93,8 @@ def activate(area: str, reason: str, *, context: dict | None = None) -> dict:
         escalated = True
         try:
             hex_result = _escalate_to_hex(area, reason, context)
+            if hex_result.get("error"):
+                record["escalation_error"] = hex_result["error"]
             if hex_result.get("nodes"):
                 findings.extend(_extract_findings(hex_result["nodes"], source="hex"))
         except Exception as e:
@@ -156,12 +158,21 @@ def _escalate_to_hex(area: str, reason: str, context: dict | None) -> dict:
                     f"What patterns, risks, or observations should the codebase "
                     f"watcher note about this area?"
                 ),
-                "domain": "codemother",
-                "model": "qwen",
+                "domain": "coding",
+                "model": "qwen3-coder:30b",
             },
             timeout=60.0,
         )
-        return {"nodes": [{"content": reply.get("body", {}).get("answer", ""), "source": "hex"}]}
+        # A REFUSAL COMES BACK AS A VALUE (inference_domain answers outcome 'refused', answer
+        # None), so it is read here as the error it is; a generate answer is {"text", "body"}
+        # and the node carries the text. Until 9f448a03ba40 both were wrapped as a node, and 689
+        # refusals for a domain row that does not exist read as findings of nothing (Law 7).
+        rb = reply.get("body", {})
+        if rb.get("outcome") == "refused":
+            return {"nodes": [], "error": f"refused ({rb.get('refused')}): {rb.get('detail')}"}
+        answer = rb.get("answer")
+        text = answer.get("text", "") if isinstance(answer, dict) else (answer or "")
+        return {"nodes": [{"content": text, "source": "hex"}]}
     except (TimeoutError, Exception) as e:
         return {"nodes": [], "error": str(e)}
 

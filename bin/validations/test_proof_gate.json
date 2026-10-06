@@ -2,37 +2,35 @@
   {
     "claim": "proof test_proof_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-06T04:11:23",
+    "date": "2026-10-06T04:15:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "  FAIL  test_python3_by_path_is_refused_with_the_way_through: no gate at bin/cmd/proofgate\n  FAIL  test_pytest_in_any_spelling_is_refused: no gate at bin/cmd/proofgate\n  FAIL  test_cairn_test_reads_and_other_python_pass: no gate at bin/cmd/proofgate\n  FAIL  test_settings_register_the_gate_under_pretooluse_bash: no PreToolUse Bash entry runs bin/cmd/proofgate in .claude/settings.json\n  FAIL  test_every_census_command_is_refused_before_a_proof_starts: no gate at bin/cmd/proofgate\n  FAIL  test_the_whole_falsifier_holds_end_to_end: no gate at bin/cmd/proofgate\nred — 6 of 6 teeth failed",
+      "stdout_tail": "  FAIL  test_python3_by_path_is_rewritten_under_the_seal: no gate at bin/cmd/proofgate\n  FAIL  test_pytest_in_any_spelling_is_refused_with_the_way_through: no gate at bin/cmd/proofgate\n  FAIL  test_cairn_test_reads_and_other_python_pass_untouched: no gate at bin/cmd/proofgate\n  FAIL  test_settings_register_the_gate_under_pretooluse_bash: no PreToolUse Bash entry runs bin/cmd/proofgate in .claude/settings.json\n  FAIL  test_every_census_command_is_refused_or_rewritten_never_bare: no gate at bin/cmd/proofgate\n  FAIL  test_a_rewritten_proof_runs_under_the_instance_seal: no gate at bin/cmd/proofgate\n  FAIL  test_quotes_and_pipes_survive_the_rewrite: no gate at bin/cmd/proofgate\n  FAIL  test_the_whole_falsifier_holds_end_to_end: no gate at bin/cmd/proofgate\nred — 8 of 8 teeth failed",
       "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [
-        "test_python3_by_path_is_refused_with_the_way_through",
-        "test_pytest_in_any_spelling_is_refused",
-        "test_cairn_test_reads_and_other_python_pass",
+        "test_python3_by_path_is_rewritten_under_the_seal",
+        "test_pytest_in_any_spelling_is_refused_with_the_way_through",
+        "test_cairn_test_reads_and_other_python_pass_untouched",
         "test_settings_register_the_gate_under_pretooluse_bash",
-        "test_every_census_command_is_refused_before_a_proof_starts",
+        "test_every_census_command_is_refused_or_rewritten_never_bare",
+        "test_a_rewritten_proof_runs_under_the_instance_seal",
+        "test_quotes_and_pipes_survive_the_rewrite",
         "test_the_whole_falsifier_holds_end_to_end"
       ],
-      "test": "test-eb46be998dc4",
+      "test": "test-e2f360c2ad2d",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 3,
-        "tables": [
-          "build_inspector_failures_3791787_0342102208_nodes",
-          "orient_corrections_3803245_0351324023_nodes",
-          "chart_orient_3805231_0353476039_nodes"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "f50a9b2e28d60fb3df41043490ce63cf49c064cfaa155c34d938ddc6855ce880",
+        "proof": "0e442da22971ac88f3ab0d765de75c3500107294c56f7e8e62a45d05cbad9440",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -46,14 +44,14 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb46be998dc4",
-      "source_fingerprint": "e9ffd2237f096f65c92a31e5a0b179bf98eee39cdcf7ffdceb2931b123926e98",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e2f360c2ad2d",
+      "source_fingerprint": "9e7951bbbb799e7360f0f6898801ac3575d6d2500b799f9dbcca3a9878d1db22",
       "fingerprint_closure": [
         "bin/proofs/test_proof_gate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3813867-2qqih01g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3814814-9jz7rk4t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,9 +60,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102192313,
-          "disk_bytes": 122773504,
-          "entries": 8460,
+          "bytes": 102241368,
+          "disk_bytes": 122834944,
+          "entries": 8465,
           "builds": 1,
           "reuses": 0
         }

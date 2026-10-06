@@ -13,7 +13,13 @@ marks what it sends with ``testing_mark.mark(<that id>)``. Everything else hangs
     the cairn device's sleep work, so nothing here needs a sweep of its own;
   - the processes the run started: anything whose environment still carries the id after the
     subject has exited. The environment survives setsid and a timed-out parent, which a
-    process-group kill does not.
+    process-group kill does not;
+  - the systemd user units the run started: any service the manager records as handed the id.
+    /proc cannot see these in two cases (measured 2026-10-05, found by f04d5ef26a48's seal): a
+    unit that FAILED has no process left, and inside the seal's user namespace
+    /proc/<pid>/environ of every process outside it reads "Permission denied". The manager's
+    own record (``systemctl --user show -p Environment``) reads through the seal, so the run
+    asks it, stops what carries the id and clears the failed ones.
 """
 from __future__ import annotations
 
@@ -21,6 +27,7 @@ import json
 import os
 import re
 import signal
+import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -95,9 +102,47 @@ def _carrying(test: str) -> list[dict]:
     return found
 
 
+def _systemctl(*argv: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["systemctl", "--user", *argv], capture_output=True, text=True, timeout=30)
+
+
+def _units_carrying(test: str) -> list[str]:
+    """Every service the user manager records as handed the run's id, failed ones included."""
+    listed = _systemctl("list-units", "--all", "--no-legend", "--plain", "--type=service")
+    names = [line.split()[0] for line in listed.stdout.splitlines() if line.strip()]
+    if not names:
+        return []
+    shown = _systemctl("show", "-p", "Id", "-p", "Environment", "--", *names)
+    tag, found, unit = f"{ENV}={test}", [], None
+    for line in shown.stdout.splitlines():
+        if line.startswith("Id="):
+            unit = line[3:]
+        elif line.startswith("Environment=") and unit and tag in line[12:].split():
+            found.append(unit)
+    return found
+
+
+def stop_its_units(test: str) -> list[dict]:
+    """Stop every user service carrying the run's id and clear it from the manager. A manager
+    that cannot be asked is named in what comes back, never passed over in silence (Law 7)."""
+    try:
+        units = _units_carrying(test)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return [{"unit": None, "signal": f"none: the user manager could not be asked: {exc}"}]
+    out = []
+    for unit in units:
+        stop = _systemctl("stop", unit)
+        _systemctl("reset-failed", unit)
+        out.append({"unit": unit, "signal": "stop" if stop.returncode == 0
+                    else f"stop failed: {stop.stderr.strip()[:200]}"})
+    return out
+
+
 def kill_what_it_started(test: str) -> list[dict]:
-    """SIGTERM every live process still carrying the run's id, SIGKILL what outlives the grace.
-    Returns what was found, each with the signal that ended it (or the error that stopped us)."""
+    """Stop the user units carrying the run's id, then SIGTERM every live process still carrying
+    it, SIGKILL what outlives the grace. Returns what was found, each with the signal that ended
+    it (or the error that stopped us)."""
+    units = stop_its_units(test)
     found = _carrying(test)
     for p in found:
         try:
@@ -117,4 +162,4 @@ def kill_what_it_started(test: str) -> list[dict]:
                 p["signal"] = "KILL"
             except OSError as exc:
                 p["signal"] = f"KILL failed: {exc.strerror}"
-    return found
+    return units + found

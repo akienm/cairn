@@ -65,6 +65,7 @@ PROVES = {"1af0564c0db3": {
     "3": "test_a_separator_inside_an_assignment_hides_no_proof_run",
     "4": "test_a_wrapped_command_is_judged_as_the_command_it_is",
     "5": "test_cairn_test_seals_only_its_own_segment",
+    "6": "test_a_proof_path_as_an_argument_is_not_a_proof_run",
 }}
 
 _HELD: list = []
@@ -270,6 +271,12 @@ WRAPPED_UNTOUCHED = [f'bash -c "echo {_W}"']
 # The whole-text `cairn test` match let a bare proof run ride beside the words.
 SEALED_BESIDE = [f'echo "cairn test"; python3 {P}', f"bin/cairn test {P}; python3 {P}"]
 
+# Measured 2026-10-06: a crossing that names its proof as an argument was rewritten, and the
+# `cairn test --seal` beside it ran nested under --exec and persisted a false RED. The proof run
+# is the script slot, never any argument that happens to name a proof.
+AS_SCRIPT_ARGUMENT = [f'python3 cross.py 72a37498c601 PROVEME bin "why" {P}', f"python3 -c 'print(1)' {P}"]
+IN_SCRIPT_SLOT = [f"python3 {P}", f"python3 -u {P} --verbose", f"python3 -X dev {P}"]
+
 
 def test_the_word_as_an_argument_passes_untouched():
     g = _gate()
@@ -316,12 +323,24 @@ def test_cairn_test_seals_only_its_own_segment():
     assert g.judge(once) is None, f"a rewritten command must not rewrite again: {g.judge(once)}"
 
 
+def test_a_proof_path_as_an_argument_is_not_a_proof_run():
+    g = _gate()
+    judged = [c for c in AS_SCRIPT_ARGUMENT if g.judge(c) is not None]
+    assert not judged, f"a proof path as a script's argument was judged: {judged}"
+    r = _hook(AS_SCRIPT_ARGUMENT[0])
+    assert r.returncode == 0 and not r.stdout.strip(), \
+        f"{AS_SCRIPT_ARGUMENT[0]!r} must pass silently: exit {r.returncode}, stdout {r.stdout[:200]!r}"
+    bare = [c for c in IN_SCRIPT_SLOT if (g.judge(c) or {}).get("command") != _wrapped(c)]
+    assert not bare, f"a proof in the script slot was not rewritten: {bare}"
+
+
 def test_the_whole_fix_holds_end_to_end():
     test_the_word_as_an_argument_passes_untouched()
     test_pytest_as_a_command_word_is_still_refused()
     test_a_separator_inside_an_assignment_hides_no_proof_run()
     test_a_wrapped_command_is_judged_as_the_command_it_is()
     test_cairn_test_seals_only_its_own_segment()
+    test_a_proof_path_as_an_argument_is_not_a_proof_run()
 
 
 def test_the_whole_falsifier_holds_end_to_end():
@@ -349,6 +368,7 @@ def _main() -> int:
         test_a_separator_inside_an_assignment_hides_no_proof_run,
         test_a_wrapped_command_is_judged_as_the_command_it_is,
         test_cairn_test_seals_only_its_own_segment,
+        test_a_proof_path_as_an_argument_is_not_a_proof_run,
         test_the_whole_fix_holds_end_to_end,
     ]
     # EVERY TOOTH PRINTS, red ones too, so a red names which clause fell.

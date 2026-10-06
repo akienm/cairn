@@ -2,12 +2,12 @@
   {
     "claim": "proof test_proof_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-06T06:42:54",
+    "date": "2026-10-06T07:27:48",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_python3_by_path_is_rewritten_under_the_seal\n  PASS  test_pytest_in_any_spelling_is_refused_with_the_way_through\n  PASS  test_cairn_test_reads_and_other_python_pass_untouched\n  PASS  test_settings_register_the_gate_under_pretooluse_bash\n  PASS  test_every_census_command_is_refused_or_rewritten_never_bare\n  PASS  test_a_rewritten_proof_runs_under_the_instance_seal\n  PASS  test_quotes_and_pipes_survive_the_rewrite\n  PASS  test_the_whole_falsifier_holds_end_to_end\ngreen — proofgate: a python3 proof run by hand runs under the seal, pytest is refused with the way through",
+      "stdout_tail": "  PASS  test_python3_by_path_is_rewritten_under_the_seal\n  PASS  test_pytest_in_any_spelling_is_refused_with_the_way_through\n  PASS  test_cairn_test_reads_and_other_python_pass_untouched\n  PASS  test_settings_register_the_gate_under_pretooluse_bash\n  PASS  test_every_census_command_is_refused_or_rewritten_never_bare\n  PASS  test_a_rewritten_proof_runs_under_the_instance_seal\n  PASS  test_quotes_and_pipes_survive_the_rewrite\n  PASS  test_the_whole_falsifier_holds_end_to_end\n  PASS  test_the_word_as_an_argument_passes_untouched\n  PASS  test_pytest_as_a_command_word_is_still_refused\n  PASS  test_a_separator_inside_an_assignment_hides_no_proof_run\n  PASS  test_a_wrapped_command_is_judged_as_the_command_it_is\n  PASS  test_cairn_test_seals_only_its_own_segment\n  PASS  test_the_whole_fix_holds_end_to_end\ngreen — proofgate: a python3 proof run by hand runs under the seal, pytest is refused with the way through",
       "stderr_tail": "",
       "teeth_green": [
         "test_python3_by_path_is_rewritten_under_the_seal",
@@ -17,23 +17,26 @@
         "test_every_census_command_is_refused_or_rewritten_never_bare",
         "test_a_rewritten_proof_runs_under_the_instance_seal",
         "test_quotes_and_pipes_survive_the_rewrite",
-        "test_the_whole_falsifier_holds_end_to_end"
+        "test_the_whole_falsifier_holds_end_to_end",
+        "test_the_word_as_an_argument_passes_untouched",
+        "test_pytest_as_a_command_word_is_still_refused",
+        "test_a_separator_inside_an_assignment_hides_no_proof_run",
+        "test_a_wrapped_command_is_judged_as_the_command_it_is",
+        "test_cairn_test_seals_only_its_own_segment",
+        "test_the_whole_fix_holds_end_to_end"
       ],
       "teeth_red": [],
-      "test": "test-be91699d04b8",
+      "test": "test-73b58a18df14",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_3841983_0530378956_delivery",
-          "bus_proc_3841983_0530378956"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "0e442da22971ac88f3ab0d765de75c3500107294c56f7e8e62a45d05cbad9440",
+        "proof": "5f6b18c7cb210f5dd1c2534a65a9f086ed6bc1cc16ca1e29c8c27c1a24caebb2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -47,14 +50,14 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-be91699d04b8",
-      "source_fingerprint": "9e7951bbbb799e7360f0f6898801ac3575d6d2500b799f9dbcca3a9878d1db22",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-73b58a18df14",
+      "source_fingerprint": "6ff5110549de3482ed5037d3c854201b6739d99c76d238ef90695ad8c00b5228",
       "fingerprint_closure": [
         "bin/proofs/test_proof_gate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3857593-4__2ybid/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3869138-bdf3brnu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,35 +66,19 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102319089,
-          "disk_bytes": 122966016,
-          "entries": 8488,
+          "bytes": 102381651,
+          "disk_bytes": 123097088,
+          "entries": 8511,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "1af0564c0db3": {
-          "bin/cmd/proofgate": [
-            "test_a_rewritten_proof_runs_under_the_instance_seal",
-            "test_cairn_test_reads_and_other_python_pass_untouched",
-            "test_every_census_command_is_refused_or_rewritten_never_bare",
-            "test_pytest_in_any_spelling_is_refused_with_the_way_through",
-            "test_python3_by_path_is_rewritten_under_the_seal",
-            "test_quotes_and_pipes_survive_the_rewrite"
-          ],
-          ".claude/settings.json": [
-            "test_settings_register_the_gate_under_pretooluse_bash"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "1af0564c0db3": {
-          "anchor_rule": "journal",
-          "anchor_journal": "874c08b63a1fbcd1a3717f86412345fd60711b02",
-          "anchor_first_build": "2901a081ad5de0c17233ad4605174b95f5c82b64",
-          "commit": "874c08b63a1fbcd1a3717f86412345fd60711b02"
-        }
+      "conditions_moved": {
+        "notified": "n-a3d1e2b7c589",
+        "changed": [
+          "env",
+          "isolation"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

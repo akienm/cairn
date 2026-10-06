@@ -371,6 +371,34 @@ def _refuse_non_canonical(p: Path, blob: bytes) -> None:
                       "write json.dumps(doc, indent=2) or use write_json; nothing written (f9ba6c89844d)")
 
 
+def _refuse_history_without_floor(p: Path, blob: bytes) -> None:
+    """A history row carries the projector's floor at this door too (62a57b781efc). Two rows
+    without ``standing`` landed here on 2026-10-02 through verb append, past
+    projector.append_entry's gate one door up. A row the body introduces — one not equal to a
+    row of the standing file — must carry every key of projector.UNIVERSAL_REQUIRED; rows
+    already standing are not re-judged, so keeping an old row never refuses the next append."""
+    from cairn.tools.charter import projector  # at call time: projector imports this door
+    body = json.loads(blob.decode("utf-8"))
+    if not isinstance(body, list):
+        return
+    try:
+        standing = json.loads(p.read_text(encoding="utf-8")) if p.exists() else []
+    except ValueError:
+        standing = []
+    if not isinstance(standing, list):
+        standing = []
+    for rec in body:
+        if rec in standing:
+            continue
+        missing = [k for k in projector.UNIVERSAL_REQUIRED
+                   if not (isinstance(rec, dict) and rec.get(k))]
+        if missing:
+            seq = rec.get("seq") if isinstance(rec, dict) else None
+            raise Refused(f"{p} is a history record and the row it introduces (seq {seq!r}) lacks "
+                          f"{missing}, the floor projector.UNIVERSAL_REQUIRED names — append "
+                          "through projector.append_entry; nothing written (62a57b781efc)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -388,6 +416,8 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
     name, root, rel = hit
     if p.suffix == ".json":
         _refuse_non_canonical(p, blob)
+        if p.name == "history.json":
+            _refuse_history_without_floor(p, blob)
     before = p.read_bytes() if p.exists() else None
     if before == blob:
         # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let

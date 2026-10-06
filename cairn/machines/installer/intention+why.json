@@ -8,7 +8,9 @@
   "invoke": "`cairn install` (interactive — offers each applicable seam via Y/N), `cairn install --dry-run` (lists applicable seams without applying), `python3 -m cairn.machines.installer.installer --intentions-dir <path>` (override corpus). Import: `from cairn.machines.installer.installer import install, gather_host_seams, run_verify`.",
   "node_class": "machine",
   "learns": "Not yet — it reads the corpus fresh each time and has no memory of past runs. When install logs exist (which runs applied which seams, which verifications failed), the learning is 'which seams drift' — but that is the re-verify horizon's job (each host-seam declares its own), not a pattern the installer discovers.",
-  "gated_by": ["CC"],
+  "gated_by": [
+    "CC"
+  ],
   "claim_provenance": {
     "role": "cc-read",
     "what": "cc-authored",

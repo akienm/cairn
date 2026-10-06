@@ -2,12 +2,12 @@
   {
     "claim": "proof test_runtime_role.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:12:18",
+    "date": "2026-10-06T11:45:01",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_census_rows_have_runtime_role\n.\n  ok   test_census_runtime_role_matches_charter\n.\n  ok   test_sieve_fires_on_missing_gated_by\n.\n  ok   test_sieve_clean_on_present_gated_by\n.\n  ok   test_sieve_fires_on_empty_gated_by\n.\n  ok   test_sieve_fires_on_non_list_gated_by\n.\n  ok   test_sieve_fires_on_empty_string_in_gated_by\n.\n  ok   test_sieve_clean_on_multi_hand_gated_by\n.\n  ok   test_roster_minimum\n                                                         [100%]\n16 passed in 1.48s",
+      "stdout_tail": ".\n  ok   test_census_rows_have_runtime_role\n.\n  ok   test_census_runtime_role_matches_charter\n.\n  ok   test_sieve_fires_on_missing_gated_by\n.\n  ok   test_sieve_clean_on_present_gated_by\n.\n  ok   test_sieve_fires_on_empty_gated_by\n.\n  ok   test_sieve_fires_on_non_list_gated_by\n.\n  ok   test_sieve_fires_on_empty_string_in_gated_by\n.\n  ok   test_sieve_clean_on_multi_hand_gated_by\n.\n  ok   test_roster_minimum\n                                                         [100%]\n16 passed in 0.97s",
       "stderr_tail": "",
       "teeth_green": [
         "test_at_least_40_charters",
@@ -28,6 +28,7 @@
         "test_roster_minimum"
       ],
       "teeth_red": [],
+      "test": "test-5b76bf4329d9",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -49,44 +50,18 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "00380df8c0b95850fa74163b73bff94f12f5fdb7e5fc6b2b9a8acd54423a2757",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5b76bf4329d9",
+      "source_fingerprint": "b63e4365a069bb37a3389d64551e10a74cac0bdafa55fcb735d84f1271ee6a1b",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/machines/__init__.py",
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
-        "cairn/machines/build_inspector/proofs/test_runtime_role.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/address_rule.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/machines/build_inspector/proofs/test_runtime_role.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-0w4rc35k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-o9t71t56/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -95,11 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827395,
-          "disk_bytes": 191373312,
-          "entries": 11333,
+          "bytes": 102557452,
+          "disk_bytes": 123416576,
+          "entries": 8563,
           "builds": 1,
-          "reuses": 26
+          "reuses": 14
         }
       }
     },

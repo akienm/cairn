@@ -2,7 +2,7 @@
   {
     "claim": "proof test_phase_sorts_by_actor.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:20:05",
+    "date": "2026-10-06T11:47:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,13 +20,17 @@
         "test_the_stage_stays_the_primary_key"
       ],
       "teeth_red": [],
+      "test": "test-c74b2a8d7f21",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3956401_1147029581_delivery",
+          "bus_proc_3956401_1147029581"
+        ]
       },
       "conditions": {
         "proof": "c2374a3bd2dc59da075ee5b1b8f70dc0b0cf445b8c6e53580ed8ce2d33204164",
@@ -41,31 +45,18 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "e2a53733dad0219369bc74a792b9fea0f27f4e387977ec36977ee18d968c1dfc",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c74b2a8d7f21",
+      "source_fingerprint": "e74cf41a8b7aadc9cb5c4875fb2b3f5220689993694294d4b7eb2bbfd669116b",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/sail_record.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
         "cairn/tools/operator_inbox/__init__.py",
         "cairn/tools/operator_inbox/inbox.py",
-        "cairn/tools/operator_inbox/proofs/test_phase_sorts_by_actor.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/operator_inbox/proofs/test_phase_sorts_by_actor.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-1olgzf9h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-xwhwx0ac/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827395,
-          "disk_bytes": 191373312,
-          "entries": 11333,
+          "bytes": 102557452,
+          "disk_bytes": 123416576,
+          "entries": 8563,
           "builds": 1,
-          "reuses": 104
+          "reuses": 53
         }
       }
     },

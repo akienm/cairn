@@ -2,7 +2,7 @@
   {
     "claim": "proof test_ruling.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-01T17:32:51",
+    "date": "2026-10-06T11:45:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -52,6 +52,7 @@
         "test_the_hook_no_longer_fires_on_stop"
       ],
       "teeth_red": [],
+      "test": "test-851245c69a45",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -60,27 +61,32 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "b1fa1f7332f432a95a7ace7ea368a67739138a97c55ea2a241c156e336f75fd8",
+      "conditions": {
+        "proof": "833e135c5d93f481b5859bcc3ce98c14940f84c8d382724230f8c4f3166df964",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-851245c69a45",
+      "source_fingerprint": "49ee2c9cb467ff6575f0c69021347ecd75c9feefb2f886095bf4fe39b9208476",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/machines/__init__.py",
         "cairn/machines/ruling/__init__.py",
         "cairn/machines/ruling/corpus.py",
         "cairn/machines/ruling/proofs/test_ruling.py",
-        "cairn/machines/ruling/ruling.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py"
+        "cairn/machines/ruling/ruling.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-526762-pbz42mun/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-aplo5jsx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,11 +95,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 249368129,
-          "disk_bytes": 265883648,
-          "entries": 6957,
+          "bytes": 102557452,
+          "disk_bytes": 123416576,
+          "entries": 8563,
           "builds": 1,
-          "reuses": 44
+          "reuses": 29
         }
       }
     },

@@ -26,5 +26,7 @@
     "why": "cc-read"
   },
   "falsifier": "RED when any of these measures true, by the named instrument: (1) a berth in the review lane (`pending_reviews()`) is named by a ticket whose cursor reads terminal under `transitions.is_terminal` — instrument: probe cairn/tools/operator_inbox/probes/the_lane_holds_only_his_decisions.py, count terminal_in_lane must be 0; (2) Akien re-raises a drained decision — instrument: the same probe's re_raised count over questions bound to fb988505c5cb not raised by the cc caller class, must be 0; (3) a section's printed count differs from an independent read of its source — instrument: probe operator_inbox_matches_live_state.py, mismatches must be []; (4) a ticket wears two labels across the inbox, dashboard and harbor map — instrument: probe one_status_everywhere.py, divergences must be {}; (5) the reviewed log's bytes change across a render — instrument: cairn/machines/skill_block/proofs/test_review_lane_drains_by_measurement.py, reviewed-log sha before == after; (6) live troubles render above the operator's sections or absent from the CC lane — instrument: cairn/tools/operator_inbox/proofs/test_operator_inbox.py test_troubles_render_under_a_cc_owned_lane_after_the_operators_sections and bin/proofs/test_slate.py CUSTODY tooth. WRONG INTENT: a decision he needed to see was drained — one instance reds fb988505c5cb and re-enters at its cast.",
-  "public_interface": ["cairn.tools.operator_inbox.inbox"]
+  "public_interface": [
+    "cairn.tools.operator_inbox.inbox"
+  ]
 }

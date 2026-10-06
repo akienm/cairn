@@ -2,7 +2,7 @@
   {
     "claim": "proof test_append_door_instrument.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:18:53",
+    "date": "2026-10-06T11:46:20",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -25,6 +25,7 @@
       "teeth_red": [
         "test_every_real_history_on_disk_would_pass_the_gate"
       ],
+      "test": "test-60b6de672d6f",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -46,29 +47,18 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "bcd2e0232643f5f8fb4c52c189986e09bb78ee02edcd49439bb215f84f430daf",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-60b6de672d6f",
+      "source_fingerprint": "0752de1f852aa003a7adf9790349816d0f21de778168f508167dd668f4a6af30",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/diagnostic_inspector/__init__.py",
-        "cairn/machines/diagnostic_inspector/inspector.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/artifact/__init__.py",
-        "cairn/tools/artifact/artifact.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/cgroup/__init__.py",
-        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/charter/proofs/test_append_door_instrument.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-wovtciep/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-ya9h27pz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,18 +67,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827395,
-          "disk_bytes": 191373312,
-          "entries": 11333,
+          "bytes": 102557452,
+          "disk_bytes": 123416576,
+          "entries": 8563,
           "builds": 1,
-          "reuses": 91
+          "reuses": 42
         }
       },
       "reseal_ladder": {
         "proof_sha256": "89e31f36ef55e028322e39afda305604b2f720f8137a7c66dcbf07619fdf7031",
         "opened": "2026-10-05T14:18:53",
-        "last_red": "2026-10-05T14:18:53",
-        "passes": 1,
+        "last_red": "2026-10-06T11:46:20",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-charter",
         "ruling": null

@@ -193,7 +193,7 @@ def test_a_held_id_is_refused(A, tmp: Path, commons: Path) -> None:
 def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> None:
     tickets = commons / "tickets"
     # journaled_beside: a creation through the artifact door by some other frame
-    A.write(tickets / "beside000001-beside.json", '{"id": "beside000001"}\n', verb="cast",
+    A.write(tickets / "beside000001-beside.json", json.dumps({"id": "beside000001"}, indent=2) + "\n", verb="cast",
             why="proof: beside the door")
     # pre_door: a genesis-first entry over a standing file
     (tickets / "predoor00001-genesis.json").write_text('{"id": "predoor00001"}\n')

@@ -166,7 +166,7 @@ def teeth_door(tmp: Path) -> None:
     commons, cairn = _world(tmp)
     print("THE DOOR — over a scratch world the proof owns")
     t = commons / "tickets" / "abc123def456-proof.json"
-    out = A.write(t, '{"id": "abc123def456"}\n', verb="cast", why="proof: first write")
+    out = A.write(t, json.dumps({"id": "abc123def456"}, indent=2) + "\n", verb="cast", why="proof: first write")
     check("a write to a record is journaled", out["journaled"] and out["entry"]["verb"] == "cast")
     e = out["entry"]
     check("the entry names the caller class from the kernel", e["caller"]["class"] in ("cc", "akien", "gate"))
@@ -174,9 +174,9 @@ def teeth_door(tmp: Path) -> None:
           bool(e["stack"]) and "test_artifact_door.py" in e["stack"][0], e["stack"][0])
     check("the first entry chains from genesis", e["prev"] == "genesis" and e["sha_before"] == "absent")
     check("the bytes on disk hash to sha_after", A._sha(t.read_bytes()) == e["sha_after"])
-    again = A.write(t, '{"id": "abc123def456"}\n', verb="cast", why="proof: same bytes")
+    again = A.write(t, json.dumps({"id": "abc123def456"}, indent=2) + "\n", verb="cast", why="proof: same bytes")
     check("writing the same bytes is a no-op with no entry", not again["journaled"] and again.get("unchanged"))
-    out2 = A.write(t, '{"id": "abc123def456", "x": 1}\n', verb="append", why="proof: second write")
+    out2 = A.write(t, json.dumps({"id": "abc123def456", "x": 1}, indent=2) + "\n", verb="append", why="proof: second write")
     check("the second entry's prev is the first entry's sha", out2["entry"]["prev"] == e["entry"])
     check("the second entry's sha_before is the first's sha_after", out2["entry"]["sha_before"] == e["sha_after"])
     check("verify_chain is clean", A.verify_chain(commons) == [])
@@ -225,12 +225,12 @@ def teeth_door(tmp: Path) -> None:
     check("test_the_phase_writer_moves_a_ticket_through_the_door",
           tv and tv[-1]["verb"] == "phase" and tv[-1]["sha_after"] == A._sha(t.read_bytes()),
           f"verb={tv and tv[-1]['verb']}")
-    A.write(t, '{"id": "abc123def456", "x": 1}\n', verb="cast", why="proof: restore the shape the teeth below expect")
+    A.write(t, json.dumps({"id": "abc123def456", "x": 1}, indent=2) + "\n", verb="cast", why="proof: restore the shape the teeth below expect")
 
     print("THE MODE — the validation store's 0444 seals keep their mode")
     v = cairn / "cairn" / "tools" / "x" / "validations" / "test_x.json"
     A.write(v, "{}", verb="seal", why="proof: seal", mode=0o444)
-    A.write(v, '{"a":1}', verb="seal", why="proof: reseal")
+    A.write(v, json.dumps({"a": 1}, indent=2), verb="seal", why="proof: reseal")
     check("a 0444 record rewritten through the door stays 0444", (v.stat().st_mode & 0o777) == 0o444)
 
     print("THE COMMIT QUESTION — staged bytes must be the journal's last sha_after")

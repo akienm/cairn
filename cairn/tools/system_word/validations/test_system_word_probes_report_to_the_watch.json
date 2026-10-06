@@ -2,7 +2,7 @@
   {
     "claim": "proof test_system_word_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:21:41",
+    "date": "2026-10-06T11:47:50",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,13 +15,17 @@
         "test_system_word_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-9328e03880d9",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3957204_1147439269_delivery",
+          "bus_proc_3957204_1147439269"
+        ]
       },
       "conditions": {
         "proof": "523a87bd83a3845c08098379115576029c65bf6b1427fc79976f56dd20c5b33d",
@@ -36,52 +40,11 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "f98237041eb3a06bddd7db4d50945f1809c7e8abaffefe816c00977189ec7e33",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9328e03880d9",
+      "source_fingerprint": "c00402dc5a1e9dddde062b3ed0b7e15bfe76936b82c4eef7b167e1c764c07801",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/cli.py",
-        "cairn/devices/cairn/machines/harbor_master/__init__.py",
-        "cairn/devices/cairn/machines/harbor_master/device.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/learning_block/__init__.py",
-        "cairn/machines/learning_block/learning_block.py",
-        "cairn/machines/ruling/__init__.py",
-        "cairn/machines/ruling/cli.py",
-        "cairn/machines/ruling/ruling.py",
-        "cairn/machines/skill_block/__init__.py",
-        "cairn/machines/skill_block/__main__.py",
-        "cairn/machines/skill_block/skill_block.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
-        "cairn/tools/operator_inbox/__init__.py",
-        "cairn/tools/operator_inbox/inbox.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/probes/his_case_never_bites.py",
         "cairn/tools/system_word/proofs/test_system_word_probes_report_to_the_watch.py",
@@ -89,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-06t8lu3e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-v8xb1g6j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
@@ -101,11 +64,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827925,
-          "disk_bytes": 191377408,
-          "entries": 11334,
+          "bytes": 102557982,
+          "disk_bytes": 123420672,
+          "entries": 8564,
           "builds": 1,
-          "reuses": 115
+          "reuses": 60
         }
       }
     },

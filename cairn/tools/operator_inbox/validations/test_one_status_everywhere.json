@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:19:37",
+    "date": "2026-10-06T11:46:50",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 91 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:in-process', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 91 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 91 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 99 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:in-process', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 99 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 99 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
       "teeth_green": [
         "test_fixture_one_label_per_id_across_all_three",
@@ -21,6 +21,7 @@
         "test_live_akienupdate_reports_agree"
       ],
       "teeth_red": [],
+      "test": "test-bad5e7e51ebf",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -42,52 +43,24 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "b064686e41b1fe18c5d0e4121b7f65fca7dcb4450e76f92bf2f6353a465e987d",
+      "killed": [
+        {
+          "pid": 3956229,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bad5e7e51ebf",
+      "source_fingerprint": "f84a9995509df81b47a66b92a916e471d4a2489e69ef8836fc4f64f9dfab5477",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/harbor_master/__init__.py",
-        "cairn/devices/cairn/machines/harbor_master/device.py",
-        "cairn/devices/cairn/machines/harbor_master/register.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/codemother/dashboard.py",
-        "cairn/devices/trouble/__init__.py",
-        "cairn/devices/trouble/trouble.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/learning_block/__init__.py",
-        "cairn/machines/learning_block/learning_block.py",
-        "cairn/machines/skill_block/__init__.py",
-        "cairn/machines/skill_block/skill_block.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/sail_record.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/bus_client/__init__.py",
-        "cairn/tools/bus_client/bus_client.py",
-        "cairn/tools/bus_client/remote.py",
-        "cairn/tools/bus_client/roster.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
         "cairn/tools/operator_inbox/__init__.py",
         "cairn/tools/operator_inbox/inbox.py",
-        "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-dce3r08t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3951581-5ltxn56r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 16,
@@ -95,29 +68,29 @@
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261005.201936.259956.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.201936.277696.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261005.201936.476832.BusDevice.post.json",
-            "logs/bus/0/20261005.201936.487929.BusDevice.post.json",
-            "logs/bus/0/20261005.201936.601855.BusDevice.post.json",
-            "logs/bus/0/20261005.201936.603140.BusDevice.delivered.json",
-            "logs/bus/0/20261005.201936.604079.BusDevice.delivered.json",
+            "logs/bus/0/20261006.174648.958687.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.174648.965340.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.174649.158183.BusDevice.post.json",
+            "logs/bus/0/20261006.174649.168654.BusDevice.post.json",
+            "logs/bus/0/20261006.174649.272628.BusDevice.post.json",
+            "logs/bus/0/20261006.174649.273776.BusDevice.delivered.json",
+            "logs/bus/0/20261006.174649.274640.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261005.201935.436283.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261005.201935.918081.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261005.201937.225585.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261005.201936.603273.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261005.201936.603446.TesterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261006.174648.272256.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261006.174648.681885.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261006.174649.779060.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261006.174649.273891.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261006.174649.274042.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 164831788,
-          "disk_bytes": 191430656,
-          "entries": 11354,
+          "bytes": 102561845,
+          "disk_bytes": 123473920,
+          "entries": 8584,
           "builds": 1,
-          "reuses": 101
+          "reuses": 50
         }
       }
     },

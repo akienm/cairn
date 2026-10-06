@@ -353,6 +353,24 @@ def _atomic_write(path: Path, blob: bytes, mode: int | None) -> None:
         raise
 
 
+def _refuse_non_canonical(p: Path, blob: bytes) -> None:
+    """A JSON record lands in one canonical form (f9ba6c89844d): indent=2, with ensure_ascii
+    and the trailing newline either way — the four bodies json.dumps writes. Anything else is
+    refused before a byte lands or an entry journals, so the next reader never meets a shape
+    it has to guess at."""
+    try:
+        text = blob.decode("utf-8")
+        doc = json.loads(text)
+    except ValueError as exc:
+        raise Refused(f"{p} is a JSON record and the body does not parse ({exc}) — "
+                      "nothing written (f9ba6c89844d)") from None
+    forms = {json.dumps(doc, indent=2, ensure_ascii=ea) + ("\n" if nl else "")
+             for ea in (False, True) for nl in (False, True)}
+    if text not in forms:
+        raise Refused(f"{p} is a JSON record and the body is not canonical (found {text[:60]!r}) — "
+                      "write json.dumps(doc, indent=2) or use write_json; nothing written (f9ba6c89844d)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -368,6 +386,8 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         _atomic_write(p, blob, mode)
         return {"path": str(p), "journaled": False, "root": None, "entry": None}
     name, root, rel = hit
+    if p.suffix == ".json":
+        _refuse_non_canonical(p, blob)
     before = p.read_bytes() if p.exists() else None
     if before == blob:
         # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let

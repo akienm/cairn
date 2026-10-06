@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_marked_envelope_goes_back_to_its_sender.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T19:26:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T23:38:11",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,20 +16,24 @@
         "test_a_return_is_never_returned_again"
       ],
       "teeth_red": [],
+      "test": "test-89f5e8e560c6",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3693524_2338086056_delivery",
+          "bus_proc_3693524_2338086056"
+        ]
       },
       "conditions": {
         "proof": "5d622c75fb38ad5babf8c11de714d9b93837875239b07e5d0d81cfee5fd6107d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -37,7 +41,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "3021ee7be3ae1183b5967a34f24180f9e56956d47beaa7d68c65c0243caccd69",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-89f5e8e560c6",
+      "source_fingerprint": "b8caa1db7c9dd2d97894f719a446f9f932e773e20ad7c969d815e34da04f3ddf",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -51,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3593436-yt974fog/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3693506-mxfo0p2f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -62,28 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 171639120,
-          "disk_bytes": 199098368,
-          "entries": 11743,
+          "bytes": 175141791,
+          "disk_bytes": 203046912,
+          "entries": 11948,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "3bf728e5328d": {
-          "cairn/tools/base/shim.py": [
-            "test_a_return_is_never_returned_again",
-            "test_a_return_marked_envelope_is_posted_back_to_its_sender_unacted_on",
-            "test_a_subclass_that_overrides_deliver_still_returns_it"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "3bf728e5328d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c40e0e55be466be93128ccceaa58c86a1a5424c2",
-          "anchor_first_build": "fa44b97f0b9a8622f29acc6a2a26e1e0bff390de",
-          "commit": "c40e0e55be466be93128ccceaa58c86a1a5424c2"
+          "reuses": 1
         }
       }
     },

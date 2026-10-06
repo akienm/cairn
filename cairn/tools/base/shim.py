@@ -136,8 +136,14 @@ def ensure_ground_loop(now: datetime, *, home: Path | None = None, log: Path | N
             "--working-directory", str(repo_root),
             f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
             "-p", "SuccessExitStatus=3",
-            "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}",
-            "--", "python3", "-m", _LOOP_MODULE]
+            "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
+    # inside a test run the loop is the run's (ticket 2120e74dcf44, the launcher's twin f04d5ef26a48):
+    # systemd-run hands a unit the MANAGER's environment, so the run's id is carried by hand where
+    # the tester's stop reads it (the manager's record), and a failed loop of a run collects itself
+    test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
+    if test_id:
+        argv += [f"--setenv=CAIRN_TESTER_TEST_ID={test_id}", "-p", "CollectMode=inactive-or-failed"]
+    argv += ["--", "python3", "-m", _LOOP_MODULE]
 
     def run_unit():
         return subprocess.run(argv, capture_output=True, text=True, timeout=30)

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_chat_pane.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T19:25:19",
+    "date": "2026-10-05T23:38:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_chat_pane_in_floor_without_bus\n.\n  ok   test_chat_pane_shows_personal_messages\n.\n  ok   test_chat_pane_does_not_alter_channels\n.\n  ok   test_chat_pane_is_not_in_declared_panes\n.\n  ok   test_empty_personal_channel_renders_empty_turns\n.\n  ok   test_roster_minimum\n                                                                   [100%]\n6 passed in 0.44s",
+      "stdout_tail": ".\n  ok   test_chat_pane_in_floor_without_bus\n.\n  ok   test_chat_pane_shows_personal_messages\n.\n  ok   test_chat_pane_does_not_alter_channels\n.\n  ok   test_chat_pane_is_not_in_declared_panes\n.\n  ok   test_empty_personal_channel_renders_empty_turns\n.\n  ok   test_roster_minimum\n                                                                   [100%]\n6 passed in 0.50s",
       "stderr_tail": "",
       "teeth_green": [
         "test_chat_pane_in_floor_without_bus",
@@ -18,6 +18,7 @@
         "test_roster_minimum"
       ],
       "teeth_red": [],
+      "test": "test-dc78a96a6fca",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -39,7 +40,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "caa3e883040a22a767c9fdda55b9e69ccd3b049587f10e69515bcd35406d5c30",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dc78a96a6fca",
+      "source_fingerprint": "c5526e136131e1056bfa25426a23383433600a5ec94fcb92054507ff2377bf63",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -54,26 +58,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3592441-datglcrs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3693506-8vor8l_5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261006.012518.172343.BusDevice.post.json",
-            "logs/bus/0/20261006.012518.173629.BusDevice.post.json",
-            "logs/bus/0/20261006.012518.225277.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.012518.401847.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.012518.523123.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261006.053817.398378.BusDevice.post.json",
+            "logs/bus/0/20261006.053817.399656.BusDevice.post.json",
+            "logs/bus/0/20261006.053817.516531.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.053817.657004.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.053817.804099.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 171554975,
-          "disk_bytes": 199012352,
-          "entries": 11742,
+          "bytes": 175143069,
+          "disk_bytes": 203067392,
+          "entries": 11955,
           "builds": 1,
-          "reuses": 3
+          "reuses": 4
         }
       }
     },

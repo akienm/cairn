@@ -34,6 +34,12 @@ PROVES = {
         "2": "test_a_finding_shows_only_when_SELECTED",
         "3": "test_the_panel_SAYS_it_is_read_only",
     },
+    # The parent's clauses (4) detail not truncated and (5) read-only said, built here
+    # because the render is web_server's (RULE 1); its other teeth stay in the cairn proof.
+    "7a1265439f54": {
+        "4": "test_the_detail_holds_the_WHOLE_finding_of_the_selected_trouble",
+        "5": "test_the_panel_SAYS_it_is_read_only",
+    },
 }
 
 _LONG = "a<b & " + ("the full finding, every word of it; " * 90)

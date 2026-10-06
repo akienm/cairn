@@ -1,16 +1,17 @@
 [
   {
     "claim": "proof test_trouble_panel.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-06T00:51:00",
+    "caller": "cairn test",
+    "date": "2026-10-06T02:18:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        measured (Law 1), so each way to be unhealthy must arrive as the finding itself.\"\"\"\n        from cairn.devices.cairn.probes.trouble_panel_surfaces_live_troubles import PROBE\n        from cairn.tools.base.probe import _NO_FINDING\n    \n        cases = {\n            \"no bus\": {},\n            \"no route to trouble\": {\"bus\": _FakeBus(RuntimeError(\"no route to trouble\"))},\n            \"list\": {\"bus\": _FakeBus({\"outcome\": \"refused\"})},\n        }\n        for needle, ctx in cases.items():\n            out = PROBE.carry(ctx)\n            assert out[\"holds\"] is False, (needle, out)\n>           assert out[\"finding\"] != _NO_FINDING, f\"{needle}: the carry named no finding: {out}\"\nE           AssertionError: no bus: the carry named no finding: {'pane_declared': False, 'lane_reached': False, 'healthy': False, 'live_count': None, 'error': \"RuntimeError: no bus in the pulse context — the pane's handler asks the trouble lane over the bus, so without one this probe cannot tell a healthy panel from an unreachable lane, and MUST NOT report the healthy one\", 'ticket': '7a1265439f54', 'holds': False, 'finding': \"the probe reads its ticket's falsifier as failing and its carry names no finding\"}\nE           assert \"the probe reads its ticket's falsifier as failing and its carry names no finding\" != \"the probe reads its ticket's falsifier as failing and its carry names no finding\"\n\ntest_trouble_panel.py:361: AssertionError\n=========================== short test summary info ============================\nFAILED test_trouble_panel.py::test_an_UNHEALTHY_probe_NAMES_ITS_FINDING - Ass...\n1 failed, 14 passed in 0.10s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_an_UNHEALTHY_probe_NAMES_ITS_FINDING\n.\n  ok   test_probe_enough_returns_bool\n                                                         [100%]\n16 passed in 0.09s",
       "stderr_tail": "",
       "teeth_green": [
         "test_declared_panes_has_trouble",
+        "test_the_panel_is_the_CAIRN_devices_not_the_hosts",
         "test_handler_asks_the_lane_over_the_bus",
         "test_an_UNREACHABLE_lane_never_renders_as_ZERO_TROUBLES",
         "test_the_pane_projects_and_does_not_filter",
@@ -23,30 +24,25 @@
         "test_websocket_route_exists",
         "test_probe_importable",
         "test_probe_carry_returns_data",
+        "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
         "test_probe_enough_returns_bool"
       ],
-      "teeth_red": [
-        "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
-        "test_trouble_panel"
-      ],
-      "test": "test-316679d04afb",
+      "teeth_red": [],
+      "test": "test-2234b56acc72",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_3722044_0042098079_delivery",
-          "bus_proc_3722044_0042098079"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "d4dc0301e466a3a978e3a54fea81a1d145aebe6f4f2c5d3f77b7d0364b9fb537",
+        "proof": "241bda14e94704973b2b217ed7ab7a25e6892984add1024a331d46ffbe6e9c84",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -56,8 +52,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-316679d04afb",
-      "source_fingerprint": "c90dc5b294f887c4c312dda53f7686299f28259059793784a1170cdc04816502",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2234b56acc72",
+      "source_fingerprint": "fa3b873e75460f9f141d33b04455693cd18de7076fe21124a72836e917fe111a",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/device.py",
@@ -66,35 +62,32 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3724581-tzilpj4h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3743517-_kf0krdk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261006.065059.902519.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261006.065059.905097.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261006.065059.905942.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20261006.081834.439203.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261006.081834.441944.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261006.081834.442833.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 101771021,
-          "disk_bytes": 122089472,
-          "entries": 8358,
+          "bytes": 101828645,
+          "disk_bytes": 122212352,
+          "entries": 8384,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
-        "proof_sha256": "d4dc0301e466a3a978e3a54fea81a1d145aebe6f4f2c5d3f77b7d0364b9fb537",
-        "opened": "2026-10-06T00:51:00",
-        "last_red": "2026-10-06T00:51:00",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cairn",
-        "ruling": null
+      "conditions_moved": {
+        "notified": "n-417fa6173090",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

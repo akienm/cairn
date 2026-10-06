@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_a_json_record_lands_in_one_canonical_form.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T11:48:49",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-ebppqny3/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-ebppqny3/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 2650 records\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_indent_1_record_is_refused_and_nothing_lands",
+        "test_an_unparseable_record_is_refused_and_nothing_lands",
+        "test_the_canonical_record_lands_and_journals",
+        "test_a_non_json_or_unjournaled_write_is_as_before",
+        "test_every_live_json_record_is_canonical"
+      ],
+      "teeth_red": [],
+      "test": "test-ac414a655064",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "9213abe12857fe1ce02ec0df7ca0b4b16349392dcf0fca4caa0012bb9bf95797",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ac414a655064",
+      "source_fingerprint": "5747c1a2fe5aceaf6a9a4e43117db8b6da46928ba84b4ff09bb0bbb8ded74488",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_a_json_record_lands_in_one_canonical_form.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3958844-g3duu1z5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 102641286,
+          "disk_bytes": 123498496,
+          "entries": 8568,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

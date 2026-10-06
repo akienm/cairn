@@ -48,6 +48,13 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 SUPERCLAUDE = REPO / "launchers" / "superclaude"
 TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
+
+PROVES = {"f04d5ef26a48": {
+    "1": "test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id",
+    "2": "test_a_failed_unit_of_a_run_collects_itself",
+    "3": "test_a_run_killed_by_its_timeout_leaves_no_unit",
+    "4": "test_outside_a_run_the_units_are_unchanged",
+}}
 _TAG = f"{os.getpid()}"
 _SCRATCH = scratch_dir("cairn-proof-unitmark-")
 _UNITS: list[str] = []

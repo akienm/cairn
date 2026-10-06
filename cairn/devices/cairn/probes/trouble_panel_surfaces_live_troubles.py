@@ -81,7 +81,19 @@ def _check(context: dict) -> dict:
 
 
 def _carry(context: dict) -> dict:
-    return _check(context)
+    """The measurement, plus — when it is unhealthy — WHY, as the finding. ``watch_carry``
+    reads ``finding`` and nothing else; a reason left under ``error`` reaches the ticket as
+    the generic no-finding, which is how 7a1265439f54 landed at FIXME on 2026-10-05 saying
+    only that its probe had nothing to say (Law 7)."""
+    out = dict(_check(context))
+    if not out["healthy"]:
+        if out.get("error"):
+            out["finding"] = f"the trouble panel's route failed: {out['error']}"
+        elif not out["pane_declared"]:
+            out["finding"] = "the cairn device declares no trouble pane"
+        else:
+            out["finding"] = "the trouble pane's handler did not come back with a list"
+    return out
 
 
 def _enough(context: dict) -> bool:

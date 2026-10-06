@@ -591,11 +591,13 @@ class TesterDevice(BaseDevice):
                     # BOTH sides and still reads as nothing the proof did.
                     before = _manifest(swap)
 
-            pinned = _env_pinned_to(proof_path)
             # THE RUN'S TEST ID (ticket bf3c16162827). Handed to the subject only: the measured
             # conditions digest every CAIRN_ variable, and a per-run id there would read as
-            # conditions moved on every run. What carries it after the subject exits is the
-            # run's to kill; what returns marked with it is the run's to report.
+            # conditions moved on every run. A run started inside another run inherits the
+            # outer id, so it is dropped from the pinned env too (measured: the first seal of
+            # the ticket's proof read red on exactly that). What carries the id after the
+            # subject exits is the run's to kill; what returns marked with it is its to report.
+            pinned = {k: v for k, v in _env_pinned_to(proof_path).items() if k != TEST_ID_ENV}
             test = mint_test_id()
             run_env = {**pinned, TEST_ID_ENV: test}
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],

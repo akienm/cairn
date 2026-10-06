@@ -1,0 +1,97 @@
+[
+  {
+    "claim": "proof test_a_run_owns_what_it_started.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T20:36:56",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_run_hands_its_subject_a_test_id\n  ok   test_a_return_is_matched_to_its_test\n  ok   test_the_runs_full_output_goes_to_logging\n  ok   test_what_the_run_started_is_killed\n  ok   test_a_timed_out_run_leaves_nothing_running",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_run_hands_its_subject_a_test_id",
+        "test_a_return_is_matched_to_its_test",
+        "test_the_runs_full_output_goes_to_logging",
+        "test_what_the_run_started_is_killed",
+        "test_a_timed_out_run_leaves_nothing_running"
+      ],
+      "teeth_red": [],
+      "test": "test-dd3175114cb0",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d5e94159357b26c1d1b214a72c767667fdc45fab0515570143cc7ac1cc24e6bb",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dd3175114cb0",
+      "source_fingerprint": "56b7fcf954624350eb2fe816164747f06d262a7b5df051250e64523525dacfc2",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_a_run_owns_what_it_started.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/shim.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3619011-yzor44ug/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 19,
+          "paths": [
+            "logs/tester/0/20261006.023643.404211.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.023645.295775.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.023647.179770.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.023649.025514.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.023650.953048.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.023655.923167.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1b81ca5a3e9f/returns.jsonl",
+            "logs/tester/0/runs/test-1b81ca5a3e9f/stderr.txt",
+            "logs/tester/0/runs/test-1b81ca5a3e9f/stdout.txt",
+            "logs/tester/0/runs/test-6456977510ab/stderr.txt",
+            "logs/tester/0/runs/test-6456977510ab/stdout.txt",
+            "logs/tester/0/runs/test-83d2512165e7/stderr.txt",
+            "logs/tester/0/runs/test-83d2512165e7/stdout.txt",
+            "logs/tester/0/runs/test-85d8910c0319/stderr.txt",
+            "logs/tester/0/runs/test-85d8910c0319/stdout.txt",
+            "logs/tester/0/runs/test-e50757d00f47/stderr.txt",
+            "logs/tester/0/runs/test-e50757d00f47/stdout.txt",
+            "logs/tester/0/runs/test-fc77008b1ea1/stderr.txt",
+            "logs/tester/0/runs/test-fc77008b1ea1/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 172493402,
+          "disk_bytes": 200105984,
+          "entries": 11820,
+          "builds": 1,
+          "reuses": 6
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

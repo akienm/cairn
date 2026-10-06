@@ -29,7 +29,9 @@ PROVES = {
         "5": "test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path",
     },
     "7a1265439f54": {
+        "1": "test_websocket_route_exists",
         "2": "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
+        "3": "test_the_panel_is_the_CAIRN_devices_not_the_hosts",
     },
 }
 
@@ -75,6 +77,22 @@ def test_declared_panes_has_trouble():
     assert trouble, "CairnDevice.declared_panes() has no trouble pane"
     assert trouble[0]["label"] == "troubles"
     assert callable(trouble[0]["handler"])
+
+
+def test_the_panel_is_the_CAIRN_devices_not_the_hosts():
+    """Clause (3) of 7a1265439f54: the cairn device is the PROJECT, system_rackmount is the
+    LAPTOP — different scopes, different devices. The pane is declared by the device whose
+    id is ``cairn``, and that device states its scope as the system, not the host. Holds at
+    every build that keeps the identity; it is here so the clause has a tooth that a
+    rename into the host's address would red."""
+    from cairn.devices.cairn.device import CairnDevice
+    d = CairnDevice()
+    assert d.device_id == "cairn", d.device_id
+    assert "rackmount" not in d.device_id and "host" not in d.device_id
+    assert [p for p in d.declared_panes() if p.get("kind") == "trouble"], (
+        "the trouble pane is not declared by the cairn device")
+    what = d.intention()["what"].lower()
+    assert "cairn system device" in what and "rackmount" not in what, what
 
 
 def test_handler_asks_the_lane_over_the_bus():

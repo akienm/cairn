@@ -2,20 +2,20 @@
   {
     "claim": "proof test_cairn_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-06T00:26:27",
+    "date": "2026-10-06T02:42:44",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_every_standing_cairn_probe_posts_watch: AssertionError: no standing ticket names a probe under cairn/devices/cairn/probes/ — the population vanished\n  FAIL  test_every_standing_cairn_spec_names_the_receiver: AssertionError: no standing ticket names a probe under cairn/devices/cairn/probes/ — the population vanished\n  FAIL  test_cairn_probes_report_to_the_watch: AssertionError: no standing ticket names a probe under cairn/devices/cairn/probes/ — the population vanished\nRED — 3 tooth/teeth bit",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_standing_cairn_probe_posts_watch\n  PASS  test_every_standing_cairn_spec_names_the_receiver\n  PASS  test_cairn_probes_report_to_the_watch\ngreen — every standing cairn probe reports {ticket, holds, finding} to the watch verb",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_every_standing_cairn_probe_posts_watch",
         "test_every_standing_cairn_spec_names_the_receiver",
         "test_cairn_probes_report_to_the_watch"
       ],
-      "test": "test-c82403197c9b",
+      "teeth_red": [],
+      "test": "test-9e1ba6cee432",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "0edcfecb1a9f98bb376a23a056e86daa6bbadc3628ca5e222903dc22ad023bbf",
+        "proof": "966b2805e3da0a7ac99bf31f292950ec0c6c0b8d13c426ca6ea9eca96bc07782",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -39,14 +39,16 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c82403197c9b",
-      "source_fingerprint": "a92e98c5c796fbad8b29c68d967c9fc377ed05cb0ae124a4c1046ad32c7529dd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9e1ba6cee432",
+      "source_fingerprint": "a94321bfea4f6c5e0e82ab0cff2ff33eab303d04a3f17f013ec528dccd06a378",
       "fingerprint_closure": [
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/probes/trouble_panel_surfaces_live_troubles.py",
         "cairn/devices/cairn/proofs/test_cairn_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-jgj90brc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3754424-ubja7arc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,12 +57,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 177020541,
-          "disk_bytes": 205127680,
-          "entries": 12049,
+          "bytes": 101892559,
+          "disk_bytes": 122327040,
+          "entries": 8400,
           "builds": 1,
-          "reuses": 31
+          "reuses": 0
         }
+      },
+      "conditions_moved": {
+        "notified": "n-9c6663dca4ea",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

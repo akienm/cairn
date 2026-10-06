@@ -9,9 +9,12 @@ What a hollow build cannot pass (Law 8):
     ``ticket`` fails every_standing_cairn_probe_posts_watch, which reads each live payload's
     verb, ``to``, ``ticket``, ``holds`` and ``finding``.
 
-The population is read from the commons, never listed here: every ticket at a rest (PROVED or
-WATCHME) whose watchme probe berths under cairn/devices/cairn/probes. Live payloads are
-asserted as INVARIANTS only — a holds value is the world's to change.
+The population is read from the commons, never listed here: every ticket whose watch STANDS
+(``watchme_spec.stands_watch``, ticket 8e37bf2be2dc — at PROVED/WATCHME, or at FIXME/PROVEME with
+its probe armed) and whose watchme probe berths under cairn/devices/cairn/probes. Until
+2026-10-06 this proof decided "standing" by hand as PROVED/WATCHME only, which dropped a probe
+whose ticket its own watch had sent to FIXME — the probes most likely to be red. Live payloads
+are asserted as INVARIANTS only — a holds value is the world's to change.
 
     python3 cairn/devices/cairn/proofs/test_cairn_probes_report_to_the_watch.py   # exit 0 = green
 """
@@ -28,8 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.transitions import parse_workflow  # noqa: E402
-from cairn.tools.base.watchme_spec import watchme_spec_error  # noqa: E402
+from cairn.tools.base.watchme_spec import stands_watch, watchme_spec_error  # noqa: E402
 
 PROVES = {
     "f1da5944464e": {
@@ -60,18 +62,17 @@ def _specs(doc: dict) -> list[dict]:
 
 
 def _standing() -> list[tuple[str, dict, dict]]:
-    """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in cairn."""
+    """(id, ticket, spec) for every ticket whose watch stands and whose probe berths in cairn."""
     out = []
     for path in sorted(_tickets().glob("*.json")):
         try:
             doc = json.loads(path.read_text("utf-8"))
-            here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue
-        if here not in ("PROVED", "WATCHME"):
+        if not isinstance(doc, dict):
             continue
         for spec in _specs(doc):
-            if str(spec.get("probe", "")).startswith(BERTH):
+            if str(spec.get("probe", "")).startswith(BERTH) and stands_watch(doc, spec):
                 out.append((doc["id"], doc, spec))
     assert out, f"no standing ticket names a probe under {BERTH} — the population vanished"
     return out

@@ -56,7 +56,7 @@ from cairn.machines.build_inspector.inspector import judge_validate, VALIDATE_RO
 from cairn.devices.codemother.machines.hypothesize.hypothesize import _read_triage_berth
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
-from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
+from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, ticket_path, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 
 AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["validate"]
@@ -130,6 +130,46 @@ JUDGE_REFUSAL_VALIDATE = (
     "validate packet refused by the installed judges (the door and the promotion gate are one implementation): ")
 
 
+def _clause_coverage_record(packet: dict, root: str) -> list:
+    """EVERY FALSIFIER CLAUSE HAS A PROVES TOOTH in some proof the criteria run (4661ca005242).
+
+    The rule clearance already holds (proof_coverage: the union over the proofs, extra keys
+    allowed), asked here at the chart so a disagreement between a proof's PROVES keys and
+    the falsifier's clause markers surfaces before the build instead of at hollow. Absent
+    when the packet claims no filed ticket: there are no clauses to cover."""
+    tid = packet.get("ticket")
+    if not isinstance(tid, str) or not tid:
+        return []
+    tp = ticket_path(tid, root)
+    if tp is None:
+        return []
+    from cairn.tools.proof_coverage import clauses, declared
+    with open(tp) as fh:
+        want = clauses(json.load(fh))
+    proofs = []
+    for c in packet.get("criteria") or []:
+        if not isinstance(c, dict):
+            continue
+        for word in str(c.get("instrument", "")).split():
+            w = word.strip(",;:()[]'\"`")
+            if "/proofs/" in w and w.endswith(".py"):
+                path = w if os.path.isabs(w) else os.path.join(root, w)
+                if path not in proofs:
+                    proofs.append(path)
+    dec = {p: sorted(declared(p).get(tid, {})) for p in proofs}
+    have = sorted({k for keys in dec.values() for k in keys})
+    missing = [k for k in want if k not in have]
+    ok = bool(want) and not missing
+    return [inspected(
+        "proves_keys_match_the_falsifier_clauses", stage="validate",
+        expected="every clause declared",
+        actual="every clause declared" if ok else "clause undeclared",
+        lack="" if ok else (
+            "proves_keys_match_the_falsifier_clauses: proofs %s declare %s for %s; the falsifier "
+            "clauses are %s; undeclared %s — key PROVES to the clauses, or have a criterion run the "
+            "proof that declares them" % (sorted(dec), have, tid, want, missing)))]
+
+
 def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
     """VALIDATE'S OWN INSPECTOR — the proof record for the packet it hands the next stage.
 
@@ -172,6 +212,7 @@ def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
                                   authored_fields=AUTHORED_FIELDS,
                                   list_fields=('criteria', 'unknowns'),
                                   root=root, stage="validate")
+    record += _clause_coverage_record(packet, root)
 
     # THE COMPOSED JUDGES, and they run only once every entry above passes — the same
     # order the two-tier door has always used, now visible in the record rather than

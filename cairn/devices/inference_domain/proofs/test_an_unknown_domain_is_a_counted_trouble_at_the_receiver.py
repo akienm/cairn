@@ -40,11 +40,12 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.inference_domain import domain  # noqa: E402
 from cairn.devices.inference_domain.machines.route.route import RouteRefused  # noqa: E402
 
+# ONE CLAUSE, ONE TOOTH: the ticket's falsifier carries no (n) markers, so proof_coverage reads
+# it as the single clause "all", and a declaration keyed "1".."4" declared nothing (measured by
+# lacks at PROVEME, 2026-10-06). The composite runs the four end to end; they still print on
+# their own so a red names which one fell.
 PROVES = {"e9a2d8ae7d43": {
-    "1": "test_an_unknown_domain_raises_ONE_trouble_at_the_receiver_and_still_refuses",
-    "2": "test_a_repeat_raises_the_SAME_identity_and_another_name_a_DIFFERENT_one",
-    "3": "test_a_raiser_that_explodes_does_not_change_the_callers_answer",
-    "4": "test_a_domain_that_exists_raises_NO_trouble",
+    "all": "test_the_whole_falsifier_holds_end_to_end",
 }}
 
 _RUN = uuid.uuid4().hex[:8]
@@ -132,10 +133,20 @@ def test_a_raiser_that_explodes_does_not_change_the_callers_answer():
 
 def test_a_domain_that_exists_raises_NO_trouble():
     sink, r = _Sink(), _Resolver()
-    out = domain.resolve({"q": f"known_domain_{_RUN}", "kind": "generate", "prompt": "p"},
+    # A FRESH q PER ASK: the composite tooth asks again in the same run, and a repeated q is a
+    # cache hit that never reaches the resolver, so r.calls would read 0 on the second ask.
+    out = domain.resolve({"q": f"known_domain_{_RUN}_{uuid.uuid4().hex[:6]}", "kind": "generate",
+                          "prompt": "p"},
                          resolver=r, table=_table(), sink=sink, caller="unknown-domain-fixture")
     assert out["answer"] is not None and r.calls == 1, out
     assert sink.raised == [], f"a fillable ask raised a trouble: {sink.raised}"
+
+
+def test_the_whole_falsifier_holds_end_to_end():
+    test_an_unknown_domain_raises_ONE_trouble_at_the_receiver_and_still_refuses()
+    test_a_repeat_raises_the_SAME_identity_and_another_name_a_DIFFERENT_one()
+    test_a_raiser_that_explodes_does_not_change_the_callers_answer()
+    test_a_domain_that_exists_raises_NO_trouble()
 
 
 def _main() -> int:
@@ -144,6 +155,7 @@ def _main() -> int:
         test_a_repeat_raises_the_SAME_identity_and_another_name_a_DIFFERENT_one,
         test_a_raiser_that_explodes_does_not_change_the_callers_answer,
         test_a_domain_that_exists_raises_NO_trouble,
+        test_the_whole_falsifier_holds_end_to_end,
     ]
     # THE WHOLE RUN IN A FIXTURE WORLD, as test_inference_domain.py does: tooth 4's fillable ask
     # writes a task ticket beside the trail, and with the roots left live this proof's first
@@ -154,14 +166,25 @@ def _main() -> int:
     _move_roots = getattr(domain, "set_diagnostic_roots", None)
     if _move_roots:
         _move_roots({**_address.ROOTS, "instance": scratch_dir("cairn_unknown_domain_proof_")})
+    # EVERY TOOTH PRINTS, red ones too: a run that stops at the first AssertionError prints no
+    # red tooth at all, and the hollow (domain.py reverted) read that as "never reached a check"
+    # rather than as teeth 1-2 failing (measured 2026-10-06).
+    failed = []
     try:
         for check in checks:
-            check()
-            print(f"  PASS  {check.__name__}")
+            try:
+                check()
+                print(f"  PASS  {check.__name__}")
+            except AssertionError as e:
+                failed.append(check.__name__)
+                print(f"  FAIL  {check.__name__}: {e}")
     finally:
         if _move_roots:
             _move_roots(None)
         _SCRATCH.close()
+    if failed:
+        print(f"red — {len(failed)} of {len(checks)} teeth failed")
+        return 1
     print("green — inference_domain: an unfillable domain ask is one counted trouble at the receiver, naming the caller; the refusal is unchanged")
     return 0
 

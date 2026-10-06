@@ -28,10 +28,16 @@ whose command word is python counts), and python that runs no proof. A script FI
 runs proofs carries no proof path in its text and passes; census 2026-10-06 measured 0 such
 executors besides codemother's verdict (68cef2ddd8ef closes that hand).
 
-It reads segments, not a shell grammar: the text is cut at ``; && || | do then`` and each
-segment's command word is found past ``VAR=value`` assignments and a short list of prefix
-commands (timeout, strace, env, ...). Shaped like bin/cmd/deletegate, which explains why a
-hook stays short of a shell parser.
+It reads segments, not a shell grammar, and judges each by its COMMAND WORD in both
+directions (ticket 72a37498c601). The text is cut where the shell would cut — ``; && || |
+( ) newline``, never inside quotes — and each segment's command word is found past ``do
+then else``, ``VAR=value`` assignments and a short list of prefix commands (timeout, strace,
+env, ...). The word pytest as an argument (``echo``, ``grep``, a commit message) is nobody's
+business; a segment that is ``cairn test`` seals only itself; a ``bash -c``/``sh -c``/``eval``
+string is judged as the command it is. Measured 2026-10-06: the whole-text match this
+replaced refused every session's ``echo``/``grep``/commit naming the word, and let
+``bin/cairn test a; python3 <proof>`` and ``X="a;b" python3 <proof>`` run bare. Shaped like
+bin/cmd/deletegate, which explains why a hook stays short of a shell parser.
 
 Contract: stdin JSON ``{tool_name, tool_input.command}``; exit 0 silent allows; exit 0 with
 hookSpecificOutput allows the rewritten input; exit 2 blocks with stderr fed back.
@@ -52,8 +58,10 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _CAIRN = f"{_REPO_ROOT}/bin/cairn"
 
-ALREADY_SEALED = re.compile(r"(?:^|[\s;&|(/])cairn\s+test\b")
-PYTEST = re.compile(r"(?:^|[\s;&|(/])(?:py\.test|pytest)(?:\s|$)|(?:^|\s)-m\s+pytest\b")
+PYTEST_WORDS = {"pytest", "py.test"}
+SHELLS = {"bash", "sh", "zsh", "dash"}
+KEYWORDS = {"do", "then", "else", "elif", "!", "{"}
+SEPARATOR_CHARS = set(";&|()\n")
 SEGMENT = re.compile(r"&&|\|\||[;|\n]|\bdo\b|\bthen\b")
 PYTHON = re.compile(r"python[0-9.]*$")
 PREFIXES = {"timeout", "strace", "env", "nice", "nohup", "stdbuf", "time", "ionice", "setsid", "exec"}
@@ -81,30 +89,43 @@ TOLD = ("proofgate rewrote this command: it runs a proof outside the tester's in
         "under the seal (88 of 290 proofs write live ~/.cairn when run bare; ticket 1af0564c0db3).")
 
 
-def _tokens(segment: str) -> list[str]:
+def _segments(command: str) -> list[list[str]]:
+    """The command's segments as token lists, cut only where the shell would cut: a ``;`` or
+    ``&&`` inside quotes stays inside its word. Unbalanced quotes fall back to the plain cut."""
+    lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
+    lexer.whitespace = " \t\r"
+    lexer.wordchars += "$@%+:,{}[]^!#"
     try:
-        return shlex.split(segment, comments=False)
+        toks = list(lexer)
     except ValueError:
-        return segment.split()
+        return [s.split() for s in SEGMENT.split(command)]
+    out: list[list[str]] = [[]]
+    for t in toks:
+        if t and set(t) <= SEPARATOR_CHARS:
+            out.append([])
+        else:
+            out[-1].append(t)
+    return [s for s in out if s]
 
 
-def _runs_a_proof(segment: str, whole: str) -> bool:
-    toks = _tokens(segment)
+def _command_word(toks: list[str]) -> int | None:
+    """Where the segment's command word sits: past keywords, ``VAR=value`` assignments, and a
+    prefix command up to the next word this gate judges."""
     i = 0
-    while i < len(toks) and ASSIGNMENT.match(toks[i]):
+    while i < len(toks) and (toks[i] in KEYWORDS or ASSIGNMENT.match(toks[i])):
         i += 1
     if i >= len(toks):
-        return False
-    first = os.path.basename(toks[i])
-    if PYTHON.match(first):
-        at = i
-    elif first in PREFIXES:
-        at = next((j for j in range(i + 1, len(toks)) if PYTHON.match(os.path.basename(toks[j]))), None)
-        if at is None:
-            return False
-    else:
-        return False
-    args = toks[at + 1:]
+        return None
+    if os.path.basename(toks[i]) in PREFIXES:
+        return next((j for j in range(i + 1, len(toks)) if _judged(os.path.basename(toks[j]))), None)
+    return i
+
+
+def _judged(word: str) -> bool:
+    return bool(PYTHON.match(word)) or word in PYTEST_WORDS or word in SHELLS or word in ("eval", "cairn")
+
+
+def _runs_a_proof(args: list[str], whole: str) -> bool:
     for k, a in enumerate(args):
         if PROOF_PATH.search(a):
             return True
@@ -115,15 +136,45 @@ def _runs_a_proof(segment: str, whole: str) -> bool:
     return False
 
 
+def _verdict(command: str, depth: int = 0) -> str | None:
+    """``"refuse"``, ``"rewrite"`` or ``None``, judged segment by segment by the command word —
+    both directions: the word pytest as an argument is nobody's business, and a segment that is
+    ``cairn test`` seals only itself. A ``bash -c``/``sh -c``/``eval`` string is judged as the
+    command it is."""
+    found = None
+    for toks in _segments(command):
+        at = _command_word(toks)
+        if at is None:
+            continue
+        word, args = os.path.basename(toks[at]), toks[at + 1:]
+        if word == "cairn" and args[:1] == ["test"]:
+            continue
+        if word in PYTEST_WORDS or (PYTHON.match(word) and any(
+                a == "-m" and args[k + 1:k + 2] == ["pytest"] for k, a in enumerate(args))):
+            return "refuse"
+        nested = None
+        if word in SHELLS and "-c" in args[:-1]:
+            nested = args[args.index("-c") + 1]
+        elif word == "eval":
+            nested = " ".join(args)
+        if nested is not None and depth < 4:
+            inner = _verdict(nested, depth + 1)
+            if inner == "refuse":
+                return "refuse"
+            found = found or inner
+        if PYTHON.match(word) and _runs_a_proof(args, command):
+            found = "rewrite"
+    return found
+
+
 def judge(command: str) -> dict | None:
     """``None`` to leave the command alone; ``{"action": "refuse"}`` for pytest;
     ``{"action": "rewrite", "command": ...}`` for a python proof run. The whole judgement, so
     the proof measures what the hook does."""
-    if not command or ALREADY_SEALED.search(command):
-        return None
-    if PYTEST.search(command):
+    v = _verdict(command) if command else None
+    if v == "refuse":
         return {"action": "refuse"}
-    if any(_runs_a_proof(s, command) for s in SEGMENT.split(command)):
+    if v == "rewrite":
         return {"action": "rewrite", "command": f"{_CAIRN} test --exec {shlex.quote(command)}"}
     return None
 

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_quorum.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T17:14:10",
+    "date": "2026-10-05T19:59:49",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,6 +23,7 @@
         "test_the_real_intention_is_a_real_file_the_gate_can_address"
       ],
       "teeth_red": [],
+      "test": "test-10749d604029",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -44,18 +45,22 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "a0f1139bc6c084d4894a9ff51950168a8651d54b1a80afe272fd61151cfa6693",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10749d604029",
+      "source_fingerprint": "17a7b0d86c485f5ac2a6ef67bfa83b5723f8232736a6e05273b2772f70c49aeb",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_quorum.py",
-        "cairn/devices/tester/quorum.py"
+        "cairn/devices/tester/quorum.py",
+        "cairn/devices/tester/runs.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3533642-k1p304ae/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602551-_3za97qb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 169610577,
-          "disk_bytes": 196800512,
-          "entries": 11623,
+          "bytes": 172403333,
+          "disk_bytes": 199946240,
+          "entries": 11784,
           "builds": 1,
-          "reuses": 14
+          "reuses": 13
         }
       }
     },

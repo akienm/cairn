@@ -58,6 +58,9 @@ from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.tester.conditions import compare, measure  # f0aad0cd0f56
+from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed by its test id
+    ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir,
+)
 from cairn.devices.tester.isolation import (
     _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
     get_isolation, inside_an_instance_seal,
@@ -195,6 +198,13 @@ def _env_pinned_to(proof_path) -> dict:
         prior = env.get("PYTHONPATH", "")
         env["PYTHONPATH"] = str(root) + (os.pathsep + prior if prior else "")
     return env
+
+
+def _text(captured) -> str:
+    """A TimeoutExpired's partial capture: bytes even under text=True, or None."""
+    if captured is None:
+        return ""
+    return captured.decode(errors="replace") if isinstance(captured, bytes) else captured
 
 
 def _teeth(stdout: str) -> dict:
@@ -582,9 +592,16 @@ class TesterDevice(BaseDevice):
                     before = _manifest(swap)
 
             pinned = _env_pinned_to(proof_path)
+            # THE RUN'S TEST ID (ticket bf3c16162827). Handed to the subject only: the measured
+            # conditions digest every CAIRN_ variable, and a per-run id there would read as
+            # conditions moved on every run. What carries it after the subject exits is the
+            # run's to kill; what returns marked with it is the run's to report.
+            test = mint_test_id()
+            run_env = {**pinned, TEST_ID_ENV: test}
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
                             cwd=str(proof_path.parent), instance_swap=swap)
             base_evidence = {
+                "test": test,
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
                 "scratch_sweep": scratch_sweep,
                 # WHAT THIS RUN WAS MEASURED UNDER (ticket f0aad0cd0f56). Rides both the normal
@@ -598,7 +615,10 @@ class TesterDevice(BaseDevice):
                 if bad_budget:
                     raise _BadBudget(bad_budget)
                 proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
-                                      env=pinned)
+                                      env=run_env)
+                # THE WHOLE OUTPUT GOES TO LOGGING (bf3c16162827): the record keeps a tail and
+                # the teeth; the rest is kept 30 days in the run's log directory, never here.
+                keep_output(test, proc.stdout, proc.stderr)
                 verdict = GREEN if proc.returncode == 0 else RED
                 teeth = _teeth(proc.stdout)
                 stderr = proc.stderr
@@ -643,7 +663,8 @@ class TesterDevice(BaseDevice):
                     "teeth_red": [],
                     **base_evidence,
                 }
-            except subprocess.TimeoutExpired:
+            except subprocess.TimeoutExpired as exc:
+                keep_output(test, _text(exc.stdout), _text(exc.stderr))
                 # A proof that hangs is a red, not a crash of the notary (CP1: say what
                 # happened — we measured a timeout, we did not measure a pass).
                 verdict = RED
@@ -658,6 +679,14 @@ class TesterDevice(BaseDevice):
                     "teeth_red": [],
                     **base_evidence,
                 }
+            # WHAT THE RUN STARTED, KILLED; WHAT CAME BACK, REPORTED (bf3c16162827). After the
+            # subject has exited or been timed out, anything still carrying its test id is a
+            # leftover of this run — a setsid'd child, or the subject itself orphaned by a
+            # timed-out wrapper. Returns taken by the shim so far ride the record; a return that
+            # lands later is still in the run's log.
+            evidence["killed"] = kill_what_it_started(test)
+            evidence["returns"] = returns_of(test)
+            evidence["run_log"] = str(run_dir(test))
             # WHAT WAS PROVED, PINNED — and now pinned to the files the proof LOADED rather
             # than to every neighbour that happens to share its directory. The fingerprint
             # moved from before the run to after it because the closure cannot be known until

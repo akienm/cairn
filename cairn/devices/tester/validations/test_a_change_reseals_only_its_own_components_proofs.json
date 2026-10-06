@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_change_reseals_only_its_own_components_proofs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T17:06:56",
+    "date": "2026-10-05T19:52:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,6 +16,7 @@
         "on_the_live_census_the_reach_stops_at_the_owner"
       ],
       "teeth_red": [],
+      "test": "test-d46f1fd11a32",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -37,7 +38,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "8f70f4adfb6afdebc2385a2fe6d5fc0e6908e18d314d25f12784af93a6b6ec41",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d46f1fd11a32",
+      "source_fingerprint": "40e43f5608ba73ee244dd7c98dcefda445c8b8fa9b1ec4a8675aabeaa2ad14d9",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -45,11 +49,12 @@
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_a_change_reseals_only_its_own_components_proofs.py",
         "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
         "cairn/devices/tester/scratch_sweep.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3533642-s5pv4tyu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602551-_wwsm9bn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,9 +63,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 169610577,
-          "disk_bytes": 196800512,
-          "entries": 11623,
+          "bytes": 172403333,
+          "disk_bytes": 199946240,
+          "entries": 11784,
           "builds": 1,
           "reuses": 0
         }

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_hollow_reverts_a_commons_file.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T18:49:37",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-05T20:14:41",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_checked_commons_file_is_reverted_and_its_tooth_reds\n.\n  ok   test_an_unchecked_commons_file_reads_hollow_not_skipped\n.\n  ok   test_the_commons_file_reverts_to_the_commons_repos_own_prebuild_commit\n.\n  ok   test_a_commons_that_is_not_a_repository_is_skipped_with_that_reason\n                                                                     [100%]\n4 passed in 18.47s",
+      "stdout_tail": ".\n  ok   test_a_checked_commons_file_is_reverted_and_its_tooth_reds\n.\n  ok   test_an_unchecked_commons_file_reads_hollow_not_skipped\n.\n  ok   test_the_commons_file_reverts_to_the_commons_repos_own_prebuild_commit\n.\n  ok   test_a_commons_that_is_not_a_repository_is_skipped_with_that_reason\n                                                                     [100%]\n4 passed in 19.24s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_checked_commons_file_is_reverted_and_its_tooth_reds",
@@ -16,6 +16,7 @@
         "test_a_commons_that_is_not_a_repository_is_skipped_with_that_reason"
       ],
       "teeth_red": [],
+      "test": "test-c01a50ce7e5f",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -29,7 +30,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -37,60 +38,66 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "299618c87925d9a3450e291278e5b1045efa9353594d46a87766d0669e9ce3ea",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c01a50ce7e5f",
+      "source_fingerprint": "cd8882b929e516059ce321e87f7a70e0ea53bd1868f6f92e83f6bec0017a4443",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/proofs/test_the_hollow_reverts_a_commons_file.py"
+        "cairn/devices/tester/proofs/test_the_hollow_reverts_a_commons_file.py",
+        "cairn/devices/tester/runs.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3578425-dxcylsjj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602551-fywkke0q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 10,
+          "count": 30,
           "paths": [
-            "logs/tester/0/20261006.004920.142095.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004921.943194.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004923.802032.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004925.702881.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004927.502087.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004929.302835.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004931.178693.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004932.990102.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004934.804226.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.004936.630347.TesterDevice.run_proof.json"
+            "logs/tester/0/20261006.021423.651199.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021425.530987.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021427.424068.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021429.396954.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021431.299363.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021433.200182.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021435.168597.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021437.040306.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021438.973137.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.021440.895365.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1eb6903e02bf/stderr.txt",
+            "logs/tester/0/runs/test-1eb6903e02bf/stdout.txt",
+            "logs/tester/0/runs/test-2952b7257372/stderr.txt",
+            "logs/tester/0/runs/test-2952b7257372/stdout.txt",
+            "logs/tester/0/runs/test-435dbeeda9ee/stderr.txt",
+            "logs/tester/0/runs/test-435dbeeda9ee/stdout.txt",
+            "logs/tester/0/runs/test-4a1281332a33/stderr.txt",
+            "logs/tester/0/runs/test-4a1281332a33/stdout.txt",
+            "logs/tester/0/runs/test-50572b7d2ed4/stderr.txt",
+            "logs/tester/0/runs/test-50572b7d2ed4/stdout.txt",
+            "logs/tester/0/runs/test-6d53d433fffe/stderr.txt",
+            "logs/tester/0/runs/test-6d53d433fffe/stdout.txt",
+            "logs/tester/0/runs/test-8463b3af4a87/stderr.txt",
+            "logs/tester/0/runs/test-8463b3af4a87/stdout.txt",
+            "logs/tester/0/runs/test-a2ae6edc6005/stderr.txt",
+            "logs/tester/0/runs/test-a2ae6edc6005/stdout.txt",
+            "logs/tester/0/runs/test-c89b886bcfdf/stderr.txt",
+            "logs/tester/0/runs/test-c89b886bcfdf/stdout.txt",
+            "logs/tester/0/runs/test-df622cc9aa1c/stderr.txt",
+            "logs/tester/0/runs/test-df622cc9aa1c/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 169767720,
-          "disk_bytes": 197029888,
-          "entries": 11649,
+          "bytes": 172407453,
+          "disk_bytes": 200028160,
+          "entries": 11827,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "b312ff041558": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_checked_commons_file_is_reverted_and_its_tooth_reds",
-            "test_a_commons_that_is_not_a_repository_is_skipped_with_that_reason",
-            "test_an_unchecked_commons_file_reads_hollow_not_skipped",
-            "test_the_commons_file_reverts_to_the_commons_repos_own_prebuild_commit"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b312ff041558": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d6c8d07795f20684bb9d002fe78f9974d69d4ea1",
-          "anchor_first_build": "1381e3ff650f65d3402982b4c98405424ca76f22",
-          "commit": "d6c8d07795f20684bb9d002fe78f9974d69d4ea1"
+          "reuses": 22
         }
       }
     },

@@ -2,18 +2,19 @@
   {
     "claim": "proof test_a_green_seal_names_a_tooth.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T17:08:03",
+    "date": "2026-10-05T19:53:30",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 6.08s",
+      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 6.55s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_exit_zero_run_that_names_no_tooth_seals_red",
         "test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it"
       ],
       "teeth_red": [],
+      "test": "test-d9075cc673f0",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -35,31 +36,39 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "7abc5ab87ad7a44bdec77a8f170fa0f3f7fdc983d03b808f6b3317a1bcce0952",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d9075cc673f0",
+      "source_fingerprint": "c732222b91a61ed20edfa211cb3aa1dc28e948d55dc03d0c49c77c101c6e00d6",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/proofs/test_a_green_seal_names_a_tooth.py"
+        "cairn/devices/tester/proofs/test_a_green_seal_names_a_tooth.py",
+        "cairn/devices/tester/runs.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3533642-sxtrw7tn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602551-eatmwbyc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
+          "count": 6,
           "paths": [
-            "logs/tester/0/20261005.230759.426504.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.230802.402383.TesterDevice.run_proof.json"
+            "logs/tester/0/20261006.015326.192528.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.015329.442271.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-ae0493294b03/stderr.txt",
+            "logs/tester/0/runs/test-ae0493294b03/stdout.txt",
+            "logs/tester/0/runs/test-d743f8c6dfce/stderr.txt",
+            "logs/tester/0/runs/test-d743f8c6dfce/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 169611224,
-          "disk_bytes": 196808704,
-          "entries": 11627,
+          "bytes": 172404254,
+          "disk_bytes": 199958528,
+          "entries": 11795,
           "builds": 1,
           "reuses": 3
         }

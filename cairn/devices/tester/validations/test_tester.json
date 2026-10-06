@@ -2,7 +2,7 @@
   {
     "claim": "proof test_tester.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T17:15:37",
+    "date": "2026-10-05T20:01:19",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,13 +20,17 @@
         "test_run_proof_REQUIRES_a_sink_and_has_no_default_for_it"
       ],
       "teeth_red": [],
+      "test": "test-d44701b72e4e",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3605420_2000283281_delivery",
+          "bus_proc_3605420_2000283281"
+        ]
       },
       "conditions": {
         "proof": "db7c5f2427939114213866397f92024e9e8771ce92db75e6633a2ff2eb95be40",
@@ -41,40 +45,64 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "8ce3b97f360d84c333ef985b6b800d7e74307cc25694b39446c754a5320d0e82",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d44701b72e4e",
+      "source_fingerprint": "afa2ca14815a9a29df169b4ef20f5d8bbd3490749be1c1a3d8e21daf71aa8329",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/notices.py",
-        "cairn/devices/tester/proofs/test_tester.py"
+        "cairn/devices/tester/proofs/test_tester.py",
+        "cairn/devices/tester/runs.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3533642-1mtm_mmj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3602551-jpr30r69/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 28,
           "paths": [
-            "logs/tester/0/20261005.231518.349160.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231520.641610.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231522.966506.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231525.229700.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231531.318884.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231533.000088.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231534.759256.TesterDevice.run_proof.json",
-            "logs/tester/0/20261005.231536.619450.TesterDevice.run_proof.json"
+            "logs/tester/0/20261006.020100.032474.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020101.904051.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020103.795716.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020106.057792.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020113.126050.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020114.894132.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020116.722777.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.020118.609559.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-07a315577959/stderr.txt",
+            "logs/tester/0/runs/test-07a315577959/stdout.txt",
+            "logs/tester/0/runs/test-08d0cbafe693/stderr.txt",
+            "logs/tester/0/runs/test-08d0cbafe693/stdout.txt",
+            "logs/tester/0/runs/test-4be922f27a9e/stderr.txt",
+            "logs/tester/0/runs/test-4be922f27a9e/stdout.txt",
+            "logs/tester/0/runs/test-553e0acf5d7b/stderr.txt",
+            "logs/tester/0/runs/test-553e0acf5d7b/stdout.txt",
+            "logs/tester/0/runs/test-6c439a329862/stderr.txt",
+            "logs/tester/0/runs/test-6c439a329862/stdout.txt",
+            "logs/tester/0/runs/test-734444e3cf4e/stderr.txt",
+            "logs/tester/0/runs/test-734444e3cf4e/stdout.txt",
+            "logs/tester/0/runs/test-798de0f62f04/stderr.txt",
+            "logs/tester/0/runs/test-798de0f62f04/stdout.txt",
+            "logs/tester/0/runs/test-9ed16e3fb76a/stderr.txt",
+            "logs/tester/0/runs/test-9ed16e3fb76a/stdout.txt",
+            "logs/tester/0/runs/test-d2409ac95146/stderr.txt",
+            "logs/tester/0/runs/test-d2409ac95146/stdout.txt",
+            "logs/tester/0/runs/test-e029d6517c7e/stderr.txt",
+            "logs/tester/0/runs/test-e029d6517c7e/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 169612867,
-          "disk_bytes": 196833280,
-          "entries": 11633,
+          "bytes": 172407282,
+          "disk_bytes": 200007680,
+          "entries": 11825,
           "builds": 1,
-          "reuses": 19
+          "reuses": 18
         }
       }
     },

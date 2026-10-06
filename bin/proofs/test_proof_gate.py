@@ -59,6 +59,10 @@ PROVES = {"1af0564c0db3": {
     "5": "test_every_census_command_is_refused_or_rewritten_never_bare",
     "6": "test_a_rewritten_proof_runs_under_the_instance_seal",
     "7": "test_quotes_and_pipes_survive_the_rewrite",
+}, "72a37498c601": {
+    "1": "test_the_word_as_an_argument_passes_untouched",
+    "2": "test_pytest_as_a_command_word_is_still_refused",
+    "3": "test_a_separator_inside_an_assignment_hides_no_proof_run",
 }}
 
 _HELD: list = []
@@ -237,6 +241,58 @@ def test_quotes_and_pipes_survive_the_rewrite():
     assert sealed.stdout == bare.stdout, f"stdout changed under the rewrite: {sealed.stdout!r} != {bare.stdout!r} ({sealed.stderr[-300:]})"
 
 
+# 72a37498c601: the 1af0 gate matched the word anywhere in the text. Measured 2026-10-06 — these
+# run no pytest and were refused; the live gate blocked every session's echo, grep and commit.
+_W = "py" + "test"
+AS_ARGUMENT = [
+    f'git commit -m "refuses {_W}\n"',
+    f"grep -rn {_W} cairn/",
+    f"echo {_W}",
+    'cat x | grep "py.test "',
+]
+
+AS_COMMAND = PYTEST + [
+    f"{_W} x.py",
+    f"cd a && {_W}",
+    f"timeout 60 {_W} cairn/tools/base/proofs/",
+]
+
+# D9 on 1af0564c0db3: the split cut inside the quotes, so the python3 segment never began.
+IN_ASSIGNMENT = f'X="a;b" python3 {P}'
+
+
+def test_the_word_as_an_argument_passes_untouched():
+    g = _gate()
+    judged = [c for c in AS_ARGUMENT if g.judge(c) is not None]
+    assert not judged, f"the word as an argument was judged: {judged}"
+    for c in AS_ARGUMENT:
+        r = _hook(c)
+        assert r.returncode == 0 and not r.stdout.strip(), \
+            f"{c!r} must pass silently: exit {r.returncode}, stdout {r.stdout[:200]!r}, stderr {r.stderr[:120]!r}"
+
+
+def test_pytest_as_a_command_word_is_still_refused():
+    g = _gate()
+    leaked = [c for c in AS_COMMAND if (g.judge(c) or {}).get("action") != "refuse"]
+    assert not leaked, f"command-word spellings not refused: {leaked}"
+    for c in AS_COMMAND[-3:]:
+        r = _hook(c)
+        assert r.returncode == 2 and "cairn test" in r.stderr, f"hook exit {r.returncode} for {c!r}: {r.stderr[:200]!r}"
+
+
+def test_a_separator_inside_an_assignment_hides_no_proof_run():
+    g = _gate()
+    got = (g.judge(IN_ASSIGNMENT) or {}).get("command")
+    assert got == _wrapped(IN_ASSIGNMENT), f"{IN_ASSIGNMENT!r} judged {got!r}, not the sealed exec"
+    assert _rewritten(IN_ASSIGNMENT) == _wrapped(IN_ASSIGNMENT)
+
+
+def test_the_whole_fix_holds_end_to_end():
+    test_the_word_as_an_argument_passes_untouched()
+    test_pytest_as_a_command_word_is_still_refused()
+    test_a_separator_inside_an_assignment_hides_no_proof_run()
+
+
 def test_the_whole_falsifier_holds_end_to_end():
     test_python3_by_path_is_rewritten_under_the_seal()
     test_pytest_in_any_spelling_is_refused_with_the_way_through()
@@ -257,6 +313,10 @@ def _main() -> int:
         test_a_rewritten_proof_runs_under_the_instance_seal,
         test_quotes_and_pipes_survive_the_rewrite,
         test_the_whole_falsifier_holds_end_to_end,
+        test_the_word_as_an_argument_passes_untouched,
+        test_pytest_as_a_command_word_is_still_refused,
+        test_a_separator_inside_an_assignment_hides_no_proof_run,
+        test_the_whole_fix_holds_end_to_end,
     ]
     # EVERY TOOTH PRINTS, red ones too, so a red names which clause fell.
     failed = []

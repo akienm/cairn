@@ -56,7 +56,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.devices.tester.device import GREEN, SealUnavailable, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.tools.validation_store.validation_store import (
     SealConversionRefused,
@@ -554,6 +554,12 @@ def main(argv: list[str] | None = None) -> int:
             record = tester.run_proof(proof, sink=sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation,
                                       scratch_sweep=sweep_scratch() if sink == "validations" else None)
+        except SealUnavailable as refusal:
+            # THE SEAL COULD NOT BE BUILT, SO THE PROOF NEVER RAN (67af8b743a63): nothing was
+            # measured and nothing persisted. It joins the refused lane, the batch continues.
+            print(f"  REFUSED {rel}  (not run: the seal it asks for cannot be built here)")
+            refused.append((proof, str(refusal)))
+            continue
         except (SealDowngradeRefused, SealConversionRefused) as refusal:
             # THE DOOR REFUSED THE SEAL, NOT THE PROOF, and the difference has to survive to
             # the screen. The batch continues: one proof whose seal cannot land is not a

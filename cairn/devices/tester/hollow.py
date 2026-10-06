@@ -781,6 +781,17 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         declared_teeth = {rel: declared_teeth[rel] for rel in proofs}
         log(f"  dropped {len(silent)} proof(s) declaring no tooth for {tid}: {', '.join(silent)}")
 
+    # A SEAL THAT CANNOT BE BUILT HERE REFUSES THE WHOLE MEASUREMENT, UP FRONT (67af8b743a63):
+    # before any proof runs, and before the scratch worktree exists, so nothing is left to sweep.
+    # Each proof is measured at the depth its seal was taken (seal_isolation, a name string).
+    from cairn.devices.tester.device import SealUnavailable, refuse_unbuildable
+    from cairn.devices.tester.isolation import get_isolation
+    for name in sorted({seal_isolation(repo_root / rel) for rel in proofs}):
+        try:
+            refuse_unbuildable(get_isolation(name))
+        except SealUnavailable as e:
+            raise HollowUnmeasurable(f"hollow: {e}") from e
+
     # THE WORKTREE IS AT HEAD, NOT AT THE PRE-BUILD COMMIT, and the difference is the whole
     # design. Checking the whole tree out to before the build would revert every file at once
     # and answer a question nobody asked ("does the proof notice the last month of work?").

@@ -343,6 +343,23 @@ class _BadBudget(Exception):
     """A proof's PROOF_TIMEOUT_S declaration is malformed; the run is refused, red."""
 
 
+class SealUnavailable(ValueError):
+    """The network seal a proof asks for cannot be built here, so the proof is not run (67af8b743a63)."""
+
+
+def refuse_unbuildable(iso) -> None:
+    """Refuse, before anything runs or persists, a network seal that cannot be cut from here.
+
+    Measured 2026-10-06: inside ``cairn test --exec`` the instance seal inherits but the network
+    is open, and this host refuses a namespace inside a namespace. Running the subject anyway
+    let bwrap die on the namespace and ``--seal`` persist that harness failure as the proof's
+    RED — a false verdict in a record of truth (Law 7). A refusal is the honest shape."""
+    available, why = iso.available()
+    if iso.seals_network and not available:
+        raise SealUnavailable(f"cairn test: refused — the {iso.name} seal this proof asks for cannot be "
+                              f"built here ({why}); the proof was not run")
+
+
 class TesterDevice(BaseDevice):
     """Runs proofs and attests verdicts — the spine's notary, minimal version.
 
@@ -516,14 +533,13 @@ class TesterDevice(BaseDevice):
         if declared:
             timeout = declared
         iso = get_isolation(isolation)
+        # A network seal that cannot be built refuses here, before the subject runs or anything
+        # persists (67af8b743a63) — never an `indeterminate` seal over a run that dies in bwrap.
+        refuse_unbuildable(iso)
 
         # Measure the seal before trusting it (isolation.py: measured, never assumed).
         # NoIsolation reports OPEN with no subprocess; netns probes from inside.
-        available, why = iso.available()
-        if iso.seals_network and not available:
-            seal = Seal("indeterminate", f"seal '{iso.name}' unavailable: {why}")
-        else:
-            seal = iso.check_seal(str(proof_path.parent))
+        seal = iso.check_seal(str(proof_path.parent))
 
         # THE BEFORE HALF OF THE HORIZON. The record PROMISES "valid until the proof file or
         # the code it proves changes", and this is the description that makes the promise

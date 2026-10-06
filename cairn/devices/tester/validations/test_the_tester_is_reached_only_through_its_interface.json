@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_tester_is_reached_only_through_its_interface.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-06T05:29:40",
+    "date": "2026-10-06T09:31:34",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": ".\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n=================================== FAILURES ===================================\n___________________ test_no_foreign_row_lands_on_the_tester ____________________\n\n    def test_no_foreign_row_lands_on_the_tester():\n        # Resolved at call time, so the hollow taking the build away reads as a red tooth.\n        inspector = importlib.import_module(\"cairn.machines.build_inspector.inspector\")\n        rows = [b for b in inspector.encapsulation_breaches(str(_REPO_ROOT))\n                if (b.get(\"module\") or \"\").startswith(\"cairn.devices.tester\")]\n>       assert not rows, f\"{len(rows)} reach(es) into the tester: \" + \"; \".join(\n            f\"{b['file']}:{b['line']} {b['module']}\" for b in rows[:10])\nE       AssertionError: 1 reach(es) into the tester: cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py:127 cairn.devices.tester.device\nE       assert not [{'source': 'cairn/tools/base', 'target': 'cairn/devices/tester', 'reason': 'into_device', 'file': 'cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py', ...}]\n\ntest_the_tester_is_reached_only_through_its_interface.py:54: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_tester_is_reached_only_through_its_interface.py::test_no_foreign_row_lands_on_the_tester\n1 failed, 2 passed in 9.85s",
+      "stdout_tail": ".\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n=================================== FAILURES ===================================\n___________________ test_no_foreign_row_lands_on_the_tester ____________________\n\n    def test_no_foreign_row_lands_on_the_tester():\n        # Resolved at call time, so the hollow taking the build away reads as a red tooth.\n        inspector = importlib.import_module(\"cairn.machines.build_inspector.inspector\")\n        rows = [b for b in inspector.encapsulation_breaches(str(_REPO_ROOT))\n                if (b.get(\"module\") or \"\").startswith(\"cairn.devices.tester\")]\n>       assert not rows, f\"{len(rows)} reach(es) into the tester: \" + \"; \".join(\n            f\"{b['file']}:{b['line']} {b['module']}\" for b in rows[:10])\nE       AssertionError: 1 reach(es) into the tester: cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py:127 cairn.devices.tester.device\nE       assert not [{'source': 'cairn/tools/base', 'target': 'cairn/devices/tester', 'reason': 'into_device', 'file': 'cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py', ...}]\n\ntest_the_tester_is_reached_only_through_its_interface.py:54: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_tester_is_reached_only_through_its_interface.py::test_no_foreign_row_lands_on_the_tester\n1 failed, 2 passed in 9.46s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_run_verb_answers_with_the_testers_verdict",
@@ -17,7 +17,7 @@
         "test_no_foreign_row_lands_on_the_tester",
         "test_the_tester_is_reached_only_through_its_interface"
       ],
-      "test": "test-e01e5b6acdab",
+      "test": "test-34d83ed79245",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -25,8 +25,8 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_3840904_0529259988_delivery",
-          "bus_proc_3840904_0529259988"
+          "bus_proc_3907300_0931205631_delivery",
+          "bus_proc_3907300_0931205631"
         ]
       },
       "conditions": {
@@ -44,14 +44,14 @@
       },
       "killed": [
         {
-          "pid": 3841006,
+          "pid": 3907375,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e01e5b6acdab",
-      "source_fingerprint": "694aa3914652f1707bd562b0c1dd5a4c979cb388215c1e2565249ad9d2df89d0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-34d83ed79245",
+      "source_fingerprint": "d07c6364b75b67913022fa3adbfcd99f39304f95c11bc27a5357129adeb4d76b",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -62,55 +62,54 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3822594-30au2f6r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3889065-_vhc8o1_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 27,
+          "count": 26,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261006.112933.795189.BusDevice.post.json",
-            "logs/bus/0/20261006.112933.796837.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.112933.829053.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.112933.844220.BusDevice.post.json",
-            "logs/bus/0/20261006.112935.714363.BusDevice.post.json",
-            "logs/bus/0/20261006.112935.715339.BusDevice.delivered.json",
-            "logs/bus/0/20261006.112935.715664.BusDevice.delivered.json",
-            "logs/bus/0/20261006.112935.742231.BusDevice.post.json",
-            "logs/bus/0/20261006.112937.621398.BusDevice.post.json",
-            "logs/bus/0/20261006.112937.622074.BusDevice.delivered.json",
-            "logs/bus/0/20261006.112937.622192.BusDevice.delivered.json",
-            "logs/bus/0/20261006.112937.650564.BusDevice.post.json",
-            "logs/bus/0/20261006.112937.650782.BusDevice.post.json",
-            "logs/bus/0/20261006.112937.651450.BusDevice.delivered.json",
-            "logs/bus/0/20261006.112937.651570.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153128.068669.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.153128.074975.BusDevice.post.json",
+            "logs/bus/0/20261006.153128.092137.BusDevice.post.json",
+            "logs/bus/0/20261006.153129.860832.BusDevice.post.json",
+            "logs/bus/0/20261006.153129.861787.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153129.862098.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153129.886952.BusDevice.post.json",
+            "logs/bus/0/20261006.153131.686301.BusDevice.post.json",
+            "logs/bus/0/20261006.153131.686922.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153131.687030.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153131.712632.BusDevice.post.json",
+            "logs/bus/0/20261006.153131.712823.BusDevice.post.json",
+            "logs/bus/0/20261006.153131.713446.BusDevice.delivered.json",
+            "logs/bus/0/20261006.153131.713557.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261006.112935.713248.TesterDevice.run_proof.json",
-            "logs/tester/0/20261006.112935.715441.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261006.112935.715562.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261006.112937.620066.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-1aef2e6e426c/stderr.txt",
-            "logs/tester/0/runs/test-1aef2e6e426c/stdout.txt",
-            "logs/tester/0/runs/test-bbb4c1e7ddc4/stderr.txt",
-            "logs/tester/0/runs/test-bbb4c1e7ddc4/stdout.txt"
+            "logs/tester/0/20261006.153129.859700.TesterDevice.run_proof.json",
+            "logs/tester/0/20261006.153129.861888.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261006.153129.861998.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261006.153131.685076.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-793aad366112/stderr.txt",
+            "logs/tester/0/runs/test-793aad366112/stdout.txt",
+            "logs/tester/0/runs/test-7be7434f538c/stderr.txt",
+            "logs/tester/0/runs/test-7be7434f538c/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102262551,
-          "disk_bytes": 122966016,
-          "entries": 8508,
+          "bytes": 102455194,
+          "disk_bytes": 123297792,
+          "entries": 8559,
           "builds": 1,
-          "reuses": 30
+          "reuses": 29
         }
       },
       "reseal_ladder": {
         "proof_sha256": "abf032e9bcbd2afae1a007f8f587f8371912f616777cf5a25418c42243d911cf",
         "opened": "2026-10-06T05:29:40",
-        "last_red": "2026-10-06T05:29:40",
-        "passes": 1,
+        "last_red": "2026-10-06T09:31:34",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
         "ruling": null

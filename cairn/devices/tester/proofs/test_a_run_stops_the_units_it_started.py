@@ -1,4 +1,4 @@
-"""A tester run stops the units it started (sibling of bf3c16162827, which made a run own what it
+"""A tester run stops the units it started (ticket c64adc092835; sibling of bf3c16162827, which made a run own what it
 started; found by f04d5ef26a48's seal).
 
 bf3c16162827's kill finds what the run started by reading /proc/<pid>/environ for the run's
@@ -45,6 +45,13 @@ REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+
+PROVES = {"c64adc092835": {
+    "1": "test_a_unit_the_run_started_is_stopped",
+    "2": "test_a_failed_unit_of_the_run_is_cleared",
+    "3": "test_a_timed_out_run_leaves_no_unit",
+    "4": "test_a_unit_not_carrying_the_id_is_left_alone",
+}}
 
 _ENV = "CAIRN_TESTER_TEST_ID"
 _TAG = str(os.getpid())

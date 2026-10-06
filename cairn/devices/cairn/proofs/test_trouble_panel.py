@@ -28,6 +28,9 @@ PROVES = {
     "9579a6f9cec6": {
         "5": "test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path",
     },
+    "7a1265439f54": {
+        "2": "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
+    },
 }
 
 
@@ -335,6 +338,31 @@ def test_probe_carry_returns_data():
     assert result is not None
     assert isinstance(result, dict)
     assert "pane_declared" in result
+
+
+def test_an_UNHEALTHY_probe_NAMES_ITS_FINDING():
+    """THE FIXME THIS TOOTH WAS WRITTEN AGAINST (7a1265439f54, 2026-10-05). An unhealthy
+    pulse put its reason under ``error`` and nothing under ``finding``, so ``watch_carry``
+    filed the generic _NO_FINDING and the ticket landed at FIXME saying only that the probe
+    had nothing to say. The probe KNEW why — it had just written it down one key over. A
+    watch whose red cannot name its cause sends a mind to re-derive what the probe already
+    measured (Law 1), so each way to be unhealthy must arrive as the finding itself."""
+    from cairn.devices.cairn.probes.trouble_panel_surfaces_live_troubles import PROBE
+    from cairn.tools.base.probe import _NO_FINDING
+
+    cases = {
+        "no bus": {},
+        "no route to trouble": {"bus": _FakeBus(RuntimeError("no route to trouble"))},
+        "list": {"bus": _FakeBus({"outcome": "refused"})},
+    }
+    for needle, ctx in cases.items():
+        out = PROBE.carry(ctx)
+        assert out["holds"] is False, (needle, out)
+        assert out["finding"] != _NO_FINDING, f"{needle}: the carry named no finding: {out}"
+        assert needle in out["finding"], f"{needle!r} not in the finding: {out['finding']!r}"
+
+    healthy = PROBE.carry({"bus": _FakeBus({"troubles": []})})
+    assert healthy["holds"] is True and healthy["finding"] == "", healthy
 
 
 def test_probe_enough_returns_bool():

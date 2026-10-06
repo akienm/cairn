@@ -1,0 +1,71 @@
+[
+  {
+    "claim": "proof test_a_history_row_without_standing_is_refused.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T15:06:04",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-_bt27ebz/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_row_without_standing_is_refused_and_nothing_lands",
+        "test_a_row_carrying_standing_lands",
+        "test_an_old_row_already_standing_is_not_re_judged"
+      ],
+      "teeth_red": [],
+      "test": "test-e1dbd63ee7aa",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "e849e8cc9092f205839a2d9d3d8f23221496782b3200f5de24b22d67b8c03026",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1dbd63ee7aa",
+      "source_fingerprint": "855a5822359798b323b93fab4e4960a01fbe6bea73a44d5e1729bc15d4632784",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_a_history_row_without_standing_is_refused.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3999692-ju16itge/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 102993799,
+          "disk_bytes": 123961344,
+          "entries": 8631,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

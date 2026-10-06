@@ -415,6 +415,18 @@ fi
 # (two loops held the address for 80 minutes on 2026-08-18 and nothing was loud about it). Any
 # OTHER failure — no bus, no manager, denied — is systemd being unreachable, and there the
 # setsid fall-through is right, because there is no first claimant to race.
+# A UNIT STARTED INSIDE A TEST RUN IS THE RUN'S (ticket bf3c16162827: a run owns what it
+# started). systemd-run hands a unit the MANAGER's environment, never ours, so without this the
+# run's test id stops at this shell and the tester's kill cannot find the loop or the web
+# server it caused — measured: a run killed by its timeout left its loop unit running. The id
+# rides the unit so the kill reaches it, and CollectMode lets a test unit that FAILED (no
+# process left to kill) collect itself instead of lingering as a corpse. Outside a test run
+# this array is empty and the live units are byte-for-byte unchanged — their failed state stays
+# where a human looks.
+_sc_test_mark=()
+if [[ -n "${CAIRN_TESTER_TEST_ID:-}" ]]; then
+  _sc_test_mark=(--setenv=CAIRN_TESTER_TEST_ID="$CAIRN_TESTER_TEST_ID" -p CollectMode=inactive-or-failed)
+fi
 _sc_loop_unit="${SUPERCLAUDE_GROUND_LOOP_UNIT:-cairn-ground-loop}"
 _sc_loop_log="${HOME}/.cairn/logs/ground_loop_nohup.log"
 _sc_loop_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/null && pwd)"
@@ -427,6 +439,7 @@ _sc_loop_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/
 _sc_loop_start() {
   systemd-run --user --quiet \
     --unit "$_sc_loop_unit" \
+    "${_sc_test_mark[@]}" \
     --working-directory "${_sc_loop_root:-$PWD}" \
     --setenv=HOME="$HOME" \
     --setenv=PATH="$PATH" \
@@ -503,6 +516,7 @@ _sc_web_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/n
 _sc_web_start() {
   systemd-run --user --quiet \
     --unit "$_sc_web_unit" \
+    "${_sc_test_mark[@]}" \
     --working-directory "${_sc_web_root:-$PWD}" \
     --setenv=HOME="$HOME" \
     --setenv=PATH="$PATH" \

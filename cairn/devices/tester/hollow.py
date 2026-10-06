@@ -234,7 +234,7 @@ def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
 
 
 def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path,
-                 instrument: frozenset[str] = frozenset()) -> dict:
+                 instrument: frozenset[str] = frozenset(), read_by: str = "") -> dict:
     """The commit the reversion lands on: BEFORE THE BUILD THAT STANDS (ticket 06f0445e7a63).
 
     THE RULE. Two candidates, and the earlier one wins:
@@ -262,7 +262,8 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     # touches only instruments or records (whatever _classify skips) is a repair of the proof,
     # not a new build, so it neither bounds nor anchors (ticket 479f75cc0917, measured on
     # 7cb1989e7825: its proofs-only repair c3f72a3f anchored the hollow after the build).
-    builds = _build_commits(tid, [f for f in files if _classify(f, instrument=instrument) is None],
+    builds = _build_commits(tid, [f for f in files
+                                  if _classify(f, instrument=instrument, read_by=read_by) is None],
                             repo_root)
     # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
     # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
@@ -477,6 +478,19 @@ def instrument_set(proofs: list[str], repo_root: Path) -> frozenset[str]:
     return frozenset(seen)
 
 
+def instrument_text(instrument: frozenset[str], repo_root: Path) -> str:
+    """The instrument's source, joined — what ``_classify`` asks whether a record is NAMED in
+    (ticket 45000a1642cb). A proof that reads a record spells its repo-relative path; one that
+    composes the path at runtime is not seen, and that record stays skipped as before."""
+    out = []
+    for rel in sorted(instrument):
+        try:
+            out.append((Path(repo_root) / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+    return "\n".join(out)
+
+
 def _inside(f: str, repo_root: Path) -> str:
     """An absolute path under the repo is the same address written another way — the chart
     is free to spell it either way, and the reversion is of the file, not the spelling.
@@ -518,12 +532,15 @@ def _is_repo(root: Path) -> bool:
     return proc.returncode == 0 and Path(proc.stdout.strip()).resolve() == Path(root).resolve()
 
 
-def _classify(rel: str, *, instrument: frozenset[str] = frozenset()) -> str | None:
+def _classify(rel: str, *, instrument: frozenset[str] = frozenset(), read_by: str = "") -> str | None:
     """Why this file is not measured, or None when it is. One place, so the run and the
     report cannot disagree about which files were skipped and for what.
 
     ``instrument`` is ``instrument_set()`` for the ticket. A file under ``proofs/`` outside it
-    is the build's subject, not its instrument, and is measured (ticket 763379e32e3b)."""
+    is the build's subject, not its instrument, and is measured (ticket 763379e32e3b).
+
+    ``read_by`` is ``instrument_text()``. A record whose path it names is one a proof asserts
+    over, so SKIP_RECORD's premise is false for it and it is measured (ticket 45000a1642cb)."""
     p = Path(rel)
     if p.is_absolute() or rel.startswith("..") or "CairnCommons" in p.parts:
         return SKIP_OUTSIDE
@@ -551,7 +568,11 @@ def _classify(rel: str, *, instrument: frozenset[str] = frozenset()) -> str | No
     # AND IT IS NOT AN ESCAPE HATCH: `measure` already reds a run in which every `writes_to`
     # file was skipped ("a measurement of the empty set is not a pass"), so a build that names
     # nothing but records still cannot buy a green with this line.
-    if _RECORD_DIRS & set(p.parts) or p.name in _RECORD_NAMES:
+    #
+    # AND IT HOLDS ONLY WHERE ITS PREMISE DOES (ticket 45000a1642cb): a record the instrument
+    # names is one a proof asserts over. Measured 2026-10-06 on ba8c62b8203e — its whole build is
+    # two history.json rows its own proof reads, and this line left the hollow nothing to revert.
+    if (_RECORD_DIRS & set(p.parts) or p.name in _RECORD_NAMES) and rel not in read_by:
         return SKIP_RECORD
     return None
 
@@ -730,7 +751,9 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     # The instrument is read before the anchor, through the reader that does not raise, so a
     # ticket with no BUILDME is still refused by build_anchor for THAT reason (test_hollow.py).
     instrument = instrument_set(proven_by_since_buildme(tid, roots) or [], repo_root)
-    anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument)
+    read_by = instrument_text(instrument, repo_root)
+    anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument,
+                          read_by=read_by)
     commit, at = anchor["commit"], anchor["buildme_at"]
     files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
     # THE COMMONS HAS ITS OWN HISTORY, so its anchor is asked of it: the same rule over the
@@ -914,14 +937,16 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             skipped.append({"file": key, "why": SKIP_COMMONS_UNTRACKED})
             log(f"  skip   {key}  ({SKIP_COMMONS_UNTRACKED})")
             continue
-        why = _classify(rel, instrument=instrument if not prefix else frozenset())
+        why = _classify(rel, instrument=instrument if not prefix else frozenset(),
+                        read_by=read_by if not prefix else "")
         source = None
         if why is None and not (wtree / rel).is_file():
             succ = moved_to(rel, tid, repo_root=root, worktree=wtree)
             if succ is None:
                 why = "not present at HEAD and no recorded successor — there is nothing to revert"
             elif (prefix + succ) in measured or (prefix + succ) in moved \
-                    or _classify(succ, instrument=instrument if not prefix else frozenset()) is not None:
+                    or _classify(succ, instrument=instrument if not prefix else frozenset(),
+                                 read_by=read_by if not prefix else "") is not None:
                 continue  # already read under its own name, or the successor is itself skippable
             else:
                 source, rel = rel, succ

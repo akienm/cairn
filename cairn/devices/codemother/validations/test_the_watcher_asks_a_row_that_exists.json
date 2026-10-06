@@ -1,0 +1,93 @@
+[
+  {
+    "claim": "proof test_the_watcher_asks_a_row_that_exists.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T00:02:49",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_live_domain_answers_the_watcher\n  ok   test_a_refusal_is_an_error_not_a_node\n  ok   test_the_answer_is_its_text\n  ok   test_activate_records_a_returned_error\n\nGREEN — 4/4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_live_domain_answers_the_watcher",
+        "test_a_refusal_is_an_error_not_a_node",
+        "test_the_answer_is_its_text",
+        "test_activate_records_a_returned_error"
+      ],
+      "teeth_red": [],
+      "test": "test-ecd08dc70775",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4471a87387288034dd829dfc262e24c69e7a403934b5378c07bcc0636ec770f2",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [
+        {
+          "pid": 3704119,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ecd08dc70775",
+      "source_fingerprint": "8758eb0a5db3b1468ce39dc7ec34d2ebd27074fa7ae21139a7c99b8c2703b362",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/proofs/test_the_watcher_asks_a_row_that_exists.py",
+        "cairn/devices/codemother/watch.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3704035-xbyh3o5z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 14,
+          "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/inference_domain/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261006.060244.823042.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261006.060248.962705.BusDevice.post.json",
+            "logs/bus/0/20261006.060248.972289.BusDevice.post.json",
+            "logs/bus/0/20261006.060249.009702.BusDevice.post.json",
+            "logs/bus/0/20261006.060249.010819.BusDevice.delivered.json",
+            "logs/bus/0/20261006.060249.011198.BusDevice.delivered.json",
+            "logs/inference_domain/0/20261006.060248.998407.inference_domain_domain_resolve.hit.json",
+            "logs/inference_domain/0/20261006.060249.009402.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261006.060249.010939.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261006.060249.011073.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/tickets/20261006T060249009182-51b68799ba15-3704119-1.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 175993808,
+          "disk_bytes": 204050432,
+          "entries": 12012,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

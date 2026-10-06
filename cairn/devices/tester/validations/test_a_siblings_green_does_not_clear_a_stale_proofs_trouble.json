@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_siblings_green_does_not_clear_a_stale_proofs_trouble.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T02:57:28",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T04:52:28",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT"
       ],
       "teeth_red": [],
-      "test": "test-6a16def0feb5",
+      "test": "test-e1e17cfe4c21",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -29,7 +29,7 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -39,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6a16def0feb5",
-      "source_fingerprint": "1ec9bcd1d6fa7a8dba4606bdbcdeec79694c3e785411482c782fe9befccb2e4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1e17cfe4c21",
+      "source_fingerprint": "4f1bcee7bca733866d86188b3033ae46e49d93d423e203f5432b8d5416350a6d",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -54,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3760241-uw0fo0k3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3822594-e4j00r47/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,28 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 101939846,
-          "disk_bytes": 122421248,
-          "entries": 8416,
+          "bytes": 102256037,
+          "disk_bytes": 122875904,
+          "entries": 8475,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "86b6bf19ed2a": {
-          "cairn/devices/tester/reseal.py": [
-            "test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT",
-            "test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED",
-            "test_the_green_that_leaves_no_stale_sibling_CLEARS"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "86b6bf19ed2a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "93daf52ce95e69e7183d28e05cbb43c085db6053",
-          "anchor_first_build": "e43fab9e7ca9db46ced3071e5b0e8524051fc976",
-          "commit": "93daf52ce95e69e7183d28e05cbb43c085db6053"
+          "reuses": 9
         }
       }
     },

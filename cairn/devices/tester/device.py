@@ -781,6 +781,68 @@ class TesterDevice(BaseDevice):
                   values={"verdict": verdict, "seal": seal.verdict})
         return record
 
+    # --- the sealed exec: any command, same instance seal (ticket 2c9eeab2da87) ----------
+
+    def run_exec(self, command: str, *, timeout: int = 3600, cwd: str | None = None) -> int:
+        """Run ``bash -c command`` under the instance seal; return its exit code.
+
+        WHY A SECOND ENTRY AND NOT run_proof (ticket 2c9eeab2da87, child of dda0e72b9c67).
+        run_proof takes a proof PATH and mints a record. Two hands run proofs some other way —
+        CC's tool calls (``python3 <proof> | grep ...`` is a pipeline, not a path) and
+        codemother's verdict (chart instruments are ``bash -c`` strings) — and measured
+        2026-10-06, 88 of 290 proofs write live ~/.cairn when run that way. This is the one
+        sealed door both are rewritten onto (1af0564c0db3, 68cef2ddd8ef), so neither builds a
+        seal of its own.
+
+        IT COMPOSES THE SAME PRIMITIVES run_proof DOES and mints nothing: no record, no
+        validation, no teeth. stdin, stdout and stderr are the caller's own, untouched, so a
+        pipeline inside the command reads exactly as it would bare. The run carries a test id,
+        and anything still carrying it afterwards is killed, as run_proof's leftovers are.
+
+        NEVER BARE. A seal that cannot be confirmed — no bwrap and nothing inherited, or a
+        probe that does not read SEALED — exits 2 with the reason on stderr, before the
+        command has run at all. Running it anyway is the exact leak this exists to close.
+        Timeout exits 124, the code timeout(1) uses.
+        """
+        cwd = cwd or os.getcwd()
+        iso = get_isolation("none")
+        made = swap = None
+        try:
+            if inside_an_instance_seal():
+                # INHERITED (c54d744aa9ac): this host refuses a namespace inside a namespace, so
+                # the outer run's swap is the seal — measured, never taken on the marker's word.
+                seal = check_instance_seal(iso, _INSTANCE_ROOT, cwd)
+                if seal.sealed:
+                    swap = _INSTANCE_ROOT
+            else:
+                available, why = bwrap_available()
+                if not available:
+                    seal = Seal(INDETERMINATE, f"cannot build the instance seal: {why}")
+                else:
+                    made = snapshot_instance_space()
+                    seal = check_instance_seal(iso, made, cwd)
+                    if seal.sealed:
+                        swap = made
+            if swap is None:
+                print(f"cairn test --exec: refused — the instance seal is not confirmed "
+                      f"({seal.verdict}: {seal.detail}); the command was not run",
+                      file=sys.stderr)
+                return 2
+            test = mint_test_id()
+            env = {k: v for k, v in os.environ.items() if k != TEST_ID_ENV}
+            env[TEST_ID_ENV] = test
+            argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap)
+            try:
+                rc = subprocess.run(argv, env=env, cwd=cwd, timeout=timeout).returncode
+            except subprocess.TimeoutExpired:
+                print(f"cairn test --exec: timed out after {timeout}s", file=sys.stderr)
+                rc = 124
+            kill_what_it_started(test)
+            return rc
+        finally:
+            if made:
+                shutil.rmtree(Path(made).parent, ignore_errors=True)
+
     def _validation(self, *, claim, caller, method, verdict, evidence, falsifier, horizon) -> dict:
         """Assemble the ratified eight-field VALIDATION record (MAP.md:569)."""
         return {

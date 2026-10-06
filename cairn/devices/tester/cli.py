@@ -46,6 +46,7 @@ invisible while it was being worked around.
     cairn test --reseal                         the four-rung ladder over what git has staged
     cairn test --reseal --ruling <id> <path>    rung 4: reseal over a proof whose bytes moved
     cairn test --reseal-install                 install the pre-commit hook that fires it
+    cairn test --exec "<command>"               run any command under the instance seal (exit passes through; 2 when no seal)
 """
 
 from __future__ import annotations
@@ -389,7 +390,15 @@ def main(argv: list[str] | None = None) -> int:
         help="persist each verdict as a VALIDATION through the store's door "
              "(default: run and report only, sealing nothing)",
     )
-    ap.add_argument("--timeout", type=int, default=120, help="per-proof timeout in seconds for proofs that declare no PROOF_TIMEOUT_S (default 120)")
+    ap.add_argument("--timeout", type=int, default=None, help="per-proof timeout in seconds for proofs that declare no PROOF_TIMEOUT_S (default 120; 3600 with --exec)")
+    ap.add_argument(
+        "--exec",
+        metavar="COMMAND",
+        dest="exec_command",
+        help="run COMMAND with bash -c under the instance seal (2c9eeab2da87): stdin, stdout, "
+             "stderr and the exit code are the command's own; exits 2 without running it when "
+             "no seal can be confirmed",
+    )
     ap.add_argument(
         "--hollow",
         metavar="TICKET",
@@ -421,8 +430,20 @@ def main(argv: list[str] | None = None) -> int:
                     help="re-read the host: is the pre-commit hook installed, executable, "
                          "and identical to the tracked source?")
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
-    # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07)
-    args = ap.parse_args(fold_flags(sys.argv[1:] if argv is None else argv))
+    # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07).
+    # The --exec COMMAND is free text: a token after --exec that leads with "-" is restored raw.
+    raw = list(sys.argv[1:] if argv is None else argv)
+    folded = fold_flags(raw)
+    for i, tok in enumerate(folded[:-1]):
+        if tok == "--exec":
+            folded[i + 1] = raw[i + 1]
+    args = ap.parse_args(folded)
+
+    if args.exec_command is not None:
+        return TesterDevice().run_exec(args.exec_command,
+                                       timeout=3600 if args.timeout is None else args.timeout)
+    if args.timeout is None:
+        args.timeout = 120
 
     if args.reseal_install or args.reseal_verify:
         return _reseal_hook_admin(args)

@@ -1,16 +1,15 @@
 [
   {
     "claim": "proof test_a_command_runs_under_the_seal_by_exec.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T04:19:26",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T04:49:53",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_exit_code_and_stdout_pass_through_unchanged: AssertionError: exit 3 came back as 2: usage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT]\n                  [--hollow TICKET] [--reseal] [--ruling ID] [--stage]\n                  [--reseal-install] [--reseal-verify] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: --exec\n\n  FAIL  test_no_bwrap_and_no_inherited_seal_refuses_never_bare: AssertionError: expected exit 2, got 1: Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\n    raise SystemExit(d.TesterDevice().run_exec(\"touch /tmp/exec-proof-ran-bare-3815706\", timeout=30))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'TesterDevice' object has no attribute 'run_exec'\n\n  FAIL  test_the_charter_publishes_the_entry: AssertionError: the tester charter's public_interface does not name `cairn test --exec` / run_exec: []\n  FAIL  test_the_whole_falsifier_holds_end_to_end: AssertionError: --exec exit 2: usage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT]\n                  [--hollow TICKET] [--reseal] [--ruling ID] [--stage]\n                  [--reseal-install] [--reseal-verify] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: --exec\n\nred — 6 of 6 teeth failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_exec_runs_the_command_with_the_seal_marker\n  PASS  test_a_write_inside_exec_never_reaches_the_live_root\n  PASS  test_exit_code_and_stdout_pass_through_unchanged\n  PASS  test_no_bwrap_and_no_inherited_seal_refuses_never_bare\n  PASS  test_the_charter_publishes_the_entry\n  PASS  test_the_whole_falsifier_holds_end_to_end\ngreen — cairn test --exec runs any command under the instance seal, or refuses",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_exec_runs_the_command_with_the_seal_marker",
         "test_a_write_inside_exec_never_reaches_the_live_root",
         "test_exit_code_and_stdout_pass_through_unchanged",
@@ -18,7 +17,8 @@
         "test_the_charter_publishes_the_entry",
         "test_the_whole_falsifier_holds_end_to_end"
       ],
-      "test": "test-90700d89fbae",
+      "teeth_red": [],
+      "test": "test-bb21072fad86",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -28,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "7bf12262f1d14da510fb6c314b227f75bd2682fe4ef92161d47726baf92923a9",
+        "proof": "402575679905893a4454e05cb4efa7981b6f8dbf39ad0fd67fc1cbfb21e8d15f",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -42,14 +42,16 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90700d89fbae",
-      "source_fingerprint": "1e9a1bdf27470ae438efe145c4f3fdeff159da45ca23fed9674979808880f625",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb21072fad86",
+      "source_fingerprint": "c65f88bbe4ea75fc90a586cfb2119888cebbd20d2426507938eecdbf91f31948",
       "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_a_command_runs_under_the_seal_by_exec.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3815684-0bk8vvap/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3822594-yh6vv6jc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,12 +60,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102241850,
-          "disk_bytes": 122839040,
-          "entries": 8466,
+          "bytes": 102256037,
+          "disk_bytes": 122875904,
+          "entries": 8475,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
+      },
+      "conditions_moved": {
+        "notified": "n-5e1a7e8549af",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

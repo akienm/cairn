@@ -86,13 +86,15 @@ d.check_instance_seal = lambda iso, root, cwd: Seal(SEALED, "fixture: measured e
 seen = []
 def fake_run(argv, *a, **k):
     seen.append(list(argv))
-    return subprocess.CompletedProcess(argv, 0)
+    return subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
 d.subprocess.run = fake_run
 rc = d.TesterDevice().run_exec("touch exec-proof-fixture", timeout=30)
 print(json.dumps({"rc": rc, "argv": seen, "swap": swap}))
 '''
+    # a bare host carries no outer seal marker, and wrap() reads the marker itself
+    bare = {k: v for k, v in os.environ.items() if k != _MARKER}
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60,
-                       cwd=str(_REPO_ROOT), env={**os.environ, "PYTHONPATH": str(_REPO_ROOT)})
+                       cwd=str(_REPO_ROOT), env={**bare, "PYTHONPATH": str(_REPO_ROOT)})
     assert r.returncode == 0, f"could not drive run_exec: {r.stderr[-600:]}"
     return json.loads(r.stdout.strip().splitlines()[-1])
 

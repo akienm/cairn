@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_task_ticket.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:30:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T03:25:43",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,7 +20,7 @@
         "test_every_inference_call_produces_a_complete_task_ticket"
       ],
       "teeth_red": [],
-      "test": "test-53df82bcf803",
+      "test": "test-9beba4760dd7",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -34,7 +34,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-53df82bcf803",
-      "source_fingerprint": "725a8db43b174f660182d26bd090fcecb701f0da9bbf6a0b32b7968aa1af74b5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9beba4760dd7",
+      "source_fingerprint": "708293dad648bce177ff1e225d7620dfa6b6f342df86f282f8eb0572c43ac7df",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/device.py",
@@ -58,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-y7f2063o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3780241-cwhzd628/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,11 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 177020541,
-          "disk_bytes": 205127680,
-          "entries": 12049,
+          "bytes": 102019445,
+          "disk_bytes": 122572800,
+          "entries": 8444,
           "builds": 1,
-          "reuses": 59
+          "reuses": 6
         }
       }
     },

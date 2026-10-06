@@ -80,6 +80,7 @@ import hashlib
 import inspect
 import json
 import os
+import re
 from contextlib import contextmanager
 import sys
 import time
@@ -483,7 +484,29 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
     started = datetime.now(timezone.utc)
     tick = time.perf_counter()
     who = caller_identity(caller, frames=inspect.stack()[1:])
-    request, domain_name = _domain_dressed(request, stacks=stacks)
+    try:
+        request, domain_name = _domain_dressed(request, stacks=stacks)
+    except Exception as refusal:
+        # AN ASK THIS RECEIVER CANNOT FILL IS A TROUBLE AT ITS OWN ADDRESS (ticket
+        # e9a2d8ae7d43, decision 8h, Akien 2026-10-05: "every requester that gets something
+        # they can't do should throw a ticket"). The first case was codemother asking for a
+        # 'codemother' row ~1,000 times a day, refused here in silence. The identity names
+        # the domain asked for, so the drain's fold on identity is the counter; still no host
+        # call and no row. A raise that fails never replaces the caller's refusal (Law 7).
+        asked = str(request.get("domain") or "")
+        try:
+            raiser = sink if hasattr(sink, "raise_trouble") else _trail
+            raiser.raise_trouble(
+                "inference-unfilled-domain-" + (re.sub(r"[^a-z0-9-]+", "-", asked.lower())
+                                                .strip("-") or "default"),
+                why=f"inference_domain cannot fill an ask for domain {asked!r}: "
+                    f"{type(refusal).__name__}: {str(refusal)[:200]}",
+                detail={"refused": type(refusal).__name__, "detail": str(refusal)[:2000],
+                        "domain": asked, "caller": who})
+        except Exception as unraised:  # noqa: BLE001 — the refusal is the caller's answer
+            print(f"inference_domain: an unfillable ask raised no trouble ({unraised!r}); "
+                  f"the refusal itself follows", file=sys.stderr)
+        raise
     canonical = canonicalize(request)
     ticket = {
         "caller": who,

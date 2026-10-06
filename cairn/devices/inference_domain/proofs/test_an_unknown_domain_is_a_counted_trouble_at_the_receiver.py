@@ -138,9 +138,33 @@ def test_a_domain_that_exists_raises_NO_trouble():
     assert sink.raised == [], f"a fillable ask raised a trouble: {sink.raised}"
 
 
-if __name__ == "__main__":
-    from cairn.tools.proof_coverage.proof_coverage import print_teeth_main
+def _main() -> int:
+    checks = [
+        test_an_unknown_domain_raises_ONE_trouble_at_the_receiver_and_still_refuses,
+        test_a_repeat_raises_the_SAME_identity_and_another_name_a_DIFFERENT_one,
+        test_a_raiser_that_explodes_does_not_change_the_callers_answer,
+        test_a_domain_that_exists_raises_NO_trouble,
+    ]
+    # THE WHOLE RUN IN A FIXTURE WORLD, as test_inference_domain.py does: tooth 4's fillable ask
+    # writes a task ticket beside the trail, and with the roots left live this proof's first
+    # runs landed fixture tickets in the LIVE ~/.cairn/logs/inference_domain/0/tickets
+    # (measured 2026-10-06). In process, so the one scratch table closes here, not at shutdown.
+    from cairn.tools.scratch.scratch import scratch_dir
+    from cairn.tools.base import address as _address
+    _move_roots = getattr(domain, "set_diagnostic_roots", None)
+    if _move_roots:
+        _move_roots({**_address.ROOTS, "instance": scratch_dir("cairn_unknown_domain_proof_")})
     try:
-        raise SystemExit(print_teeth_main(__file__))
+        for check in checks:
+            check()
+            print(f"  PASS  {check.__name__}")
     finally:
+        if _move_roots:
+            _move_roots(None)
         _SCRATCH.close()
+    print("green — inference_domain: an unfillable domain ask is one counted trouble at the receiver, naming the caller; the refusal is unchanged")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

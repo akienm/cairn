@@ -2,7 +2,7 @@
   {
     "claim": "proof test_settled.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:17:04",
+    "date": "2026-10-07T15:35:24",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,6 +21,7 @@
         "test_two_trees_keep_two_answers"
       ],
       "teeth_red": [],
+      "test": "test-2d8d11a3069e",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -29,27 +30,33 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "30b7eb9b60e1b22135c2a1807ec45c33c32e2a2e0ec94fe73d28d6ee8ce4bc74",
+      "conditions": {
+        "proof": "2f23a95629c10acf8aa82015ec8f884c75061143d8d47f2fe55f7b30d0a2d2f9",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2d8d11a3069e",
+      "source_fingerprint": "cfbccfbade6bb4e7c182f776dad728903e6aabf1ff635e06b75c8e335d8f2afb",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/proofs/test_settled.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/base/settled.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-t2mfnfdu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-120001-n4ehdjaw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,11 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 103862631,
+          "disk_bytes": 125394944,
+          "entries": 8833,
           "builds": 1,
-          "reuses": 65
+          "reuses": 0
         }
       }
     },

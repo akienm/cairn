@@ -2,7 +2,7 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-07T16:52:58",
+    "date": "2026-10-07T17:26:43",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -75,7 +75,7 @@
         "AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries"
       ],
       "teeth_red": [],
-      "test": "test-8a474eab1a60",
+      "test": "test-9f8f00aff2f1",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -85,7 +85,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "651337cd94240f937c955c7f5dce4e59391770fcfbb73df3ad501894b06a3262",
+        "proof": "adbf26519244cd82148df1965c8546e648ae30d9ad7a829522bf6139aea88cda",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -100,8 +100,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a474eab1a60",
-      "source_fingerprint": "34d7e964d19b432c25c6be0565ff1deaed3d1a828fbc1bec6bb53798da62a2ed",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9f8f00aff2f1",
+      "source_fingerprint": "695aaec7256c23dacffacaf9eac756e813821bb837059edd7ea313656cd97c72",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -109,32 +109,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-160804-74o7214h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-180276-8mg427zz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/charter/0/20261007.224720.157726.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.224721.030157.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.224954.795186.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.224955.697906.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261007.232239.879112.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261007.232240.461427.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261007.232421.877228.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261007.232422.437010.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 103909825,
-          "disk_bytes": 125542400,
-          "entries": 8868,
+          "bytes": 103918276,
+          "disk_bytes": 125579264,
+          "entries": 8877,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "conditions_moved": {
-        "notified": "n-3e200673f61f",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

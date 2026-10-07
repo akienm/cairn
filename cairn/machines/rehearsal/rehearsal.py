@@ -138,9 +138,12 @@ def _stamp() -> str:
 # the schema, by hand
 
 def decision_ids_of(doc: dict) -> set[int]:
-    """The ``n`` of every decision the ticket carries — the vocabulary a step may name."""
+    """The ``n`` of every live decision the ticket carries — the vocabulary a step may name.
+    A retired decision (ticket 4968b5d18645) is not in it: the reader is no longer handed it,
+    so a read naming it is a lack and a read omitting it is not."""
     have = doc.get("decisions") if isinstance(doc, dict) else None
-    return {d["n"] for d in (have or []) if isinstance(d, dict) and isinstance(d.get("n"), int)}
+    return {d["n"] for d in (have or []) if isinstance(d, dict) and isinstance(d.get("n"), int)
+            and not d.get("retired")}
 
 
 def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
@@ -229,6 +232,10 @@ def reader_view(blob: bytes) -> str:
         settled step whose answer stands lines away. It stays in the list, labeled. A step
         that is not 'D<m>', or names no decision, is left alone.
 
+    (c) a decision ``retire()`` stamped is left out of the pasted copy entirely, and so is any
+        '[settled by]' annotation whose settler or target it was (ticket 4968b5d18645) — the
+        file keeps its text and its stamp; the reader is handed only the live lines.
+
     decide() is unchanged (D3): the file keeps who said what and when; this is a view. A ticket
     that does not parse, or carries no decisions list, is pasted verbatim."""
     raw = blob.decode("utf-8").rstrip()
@@ -239,6 +246,7 @@ def reader_view(blob: bytes) -> str:
     have = doc.get("decisions") if isinstance(doc, dict) else None
     if not isinstance(have, list):
         return raw
+    doc["decisions"] = have = [d for d in have if not (isinstance(d, dict) and d.get("retired"))]
     entries = [d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)]
     original = {d["n"]: str(d.get("text", "")) for d in entries}
     view = {}
@@ -631,6 +639,63 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     doc["decisions"] = have
     _write_ticket(tk, doc, why=f"rehearsal gap at '{step.strip()}' decided by {by.strip()}: D{n}")
     return entry
+
+
+def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | None = None,
+           root: Path | str | None = None) -> list[dict]:
+    """Superseded decision lines retired through the door (ticket 4968b5d18645): each named
+    entry gains ``retired = {by, at, because, into}`` and keeps its text, so the file still
+    says who said what, while ``reader_view`` and ``decision_ids_of`` stop handing it on.
+    Every lack is named in ONE refusal and nothing is written: an id absent or already
+    retired; a line another author wrote (his lines are not CC's to fold); a live line still
+    citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``."""
+    tk = ticket_file(ticket, root)
+    if tk is None:
+        raise Refused(f"no ticket file for {ticket!r}")
+    doc = json.loads(tk.read_text(encoding="utf-8"))
+    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    by_n = {d["n"]: d for d in have}
+    want = sorted(set(ns))
+    lacks: list[str] = []
+    if not (isinstance(by, str) and by.strip()):
+        lacks.append("--by: who is retiring these lines")
+    if not (isinstance(because, str) and because.strip()):
+        lacks.append("--because: why these lines are superseded — an empty reason retires nothing")
+    if not want:
+        lacks.append("no decision named to retire")
+    for n in want:
+        d = by_n.get(n)
+        if d is None:
+            lacks.append(f"D{n} is not on the ticket")
+        elif d.get("retired"):
+            lacks.append(f"D{n} is already retired")
+        elif isinstance(by, str) and fold(str(d.get("by") or "")) != fold(by.strip()):
+            lacks.append(f"D{n} was written by {d.get('by')!r}, not {by.strip()!r} — not yours to retire")
+    for d in have:
+        if d["n"] in want or d.get("retired"):
+            continue
+        text = str(d.get("text", "")).split(" [settled by", 1)[0]
+        cited = [n for n in want if re.search(rf"\bD{n}\b", text)]
+        if cited:
+            lacks.append(f"D{d['n']} still cites {', '.join('D%d' % n for n in cited)} — retire or re-decide it too")
+    if into is not None:
+        t = by_n.get(into)
+        if t is None:
+            lacks.append(f"--into D{into} is not on the ticket")
+        elif t.get("retired"):
+            lacks.append(f"--into D{into} is retired")
+        elif into in want:
+            lacks.append(f"--into D{into} is one of the lines being retired")
+    if lacks:
+        raise Refused(f"retire refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
+    at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    stamped = []
+    for n in want:
+        by_n[n]["retired"] = {"by": by.strip(), "at": at, "because": because.strip(), "into": into}
+        stamped.append(by_n[n])
+    _write_ticket(tk, doc, why=f"retired {', '.join('D%d' % n for n in want)} by {by.strip()}"
+                               f"{f' into D{into}' if into is not None else ''}: {because.strip()}")
+    return stamped
 
 
 # ---------------------------------------------------------------------------

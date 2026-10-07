@@ -5,6 +5,8 @@ rehearsal.py; this file only parses and prints.
   cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line on the ticket (step is D<n> or "unlisted: <text>")
   cairn rehearse <ticket> --proved <proof.py> [<proof.py> ...]  after PROVED: the divergence list onto the clean record
   cairn rehearse <ticket> --standing                         what the BUILDME lane reads, as JSON
+  cairn rehearse <ticket> --retire D<n> [D<n> ...] --because "<why>" [--into D<m>] --by <who>
+                                                             retire superseded decision lines: out of the reader's view, kept in the file
 
 Exit 0 on a clean pass; 1 on a pass with gaps (they are printed, one per line, with the
 line that would settle each); 2 on a refusal or a reader failure; 3 when the pass cap opened
@@ -29,6 +31,15 @@ def _print_gaps(record: dict) -> None:
         print(line)
 
 
+def _decision_id(p: argparse.ArgumentParser, v: str) -> int:
+    """'D3', 'd3' or '3' -> 3; anything else is a usage error."""
+    t = fold(v.strip())
+    t = t[1:] if t.startswith("d") else t
+    if not t.isdigit() or int(t) < 1:
+        p.error(f"{v!r} is not a decision id (D<n>)")
+    return int(t)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     argv = [fold(a) if a.startswith("--") else a for a in argv]
@@ -41,9 +52,25 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--proved", nargs="+", metavar="PROOF",
                    help="after PROVED: diff these proofs' teeth against the converged tree")
     p.add_argument("--standing", action="store_true", help="print what the BUILDME lane reads")
+    p.add_argument("--retire", nargs="+", metavar="D<n>",
+                   help="retire these superseded decision lines (needs --because and --by)")
+    p.add_argument("--because", help="why the retired lines are superseded (required with --retire)")
+    p.add_argument("--into", metavar="D<m>", help="the live decision that supersedes them")
     p.add_argument("--json", action="store_true", help="print the record as JSON")
     args = p.parse_args(argv)
     try:
+        if args.retire:
+            if args.decide or args.proved or args.standing:
+                p.error("--retire stands alone: not with --decide, --proved or --standing")
+            if not args.by or not args.because:
+                p.error("--retire needs --by <who> and --because \"<why>\"")
+            ns = [_decision_id(p, v) for v in args.retire]
+            into = _decision_id(p, args.into) if args.into else None
+            for d in R.retire(args.ticket, ns, by=args.by, because=args.because, into=into):
+                print(f"retired D{d['n']} on {args.ticket} by {d['retired']['by']}"
+                      + (f" into D{into}" if into is not None else "") + f": {d['text']}")
+            print("the ticket's bytes changed — rehearse again before BUILDME")
+            return 0
         if args.decide:
             if not args.by:
                 p.error("--decide needs --by <who> (each decision carries who made it)")

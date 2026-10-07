@@ -725,6 +725,50 @@ def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) ->
     return list(dict.fromkeys(out)), skips
 
 
+ASKER = "tester"  # raised_by on the question this device opens (ticket f5bba1daa72a)
+
+
+def approval(tid: str, files: list[str], root: Path) -> str | None:
+    """The id of Akien's answered question approving this ticket's proofs-only build, or None.
+
+    RULING 8p (Akien, 2026-10-06): "and then i say it's approved and it then is proved. at that
+    point the tester records that proving." A build that wrote only its own proofs leaves the
+    hollow nothing to revert, so his answer IS the measurement (Law 10). It counts only when the
+    question is bound to the ticket, names one of the skipped files, and was answered by him —
+    the same judge rung 4 uses (``reseal.ruling_refusal``), read through the question tool's
+    public interface under ``root``, so a fixture's commons never reads the live store.
+    """
+    from cairn.tools.question import question as question_mod
+    from cairn.devices.tester.reseal import ruling_refusal
+
+    for q in question_mod.for_ticket(tid, root=root):
+        text = q.get("question") or ""
+        if any(f in text for f in files) and ruling_refusal(q.get("id") or "", question_root=root) is None:
+            return q["id"]
+    return None
+
+
+def ask_for_approval(tid: str, files: list[str], root: Path | None = None) -> str:
+    """Ask Akien, once, to approve a proofs-only build; return the question's id.
+
+    "it's the tester that's asking me for a ruling" (8p). An open question this device already
+    raised on the ticket is the ask standing, so a second --seal opens none.
+    """
+    from cairn.tools.question import question as question_mod
+
+    for q in question_mod.open_for(tid, root=root):
+        if q.get("raised_by") == ASKER:
+            return q["id"]
+    q = question_mod.open_question(
+        tid,
+        f"May {tid} cross PROVED on your approval — its build wrote only its own proofs "
+        f"({', '.join(files)}), so the hollow can revert nothing and measure nothing?",
+        f"the hollow of {tid} reads red ('measured nothing') until the proof change is approved; "
+        f"the answer is recorded as the hollow reading (ruling 8p)",
+        raised_by=ASKER, root=root)
+    return q["id"]
+
+
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
             berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
     """Revert this ticket's build file by file and report which declared teeth each one reds.
@@ -1051,7 +1095,21 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             f"THE FIX BELONGS TO THE PROOF: it must survive its subject being taken away — "
             f"resolve the names this build ADDED at call time rather than binding them at "
             f"import, and keep the reverted world reachable enough to run")
+    approved: dict[str, str] = {}
+    approval_wanted: list[str] = []
     if not measured:
+        # AN APPROVED PROOFS-ONLY BUILD IS MEASURED BY HIS WORD (ticket f5bba1daa72a, 8p). When
+        # every skip is the instrument and no file went unwritten, nothing here CAN be reverted;
+        # Akien's answer approving the proof change is the measurement. Every other empty run
+        # stays red, approval or not.
+        only = [s["file"] for s in skipped]
+        if only and not unchanged and all(s["why"] == SKIP_INSTRUMENT for s in skipped):
+            qid = approval(tid, only, commons / "questions")
+            if qid:
+                approved = {f: qid for f in only}
+            else:
+                approval_wanted = only
+    if not measured and not approved:
         # THE SKIP LIST IS NOT AN ESCAPE HATCH. Every file skipped and none measured is a run
         # that proved nothing, and reporting it green would make "add it to the skip list" the
         # cheapest way past this check forever.
@@ -1065,6 +1123,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
             "unchanged": unchanged, "moved": moved,
+            "approved": approved, "approval_wanted": approval_wanted,
             "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
             "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,
             "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],

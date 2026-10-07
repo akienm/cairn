@@ -57,6 +57,15 @@ from cairn.tools.orient.orient import ScanRefused  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
+def _live_tickets_root() -> str:
+    """A cairn checkout whose sibling holds the live commons: this repo when CairnCommons sits beside
+    it, else the home checkout — hollow's worktree under /tmp has no commons beside it, and
+    the forwarding orders this tooth reads live only there (hollow.py resolves it the same way)."""
+    if (_REPO_ROOT.parent / "CairnCommons" / "tickets").is_dir():
+        return str(_REPO_ROOT)
+    return str(Path.home() / "dev" / "src" / "cairn")
+
+
 def _jfindings(attendance):
     """Extract flat findings from attendance records."""
     return [f for rec in attendance for f in rec["findings"]]
@@ -857,10 +866,16 @@ def main() -> None:
         # commons, committed ticket 6a657e22db6f-ticket-and-task
         (ep / "validate-20260729T000004-eeee.json").write_text(
             json.dumps({"ticket": "ticket-and-task"}))
-        assert buildme_rides_the_chart("6a657e22db6f", berths_root=eroot) == [], \
-            "a slug-claimed validate berth must satisfy a hex-id lookup of the same ticket"
-        assert buildme_rides_the_chart("no-such-ticket", berths_root=eroot), \
-            "widening to the filed ticket's spellings must not admit a stranger"
+        from cairn.machines.build_inspector import inspector as _insp27
+        _saved_tickets_root = _insp27._TICKETS_ROOT
+        try:
+            _insp27._TICKETS_ROOT = _live_tickets_root()
+            assert buildme_rides_the_chart("6a657e22db6f", berths_root=eroot) == [], \
+                "a slug-claimed validate berth must satisfy a hex-id lookup of the same ticket"
+            assert buildme_rides_the_chart("no-such-ticket", berths_root=eroot), \
+                "widening to the filed ticket's spellings must not admit a stranger"
+        finally:
+            _insp27._TICKETS_ROOT = _saved_tickets_root
         # a nonexistent root reds, never crashes; and the check stays OUT of SIEVES
         assert buildme_rides_the_chart("lonely", berths_root=eroot / "nope")
         assert "buildme_rides_the_chart" not in _SIEVES, \

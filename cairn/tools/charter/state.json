@@ -1,22 +1,23 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "BUILDME",
-    "standing": "BUILDME",
-    "workflow": "bug@v1: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "bug@v1: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
     "entry_gate": "clean — a berthed chart chain claims ticket 'ba8c62b8203e', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proof_gate": "clean — proof named: cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'BUILDME' in the bug@v1 vocabulary",
-        "actual": "'BUILDME' in the bug@v1 vocabulary",
+        "expected": "'PROVEME' in the bug@v1 vocabulary",
+        "actual": "'PROVEME' in the bug@v1 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -35,64 +36,35 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
-          "cursor": 1,
-          "resolved": 2
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> BUILDME",
-        "actual": "TICKETME -> BUILDME",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "BUILDME",
+          "target": "PROVEME",
           "legal_from_here": [
-            "BUILDME",
             "DROPPED",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
           "direction": "forward"
-        }
-      },
-      {
-        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "a ticket named on the BUILDME crossing, or 'charter' on _EXEMPT_ROSTER",
-        "actual": "a ticket named on the BUILDME crossing, or 'charter' on _EXEMPT_ROSTER",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "ba8c62b8203e",
-          "component": "charter",
-          "exempt": false,
-          "roster": []
-        }
-      },
-      {
-        "identity": "the_named_ticket_is_cast",
-        "location": "cairn/tools/base/transitions.py",
-        "code": "transitions.py::inspect_named_ticket",
-        "expected": "named ticket 'ba8c62b8203e' is cast",
-        "actual": "named ticket 'ba8c62b8203e' is cast",
-        "fatality": "none",
-        "source": "transitions.inspect_named_ticket",
-        "values": {
-          "target": "BUILDME",
-          "ticket": "ba8c62b8203e",
-          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/ba8c62b8203e-the-two-bypass-history-rows-carry-their-predecessor-s-standing.json"
         }
       },
       {
@@ -159,27 +131,36 @@
           "findings": [],
           "ticket": "ba8c62b8203e"
         }
+      },
+      {
+        "identity": "the_proveme_crossing_names_its_proof",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_proof_named",
+        "expected": "the PROVEME crossing of ticket 'ba8c62b8203e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket 'ba8c62b8203e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_proof_named",
+        "values": {
+          "ticket": "ba8c62b8203e",
+          "named": [
+            "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py"
+          ],
+          "since_buildme": []
+        }
       }
     ],
-    "checks_proved": 10,
+    "checks_proved": 9,
     "ticket": "ba8c62b8203e",
     "actor": "cc",
-    "why": "ba8c62b8203e: BUILDME — rehearsal clean, chart claimed",
-    "fingerprint": "84f833579afb5612a74db15fc353741c87d34a4fbf6af0932c28ad7292213251",
-    "at": "2026-10-06T17:59:00",
-    "seq": 10
+    "why": "ba8c62b8203e: PROVEME — the standing proof and test_append_door_instrument.py sealed green",
+    "proven_by": [
+      "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py"
+    ],
+    "fingerprint": "542f66e6d3aff2a63dc9be644e834d5edb41e65029466941e4077cefc3d0ec86",
+    "at": "2026-10-06T18:00:24",
+    "seq": 11
   },
   "window": [
-    {
-      "gate": "proved",
-      "standing": "PROVED — THE APPEND DOOR HAS A SHAPE GATE. append_entry now REFUSES a record that omits `standing`, and refuses it BEFORE any file is touched — the only place a bad record of truth can be stopped, since history is append-only and cannot be edited afterwards (Law 7). The required set is exactly one field because that is what was MEASURED, not what looked tidy: across 14 histories / 66 records, at+seq 100% (door-written), standing 98% (the single record missing it IS the defect this closes), gate 80% (13 legitimate records lack it — requiring it would have retroactively invalidated them), proof 56%, validation 32%. The refusal names what was required, what was carried, why the field matters and where the trouble lives, so the caller fixes it without a second run (I-complete-diagnostic-on-first-pass). Proven 12/12; full suite 31/31 green.",
-      "proof": "cairn/tools/charter/proofs/test_append_door_instrument.py",
-      "ratified_by": "akien, 2026-07-25 — 'Universal floor: standing only'; per-component declared shape FILED, not built (it would have zero consumers today; the charter is where it would be declared when one appears)",
-      "found": "THE GATE PAID FOR ITSELF ON ITS FIRST RUN. It refused cairn/tools/base/transitions.py::emit — the state-machine chokepoint every crossing goes through — which journaled from/to/workflow/direction and NO standing, the one field harbor_master's register reads to place a boat. Measured: zero emit-shaped records exist in any live history, so the fault had never yet become permanent. Fixed at the emitter (it is the one place that knows the crossing landed; a caller may override with a richer line, but can no longer omit it), not at every caller. Same defect class as the trouble it closes, caught while it was still cheap.",
-      "closes": "CairnCommons/troubles/append-door-has-no-schema-gate.json",
-      "at": "2026-07-25T18:53:10",
-      "seq": 6
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -1409,7 +1390,168 @@
       "fingerprint": "84f833579afb5612a74db15fc353741c87d34a4fbf6af0932c28ad7292213251",
       "at": "2026-10-06T17:59:00",
       "seq": 10
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "bug@v1: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'ba8c62b8203e', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proof_gate": "clean — proof named: cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the bug@v1 vocabulary",
+          "actual": "'PROVEME' in the bug@v1 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 2,
+            "resolved": 3
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "ba8c62b8203e"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "ba8c62b8203e"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "ba8c62b8203e"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "ba8c62b8203e"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "ba8c62b8203e"
+          }
+        },
+        {
+          "identity": "the_proveme_crossing_names_its_proof",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_proof_named",
+          "expected": "the PROVEME crossing of ticket 'ba8c62b8203e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "actual": "the PROVEME crossing of ticket 'ba8c62b8203e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_proof_named",
+          "values": {
+            "ticket": "ba8c62b8203e",
+            "named": [
+              "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py"
+            ],
+            "since_buildme": []
+          }
+        }
+      ],
+      "checks_proved": 9,
+      "ticket": "ba8c62b8203e",
+      "actor": "cc",
+      "why": "ba8c62b8203e: PROVEME — the standing proof and test_append_door_instrument.py sealed green",
+      "proven_by": [
+        "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py"
+      ],
+      "fingerprint": "542f66e6d3aff2a63dc9be644e834d5edb41e65029466941e4077cefc3d0ec86",
+      "at": "2026-10-06T18:00:24",
+      "seq": 11
     }
   ],
-  "count": 11
+  "count": 12
 }

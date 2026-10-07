@@ -52,6 +52,7 @@ invisible while it was being worked around.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -451,7 +452,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.exec_command is not None:
         return TesterDevice().run_exec(args.exec_command,
-                                       timeout=3600 if args.timeout is None else args.timeout)
+                                       timeout=3600 if args.timeout is None else args.timeout,
+                                       cwd=os.environ.get("CAIRN_TESTER_CALLER_CWD") or None)
     if args.timeout is None:
         args.timeout = 120
 

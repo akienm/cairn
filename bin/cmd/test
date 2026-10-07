@@ -22,5 +22,7 @@ if [[ -r "$BOOTSTRAP" ]]; then
   source "$BOOTSTRAP" && PY="$(cairn_python)"
 fi
 
+# --exec runs where the caller stood (ticket 5bc3a4b1ab27): carry $PWD across the cd below.
+export CAIRN_TESTER_CALLER_CWD="$PWD"
 cd "$REPO"
 exec "$PY" -m cairn.devices.tester.cli "$@"

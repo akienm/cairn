@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_repo_truth_lists_dirty_paths.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-07T14:50:04",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_dirty_lists_modified_untracked_and_rename_destination\n.\n  ok   test_dirty_paths_still_counts_porcelain_lines\n.\n  ok   test_a_clean_repo_lists_nothing\n                                                                      [100%]\n3 passed in 0.06s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_dirty_lists_modified_untracked_and_rename_destination",
+        "test_dirty_paths_still_counts_porcelain_lines",
+        "test_a_clean_repo_lists_nothing"
+      ],
+      "teeth_red": [],
+      "test": "test-86f279ed7f2b",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "30df8a6a731e87187c4c8a5bce83c05b9add74d3d291ab6853a21ecc84a10b7d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-86f279ed7f2b",
+      "source_fingerprint": "a292c0b66f8b6831e3632159aa9fe4bbab772475c47027273244724c4eb96943",
+      "fingerprint_closure": [
+        "cairn/tools/orient/__init__.py",
+        "cairn/tools/orient/orient.py",
+        "cairn/tools/orient/proofs/test_repo_truth_lists_dirty_paths.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-110463-7b1r018c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 103748508,
+          "disk_bytes": 125243392,
+          "entries": 8821,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

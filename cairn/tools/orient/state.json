@@ -1,27 +1,175 @@
 {
   "cursor": {
-    "from": "LEARNME",
-    "to": "PROVED",
-    "standing": "PROVED",
-    "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> [PROVED]",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
     "direction": "forward",
-    "ticket": "import-map-scan",
-    "note": "LIVE: the exact spelling that fired both reds ('from cairn.machines.chart import constrain', alive in dial.py before the fix was respelled — and now deliberately measurable either way) resolves to cairn.machines.chart.constrain under import_map; the CLI mouth (orient imports <file>) reads any file on demand. The class is ended where it lived: a loose spelling in an allowlisted file can no longer draw a spurious red, and a genuinely off-list module still refuses (the physics survived the recomposition, pinned by every allowlist staying green unchanged). Companion narrative for the project record: CairnCommons/notes/2026-07-28-first-brick-loop-learning.md — both bricks earned their loops in one day, from opposite directions.",
-    "at": "2026-07-28T16:43:38",
-    "seq": 12
+    "entry_gate": "clean — a berthed chart chain claims ticket '5ea592dc82ca', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'orient' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'orient' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "5ea592dc82ca",
+          "component": "orient",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '5ea592dc82ca' is cast",
+        "actual": "named ticket '5ea592dc82ca' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "5ea592dc82ca",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/5ea592dc82ca-repo-truth-lists-the-dirty-paths.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "5ea592dc82ca"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "5ea592dc82ca"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "5ea592dc82ca"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "5ea592dc82ca"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "5ea592dc82ca"
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "5ea592dc82ca",
+    "actor": "cc",
+    "why": "rehearsed clean (2bd335a); red proof committed 19a3cc77; build D2 next",
+    "fingerprint": "fbd4bff2c3e37ef6f161f6aae8d611ad3fe46d5be31ce8fdad1ebf6d6def3af8",
+    "at": "2026-10-07T14:48:19",
+    "seq": 13
   },
   "window": [
-    {
-      "from": "LEARNME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> LEARNME -> [PROVED]",
-      "direction": "forward",
-      "ticket": "orient-nexus-graft",
-      "note": "LIVE FIRE: the four founding scars took residence through the real embed seam (768-dim, born hypotheses, orient_corrections_nodes owned by 'orient'). Counsel measured, n=2, first evidence for edge (d): a CLOSE paraphrase ('an echo statement claimed a git push succeeded when it had not') walked to the repo_truth scar at 0.7707 OVER the 0.65 floor; an ABSTRACT re-description ('answered from MAP.md and a ticket instead of measuring files') ranked the CORRECT scar first (device_census, 0.5775) but UNDER the floor — the ranking is right, the imported floor may be high for this corpus. Recorded as evidence, floor NOT moved (it moves only by installation, edge d). propose_scan live: assembled the walk + ceiling-draft + admission artifact, registry untouched. The graft is whole: corpus, counsel, proposal, admission gate — scans stay hardware throughout.",
-      "at": "2026-07-28T15:12:37",
-      "seq": 8
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -66,7 +214,177 @@
       "note": "LIVE: the exact spelling that fired both reds ('from cairn.machines.chart import constrain', alive in dial.py before the fix was respelled — and now deliberately measurable either way) resolves to cairn.machines.chart.constrain under import_map; the CLI mouth (orient imports <file>) reads any file on demand. The class is ended where it lived: a loose spelling in an allowlisted file can no longer draw a spurious red, and a genuinely off-list module still refuses (the physics survived the recomposition, pinned by every allowlist staying green unchanged). Companion narrative for the project record: CairnCommons/notes/2026-07-28-first-brick-loop-learning.md — both bricks earned their loops in one day, from opposite directions.",
       "at": "2026-07-28T16:43:38",
       "seq": 12
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '5ea592dc82ca', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'orient' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'orient' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "5ea592dc82ca",
+            "component": "orient",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '5ea592dc82ca' is cast",
+          "actual": "named ticket '5ea592dc82ca' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "5ea592dc82ca",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/5ea592dc82ca-repo-truth-lists-the-dirty-paths.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "5ea592dc82ca"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "5ea592dc82ca"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "5ea592dc82ca"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "5ea592dc82ca"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "5ea592dc82ca"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "ticket": "5ea592dc82ca",
+      "actor": "cc",
+      "why": "rehearsed clean (2bd335a); red proof committed 19a3cc77; build D2 next",
+      "fingerprint": "fbd4bff2c3e37ef6f161f6aae8d611ad3fe46d5be31ce8fdad1ebf6d6def3af8",
+      "at": "2026-10-07T14:48:19",
+      "seq": 13
     }
   ],
-  "count": 13
+  "count": 14
 }

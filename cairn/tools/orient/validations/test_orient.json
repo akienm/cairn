@@ -2,7 +2,7 @@
   {
     "claim": "proof test_orient.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:18:57",
+    "date": "2026-10-07T14:49:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -31,6 +31,7 @@
         "16 — IMPORT_MAP measures the CAPABILITY, not the spelling: the loose package"
       ],
       "teeth_red": [],
+      "test": "test-ee60e4acb0d4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,24 +40,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "bd48b00045ec135ce2cfc3b292e95f1c7a2604f5cb815a003320ba8533947f79",
+      "conditions": {
+        "proof": "13a17a0c1d724df0fee212ba6071f51f5c7906d237f2269e6ce1fce06f3d46ce",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee60e4acb0d4",
+      "source_fingerprint": "4cc5a46367d7e52935770ef271a067ba7661686e93d33bb29d7eca1a5cd54480",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/settled.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/orient/proofs/test_orient.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/orient/proofs/test_orient.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-bxzz1s8r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-110238-7q0v68d5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,11 +73,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 103748508,
+          "disk_bytes": 125243392,
+          "entries": 8821,
           "builds": 1,
-          "reuses": 76
+          "reuses": 0
         }
       }
     },

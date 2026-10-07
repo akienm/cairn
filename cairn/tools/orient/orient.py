@@ -293,11 +293,22 @@ def repo_truth(*, repos: list[Path] | None = None) -> dict:
             if rc2 == 0:
                 ahead, behind = (int(x) for x in counts.split())
         _, porcelain, _ = _git("status", "--porcelain")
+        z = subprocess.run(["git", "-C", str(r), "status", "--porcelain", "-z", "--untracked-files=all"],
+                           capture_output=True, text=True).stdout
+        fields = z.split("\0"); dirty = []; i = 0
+        while i < len(fields):
+            e = fields[i]; i += 1
+            if not e:
+                continue
+            dirty.append(e[3:])
+            if e[0] in "RC":
+                i += 1
         out.append({
             "repo": r.name, "head": head,
             "upstream": upstream if upstream and not upstream.startswith("@") else None,
             "ahead_of_upstream": ahead, "behind_upstream": behind,
             "dirty_paths": len(porcelain.splitlines()),
+            "dirty": dirty,
         })
     return {
         "scan": "repo_truth",

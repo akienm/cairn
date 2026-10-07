@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_orient_nexus.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T02:23:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-07T14:49:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,6 +18,7 @@
         "test_the_fire_path_never_reaches_the_tree"
       ],
       "teeth_red": [],
+      "test": "test-462709816e89",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +32,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -39,32 +40,19 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "343cb9b676321b3226af9ba1e36d728bbf26b5e3c3bc6f2b2282266e44d943e9",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-462709816e89",
+      "source_fingerprint": "da444a4e6ab128bacb803b9eaf47ff062ca5ebac0a11ec60dc0ce66e17255802",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
-        "cairn/devices/librarian/__init__.py",
-        "cairn/devices/librarian/tools/trees/trees.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/settled.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/nexus.py",
         "cairn/tools/orient/orient.py",
-        "cairn/tools/orient/proofs/test_orient_nexus.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
-        "cairn/tools/tree/__init__.py",
-        "cairn/tools/tree/tree.py"
+        "cairn/tools/orient/proofs/test_orient_nexus.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3091049-a21c525l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-110238-slnxdb9c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 144317382,
-          "disk_bytes": 168792064,
-          "entries": 10395,
+          "bytes": 103748508,
+          "disk_bytes": 125243392,
+          "entries": 8821,
           "builds": 1,
-          "reuses": 7
+          "reuses": 1
         }
       }
     },

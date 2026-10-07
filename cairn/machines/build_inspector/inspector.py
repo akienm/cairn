@@ -64,7 +64,7 @@ from cairn.tools.chain.verdict_contract import unanswered  # noqa: E402  (ticket
 #   latest-claimer rule this gate used to own privately now lives beside the
 #   validator, so the gate and the crossing's deposit-enqueue cannot disagree
 #   about WHICH artifact answered.
-from cairn.tools.orient.orient import ScanRefused, device_census  # noqa: E402
+from cairn.tools.orient.orient import ScanRefused, device_census, repo_truth  # noqa: E402
 # cairn.tools.import_sieve joined 2026-08-06 (the-questions-are-the-sieve): a sieve's
 # PHASE is derived from what it reads, never authored — phase_of reads this module's
 # source and classifies each sieve as preprocess/record/postprocess.
@@ -3462,40 +3462,34 @@ def claim_provenance(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
-def working_tree_clean(row: dict, comp_dir: Path) -> list[dict]:
-    """A component's subtree carries uncommitted changes at a crossing.
+def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = None) -> list[dict]:
+    """Uncommitted changes anywhere in cairn or CairnCommons at a crossing.
 
-    Provenance: ticket nothing-rides-loose — the crossing half of durability
-    physics. A stone cannot be promoted out of PROVEME while the code it claims
-    exists only in a working tree. Uses git status --porcelain on the component's
-    relative path; any output means dirt.
+    Provenance: ticket nothing-rides-loose — the crossing half of durability physics: a stone cannot be promoted out of PROVEME while the code it claims exists only in a working tree. Widened by ticket c1cca2e3dc23 (rulings 8w/F11/8x): the one measured orphan, 3fef5a02da2d's lab lines, sat in CairnCommons outside every component subtree, and the subtree-only check passed PROVED twice over it. Reads every repo's dirty paths through orient's repo_truth; any path means dirt.
     """
-    import subprocess
-    repo_root = comp_dir
-    while repo_root.name and not (repo_root / ".git").exists():
-        repo_root = repo_root.parent
-    if not (repo_root / ".git").exists():
+    if repos is None:
+        repo_root = comp_dir
+        while repo_root.name and not (repo_root / ".git").exists():
+            repo_root = repo_root.parent
+        if not (repo_root / ".git").exists():
+            return []
+        repos = [repo_root]
+        commons = repo_root.parent / "CairnCommons"
+        if (commons / ".git").exists() and commons.resolve() != repo_root.resolve():
+            repos.append(commons)
+    if not repos:
+        # repo_truth reads an empty list as "the live trees" — never hand it one.
         return []
-    try:
-        rel = comp_dir.relative_to(repo_root)
-    except ValueError:
-        return []
-    try:
-        proc = subprocess.run(
-            ["git", "-C", str(repo_root), "status", "--porcelain", str(rel)],
-            capture_output=True, text=True, timeout=30,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return []
-    dirty_lines = [l for l in proc.stdout.splitlines() if l.strip()]
-    if not dirty_lines:
+    rows = repo_truth(repos=list(repos))["measured"]["repos"]
+    dirty = {str(r): rw["dirty"] for r, rw in zip(repos, rows) if rw.get("dirty")}
+    if not dirty:
         return []
     return [_finding(
         "working_tree_clean", row["component"],
-        "component subtree is clean (no uncommitted changes)",
+        "both trees are clean (no uncommitted changes in any repo)",
         expected=True, actual=False,
-        dirty_count=len(dirty_lines),
-        dirty_sample=dirty_lines[:5],
+        dirty_count=sum(len(v) for v in dirty.values()),
+        dirty=dirty,
     )]
 
 

@@ -228,11 +228,21 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
     """Fork a bounded shell and report what it said. Never raises: a run that
     could not happen is a RECORDED reading, because a door that throws on a
     broken instrument tells the builder less than one that shows them the OSError
-    beside the command that caused it (Law 7)."""
+    beside the command that caused it (Law 7).
+
+    NEVER BARE (ticket 68cef2ddd8ef, child of dda0e72b9c67). An instrument runs the
+    ticket's proofs, so a bare fork wrote into the live instance on every PROVED
+    crossing. The shell is the tester's published sealed exec (2c9eeab2da87), reached
+    through its interface and never rebuilt here (RULE 1); the +120 bounds only its
+    snapshot and teardown. Its own two lines are read by their prefix, because an
+    instrument may exit 2 or 124 for reasons of its own: a timeout reads as one, and a
+    seal it could not confirm comes back as exit 2 with ``seal_refused`` carrying its
+    words — and nothing else is forked, since running anyway is the leak this closes."""
     started = time.time()
     try:
-        done = subprocess.run(["bash", "-c", command], cwd=cwd,
-                              capture_output=True, text=True, timeout=timeout_s)
+        done = subprocess.run([os.path.join(CAIRN_ROOT, "bin", "cairn"), "test", "--exec",
+                               command, "--timeout", str(timeout_s)], cwd=cwd,
+                              capture_output=True, text=True, timeout=timeout_s + 120)
     except subprocess.TimeoutExpired as exc:
         return {"command": command, "exit": None, "timed_out": True,
                 "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),
@@ -241,9 +251,18 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
         return {"command": command, "exit": None, "timed_out": False,
                 "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),
                 "error": "%s: %s" % (type(exc).__name__, exc), "tail": ""}
-    return {"command": command, "exit": done.returncode, "timed_out": False,
-            "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),
-            "tail": _tail(_tail(done.stdout) + _tail(done.stderr))}
+    record = {"command": command, "exit": done.returncode, "timed_out": False,
+              "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),
+              "tail": _tail(_tail(done.stdout) + _tail(done.stderr))}
+    said = (done.stderr or "").splitlines()
+    if done.returncode == 124 and any(
+            line.startswith("cairn test --exec: timed out after") for line in said):
+        record.update(exit=None, timed_out=True)
+    elif done.returncode == 2:
+        refused = [line for line in said if line.startswith("cairn test --exec: refused")]
+        if refused:
+            record["seal_refused"] = refused[-1]
+    return record
 
 
 def _declared(criterion, entry, field, default):

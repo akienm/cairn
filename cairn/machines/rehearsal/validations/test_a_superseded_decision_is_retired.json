@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_a_superseded_decision_is_retired.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-06T22:59:18",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green retired_lines_leave_the_view_and_stay_in_the_file\n  green a_foreign_authors_line_is_refused\n  green a_dangling_citation_is_refused\n  green a_bad_into_is_refused\n4 passed, 0 failed out of 4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "retired_lines_leave_the_view_and_stay_in_the_file",
+        "a_foreign_authors_line_is_refused",
+        "a_dangling_citation_is_refused",
+        "a_bad_into_is_refused"
+      ],
+      "teeth_red": [],
+      "test": "test-14d45cd050e9",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "723683a65195ce95a07f838ec26468742ae4b11d73e87cb86f968d737069327e",
+        "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-14d45cd050e9",
+      "source_fingerprint": "d199e426dd9542eb2dbe6f0260b595667d5c9643ff5f003557bb66af6a0cfa4b",
+      "fingerprint_closure": [
+        "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py",
+        "cairn/machines/rehearsal/rehearsal.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-4149241-6bqsrh8b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 103361520,
+          "disk_bytes": 124641280,
+          "entries": 8740,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

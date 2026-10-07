@@ -27,6 +27,11 @@ This loads the ticket through the artifact surface — the one that already exis
 for this purpose. Do not search for the ticket file with grep/find; the command
 resolves it. The output is the briefing the chart and the build work from.
 
+Then sweep the tree: run `PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.sail.sweep <id>`
+before charting. It stashes any uncommitted change in cairn or CairnCommons and raises
+one trouble (`orphaned-changes-at-sail`) naming the paths, the stash shas and the
+suspects; it prints `clean` when there is nothing to stash.
+
 ## 0. Chart it — /sail RUNS /chart; it no longer requires one
 
 **Fire `/chart <request>` now, as this skill's first act**, and work its seven

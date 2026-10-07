@@ -14,7 +14,11 @@ tmp/CairnCommons/tickets, so grammar.ticket_path resolves the fixture ticket):
       refused, the refusal naming the entry, the declared keys and the clauses;
   (2) a proof declaring exactly the clauses passes the entry;
   (3) a proof declaring nothing for the ticket is refused;
-  (4) two proofs, clause 1 in one and clause 2 in the other, pass the entry (the union).
+  (4) two proofs, clause 1 in one and clause 2 in the other, pass the entry (the union);
+  (5) a ticket whose node_class folds to concept-piece gets no entry at all (absent,
+      mirroring proof_coverage.lacks, which proves a concept-piece by its review record):
+      the fixture is 3fef5a02da2d's shape, numbered clauses and a criterion proof that
+      declares nothing for the ticket, with the class typed in mixed case.
 
     bin/cairn test cairn/devices/codemother/machines/validate/proofs/test_the_chart_refuses_a_clause_no_proof_it_runs_declares.py
 """
@@ -37,6 +41,7 @@ PROVES = {"4661ca005242": {
     "2": "test_keys_equal_to_the_clauses_pass",
     "3": "test_a_proof_declaring_nothing_for_the_ticket_is_refused",
     "4": "test_clauses_covered_by_the_union_of_two_proofs_pass",
+    "5": "test_a_concept_piece_chart_gets_no_entry",
 }}
 
 ENTRY = "proves_keys_match_the_falsifier_clauses"
@@ -50,14 +55,17 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
-def _world(tmp: Path, falsifier: str, proofs: dict[str, dict]) -> tuple[str, dict]:
+def _world(tmp: Path, falsifier: str, proofs: dict[str, dict],
+           node_class: str | None = None) -> tuple[str, dict]:
     """A repo root with the named proofs, a commons beside it holding the claimed ticket,
     and a packet whose criteria run every proof. ``proofs`` maps rel path -> PROVES."""
     root = tmp / "repo"
     tickets = tmp / "CairnCommons" / "tickets"
     tickets.mkdir(parents=True)
-    (tickets / f"{TID}-a-proof-world.json").write_text(json.dumps(
-        {"id": TID, "title": "a-proof-world", "falsifier": falsifier}, indent=2) + "\n")
+    doc = {"id": TID, "title": "a-proof-world", "falsifier": falsifier}
+    if node_class is not None:
+        doc["node_class"] = node_class
+    (tickets / f"{TID}-a-proof-world.json").write_text(json.dumps(doc, indent=2) + "\n")
     criteria = []
     for rel, proves in proofs.items():
         p = root / rel
@@ -120,6 +128,15 @@ def test_clauses_covered_by_the_union_of_two_proofs_pass(tmp: Path) -> None:
           "no entry" if e is None else str(e)[:200])
 
 
+def test_a_concept_piece_chart_gets_no_entry(tmp: Path) -> None:
+    root, packet = _world(tmp, "Done when (1) it reads; (2) it holds; (3) it names; (4) it signs.",
+                          {"x/proofs/test_a.py": {"000000000000": {"1": "t1"}}},
+                          node_class=" Concept-Piece")
+    e, why = _entry(root, packet), _refusal(root, packet)
+    check("test_a_concept_piece_chart_gets_no_entry", e is None and ENTRY not in why,
+          "absent" if e is None else str(e)[:200])
+
+
 def main() -> int:
     global V
     try:
@@ -132,7 +149,8 @@ def main() -> int:
     V = subject
     teeth = (test_an_all_clause_against_numbered_keys_is_refused, test_keys_equal_to_the_clauses_pass,
              test_a_proof_declaring_nothing_for_the_ticket_is_refused,
-             test_clauses_covered_by_the_union_of_two_proofs_pass)
+             test_clauses_covered_by_the_union_of_two_proofs_pass,
+             test_a_concept_piece_chart_gets_no_entry)
     for tooth in teeth:
         try:
             with tempfile.TemporaryDirectory(prefix="cairn-chart-clause-proof-") as d:

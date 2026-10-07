@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_an_instrument_runs_under_the_seal.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-07T14:07:30",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_instrument_runs_inside_a_sealed_exec\n  PASS  test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else\n  PASS  test_the_record_keeps_its_keys_and_its_exit\n  PASS  test_a_refused_seal_is_recorded_and_nothing_runs_bare\n  PASS  test_the_whole_falsifier_holds_end_to_end\ngreen — every chart instrument runs under the instance seal, or is refused on the record",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_instrument_runs_inside_a_sealed_exec",
+        "test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else",
+        "test_the_record_keeps_its_keys_and_its_exit",
+        "test_a_refused_seal_is_recorded_and_nothing_runs_bare",
+        "test_the_whole_falsifier_holds_end_to_end"
+      ],
+      "teeth_red": [],
+      "test": "test-ef93ad293f26",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f73e763d1416f2b549384ef72d23c07bacf29360c71cd6c689dd122d0e22a7c1",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 300,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef93ad293f26",
+      "source_fingerprint": "8f93d0a0f38ba5c08bae609a3a064e4b5bb289654a3e1b597eee71608e958c9c",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/verdict/__init__.py",
+        "cairn/devices/codemother/machines/verdict/proofs/test_an_instrument_runs_under_the_seal.py",
+        "cairn/devices/codemother/machines/verdict/verdict.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-97936-xec7sz26/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 103513713,
+          "disk_bytes": 124952576,
+          "entries": 8796,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

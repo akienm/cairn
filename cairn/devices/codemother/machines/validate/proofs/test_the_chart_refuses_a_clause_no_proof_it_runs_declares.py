@@ -129,12 +129,19 @@ def test_clauses_covered_by_the_union_of_two_proofs_pass(tmp: Path) -> None:
 
 
 def test_a_concept_piece_chart_gets_no_entry(tmp: Path) -> None:
-    root, packet = _world(tmp, "Done when (1) it reads; (2) it holds; (3) it names; (4) it signs.",
-                          {"x/proofs/test_a.py": {"000000000000": {"1": "t1"}}},
-                          node_class=" Concept-Piece")
+    # The control twin is what lets this tooth fail: the same world typed code-seam MUST get
+    # the entry, refused, so a validate with no clause-coverage check at all reds here instead
+    # of reading "absent" for free (F9).
+    falsifier = "Done when (1) it reads; (2) it holds; (3) it names; (4) it signs."
+    proofs = {"x/proofs/test_a.py": {"000000000000": {"1": "t1"}}}
+    root, packet = _world(tmp / "concept", falsifier, proofs, node_class=" Concept-Piece")
     e, why = _entry(root, packet), _refusal(root, packet)
-    check("test_a_concept_piece_chart_gets_no_entry", e is None and ENTRY not in why,
-          "absent" if e is None else str(e)[:200])
+    croot, cpacket = _world(tmp / "control", falsifier, proofs, node_class="code-seam")
+    ce, cwhy = _entry(croot, cpacket), _refusal(croot, cpacket)
+    ok = e is None and ENTRY not in why and ce is not None and not _passed(ce) and ENTRY in cwhy
+    check("test_a_concept_piece_chart_gets_no_entry", ok,
+          ("concept-piece: " + ("absent" if e is None else str(e)[:120])
+           + "; code-seam twin: " + ("NO ENTRY" if ce is None else ("refused" if ENTRY in cwhy else "passed"))))
 
 
 def main() -> int:

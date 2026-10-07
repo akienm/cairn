@@ -1389,5 +1389,88 @@
     "fingerprint": "028ff1ee05d649eb68e7866d81b1c90586088b695586b61ec22182767e3f7d60",
     "at": "2026-10-06T11:57:09",
     "seq": 4
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "4661ca005242",
+    "actor": "cc",
+    "why": "PROVEME -> FIXME: the chart judge has no concept-piece branch (F8)",
+    "missing": [
+      "[concept_piece_branch_absent] validate.py _clause_coverage_record has no concept-piece branch: proof_coverage.lacks routes a concept-piece to _concept_lacks (proof_coverage.py:333, :739) because it is proved by a review record, not a clause join, but the chart judge computes ok = bool(want) and not missing for every claimed ticket, so every concept-piece chart is refused (measured 2026-10-06 on 3fef5a02da2d: 'declare [] for 3fef5a02da2d; the falsifier clauses are ['1', '2', '3', '4']'). Needs falsifier clause (5): a claimed packet whose ticket's node_class folds to concept-piece gets no proves_keys_match_the_falsifier_clauses entry (absent, mirroring lacks()), and a tooth for it with 3fef's shape as the fixture (F8)."
+    ],
+    "fingerprint": "58b25af787b25944e66363cf95a101c42fb7a74907201028acce17f8b14ff674",
+    "at": "2026-10-06T22:39:21",
+    "seq": 5
   }
 ]

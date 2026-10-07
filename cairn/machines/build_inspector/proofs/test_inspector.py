@@ -41,6 +41,12 @@ class _Teeth:
 
 tooth = _Teeth()
 
+# Clause "all": the falsifier marks 3a-3d, which pc.clauses does not read as (N) markers,
+# so one composite tooth covers them (it prints only when 3a-3d all held).
+PROVES = {
+    "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
+}
+
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
@@ -1067,7 +1073,7 @@ def main() -> None:
         _wt_git(wt_root, "commit", "-m", "initial")
         # now dirty it
         (comp / "source.py").write_text("x = 2\n")
-        findings = working_tree_clean(_wt_row("dirty_comp"), comp)
+        findings = working_tree_clean(_wt_row("dirty_comp"), comp, repos=[wt_root])
         assert len(findings) == 1, \
             f"dirty subtree must fire exactly one finding: {findings}"
         assert findings[0]["method"] == "working_tree_clean", \
@@ -1089,9 +1095,73 @@ def main() -> None:
         _wt_git(wt_root, "add", ".")
         _wt_git(wt_root, "commit", "-m", "initial")
         # no modifications — tree is clean
-        findings = working_tree_clean(_wt_row("clean_comp"), comp)
+        findings = working_tree_clean(_wt_row("clean_comp"), comp, repos=[wt_root])
         assert findings == [], \
             f"clean subtree must not fire: {findings}"
+
+    # ── working_tree_clean reads both trees (c1cca2e3dc23, 8w/F11/8x) ──────────
+    # The one measured orphan (3fef5a02da2d's lab lines) sat in CairnCommons outside
+    # every component subtree, and the subtree-only sieve passed PROVED twice over it.
+    # Each tooth hands the sieve two scratch repos A (holding the component) and B, so
+    # it reads neither live tree (F12: the two teeth above pass repos=[wt_root]).
+    def _wt_repo(prefix, files):
+        repo = scratch_dir(prefix)
+        _wt_git(repo, "init")
+        _wt_git(repo, "config", "user.email", "test@test")
+        _wt_git(repo, "config", "user.name", "test")
+        for rel, text in files.items():
+            (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            (repo / rel).write_text(text)
+        _wt_git(repo, "add", ".")
+        _wt_git(repo, "commit", "-m", "initial")
+        return repo
+
+    def _wt_pair():
+        a = _wt_repo("inspector-proof-wt-both-A-", {
+            "comp/intention+why.json": json.dumps({"component": "comp"}),
+            "comp/source.py": "x = 1\n", "other.txt": "a\n"})
+        b = _wt_repo("inspector-proof-wt-both-B-", {
+            "b.txt": "b\n", "intentions-congruency-lab/history.json": "[]\n"})
+        return a, b
+
+    def _wt_named(findings, repo, rel):
+        assert len(findings) == 1, f"one finding for dirt anywhere, got: {findings}"
+        assert findings[0]["method"] == "working_tree_clean", findings[0]
+        dirty = findings[0]["values"].get("dirty") or {}
+        assert {Path(k).resolve() for k in dirty} == {repo.resolve()}, \
+            f"the finding must name exactly the dirty repo {repo}: {dirty}"
+        assert rel in next(iter(dirty.values())), f"the finding must name {rel}: {dirty}"
+
+    wt_both = []
+    tooth('Tooth 3a — dirt in A outside the component subtree reds, naming the path under A')
+    a, b = _wt_pair()
+    (a / "other.txt").write_text("changed\n")
+    _wt_named(working_tree_clean(_wt_row("comp"), a / "comp", repos=[a, b]), a, "other.txt")
+    wt_both.append("3a")
+
+    tooth('Tooth 3b — dirt only in B reds, naming the path under B')
+    a, b = _wt_pair()
+    (b / "b.txt").write_text("changed\n")
+    _wt_named(working_tree_clean(_wt_row("comp"), a / "comp", repos=[a, b]), b, "b.txt")
+    wt_both.append("3b")
+
+    tooth('Tooth 3c — a modified intentions-congruency-lab/history.json in B reds, naming it')
+    a, b = _wt_pair()
+    (b / "intentions-congruency-lab" / "history.json").write_text('[{"orphan": 1}]\n')
+    _wt_named(working_tree_clean(_wt_row("comp"), a / "comp", repos=[a, b]),
+              b, "intentions-congruency-lab/history.json")
+    wt_both.append("3c")
+
+    tooth('Tooth 3d — both trees clean stay quiet, and dirt inside the subtree still reds')
+    a, b = _wt_pair()
+    assert working_tree_clean(_wt_row("comp"), a / "comp", repos=[a, b]) == [], \
+        "two clean repos must not fire"
+    (a / "comp" / "source.py").write_text("x = 2\n")
+    _wt_named(working_tree_clean(_wt_row("comp"), a / "comp", repos=[a, b]), a, "comp/source.py")
+    wt_both.append("3d")
+
+    tooth('Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold')
+    assert wt_both == ["3a", "3b", "3c", "3d"], f"teeth 3a-3d did not all hold: {wt_both}"
 
     # ── history_reach (history-reach-feeds-a-migration) ──────────────────────
     # Law 5's new bound: history entries about PROVED tickets are stale.

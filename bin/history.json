@@ -4234,5 +4234,80 @@
     "fingerprint": "0bef3c97419859884d5d84d9c4659c103f0a0903c74680fef4af1e41606f7005",
     "at": "2026-10-06T10:47:31",
     "seq": 19
+  },
+  {
+    "from": "TICKETME",
+    "to": "RETIRED",
+    "standing": "RETIRED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [RETIRED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'RETIRED' in the code-seam@v2 vocabulary",
+        "actual": "'RETIRED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> RETIRED moves the cursor off position 1",
+        "actual": "TICKETME -> RETIRED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> RETIRED",
+        "actual": "TICKETME -> RETIRED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "7bb99eed0629",
+    "actor": "cc",
+    "why": "RETIRED, replaced by 92e0d158b1bc (the /sail sweep: stash + one trouble + timing suspects) per Akien's rulings, relayed by the peer: 8w \"yes, rework them that way. and cc++\"; F11 \"that all sounds good :)\"; 8x \"yes to all.\". The orphans/adopt/remove command with transcript attribution is not built; an orphan is now stashed at /sail and named as a trouble, and the whole-tree clean end is layer 3 in build_inspector.",
+    "fingerprint": "92b488045cd28225eab21cae11506d0d3baca9a7756b7d90e0a712a9632344ba",
+    "at": "2026-10-07T15:30:53",
+    "seq": 20
   }
 ]

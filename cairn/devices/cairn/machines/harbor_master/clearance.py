@@ -625,7 +625,25 @@ def _lack(ticket_id: str, kind: str, about: str, why: str, **values) -> dict:
     return {"ticket": ticket_id, "kind": kind, "about": about, "why": why, "values": values}
 
 
-def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> list[dict]:
+def _approval_holds(tid: str, qid, root) -> bool:
+    """True when ``qid`` re-reads as Akien's answer on this ticket (ticket ec4ca415f43d).
+
+    Read through the question tool's public ``read`` (RULE 1: never the tester's judge); a
+    missing, unparseable, open, other-ticket or not-his question is False."""
+    from cairn.tools.question import question as question_mod
+
+    if not (isinstance(qid, str) and qid.strip()):
+        return False
+    try:
+        q = question_mod.read(qid, root)
+    except (question_mod.Refused, OSError, ValueError):
+        return False
+    return (bool(q.get("resolved")) and q.get("ticket") == tid
+            and str(q.get("answered_by") or "").startswith("Akien"))
+
+
+def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None,
+                 question_root=None) -> list[dict]:
     """The third PROVED rule, on its own so a proof can fire it without a whole crossing.
 
     A CODE-SEAM AND NOTHING ELSE. A concept-piece is proved by people reading it — there is
@@ -667,6 +685,9 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
         tester found the revert unseen by any tooth and sent it to the operator (ticket
         df05d93da4c0, Akien's answer to open-ed0a56ce6357: complete AND notify). A blank or
         null id is not a notice and reads unreadable.
+      - the key is present and a file reads ``{"approved": <qid>}`` -> covered only when the
+        question re-reads resolved, bound to this ticket, answered by Akien (ticket
+        ec4ca415f43d, ruling 8p); otherwise ``hollow_approval_unresolved``.
       - the key is present and every measured file redded a tooth -> covered.
 
     AND THE READING EXPIRES WITH THE CODE. It rides ``evidence`` beside the
@@ -724,8 +745,25 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None) -> li
         notified = {f for f, r in reading.items()
                     if isinstance(r, dict) and isinstance(r.get("notified"), str)
                     and r["notified"].strip()}
+        # AN APPROVED FILE IS COVERED ONLY ON RE-READ (ticket ec4ca415f43d, ruling 8p). The
+        # tester seals a proofs-only build Akien approved as {"approved": <qid>}; this rung
+        # does not take its word — the question must resolve, be bound to this ticket, and
+        # carry his answer. Anything else is its own lack, never folded into unreadable.
+        approved = {f: r["approved"] for f, r in reading.items()
+                    if isinstance(r, dict) and "approved" in r}
+        unresolved = sorted(f for f, qid in approved.items()
+                            if not _approval_holds(tid, qid, question_root))
+        if unresolved:
+            out.append(_lack(
+                tid, "hollow_approval_unresolved",
+                f"each file of {tid} sealed approved names a question Akien answered on {tid}",
+                f"{', '.join(unresolved)} sealed approved, but the question does not re-read as "
+                "his answer on this ticket — missing, still open, bound elsewhere, or answered "
+                f"by another hand. FIX: his answer on the tester's question, then `cairn test "
+                f"--hollow {tid} --seal` again",
+                proof=str(one), files=unresolved))
         unreadable = sorted(f for f, r in reading.items()
-                            if not isinstance(r, list) and f not in notified)
+                            if not isinstance(r, list) and f not in notified and f not in approved)
         if unreadable:
             out.append(_lack(
                 tid, "hollow_unreadable",

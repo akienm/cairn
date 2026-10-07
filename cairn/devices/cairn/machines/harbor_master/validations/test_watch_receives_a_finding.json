@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_watch_receives_a_finding.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:26:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-06T19:45:17",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_watch_verb_receives_a_finding"
       ],
       "teeth_red": [],
-      "test": "test-130127f6d7cc",
+      "test": "test-420a431085a3",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -31,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -41,8 +41,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-130127f6d7cc",
-      "source_fingerprint": "680d19803d96590c6d7571ab5583affbec26eae06797ea67cdd76dfac0917a2d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-420a431085a3",
+      "source_fingerprint": "61345f2a62628e56b541963f46b46e913d8b2eb956b3bf7f56fb6667d1e87ed2",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
@@ -51,26 +51,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-xh7s2vtl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4082524-s8ri58pe/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261006.062621.230253.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261006.062621.235860.charter_projector_append_entry.append_entry.json",
-            "logs/harbor_master/0/20261006.062621.231416.HarborMasterDevice.watch_received.json",
-            "logs/harbor_master/0/20261006.062621.236717.HarborMasterDevice.watch_received.json"
+            "logs/charter/0/20261007.014516.232785.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261007.014516.239204.charter_projector_append_entry.append_entry.json",
+            "logs/harbor_master/0/20261007.014516.234114.HarborMasterDevice.watch_received.json",
+            "logs/harbor_master/0/20261007.014516.240096.HarborMasterDevice.watch_received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 177022299,
-          "disk_bytes": 205148160,
-          "entries": 12058,
+          "bytes": 103279793,
+          "disk_bytes": 124461056,
+          "entries": 8713,
           "builds": 1,
-          "reuses": 29
+          "reuses": 4
         }
       }
     },

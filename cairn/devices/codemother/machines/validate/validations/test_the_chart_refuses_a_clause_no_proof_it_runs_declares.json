@@ -2,23 +2,22 @@
   {
     "claim": "proof test_the_chart_refuses_a_clause_no_proof_it_runs_declares.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-07T10:07:28",
+    "date": "2026-10-07T10:42:04",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_an_all_clause_against_numbered_keys_is_refused  — validate packet refused — 3 lack(s), all named on this one pass (fix them together, then fire again):\n  - missing fields: hypothesize_ref\n  - provenance does not cover: hypothesize_ref\n  - proves_keys\n  PASS  test_keys_equal_to_the_clauses_pass  — {'identity': 'proves_keys_match_the_falsifier_clauses', 'location': 'cairn/devices/codemother/machines/validate', 'code': 'grammar.py:proves_keys_match_the_falsifier_clauses', 'expected': 'every claus\n  PASS  test_a_proof_declaring_nothing_for_the_ticket_is_refused  — validate packet refused — 3 lack(s), all named on this one pass (fix them together, then fire again):\n  - missing fields: hypothesize_ref\n  - provenance does not cover: hypothesize_ref\n  - proves_keys\n  PASS  test_clauses_covered_by_the_union_of_two_proofs_pass  — {'identity': 'proves_keys_match_the_falsifier_clauses', 'location': 'cairn/devices/codemother/machines/validate', 'code': 'grammar.py:proves_keys_match_the_falsifier_clauses', 'expected': 'every claus\n  FAIL  test_a_concept_piece_chart_gets_no_entry  — {'identity': 'proves_keys_match_the_falsifier_clauses', 'location': 'cairn/devices/codemother/machines/validate', 'code': 'grammar.py:proves_keys_match_the_falsifier_clauses', 'expected': 'every claus\n\nRED — 1 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_all_clause_against_numbered_keys_is_refused  — validate packet refused — 3 lack(s), all named on this one pass (fix them together, then fire again):\n  - missing fields: hypothesize_ref\n  - provenance does not cover: hypothesize_ref\n  - proves_keys\n  PASS  test_keys_equal_to_the_clauses_pass  — {'identity': 'proves_keys_match_the_falsifier_clauses', 'location': 'cairn/devices/codemother/machines/validate', 'code': 'grammar.py:proves_keys_match_the_falsifier_clauses', 'expected': 'every claus\n  PASS  test_a_proof_declaring_nothing_for_the_ticket_is_refused  — validate packet refused — 3 lack(s), all named on this one pass (fix them together, then fire again):\n  - missing fields: hypothesize_ref\n  - provenance does not cover: hypothesize_ref\n  - proves_keys\n  PASS  test_clauses_covered_by_the_union_of_two_proofs_pass  — {'identity': 'proves_keys_match_the_falsifier_clauses', 'location': 'cairn/devices/codemother/machines/validate', 'code': 'grammar.py:proves_keys_match_the_falsifier_clauses', 'expected': 'every claus\n  PASS  test_a_concept_piece_chart_gets_no_entry  — absent\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_all_clause_against_numbered_keys_is_refused",
         "test_keys_equal_to_the_clauses_pass",
         "test_a_proof_declaring_nothing_for_the_ticket_is_refused",
-        "test_clauses_covered_by_the_union_of_two_proofs_pass"
-      ],
-      "teeth_red": [
+        "test_clauses_covered_by_the_union_of_two_proofs_pass",
         "test_a_concept_piece_chart_gets_no_entry"
       ],
-      "test": "test-f77375d7f5a0",
+      "teeth_red": [],
+      "test": "test-b9605ee3b0ef",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -42,8 +41,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f77375d7f5a0",
-      "source_fingerprint": "a09ed9a86c585084ac751d008aa3182201a80cbade2eebec0950275e6a0bc1a0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b9605ee3b0ef",
+      "source_fingerprint": "bd57d90e59f2b180cceee2e45fcaf7a0d55f4165946550b5ee25fc541fa26107",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/validate/__init__.py",
         "cairn/devices/codemother/machines/validate/proofs/test_the_chart_refuses_a_clause_no_proof_it_runs_declares.py",
@@ -51,7 +50,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-30239-5om65nqj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-35338-1u89_hv5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,21 +59,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 103373718,
-          "disk_bytes": 124674048,
-          "entries": 8746,
+          "bytes": 103374670,
+          "disk_bytes": 124682240,
+          "entries": 8748,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "705eb94002b9939d5a2cb13a137aacdc53607f8fb29d1e7809375e0389354052",
         "opened": "2026-10-07T10:07:28",
         "last_red": "2026-10-07T10:07:28",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-validate",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-07T10:42:04",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "705eb94002b9939d5a2cb13a137aacdc53607f8fb29d1e7809375e0389354052"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

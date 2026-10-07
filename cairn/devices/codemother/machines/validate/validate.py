@@ -136,7 +136,9 @@ def _clause_coverage_record(packet: dict, root: str) -> list:
     The rule clearance already holds (proof_coverage: the union over the proofs, extra keys
     allowed), asked here at the chart so a disagreement between a proof's PROVES keys and
     the falsifier's clause markers surfaces before the build instead of at hollow. Absent
-    when the packet claims no filed ticket: there are no clauses to cover."""
+    when the packet claims no filed ticket: there are no clauses to cover. Absent too when
+    the ticket's node_class folds to concept-piece, mirroring proof_coverage.lacks: a
+    concept-piece is proved by its review record, never by PROVES keys (4661ca005242 F8)."""
     tid = packet.get("ticket")
     if not isinstance(tid, str) or not tid:
         return []
@@ -144,8 +146,12 @@ def _clause_coverage_record(packet: dict, root: str) -> list:
     if tp is None:
         return []
     from cairn.tools.proof_coverage import clauses, declared
+    from cairn.tools.system_word import fold
     with open(tp) as fh:
-        want = clauses(json.load(fh))
+        doc = json.load(fh)
+    if fold(str(doc.get("node_class") or "")) == "concept-piece":
+        return []
+    want = clauses(doc)
     proofs = []
     for c in packet.get("criteria") or []:
         if not isinstance(c, dict):

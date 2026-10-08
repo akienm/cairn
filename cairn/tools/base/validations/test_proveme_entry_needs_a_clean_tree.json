@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_proveme_entry_needs_a_clean_tree.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-07T18:54:12",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-07T19:06:47",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing\n.\n  ok   test_dirt_only_in_the_commons_refuses_naming_it\n.\n  ok   test_both_trees_clean_cross_with_a_working_tree_clean_lane\n.\n  ok   test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane\n                                                                     [100%]\n4 passed in 0.11s",
+      "stdout_tail": ".\n  ok   test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing\n.\n  ok   test_dirt_only_in_the_commons_refuses_naming_it\n.\n  ok   test_both_trees_clean_cross_with_a_working_tree_clean_lane\n.\n  ok   test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane\n                                                                     [100%]\n4 passed in 0.12s",
       "stderr_tail": "",
       "teeth_green": [
         "test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing",
@@ -16,7 +16,7 @@
         "test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane"
       ],
       "teeth_red": [],
-      "test": "test-081c31f938e8",
+      "test": "test-fc9d2324dc92",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "244d8d7011e0af52e44d174d11be221a0e7cf622dee50a4d9f94c5269d6c13e2",
+        "proof": "51f1b4a62cd47baa0e7f49c9bc213a6d5c1d0f5f85457656b7e4c488d27d6cad",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -35,14 +35,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-081c31f938e8",
-      "source_fingerprint": "542cc0dd21e634cfe010e1b3e0c1651d8d476aae1e9ee14b6b6011604fdc0144",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fc9d2324dc92",
+      "source_fingerprint": "b7bdb646dcd54e834666b59f3315d2a3c0a49095bafd455b58a2a54e146ea743",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -57,21 +56,21 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-247323-dbyjzroh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-251094-jalv1vd9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/charter/0/20261008.005411.646847.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.005411.649023.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.010646.409893.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.010646.412186.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 103951045,
-          "disk_bytes": 125657088,
-          "entries": 8891,
+          "bytes": 103953586,
+          "disk_bytes": 125669376,
+          "entries": 8894,
           "builds": 1,
           "reuses": 0
         }

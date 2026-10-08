@@ -45,6 +45,23 @@ PROVES = {
 
 _AT_BUILDME = "bug@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
 
+# The node-class table is borrowed from the live commons by COPY, never by path (F18, after
+# test_the_stones_are_pushed.py:52-70): `cairn test --hollow` runs these teeth in a worktree with
+# no CairnCommons beside it, so emit's default _NODE_CLASSES points at nothing there (measured
+# 2026-10-08: "unknown node-class 'bug'" at HEAD on every tooth). The copy lands outside both
+# fixture repos, so it is no dirt in either tree and no .git above tooth 4's dir.
+_LIVE_NODE_CLASSES = next((c / "node_classes" for c in (_REPO_ROOT.parent / "CairnCommons",
+                                                        Path.home() / "dev" / "src" / "CairnCommons")
+                           if (c / "node_classes" / "bug.json").is_file()), None)
+
+
+def _node_classes() -> Path:
+    assert _LIVE_NODE_CLASSES is not None, "no CairnCommons/node_classes beside the repo or under $HOME"
+    root = scratch_dir("proveme-entry-node-classes-") / "node_classes"
+    root.mkdir()
+    (root / "bug.json").write_bytes((_LIVE_NODE_CLASSES / "bug.json").read_bytes())
+    return root
+
 
 def _git(repo: Path, *args: str) -> str:
     return subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(repo), *args],
@@ -72,7 +89,8 @@ def _world() -> tuple[Path, Path, Path]:
 
 def _cross(comp: Path, note: str) -> str:
     return transitions.emit(_AT_BUILDME, "PROVEME", history_path=str(comp / "history.json"),
-                            state_path=str(comp / "state.json"), actor="proof", note=note)
+                            state_path=str(comp / "state.json"), actor="proof", note=note,
+                            node_class_root=_node_classes())
 
 
 def _refused_naming(comp: Path, repo: Path, rel: str) -> None:

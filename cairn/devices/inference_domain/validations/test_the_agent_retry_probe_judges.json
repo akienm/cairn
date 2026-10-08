@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_agent_retry_probe_judges.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-03T05:50:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-08T15:56:00",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,39 +19,52 @@
         "6 teeth"
       ],
       "teeth_red": [],
+      "test": "test-7b0991e81f9d",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 10,
+        "tables": [
+          "bus_proc_551673_1443253633_delivery",
+          "bus_proc_551673_1443253633",
+          "bus_proc_551721_1443329763_delivery",
+          "bus_proc_551721_1443329763",
+          "bus_proc_554737_1454337703_delivery",
+          "bus_proc_554737_1454337703",
+          "bus_proc_554791_1454413553_delivery",
+          "bus_proc_554791_1454413553",
+          "bus_proc_554858_1454439013_delivery",
+          "bus_proc_554858_1454439013"
+        ]
       },
-      "source_fingerprint": "5708414436b432e223d30e401042a85d7601c54c7e6ee8a91ab19d5e039efef6",
+      "conditions": {
+        "proof": "44af53ffdf08e0988d3ca43b3e60881404f6301b315eb734166ba459c3ca075d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7b0991e81f9d",
+      "source_fingerprint": "10e6b9067e51f01c1975018d5116496c3fb9f8936379bc36fdfa1526284821c2",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/probes/__init__.py",
         "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
-        "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/inference_domain/proofs/test_the_agent_retry_probe_judges.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1721121-5z6snx_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-569226-l7ko27rx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,11 +73,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104721397,
-          "disk_bytes": 124125184,
-          "entries": 8114,
+          "bytes": 105059820,
+          "disk_bytes": 127655936,
+          "entries": 9201,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
       }
     },

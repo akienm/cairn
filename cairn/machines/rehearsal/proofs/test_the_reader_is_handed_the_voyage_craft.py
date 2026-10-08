@@ -15,6 +15,9 @@ none reads the live corpus or calls a reader.
      render() raises Refused naming that path, and the scratch commons holds only its ticket.
   3. THE NOTE ANSWERS EACH CRAFT QUESTION d0672 FOLDED. voyage_craft.md carries every marker
      in CRAFT.
+  4. THE PROMPT AND THE CHARTER SAY SO. prompt.md carries the rule RULE, which tells the reader
+     the section is standing, and the charter's 'what' names voyage_craft.md among the reader's
+     inputs.
 
     python3 cairn/machines/rehearsal/proofs/test_the_reader_is_handed_the_voyage_craft.py   # exit 0 = green
 """
@@ -31,12 +34,15 @@ if str(_REPO_ROOT) not in sys.path:
 
 PROVES = {"996668eceef1": {"1": "test_the_note_is_handed_between_the_prompt_and_the_ticket",
                            "2": "test_a_missing_note_refuses_by_name",
-                           "3": "test_the_note_answers_each_craft_question"}}
+                           "3": "test_the_note_answers_each_craft_question",
+                           "4": "test_the_prompt_and_the_charter_say_so"}}
 
 NOTE = Path(__file__).resolve().parents[1] / "voyage_craft.md"
 CRAFT = ["proof —", "build —", "seal —", "trailer", "writes_to", "before the next door",
          "worktree", "siblings", "--proven-by", "--why", "--hollow", "write_verdict",
          "validate berth"]
+RULE = "**The VOYAGE CRAFT section is standing.**"
+CHARTER = Path(__file__).resolve().parents[1] / "intention+why.json"
 
 TID = "996600feed00"
 STEM = f"{TID}-testing-996668eceef1-voyage-craft"
@@ -122,9 +128,17 @@ def test_the_note_answers_each_craft_question(w):
     assert not lacks, f"the voyage-craft note does not answer: {lacks}"
 
 
+def test_the_prompt_and_the_charter_say_so(w):
+    from cairn.machines.rehearsal import rehearsal as R
+    assert RULE in R.prompt(), f"prompt.md does not carry the rule {RULE!r}"
+    what = json.loads(CHARTER.read_text(encoding="utf-8")).get("what") or ""
+    assert "voyage_craft.md" in what, "the charter's 'what' does not name voyage_craft.md among the reader's inputs"
+
+
 TEETH = [test_the_note_is_handed_between_the_prompt_and_the_ticket,
          test_a_missing_note_refuses_by_name,
-         test_the_note_answers_each_craft_question]
+         test_the_note_answers_each_craft_question,
+         test_the_prompt_and_the_charter_say_so]
 
 if __name__ == "__main__":
     world = World()

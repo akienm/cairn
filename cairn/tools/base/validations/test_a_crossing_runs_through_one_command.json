@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_crossing_runs_through_one_command.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-08T10:45:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-08T11:04:35",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-474052-4xl7g2yo/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-478267-m9xeh2vh/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
@@ -17,26 +17,20 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-8b8bc42e5e8c",
+      "test": "test-37a2a64d1333",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 8,
+        "dropped": 2,
         "tables": [
-          "bus_proc_466195_1013105358_delivery",
-          "bus_proc_466195_1013105358",
-          "bus_proc_466256_1013129866_delivery",
-          "bus_proc_466256_1013129866",
-          "bus_proc_466355_1013273037_delivery",
-          "bus_proc_466355_1013273037",
-          "bus_proc_466419_1013297039_delivery",
-          "bus_proc_466419_1013297039"
+          "bus_proc_474249_1045561243_delivery",
+          "bus_proc_474249_1045561243"
         ]
       },
       "conditions": {
-        "proof": "7978778a6c44cdfe0fd7611af23960419d2b9e858f42b843b8aa6298e7c0b00a",
+        "proof": "c54b38a6142e3d9e8f444182fa0e43c98315671a670de05286c01fdb3966857a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -45,14 +39,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8b8bc42e5e8c",
-      "source_fingerprint": "7368862f8ee2359be9d84c50f5098d569493854d4e13d4c89c5d9748cbb6b66e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-37a2a64d1333",
+      "source_fingerprint": "ccc660ed2cf1c3bc1c2ade65afa46eecaa1f2c1963ae8d6ba387cac0469f0993",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -66,22 +59,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-474029-t789k77c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-478248-n6y3h0ie/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261008.164535.278676.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.164535.286199.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.170434.627681.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.170434.635696.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 104768890,
-          "disk_bytes": 126906368,
-          "entries": 9052,
+          "bytes": 104780748,
+          "disk_bytes": 126988288,
+          "entries": 9072,
           "builds": 1,
           "reuses": 0
         }

@@ -30,10 +30,13 @@ from cairn.tools.base import transitions
 
 def cross(ticket_id: str, target: str, *, actor: str, why: str,
           proven_by: list[str] | None = None, missing: list[str] | None = None,
-          tickets_dir: Path | None = None, repo_root: Path | None = None) -> str:
+          tickets_dir: Path | None = None, repo_root: Path | None = None,
+          node_class_root: Path | None = None) -> str:
     """Cross ``ticket_id``'s cursor to ``target``; return the new workflow string."""
     tickets_dir = Path(tickets_dir if tickets_dir is not None else transitions._TICKETS)
     repo_root = Path(repo_root if repo_root is not None else transitions._REPO_ROOT)
+    node_class_root = Path(node_class_root if node_class_root is not None
+                           else transitions._NODE_CLASSES)
     hits = sorted(tickets_dir.glob(f"{ticket_id}-*.json"))
     if len(hits) != 1:
         raise ValueError(f"ticket {ticket_id} resolves to {len(hits)} files under {tickets_dir}, "
@@ -41,7 +44,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
     tp = hits[0]
     t = json.loads(tp.read_text(encoding="utf-8"))
     wf = transitions.parse_workflow(t["workflow_and_state"])
-    class_def = transitions.load_class_def(wf.node_class)
+    class_def = transitions.load_class_def(wf.node_class, root=node_class_root)
     tgt = transitions.canon_target(wf, target, class_def)
     if (tgt in wf.path and not transitions.is_summons(tgt)
             and not transitions.is_disposition(tgt, class_def)):
@@ -60,7 +63,8 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
         extra["missing"] = list(missing)
     new = transitions.emit(t["workflow_and_state"], target,
                            history_path=str(dev / "history.json"),
-                           state_path=str(dev / "state.json"), **extra)
+                           state_path=str(dev / "state.json"),
+                           node_class_root=node_class_root, **extra)
     if new != t["workflow_and_state"]:
         t["workflow_and_state"] = new
         write(str(tp), json.dumps(t, indent=2, ensure_ascii=False) + "\n", verb="cast", why=why)

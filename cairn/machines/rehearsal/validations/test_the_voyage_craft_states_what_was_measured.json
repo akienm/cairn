@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_the_voyage_craft_states_what_was_measured.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-08T17:47:07",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "proof: the voyage-craft note states what was measured — note=/home/akien/dev/src/cairn/cairn/machines/rehearsal/voyage_craft.md\n  PASS  test_the_build_bullet_names_the_hooks_validations\n  PASS  test_the_predict_restores_without_a_redirect_and_it_runs\n\n2 passed, 0 failed",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_build_bullet_names_the_hooks_validations",
+        "test_the_predict_restores_without_a_redirect_and_it_runs"
+      ],
+      "teeth_red": [],
+      "test": "test-2f369bf9788a",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 6,
+        "tables": [
+          "bus_proc_593723_1730040581_delivery",
+          "bus_proc_593723_1730040581",
+          "bus_proc_593840_1730133371_delivery",
+          "bus_proc_593840_1730133371",
+          "bus_proc_593916_1730173750_delivery",
+          "bus_proc_593916_1730173750"
+        ]
+      },
+      "conditions": {
+        "proof": "1b9af208c70ec0fe29b335ad36a0930d7735725bfd1012cd60a7aac5bec356b5",
+        "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2f369bf9788a",
+      "source_fingerprint": "7a72e7a4bc75c1adb6abf38acd56460068cd7758d2a8e7130c76b513bc298bba",
+      "fingerprint_closure": [
+        "cairn/machines/rehearsal/proofs/test_the_voyage_craft_states_what_was_measured.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-598162-q64wpw2e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 105209575,
+          "disk_bytes": 127926272,
+          "entries": 9252,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

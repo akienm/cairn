@@ -1102,8 +1102,16 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # every skip is the instrument and no file went unwritten, nothing here CAN be reverted;
         # Akien's answer approving the proof change is the measurement. Every other empty run
         # stays red, approval or not.
+        #
+        # RECORD SKIPS BESIDE THE INSTRUMENT ARE ADMITTED (ticket af394c12b62a, F19). An honest
+        # writes_to lists the build's own validation record, and that is SKIP_RECORD, so the
+        # instrument-only rule shut this branch on every proofs-only build that told the truth
+        # (measured on 41202d4c8d3b). Records alone, or beside any other skip or an unwritten
+        # file, stay red: at least one skip must be the instrument.
         only = [s["file"] for s in skipped]
-        if only and not unchanged and all(s["why"] == SKIP_INSTRUMENT for s in skipped):
+        if only and not unchanged \
+                and all(s["why"] in (SKIP_INSTRUMENT, SKIP_RECORD) for s in skipped) \
+                and any(s["why"] == SKIP_INSTRUMENT for s in skipped):
             qid = approval(tid, only, commons / "questions")
             if qid:
                 approved = {f: qid for f in only}

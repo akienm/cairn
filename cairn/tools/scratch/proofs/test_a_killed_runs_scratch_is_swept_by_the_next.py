@@ -12,12 +12,17 @@ Three teeth, one per falsifier clause, each measured from OUTSIDE in real proces
       temp root has asked for a scratch_dir;
   (2) a scratch_worktree made by a SIGKILLed process is gone AND deregistered — the fixture
       repo's ``git worktree list`` no longer names it;
-  (3) a LIVE process's scratch_dir, and an unmarked directory beside it, survive that call.
+  (3) a LIVE process's scratch_dir, and an unmarked directory beside it, survive that call;
+  (4) an entry marked with ANOTHER pid namespace and a pid that reads dead from here survives
+      that call — a sweep that judged by pid alone would remove a live sealed run's dir the
+      day any seal adds --unshare-pid (peer F28, 2026-10-08: the one hole that fails unsafe).
 
 THE FIXTURE WORLD: every child runs with TMPDIR pointed at a scratch directory of this proof's
 own, so the host /tmp is never the population a tooth reads, and the fixture repo is a ``git
-init`` inside it. Tooth 3 is the guard (the old door also leaves a live dir alone); 1 and 2 red
-against today's scratch.py, which sweeps nothing it did not make itself.
+init`` inside it. 1 and 2 red against today's scratch.py, which sweeps nothing it did not make
+itself. 3 and 4 are guards: green today because nothing is swept, red against a sweep that is
+too broad — 3 against one that ignores liveness or the mark, 4 against one that ignores the
+namespace.
 
     python3 cairn/tools/scratch/proofs/test_a_killed_runs_scratch_is_swept_by_the_next.py
 """
@@ -39,6 +44,7 @@ PROVES = {
         "1": "test_a_killed_runs_scratch_dir_is_gone_after_the_next_call",
         "2": "test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call",
         "3": "test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call",
+        "4": "test_an_entry_from_another_pid_namespace_survives_the_next_call",
     },
 }
 
@@ -115,6 +121,22 @@ def test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call():
         assert unmarked.is_dir(), f"an unmarked directory was swept: {unmarked}"
     finally:
         _kill(child)
+
+
+def _dead_pid() -> int:
+    """A pid that was real and is now reaped — dead as read from this namespace."""
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait(timeout=30)
+    return child.pid
+
+
+def test_an_entry_from_another_pid_namespace_survives_the_next_call():
+    tmp = scratch_dir("scratch-sweep-other-namespace-world-")
+    other_ns = os.stat("/proc/self/ns/pid").st_ino + 1          # any namespace but ours
+    foreign = tmp / f"fixture-sweep-other-namespace-scratch.{other_ns}-{_dead_pid()}-abcd1234"
+    foreign.mkdir()
+    _next_call(tmp)
+    assert foreign.is_dir(), f"an entry from another pid namespace was swept by its pid alone: {foreign}"
 
 
 if __name__ == "__main__":

@@ -1,15 +1,16 @@
 [
   {
     "claim": "proof test_sudo_relay.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-07T21:34:27",
+    "caller": "cairn test",
+    "date": "2026-10-07T21:58:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAILED  test_protocol_runs_the_command_and_returns_the_truth: TypeError: await_result() takes 0 positional arguments but 1 positional argument (and 1 keyword-only argument) were given\n  PASS  test_idle_when_nothing_pending\n  PASS  test_record_is_permanent_and_complete\n  PASS  test_folder_cycles_after_a_month_but_not_before\n  PASS  test_retention_never_touches_a_foreign_file\n  PASS  test_temporary_is_physics\n  PASS  test_the_window_is_visible_and_honest\n  PASS  test_the_crossing_is_no_longer_silent\n  PASS  test_device_is_a_device_and_reports_the_window\n  FAILED  test_a_leftover_result_is_never_returned: AssertionError: the request got back 'echo A-yesterday' — another request's result, not its own\n  FAILED  test_an_unanswered_request_times_out_rather_than_taking_anothers: AssertionError: an unanswered request returned 'echo A-yesterday' — it must time out instead\n  FAILED  test_the_daemon_runs_under_the_requests_timeout: TypeError: submit() got an unexpected keyword argument 'timeout_s'\n  FAILED  test_an_orphan_is_a_loud_finding: AssertionError: state() must list every uncollected result, got None\nred — sudo_relay: 5 of 13 teeth failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_protocol_runs_the_command_and_returns_the_truth\n  PASS  test_idle_when_nothing_pending\n  PASS  test_record_is_permanent_and_complete\n  PASS  test_folder_cycles_after_a_month_but_not_before\n  PASS  test_retention_never_touches_a_foreign_file\n  PASS  test_temporary_is_physics\n  PASS  test_the_window_is_visible_and_honest\n  PASS  test_the_crossing_is_no_longer_silent\n  PASS  test_device_is_a_device_and_reports_the_window\n  PASS  test_a_leftover_result_is_never_returned\n  PASS  test_an_unanswered_request_times_out_rather_than_taking_anothers\n  PASS  test_the_daemon_runs_under_the_requests_timeout\n  PASS  test_an_orphan_is_a_loud_finding\ngreen — sudo_relay: command in, root-run + permanent audit out; each request gets back only its own result; window visible, temporary by physics",
       "stderr_tail": "",
       "teeth_green": [
+        "test_protocol_runs_the_command_and_returns_the_truth",
         "test_idle_when_nothing_pending",
         "test_record_is_permanent_and_complete",
         "test_folder_cycles_after_a_month_but_not_before",
@@ -17,16 +18,14 @@
         "test_temporary_is_physics",
         "test_the_window_is_visible_and_honest",
         "test_the_crossing_is_no_longer_silent",
-        "test_device_is_a_device_and_reports_the_window"
-      ],
-      "teeth_red": [
-        "test_protocol_runs_the_command_and_returns_the_truth",
+        "test_device_is_a_device_and_reports_the_window",
         "test_a_leftover_result_is_never_returned",
         "test_an_unanswered_request_times_out_rather_than_taking_anothers",
         "test_the_daemon_runs_under_the_requests_timeout",
         "test_an_orphan_is_a_loud_finding"
       ],
-      "test": "test-49d762d7fbdb",
+      "teeth_red": [],
+      "test": "test-64d9a175100f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,13 +44,14 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-49d762d7fbdb",
-      "source_fingerprint": "1772413e35d2569d3cf85c0aa70279c8964615ef69f07caf5b0751611990be5b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-64d9a175100f",
+      "source_fingerprint": "18754cb46540acb56d41ab6287b310276f147a1f275e82ca38986c9c2f090349",
       "fingerprint_closure": [
         "cairn/devices/sudo_relay/__init__.py",
         "cairn/devices/sudo_relay/proofs/test_sudo_relay.py",
@@ -59,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-301137-ztceu9w5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-305589-39jg54l7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,21 +68,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104157104,
-          "disk_bytes": 125976576,
-          "entries": 8937,
+          "bytes": 104157781,
+          "disk_bytes": 125984768,
+          "entries": 8939,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
-        "proof_sha256": "15712b6a0e0831836234a2e7f5c8fbd56b619dc5f7db6f0ea0214567db9e2e04",
-        "opened": "2026-10-07T21:34:27",
-        "last_red": "2026-10-07T21:34:27",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-sudo-relay",
-        "ruling": null
+      "conditions_moved": {
+        "notified": "n-7683a63f3eb1",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

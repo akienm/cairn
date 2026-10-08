@@ -57,7 +57,7 @@ import os
 import re
 import subprocess
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
@@ -84,9 +84,19 @@ DEFAULT_IDLE_TIMEOUT_S = None           # off by default — opt-in; None = no i
 DEFAULT_MAX_LIFETIME_S = 24 * 60 * 60   # 24 hours — 'log in once a day'; the sole automatic release
 
 _STATUS_NAME = "daemon.status"
-_PENDING = "pending.sh"
-_EXECUTING = "executing.sh"
-_DONE = "done"
+# A request carries its own id from the moment it is submitted (ticket ae25d8fae5cb): the
+# daemon answers into results/<id>.json, the client reads ONLY its own file, and an
+# awaiting/<id> marker says somebody is still waiting for it. Measured before this: a single
+# relay/done slot handed whatever it held to the next request, so a command that never ran
+# read rc 0. relay/done is still READ (as an orphan) when an old daemon left one; never written.
+_PENDING = "pending.json"
+_EXECUTING = "executing.json"
+_RESULTS = "results"
+_AWAITING = "awaiting"
+_LEGACY_DONE = "done"
+# The client waits the request's own timeout plus this, so a command the DAEMON timed out
+# still comes home as its own honest record (rc None) rather than racing the client's clock.
+_AWAIT_GRACE_S = 5.0
 
 
 # ── where the instance lives (instance-space, never class-space) ─────────────
@@ -125,10 +135,14 @@ def _mint_id(now: datetime) -> str:
     return f"{now.strftime('%Y%m%dT%H%M%S')}_{now.microsecond:06d}_{os.getpid()}"
 
 
-def audit_record(command: str, returncode, stdout: str, stderr: str, *, now: datetime) -> dict:
-    """Assemble the six-field record of truth. stdout/stderr kept FULL (Law 7)."""
+def audit_record(command: str, returncode, stdout: str, stderr: str, *, now: datetime,
+                 rid: str | None = None) -> dict:
+    """Assemble the six-field record of truth. stdout/stderr kept FULL (Law 7).
+
+    ``rid`` is the id the request was submitted under; the record carries it so the result,
+    the audit entry and the request are one id."""
     return {
-        "id": _mint_id(now),
+        "id": rid or _mint_id(now),
         "date": now.isoformat(timespec="seconds"),
         "command": command,
         "returncode": returncode,      # int, or None if the run could not complete
@@ -208,13 +222,24 @@ def _run(argv: list, *, timeout: int) -> tuple:
         return None, out, f"{err}\n[sudo_relay] timed out after {timeout}s".lstrip()
 
 
-def submit(command: str) -> Path:
-    """Client side (CC): write the command as the pending request. Returns the pending path."""
+def _write_json(path: Path, obj: dict) -> None:
+    """Write whole or not at all: a reader never sees half a request or half a result."""
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_text(json.dumps(obj))
+    os.replace(tmp, path)
+
+
+def submit(command: str, *, timeout_s: float = 120.0) -> str:
+    """Client side (CC): mint the request's id, mark it awaited, write the pending request.
+
+    Returns the id — the only handle ``await_result`` takes, so a client can never be handed
+    a result it did not ask for."""
     rdir = relay_dir()
-    _ensure(rdir)
-    path = rdir / _PENDING
-    path.write_text(command)
-    return path
+    _ensure(rdir, rdir / _AWAITING)
+    rid = _mint_id(datetime.now(timezone.utc))
+    (rdir / _AWAITING / rid).touch()
+    _write_json(rdir / _PENDING, {"id": rid, "command": command, "timeout_s": timeout_s})
+    return rid
 
 
 def process_pending(executor, *, now: datetime, retention_days: int = DEFAULT_RETENTION_DAYS):
@@ -233,34 +258,43 @@ def process_pending(executor, *, now: datetime, retention_days: int = DEFAULT_RE
     # Atomic handoff: claim the request before running it, so a second call can't double-run.
     executing = rdir / _EXECUTING
     os.replace(pending, executing)
-    command = executing.read_text()
+    request = json.loads(executing.read_text())
+    command, timeout_s = request["command"], request["timeout_s"]
 
-    returncode, stdout, stderr = executor(command)
-    record = audit_record(command, returncode, stdout, stderr, now=now)
+    # The request's own timeout, never the executor's default (ticket ae25d8fae5cb).
+    returncode, stdout, stderr = executor(command, timeout=timeout_s)
+    record = audit_record(command, returncode, stdout, stderr, now=now, rid=request["id"])
     write_audit(record, now=now, retention_days=retention_days)
 
-    # The client's return: the full record, not just an exit code (it wants stdout/stderr too).
-    (rdir / _DONE).write_text(json.dumps(record))
+    # The client's return: the full record, under the request's own id.
+    _ensure(rdir / _RESULTS)
+    _write_json(rdir / _RESULTS / f"{record['id']}.json", record)
     executing.unlink(missing_ok=True)
     return record
 
 
-def await_result(*, timeout: float = 120.0, poll: float = 0.1) -> dict:
-    """Client side (CC): block until ``done`` appears, then consume and return the record.
+def await_result(rid: str, *, timeout: float = 120.0, poll: float = 0.1) -> dict:
+    """Client side (CC): block until request ``rid``'s own result appears, consume and return it.
 
-    Raises ``TimeoutError`` if no daemon answers inside ``timeout`` — a missing daemon is a
-    loud failure, not a silent hang.
+    Reads ONLY ``results/<rid>.json`` — another request's result is never this one's. Raises
+    ``TimeoutError`` naming ``rid`` if no daemon answers inside ``timeout`` — a missing daemon
+    is a loud failure, not a silent hang, and the request stops being awaited (a result that
+    lands later is an orphan, read loudly by ``orphaned_results``).
     """
-    done = relay_dir() / _DONE
+    rdir = relay_dir()
+    result = rdir / _RESULTS / f"{rid}.json"
+    marker = rdir / _AWAITING / rid
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if done.exists():
-            record = json.loads(done.read_text())
-            done.unlink(missing_ok=True)
+        if result.exists():
+            record = json.loads(result.read_text())
+            result.unlink(missing_ok=True)
+            marker.unlink(missing_ok=True)
             return record
         time.sleep(poll)
+    marker.unlink(missing_ok=True)
     raise TimeoutError(
-        f"no result after {timeout}s — is the sudo_relay daemon running? "
+        f"no result for request {rid} after {timeout}s — is the sudo_relay daemon running? "
         f"(start: python3 cairn/devices/sudo_relay/daemon.py)"
     )
 
@@ -271,8 +305,28 @@ def request_root(command: str, *, timeout: float = 120.0) -> dict:
     Requires Akien's daemon to be running (his one act). The returned record is also the
     permanent audit entry — the same JSON, in the folder, for a month.
     """
-    submit(command)
-    return await_result(timeout=timeout)
+    rid = submit(command, timeout_s=timeout)
+    return await_result(rid, timeout=timeout + _AWAIT_GRACE_S)
+
+
+def orphaned_results() -> list[str]:
+    """The ids of results nobody is waiting for: ``results/<id>.json`` with no awaiting
+    marker, plus the id inside a legacy ``relay/done`` an old daemon left. Read, never deleted
+    — an uncollected result is a record of truth (Law 7)."""
+    rdir = relay_dir()
+    found: list[str] = []
+    rsdir = rdir / _RESULTS
+    if rsdir.exists():
+        for f in sorted(rsdir.glob("*.json")):
+            if not (rdir / _AWAITING / f.stem).exists():
+                found.append(f.stem)
+    legacy = rdir / _LEGACY_DONE
+    if legacy.exists():
+        try:
+            found.append(str(json.loads(legacy.read_text())["id"]))
+        except (json.JSONDecodeError, KeyError, TypeError, OSError):
+            found.append(_LEGACY_DONE)  # unreadable is still a leftover — named, not hidden
+    return found
 
 
 # ── temporary-as-physics: the expiry decision, and the visible window ────────
@@ -400,6 +454,11 @@ class SudoRelayDevice(BaseDevice):
         # pointer. state()/settings() emit nothing — a read crosses no boundary.
         self.emit("request_root", pointer=record["id"],
                   values={"returncode": record["returncode"]})
+        # A result nobody collected is a finding, said on the crossing that found it (Law 7):
+        # one breadcrumb naming them all, emitted only when there is one.
+        orphans = orphaned_results()
+        if orphans:
+            self.emit("orphaned_results", pointer=orphans[0], values={"orphans": orphans})
         return record
 
     # --- Form v0 #2 surface -------------------------------------------------
@@ -420,6 +479,7 @@ class SudoRelayDevice(BaseDevice):
         return {
             "daemon": status,                 # live?/started/expires — the visible root window
             "audit_records": audit_count,     # how many records currently in the month window
+            "orphaned_results": orphaned_results(),  # results nobody collected — loud, never deleted
         }
 
     def settings(self) -> dict:

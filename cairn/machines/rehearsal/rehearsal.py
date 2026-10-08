@@ -276,6 +276,9 @@ def _is_record(path: str) -> bool:
     return p.name in _RECORD_NAMES or bool(_RECORD_DIRS & set(p.parts))
 
 
+NOT_DONE = "This voyage is NOT complete: its remaining steps are still to be built."
+
+
 def landed(ticket: str, cursor: str, repo: Path) -> str:
     """The ALREADY LANDED section (ticket 80518446bfc8): the ticket's cursor and every commit
     whose message names the ticket id, oldest first. Measured 2026-10-07 on 41202d4c8d3b: a
@@ -290,9 +293,9 @@ def landed(ticket: str, cursor: str, repo: Path) -> str:
     # NEVER str(exc): a CalledProcessError carries the command line, and the repo path in
     # the reader's text is repository content the reader must not see (D7).
     except subprocess.CalledProcessError as exc:
-        return f"\n# ALREADY LANDED\n\n(landed commits could not be read: git log exited {exc.returncode})\n"
+        return f"\n# ALREADY LANDED\n\n{NOT_DONE}\n\n(landed commits could not be read: git log exited {exc.returncode})\n"
     except OSError as exc:
-        return ("\n# ALREADY LANDED\n\n(landed commits could not be read: "
+        return ("\n# ALREADY LANDED\n\n" + NOT_DONE + "\n\n(landed commits could not be read: "
                 + (exc.strerror or type(exc).__name__) + ")\n")
     lines = []
     for chunk in out.split("\x1e"):
@@ -303,7 +306,7 @@ def landed(ticket: str, cursor: str, repo: Path) -> str:
         if paths and all(_is_record(p) for p in paths):
             continue
         lines.append(rows[0])
-    return ("\n# ALREADY LANDED\n\ncursor: " + cursor + "\n\n"
+    return ("\n# ALREADY LANDED\n\n" + NOT_DONE + "\n\ncursor: " + cursor + "\n\n"
             + ("\n".join(lines) if lines else "(nothing landed for this ticket)") + "\n")
 
 

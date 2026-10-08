@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_rehearsal.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-08T01:58:25",
+    "caller": "cairn test",
+    "date": "2026-10-08T02:04:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_crossing_record_commit_is_not_listed_as_landed_work\n  PASS  test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes\n  PASS  test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing\n  PASS  test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways\n  PASS  test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read\n  FAIL  test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done: AssertionError: the prompt's landed-work rule lacks: \"a decision counts as built only where a listed commit's change performs it\"\n  PASS  test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none\n  PASS  test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam\n  PASS  test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal\n  PASS  test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth\n  PASS  test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme\n  PASS  test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven\n  PASS  test_the_prompt_says_landed_work_builds_as_written\n  PASS  test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate\n  PASS  test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green\n  PASS  test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing\nred — 1 of 16 teeth: test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_crossing_record_commit_is_not_listed_as_landed_work\n  PASS  test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes\n  PASS  test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing\n  PASS  test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways\n  PASS  test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read\n  PASS  test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done\n  PASS  test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none\n  PASS  test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam\n  PASS  test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal\n  PASS  test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth\n  PASS  test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme\n  PASS  test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven\n  PASS  test_the_prompt_says_landed_work_builds_as_written\n  PASS  test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate\n  PASS  test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green\n  PASS  test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing\ngreen — 16 teeth: the rehearsal machine renders, reads through an injectable reader, re-reads a schema failure, diffs three trees into deterministic gaps, disposes a gap as a decision line, writes clean and unclean records through the door, holds the fifth BUILDME lane on a missing or stale rehearsal, opens one question at the pass cap, arms the WATCHME probe, writes the post-PROVED divergence, and replays the live fire's recorded reads to the recorded numbers",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_record_commit_is_not_listed_as_landed_work",
@@ -15,6 +15,7 @@
         "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing",
         "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
         "test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read",
+        "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
         "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none",
         "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
         "test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal",
@@ -26,10 +27,8 @@
         "test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green",
         "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing"
       ],
-      "teeth_red": [
-        "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done"
-      ],
-      "test": "test-9c7384a900ab",
+      "teeth_red": [],
+      "test": "test-902297bc3f20",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -39,7 +38,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "25d7626252da3675b19dd2b1441cbee04fe09cb193afe55e38f82112154b37e4",
+        "proof": "ab8cb349ab8ab1a993fa98cad29abc9b8c0bb52883f007829263bee87a1eb8a2",
         "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -48,13 +47,14 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9c7384a900ab",
-      "source_fingerprint": "b0259e5778bfb90c27d2e2eea5e3c48d77f73429a9f5f05ecc10e3863a832284",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-902297bc3f20",
+      "source_fingerprint": "85a34c6c299c842bb1942fdf1aa50ac54f812e6747a73e0211f15a38d39001b4",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
@@ -63,7 +63,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-353004-qh99tv4z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-354743-gjluqo_q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,21 +72,19 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104293401,
-          "disk_bytes": 126218240,
-          "entries": 8972,
+          "bytes": 104294112,
+          "disk_bytes": 126222336,
+          "entries": 8973,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
-        "proof_sha256": "25d7626252da3675b19dd2b1441cbee04fe09cb193afe55e38f82112154b37e4",
-        "opened": "2026-10-08T01:58:25",
-        "last_red": "2026-10-08T01:58:25",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-rehearsal",
-        "ruling": null
+      "conditions_moved": {
+        "notified": "n-96ce8302cc4e",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

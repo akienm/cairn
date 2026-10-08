@@ -666,7 +666,7 @@ def test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not
     in 1 of 3; the reader told 'landed work builds as written' raised it in 0 of 3. A crossing, a
     proof and a cursor command are not performed by any landed commit; nothing may hide them."""
     text = R.prompt()
-    for clause in ("a decision counts as built only where a listed commit's change performs it",
+    for clause in ("A decision counts as built only where a listed commit's change performs it",
                    "including crossings, proofs and the commands that move the cursor",
                    "is judged exactly as if this section were absent"):
         assert clause in text, f"the prompt's landed-work rule lacks: {clause!r}"

@@ -46,7 +46,7 @@ order a builder would take them. For each node:
   the earlier step builds as the later one says. `builds_under_assumption` means the WHOLE
   ticket leaves the piece unsaid, never that it is said somewhere other than this step.
   (Akien, 2026-09-23, open-a57cdd7cf3c1: the reader judges the whole decision list.)
-- **Work that has ALREADY LANDED builds as written.** The ALREADY LANDED section lists the commits that name this ticket. A step whose work one of those commits already did is `builds_as_written` — there is nothing left to build — and you never emit an `unlisted:` step for work a landed commit did.
+- **Work that has ALREADY LANDED builds as written — and only that work.** The ALREADY LANDED section lists the commits that name this ticket. A decision counts as built only where a listed commit's change performs it: that step is `builds_as_written`, and you never emit an `unlisted:` step for work a listed commit performed. Anything no listed commit performs, including crossings, proofs and the commands that move the cursor, is judged exactly as if this section were absent.
 - Stay inside the text. Do not use anything you believe about the world beyond it.
 - One step per node; do not merge steps to shorten the list, do not split one to lengthen it.
 - Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings

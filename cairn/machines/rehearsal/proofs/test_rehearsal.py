@@ -41,6 +41,7 @@ The teeth, each against the charter's falsifier:
 from __future__ import annotations
 
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -90,6 +91,11 @@ PROVES = {
         "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
         "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
         "skill": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
+    },
+    # ticket 80518446bfc8: the reader sees the ticket's landed commits and never raises landed work
+    "80518446bfc8": {
+        "1": "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none",
+        "2": "test_the_prompt_says_landed_work_builds_as_written",
     },
 }
 TID = "0badc0ffee01"
@@ -562,6 +568,48 @@ def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehear
     assert "--decide" in skill and "cairn question open" in skill, "the skill never says how a gap is disposed"
     assert skill.index("cairn rehearse <ticket-id>") < skill.index("## 1. Journal BUILDME"), \
         "the rehearsal step must come before the BUILDME crossing"
+
+
+# 80518446bfc8 -------------------------------------------------------------
+
+def test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none():
+    """The reader is handed the commits that name the ticket, oldest first, with the cursor; a
+    commit that does not name it is not listed, and a ticket with none says so (measured
+    2026-10-08: 41202d4c8d3b's reader re-raised landed work in 3 of 7 passes, told nothing)."""
+    w = World()
+    try:
+        repo = w.dir / "repo"
+        repo.mkdir()
+        git = ["git", "-C", str(repo)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        for msg in ("aaaaaaaaaaaa: first", "unrelated: other", "aaaaaaaaaaaa: second"):
+            subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                                  "--allow-empty", "-m", msg], check=True)
+        cursor = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
+        for tid in ("aaaaaaaaaaaa", "bbbbbbbbbbbb"):
+            (w.commons / "tickets" / f"{tid}-a-landed-fixture.json").write_text(json.dumps(
+                {"id": tid, "title": "a landed fixture", "workflow_and_state": cursor,
+                 "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
+        text = R.render("aaaaaaaaaaaa", root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
+        assert "# ALREADY LANDED" in text, "render() hands the reader no ALREADY LANDED section"
+        assert f"cursor: {cursor}" in text, "the section must carry the ticket's cursor"
+        first = re.search(r"^[0-9a-f]{7,} aaaaaaaaaaaa: first$", text, re.M)
+        second = re.search(r"^[0-9a-f]{7,} aaaaaaaaaaaa: second$", text, re.M)
+        assert first and second, "both commits naming the ticket must be listed as '<hash> <subject>'"
+        assert first.start() < second.start(), "oldest first"
+        assert "unrelated: other" not in text, "a commit that does not name the ticket is not listed"
+        none = R.render("bbbbbbbbbbbb", root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
+        assert "# ALREADY LANDED" in none and "(nothing landed for this ticket)" in none
+    finally:
+        w.close()
+
+
+def test_the_prompt_says_landed_work_builds_as_written():
+    text = R.prompt()
+    assert "BEFORE anyone builds it" not in text, "the prompt still frames every ticket as unbuilt"
+    rule = [ln for ln in text.splitlines() if "ALREADY LANDED" in ln and "builds_as_written" in ln]
+    assert rule, "the prompt carries no rule that landed work builds as written"
+    assert "unlisted:" in rule[0], "the rule must forbid an unlisted step for landed work"
 
 
 def main() -> int:

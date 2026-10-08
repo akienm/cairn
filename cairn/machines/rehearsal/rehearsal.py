@@ -140,10 +140,11 @@ def _stamp() -> str:
 def decision_ids_of(doc: dict) -> set[int]:
     """The ``n`` of every live decision the ticket carries — the vocabulary a step may name.
     A retired decision (ticket 4968b5d18645) is not in it: the reader is no longer handed it,
-    so a read naming it is a lack and a read omitting it is not."""
+    so a read naming it is a lack and a read omitting it is not. A scoped decision (ticket
+    eb05adbe0a0f) is not in it either: it is handed as context, never as a step."""
     have = doc.get("decisions") if isinstance(doc, dict) else None
     return {d["n"] for d in (have or []) if isinstance(d, dict) and isinstance(d.get("n"), int)
-            and not d.get("retired")}
+            and not d.get("retired") and not d.get("context")}
 
 
 def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
@@ -236,6 +237,11 @@ def reader_view(blob: bytes) -> str:
         '[settled by]' annotation whose settler or target it was (ticket 4968b5d18645) — the
         file keeps its text and its stamp; the reader is handed only the live lines.
 
+    (d) a decision ``scope()`` stamped with ``context`` moves out of ``decisions`` into a
+        top-level ``context`` list, in order, its text still labeled ``D<n>`` (ticket
+        eb05adbe0a0f) — read for what it says, never a step. The key is set only when the list
+        is non-empty, so a ticket with nothing scoped reads as it did before.
+
     decide() is unchanged (D3): the file keeps who said what and when; this is a view. A ticket
     that does not parse, or carries no decisions list, is pasted verbatim."""
     raw = blob.decode("utf-8").rstrip()
@@ -261,6 +267,10 @@ def reader_view(blob: bytes) -> str:
             view[target] += f" [settled by D{d['n']}: {original[d['n']]}]"
     for d in entries:
         d["text"] = view[d["n"]]
+    scoped = [d for d in have if isinstance(d, dict) and d.get("context")]
+    if scoped:
+        doc["decisions"] = [d for d in have if not (isinstance(d, dict) and d.get("context"))]
+        doc["context"] = scoped
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
 
@@ -746,6 +756,50 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
         stamped.append(by_n[n])
     _write_ticket(tk, doc, why=f"retired {', '.join('D%d' % n for n in want)} by {by.strip()}"
                                f"{f' into D{into}' if into is not None else ''}: {because.strip()}")
+    return stamped
+
+
+def scope(ticket: str, ns: list[int], *, by: str, because: str,
+          root: Path | str | None = None) -> list[dict]:
+    """Decision lines scoped as context through the door (ticket eb05adbe0a0f): each named
+    entry gains ``context = {by, at, because}`` and keeps its text, and ``reader_view`` hands it
+    in a top-level ``context`` list while ``decision_ids_of`` leaves it out — a line that
+    describes the voyage or the session is read for what it says, never judged as a step.
+    Every lack is named in ONE refusal and nothing is written, as retire(): an id absent,
+    already scoped or retired; a line another author wrote; no ``because``. No citation check:
+    a scoped line stays visible to the reader."""
+    tk = ticket_file(ticket, root)
+    if tk is None:
+        raise Refused(f"no ticket file for {ticket!r}")
+    doc = json.loads(tk.read_text(encoding="utf-8"))
+    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    by_n = {d["n"]: d for d in have}
+    want = sorted(set(ns))
+    lacks: list[str] = []
+    if not (isinstance(by, str) and by.strip()):
+        lacks.append("--by: who is scoping these lines")
+    if not (isinstance(because, str) and because.strip()):
+        lacks.append("--because: why these lines are context — an empty reason scopes nothing")
+    if not want:
+        lacks.append("no decision named to scope")
+    for n in want:
+        d = by_n.get(n)
+        if d is None:
+            lacks.append(f"D{n} is not on the ticket")
+        elif d.get("context"):
+            lacks.append(f"D{n} is already scoped")
+        elif d.get("retired"):
+            lacks.append(f"D{n} is retired")
+        elif isinstance(by, str) and fold(str(d.get("by") or "")) != fold(by.strip()):
+            lacks.append(f"D{n} was written by {d.get('by')!r}, not {by.strip()!r} — not yours to scope")
+    if lacks:
+        raise Refused(f"scope refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
+    at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    stamped = []
+    for n in want:
+        by_n[n]["context"] = {"by": by.strip(), "at": at, "because": because.strip()}
+        stamped.append(by_n[n])
+    _write_ticket(tk, doc, why=f"scoped {', '.join('D%d' % n for n in want)} as context by {by.strip()}")
     return stamped
 
 

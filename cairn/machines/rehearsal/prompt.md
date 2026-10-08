@@ -52,4 +52,5 @@ order a builder would take them. For each node:
 - Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings
   converge; a plain-English step name is free text, and free text never converges. A
   reading that skips a decision, or names one twice, is not a reading and is handed back.
+- **The `context` list is never a step.** A decision there was scoped by its author: it describes the voyage or the session, not the build. Read it for what it says, and never emit a node for it — its id is not in the vocabulary, and a reading that names it is handed back.
 - No prose outside the JSON.

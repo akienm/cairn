@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_rehearsal.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-08T02:04:25",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-08T13:34:25",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -28,7 +28,7 @@
         "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing"
       ],
       "teeth_red": [],
-      "test": "test-902297bc3f20",
+      "test": "test-0e8cf76df5a8",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -47,14 +47,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-902297bc3f20",
-      "source_fingerprint": "85a34c6c299c842bb1942fdf1aa50ac54f812e6747a73e0211f15a38d39001b4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e8cf76df5a8",
+      "source_fingerprint": "8a84e8677bde61411b6db4d74c2e1e0f21d804fe05ea05718d1d68ef74ba0f24",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
@@ -63,7 +62,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-354743-gjluqo_q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-533420-xbty2hn8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,39 +71,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104294112,
-          "disk_bytes": 126222336,
-          "entries": 8973,
+          "bytes": 104898141,
+          "disk_bytes": 127406080,
+          "entries": 9162,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "conditions_moved": {
-        "notified": "n-96ce8302cc4e",
-        "changed": [
-          "env",
-          "proof"
-        ]
-      },
-      "hollow": {
-        "80518446bfc8": {
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_a_crossing_record_commit_is_not_listed_as_landed_work",
-            "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
-            "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none"
-          ],
-          "cairn/machines/rehearsal/prompt.md": [
-            "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
-            "test_the_prompt_says_landed_work_builds_as_written"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "80518446bfc8": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "79967a1ad29e1be1b8f76b8fdcaac97c6c22f2df",
-          "anchor_first_build": "d5dda55824a8eaf1f910d1094073122feac5f42a",
-          "commit": "51c1e053903c7b2229f32d0d2a59b0f7a6c144dc"
+          "reuses": 4
         }
       }
     },

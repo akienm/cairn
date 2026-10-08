@@ -7,6 +7,8 @@ rehearsal.py; this file only parses and prints.
   cairn rehearse <ticket> --standing                         what the BUILDME lane reads, as JSON
   cairn rehearse <ticket> --retire D<n> [D<n> ...] --because "<why>" [--into D<m>] --by <who>
                                                              retire superseded decision lines: out of the reader's view, kept in the file
+  cairn rehearse <ticket> --scope D<n> [D<n> ...] --because "<why>" --by <who>
+                                                             scope decision lines as context: handed to the reader to read, never a step
 
 Exit 0 on a clean pass; 1 on a pass with gaps (they are printed, one per line, with the
 line that would settle each); 2 on a refusal or a reader failure; 3 when the pass cap opened
@@ -54,7 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--standing", action="store_true", help="print what the BUILDME lane reads")
     p.add_argument("--retire", nargs="+", metavar="D<n>",
                    help="retire these superseded decision lines (needs --because and --by)")
-    p.add_argument("--because", help="why the retired lines are superseded (required with --retire)")
+    p.add_argument("--scope", nargs="+", metavar="D<n>",
+                   help="scope these decision lines as context, never a step (needs --because and --by)")
+    p.add_argument("--because", help="why the lines are retired or scoped (required with --retire and --scope)")
     p.add_argument("--into", metavar="D<m>", help="the live decision that supersedes them")
     p.add_argument("--json", action="store_true", help="print the record as JSON")
     args = p.parse_args(argv)
@@ -69,6 +73,16 @@ def main(argv: list[str] | None = None) -> int:
             for d in R.retire(args.ticket, ns, by=args.by, because=args.because, into=into):
                 print(f"retired D{d['n']} on {args.ticket} by {d['retired']['by']}"
                       + (f" into D{into}" if into is not None else "") + f": {d['text']}")
+            print("the ticket's bytes changed — rehearse again before BUILDME")
+            return 0
+        if args.scope:
+            if args.decide or args.proved or args.standing or args.retire:
+                p.error("--scope stands alone: not with --decide, --proved, --standing or --retire")
+            if not args.by or not args.because:
+                p.error("--scope needs --by <who> and --because \"<why>\"")
+            ns = [_decision_id(p, v) for v in args.scope]
+            for d in R.scope(args.ticket, ns, by=args.by, because=args.because):
+                print(f"scoped D{d['n']} on {args.ticket} by {args.by}: {d['text']}")
             print("the ticket's bytes changed — rehearse again before BUILDME")
             return 0
         if args.decide:

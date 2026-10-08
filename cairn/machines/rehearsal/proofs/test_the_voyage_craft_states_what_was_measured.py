@@ -86,7 +86,8 @@ def test_the_predict_restores_without_a_redirect_and_it_runs():
     restore = [s for s in spans if re.search(r"\bA\b", s) and "<path>" in s]
     removal = [s for s in spans if s.startswith("git rm") and "<path>" in s]
     assert len(restore) == 1, f"step 4 names {len(restore)} restore commands over A and <path>: {spans}"
-    assert ">" not in restore[0], (
+    # the placeholder's own '>' is not a redirect; only what is left once it is lifted out counts
+    assert ">" not in restore[0].replace("<path>", ""), (
         f"the restore redirects into the path, which artifactgate refuses when it is a charter: "
         f"{restore[0]!r}")
     assert len(removal) == 1, f"step 4 names {len(removal)} `git rm <path>` removal commands: {spans}"

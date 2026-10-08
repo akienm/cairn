@@ -264,14 +264,29 @@ def reader_view(blob: bytes) -> str:
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
 
+# THE RECORDS A DOOR WRITES (D8): a commit that changes only these is a crossing or a seal — a
+# record of the cursor or of a proof's state, not work. The same idea as the tester's hollow
+# (cairn/devices/tester/hollow.py _RECORD_NAMES/_RECORD_DIRS), held separately under RULE 1.
+_RECORD_NAMES = frozenset({"history.json", "state.json", ".artifact-journal.jsonl"})
+_RECORD_DIRS = frozenset({"validations"})
+
+
+def _is_record(path: str) -> bool:
+    p = Path(path)
+    return p.name in _RECORD_NAMES or bool(_RECORD_DIRS & set(p.parts))
+
+
 def landed(ticket: str, cursor: str, repo: Path) -> str:
     """The ALREADY LANDED section (ticket 80518446bfc8): the ticket's cursor and every commit
     whose message names the ticket id, oldest first. Measured 2026-10-07 on 41202d4c8d3b: a
     reader told every ticket is unbuilt raised work already landed at 9154af40 and fc17a873
-    as a gap. The reader still gets text, never the repository (D4)."""
+    as a gap. The reader still gets text, never the repository (D4). A commit whose every
+    changed file is a record is left out (D8): measured 2026-10-08 (F22(b)), 0d83860a — a
+    PROVEME crossing the kick-back undid — listed as landed hid the crossing-command gap."""
     try:
-        out = subprocess.run(["git", "-C", str(repo), "log", "--reverse", "--format=%h %s",
-                              f"--grep={ticket}"], capture_output=True, text=True, check=True).stdout
+        out = subprocess.run(["git", "-C", str(repo), "log", "--reverse", "--name-only",
+                              "--format=%x1e%h %s", f"--grep={ticket}"],
+                             capture_output=True, text=True, check=True).stdout
     # NEVER str(exc): a CalledProcessError carries the command line, and the repo path in
     # the reader's text is repository content the reader must not see (D7).
     except subprocess.CalledProcessError as exc:
@@ -279,7 +294,15 @@ def landed(ticket: str, cursor: str, repo: Path) -> str:
     except OSError as exc:
         return ("\n# ALREADY LANDED\n\n(landed commits could not be read: "
                 + (exc.strerror or type(exc).__name__) + ")\n")
-    lines = [l for l in out.splitlines() if l.strip()]
+    lines = []
+    for chunk in out.split("\x1e"):
+        rows = [l for l in chunk.splitlines() if l.strip()]
+        if not rows:
+            continue
+        paths = rows[1:]
+        if paths and all(_is_record(p) for p in paths):
+            continue
+        lines.append(rows[0])
     return ("\n# ALREADY LANDED\n\ncursor: " + cursor + "\n\n"
             + ("\n".join(lines) if lines else "(nothing landed for this ticket)") + "\n")
 

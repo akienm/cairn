@@ -7891,5 +7891,88 @@
     "fingerprint": "f0524be342810b568badb3ba70f2ed64b1536e0b6b2d9c4947009c71be6304ce",
     "at": "2026-10-08T01:18:54",
     "seq": 25
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "80518446bfc8",
+    "actor": "cc",
+    "why": "F25 control pair (8y minus D14's subtree D14+D16, identical input): OLD reader 51c1e053 1/3, NEW reader b462b2ce 0/3 — the ALREADY LANDED rule masks a real gap",
+    "missing": [
+      "rehearsal-control: the landed-work rule in prompt.md/render masks a real gap. Corrected control (8y 41202d4c8d3b minus D14 and its answer D16, identical input, 3 reads each): OLD reader 51c1e053 raised it in 1/3 (read 2: D12 cannot_proceed 'specify the command or mechanism to transition the ticket from BUILDME to PROVEME and set proven_by'; D5 builds_under_assumption on the PROVEME->BUILDME retreat command); NEW reader b462b2ce raised it in 0/3 (48 of 48 nodes builds_as_written). The earlier pair (new 0/3, old 1/3) is VOID: its control kept D16, whose step is D14. Records: scratchpad control_commons_1791444982 (old), control_commons_1791445597 (new); cost_usd not recorded by either."
+    ],
+    "fingerprint": "c3f9195c97715dd18ff597cd29f7277952c5cbdef7cd621e87892fa434c831e5",
+    "at": "2026-10-08T01:56:08",
+    "seq": 26
   }
 ]

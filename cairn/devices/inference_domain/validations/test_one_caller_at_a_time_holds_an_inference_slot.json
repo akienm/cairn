@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_one_caller_at_a_time_holds_an_inference_slot.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-08T16:36:32",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_one_endpoint_never_holds_two_callers\n  PASS  test_a_held_slot_refuses_by_name_and_never_dials\n  PASS  test_two_endpoints_do_overlap\ngreen — one caller at a time holds an inference slot, per endpoint",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_one_endpoint_never_holds_two_callers",
+        "test_a_held_slot_refuses_by_name_and_never_dials",
+        "test_two_endpoints_do_overlap"
+      ],
+      "teeth_red": [],
+      "test": "test-397c87781c15",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f69e9bd3fda9d48f56eb1c608df946b9a7bf57b4ead6292688552a81f1f1e81d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 180,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-397c87781c15",
+      "source_fingerprint": "d613de2332bad1af3b2d708b799474fc260db18ba5fb8c9950b2c6a962f37915",
+      "fingerprint_closure": [
+        "cairn/devices/inference_domain/__init__.py",
+        "cairn/devices/inference_domain/host.py",
+        "cairn/devices/inference_domain/proofs/test_one_caller_at_a_time_holds_an_inference_slot.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-577012-8a5zvabs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 105061324,
+          "disk_bytes": 127660032,
+          "entries": 9202,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_bus_client_is_admitted_to_the_sole_path.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T00:55:48",
+    "date": "2026-10-08T16:36:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,6 +15,7 @@
         "test_the_charter_names_the_answer"
       ],
       "teeth_red": [],
+      "test": "test-7ed9767b9c2b",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -36,20 +37,18 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "d177c8d5181b2f3a7b220cf05af72ed0658bbd838b6d978e8db106cd4844eee1",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7ed9767b9c2b",
+      "source_fingerprint": "bd432254c9601cf5e512d7988569f7e82872fde5165cf433cd6dc07092b7c1ad",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/host.py",
-        "cairn/devices/inference_domain/proofs/test_the_bus_client_is_admitted_to_the_sole_path.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py"
+        "cairn/devices/inference_domain/proofs/test_the_bus_client_is_admitted_to_the_sole_path.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3037157-sh0zp9hm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-576225-pkiamyur/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,39 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141680759,
-          "disk_bytes": 165781504,
-          "entries": 10218,
+          "bytes": 105061324,
+          "disk_bytes": 127660032,
+          "entries": 9202,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "conditions_moved": {
-        "notified": "n-7ea92a3624ec",
-        "changed": [
-          "proof"
-        ]
-      },
-      "hollow": {
-        "f5a344e6c629": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "test_a_second_bus_client_dialer_is_caught",
-            "test_the_real_bus_client_row_is_clean"
-          ],
-          "cairn/machines/exemptions/exemption_set.json": {
-            "notified": "n-0b38a3cb9da2"
-          },
-          "cairn/devices/inference_domain/intention+why.json": [
-            "test_the_charter_names_the_answer"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "f5a344e6c629": {
-          "anchor_rule": "journal",
-          "anchor_journal": "27d6e15e8a9af91ca3879faf21cfa7ce47a4e6bc",
-          "anchor_first_build": "ddb4546d5940213ba7c43176eaf2ebd1705e1d10",
-          "commit": "27d6e15e8a9af91ca3879faf21cfa7ce47a4e6bc"
+          "reuses": 5
         }
       }
     },

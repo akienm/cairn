@@ -60,9 +60,15 @@ itself an injected ``transport`` so the code-seam proofs run with no host presen
 
 from __future__ import annotations
 
+import fcntl
+import hashlib
 import json
+import os
+import time
 import urllib.error
+import urllib.parse
 import urllib.request
+from pathlib import Path
 
 # The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
 # read from ~/.cairn/devices/inference_domain/0/hosts.json through route.py's overlay (moved
@@ -92,6 +98,33 @@ _PATH_FOR_KIND = {
 
 class HostUnreachable(RuntimeError):
     """The host could not be reached at all. Loud — never a silently-empty answer (Law 7)."""
+
+
+class SlotHeld(HostUnreachable):
+    """The slot's owner admits one caller per endpoint, and a caller that waits its whole
+    timeout is refused by name. A HostUnreachable, so the failover walk treats a held slot as
+    an unreachable host and moves on (ticket d0672a46aa7e)."""
+
+    def __init__(self, endpoint: str, lock_path, waited: float):
+        self.endpoint = endpoint
+        self.lock_path = str(lock_path)
+        self.waited = waited
+        super().__init__(
+            f"inference slot at {endpoint} is held by another caller: "
+            f"waited {waited:.2f}s for {lock_path}")
+
+
+def _endpoint_of(url: str) -> str:
+    s = urllib.parse.urlsplit(url)
+    return f"{s.scheme}://{s.hostname}:{s.port or (443 if s.scheme == 'https' else 80)}"
+
+
+def _slot_lock_path(endpoint: str) -> Path:
+    # Under $XDG_RUNTIME_DIR, not ~/.cairn: the tester's instance seal swaps ~/.cairn per run,
+    # and a lock there would never be shared with a live caller.
+    base = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
+    name = hashlib.sha256(endpoint.encode()).hexdigest()[:12] + ".lock"
+    return Path(base) / "cairn" / "inference_domain" / "slots" / name
 
 
 class HostRefused(RuntimeError):
@@ -134,17 +167,42 @@ class BadRequest(ValueError):
 
 
 def _urllib_transport(url: str, body: bytes, timeout: float) -> tuple[int, bytes]:
-    """The default transport. Injectable so the proofs never need a live host."""
+    """The default transport. Injectable so the proofs never need a live host.
+
+    One caller at a time holds an endpoint's slot (ticket d0672a46aa7e): the 2026-07-13
+    incident was nine test runs saturating the single inference slot. An exclusive flock per
+    endpoint is held across the request; a caller waits for it no longer than its own timeout
+    and is then refused with SlotHeld."""
     req = urllib.request.Request(
         url, data=body, headers={"Content-Type": "application/json"}, method="POST"
     )
+    endpoint = _endpoint_of(url)
+    path = _slot_lock_path(endpoint)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+    started = time.monotonic()
+    if timeout is None:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+    else:
+        while True:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() - started >= timeout:
+                    os.close(fd)
+                    raise SlotHeld(endpoint, path, time.monotonic() - started)
+                time.sleep(0.05)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.status, resp.read()
-    except urllib.error.HTTPError as e:            # the host spoke, and said no
-        return e.code, e.read()
-    except (urllib.error.URLError, OSError) as e:  # nobody there
-        raise HostUnreachable(f"inference host unreachable at {url}: {e}") from e
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.status, resp.read()
+        except urllib.error.HTTPError as e:            # the host spoke, and said no
+            return e.code, e.read()
+        except (urllib.error.URLError, OSError) as e:  # nobody there
+            raise HostUnreachable(f"inference host unreachable at {url}: {e}") from e
+    finally:
+        os.close(fd)
 
 
 def _post(path: str, payload: dict, *, endpoint: str, timeout: float, transport) -> dict:

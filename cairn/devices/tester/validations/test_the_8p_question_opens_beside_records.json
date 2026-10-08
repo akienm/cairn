@@ -1,0 +1,108 @@
+[
+  {
+    "claim": "proof test_the_8p_question_opens_beside_records.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-07T21:15:34",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_instrument_and_record_skips_open_the_8p_question\n.\n  ok   test_record_skips_alone_stay_red_and_ask_nothing\n.\n  ok   test_an_unchanged_file_or_another_skip_beside_them_stays_red\n                                                                      [100%]\n3 passed in 17.40s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_instrument_and_record_skips_open_the_8p_question",
+        "test_record_skips_alone_stay_red_and_ask_nothing",
+        "test_an_unchanged_file_or_another_skip_beside_them_stays_red"
+      ],
+      "teeth_red": [],
+      "test": "test-f5322b2f11ee",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d1fcf880a7ecbaf60b195a33f712d96a15d54666af166104c3f83f05957bda97",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f5322b2f11ee",
+      "source_fingerprint": "d5934e3569cc3f6db5dd8082aa01d61979b42bad92658f3e70c5e919855af311",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/hollow.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
+        "cairn/devices/tester/proofs/test_the_8p_question_opens_beside_records.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-292545-ebs19nit/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 27,
+          "paths": [
+            "logs/tester/0/20261008.031518.253422.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031520.174367.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031522.023206.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031523.941387.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031525.870666.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031527.790124.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031529.714936.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031531.650187.TesterDevice.run_proof.json",
+            "logs/tester/0/20261008.031533.567775.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-17759f4cfa61/stderr.txt",
+            "logs/tester/0/runs/test-17759f4cfa61/stdout.txt",
+            "logs/tester/0/runs/test-1acc222311bc/stderr.txt",
+            "logs/tester/0/runs/test-1acc222311bc/stdout.txt",
+            "logs/tester/0/runs/test-67287a65eea9/stderr.txt",
+            "logs/tester/0/runs/test-67287a65eea9/stdout.txt",
+            "logs/tester/0/runs/test-6e3cfcc16ea9/stderr.txt",
+            "logs/tester/0/runs/test-6e3cfcc16ea9/stdout.txt",
+            "logs/tester/0/runs/test-74962636836e/stderr.txt",
+            "logs/tester/0/runs/test-74962636836e/stdout.txt",
+            "logs/tester/0/runs/test-a48f4338af7c/stderr.txt",
+            "logs/tester/0/runs/test-a48f4338af7c/stdout.txt",
+            "logs/tester/0/runs/test-b09b92300d1a/stderr.txt",
+            "logs/tester/0/runs/test-b09b92300d1a/stdout.txt",
+            "logs/tester/0/runs/test-c080b76cf699/stderr.txt",
+            "logs/tester/0/runs/test-c080b76cf699/stdout.txt",
+            "logs/tester/0/runs/test-f898909fa02d/stderr.txt",
+            "logs/tester/0/runs/test-f898909fa02d/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 104072478,
+          "disk_bytes": 125939712,
+          "entries": 8961,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

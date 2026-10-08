@@ -9253,5 +9253,181 @@
     "fingerprint": "8d663868f4a2d329f7fbe5802a78910cfeb6cc8c3165959d4e5d0509a0b1ba9d",
     "at": "2026-10-08T13:33:01",
     "seq": 30
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'eb05adbe0a0f', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proof_gate": "clean — proof named: cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py",
+    "tree_gate": "clean — both trees committed at the PROVEME entry of rehearsal",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "eb05adbe0a0f"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "eb05adbe0a0f"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "eb05adbe0a0f"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "eb05adbe0a0f"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "eb05adbe0a0f"
+        }
+      },
+      {
+        "identity": "the_proveme_crossing_names_its_proof",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_proof_named",
+        "expected": "the PROVEME crossing of ticket 'eb05adbe0a0f' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket 'eb05adbe0a0f' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_proof_named",
+        "values": {
+          "ticket": "eb05adbe0a0f",
+          "named": [
+            "cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py"
+          ],
+          "since_buildme": [],
+          "dead": []
+        }
+      },
+      {
+        "identity": "working_tree_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clean_tree",
+        "expected": "both trees are committed at the PROVEME entry of 'rehearsal' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "actual": "both trees are committed at the PROVEME entry of 'rehearsal' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "fatality": "none",
+        "source": "transitions.inspect_clean_tree",
+        "values": {
+          "component": "rehearsal",
+          "dirty": {}
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "eb05adbe0a0f",
+    "actor": "cc",
+    "why": "built d197a8d7, sealed 2619a8bf 3/3 under netns; bare predict: rehearsal.py reverted reds teeth 1-2, __main__.py reverted reds tooth 3; rehearsal CLEAN at 195453",
+    "proven_by": [
+      "cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py"
+    ],
+    "fingerprint": "91e8230aab6198f3ac4fb556f48112a22cdb77192e5783ddd8dca4bbf64e2605",
+    "at": "2026-10-08T13:55:19",
+    "seq": 31
   }
 ]

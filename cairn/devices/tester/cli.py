@@ -221,7 +221,7 @@ def _reseal_run(args) -> int:
     # NAMED TARGETS ALWAYS RUN. No targets is the hook, and the hook is the automatic
     # caller Law 1 is about; a hand that types a proof name is asking for that proof.
     outcome = door.reseal_all(proofs, ruling_id=args.ruling, timeout=args.timeout,
-                              skip_settled=not args.targets)
+                              skip_settled=not args.targets, index_only=bool(args.stage))
     for r in outcome["results"]:
         if r["outcome"] == "unchanged":
             if not args.quiet:
@@ -238,6 +238,10 @@ def _reseal_run(args) -> int:
             # inside the budget, so nothing was written; collapsing that into either column
             # would be a diagnostic surface reporting a verdict nobody measured (Law 7).
             print(f"  TIMEOUT {r['proof']}  ({r['why']})")
+        elif r["outcome"] == "held":
+            # PRINTED ONCE, by the HELD line under args.stage below — the only path that
+            # holds before the run (ticket 42075a49c121); it is not a RESEAL.
+            continue
         else:
             print(f"  RESEAL  {r['proof']}  (rung {r['rung']})")
     for red in outcome["red"]:

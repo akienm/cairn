@@ -308,7 +308,8 @@ def proofs_touching(staged: list[str], *, root: Path | None = None,
 
 def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None,
            skip_settled: bool = False,
-           timeout: int = 120, isolation: str | None = None) -> dict:
+           timeout: int = 120, isolation: str | None = None,
+           index_only: bool = False) -> dict:
     """ONE proof through the ladder. Runs it, then disposes of what the run measured.
 
     Raises ``ResealRefused`` at rung 4 — BEFORE the run, before any write — when the proof
@@ -320,7 +321,8 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     Returns ``{proof, outcome, rung, ran, why, ...}``. ``outcome`` is one of
     ``unchanged`` (rung 1 says the seal still holds — nothing ran, nothing was written),
     ``resealed`` (a run went green over an open ladder or a closed horizon),
-    ``sealed`` (a first seal — the proof had none), or ``red`` (rung 3; the trouble is filed).
+    ``sealed`` (a first seal — the proof had none), ``red`` (rung 3; the trouble is filed), or
+    ``held`` (``index_only``: the closure differs from the index, so nothing ran or was written).
     """
     proof = Path(proof_path).resolve()
     rel = _rel(proof)
@@ -344,6 +346,24 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     if before["proven"]:
         return {"proof": rel, "outcome": "unchanged", "rung": 1, "ran": False,
                 "why": before["why"]}
+
+    # THE COMMIT IS WHAT IS MEASURED (ticket 42075a49c121): under the hook (index_only), a
+    # proof whose closure differs from the index is held BEFORE it runs — no seal, no trouble —
+    # because a run over the working tree would describe bytes this commit does not carry.
+    if index_only:
+        top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True)
+        if top.returncode == 0:
+            base = Path(top.stdout.strip())
+            trail = read_validations(str(proof))
+            closure = closure_of(trail[-1]) if trail else None
+            dirty = dirty_against_index(os.path.relpath(proof, base), closure, base)
+            if dirty:
+                return {"proof": rel, "outcome": "held", "rung": 1, "ran": False,
+                        "because": dirty,
+                        "why": "the commit does not carry " + ", ".join(dirty[:3]) + " — this "
+                               "proof measures what is committed, so it waits for the commit "
+                               "that carries them"}
 
     # RESOLVED ONCE, HERE, because BOTH rung-1 lanes below can raise and the runner-side
     # lanes can too. It used to be defaulted after the run, which was fine while nothing
@@ -556,7 +576,8 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
 
 
 def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None,
-               skip_settled: bool = False, timeout: int = 120) -> dict:
+               skip_settled: bool = False, timeout: int = 120,
+               index_only: bool = False) -> dict:
     """Every proof in ``proofs`` through the ladder; a refusal on one does not end the run.
 
     Same lean as ``cairn test --seal``'s ``SealDowngradeRefused`` handling: one proof whose
@@ -566,7 +587,8 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
     for proof in proofs:
         try:
             results.append(reseal(proof, ruling_id=ruling_id, tester=tester, raiser=raiser,
-                                  skip_settled=skip_settled, timeout=timeout))
+                                  skip_settled=skip_settled, timeout=timeout,
+                                  index_only=index_only))
         except ResealRefused as refusal:
             refusals.append({"proof": _rel(proof), "refusal": str(refusal)})
     counts = {}
@@ -574,6 +596,24 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
         counts[r["outcome"]] = counts.get(r["outcome"], 0) + 1
     return {"results": results, "refusals": refusals, "counts": counts,
             "red": [r for r in results if r["outcome"] == "red"]}
+
+
+def dirty_against_index(proof_rel: str, closure: list[str] | None, base: Path) -> list[str]:
+    """The files of a proof's closure (the component root when no seal records one) and the
+    proof itself that carry an unstaged change or are untracked under ``base``, sorted.
+
+    ONE PREDICATE, TWO CALLERS (ticket 42075a49c121): ``reseal(index_only=True)`` asks it
+    before the run and ``stage_clean_seals`` after, so the hold and the stage cannot
+    disagree about what the commit carries."""
+    files = list(closure) if closure is not None else [
+        os.path.relpath(component_root_for(str(base / proof_rel)), base)]
+    files.append(proof_rel)
+    dirty = subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", *files],
+                           capture_output=True, text=True).stdout.split()
+    untracked = subprocess.run(["git", "-C", str(base), "ls-files", "--others",
+                                "--exclude-standard", "--", *files],
+                               capture_output=True, text=True).stdout.split()
+    return sorted(dirty + untracked)
 
 
 def stage_clean_seals(results, *, root: Path | None = None) -> dict:
@@ -596,6 +636,12 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
     base = Path(root or REPO_ROOT)
     staged, held = [], []
     for r in results:
+        # A HOLD BEFORE THE RUN (ticket 42075a49c121) wrote nothing, so there is nothing to
+        # stage — but it is listed, so the hook's HELD line names what the commit lacks.
+        if r.get("outcome") == "held":
+            held.append({"validation": os.path.relpath(validations_path_for(str(base / r["proof"])), base),
+                         "because": r["because"]})
+            continue
         # A RED IS STAGED TOO: the door seals its red (Law 7), and a red over the committed tree
         # is as true a record as a green. settled-red and timeout write nothing, so nothing moves.
         if r.get("outcome") not in ("resealed", "sealed", "red"):
@@ -605,16 +651,10 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
         if not trail:
             continue
         closure = closure_of(trail[-1])
-        files = list(closure) if closure is not None else [os.path.relpath(component_root_for(str(proof)), base)]
-        files.append(r["proof"])
-        dirty = subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", *files],
-                               capture_output=True, text=True).stdout.split()
-        untracked = subprocess.run(["git", "-C", str(base), "ls-files", "--others",
-                                    "--exclude-standard", "--", *files],
-                                   capture_output=True, text=True).stdout.split()
+        dirty = dirty_against_index(r["proof"], closure, base)
         validation = os.path.relpath(validations_path_for(str(proof)), base)
-        if dirty or untracked:
-            held.append({"validation": validation, "because": sorted(dirty + untracked)})
+        if dirty:
+            held.append({"validation": validation, "because": dirty})
             continue
         subprocess.run(["git", "-C", str(base), "add", "--", validation], check=True)
         staged.append(validation)

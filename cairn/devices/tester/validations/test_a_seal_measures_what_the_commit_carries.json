@@ -1,22 +1,22 @@
 [
   {
-    "claim": "proof test_a_change_reseals_only_its_own_components_proofs.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-08T02:48:20",
+    "claim": "proof test_a_seal_measures_what_the_commit_carries.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-08T02:48:02",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green a_users_proof_is_not_touched_by_its_tools_change\n  green the_changed_components_own_proofs_are_touched\n  green a_nested_components_change_does_not_touch_its_holder\n  green on_the_live_census_the_reach_stops_at_the_owner\n4 passed, 0 failed out of 4",
+      "stdout_tail": ".\n  ok   test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run\n.\n  ok   test_the_same_proof_runs_once_the_commit_carries_its_closure\n.\n  ok   test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs\n.\n  ok   test_the_hook_path_passes_index_only\n                                                                     [100%]\n4 passed in 0.11s",
       "stderr_tail": "",
       "teeth_green": [
-        "a_users_proof_is_not_touched_by_its_tools_change",
-        "the_changed_components_own_proofs_are_touched",
-        "a_nested_components_change_does_not_touch_its_holder",
-        "on_the_live_census_the_reach_stops_at_the_owner"
+        "test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run",
+        "test_the_same_proof_runs_once_the_commit_carries_its_closure",
+        "test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs",
+        "test_the_hook_path_passes_index_only"
       ],
       "teeth_red": [],
-      "test": "test-8246aa6fee0a",
+      "test": "test-b6a98bd28c19",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9d56fc368f4e30238bbca6729130038ca2cdaa6b22c9c6f20b3a3a381a01b636",
+        "proof": "141bc8af0d199f814ba05a6c27cd972261654eeb157ed5b8aa0ca91697bcf4ea",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -35,26 +35,29 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8246aa6fee0a",
-      "source_fingerprint": "608f0e662448be4340c5742af7ab3133f7a2e88964dac145161c250ef0f936e9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b6a98bd28c19",
+      "source_fingerprint": "744f4206a5663021c7f983b35606c13155d6a30713d17e5598c4caefffa3db6c",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/proofs/test_a_change_reseals_only_its_own_components_proofs.py",
+        "cairn/devices/tester/notices.py",
+        "cairn/devices/tester/proofs/test_a_seal_measures_what_the_commit_carries.py",
         "cairn/devices/tester/reseal.py",
         "cairn/devices/tester/runs.py",
         "cairn/devices/tester/scratch_sweep.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365424-pj7oekgl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-365238-bcva5fag/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

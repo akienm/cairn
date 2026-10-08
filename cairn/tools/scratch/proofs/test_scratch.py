@@ -30,7 +30,8 @@ from pathlib import Path
 PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
                             "2": "test_a_with_block_holds_the_scratch",
                             "3": "test_a_with_block_holds_the_scratch",
-                            "4": "test_every_with_scratch_dir_site_in_the_repo_enters"}}
+                            "4": "test_every_with_scratch_dir_site_in_the_repo_enters"},
+          "b4d39f3610f3": {"all": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one"}}
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
@@ -140,27 +141,37 @@ def test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal():
     stuck.rmdir()
 
 
+def test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one():
+    """b4d39f3610f3: the scan is the tool's public interface, so each component holds its own
+    proofs to the door by calling it. A fixture root: one bare proof, one routed through the
+    door, a comment, and a bare line outside proofs/ — only the bare proof's two live lines."""
+    from cairn.tools.scratch import scratch as _s
+    from cairn.tools.scratch.scratch import scratch_dir
+    reach = getattr(_s, "bare_temp_reach", None)
+    assert reach is not None, "cairn.tools.scratch.scratch publishes no bare_temp_reach"
+    root = scratch_dir("bare-temp-reach-fixture-")
+    (root / "proofs").mkdir()
+    (root / "notproofs").mkdir()
+    (root / "proofs" / "test_bare.py").write_text(
+        "import tempfile\nd = tempfile.mkdtemp()\ne = tempfile.gettempdir()\n"
+        "# tempfile.mkdtemp() in a comment\n")
+    (root / "proofs" / "test_routed.py").write_text(
+        "from cairn.tools.scratch.scratch import scratch_dir\nd = scratch_dir('x-')\n")
+    (root / "notproofs" / "test_bare.py").write_text("import tempfile; tempfile.mkdtemp()\n")
+    got = reach(root)
+    assert got == ["proofs/test_bare.py:2: d = tempfile.mkdtemp()",
+                   "proofs/test_bare.py:3: e = tempfile.gettempdir()"], got
+
+
 def test_no_proof_in_this_repo_calls_mkdtemp_bare():
     # THIS file is the one legitimate exception and says so out loud: the vacuity tooth
     # above MUST call mkdtemp bare, or it cannot show that bare still leaks. An exemption
     # that is a single named self-reference is not the exemption-roster pattern (a
     # mechanism built ahead of any entry) — it is the scanner declining to indict its own
     # control group.
-    me = Path(__file__).resolve()
-    offenders = []
-    for py in sorted(REPO.rglob("proofs/test_*.py")):
-        if "__pycache__" in py.parts or py.resolve() == me:
-            continue
-        for n, line in enumerate(py.read_text(errors="replace").splitlines(), 1):
-            # gettempdir is here because the FIRST version of this tooth grepped only for
-            # mkdtemp and missed a real leak of a different spelling — 18 boot-log FILES
-            # from launchers/proofs/test_bootstrap.py, one per run. A tooth narrower than
-            # its own defect is the hollow kind. Both reach the system temp dir; only the
-            # door may. The three sites that named a deliberately-NONEXISTENT path came
-            # through the door too, so there is no exemption to maintain and no judgement
-            # call about which reach is harmless.
-            if not line.lstrip().startswith("#") and ("mkdtemp" in line or "gettempdir" in line):
-                offenders.append(f"{py.relative_to(REPO)}:{n}: {line.strip()}")
+    from cairn.tools.scratch.scratch import bare_temp_reach
+    me = str(Path(__file__).resolve().relative_to(REPO))
+    offenders = [o for o in bare_temp_reach(REPO) if not o.startswith(me + ":")]
     assert not offenders, (
         "a proof reaches the system temp directory directly, so what it makes there outlives "
         "the run — exactly how 3581 of them accumulated. Use "
@@ -224,6 +235,7 @@ def _main() -> int:
         test_the_scratch_is_gone_once_the_process_is,
         test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something,
         test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal,
+        test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one,
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
         test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,
         test_a_with_block_holds_the_scratch,

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_crossing_runs_through_one_command.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T11:04:35",
+    "date": "2026-10-08T11:55:52",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-478267-m9xeh2vh/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-490502-wb9x1ejw/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
@@ -17,16 +17,18 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-37a2a64d1333",
+      "test": "test-7c6d8a796b61",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 2,
+        "dropped": 4,
         "tables": [
-          "bus_proc_474249_1045561243_delivery",
-          "bus_proc_474249_1045561243"
+          "bus_proc_483359_1122191101_delivery",
+          "bus_proc_483359_1122191101",
+          "bus_proc_483422_1122219510_delivery",
+          "bus_proc_483422_1122219510"
         ]
       },
       "conditions": {
@@ -44,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-37a2a64d1333",
-      "source_fingerprint": "ccc660ed2cf1c3bc1c2ade65afa46eecaa1f2c1963ae8d6ba387cac0469f0993",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7c6d8a796b61",
+      "source_fingerprint": "43e9325bfb2c9470ee5624b08fdec55202da050feb90bb2e6a38f2a18e5f7c9e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -59,42 +61,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-478248-n6y3h0ie/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-490485-2m1ik7th/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261008.170434.627681.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.170434.635696.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.175551.258187.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.175551.266502.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 104780748,
-          "disk_bytes": 126988288,
-          "entries": 9072,
+          "bytes": 104824289,
+          "disk_bytes": 127238144,
+          "entries": 9130,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "3d9cedf76a7e": {
-          "cairn/tools/base/cross.py": [
-            "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
-            "test_an_illegal_target_writes_nothing",
-            "test_an_owning_intention_with_no_charter_is_refused",
-            "test_proved_is_refused_naming_clearance"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "3d9cedf76a7e": {
-          "anchor_rule": "journal",
-          "anchor_journal": "fc32dafc9a60d520706797b7078df288659f2abe",
-          "anchor_first_build": "1f925d7166ab0f42c4d227de33fed382359362aa",
-          "commit": "fc32dafc9a60d520706797b7078df288659f2abe"
         }
       }
     },

@@ -1110,13 +1110,37 @@ CLEARANCE_GATE = TransitionGate("clearance_gate", exception_class=ClearanceRequi
 FIXME_GATE = TransitionGate("fixme_gate", exception_class=FixmeGateRed)
 
 
-def inspect_fixme(ticket: object) -> list[dict]:
+def _latest_kick_back(ticket: object, history_path: str | None) -> dict | None:
+    """The last crossing into FIXME journaled for ``ticket`` in ``history_path``, or None."""
+    if not history_path or not os.path.exists(history_path):
+        return None
+    hits = [e for e in projector.read_history(history_path)
+            if str(e.get("ticket")) == str(ticket)
+            and canon(str(e.get("to", "")), ["FIXME"]) == "FIXME"]
+    return hits[-1] if hits else None
+
+
+def _when(stamp: object) -> datetime | None:
+    """An ISO stamp as an aware datetime (a naive one is local time), or None if unreadable."""
+    try:
+        at = datetime.fromisoformat(str(stamp))
+    except (ValueError, TypeError):
+        return None
+    return at.astimezone() if at.tzinfo is None else at
+
+
+def inspect_fixme(ticket: object, history_path: str | None = None) -> list[dict]:
     """THE FIXME GATE'S PROOF RECORD — one lane: every ``fixme`` entry 1..N on the ticket has
     a decision whose step is ``FIXME <n>`` and whose text is non-empty.
 
     A missing ticket, an unnamed one, or an absent/empty ``fixme`` list is a RED, never a
     pass: a ticket standing at FIXME with nothing listed cannot say what it is waiting on,
-    and 'cannot know' must never render as 'clean' (Law 3)."""
+    and 'cannot know' must never render as 'clean' (Law 3).
+
+    An answer counts only when its ``at`` is at or after the ticket's latest crossing into
+    FIXME recorded in ``history_path`` (ticket 3d31d968a1a0 — an earlier kick-back's
+    ``FIXME 1`` satisfied a later one's, measured on 56d1aff4455e). No such crossing, or no
+    ``history_path``, is a RED, never a fallback to counting every decision (Law 3)."""
     expected = "every fixme entry 1..N has a decision with step FIXME <n> and non-empty text"
     code = "transitions.py::inspect_fixme"
     unanswered: list[int] = []
@@ -1129,19 +1153,33 @@ def inspect_fixme(ticket: object) -> list[dict]:
         if not isinstance(fixme, list) or not fixme:
             actual = f"ticket {ticket!r} stands at FIXME with no fixme list — nothing says what it lacks"
         else:
-            answered = {str(d.get("step", "")).strip() for d in body.get("decisions") or []
-                        if isinstance(d, dict) and str(d.get("text", "")).strip()}
-            unanswered = [n for n in range(1, len(fixme) + 1) if f"FIXME {n}" not in answered]
-            actual = (expected if not unanswered else
-                      f"fixme entries {unanswered} on {ticket!r} have no FIXME <n> decision")
+            kick = _latest_kick_back(ticket, history_path)
+            since = _when(kick.get("at")) if kick else None
+            if since is None:
+                unanswered = list(range(1, len(fixme) + 1))
+                actual = (f"ticket {ticket!r} stands at FIXME but no crossing into FIXME for it is "
+                          f"recorded in {history_path!r} — which kick-back its answers answer "
+                          "cannot be read")
+            else:
+                answered = set()
+                for d in body.get("decisions") or []:
+                    if not (isinstance(d, dict) and str(d.get("text", "")).strip()):
+                        continue
+                    w = _when(d.get("at"))
+                    if w is not None and w >= since:
+                        answered.add(str(d.get("step", "")).strip())
+                unanswered = [n for n in range(1, len(fixme) + 1) if f"FIXME {n}" not in answered]
+                actual = (expected if not unanswered else
+                          f"fixme entries {unanswered} on {ticket!r} have no FIXME <n> decision "
+                          f"(answers counted from kick-back seq {kick.get('seq')} at {kick.get('at')})")
     return [_lane("every_fixme_entry_is_answered", expected=expected, actual=actual,
                   code=code, ticket=ticket, unanswered=unanswered)]
 
 
-def _fixme_gate(ticket: object) -> tuple[str, list[dict]]:
+def _fixme_gate(ticket: object, history_path: str | None = None) -> tuple[str, list[dict]]:
     """A ticket crossing forward out of FIXME must carry an answer for every entry it lacked.
     Returns ``(note, record)``; raises ``FixmeGateRed`` before anything is written."""
-    return FIXME_GATE.run(inspect_fixme(ticket), note=None)
+    return FIXME_GATE.run(inspect_fixme(ticket, history_path=history_path), note=None)
 
 
 def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[dict]]:
@@ -2132,7 +2170,7 @@ def emit(
         # unanswered — BEFORE the BUILDME entry gate, so the design's own gap is named first.
         fixme_note = None
         if wf.here in repair and target_idx > wf.cursor:
-            fixme_note, _rec = _fixme_gate(journal_extra.get("ticket"))
+            fixme_note, _rec = _fixme_gate(journal_extra.get("ticket"), history_path=history_path)
             proved += _rec
         if target == "BUILDME" and target_idx > wf.cursor:
             _ticket = journal_extra.get("ticket")

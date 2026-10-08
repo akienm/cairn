@@ -11,8 +11,8 @@ Teeth, one per falsifier clause:
 
   1. A back-edge into FIXME from PROVEME lands at FIXME placed before BUILDME, and the
      crossing's record journals the ``missing`` list.
-  2. FIXME -> BUILDME is refused while a ``fixme`` entry is unanswered.
-  3. It is admitted once every entry is answered (the FIXME gate called directly: the
+  2. FIXME -> BUILDME is refused while a ``fixme`` entry is unanswered after a kick-back.
+  3. It is admitted once every entry is answered after a kick-back (the FIXME gate called directly: the
      BUILDME entry gate behind it reds any fixture ticket that has no chart).
   4. A v2 string without FIXME conforms and keeps exactly the legal targets it had.
 
@@ -29,6 +29,7 @@ from __future__ import annotations
 import copy
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -114,11 +115,16 @@ def test_a_back_edge_lands_at_fixme_before_buildme():
 def test_fixme_refuses_exit_while_an_entry_is_unanswered():
     from cairn.tools.base.transitions import FixmeGateRed, emit
     hist, state = _component()
-    body = {"fixme": ["a", "b"], "decisions": [{"step": "FIXME 1", "text": "answered"}]}
+    roots = _class_root()
+    emit(_AT_PROVEME, "FIXME", history_path=hist, state_path=state, node_class_root=roots,
+         ticket=_NAME, missing=["the receiver is unnamed"])
+    body = {"fixme": ["a", "b"], "decisions": [
+        {"step": "FIXME 1", "text": "answered",
+         "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}]}
     with _Corpus(body):
         try:
             emit(_AT_FIXME, "BUILDME", history_path=hist, state_path=state,
-                 node_class_root=_class_root(), ticket=_NAME)
+                 node_class_root=roots, ticket=_NAME)
         except FixmeGateRed as e:
             assert "2" in str(e), f"the refusal must name the unanswered entry: {e}"
             return
@@ -126,11 +132,15 @@ def test_fixme_refuses_exit_while_an_entry_is_unanswered():
 
 
 def test_fixme_admits_exit_once_every_entry_is_answered():
-    from cairn.tools.base.transitions import _fixme_gate
-    body = {"fixme": ["a", "b"], "decisions": [{"step": "FIXME 1", "text": "answered"},
-                                               {"step": "FIXME 2", "text": "answered too"}]}
+    from cairn.tools.base.transitions import _fixme_gate, emit
+    hist, state = _component()
+    emit(_AT_PROVEME, "FIXME", history_path=hist, state_path=state,
+         node_class_root=_class_root(), ticket=_NAME, missing=["the receiver is unnamed"])
+    at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    body = {"fixme": ["a", "b"], "decisions": [{"step": "FIXME 1", "text": "answered", "at": at},
+                                               {"step": "FIXME 2", "text": "answered too", "at": at}]}
     with _Corpus(body):
-        note, record = _fixme_gate(_NAME)
+        note, record = _fixme_gate(_NAME, history_path=hist)
     assert record and all(r.get("expected") == r.get("actual") for r in record), record
 
 

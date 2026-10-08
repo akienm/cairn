@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_every_watching_class_can_fixme.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T19:09:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-07T18:51:03",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,6 +14,7 @@
         "test_a_back_edge_lands_at_fixme_on_every_watching_class"
       ],
       "teeth_red": [],
+      "test": "test-e45c484d2b1e",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -27,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -35,7 +36,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "11ec1a817610fc4a98ff4e03118d68f982b7695c139ee2c94fc8691656206a8f",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e45c484d2b1e",
+      "source_fingerprint": "ba75d19861fb17d41b20d3afb4ab0d43b5fa9bee1103cb4c73159d061153b01f",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -48,50 +52,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3586125-i_vttbln/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-240828-fz_vztj0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261006.010954.459720.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261006.010954.461251.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261006.010954.462440.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261006.010954.463651.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.005102.508348.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.005102.510035.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.005102.511368.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.005102.512695.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 170576138,
-          "disk_bytes": 197910528,
-          "entries": 11687,
+          "bytes": 103949202,
+          "disk_bytes": 125661184,
+          "entries": 8892,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "5f217a2d4bd6": {
-          "CairnCommons/node_classes/bug.json": [
-            "test_a_back_edge_lands_at_fixme_on_every_watching_class",
-            "test_every_watching_class_that_builds_declares_the_fixme_edge"
-          ],
-          "CairnCommons/node_classes/concept-piece.json": [
-            "test_a_back_edge_lands_at_fixme_on_every_watching_class",
-            "test_every_watching_class_that_builds_declares_the_fixme_edge"
-          ],
-          "CairnCommons/node_classes/skill.json": [
-            "test_a_back_edge_lands_at_fixme_on_every_watching_class",
-            "test_every_watching_class_that_builds_declares_the_fixme_edge"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5f217a2d4bd6": {
-          "anchor_rule": "journal",
-          "anchor_journal": "b8e4718de1b4546b2979e5d516c1c38890466982",
-          "anchor_first_build": null,
-          "commit": "b8e4718de1b4546b2979e5d516c1c38890466982"
+          "reuses": 8
         }
       }
     },

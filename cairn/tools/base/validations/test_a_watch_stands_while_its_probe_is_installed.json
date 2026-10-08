@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_watch_stands_while_its_probe_is_installed.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T02:33:16",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-07T18:49:39",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,21 +16,24 @@
         "test_the_widening_only_ADDS_over_the_real_corpus"
       ],
       "teeth_red": [],
-      "test": "test-c5304db5e810",
+      "test": "test-d5b5f828e567",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_238615_1838580855_delivery",
+          "bus_proc_238615_1838580855"
+        ]
       },
       "conditions": {
         "proof": "33b6c712acb3b69187521c4bfe01ab094bd82fde58ae0f51fbbeb887e02e297c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -40,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c5304db5e810",
-      "source_fingerprint": "e0843fa28fa2a5d74d19f49f1dc64b0ad84db12a37660a61f8fbfd2d0e87d053",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d5b5f828e567",
+      "source_fingerprint": "574f5b4871c34c813c7df88a48a7ce777f89b0552833385336a9e61240a29918",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3751973-242i66y3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-240828-1v7j23bj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,29 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 101871897,
-          "disk_bytes": 122286080,
-          "entries": 8395,
+          "bytes": 103947025,
+          "disk_bytes": 125644800,
+          "entries": 8886,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "8e37bf2be2dc": {
-          "cairn/tools/base/watchme_spec.py": [
-            "test_a_resting_ticket_stands_UNCONDITIONALLY",
-            "test_a_ticket_off_rest_with_an_ARMED_probe_stands",
-            "test_an_unarmed_or_unbuilt_watch_does_NOT_stand",
-            "test_the_widening_only_ADDS_over_the_real_corpus"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "8e37bf2be2dc": {
-          "anchor_rule": "journal",
-          "anchor_journal": "91460ab18cf54a095521262031775c7dc68c67e9",
-          "anchor_first_build": "13e7ccfc468e377134f566e3a3226555c9491ffc",
-          "commit": "91460ab18cf54a095521262031775c7dc68c67e9"
         }
       }
     },

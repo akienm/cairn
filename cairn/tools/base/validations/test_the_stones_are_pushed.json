@@ -2,17 +2,18 @@
   {
     "claim": "proof test_the_stones_are_pushed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T15:32:27",
+    "date": "2026-10-07T18:51:18",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.31s",
+      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.35s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
       ],
       "teeth_red": [],
+      "test": "test-56d5253fc2a8",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -34,7 +35,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "26bd15b9c0f3c03576bb7c8e74706886db39da4afa314b507ce05b3dfdd17c14",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-56d5253fc2a8",
+      "source_fingerprint": "676565ab3126ed9896b69be3683e23f2379568b8bc512a838f395795d1be9a74",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -53,24 +57,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3488615-_u_ipe0e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-240828-pp96u6ka/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/charter/0/20261005.213226.529362.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261005.213226.539728.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261005.213226.555146.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.005117.846891.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.005117.860292.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.005117.880970.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 168962506,
-          "disk_bytes": 196046848,
-          "entries": 11582,
+          "bytes": 103948463,
+          "disk_bytes": 125657088,
+          "entries": 8891,
           "builds": 1,
-          "reuses": 31
+          "reuses": 15
         }
       }
     },

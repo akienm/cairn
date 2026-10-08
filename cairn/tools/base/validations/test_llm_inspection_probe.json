@@ -2,7 +2,7 @@
   {
     "claim": "proof test_llm_inspection_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T15:31:54",
+    "date": "2026-10-07T18:51:07",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,6 +20,7 @@
         "test_carry_without_resolver"
       ],
       "teeth_red": [],
+      "test": "test-2d5a0687da5e",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -41,7 +42,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "0125945b00958760e39249aa6cef808148dc3777f5652db4881c81d477339b47",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2d5a0687da5e",
+      "source_fingerprint": "41f78e637e9be24af754e267653c77274ce7f67ff6f6cbcca4d67cd0d89a22d2",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -57,7 +61,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3488615-22c70ctq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-240828-__m6ek8o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,11 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 168961068,
-          "disk_bytes": 196034560,
-          "entries": 11577,
+          "bytes": 103947025,
+          "disk_bytes": 125644800,
+          "entries": 8886,
           "builds": 1,
-          "reuses": 17
+          "reuses": 10
         }
       }
     },

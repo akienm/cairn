@@ -2,7 +2,7 @@
   {
     "claim": "proof test_sail_record.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T15:32:23",
+    "date": "2026-10-07T18:51:16",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,6 +23,7 @@
         "test_the_write_is_atomic_and_leaves_no_temp_behind"
       ],
       "teeth_red": [],
+      "test": "test-f963932fdfef",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -44,7 +45,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "d5ac6128210f773b12dabf02b2757dbc03fb3a0a1474abe6abfec2bb1e6a162c",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f963932fdfef",
+      "source_fingerprint": "a45fbc3663398405b52fc60ba22589dc59426dd15761c32e91ddad72a77cada2",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -57,7 +61,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3488615-1vmt3r0i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-240828-cx7x6w2b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,11 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 168961068,
-          "disk_bytes": 196034560,
-          "entries": 11577,
+          "bytes": 103947025,
+          "disk_bytes": 125644800,
+          "entries": 8886,
           "builds": 1,
-          "reuses": 29
+          "reuses": 14
         }
       }
     },

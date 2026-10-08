@@ -4,7 +4,8 @@ A forward crossing INTO PROVEME that journals (history_path and state_path given
 build_inspector's working_tree_clean sieve over the crossing component: the repo holding it
 and that repo's sibling CairnCommons (c1cca2e3dc23). Any uncommitted change in either tree
 refuses the crossing with ``WorkingTreeDirtyRed`` naming every dirty path, BEFORE anything is
-written; both clean, the crossing lands and its record carries a ``working_tree_clean`` lane.
+written; both clean, the crossing lands and its record carries a ``working_tree_clean`` lane; a dir
+NO repo holds crosses with no lane and ``tree_gate`` "not_checked: no git repo holds <dir>" (F16).
 Ruling 8t survives here and at /sail's clean start (92e0d158b1bc); cleared by Akien (8x).
 
 Hermetic: each tooth builds <tmp>/cairn (holding comp/ with its charter, history.json and
@@ -38,6 +39,7 @@ PROVES = {
         "1": "test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing",
         "2": "test_dirt_only_in_the_commons_refuses_naming_it",
         "3": "test_both_trees_clean_cross_with_a_working_tree_clean_lane",
+        "4": "test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane",
     },
 }
 
@@ -110,6 +112,23 @@ def test_both_trees_clean_cross_with_a_working_tree_clean_lane():
     lanes = [f for f in rec["proved"] if f.get("identity") == "working_tree_clean"]
     assert len(lanes) == 1, f"exactly one working_tree_clean lane on the record: {rec['proved']}"
     assert lanes[0]["expected"] == lanes[0]["actual"], lanes[0]
+
+
+def test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane():
+    """F16: a dir NO repo holds has nothing to commit into — the seat writes no lane (a pass over
+    input it never read is the vacuous green 316b named) and records why it did not check."""
+    comp = scratch_dir("proveme-entry-no-repo-proof-") / "comp"
+    comp.mkdir()
+    assert not any((d / ".git").exists() for d in (comp, *comp.parents)), \
+        f"the fixture must sit under no repo at all: {comp}"
+    (comp / "history.json").write_text("[]\n")
+    (comp / "state.json").write_text("{}\n")
+    new = _cross(comp, "no repo")
+    assert transitions.parse_workflow(new).here == "PROVEME", new
+    rec = json.loads((comp / "history.json").read_text())[-1]
+    assert not [f for f in rec["proved"] if f.get("identity") == "working_tree_clean"], \
+        f"no repo was read, so no working_tree_clean lane may stand: {rec['proved']}"
+    assert str(rec.get("tree_gate", "")).startswith("not_checked: no git repo holds"), rec
 
 
 if __name__ == "__main__":

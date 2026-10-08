@@ -251,6 +251,26 @@ class ProofNamedRed(IllegalTransition):
         self.findings = findings or []
 
 
+class WorkingTreeDirtyRed(IllegalTransition):
+    """The forward crossing INTO PROVEME is refused: the repo holding the component, or its
+    sibling CairnCommons, carries uncommitted changes. Carries the build_inspector's
+    ``working_tree_clean`` findings, every dirty path keyed by repo, complete on the first pass.
+
+    WHY AT THE ENTRY (ticket 11cd253f10bc, rulings 8t/8w/F11/8x): a proof that runs over a
+    dirty tree measures code no commit holds, and the one measured orphan (3fef5a02da2d's lab
+    lines) sat in CairnCommons outside every component subtree while two voyages crossed it.
+    The build gate at the PROVEME exit is too late — the proving was already done over the
+    dirt. /sail's clean start (92e0d158b1bc) sweeps at the voyage's first act; this seat holds
+    the line at the crossing where proving begins.
+
+    Sibling of ``ProofNamedRed`` and the other seats' reds — sharing the ``IllegalTransition``
+    parent, not each other."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 # ---------------------------------------------------------------------------
 # THE PROOF RECORD — every check that ran, expected beside actual, PASSES INCLUDED.
 #
@@ -1427,6 +1447,51 @@ def _proof_named_gate(ticket: str, journal_extra: dict) -> tuple[str, list[dict]
     return f"clean — proof named: {', '.join(named)}", record
 
 
+def inspect_clean_tree(comp_dir: Path) -> tuple[list[dict], list[dict]]:
+    """THE CLEAN-TREE SEAT'S RECORD — one lane, at the journaled forward crossing into PROVEME.
+
+    Runs the build_inspector's ``working_tree_clean`` over the component at the crossing's own
+    address: the repo holding it and that repo's sibling CairnCommons (c1cca2e3dc23). Returns
+    the sieve's findings (empty when both trees are clean) and the lane; the dirty paths ride
+    in ``values`` (ticket 11cd253f10bc). When NO repo holds the dir it returns no lane at all,
+    and the gate records ``not_checked`` with that reason.
+    """
+    if not any((d / ".git").exists() for d in (comp_dir, *comp_dir.parents)):
+        # NO repo holds the dir (a tempdir fixture): there is nothing to commit into, so the
+        # seat writes no lane rather than a pass over input it never read (F16). A dir INSIDE
+        # a repo that fails to read is not this case — the sieve's refusal propagates red.
+        return [], []
+    from cairn.machines.build_inspector.inspector import working_tree_clean  # lazy, as the other seats
+    findings = working_tree_clean({"component": comp_dir.name}, comp_dir)
+    dirty = (findings[0].get("values") or {}).get("dirty", {}) if findings else {}
+    shown = (f"both trees are committed at the PROVEME entry of {comp_dir.name!r} "
+             f"(no uncommitted changes in its repo or the sibling CairnCommons)")
+    count = sum(len(v) for v in dirty.values())
+    return findings, [_lane("working_tree_clean", expected=shown,
+                            actual=shown if not findings else
+                            f"{count} uncommitted path(s) across {len(dirty)} repo(s) at the "
+                            f"PROVEME entry of {comp_dir.name!r}",
+                            code="transitions.py::inspect_clean_tree",
+                            component=comp_dir.name, dirty=dirty)]
+
+
+def _clean_tree_gate(comp_dir: Path) -> tuple[str, list[dict]]:
+    """The gate is a VIEW over ``inspect_clean_tree``: refuses BEFORE anything is written,
+    naming every dirty path per repo, so one pass tells the builder all of it."""
+    findings, record = inspect_clean_tree(comp_dir)
+    if not record:
+        return f"not_checked: no git repo holds {comp_dir}", []
+    if findings:
+        dirty = record[0]["values"]["dirty"]
+        listed = "; ".join(f"{repo}: {', '.join(paths)}" for repo, paths in dirty.items())
+        raise WorkingTreeDirtyRed(
+            f"PROVEME crossing refused for {comp_dir.name!r}: uncommitted changes — {listed}. "
+            f"A proof run over a dirty tree measures code no commit holds; commit it into its "
+            f"ticket, or stash it (python3 -m skills.sail.sweep), then cross again.",
+            findings=findings)
+    return f"clean — both trees committed at the PROVEME entry of {comp_dir.name}", record
+
+
 def inspect_entry(ticket: str) -> list[dict]:
     """THE ENTRY GATE'S PROOF RECORD — one lane per composed sieve, ALL LANES ALWAYS RUN.
 
@@ -2061,6 +2126,15 @@ def emit(
                 proved += _rec
             else:
                 proof_note = "not_checked"
+        # THE CLEAN-TREE SEAT (ticket 11cd253f10bc, rulings 8t/8w/F11/8x): a journaled forward
+        # crossing INTO PROVEME refuses while the repo holding the component, or its sibling
+        # CairnCommons, carries uncommitted changes — proving starts here, and a proof run over
+        # dirt measures code no commit holds. Ticketless crossings are gated too: the dirt is
+        # in the tree whoever crosses. Back-edges retreat ungated like every sibling seat.
+        tree_note = None
+        if target == "PROVEME" and target_idx > wf.cursor:
+            tree_note, _rec = _clean_tree_gate(Path(history_path).resolve().parent)
+            proved += _rec
         # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
         # — or the crossing's own component on the explicit exempt roster — else it
         # refuses BEFORE anything is written (ticket a-voyage-names-its-ticket,
@@ -2149,6 +2223,9 @@ def emit(
             # The record of truth says the proof-named seat ran: a forward PROVEME entry
             # journals which proof stands behind the build, or that no ticket asked.
             **({"proof_gate": proof_note} if proof_note else {}),
+            # The record of truth says the clean-tree seat ran: a journaled PROVEME entry
+            # records that both trees were committed when proving began.
+            **({"tree_gate": tree_note} if tree_note else {}),
             # The record of truth says the exit gate ran: a gated PROVED entry
             # journals that the chart's claims were answered before the close.
             **({"exit_gate": exit_note} if exit_note else {}),

@@ -1430,5 +1430,83 @@
     "fingerprint": "ede250256e99bdda418bf0cf20ac08eac8569688800deb0de483e3a2724743f6",
     "at": "2026-10-07T19:56:58",
     "seq": 5
+  },
+  {
+    "from": "PROVEME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> TICKETME moves the cursor off position 3",
+        "actual": "PROVEME -> TICKETME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 3,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> TICKETME",
+        "actual": "PROVEME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "41202d4c8d3b",
+    "actor": "cc",
+    "why": "kick-back: proven_by named the bare filename test_sail_sweeps_the_tree_first.py, which resolves to no file; only a forward BUILDME clears it, so back to TICKETME, re-rehearse, re-cross BUILDME and PROVEME with skills/sail/proofs/test_sail_sweeps_the_tree_first.py (af394c12b62a PROVED, so the 8p question can open)",
+    "fingerprint": "5991d4db861ab05da714b5f7312c76b5de837b496a04601da184616477131a9c",
+    "at": "2026-10-07T22:12:34",
+    "seq": 6
   }
 ]

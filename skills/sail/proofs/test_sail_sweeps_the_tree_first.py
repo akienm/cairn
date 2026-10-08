@@ -34,7 +34,15 @@ PROVES = {
         "4": "test_clean_repos_raise_nothing_and_stash_nothing",
         "5": "test_dirt_only_in_commons_stashes_only_there",
     },
+    "41202d4c8d3b": {
+        "1": "test_skill_md_calls_the_sweep",
+        "2": "test_skill_md_sweeps_before_it_charts",
+    },
 }
+
+_SKILL_MD = Path(__file__).resolve().parent.parent / "SKILL.md"
+_SWEEP_CALL = "python3 -m skills.sail.sweep"
+_CHART_HEADING = "## 0. Chart it"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -156,6 +164,30 @@ def test_dirt_only_in_commons_stashes_only_there():
         assert [Path(r["repo"]).name for r in rows] == ["CairnCommons"], rows
         assert _stashes(a) == ""
         assert len(_stashes(b).splitlines()) == 1
+
+
+# SKILL.md IS /sail's only wiring to the sweep (ticket 41202d4c8d3b, 8y): nothing else calls it,
+# so dropping or reordering that one line would silently undo the clean start. Each tooth
+# checks the live text and then shows that the same helper reds on a mutated copy of it.
+
+def test_skill_md_calls_the_sweep():
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    assert _sweep_order_problem(text) is None, _sweep_order_problem(text)
+    without = "\n".join(line for line in text.splitlines() if _SWEEP_CALL not in line)
+    assert _sweep_order_problem(without) == "absent", _sweep_order_problem(without)
+
+
+def test_skill_md_sweeps_before_it_charts():
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    assert _sweep_order_problem(text) is None, _sweep_order_problem(text)
+    lines = text.splitlines()
+    sweep = next(line for line in lines if _SWEEP_CALL in line)
+    rest = [line for line in lines if line != sweep]
+    at = next(i for i, line in enumerate(rest) if line.startswith(_CHART_HEADING))
+    moved = "\n".join(rest[:at + 1] + [sweep] + rest[at + 1:])
+    assert _sweep_order_problem(moved) == "after /chart", _sweep_order_problem(moved)
+    headless = "\n".join(line for line in lines if not line.startswith(_CHART_HEADING))
+    assert _sweep_order_problem(headless) == "no /chart heading", _sweep_order_problem(headless)
 
 
 if __name__ == "__main__":

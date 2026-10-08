@@ -174,6 +174,33 @@ def git_env() -> dict:
     return {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
 
 
+def bare_temp_reach(root: str | Path) -> list[str]:
+    """Every live line under ``root``'s ``proofs/test_*.py`` that reaches the system temp
+    directory bare — ``mkdtemp`` or ``gettempdir`` — as ``'<relpath>:<line>: <stripped line>'``.
+
+    It names no caller and exempts nothing: a consumer that must reach bare (a control group
+    showing bare still leaks) drops its own lines from the result, in its own proof, out loud.
+    The scan is public so each component holds its own proofs to the door (RULE 1); its first
+    copy lived inline in one proof (e038544a9b60, after 3581 leaked entries were swept), and
+    b4d39f3610f3 moved it here.
+
+    gettempdir is here because the FIRST version grepped only for mkdtemp and missed a real
+    leak of a different spelling — 18 boot-log FILES from launchers/proofs/test_bootstrap.py,
+    one per run. A scan narrower than its own defect is the hollow kind. Both reach the system
+    temp dir; only the door may. The three sites that named a deliberately-NONEXISTENT path came
+    through the door too, so there is no exemption to maintain and no judgement call about
+    which reach is harmless."""
+    root = Path(root)
+    out = []
+    for py in sorted(root.rglob("proofs/test_*.py")):
+        if "__pycache__" in py.parts:
+            continue
+        for n, line in enumerate(py.read_text(errors="replace").splitlines(), 1):
+            if not line.lstrip().startswith("#") and ("mkdtemp" in line or "gettempdir" in line):
+                out.append(f"{py.relative_to(root)}:{n}: {line.strip()}")
+    return out
+
+
 def _owner_alive(pid: int) -> bool:
     """Is ``pid`` alive as read from this namespace — copied from isolation._pid_alive, not
     imported (RULE 1)."""

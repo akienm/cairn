@@ -36294,5 +36294,83 @@
     "fingerprint": "8cc3f3c58dbd34aba259f96cc2be4240a92b22f8a7bd3b17022e47cec6a2bfe0",
     "at": "2026-10-07T18:54:55",
     "seq": 179
+  },
+  {
+    "from": "PROVEME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME moves the cursor off position 3",
+        "actual": "PROVEME -> BUILDME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME",
+        "actual": "PROVEME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "11cd253f10bc",
+    "actor": "cc",
+    "why": "back-edge PROVEME->BUILDME (F18): the hollow refused 'no reversion reading can be attributed' — every tooth failed at HEAD in the hollow worktree on unknown node-class 'bug' (emit's default node_class_root reaches beside the repo); the proof's _cross gains a copied class table",
+    "fingerprint": "d90122a52f587279373e41fc40c4b9c74cdb9634a00f6223cb2dca57c0b7e5d4",
+    "at": "2026-10-07T18:58:40",
+    "seq": 180
   }
 ]

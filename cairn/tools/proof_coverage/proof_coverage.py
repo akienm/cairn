@@ -102,6 +102,9 @@ _LETTER_MARK = re.compile(r"\(([a-z])\)")
 # to have built — a disposition, not a condition a tooth can go green on. Cutting it is
 # what stops the sieve demanding a tooth for "this was a bad idea".
 _WRONG_INTENT = re.compile(r"WRONG[\s-]?INTENT", re.I)
+# A decide line that adds a clause says so in this one phrase (open-4b3d45d375ca). Case
+# folds because the line opens a sentence: 11cd253f10bc D6 reads "A falsifier clause (4)...".
+_ADDED_CLAUSE = re.compile(r"falsifier clause \((\d{1,2})\) is added by this line", re.I)
 
 # One clause, for a falsifier that names no numbered clauses. Not a special case anywhere
 # downstream: it is a clause key like any other, so a flat falsifier needs exactly one
@@ -149,6 +152,23 @@ def teeth_printed(stdout: str) -> dict:
 
 
 def clauses(ticket: dict) -> list[str]:
+    """The clause keys a proof must cover for this ticket: the falsifier's, then the ones its
+    decide lines add (ticket 46ece5fd9f69).
+
+    A decide line adds a clause only by saying 'falsifier clause (N) is added by this line'
+    (the convention answered at open-4b3d45d375ca). A decision that merely cites a numbered
+    marker in prose adds nothing — prose minting a tooth is the charter's WRONG-INTENT signal.
+    """
+    keys = _falsifier_clauses(ticket)
+    for d in ticket.get("decisions") or []:
+        if isinstance(d, dict) and isinstance(d.get("text"), str):
+            for k in _ADDED_CLAUSE.findall(d["text"]):
+                if k not in keys:
+                    keys.append(k)
+    return keys
+
+
+def _falsifier_clauses(ticket: dict) -> list[str]:
     """The clause keys a proof must cover for this ticket, read off its falsifier.
 
     Three shapes, all present in the live corpus: a dict falsifier (all 19 at PROVEME on

@@ -47,6 +47,7 @@ order a builder would take them. For each node:
   ticket leaves the piece unsaid, never that it is said somewhere other than this step.
   (Akien, 2026-09-23, open-a57cdd7cf3c1: the reader judges the whole decision list.)
 - **Work that has ALREADY LANDED builds as written — and only that work.** The ALREADY LANDED section lists the commits that name this ticket. A decision counts as built only where a listed commit's change performs it: that step is `builds_as_written`, and you never emit an `unlisted:` step for work a listed commit performed. Anything no listed commit performs, including crossings, proofs and the commands that move the cursor, is judged exactly as if this section were absent.
+- **The VOYAGE CRAFT section is standing.** It holds for every ticket. A step it answers (the commits and their messages, committing records between doors, running and sealing proofs, the predict, PROVEME, the hollow, PROVED) is settled: a decision that names such a step builds as written for the part the section answers, and a step the section answers that no decision names is not `unlisted`, so emit no node for it. Where a ticket's own decision says something different, the decision governs.
 - Stay inside the text. Do not use anything you believe about the world beyond it.
 - One step per node; do not merge steps to shorten the list, do not split one to lengthen it.
 - Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings

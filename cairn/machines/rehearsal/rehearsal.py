@@ -45,6 +45,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 SCHEMA_PATH = HERE / "schema.json"
 PROMPT_PATH = HERE / "prompt.md"
+VOYAGE_CRAFT_PATH = HERE / "voyage_craft.md"
 STATES = ("builds_as_written", "builds_under_assumption", "cannot_proceed")
 READS = 3               # D1: three cold reads
 RETRIES_PER_READ = 2    # D5: a read that fails the schema is re-read; this many times, then the pass is refused
@@ -91,6 +92,15 @@ def schema() -> dict:
 
 def prompt() -> str:
     return PROMPT_PATH.read_text(encoding="utf-8")
+
+
+def voyage_craft() -> str:
+    """The standing voyage-craft note (ticket 996668eceef1): the steps every code-seam voyage
+    takes the same way, handed to the reader on every render so they are settled once. Read at
+    call time from ``VOYAGE_CRAFT_PATH``; absent, the render refuses rather than hand a reader less."""
+    if not VOYAGE_CRAFT_PATH.is_file():
+        raise Refused(f"no voyage-craft note at {VOYAGE_CRAFT_PATH}")
+    return VOYAGE_CRAFT_PATH.read_text(encoding="utf-8")
 
 
 def commons(root: Path | str | None = None) -> Path:
@@ -322,7 +332,7 @@ def landed(ticket: str, cursor: str, repo: Path) -> str:
 
 def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
            repo: Path | str | None = None) -> tuple[str, str, Path]:
-    """The text the reader is handed: the ticket as ``reader_view`` shows it, the standing chart berths
+    """The text the reader is handed: the ticket as ``reader_view`` shows it after the standing voyage-craft note, the standing chart berths
     for the ticket (per stage, the latest claiming packet — through the one chain locator),
     and the charters of the components orient ref'd. Returns ``(text, sha256 of the ticket
     bytes as read, ticket path)``. No repository, no code: D4 is the whole point, and the
@@ -333,7 +343,7 @@ def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
         raise Refused(f"no ticket file for {ticket!r} under {commons(root) / 'tickets'}")
     blob = tk.read_bytes()
     repo = Path(repo) if repo is not None else REPO
-    parts = [prompt(), "\n\n# THE TICKET\n\n```json\n" + reader_view(blob) + "\n```\n"]
+    parts = [prompt(), "\n\n# VOYAGE CRAFT\n\n" + voyage_craft(), "\n\n# THE TICKET\n\n```json\n" + reader_view(blob) + "\n```\n"]
     try:
         cursor = json.loads(blob).get("workflow_and_state") or "(no cursor)"
     except (json.JSONDecodeError, AttributeError):

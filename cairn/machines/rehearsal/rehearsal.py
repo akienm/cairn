@@ -264,6 +264,26 @@ def reader_view(blob: bytes) -> str:
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
 
+def landed(ticket: str, cursor: str, repo: Path) -> str:
+    """The ALREADY LANDED section (ticket 80518446bfc8): the ticket's cursor and every commit
+    whose message names the ticket id, oldest first. Measured 2026-10-07 on 41202d4c8d3b: a
+    reader told every ticket is unbuilt raised work already landed at 9154af40 and fc17a873
+    as a gap. The reader still gets text, never the repository (D4)."""
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "log", "--reverse", "--format=%h %s",
+                              f"--grep={ticket}"], capture_output=True, text=True, check=True).stdout
+    # NEVER str(exc): a CalledProcessError carries the command line, and the repo path in
+    # the reader's text is repository content the reader must not see (D7).
+    except subprocess.CalledProcessError as exc:
+        return f"\n# ALREADY LANDED\n\n(landed commits could not be read: git log exited {exc.returncode})\n"
+    except OSError as exc:
+        return ("\n# ALREADY LANDED\n\n(landed commits could not be read: "
+                + (exc.strerror or type(exc).__name__) + ")\n")
+    lines = [l for l in out.splitlines() if l.strip()]
+    return ("\n# ALREADY LANDED\n\ncursor: " + cursor + "\n\n"
+            + ("\n".join(lines) if lines else "(nothing landed for this ticket)") + "\n")
+
+
 def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
            repo: Path | str | None = None) -> tuple[str, str, Path]:
     """The text the reader is handed: the ticket as ``reader_view`` shows it, the standing chart berths
@@ -278,6 +298,11 @@ def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
     blob = tk.read_bytes()
     repo = Path(repo) if repo is not None else REPO
     parts = [prompt(), "\n\n# THE TICKET\n\n```json\n" + reader_view(blob) + "\n```\n"]
+    try:
+        cursor = json.loads(blob).get("workflow_and_state") or "(no cursor)"
+    except (json.JSONDecodeError, AttributeError):
+        cursor = "(no cursor)"
+    parts.append(landed(ticket, str(cursor), repo))
     try:
         chain = chain_for_ticket(ticket, berths_root=berths_root)
     except Exception as exc:  # the chart is a courtesy to the reader, not a gate here — the lane a_berthed_chart_chain_claims_the_ticket judges it

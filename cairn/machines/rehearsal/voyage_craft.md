@@ -2,7 +2,7 @@ This section is standing. It holds for every code-seam ticket, and a step it ans
 
 1. COMMITS. A voyage makes three commits in ~/dev/src/cairn, in this order, each with `git commit -F <message file>` staging named paths only:
    - the proof commit stages only the ticket's proof files. Message: `<ticket id>: proof — <ticket title>`.
-   - the build commit stages only the ticket's writes_to files, never a proof. Message: `<ticket id>: build — <ticket title>`.
+   - the build commit stages the ticket's writes_to files, never a proof. Message: `<ticket id>: build — <ticket title>`. The pre-commit hook reseals the component's proofs and stages their validation records into this same commit; that is expected, and the builder does not unstage them.
    - the seal commit, after sealing, stages the validation records and the component's history.json, state.json and .artifact-journal.jsonl. Message: `<ticket id>: seal — <ticket title>`.
    Every commit message ends with one blank line and then the session's attribution trailer lines (Co-Authored-By and Claude-Session). The builder holds those lines for its session, so they are settled, not a gap.
 
@@ -20,7 +20,7 @@ This section is standing. It holds for every code-seam ticket, and a step it ans
    1. `W=$(mktemp -d /tmp/claude-1000/bare.XXXX)`, then `git worktree add -q --detach $W B`.
    2. Count the CairnCommons siblings with `ls $(dirname $W) | grep -c ^CairnCommons$`. It must print 0, or the predict does not count.
    3. In $W, run the proof with `PYTHONPATH=.`. It is green.
-   4. Overwrite each writes_to file from A with `git show A:<path> > <path>`. A file that is new in the build is removed instead.
+   4. Restore each writes_to file from A with `git checkout A -- <path>`. A file that is new in the build is removed instead with `git rm -q <path>`. Keep every `rm` and `git rm` in a command of its own: a command that also names the ~/.cairn venv is refused by the delete gate.
    5. Run the proof again. The teeth the ticket names go red.
    6. Clean up with `git worktree remove --force $W` and then `git worktree prune`.
 

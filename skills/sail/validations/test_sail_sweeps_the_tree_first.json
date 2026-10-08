@@ -2,32 +2,37 @@
   {
     "claim": "proof test_sail_sweeps_the_tree_first.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-07T15:58:47",
+    "date": "2026-10-07T19:56:04",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_dirt_in_both_repos_is_stashed_and_named_in_one_trouble\n.\n  ok   test_each_stash_restores_its_paths_byte_identical\n.\n  ok   test_suspects_follow_the_commons_journal\n.\n  ok   test_clean_repos_raise_nothing_and_stash_nothing\n.\n  ok   test_dirt_only_in_commons_stashes_only_there\n                                                                    [100%]\n5 passed in 0.27s",
+      "stdout_tail": ".\n  ok   test_dirt_in_both_repos_is_stashed_and_named_in_one_trouble\n.\n  ok   test_each_stash_restores_its_paths_byte_identical\n.\n  ok   test_suspects_follow_the_commons_journal\n.\n  ok   test_clean_repos_raise_nothing_and_stash_nothing\n.\n  ok   test_dirt_only_in_commons_stashes_only_there\n.\n  ok   test_skill_md_calls_the_sweep\n.\n  ok   test_skill_md_sweeps_before_it_charts\n                                                                  [100%]\n7 passed in 0.30s",
       "stderr_tail": "",
       "teeth_green": [
         "test_dirt_in_both_repos_is_stashed_and_named_in_one_trouble",
         "test_each_stash_restores_its_paths_byte_identical",
         "test_suspects_follow_the_commons_journal",
         "test_clean_repos_raise_nothing_and_stash_nothing",
-        "test_dirt_only_in_commons_stashes_only_there"
+        "test_dirt_only_in_commons_stashes_only_there",
+        "test_skill_md_calls_the_sweep",
+        "test_skill_md_sweeps_before_it_charts"
       ],
       "teeth_red": [],
-      "test": "test-e1405231e36a",
+      "test": "test-14cc05829233",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_255366_1916522680_delivery",
+          "bus_proc_255366_1916522680"
+        ]
       },
       "conditions": {
-        "proof": "6497ac1990ee80d95049245300378124c3d9683d37c4185ec35da22e2e13279b",
+        "proof": "349159833acfcd2409c3b6e8133ea4e5d3852913e9fe6d0aa0dbc182f8cf0c37",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "netns seal=sealed instance-seal=sealed",
@@ -42,8 +47,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1405231e36a",
-      "source_fingerprint": "d5be2466da4c153e6481d5c775eac0349c0dd32100df88b99b2191631c19206f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-14cc05829233",
+      "source_fingerprint": "a4466257f08a6c9f587cd0bcba9e35b5c16f3a9a06c2ffa6c602d42b6b89ed14",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -64,7 +69,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-125631-8bqsr1un/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-262644-ie8ucw3b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,33 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 103876744,
-          "disk_bytes": 125444096,
-          "entries": 8845,
+          "bytes": 104008751,
+          "disk_bytes": 125763584,
+          "entries": 8907,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "92e0d158b1bc": {
-          "skills/sail/sweep.py": [
-            "test_clean_repos_raise_nothing_and_stash_nothing",
-            "test_dirt_in_both_repos_is_stashed_and_named_in_one_trouble",
-            "test_dirt_only_in_commons_stashes_only_there",
-            "test_each_stash_restores_its_paths_byte_identical",
-            "test_suspects_follow_the_commons_journal"
-          ],
-          "skills/sail/SKILL.md": {
-            "notified": "n-96c541f73cdc"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "92e0d158b1bc": {
-          "anchor_rule": "journal",
-          "anchor_journal": "cec101aea88bad8414b6f5ec8dbc58377457a363",
-          "anchor_first_build": "0dbd123f64fb8a6d2554a244711e26490b47adc6",
-          "commit": "cec101aea88bad8414b6f5ec8dbc58377457a363"
         }
       }
     },

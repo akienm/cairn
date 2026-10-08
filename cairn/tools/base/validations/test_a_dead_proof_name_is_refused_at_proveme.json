@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_a_dead_proof_name_is_refused_at_proveme.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-08T04:33:37",
+    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_bare_name_that_resolves_to_no_file_is_refused\n.\n  ok   test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead\n.\n  ok   test_a_dead_name_since_buildme_is_refused\n                                                                      [100%]\n3 passed in 0.33s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_bare_name_that_resolves_to_no_file_is_refused",
+        "test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead",
+        "test_a_dead_name_since_buildme_is_refused"
+      ],
+      "teeth_red": [],
+      "test": "test-f43fd96b154c",
+      "seal": {
+        "verdict": "sealed",
+        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "af2766cbde85eb3bfa98a4e3f1dd7bd5f3a3db6befcfcc4bd7a3868b1f00f3b1",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f43fd96b154c",
+      "source_fingerprint": "a67ea46d1d4718f1c79a9cd71518263f40ee5ba1a62b4bdfbf161dfbc9c0e369",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py",
+        "cairn/tools/base/transitions.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-401527-3omv7zjs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/charter/0/20261008.103336.943574.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.103336.968183.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 104498177,
+          "disk_bytes": 126537728,
+          "entries": 9012,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

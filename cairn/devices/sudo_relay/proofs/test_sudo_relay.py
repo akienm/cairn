@@ -23,14 +23,21 @@ Teeth a hollow relay could not pass:
   - THE CROSSING IS NO LONGER SILENT. request_root leaves ONE diagnostic breadcrumb per
     round-trip, pointing at the audit record — the audit trail (record of truth) and the
     device breadcrumb (diagnostic) are Law 7's two kinds; neither answers for the other.
+  - A REQUEST GETS BACK ONLY ITS OWN RESULT (ticket ae25d8fae5cb). a leftover result on disk
+    is never handed to the next request — a relay that returned it would report a command
+    that never ran as rc 0; an unanswered request times out rather than taking another's;
+    the daemon runs under the request's own timeout; a leftover is a loud finding in
+    state() and a breadcrumb, never returned and never deleted.
 
     python3 cairn/devices/sudo_relay/proofs/test_sudo_relay.py     # exit 0 = green
 """
 
 from __future__ import annotations
 
+import json
 import os
 import sys
+import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -46,6 +53,15 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 _NOW = datetime(2026, 7, 18, 12, 0, 0)
 
+PROVES = {
+    "ae25d8fae5cb": {
+        "1": "test_a_leftover_result_is_never_returned",
+        "2": "test_an_unanswered_request_times_out_rather_than_taking_anothers",
+        "3": "test_the_daemon_runs_under_the_requests_timeout",
+        "4": "test_an_orphan_is_a_loud_finding",
+    },
+}
+
 
 def _fresh_instance() -> str:
     """A scratch instance dir, wired via env so nothing touches real instance-space."""
@@ -54,10 +70,41 @@ def _fresh_instance() -> str:
     return d
 
 
+def _daemon_thread() -> threading.Thread:
+    """A one-iteration 'daemon': poll process_pending until a submitted command lands, so a
+    request_root exercises its REAL round-trip (submit → execute → result → record)."""
+    def _once():
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline:
+            if relay.process_pending(relay.local_executor, now=_NOW) is not None:
+                return
+            time.sleep(0.02)
+
+    t = threading.Thread(target=_once)
+    t.start()
+    return t
+
+
+def _plant_leftovers() -> tuple[list, list]:
+    """Two results nobody collected: the old daemon's single-slot ``relay/done`` and an
+    abandoned request's ``results/<id>.json``. Returns (their ids, their paths)."""
+    rdir = Path(os.environ["CAIRN_SUDO_RELAY_DIR"]) / "relay"
+    (rdir / "results").mkdir(parents=True, exist_ok=True)
+    stale = {"id": "20261006T120000_000000_1", "date": "2026-10-06T12:00:00",
+             "command": "echo A-yesterday", "returncode": 0, "stdout": "A-yesterday\n", "stderr": ""}
+    abandoned = dict(stale, id="20261006T130000_000000_2", command="echo B-abandoned",
+                     stdout="B-abandoned\n")
+    legacy = rdir / "done"
+    legacy.write_text(json.dumps(stale))
+    orphan = rdir / "results" / f"{abandoned['id']}.json"
+    orphan.write_text(json.dumps(abandoned))
+    return [stale["id"], abandoned["id"]], [legacy, orphan]
+
+
 def test_protocol_runs_the_command_and_returns_the_truth():
     _fresh_instance()
     # Client submits; the daemon's one iteration runs it via the NON-root executor.
-    relay.submit("echo out-line; echo err-line 1>&2; exit 7")
+    rid = relay.submit("echo out-line; echo err-line 1>&2; exit 7")
     record = relay.process_pending(relay.local_executor, now=_NOW)
 
     assert record is not None, "a pending command must be picked up"
@@ -65,9 +112,9 @@ def test_protocol_runs_the_command_and_returns_the_truth():
     assert "out-line" in record["stdout"], "stdout must be captured"
     assert "err-line" in record["stderr"], "stderr must be captured"
 
-    # And the client's await side consumes the same record from `done`.
-    back = relay.await_result(timeout=2.0)
-    assert back["returncode"] == 7 and back["id"] == record["id"]
+    # And the client's await side consumes the same record, by the id submit minted.
+    back = relay.await_result(rid, timeout=2.0)
+    assert back["returncode"] == 7 and back["id"] == record["id"] == rid
 
 
 def test_idle_when_nothing_pending():
@@ -215,6 +262,95 @@ def test_device_is_a_device_and_reports_the_window():
     assert surface["settings"]["max_lifetime_s"] == relay.DEFAULT_MAX_LIFETIME_S
 
 
+def test_a_leftover_result_is_never_returned():
+    """(1) Measured before this tooth existed: a leftover result was handed to the next
+    request as its own, so a command that never ran read rc 0 (ticket ae25d8fae5cb)."""
+    _fresh_instance()
+    ids, paths = _plant_leftovers()
+    t = _daemon_thread()
+    try:
+        record = relay.request_root("echo mine", timeout=10.0)
+    finally:
+        t.join()
+    assert record["command"] == "echo mine", (
+        f"the request got back {record['command']!r} — another request's result, not its own"
+    )
+    assert record["stdout"] == "mine\n" and record["id"] not in ids
+    assert all(p.exists() for p in paths), "a leftover is a record of truth — never consumed or deleted"
+
+
+def test_an_unanswered_request_times_out_rather_than_taking_anothers():
+    """(2) No daemon answers: the request raises TimeoutError, it does not take a leftover."""
+    _fresh_instance()
+    ids, paths = _plant_leftovers()
+    try:
+        record = relay.request_root("echo nobody-runs-this", timeout=0.5)
+    except TimeoutError:
+        pass
+    else:
+        raise AssertionError(
+            f"an unanswered request returned {record.get('command')!r} — it must time out instead"
+        )
+    assert all(p.exists() for p in paths), "a leftover is a record of truth — never consumed or deleted"
+
+
+def test_the_daemon_runs_under_the_requests_timeout():
+    """(3) The daemon runs the executor under the timeout the request asked for, and a command
+    the daemon timed out still comes home as its own honest record."""
+    _fresh_instance()
+    seen = {}
+
+    def recording(command, *, timeout=None):
+        seen["timeout"] = timeout
+        return 0, "", ""
+
+    relay.submit("echo timed", timeout_s=7)
+    relay.process_pending(recording, now=_NOW)
+    assert seen.get("timeout") == 7, f"the executor ran under {seen.get('timeout')!r}, not the request's 7s"
+
+    dev = SudoRelayDevice()
+    dev.set_diagnostic_receiver(None)
+    t = _daemon_thread()
+    try:
+        slow = dev.request_root("sleep 3", timeout=1)
+    finally:
+        t.join()
+    assert slow["returncode"] is None, f"a timed-out run must read rc None, got {slow['returncode']!r}"
+    assert "[sudo_relay] timed out after 1s" in slow["stderr"], slow["stderr"]
+
+    t = _daemon_thread()
+    try:
+        quick = dev.request_root("sleep 0.2", timeout=10)
+    finally:
+        t.join()
+    assert quick["returncode"] == 0, f"inside its timeout the run must complete, got {quick!r}"
+
+
+def test_an_orphan_is_a_loud_finding():
+    """(4) A result nobody collected is read in state() and named by a breadcrumb on the next
+    request — loud, never returned, never deleted (Law 7)."""
+    _fresh_instance()
+    ids, paths = _plant_leftovers()
+    dev = SudoRelayDevice()
+    dev.set_diagnostic_receiver(None)
+    orphans = dev.state().get("orphaned_results")
+    assert orphans is not None and sorted(orphans) == sorted(ids), (
+        f"state() must list every uncollected result, got {orphans!r}"
+    )
+    t = _daemon_thread()
+    try:
+        record = dev.request_root("echo after", timeout=10.0)
+    finally:
+        t.join()
+    assert record["command"] == "echo after"
+    held = dev.held_diagnostics()
+    assert [h["gate"] for h in held] == ["request_root", "orphaned_results"], (
+        f"the round-trip and then the orphans it found, got {[h['gate'] for h in held]}"
+    )
+    assert sorted(held[1]["values"]["orphans"]) == sorted(ids), held[1]
+    assert all(p.exists() for p in paths), "a leftover is a record of truth — never consumed or deleted"
+
+
 def _main() -> int:
     checks = [
         test_protocol_runs_the_command_and_returns_the_truth,
@@ -226,11 +362,26 @@ def _main() -> int:
         test_the_window_is_visible_and_honest,
         test_the_crossing_is_no_longer_silent,
         test_device_is_a_device_and_reports_the_window,
+        test_a_leftover_result_is_never_returned,
+        test_an_unanswered_request_times_out_rather_than_taking_anothers,
+        test_the_daemon_runs_under_the_requests_timeout,
+        test_an_orphan_is_a_loud_finding,
     ]
+    # Every check runs and prints its own verdict: one red does not hide the teeth after it.
+    failed = 0
     for check in checks:
-        check()
-        print(f"  PASS  {check.__name__}")
-    print("green — sudo_relay: command in, root-run + permanent audit out; window visible, temporary by physics")
+        try:
+            check()
+        except Exception as e:  # noqa: BLE001 — a tooth's failure is its reading, printed whole
+            failed += 1
+            print(f"  FAILED  {check.__name__}: {type(e).__name__}: {e}")
+        else:
+            print(f"  PASS  {check.__name__}")
+    if failed:
+        print(f"red — sudo_relay: {failed} of {len(checks)} teeth failed")
+        return 1
+    print("green — sudo_relay: command in, root-run + permanent audit out; each request gets back only its own "
+          "result; window visible, temporary by physics")
     return 0
 
 

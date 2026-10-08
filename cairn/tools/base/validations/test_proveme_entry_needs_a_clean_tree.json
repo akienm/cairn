@@ -2,12 +2,12 @@
   {
     "claim": "proof test_proveme_entry_needs_a_clean_tree.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-07T19:06:47",
+    "date": "2026-10-08T04:31:27",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing\n.\n  ok   test_dirt_only_in_the_commons_refuses_naming_it\n.\n  ok   test_both_trees_clean_cross_with_a_working_tree_clean_lane\n.\n  ok   test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane\n                                                                     [100%]\n4 passed in 0.12s",
+      "stdout_tail": ".\n  ok   test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing\n.\n  ok   test_dirt_only_in_the_commons_refuses_naming_it\n.\n  ok   test_both_trees_clean_cross_with_a_working_tree_clean_lane\n.\n  ok   test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane\n                                                                     [100%]\n4 passed in 0.11s",
       "stderr_tail": "",
       "teeth_green": [
         "test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing",
@@ -16,7 +16,7 @@
         "test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane"
       ],
       "teeth_red": [],
-      "test": "test-fc9d2324dc92",
+      "test": "test-b21509301050",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -40,8 +40,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fc9d2324dc92",
-      "source_fingerprint": "b7bdb646dcd54e834666b59f3315d2a3c0a49095bafd455b58a2a54e146ea743",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b21509301050",
+      "source_fingerprint": "13b85fbc0e0a4aed8a381428e73aa7b4a967a07490adf12bd3d38a32987ca6a0",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -56,41 +56,23 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-251094-jalv1vd9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-395261-29sqeory/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/charter/0/20261008.010646.409893.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.010646.412186.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261008.103126.523496.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261008.103126.525798.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 103953586,
-          "disk_bytes": 125669376,
-          "entries": 8894,
+          "bytes": 104498061,
+          "disk_bytes": 126537728,
+          "entries": 9012,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "11cd253f10bc": {
-          "cairn/tools/base/transitions.py": [
-            "test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane",
-            "test_both_trees_clean_cross_with_a_working_tree_clean_lane",
-            "test_dirt_in_cairn_outside_the_component_refuses_and_writes_nothing",
-            "test_dirt_only_in_the_commons_refuses_naming_it"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "11cd253f10bc": {
-          "anchor_rule": "journal",
-          "anchor_journal": "3d0171a4213d496423af621b150fde9fb78a1d6d",
-          "anchor_first_build": "684019564c5c48e83cb3351c37186fa4b711ca39",
-          "commit": "3d0171a4213d496423af621b150fde9fb78a1d6d"
+          "reuses": 13
         }
       }
     },

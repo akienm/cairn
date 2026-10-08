@@ -1401,6 +1401,22 @@ def _named_on(journal_extra: dict) -> list[str]:
     return [str(one) for one in raw if one]
 
 
+def _dead_names(named: list[str], since: list[str]) -> list[dict]:
+    """Every proof name that resolves to no file, read the way ``proof_coverage.lacks`` reads
+    it at PROVED (absolute as is, else the cairn root / name) — copied, not imported (RULE 1).
+    A name on both lists reads 'this crossing'."""
+    dead, seen = [], set()
+    for names, origin in ((named, "this crossing"), (since, "since BUILDME")):
+        for name in names:
+            if name in seen:
+                continue
+            seen.add(name)
+            p = Path(name) if Path(name).is_absolute() else _REPO_ROOT / name
+            if not p.is_file():
+                dead.append({"name": name, "from": origin})
+    return dead
+
+
 def inspect_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
     """THE PROOF-NAMED SEAT'S RECORD — one lane, at the forward crossing into PROVEME.
 
@@ -1410,6 +1426,11 @@ def inspect_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
     proof behind it yet, and PROVEME is the last crossing where one can still be supplied
     without a back-edge (ticket 7203db7f151e). Both sides read the same sentence when the
     lane passes; the names ride in ``values``.
+
+    The names must also RESOLVE to files, read the way PROVED reads them (ticket c01503edd010):
+    41202d4c8d3b crossed here on a bare name with "clean — proof named", and PROVED, which
+    would refuse it as [proof_on_disk], was the first place left to catch it. The dead names
+    ride in ``values['dead']`` (an empty list when clean).
     """
     from cairn.tools.base import crossings  # lazy: crossings reads the journals of both roots
     code = "transitions.py::inspect_proof_named"
@@ -1419,16 +1440,25 @@ def inspect_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
     for one in named:
         if one not in union:
             union.append(one)
+    dead = _dead_names(named, list(since))
     shown = (f"the PROVEME crossing of ticket {ticket!r} names a proof — on this crossing "
              f"(proven_by) or on one since its latest forward BUILDME")
-    return [_lane("the_proveme_crossing_names_its_proof",
-                  expected=shown,
-                  actual=shown if union else
-                  f"the PROVEME crossing of ticket {ticket!r} names NO proof: this crossing "
+    if not union:
+        actual = (f"the PROVEME crossing of ticket {ticket!r} names NO proof: this crossing "
                   f"carries no proven_by and no crossing since its latest forward BUILDME "
                   f"names one — PROVED would refuse it as [proof_named], and by then the "
-                  f"only repair is a back-edge",
-                  code=code, ticket=ticket, named=named, since_buildme=list(since))]
+                  f"only repair is a back-edge")
+    elif dead:
+        actual = (f"the PROVEME crossing of ticket {ticket!r} names {len(dead)} proof(s) that "
+                  f"resolve to no file: "
+                  + "; ".join(f"{d['name']!r} ({d['from']})" for d in dead)
+                  + " — a name is read repo-relative under the cairn root, or absolute, as "
+                    "proof_coverage reads it at PROVED, which would refuse it as [proof_on_disk]")
+    else:
+        actual = shown
+    return [_lane("the_proveme_crossing_names_its_proof",
+                  expected=shown, actual=actual,
+                  code=code, ticket=ticket, named=named, since_buildme=list(since), dead=dead)]
 
 
 def _proof_named_gate(ticket: str, journal_extra: dict) -> tuple[str, list[dict]]:
@@ -1436,6 +1466,16 @@ def _proof_named_gate(ticket: str, journal_extra: dict) -> tuple[str, list[dict]
     refusal's findings read back out of its mismatches. Refuses BEFORE anything is written."""
     record = inspect_proof_named(ticket, journal_extra)
     bad = _mismatches(record)
+    dead = record[0]["values"].get("dead") or []
+    if bad and dead:
+        raise ProofNamedRed(
+            f"PROVEME crossing refused for ticket {ticket!r}: proven_by names a proof that "
+            f"resolves to no file — "
+            + "; ".join(f"{d['name']!r} ({d['from']})" for d in dead)
+            + ". Name the proof by its repo-relative path (e.g. skills/sail/proofs/<file>.py) "
+              "or its absolute path; a name on a crossing since the latest forward BUILDME "
+              "stays in the union PROVED reads until a forward BUILDME cuts it.",
+            findings=_findings_of(record))
     if bad:
         raise ProofNamedRed(
             f"PROVEME crossing refused for ticket {ticket!r}: no proof is named — this "

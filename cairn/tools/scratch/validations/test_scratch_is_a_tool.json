@@ -2,19 +2,21 @@
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:21:33",
+    "date": "2026-10-08T03:33:33",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  green the_tool_stands\n3 passed, 0 failed out of 3",
+      "returncode": 1,
+      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  RED   the_tool_stands: AssertionError: test_scratch.py exit 1: s/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")\n  cairn/devices/tester/proofs/test_an_unbuildable_network_seal_refuses_the_run.py:74: self.root = Path(tempfile.mkdtemp(prefix=\"unbuildable_seal_proof_fixture_\"))\n  cairn/devices/tester/proofs/test_exec_runs_in_the_callers_cwd.py:44: return os.path.realpath(tempfile.mkdtemp(prefix=f\"exec_cwd_proof_fixture_{tag}_\"))\n  cairn/tools/base/proofs/test_a_watch_stands_while_its_probe_is_installed.py:84: root = Path(tempfile.mkdtemp(prefix=\"stands-watch-fixture-probes-\"))\n\n2 passed, 1 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
         "nothing_reaches_into_the_tester_for_scratch",
-        "the_old_address_is_gone",
-        "the_tool_stands"
+        "the_old_address_is_gone"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "the_tool_stands: AssertionError: test_scratch.py exit 1: s/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")"
+      ],
+      "test": "test-75fe019f91f1",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -36,44 +38,18 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "53b21c8a921fe7d9c8ec1e87f4872c7853d5ccd64e792941303ca03b143aebe2",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-75fe019f91f1",
+      "source_fingerprint": "3034df1088129f234948d3c004b903a700a89fd943a9e6ebbc7d9b0b48c75deb",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/address_rule.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/nest.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/chain.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/verdict_contract.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch_is_a_tool.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/scratch/scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-qbn931qu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-383767-x7hiyfld/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -82,12 +58,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827395,
-          "disk_bytes": 191373312,
-          "entries": 11333,
+          "bytes": 104431056,
+          "disk_bytes": 126406656,
+          "entries": 8988,
           "builds": 1,
-          "reuses": 113
+          "reuses": 0
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "c55fac7aafdf32dcbe70c0d716b66d323ec35d71bc5155ca954b62ea0fbbd62d",
+        "opened": "2026-10-08T03:33:33",
+        "last_red": "2026-10-08T03:33:33",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-scratch",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

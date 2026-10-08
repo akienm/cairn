@@ -45,6 +45,20 @@ _SWEEP_CALL = "python3 -m skills.sail.sweep"
 _CHART_HEADING = "## 0. Chart it"
 
 
+def _sweep_order_problem(text: str) -> str | None:
+    """Why SKILL.md's sweep is not where it must be, or None when it calls it before /chart."""
+    lines = text.splitlines()
+    sweep = next((i for i, line in enumerate(lines) if _SWEEP_CALL in line), None)
+    chart = next((i for i, line in enumerate(lines) if line.startswith(_CHART_HEADING)), None)
+    if sweep is None:
+        return "absent"
+    if chart is None:
+        return "no /chart heading"
+    if sweep > chart:
+        return "after /chart"
+    return None
+
+
 def _git(repo: Path, *args: str) -> str:
     return subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "-C", str(repo), *args],
                           check=True, capture_output=True, text=True).stdout

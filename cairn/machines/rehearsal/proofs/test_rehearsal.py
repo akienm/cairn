@@ -97,6 +97,7 @@ PROVES = {
         "1": "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none",
         "2": "test_the_prompt_says_landed_work_builds_as_written",
         "3": "test_a_crossing_record_commit_is_not_listed_as_landed_work",
+        "4": "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
     },
 }
 TID = "0badc0ffee01"
@@ -656,6 +657,40 @@ def test_the_prompt_says_landed_work_builds_as_written():
     rule = [ln for ln in text.splitlines() if "ALREADY LANDED" in ln and "builds_as_written" in ln]
     assert rule, "the prompt carries no rule that landed work builds as written"
     assert "unlisted:" in rule[0], "the rule must forbid an unlisted step for landed work"
+
+
+def test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done():
+    """The landed-work rule is narrowed to what a listed commit's change performs, and the section
+    says the voyage is not complete (F26). Measured 2026-10-08 (F25): 41202d4c8d3b minus D14's
+    subtree (D14, D16), 3 reads each — the reader with no section raised the crossing-command gap
+    in 1 of 3; the reader told 'landed work builds as written' raised it in 0 of 3. A crossing, a
+    proof and a cursor command are not performed by any landed commit; nothing may hide them."""
+    text = R.prompt()
+    for clause in ("a decision counts as built only where a listed commit's change performs it",
+                   "including crossings, proofs and the commands that move the cursor",
+                   "is judged exactly as if this section were absent"):
+        assert clause in text, f"the prompt's landed-work rule lacks: {clause!r}"
+    w = World()
+    try:
+        repo = w.dir / "repo"
+        repo.mkdir()
+        git = ["git", "-C", str(repo)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                              "--allow-empty", "-m", "dddddddddddd: build"], check=True)
+        cursor = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
+        for tid in ("dddddddddddd", "eeeeeeeeeeee"):
+            (w.commons / "tickets" / f"{tid}-a-not-done-fixture.json").write_text(json.dumps(
+                {"id": tid, "title": "a not-done fixture", "workflow_and_state": cursor,
+                 "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
+        for tid in ("dddddddddddd", "eeeeeeeeeeee"):
+            section = R.render(tid, root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
+            section = section.split("# ALREADY LANDED", 1)[-1]
+            assert R.NOT_DONE in section.split("cursor:", 1)[0], \
+                f"{tid}: the ALREADY LANDED header does not say the voyage is not complete"
+        assert "NOT complete" in R.NOT_DONE and "still to be built" in R.NOT_DONE, R.NOT_DONE
+    finally:
+        w.close()
 
 
 def main() -> int:

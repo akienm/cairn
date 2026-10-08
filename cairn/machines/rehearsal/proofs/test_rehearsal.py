@@ -96,6 +96,7 @@ PROVES = {
     "80518446bfc8": {
         "1": "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none",
         "2": "test_the_prompt_says_landed_work_builds_as_written",
+        "3": "test_a_crossing_record_commit_is_not_listed_as_landed_work",
     },
 }
 TID = "0badc0ffee01"
@@ -600,6 +601,51 @@ def test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none
         assert "unrelated: other" not in text, "a commit that does not name the ticket is not listed"
         none = R.render("bbbbbbbbbbbb", root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
         assert "# ALREADY LANDED" in none and "(nothing landed for this ticket)" in none
+    finally:
+        w.close()
+
+
+def test_a_crossing_record_commit_is_not_listed_as_landed_work():
+    """A door crossing is a record of the cursor, not work: a commit whose every changed file is
+    a record (history.json, state.json, a validations/ record, the journal) is left out, and a
+    commit that changes any other file stays. Measured 2026-10-08 (F22(b), F23): 41202d4c8d3b with
+    D14 removed — the reader shown 0d83860a 'PROVEME — ...', a crossing the kick-back undid, as
+    landed raised the crossing-command gap in 0 of 3 reads; the reader shown nothing, in 1 of 3."""
+    w = World()
+    try:
+        repo = w.dir / "repo"
+        (repo / "comp" / "proofs").mkdir(parents=True)
+        (repo / "comp" / "validations").mkdir()
+        git = ["git", "-C", str(repo)]
+        subprocess.run(git + ["init", "-q"], check=True)
+
+        def commit(msg, *files):
+            for f in files:
+                p = repo / f
+                p.write_text((p.read_text() if p.exists() else "") + msg + "\n")
+            subprocess.run(git + ["add", "-A"], check=True)
+            subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                                  "-m", msg], check=True)
+
+        tid = "cccccccccccc"
+        commit(f"{tid}: proof red", "comp/proofs/test_comp.py")
+        commit(f"{tid}: build", "comp/comp.py")
+        commit(f"{tid}: PROVEME crossing", "comp/history.json", "comp/state.json", ".artifact-journal.jsonl")
+        commit(f"{tid}: sealed", "comp/validations/test_comp.json", ".artifact-journal.jsonl")
+        commit(f"{tid}: build beside its record", "comp/comp.py", "comp/history.json")
+        (w.commons / "tickets" / f"{tid}-a-crossing-fixture.json").write_text(json.dumps(
+            {"id": tid, "title": "a crossing fixture",
+             "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+             "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
+        text = R.render(tid, root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
+        section = text.split("# ALREADY LANDED", 1)[-1]
+        for kept in ("proof red", "build", "build beside its record"):
+            assert re.search(rf"^[0-9a-f]{{7,}} {tid}: {kept}$", section, re.M), \
+                f"a work commit ('{kept}') must stay listed"
+        assert f"{tid}: PROVEME crossing" not in section, \
+            "a crossing record (only history/state/journal changed) is listed as landed work"
+        assert f"{tid}: sealed" not in section, \
+            "a seal record (only a validations record and the journal changed) is listed as landed work"
     finally:
         w.close()
 

@@ -7444,5 +7444,89 @@
     "fingerprint": "a3f38cccb6cd9614764dbbc8d97593b8c154aaacdd4cfdb6de8653f105f5a597",
     "at": "2026-10-08T00:30:23",
     "seq": 22
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "80518446bfc8",
+    "actor": "cc",
+    "why": "F22(b) control red (F23 discriminator): 8y with D14 removed — OLD reader (51c1e053) raised the crossing-command gap in 1 of 3 reads, NEW reader (d5dda558) in 0 of 3; ALREADY LANDED lists 0d83860a, a PROVEME crossing record the kick-back undid, as landed work",
+    "missing": [
+      "ALREADY LANDED lists door-crossing record commits (only history.json/state.json/validations/journal changed) as landed work; a crossing the cursor stands before reads as done (8y: 0d83860a PROVEME listed while cursor is TICKETME:waiting)",
+      "no tooth pins that a crossing-record commit is left out of ALREADY LANDED while a work commit (build, proof) stays"
+    ],
+    "fingerprint": "80a94df177a3c3ec75c5b9b9b91ee3f79dd9b246f8e00351a469f866ee61bcf9",
+    "at": "2026-10-08T00:51:59",
+    "seq": 23
   }
 ]

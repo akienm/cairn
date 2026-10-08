@@ -2,7 +2,7 @@
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T03:33:33",
+    "date": "2026-10-08T04:46:11",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -16,7 +16,7 @@
       "teeth_red": [
         "the_tool_stands: AssertionError: test_scratch.py exit 1: s/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")"
       ],
-      "test": "test-75fe019f91f1",
+      "test": "test-d61bae66bdcd",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -40,8 +40,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-75fe019f91f1",
-      "source_fingerprint": "3034df1088129f234948d3c004b903a700a89fd943a9e6ebbc7d9b0b48c75deb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d61bae66bdcd",
+      "source_fingerprint": "cf35e238ff108a7d70cfe5b242359087135edfbb709ada9f71bce708db6db33c",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch_is_a_tool.py",
@@ -49,7 +49,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-383767-x7hiyfld/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-407313-9bo5o8xx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,18 +58,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104431056,
-          "disk_bytes": 126406656,
-          "entries": 8988,
+          "bytes": 104504858,
+          "disk_bytes": 126554112,
+          "entries": 9014,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       },
       "reseal_ladder": {
         "proof_sha256": "c55fac7aafdf32dcbe70c0d716b66d323ec35d71bc5155ca954b62ea0fbbd62d",
         "opened": "2026-10-08T03:33:33",
-        "last_red": "2026-10-08T03:33:33",
-        "passes": 1,
+        "last_red": "2026-10-08T04:46:11",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-scratch",
         "ruling": null

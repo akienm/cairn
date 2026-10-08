@@ -1,24 +1,21 @@
 [
   {
     "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-02T01:21:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-08T04:46:05",
     "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
+      "stderr_tail": "    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/scratch/proofs/test_scratch.py\", line 241, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/scratch/proofs/test_scratch.py\", line 233, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/scratch/proofs/test_scratch.py\", line 164, in test_no_proof_in_this_repo_calls_mkdtemp_bare\n    assert not offenders, (\n           ^^^^^^^^^^^^^\nAssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.tools.scratch.scratch.scratch_dir:\n  bin/proofs/test_proof_gate.py:217: d = Path(tempfile.mkdtemp(prefix=\"proofgate_fixture_proof_\")) / \"proofs\"\n  cairn/devices/tester/proofs/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")\n  cairn/devices/tester/proofs/test_an_unbuildable_network_seal_refuses_the_run.py:74: self.root = Path(tempfile.mkdtemp(prefix=\"unbuildable_seal_proof_fixture_\"))\n  cairn/devices/tester/proofs/test_exec_runs_in_the_callers_cwd.py:44: return os.path.realpath(tempfile.mkdtemp(prefix=f\"exec_cwd_proof_fixture_{tag}_\"))\n  cairn/tools/base/proofs/test_a_watch_stands_while_its_probe_is_installed.py:84: root = Path(tempfile.mkdtemp(prefix=\"stands-watch-fixture-probes-\"))",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
         "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
-        "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare",
-        "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
-        "test_a_with_block_holds_the_scratch",
-        "test_every_with_scratch_dir_site_in_the_repo_enters"
+        "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal"
       ],
       "teeth_red": [],
+      "test": "test-9186d394ea49",
       "seal": {
         "verdict": "sealed",
         "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
@@ -27,17 +24,29 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "3837da9a87edee41df094b080eb5920d1ebc7672badd8016c9ddfdb1e413f2fd",
+      "conditions": {
+        "proof": "1dd04adaaf27a9622f06a2b88678e58d9c3f34f719245485066f1eb9ee6c5c77",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "netns seal=sealed instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9186d394ea49",
+      "source_fingerprint": "e05add9e265e77d242e12229c3071613615ab0b4e7f2338766f2906f5c25f7ec",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/proofs/test_scratch.py",
-        "cairn/tools/scratch/scratch.py"
+        "cairn/tools/scratch/proofs/test_scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-821561-ba1ld4zt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-407313-0arpeanq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -46,12 +55,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 143314763,
-          "disk_bytes": 163049472,
-          "entries": 8226,
+          "bytes": 104504858,
+          "disk_bytes": 126554112,
+          "entries": 9014,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "1dd04adaaf27a9622f06a2b88678e58d9c3f34f719245485066f1eb9ee6c5c77",
+        "opened": "2026-10-08T04:46:05",
+        "last_red": "2026-10-08T04:46:05",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-scratch",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

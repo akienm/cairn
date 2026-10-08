@@ -38,9 +38,15 @@ These thirty could not: they are module-level roots and helper-function returns,
 across many teeth, with no single ``with`` block whose scope matches. ``atexit`` is the
 scope that actually fits their lifetime — the run.
 
-WHAT THIS DOES NOT CLAIM. A run killed with SIGKILL fires no atexit hook and leaks. That
-is the tail; it is not the two-month case, and it does not justify a supervisor process to
-watch a directory. The honest boundary is stated rather than papered over (CP1).
+A KILLED RUN IS SWEPT BY THE NEXT ONE (ticket 4784351e4838). A run killed with SIGKILL
+fires no atexit hook — the tester's timeout kills that way — and on 2026-10-08 /tmp held
+1068 entries (1.7G of tmpfs) while a clean run left the count unchanged: the leak was the
+killed runs, not the exiting ones. So every scratch name carries its owner's pid namespace
+and pid behind a fixed marker, and each process's FIRST scratch call removes the marked
+entries whose owner is dead in its own namespace (a worktree is also deregistered). No
+supervisor watches a directory; the next process to ask is the sweep. An entry from another
+pid namespace is never judged by its pid, and entries made before the marker existed carry
+no owner and are not this door's to judge.
 """
 
 from __future__ import annotations
@@ -48,10 +54,19 @@ from __future__ import annotations
 import atexit
 import shutil
 import os
+import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+
+# THE MARK (ticket 4784351e4838): ``<prefix>scratch.<pid-namespace inode>-<pid>-<mkdtemp suffix>``.
+# The name is the record — a tool holds no state of its own (Law 6).
+_MARK = "scratch."
+_NS = os.stat("/proc/self/ns/pid").st_ino
+_OWNED = re.compile(r"scratch\.(\d+)-(\d+)-[a-z0-9_]{8}$")
+_swept = False
 
 
 class ScratchPath(type(Path())):
@@ -72,7 +87,8 @@ class ScratchPath(type(Path())):
 
 def scratch_dir(prefix: str) -> Path:
     """A temp directory removed when this process exits. The caller writes no cleanup."""
-    d = ScratchPath(tempfile.mkdtemp(prefix=prefix))
+    _sweep_once()
+    d = ScratchPath(tempfile.mkdtemp(prefix=f"{prefix}{_MARK}{_NS}-{os.getpid()}-"))
     atexit.register(_sweep, d)
     return d
 
@@ -158,6 +174,66 @@ def git_env() -> dict:
     return {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
 
 
+def _owner_alive(pid: int) -> bool:
+    """Is ``pid`` alive as read from this namespace — copied from isolation._pid_alive, not
+    imported (RULE 1)."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _sweep_dead_owners(tmp: str | None = None) -> list[str]:
+    """Remove every marked scratch entry under the temp root whose owner is dead in THIS pid
+    namespace, deregistering a worktree's registration too; return what was removed.
+
+    Judges only what carries the mark and this namespace's inode: an unmarked entry, a live
+    owner's entry and an entry from another namespace are never touched. Like ``_sweep``, it
+    says so at the diagnostic surface and never raises.
+    """
+    root = Path(tmp or tempfile.gettempdir())
+    try:
+        entries = list(root.iterdir())
+    except OSError:
+        return []
+    swept = []
+    for entry in entries:
+        try:
+            m = _OWNED.search(entry.name)
+            if not m or not entry.is_dir() or int(m.group(1)) != _NS:
+                continue
+            pid = int(m.group(2))
+            if pid == os.getpid() or _owner_alive(pid):
+                continue
+            gitfile = entry / "worktree" / ".git"
+            if gitfile.is_file():
+                first = gitfile.read_text().splitlines()[0]
+                if not first.startswith("gitdir:"):
+                    raise ValueError(f"{gitfile} does not name a gitdir: {first!r}")
+                gitdir = first[len("gitdir:"):].strip()
+                shutil.rmtree(entry)
+                subprocess.run(["git", "--git-dir", str(Path(gitdir).parents[1]), "worktree", "prune"],
+                               capture_output=True, text=True, env=git_env())
+            else:
+                shutil.rmtree(entry)
+            swept.append(str(entry))
+        except (OSError, ValueError, IndexError) as e:
+            print(f"scratch: could not sweep {entry}: {type(e).__name__}: {e}", file=sys.stderr)
+    return swept
+
+
+def _sweep_once() -> None:
+    """Sweep dead owners at this process's first scratch call — no clock, no daemon."""
+    global _swept
+    if _swept:
+        return
+    _swept = True
+    _sweep_dead_owners()
+
+
 def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn-hollow-") -> Path:
     """A git worktree at ``commit``, removed AND DEREGISTERED when this process exits.
 
@@ -178,8 +254,9 @@ def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn
     by some other hand and ``remove`` therefore refuses. Neither raises: an exception escaping
     an atexit hook buries the proof's verdict under a teardown traceback (see ``_sweep``).
     """
+    _sweep_once()
     repo_root = Path(repo_root).resolve()
-    parent = Path(tempfile.mkdtemp(prefix=prefix))
+    parent = Path(tempfile.mkdtemp(prefix=f"{prefix}{_MARK}{_NS}-{os.getpid()}-"))
     wt = parent / "worktree"
     proc = subprocess.run(
         ["git", "-C", str(repo_root), "worktree", "add", "--detach", "--quiet", str(wt), commit],

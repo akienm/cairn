@@ -15,10 +15,14 @@ sandbox that carries the swap, wraps that skip bwrap when nothing new is needed,
 branch in ``check_instance_seal`` that MEASURES the inherited mount rather than trusting the
 marker.
 
+The network seal is retired (ticket d80360545e91): the outer sandbox now carries the instance
+seal alone, and the inner run seals with plain ``--seal``. What this proof measures — that a
+sandbox inside a sandbox inherits instead of asking for a second namespace — is unchanged.
+
 Teeth a hollow build could not pass:
 
-  1. A NESTED TESTER RUN REPORTS ITS FIXTURE GREEN. ``cairn test --netns --seal`` driven from inside
-     a tester sandbox carrying both seals exits 0 and lands a green record.
+  1. A NESTED TESTER RUN REPORTS ITS FIXTURE GREEN. ``cairn test --seal`` driven from inside
+     a tester sandbox carrying the instance seal exits 0 and lands a green record.
   2. THE INNER WRITE LANDS IN THE OUTER SWAP ONLY. The fixture writes a file under ``~/.cairn``;
      it is in the swap, not in the live root, and the inner run's own record witnessed it.
   3. THE MARKER WITHOUT A MOUNT READS BREACHED. Set ``CAIRN_TESTER_INSTANCE_SEALED=1`` by hand
@@ -66,7 +70,7 @@ def _fixture(tmp: str) -> Path:
 
 
 def _outer(inner_argv: list[str]):
-    """Run ``inner_argv`` inside a tester sandbox carrying both seals; return (run, swap).
+    """Run ``inner_argv`` inside a tester sandbox carrying the instance seal; return (run, swap).
 
     AT WHATEVER DEPTH THIS PROOF FINDS ITSELF, like its sibling's nested tooth: under the
     tester's own seal it already IS the outer sandbox and runs the inner argv directly (swap is
@@ -74,11 +78,11 @@ def _outer(inner_argv: list[str]):
     snapshot the caller removes)."""
     from cairn.devices.tester import isolation as I
 
-    if I.inside_a_seal() and getattr(I, "inside_an_instance_seal", lambda: False)():
+    if I.inside_an_instance_seal():
         run = subprocess.run(inner_argv, capture_output=True, text=True, cwd=os.getcwd())
         return run, None
     swap = I.snapshot_instance_space()
-    argv = I.NetnsIsolation().wrap(inner_argv, os.getcwd(), instance_swap=swap)
+    argv = I.NoIsolation().wrap(inner_argv, os.getcwd(), instance_swap=swap)
     run = subprocess.run(argv, capture_output=True, text=True, cwd=os.getcwd())
     return run, swap
 
@@ -91,7 +95,7 @@ def _last_entry(comp: Path) -> dict:
 
 def _inner(comp: Path) -> list[str]:
     return [sys.executable, "-m", "cairn.devices.tester.cli", str(comp),
-            "--netns", "--seal", "--timeout", "120"]
+            "--seal", "--timeout", "120"]
 
 
 def test_a_nested_tester_run_reports_its_fixture_green():

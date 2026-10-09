@@ -80,6 +80,15 @@ _ENOUGH_DAYS = 30
 # `{unresolvable:...}` (which is the function doing its job, loudly, exactly as designed).
 _OWNING_TICKET = "4431cf2bc625-a-measured-seal-is-never-replaced-by-an-unrequested-one"
 
+# THE NETWORK SEAL IS RETIRED (ticket d80360545e91, approved as question open-41bc11343280).
+# From that build on, every proof's next landing over a measured seal reads `open` and carries
+# an ``unsealing_because`` naming the retirement — written by the store's own guard, one record
+# at a time, as each proof next lands. That is ONE stated reason applied by the system, not a
+# caller stating its way past the door, so it is not an escape; and the measurement it
+# replaces did not go away unannounced, so it still counts toward the floor. Matched on the
+# ticket id in the text, so this probe imports nothing from the tester to recognise it.
+_RETIREMENT = "d80360545e91"
+
 
 def survey_the_corpus() -> dict:
     """Count, over every standing validation in both roots: how many carry each seal verdict,
@@ -95,6 +104,7 @@ def survey_the_corpus() -> dict:
     """
     verdicts: dict[str, int] = {}
     escapes: list[dict] = []
+    retired = 0
     unreadable: list[str] = []
     population = 0
 
@@ -126,7 +136,9 @@ def survey_the_corpus() -> dict:
             verdict = seal.get("verdict")
             verdicts[str(verdict)] = verdicts.get(str(verdict), 0) + 1
 
-            if evidence.get("unsealing_because"):
+            if _RETIREMENT in str(evidence.get("unsealing_because") or ""):
+                retired += 1
+            elif evidence.get("unsealing_because"):
                 escapes.append({"trail": os.path.relpath(path, root),
                                 "because": evidence["unsealing_because"],
                                 "caller": rec.get("caller"), "date": rec.get("date")})
@@ -134,6 +146,8 @@ def survey_the_corpus() -> dict:
     return {"population": population,
             "verdicts": verdicts,
             "sealed_count": verdicts.get("sealed", 0),
+            "retired_count": retired,
+            "kept_count": verdicts.get("sealed", 0) + retired,
             "escapes": escapes, "escape_count": len(escapes),
             "unreadable": unreadable}
 
@@ -160,7 +174,7 @@ def _trigger(now, context: dict) -> bool:
     2026-09-08 having been caught by a hand diffing one file.
     """
     s = once(context, "corpus", survey_the_corpus)
-    return s["sealed_count"] < _BASELINE_SEALED or bool(s["escape_count"])
+    return s["kept_count"] < _BASELINE_SEALED or bool(s["escape_count"])
 
 
 def _enough(context: dict) -> bool:
@@ -175,14 +189,14 @@ def _enough(context: dict) -> bool:
     """
     s = once(context, "corpus", survey_the_corpus)
     return (_days_since_arming() >= _ENOUGH_DAYS
-            and s["sealed_count"] >= _BASELINE_SEALED
+            and s["kept_count"] >= _BASELINE_SEALED
             and not s["escape_count"])
 
 
 def _carry(context: dict) -> dict:
     """The datum that rides back: what was lost or stated away, who did it, and what they said."""
     s = once(context, "corpus", survey_the_corpus)
-    lost = _BASELINE_SEALED - s["sealed_count"]
+    lost = _BASELINE_SEALED - s["kept_count"]
     parts = []
     if lost > 0:
         parts.append(f"{lost} sealed reading(s) below the {_BASELINE_SEALED} standing at "
@@ -194,6 +208,7 @@ def _carry(context: dict) -> dict:
             "verdicts": s["verdicts"],
             "baseline_sealed": _BASELINE_SEALED,
             "sealed_now": s["sealed_count"],
+            "retired_by_d80360545e91": s["retired_count"],
             "escapes": s["escapes"],
             "unreadable_files": s["unreadable"],
             "days_since_arming": _days_since_arming(),

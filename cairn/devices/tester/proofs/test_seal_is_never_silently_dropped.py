@@ -73,8 +73,9 @@ from cairn.devices.tester.device import TesterDevice
 from cairn.devices.tester.isolation import BREACHED, INDETERMINATE, OPEN, SEALED
 
 # WHICH TOOTH ANSWERS WHICH CLAUSE — read by proof_coverage and by `cairn test --hollow`.
-# Ticket 299d4f72ae40's falsifier enumerates its DONE-when list (1)..(5); clauses (1) and (4)
-# are about the CLI SURFACE and are declared in test_cli.py, because one proof declares one
+# Ticket 299d4f72ae40's falsifier enumerates its DONE-when list (1)..(5), clause 4 since retired
+# with the network seal (ticket d80360545e91, open-914da176b1ed); clause (1) is about the CLI
+# SURFACE and is declared in test_cli.py, because one proof declares one
 # tooth per clause key and the surface's teeth do not live here. A clause declared in neither
 # file is a clause nothing measures, which is the lack the gate names rather than a hollow
 # build — so the split is written down in both directions.

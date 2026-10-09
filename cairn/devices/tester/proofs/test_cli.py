@@ -28,14 +28,15 @@ import tempfile
 from pathlib import Path
 
 # WHICH TOOTH ANSWERS WHICH CLAUSE — read by proof_coverage and by `cairn test --hollow`.
-# Ticket 299d4f72ae40's clauses (1) and (4) are about what the SURFACE says out loud: the
-# override line before a run, and the refusal line that does not stop the batch. Its other
-# three clauses are about the store's write door and are declared beside it, in
+# Ticket 299d4f72ae40's clause (1) is about what the SURFACE says out loud about --netns. Its
+# clause 4 (the refused-seal line that does not stop the batch) is retired with the network seal
+# (ticket d80360545e91, Akien's answer to open-914da176b1ed): no `cairn test` path can pose a
+# refused seal any more, and d80360545e91's clause (5) measures that. Its other three clauses
+# are about the store's write door and are declared beside it, in
 # test_seal_is_never_silently_dropped.py.
 PROVES = {
     "299d4f72ae40": {
-        "1": "test_an_explicit_netns_says_so_when_it_disagrees_with_the_standing_record",
-        "4": "test_a_refused_seal_is_reported_and_the_batch_carries_on",
+        "1": "test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written",
     },
 }
 
@@ -187,66 +188,33 @@ def _pose_standing(proof: Path, verdict: str) -> None:
     vs.persist_validation(dict(real, evidence=evidence), proof_path=str(proof))
 
 
-def test_an_explicit_netns_says_so_when_it_disagrees_with_the_standing_record() -> None:
-    """THE OVERRIDE IS ANNOUNCED BEFORE THE RUN, AND ONLY ON DISAGREEMENT (ticket 299d4f72ae40).
+def test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written() -> None:
+    """AN EXPLICIT --netns CANNOT REWRITE WHAT A STANDING RECORD SAYS (ticket 299d4f72ae40).
 
     Measured at HEAD 57bd9cf: `--seal --netns` over a proof standing at `open` converted it to
     `sealed` in four lines of output with no mention that anything had been overridden, and the
-    prior reading was unrecoverable because the store REPLACES. The operator who typed the flag
-    to make a sweep uniform could not see that it was also rewriting what the records said.
+    prior reading was unrecoverable because the store REPLACES. The first answer was to announce
+    the override before the run.
 
-    Two proofs in one batch: one standing `open` (disagrees — the flag would run it at netns
-    where its record says none) and one standing `sealed` (agrees). The line must name the
-    first and never the second, and it must appear BEFORE that proof's own result line — loud
-    after the fact is not loud.
+    The network seal is retired (ticket d80360545e91), so the flag no longer overrides anything:
+    it refuses with exit 2, naming the retirement, before any proof runs. The clause this tooth
+    holds — the flag never quietly changes what a standing record says — now holds by the
+    refusal. Two proofs standing `open` and `sealed`: neither record's bytes move.
     """
     with tempfile.TemporaryDirectory() as tmp:
         d = _fixture_dir(Path(tmp), disagrees=GREEN_FIXTURE, agrees=GREEN_FIXTURE)
         _pose_standing(d / "test_disagrees.py", "open")
         _pose_standing(d / "test_agrees.py", "sealed")
-
-        out = _run(str(d), "--seal", "--netns")
-        lines = (out.stdout + out.stderr).splitlines()
-        override = [i for i, ln in enumerate(lines) if "OVERRIDE" in ln]
-        assert override, (
-            "no override was announced over a standing `open` — the conversion is silent "
-            f"again, which is the whole failure:\n{out.stdout}{out.stderr}")
-        announced = lines[override[0]]
-        assert "test_disagrees" in announced, (
-            f"the announcement names the wrong proof: {announced!r}")
-        assert "open" in announced, (
-            f"the announcement does not say what reading is being overridden: {announced!r}")
-        assert not any("test_agrees" in lines[i] for i in override), (
-            "an override was announced for a proof whose standing record AGREES with the "
-            "flag — a line printed on every proof is a line nobody reads")
-
-        result = [i for i, ln in enumerate(lines)
-                  if "test_disagrees" in ln and "OVERRIDE" not in ln]
-        assert result and override[0] < result[0], (
-            "the announcement came after that proof's result — an operator cannot act on a "
-            f"warning that arrives with the damage:\n{out.stdout}{out.stderr}")
-
-
-def test_a_refused_seal_is_reported_and_the_batch_carries_on() -> None:
-    """ONE PROOF WHOSE SEAL CANNOT LAND IS NOT A REASON TO LOSE THE VERDICTS OF THE REST.
-
-    The precedent was already here for the sibling guard; the mirror joins it rather than
-    inventing a surface. Three proofs, the refusal in the middle by construction: the middle
-    one stands at `open`, so `--netns` makes its landing a conversion with no reason and the
-    store refuses it. The two either side must still run and report.
-    """
-    with tempfile.TemporaryDirectory() as tmp:
-        d = _fixture_dir(Path(tmp), aaa=GREEN_FIXTURE, mmm=GREEN_FIXTURE, zzz=GREEN_FIXTURE)
-        _pose_standing(d / "test_mmm.py", "open")
+        landed = sorted((d.parent / "validations").glob("*.json"))
+        assert len(landed) == 2, f"the fixture posed {len(landed)} standing records, want 2"
+        before = {p.name: p.read_bytes() for p in landed}
 
         out = _run(str(d), "--seal", "--netns")
         text = out.stdout + out.stderr
-        assert "REFUSED" in text and "test_mmm" in text, (
-            f"the refusal was swallowed — a silent conversion by another route:\n{text}")
-        for other in ("test_aaa", "test_zzz"):
-            assert other in text, (
-                f"{other} never reported — the run ended at the refusal, and the batch was "
-                f"lost for one proof's seal:\n{text}")
+        assert out.returncode == 2, f"`--seal --netns` exited {out.returncode}, want 2:\n{text}"
+        assert "d80360545e91" in text, f"the refusal does not name the retirement:\n{text}"
+        after = {p.name: p.read_bytes() for p in sorted((d.parent / "validations").glob("*.json"))}
+        assert after == before, "a refused `--seal --netns` rewrote a standing record"
 
 
 def _main() -> int:

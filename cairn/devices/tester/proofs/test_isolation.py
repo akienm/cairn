@@ -10,11 +10,9 @@ hollow build could not pass:
     "sealed" while handing out live sockets is the exact defect the tester exists to
     kill (Law 8). We prove the four seal verdicts by feeding the probe scripted
     outcomes — no network needed, so the tooth bites everywhere.
-  - THE LIVE PHYSICS (measured here, honest when it can't be). On a host that can build
-    the namespace, ``NetnsIsolation`` really does turn an off-host route into
-    "no route" — asserted live. On a host that cannot, the verdict is INDETERMINATE and
-    we say so loudly (CP1), rather than fake a pass; only an actual BREACH on a
-    seal-capable host reds.
+  - THE NETWORK SEAL IS RETIRED (ticket d80360545e91). The live-namespace teeth that ran a
+    proof under ``NetnsIsolation`` went with it; what stays is the measurement vocabulary
+    (the four verdicts, the hollow-seal killer) and the instance seal, which is untouched.
   - NO SCHEMA DRIFT. Folding the seal into a VALIDATION keeps the record at exactly the
     ratified eight fields — the seal rides inside ``method`` + ``evidence``.
 
@@ -41,7 +39,6 @@ from cairn.devices.tester.isolation import (
     OPEN,
     SEALED,
     Isolation,
-    NetnsIsolation,
     NoIsolation,
     Seal,
     bwrap_available,
@@ -112,21 +109,6 @@ def test_unknown_isolation_is_refused():
     raise AssertionError("get_isolation must refuse an unknown isolation name")
 
 
-def test_netns_really_seals_on_this_host():
-    # Live physics: measured, and honest when the host cannot build the namespace.
-    iso = NetnsIsolation()
-    ok, why = iso.available()
-    if not ok:
-        print(f"  INDETERMINATE  netns unavailable here: {why} (CP1 — not faking a pass)")
-        return
-    seal = iso.check_seal(str(_FIXTURES))
-    print(f"  LIVE SEAL  {seal.verdict}: {seal.detail}")
-    assert seal.verdict != BREACHED, f"bwrap is present but the seal did not hold: {seal.detail}"
-    # SEALED is the expected live result; INDETERMINATE (e.g. this box is offline) is
-    # honest, not a failure of the code. Only a BREACH on a seal-capable host is a red.
-    assert seal.verdict in (SEALED, INDETERMINATE)
-
-
 def test_run_proof_records_the_seal_without_schema_drift():
     t = TesterDevice()
     v = t.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
@@ -136,46 +118,25 @@ def test_run_proof_records_the_seal_without_schema_drift():
     assert v["verdict"] == GREEN
 
 
-def test_run_proof_under_netns_when_available():
-    iso = NetnsIsolation()
-    ok, _ = iso.available()
-    if not ok:
-        print("  skipped netns run_proof: namespace unavailable here (honest, not faked)")
-        return
-    v = TesterDevice().run_proof(_GREEN_FIXTURE, sink="none", isolation="netns")
-    assert set(v) == set(VALIDATION_FIELDS)
-    seal_verdict = v["evidence"]["seal"]["verdict"]
-    print(f"  run_proof netns  proof={v['verdict']}  seal={seal_verdict}")
-    assert seal_verdict != BREACHED, "a green proof under a broken seal must not pass silently"
-    # The proof itself passes inside the seal (a seal removes the network, not the fixture).
-    assert v["verdict"] == GREEN
-    if seal_verdict == SEALED:
-        assert "seal=sealed" in v["method"]
-
-
 def test_the_seal_does_not_depend_on_how_the_path_is_spelled():
-    # REGRESSION (2026-07-24). The netns seal runs the subject under `bwrap --chdir
+    # REGRESSION (2026-07-24). The sandbox runs the subject under `bwrap --chdir
     # <proof.parent>`; a RELATIVE parent resolves against the namespace root (/), not the
     # host cwd, so a relative-path call silently broke the chdir — failing the proof (false
-    # RED) and downgrading the seal to INDETERMINATE. run_proof now resolve()s the path, so
-    # the measured seal must be identical whether the caller spells the path relative or
-    # absolute (Law 4: the guarantee is physics, not a "pass an absolute path" convention).
-    iso = NetnsIsolation()
-    ok, _ = iso.available()
-    if not ok:
-        print("  skipped path-spelling regression: netns unavailable here (honest, not faked)")
-        return
+    # RED) and downgrading the seal. run_proof resolve()s the path, so the recorded seal must
+    # be identical whether the caller spells the path relative or absolute (Law 4: the
+    # guarantee is physics, not a "pass an absolute path" convention). Measured at isolation
+    # "none" since the network seal was retired (d80360545e91); the instance seal still
+    # chdirs the same way.
     t = TesterDevice()
-    absolute = t.run_proof(_GREEN_FIXTURE, sink="none", isolation="netns")
+    absolute = t.run_proof(_GREEN_FIXTURE, sink="none", isolation="none")
     rel = os.path.relpath(_GREEN_FIXTURE, os.getcwd())
     assert not os.path.isabs(rel), "the regression needs a genuinely relative spelling"
-    relative = t.run_proof(rel, sink="none", isolation="netns")
+    relative = t.run_proof(rel, sink="none", isolation="none")
     print(f"  abs seal={absolute['evidence']['seal']['verdict']}  rel seal={relative['evidence']['seal']['verdict']}")
     assert relative["verdict"] == absolute["verdict"] == GREEN, "a relative path must not fail the proof"
     assert relative["evidence"]["seal"]["verdict"] == absolute["evidence"]["seal"]["verdict"], (
         "the seal verdict must not depend on how the caller spelled the path"
     )
-    assert relative["evidence"]["seal"]["verdict"] == SEALED, "on a netns host both spellings must SEAL"
 
 
 # ── THE COST OF THE SEAL (ticket 1c4ae8f053fe) ───────────────────────────────
@@ -393,9 +354,7 @@ def _main() -> int:
         test_the_four_seal_verdicts_are_measured_not_assumed,
         test_only_sealed_and_open_are_trustworthy,
         test_unknown_isolation_is_refused,
-        test_netns_really_seals_on_this_host,
         test_run_proof_records_the_seal_without_schema_drift,
-        test_run_proof_under_netns_when_available,
         test_the_seal_does_not_depend_on_how_the_path_is_spelled,
         test_the_snapshot_leaves_the_trail_tree_empty_and_present,
         test_the_snapshot_steps_over_a_live_socket,

@@ -2,8 +2,8 @@
   {
     "claim": "proof test_crossing_fingerprint.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T11:57:04",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-09T08:44:57",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -20,20 +20,23 @@
         "test_verify_returns_true_on_untampered"
       ],
       "teeth_red": [],
-      "test": "test-a94268e3ff4c",
+      "test": "test-2493d6161955",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_729310_0844534934_delivery",
+          "bus_proc_729310_0844534934"
+        ]
       },
       "conditions": {
         "proof": "c2dc1c82c08656912613bb75a6ccc3a8e01e3768a5ae886c42b7414667322dab",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -44,8 +47,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a94268e3ff4c",
-      "source_fingerprint": "1fa7bcf470795ca0af9f8ac6fc69a7ea5914a06939ca6fb983537c494beafd41",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2493d6161955",
+      "source_fingerprint": "45622835c1287fd1070b2f67e8aa585007fa2ab14b0c503dbbcfe1c7abf54ef1",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -60,30 +63,31 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-490485-dizzz407/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-723835-nqwao40g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
-            "logs/charter/0/20261008.175703.550444.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.552044.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.553291.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.560012.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.561406.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.563149.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261008.175703.564459.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261009.144456.646086.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.647368.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.648313.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.653805.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.654929.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.656330.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261009.144456.657415.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 104826356,
-          "disk_bytes": 127258624,
-          "entries": 9135,
+          "bytes": 105305561,
+          "disk_bytes": 128106496,
+          "entries": 9283,
           "builds": 1,
-          "reuses": 5
+          "reuses": 7
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

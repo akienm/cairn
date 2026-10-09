@@ -27,6 +27,7 @@ Proof: exit 0 = green.
 
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import subprocess
@@ -53,6 +54,9 @@ PROVES = {"68cef2ddd8ef": {
     "2": "test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else",
     "3": "test_the_record_keeps_its_keys_and_its_exit",
     "4": "test_a_refused_seal_is_recorded_and_nothing_runs_bare",
+}, "68e897fc74b8": {
+    "1": "test_the_proof_reaches_no_device_off_its_interface",
+    "2": "test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else",
 }}
 
 
@@ -156,7 +160,18 @@ print(json.dumps({"seen": seen, "rec": rec}))
     assert "ran bare" not in rec["tail"], f"bare output reached the record: {rec}"
 
 
+def test_the_proof_reaches_no_device_off_its_interface():
+    # RULE 1 holds inside a proof too (68e897fc74b8): build_inspector publishes the sieve,
+    # resolved at call time so a reverted build reads as this tooth's red.
+    inspector = importlib.import_module("cairn.machines.build_inspector.inspector")
+    rows = [b for b in inspector.encapsulation_breaches(str(_REPO_ROOT))
+            if Path(b.get("file") or "").name == Path(__file__).name]
+    assert not rows, f"{len(rows)} reach(es) off a published interface from this proof: " + "; ".join(
+        f"{b['file']}:{b['line']} {b['module']}" for b in rows)
+
+
 def test_the_whole_falsifier_holds_end_to_end():
+    test_the_proof_reaches_no_device_off_its_interface()
     test_an_instrument_runs_inside_a_sealed_exec()
     test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else()
     test_the_record_keeps_its_keys_and_its_exit()
@@ -165,6 +180,7 @@ def test_the_whole_falsifier_holds_end_to_end():
 
 def _main() -> int:
     checks = [
+        test_the_proof_reaches_no_device_off_its_interface,
         test_an_instrument_runs_inside_a_sealed_exec,
         test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else,
         test_the_record_keeps_its_keys_and_its_exit,

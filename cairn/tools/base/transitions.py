@@ -745,6 +745,12 @@ def resolve_target(wf: Workflow, target: str) -> int:
         return len(wf.path)
 
 
+# The dispositions a rest (a state not ending -ME) may take: a later proved ticket replaces a
+# proved one. DROPPED and RETIRED stay alternatives to completing, so a rest never takes them
+# (ticket c63d2e99039e; Akien chose option a at open-bb5a0ceb8991).
+_REST_DISPOSITIONS = ("SUPERSEDED",)
+
+
 def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
     """The set of states the cursor may legally move to from where it rests now.
 
@@ -774,9 +780,11 @@ def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
     for k in range(i):
         if is_summons(path[k]):
             targets.add(path[k])
-    # dispositions — reachable from any summons as terminal exits
+    # dispositions — reachable from any summons as terminal exits; SUPERSEDED also from a rest
     if is_summons(wf.here):
         targets.update(dispositions)
+    elif wf.here not in dispositions:
+        targets.update(dispositions & set(_REST_DISPOSITIONS))
     return targets
 
 

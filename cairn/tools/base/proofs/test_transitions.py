@@ -1644,7 +1644,8 @@ def test_demo_gate_passes_with_a_green_quorum_seal():
 #
 # Dispositions are terminal exits (DROPPED, SUPERSEDED, RETIRED) reachable from
 # any summons, refusing further transitions from a dispositioned state, and
-# refusing disposition from a rest. Non-hollow: validated against the REAL
+# refusing DROPPED and RETIRED from a rest — only SUPERSEDED crosses from a rest
+# (ticket c63d2e99039e). Non-hollow: validated against the REAL
 # node-class table with the new "dispositions" field, not a mock.
 
 _AT_BUILDME_V2 = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
@@ -1680,8 +1681,10 @@ def test_disposition_retired_is_legal_from_a_summons():
 
 
 def test_disposition_refused_from_a_rest():
-    """A ticket at PROVED (a rest, not a summons) CANNOT be dispositioned — dispositions
-    are alternatives to completing the workflow, not post-completion acts."""
+    """A ticket at PROVED (a rest, not a summons) CANNOT be DROPPED — dropping is an
+    alternative to completing the workflow, and a proved ticket has completed. SUPERSEDED is
+    the one disposition a rest may take (a later proved ticket replaces it), proved in
+    test_a_proved_ticket_can_be_superseded.py."""
     _AT_PROVED_V2 = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]"
     _expect_refused(lambda: transitions.emit(_AT_PROVED_V2, "DROPPED"))
 

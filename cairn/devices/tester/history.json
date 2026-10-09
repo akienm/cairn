@@ -40087,5 +40087,82 @@
     "fingerprint": "9ab03373a3fea1ef06b84cb4aafdec4a2e08c59ed31dd279670b1e7434130f57",
     "at": "2026-10-08T03:22:41",
     "seq": 151
+  },
+  {
+    "from": "PROVED",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(first_seal_isolation) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> SUPERSEDED moves the cursor off position 5",
+        "actual": "PROVED -> SUPERSEDED moves the cursor off position 5",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 5,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> SUPERSEDED",
+        "actual": "PROVED -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "PROVEME",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "481221f45884",
+    "actor": "cc",
+    "why": "c63d2e99039e validate criterion 5 and d80360545e91 how (8): the network seal is retired by d80360545e91 (Akien open-0d44f8905e2e)",
+    "fingerprint": "0314a709c73992d6b4eb9e82ac82137c9eda40216eca7d339b5df33c84cfce17",
+    "at": "2026-10-09T08:57:11",
+    "seq": 152
   }
 ]

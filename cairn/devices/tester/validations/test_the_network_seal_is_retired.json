@@ -1,0 +1,132 @@
+[
+  {
+    "claim": "proof test_the_network_seal_is_retired.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-09T09:58:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n5 passed, 5 warnings in 40.76s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_seal_over_a_sealed_record_runs_bare_and_says_why",
+        "test_the_reseal_door_runs_bare_and_says_why",
+        "test_the_hollow_measures_bare_inside_the_instance_seal",
+        "test_netns_refuses_and_runs_nothing",
+        "test_no_cairn_test_path_produces_a_refused_seal"
+      ],
+      "teeth_red": [],
+      "test": "test-b1bc06451a6f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 2,
+        "tables": [
+          "bus_proc_759045_0956003406_delivery",
+          "bus_proc_759045_0956003406"
+        ]
+      },
+      "conditions": {
+        "proof": "663e1d7e5a4a31df9198de0afa75e3e0f8f6354a4bcfb622214e5fc448088692",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [
+        {
+          "pid": 759622,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b1bc06451a6f",
+      "source_fingerprint": "e69cf87ae51aa9681b690d9dcbd9659f5193b24ddab90483f35f45c6cc3f3d05",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/hollow.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
+        "cairn/devices/tester/proofs/test_the_network_seal_is_retired.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-759561-45vtyb11/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 112,
+          "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/codemother/0/last_known.json",
+            "devices/harbor_master/0/last_known.json",
+            "devices/tester/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261009.155809.456175.BusDevice.post.json",
+            "logs/bus/0/20261009.155809.475300.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261009.155809.489901.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261009.155809.738138.BusDevice.post.json",
+            "logs/bus/0/20261009.155809.741257.BusDevice.post.json",
+            "logs/bus/0/20261009.155809.751231.BusDevice.post.json",
+            "logs/bus/0/20261009.155810.260359.BusDevice.post.json",
+            "logs/bus/0/20261009.155810.260628.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155810.260833.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155841.900967.BusDevice.post.json",
+            "logs/bus/0/20261009.155842.313955.BusDevice.post.json",
+            "logs/bus/0/20261009.155842.314176.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155842.314277.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155842.323915.BusDevice.post.json",
+            "logs/bus/0/20261009.155842.706079.BusDevice.post.json",
+            "logs/bus/0/20261009.155842.706306.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155842.706408.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155842.718204.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.146127.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.146358.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155843.146461.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155843.156816.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.567513.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.567743.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155843.567855.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155843.577427.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.962802.BusDevice.post.json",
+            "logs/bus/0/20261009.155843.963018.BusDevice.delivered.json",
+            "logs/bus/0/20261009.155843.963121.BusDevice.delivered.json",
+            "logs/codemother/0/20261009.155810.259487.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261009.155810.260185.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261009.155810.260928.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261009.155810.261041.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261009.155842.313557.CodeMotherDevice.sealed_heard.json",
+            "logs/codemother/0/20261009.155842.313797.CodeMotherDevice.sealed_heard.json"
+          ],
+          "elided": 72
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 105381392,
+          "disk_bytes": 128520192,
+          "entries": 9417,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -2,28 +2,25 @@
   {
     "claim": "proof test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-09T10:16:39",
+    "date": "2026-10-09T13:32:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_the_testers_proofs_name_no_bare_temp_reach: AssertionError: 2 tester proof line(s) reach the system temp directory bare — take the directory from cairn.tools.scratch.scratch.scratch_dir:\n  proofs/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")\n  proofs/test_exec_runs_in_the_callers_cwd.py:44: return os.path.realpath(tempfile.mkdtemp(prefix=f\"exec_cwd_proof_fixture_{tag}_\"))\nred — 1 of 1 teeth failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_testers_proofs_name_no_bare_temp_reach\ngreen — every tester proof takes its temp directory through the scratch door",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_the_testers_proofs_name_no_bare_temp_reach"
       ],
-      "test": "test-10d6f7ed5706",
+      "teeth_red": [],
+      "test": "test-10032640ccf1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_765876_1014536831_delivery",
-          "bus_proc_765876_1014536831"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "5b16541019afbc78c27ca3a71076f163765703c99d43dce282dfa9804f8702fc",
@@ -41,14 +38,14 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10d6f7ed5706",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10032640ccf1",
       "source_fingerprint": "1700b46d7f9e931cd12fd93dd0d0d8bcd1bebf6dadde52e963ce083cbade6bdf",
       "fingerprint_closure": [
         "cairn/devices/tester/proofs/test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766704-q3sppocj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-811803-gy2_ygp8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,9 +54,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 105383335,
-          "disk_bytes": 128196608,
-          "entries": 9287,
+          "bytes": 105520499,
+          "disk_bytes": 128409600,
+          "entries": 9318,
           "builds": 1,
           "reuses": 0
         }

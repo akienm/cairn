@@ -21,13 +21,13 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 PROOF_TIMEOUT_S = 300
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
+from cairn.tools.scratch.scratch import scratch_dir
 
 _CAIRN = _REPO_ROOT / "bin" / "cairn"
 _CARRIED = "CAIRN_TESTER_CALLER_CWD"
@@ -41,7 +41,7 @@ PROVES = {"5bc3a4b1ab27": {
 
 
 def _elsewhere(tag: str) -> str:
-    return os.path.realpath(tempfile.mkdtemp(prefix=f"exec_cwd_proof_fixture_{tag}_"))
+    return os.path.realpath(scratch_dir(f"exec_cwd_proof_fixture_{tag}_"))
 
 
 def test_exec_from_another_dir_runs_there():

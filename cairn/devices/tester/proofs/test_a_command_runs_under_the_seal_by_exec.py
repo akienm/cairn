@@ -73,11 +73,12 @@ def _bare_host_argv() -> list:
     runner records argv instead of executing it. What comes back is the composition --exec
     performs, nothing else."""
     code = r'''
-import json, subprocess, sys, tempfile
+import json, subprocess, sys
 from pathlib import Path
+from cairn.tools.scratch.scratch import scratch_dir
 import cairn.devices.tester.device as d
 from cairn.devices.tester.isolation import SEALED, Seal
-swap = str(Path(tempfile.mkdtemp(prefix="exec_proof_fixture_swap_")) / "cairn")
+swap = str(Path(scratch_dir("exec_proof_fixture_swap_")) / "cairn")
 Path(swap).mkdir()
 d.inside_an_instance_seal = lambda: False
 d.bwrap_available = lambda: (True, "fixture: bwrap present")

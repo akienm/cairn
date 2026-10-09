@@ -22,6 +22,11 @@ CAIRN_TESTER_TEST_ID for every command, a bare fork inherits this proof's own. T
 reads the composition run_instrument hands subprocess, because the seal itself is the
 tester's proven claim (2c9eeab2da87) and this machine's claim is only that it goes there.
 
+THE MOUNT READ IS THIS PROOF'S OWN (68e897fc74b8). Tooth (2) once imported the tester's
+private ``isolation._mount_points``, a RULE 1 reach the tester's interface proof reds. The six
+lines of /proc/self/mountinfo it reads are copied here as a fixture read, not a shared API, and
+tooth ``test_the_proof_reaches_no_device_off_its_interface`` holds the line.
+
 Proof: exit 0 = green.
 """
 
@@ -48,6 +53,15 @@ _LIVE = Path.home() / ".cairn"
 _MARKER = "CAIRN_TESTER_INSTANCE_SEALED"
 _RUN_ID = "CAIRN_TESTER_TEST_ID"
 _KEYS = {"command", "exit", "timed_out", "timeout_s", "seconds", "tail"}
+
+
+def _mount_points() -> set[str]:
+    """The mount points this process sees (field 5 of /proc/self/mountinfo), or empty."""
+    try:
+        lines = Path("/proc/self/mountinfo").read_text().splitlines()
+    except OSError:
+        return set()
+    return {ln.split()[4] for ln in lines if len(ln.split()) > 4}
 
 PROVES = {"68cef2ddd8ef": {
     "1": "test_an_instrument_runs_inside_a_sealed_exec",
@@ -100,7 +114,6 @@ def test_an_instrument_goes_to_the_sealed_exec_and_nowhere_else():
         rec = _verdict.run_instrument(f"touch {fixture}", timeout_s=120)
         assert rec["exit"] == 0, f"instrument exit {rec['exit']}: {rec.get('tail', '')[-400:]}"
         if fixture.exists():
-            from cairn.devices.tester.isolation import _mount_points
             assert os.path.realpath(_LIVE) in _mount_points(), \
                 f"{fixture} is present and {_LIVE} is no mount point here — the write reached the live root"
     finally:

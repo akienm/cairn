@@ -40164,5 +40164,327 @@
     "fingerprint": "0314a709c73992d6b4eb9e82ac82137c9eda40216eca7d339b5df33c84cfce17",
     "at": "2026-10-09T08:57:11",
     "seq": 152
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'd80360545e91', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "d80360545e91",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'd80360545e91' is cast",
+        "actual": "named ticket 'd80360545e91' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "d80360545e91",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d80360545e91-proofs-run-without-a-network-seal-and-standing-seal-records-stay-as-written.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d80360545e91"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d80360545e91"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d80360545e91"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d80360545e91"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "d80360545e91"
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "d80360545e91",
+    "actor": "cc",
+    "why": "rehearsed clean (pass 5, rehearsals/d80360545e91-20261009T020657.json); every question answered (open-41bc11343280, open-914da176b1ed, open-0d44f8905e2e); proofs red for the right reason at 617adb9f; tester colour RED pre-build on test_cli (clause 1 tooth, red until the build), the unsealed retirement proof, and another ticket's unsealed scratch-door proof",
+    "fingerprint": "9007c0925f236c33030f6f92477b005be0e53e67159eb2c68b2e0bc269eb26e6",
+    "at": "2026-10-08T20:07:51",
+    "seq": 152
+  },
+  {
+    "from": "PROVED",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> SUPERSEDED moves the cursor off position 4",
+        "actual": "PROVED -> SUPERSEDED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVED -> SUPERSEDED",
+        "actual": "PROVED -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "PROVEME",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "67af8b743a63",
+    "actor": "cc",
+    "why": "d80360545e91 how (8): the network seal is retired by d80360545e91 (Akien open-0d44f8905e2e)",
+    "fingerprint": "b776563229fe54081f01c273304d867a2642360d26fed25c6b67d0716df5795d",
+    "at": "2026-10-09T09:03:32",
+    "seq": 153
+  },
+  {
+    "from": "PROVEME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> SUPERSEDED moves the cursor off position 3",
+        "actual": "PROVEME -> SUPERSEDED moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 3,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> SUPERSEDED",
+        "actual": "PROVEME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "054bcbe02f12",
+    "actor": "cc",
+    "why": "d80360545e91 how (8): the network seal is retired by d80360545e91 (Akien open-0d44f8905e2e)",
+    "fingerprint": "17bfa3103dd2904ebe673a36cdec1e1e08b5f43e757b1932d9c3259cf671ea75",
+    "at": "2026-10-09T09:03:33",
+    "seq": 154
   }
 ]

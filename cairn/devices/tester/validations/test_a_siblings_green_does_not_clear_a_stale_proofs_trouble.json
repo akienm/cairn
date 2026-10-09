@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_siblings_green_does_not_clear_a_stale_proofs_trouble.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T02:49:33",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-09T09:07:30",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED\n.\n  ok   test_the_green_that_leaves_no_stale_sibling_CLEARS\n.\n  ok   test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT\n                                                                      [100%]\n3 passed in 0.09s",
+      "stdout_tail": ".\n  ok   test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED\n.\n  ok   test_the_green_that_leaves_no_stale_sibling_CLEARS\n.\n  ok   test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT\n                                                                      [100%]\n3 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED",
@@ -15,10 +15,10 @@
         "test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT"
       ],
       "teeth_red": [],
-      "test": "test-c2dfbe15853f",
+      "test": "test-d59c53966019",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -28,7 +28,7 @@
         "proof": "9bb31d3a8f88e43f6f7bfce53195c80530a5b5da4296947c9d015aef6c57b9d7",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -39,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2dfbe15853f",
-      "source_fingerprint": "31aede9a18081144ffbd9eac4cd167460899335117e3b3a120f0acf6239e753c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d59c53966019",
+      "source_fingerprint": "2e64d2b31b3d4d930c850857237e906085b11d1082515b03d4ab9520cdcd004b",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -54,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365424-8r0vkjvv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-736698-bcwwgkoz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,13 +63,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104360992,
-          "disk_bytes": 126312448,
-          "entries": 8981,
+          "bytes": 105353086,
+          "disk_bytes": 128147456,
+          "entries": 9281,
           "builds": 1,
-          "reuses": 4
+          "reuses": 10
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

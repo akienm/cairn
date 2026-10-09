@@ -1,5 +1,10 @@
 """Isolation — the network the tester owns, so a build's reach is physics, not trust.
 
+THE NETWORK SEAL IS RETIRED (ticket d80360545e91, Akien at open-41bc11343280). Proofs run at
+isolation none; asking for netns or seal raises ValueError(NETWORK_SEAL_RETIRED). The instance
+seal below is untouched and still binds every run. The text that follows describes the network
+seal as it was built, and is kept as the record of why it existed.
+
 THE STONE, IN ONE SENTENCE: a run the tester supervises has **no ambient route** to a
 constrained shared resource, and that seal is **measured from inside, never assumed**.
 
@@ -66,6 +71,10 @@ from cairn.tools.base.address import ROOTS
 
 # The seal's four honest verdicts — record vocabulary, so it lives with the store (fe1cba85cb12).
 from cairn.tools.validation_store.validation_store import BREACHED, INDETERMINATE, OPEN, SEALED  # noqa: E402,F401
+
+NETWORK_SEAL_RETIRED = ("the network seal is retired by ticket d80360545e91 (Akien, "
+                        "open-41bc11343280): proofs run at isolation 'none'; the instance seal "
+                        "is untouched")
 
 # The probe's baseline: a near-universally reachable off-host route. The seal question is
 # "can a sealed run reach *anything* off this host?", not "is one named host up?" — so a
@@ -720,77 +729,9 @@ class NoIsolation(Isolation):
                 + ["--chdir", cwd] + list(argv))
 
 
-class NetnsIsolation(Isolation):
-    """bubblewrap ``--unshare-net``: a fresh network namespace with no route anywhere.
-
-    Rootless (unprivileged user namespaces), daemonless, sub-second. ``--dev-bind / /``
-    keeps the whole filesystem intact — including any Unix socket, which is a file and not
-    the network, so it survives the seal (the asymmetry a later FORWARD path will lean on).
-    NO ``--cap-add CAP_NET_ADMIN``, AND ITS REMOVAL IS A MEASUREMENT (2026-09-10, ticket
-    481221f45884). It crossed from UU with the rest of the flag string, for a Router that
-    would need to configure the netns it owns — a thing that still does not exist. What it
-    DID do was make every nested sandbox impossible: a process carrying that capability
-    cannot start bwrap at all, so any proof that drives ``cairn test`` as a subprocess died
-    the moment the outer run was itself sealed. Measured on this host, four trials:
-
-        netns+cap inside netns+cap   -> bwrap: Unexpected capabilities but not setuid
-        netns              inside netns+cap   -> same refusal
-        plain --dev-bind   inside netns+cap   -> same refusal
-        netns+cap inside plain --dev-bind     -> OK
-
-    and with the capability dropped, every combination runs. The flag was the sole cause;
-    the seal never needed it — this module's own note said so ("without it the namespace is
-    merely dark, which is all the seal itself requires"). It comes back with the Router that
-    wants it, and not before (build minimal, grow against need).
-
-    ``available()`` reports the real reason the seal cannot be built rather than degrading
-    quietly to running on the host — a sandbox that cannot be built must say so loudly.
-    """
-
-    name = "netns"
-    seals_network = True
-
-    def available(self) -> tuple[bool, str]:
-        # INSIDE AN INSTANCE SANDBOX WITH NO NETWORK SEAL, THE NET CANNOT BE CUT (c54d744aa9ac).
-        # wrap() would have to start a bwrap inside the bwrap, and this host refuses a namespace
-        # inside a namespace. Measured 2026-10-02: test_isolation sealed under its standing
-        # `open` seal ran its netns tooth inside the instance sandbox and came back red with the
-        # inside-probe reading 'error' — the sandbox was never built.
-        if inside_an_instance_seal() and not inside_a_seal():
-            return False, ("running inside the tester's instance sandbox with no network seal "
-                           "to inherit — this host refuses a namespace inside a namespace "
-                           "(c54d744aa9ac), so a network seal cannot be cut from here")
-        return bwrap_available()
-
-    def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:
-        # We deliberately do NOT pass --uid 0: the capability works at our real uid, and
-        # becoming root-in-namespace breaks uid-matched services (e.g. Postgres peer auth).
-        # Least privilege here is not hygiene, it is correctness — a grader that breaks the
-        # thing it observes is worse than no grader.
-        need_net = not inside_a_seal()
-        need_inst = instance_swap is not None and not inside_an_instance_seal()
-        if not (need_net or need_inst):
-            # Both seals inherited: nothing new to cut, and this host refuses a namespace inside
-            # a namespace anyway (c54d744aa9ac). `env -C` is the cwd change --chdir gave.
-            return ["env", "-C", cwd] + list(argv)
-        flags = ["bwrap", "--dev-bind", "/", "/"]
-        if need_net:
-            # AN INHERITED SEAL IS NOT RE-CUT. If this process is already running inside a
-            # namespace the tester built, the route is already gone and a second --unshare-net
-            # would buy nothing while costing a namespace whose behaviour would have to be
-            # measured all over again. The marker rides the sandbox so the inner run can know.
-            flags += ["--unshare-net", "--setenv", SEAL_MARKER, "1"]
-        if need_inst:
-            # ONE sandbox carrying both seals, never a sandbox inside a sandbox: they are
-            # flags on the same bwrap, so composing them costs nothing and nesting would cost
-            # a second namespace whose failure modes nobody has measured.
-            flags += instance_bind_flags(instance_swap)
-        return flags + ["--chdir", cwd] + list(argv)
-
-
 def get_isolation(name: str) -> Isolation:
     if name in ("netns", "seal"):
-        return NetnsIsolation()
+        raise ValueError(NETWORK_SEAL_RETIRED)
     if name in ("none", ""):
         return NoIsolation()
-    raise ValueError(f"unknown isolation {name!r} — expected 'netns' or 'none'")
+    raise ValueError(f"unknown isolation {name!r} — expected 'none'")

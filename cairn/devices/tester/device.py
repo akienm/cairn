@@ -63,7 +63,7 @@ from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed 
 )
 from cairn.devices.tester.isolation import (
     _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
-    get_isolation, inside_an_instance_seal,
+    NETWORK_SEAL_RETIRED, get_isolation, inside_an_instance_seal,
     pristine_stats, snapshot_instance_space,
 )
 
@@ -785,7 +785,8 @@ class TesterDevice(BaseDevice):
             if verdict == GREEN:
                 compare(record, proof_path)
             from cairn.tools.validation_store.validation_store import persist_validation
-            persist_validation(record, proof_path=str(proof_path))
+            persist_validation(record, proof_path=str(proof_path),
+                               unsealing_because=NETWORK_SEAL_RETIRED)
         self._proofs_run += 1
         self._last_verdict = verdict
         # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was

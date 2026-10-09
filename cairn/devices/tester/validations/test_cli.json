@@ -2,13 +2,13 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T19:16:07",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "date": "2026-10-09T09:08:17",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "proof: the `cairn test` verb — repo=/home/akien/dev/src/cairn\n  PASS  test_a_green_proof_reports_green_and_exits_zero\n  PASS  test_a_red_proof_reports_red_and_exits_nonzero\n  PASS  test_a_red_carries_its_evidence_in_the_first_run\n  PASS  test_the_run_seals_nothing\n  PASS  test_a_directory_expands_to_the_proofs_beneath_it\n  PASS  test_a_typod_path_is_loud_and_never_a_green_over_nothing\n  PASS  test_the_verb_is_registered_with_the_dispatcher\n  PASS  test_it_runs_from_a_cwd_that_is_not_the_repo",
-      "stderr_tail": "  FAIL  test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written: `--seal --netns` exited 1, want 2:\n  green  /tmp/tmpi3c6g_p8/proofs/test_agrees.py  [seal=sealed]\n  OVERRIDE /tmp/tmpi3c6g_p8/proofs/test_disagrees.py  (--netns; its standing seal reads 'open', which would have run at 'none')\n  REFUSED /tmp/tmpi3c6g_p8/proofs/test_disagrees.py  (ran, but the seal was refused)\n\n2 proofs · 1 green · 0 red · 1 seal-refused · isolation netns=2\nPERSISTED — 1 VALIDATION(s) persisted through the store's door beside the proofs they seal (a red seals its red; Law 7).\n  1 of 1 taken UNDER THE SEAL — seal sealed=1.\n\n─── SEAL REFUSED: /tmp/tmpi3c6g_p8/proofs/test_disagrees.py ────────────────────\n    ../../../../../tmp/tmpi3c6g_p8/validations/test_disagrees.json carries a seal of 'open' — which is not an empty slot, it is a RECORDED CHOICE not to measure ('asked for nothing, and said so') — and this record carries 'sealed'. Because this door REPLACES, landing it would retire that choice with nothing left on disk to say it was ever made, and the reading that replaced it would look like it had always been there (Law 3). Two ways forward: run the proof at the isolation its standing record was taken at (`cairn test --seal` reproduces it per proof, so the ordinary path never reaches here), or pass converting_because='<why>' and the reason rides permanently in the record's evidence.\n\n\n1 FAILED: test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written",
+      "returncode": 0,
+      "stdout_tail": "proof: the `cairn test` verb — repo=/home/akien/dev/src/cairn\n  PASS  test_a_green_proof_reports_green_and_exits_zero\n  PASS  test_a_red_proof_reports_red_and_exits_nonzero\n  PASS  test_a_red_carries_its_evidence_in_the_first_run\n  PASS  test_the_run_seals_nothing\n  PASS  test_a_directory_expands_to_the_proofs_beneath_it\n  PASS  test_a_typod_path_is_loud_and_never_a_green_over_nothing\n  PASS  test_the_verb_is_registered_with_the_dispatcher\n  PASS  test_it_runs_from_a_cwd_that_is_not_the_repo\n  PASS  test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written\n\nall green",
+      "stderr_tail": "",
       "teeth_green": [
         "test_a_green_proof_reports_green_and_exits_zero",
         "test_a_red_proof_reports_red_and_exits_nonzero",
@@ -17,26 +17,24 @@
         "test_a_directory_expands_to_the_proofs_beneath_it",
         "test_a_typod_path_is_loud_and_never_a_green_over_nothing",
         "test_the_verb_is_registered_with_the_dispatcher",
-        "test_it_runs_from_a_cwd_that_is_not_the_repo"
+        "test_it_runs_from_a_cwd_that_is_not_the_repo",
+        "test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written"
       ],
       "teeth_red": [],
-      "test": "test-a9a9ad144647",
+      "test": "test-23be4cd4ff96",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_614931_1915381140_delivery",
-          "bus_proc_614931_1915381140"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "5b9ef012754b20a6a0f2686cde4e3a51bbc9a4876ba5bab4ce6b0e371a2523a9",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -45,16 +43,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "killed": [
-        {
-          "pid": 615301,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a9a9ad144647",
-      "source_fingerprint": "b4e6f05bcd306bd01fd1da20a318b76e80457d63304ef2e189d12bfb28f93314",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-23be4cd4ff96",
+      "source_fingerprint": "c564c0ffb8377bd27e5c3a81ee26a91bfd507a0f8b457467b5c37462bfccc6a1",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -65,72 +57,69 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-614891-w6dpx1qf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-736698-7jt4mb3v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 52,
+          "count": 27,
           "paths": [
-            "devices/cairn/machines/bus/0/bus.lock",
-            "devices/codemother/0/last_known.json",
-            "devices/harbor_master/0/last_known.json",
-            "devices/tester/0/last_known.json",
-            "logs/bus.log",
-            "logs/bus/0/20261009.011605.909028.BusDevice.post.json",
-            "logs/bus/0/20261009.011605.928961.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261009.011605.941132.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261009.011606.204733.BusDevice.post.json",
-            "logs/bus/0/20261009.011606.207818.BusDevice.post.json",
-            "logs/bus/0/20261009.011606.218091.BusDevice.post.json",
-            "logs/bus/0/20261009.011606.702877.BusDevice.post.json",
-            "logs/bus/0/20261009.011606.703123.BusDevice.delivered.json",
-            "logs/bus/0/20261009.011606.703325.BusDevice.delivered.json",
-            "logs/codemother/0/20261009.011606.702237.CodeMotherDevice.sealed_heard.json",
-            "logs/codemother/0/20261009.011606.702683.CodeMotherDevice.sealed_heard.json",
-            "logs/codemother/0/20261009.011606.703418.CodeMotherShim.clear_trouble.json",
-            "logs/codemother/0/20261009.011606.703531.CodeMotherShim.clear_trouble.json",
-            "logs/tester/0/20261009.011545.563259.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011547.588966.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011549.584768.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011551.584146.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011553.594390.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011555.484207.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011557.849419.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011559.794887.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011601.727120.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011603.785078.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.011606.702994.TesterShim.reply_disposed.json",
-            "logs/tester/0/20261009.011606.703219.TesterShim.clear_trouble.json",
-            "logs/tester/0/runs/test-001b7eee35c6/stderr.txt",
-            "logs/tester/0/runs/test-001b7eee35c6/stdout.txt",
-            "logs/tester/0/runs/test-29cd5cc3ce2e/stderr.txt",
-            "logs/tester/0/runs/test-29cd5cc3ce2e/stdout.txt",
-            "logs/tester/0/runs/test-2c1d35e14066/stderr.txt",
-            "logs/tester/0/runs/test-2c1d35e14066/stdout.txt",
-            "logs/tester/0/runs/test-629401d6bf71/stderr.txt",
-            "logs/tester/0/runs/test-629401d6bf71/stdout.txt",
-            "logs/tester/0/runs/test-6aabc56d4bfe/stderr.txt",
-            "logs/tester/0/runs/test-6aabc56d4bfe/stdout.txt"
+            "logs/tester/0/20261009.150800.016803.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150801.922656.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150803.894266.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150805.892121.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150807.901493.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150809.846798.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150812.092763.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150814.038199.TesterDevice.run_proof.json",
+            "logs/tester/0/20261009.150816.352705.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1997e4ebc368/stderr.txt",
+            "logs/tester/0/runs/test-1997e4ebc368/stdout.txt",
+            "logs/tester/0/runs/test-220ce5c8f69a/stderr.txt",
+            "logs/tester/0/runs/test-220ce5c8f69a/stdout.txt",
+            "logs/tester/0/runs/test-51ae8f352114/stderr.txt",
+            "logs/tester/0/runs/test-51ae8f352114/stdout.txt",
+            "logs/tester/0/runs/test-7480e5a201d7/stderr.txt",
+            "logs/tester/0/runs/test-7480e5a201d7/stdout.txt",
+            "logs/tester/0/runs/test-9787f02874da/stderr.txt",
+            "logs/tester/0/runs/test-9787f02874da/stdout.txt",
+            "logs/tester/0/runs/test-b0402cc63bd9/stderr.txt",
+            "logs/tester/0/runs/test-b0402cc63bd9/stdout.txt",
+            "logs/tester/0/runs/test-b18f7725bf49/stderr.txt",
+            "logs/tester/0/runs/test-b18f7725bf49/stdout.txt",
+            "logs/tester/0/runs/test-d7331b20be32/stderr.txt",
+            "logs/tester/0/runs/test-d7331b20be32/stdout.txt",
+            "logs/tester/0/runs/test-f093a5ccf8fd/stderr.txt",
+            "logs/tester/0/runs/test-f093a5ccf8fd/stdout.txt"
           ],
-          "elided": 12
+          "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 105231305,
-          "disk_bytes": 128110592,
-          "entries": 9323,
+          "bytes": 105356763,
+          "disk_bytes": 128229376,
+          "entries": 9320,
           "builds": 1,
-          "reuses": 1
+          "reuses": 12
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "5b9ef012754b20a6a0f2686cde4e3a51bbc9a4876ba5bab4ce6b0e371a2523a9",
         "opened": "2026-10-08T19:16:07",
         "last_red": "2026-10-08T19:16:07",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null
-      }
+        "ruling": null,
+        "closed_at": "2026-10-09T09:08:17",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "5b9ef012754b20a6a0f2686cde4e3a51bbc9a4876ba5bab4ce6b0e371a2523a9"
+      },
+      "conditions_moved": {
+        "notified": "n-92df6e238fd1",
+        "changed": [
+          "isolation"
+        ]
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

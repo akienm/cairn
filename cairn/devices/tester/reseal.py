@@ -81,16 +81,15 @@ from pathlib import Path
 from cairn.devices.tester.conditions import compare
 from cairn.devices.tester.device import GREEN, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
+from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.tools.base.address import component_of
 from cairn.tools.validation_store.validation_store import (
     closure_of,
     component_root_for,
-    isolation_for_seal,
     persist_validation,
     read_validations,
     sealed_fingerprint_now,
     standing,
-    standing_seal,
     validations_path_for,
 )
 
@@ -434,7 +433,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                         f"since — re-running would re-derive a settled answer (Law 1)")}
 
     tester = tester or TesterDevice()
-    iso = isolation or isolation_for_seal(standing_seal(str(proof))) or "none"
+    iso = isolation or "none"
     # THE RUN. Everything below disposes of THIS record; nothing below can produce a seal
     # without it (the ticket's WRONG INTENT clause, in one line of control flow).
     # this door seals (persist_validation below), so it sweeps first (ticket 201a37bf1613)
@@ -498,7 +497,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         # notifies here exactly as it does through run_proof (ticket f0aad0cd0f56, D9)
         sealed = {**record, "evidence": evidence}
         compare(sealed, proof)
-        persist_validation(sealed, proof_path=str(proof))
+        persist_validation(sealed, proof_path=str(proof), unsealing_because=NETWORK_SEAL_RETIRED)
         # THE TROUBLE IS THE COMPONENT'S, SO ONE PROOF'S GREEN IS NOT ITS CLEAR (ticket
         # 86b6bf19ed2a). Measured 2026-10-06: test_transitions.py timed out at commit, the
         # door raised seal-red-cairn-tools-base, and test_watchme_spec.py's green cleared it
@@ -555,7 +554,8 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         "trouble": identity,
         "ruling": ruling_id,
     }
-    persist_validation({**record, "evidence": evidence}, proof_path=str(proof))
+    persist_validation({**record, "evidence": evidence}, proof_path=str(proof),
+                       unsealing_because=NETWORK_SEAL_RETIRED)
     tail = evidence.get("stderr_tail") or evidence.get("stdout_tail") or ""
     try:
         raiser.raise_trouble(identity, why=(
@@ -580,9 +580,9 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
                index_only: bool = False) -> dict:
     """Every proof in ``proofs`` through the ladder; a refusal on one does not end the run.
 
-    Same lean as ``cairn test --seal``'s ``SealDowngradeRefused`` handling: one proof whose
-    reseal is refused is not a reason to lose the readings of the fifty after it. The
-    refusals come back as data and the caller decides the exit code."""
+    The same lean as a batch run: one proof whose reseal is refused is not a reason to lose
+    the readings of the fifty after it. The refusals come back as data and the caller decides
+    the exit code."""
     results, refusals = [], []
     for proof in proofs:
         try:

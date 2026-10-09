@@ -99,7 +99,6 @@ from pathlib import Path
 
 from cairn.tools.scratch.scratch import git_env, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
-from cairn.tools.validation_store.validation_store import SEALED, standing_seal
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
 from cairn.tools.base.crossings import crossings_for
@@ -677,26 +676,11 @@ def _restore(worktree: Path, rel: str) -> None:
 
 
 def seal_isolation(proof: Path) -> str:
-    """The isolation a proof is MEASURED at: ``netns`` when its standing seal reads ``sealed``,
-    ``none`` otherwise (an open seal, no seal, no validation at all, or one that will not parse).
-
-    WHY THE HOLLOW NEEDS THIS AND A PLAIN RUN DOES NOT (ticket 054bcbe02f12). Measured
-    2026-10-02 on c54d744aa9ac: the hollow ran every proof at ``none``, which still binds the
-    instance seal, and ``test_a_seal_inside_a_seal_inherits.py`` cuts a network seal of its
-    own — inside an instance-only sandbox that is a namespace inside a namespace, which this
-    host refuses. So two teeth sealed green under netns read red AT HEAD and the hollow could
-    attribute nothing. Measuring at the depth the seal was taken is what makes the HEAD run the
-    same run the seal is a claim about.
-
-    ``proof`` is the LIVE repo's path, never the worktree's: a validation the worktree's HEAD
-    does not carry yet is still the standing one. Only ``sealed`` maps to ``netns`` — the
-    ticket's falsifier (2) names exactly that reading, and ``indeterminate``/``breached`` are
-    seals that did not hold, so reproducing them inside a namespace measures nothing extra.
+    """The isolation a proof is MEASURED at: always ``none``, since the network seal is retired
+    (ticket d80360545e91); before that, ``netns`` for a sealed standing seal (ticket
+    054bcbe02f12). The instance seal is not an isolation choice and still binds every run.
     """
-    try:
-        return "netns" if standing_seal(str(proof)) == SEALED else "none"
-    except (OSError, ValueError, TypeError, AttributeError, IndexError, KeyError):
-        return "none"
+    return "none"
 
 
 def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) -> tuple[list[str], list[dict]]:

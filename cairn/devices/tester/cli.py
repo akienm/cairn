@@ -58,14 +58,11 @@ from collections import Counter
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, SealUnavailable, TesterDevice
+from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.tools.validation_store.validation_store import (
-    SealConversionRefused,
-    SealDowngradeRefused,
-    isolation_for_seal,
     read_validations,
     record_hollow,
-    standing_seal,
 )
 from cairn.tools.system_word import fold_flags
 
@@ -82,9 +79,9 @@ __all__ = ["REPO_ROOT", "discover", "main"]
 def _rel(proof) -> object:
     """HOW A PROOF IS NAMED ON SCREEN — one spelling, used by every line that names one.
 
-    The run loop and the override announcement both print a proof, and a reader matching an
-    OVERRIDE line to the green or REFUSED line below it is matching two strings. Two spellings
-    of the same path would make that a puzzle rather than a read (Law 7).
+    Every line that names a proof uses this, and a reader matching one line to another is
+    matching two strings. Two spellings of the same path would make that a puzzle rather than
+    a read (Law 7).
     """
     return proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
 
@@ -475,6 +472,10 @@ def main(argv: list[str] | None = None) -> int:
         print("cairn test: found no proofs to run", file=sys.stderr)
         return 2
 
+    if args.netns:
+        print(f"REFUSED --netns: {NETWORK_SEAL_RETIRED}")
+        return 2
+
     tester = TesterDevice()
     sink = "validations" if args.seal else "none"
     reds: list[tuple[Path, dict]] = []
@@ -489,73 +490,13 @@ def main(argv: list[str] | None = None) -> int:
     isolations: Counter[str] = Counter()
 
     def isolation_for(proof: Path) -> str:
-        """WHICH SEAL THIS PROOF RE-RUNS UNDER — asked per proof, not hoisted out of the loop.
-
-        The old line was ``isolation = "netns" if args.netns else "none"``, ONCE, above the
-        loop, and it is what made 2026-09-08's blanket re-seal reddening three proofs possible:
-        one flag decided for every proof in the corpus, so a sweep that meant "re-seal these"
-        also silently meant "and change how they are sealed". Three of them could not honestly
-        run inside a netns at all, and the seal measurement that said so was overwritten by one
-        that said nobody had asked.
-
-        So a sealing run asks each proof's standing validation what isolation its seal was
-        taken at and reproduces THAT. ``--netns`` still decides what this run does — an
-        explicit ask outranks a standing record for the run itself. What it no longer does is
-        decide it QUIETLY: when the explicit ask disagrees with what the standing record says,
-        this closure says so before the proof runs, naming the proof and the reading being
-        overridden. A proof that has never been sealed has nothing to disagree with and nothing
-        is printed.
-
-        THE SENTENCE THAT USED TO SIT HERE SAID ``--netns`` WINS OUTRIGHT, "because that is the
-        only way to seal something the first time" — and that reason is still true, but it was
-        being used to license something wider. A first seal has no standing record: the store's
-        guards read ``None`` and never fire, so nothing about a first seal needed the override
-        to be silent. The case the sentence actually covered was a standing reading the flag
-        disagreed with, and that one is now announced here and refused at the store's door
-        unless a reason rides with it (ticket 299d4f72ae40).
-
-        A DIAGNOSTIC RUN IS UNCHANGED, deliberately. Without ``--seal`` nothing lands in a
-        record of truth, so there is nothing to preserve; widening the per-proof read to every
-        run would be a change to what a plain ``cairn test`` COSTS, and that is outside that
-        ticket's bounds.
-
-        AND A FIRST SEAL IS TAKEN UNDER THE SEAL (ticket 481221f45884). The clause above used
-        to end "runs bare, which is this command's documented default" — and that made every
-        proof's FIRST seal the weakest one it would ever get. The record that landed said
-        ``seal: {verdict: "open"}``, which in this device's vocabulary means *nobody asked*
-        (isolation.py: "not asked for; the route is open by construction, said so"). So the
-        one moment a proof enters proven-space was the one moment nothing measured whether it
-        could reach the network, and the validation recorded that absence as if it were a
-        reading. Measured 2026-09-10 across both roots: 218 validation files, 54 of them
-        standing at ``open``.
-
-        Reproducing a standing ``open`` is still ``none`` — that is ticket 4431cf2bc625's
-        guard and this branch sits BENEATH it, never over it. The change is only what happens
-        when ``standing_seal`` finds nothing at all: there is no measurement to preserve, so
-        the honest default is the one that MAKES a measurement rather than the one that
-        records its absence. Law 9 — green is earned, and a first seal taken bare was green
-        nobody had earned.
-
-        Not a flag. The charter's eleventh falsifier clause says the instance seal must never
-        become a caller's choice, and a proof that honestly needs a route now reds loudly and
-        goes to Akien as a ruling, which is a route out that leaves a record. An opt-out flag
-        would be the same escape with nothing written down.
-        """
-        if args.netns:
-            # THE ANNOUNCEMENT, AND IT FIRES ONLY ON DISAGREEMENT. A line printed on every
-            # proof of a sweep is a line nobody reads, and the operator does not need telling
-            # that the flag they typed is in effect. What they cannot see — and could not
-            # recover afterwards, because the store REPLACES — is that this run is also
-            # changing what a standing record says about a proof. Before the run, per Law 7:
-            # a diagnostic surface is loud, and loud after the fact is not loud.
-            standing = standing_seal(str(proof)) if args.seal else None
-            if standing is not None and isolation_for_seal(standing) != "netns":
-                print(f"  OVERRIDE {_rel(proof)}  (--netns; its standing seal reads "
-                      f"{standing!r}, which would have run at "
-                      f"{isolation_for_seal(standing)!r})")
-            return "netns"
-        if args.seal:
-            return isolation_for_seal(standing_seal(str(proof))) or "netns"
+        """Every proof runs at isolation ``none``: the network seal is retired (ticket
+        d80360545e91, Akien at open-41bc11343280), so there is no seal to choose between and
+        ``--netns`` refuses above, before any proof runs. Kept as a closure so the per-proof
+        isolation count below still reads off one place. The instance seal is not an isolation
+        choice and still binds every run. Its history — the per-proof reproduction of a standing
+        seal (299d4f72ae40) and the first seal taken under the seal (481221f45884) — is in those
+        tickets."""
         return "none"
 
     for proof in proofs:
@@ -574,15 +515,6 @@ def main(argv: list[str] | None = None) -> int:
             # THE SEAL COULD NOT BE BUILT, SO THE PROOF NEVER RAN (67af8b743a63): nothing was
             # measured and nothing persisted. It joins the refused lane, the batch continues.
             print(f"  REFUSED {rel}  (not run: the seal it asks for cannot be built here)")
-            refused.append((proof, str(refusal)))
-            continue
-        except (SealDowngradeRefused, SealConversionRefused) as refusal:
-            # THE DOOR REFUSED THE SEAL, NOT THE PROOF, and the difference has to survive to
-            # the screen. The batch continues: one proof whose seal cannot land is not a
-            # reason to lose the verdicts of the fifty after it, and swallowing the refusal
-            # into a stack trace would end the run at the first one (Law 7 — loud here,
-            # and the run still finishes).
-            print(f"  REFUSED {rel}  (ran, but the seal was refused)")
             refused.append((proof, str(refusal)))
             continue
         if sink == "validations":

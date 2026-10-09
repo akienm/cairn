@@ -2,12 +2,12 @@
   {
     "claim": "proof test_rung_4_lifts_for_an_answered_question.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T02:50:27",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-09T09:13:37",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_question_akien_answered_lifts_rung_4\n.\n  ok   test_an_open_a_measured_or_an_unknown_question_does_not\n.\n  ok   test_a_confirmed_legacy_ruling_still_lifts_it\n                                                                      [100%]\n3 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_question_akien_answered_lifts_rung_4\n.\n  ok   test_an_open_a_measured_or_an_unknown_question_does_not\n.\n  ok   test_a_confirmed_legacy_ruling_still_lifts_it\n                                                                      [100%]\n3 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_akien_answered_lifts_rung_4",
@@ -15,10 +15,10 @@
         "test_a_confirmed_legacy_ruling_still_lifts_it"
       ],
       "teeth_red": [],
-      "test": "test-d36a0ff24cb6",
+      "test": "test-1c8e6cb6b970",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -28,7 +28,7 @@
         "proof": "81fffea7bb82c9c942c6cb6635d5a591f3d01b8b7bc8bd9d950af25b5fe98412",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -39,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d36a0ff24cb6",
-      "source_fingerprint": "00d504e91725096ac47e522e7c3c38cf6c9bb9d35148f9a5cf6a95b6dbdfeec1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1c8e6cb6b970",
+      "source_fingerprint": "67bbc24576ba5a6cf93a7cef5cacd5a8cabd1108e6d499fad5482904544554de",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -53,7 +53,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365424-3ky3q4vw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-736698-gir8o3m9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,13 +62,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104360992,
-          "disk_bytes": 126312448,
-          "entries": 8981,
+          "bytes": 105353086,
+          "disk_bytes": 128147456,
+          "entries": 9281,
           "builds": 1,
-          "reuses": 9
+          "reuses": 21
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

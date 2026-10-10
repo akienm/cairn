@@ -399,6 +399,34 @@ def _refuse_history_without_floor(p: Path, blob: bytes) -> None:
                           "through projector.append_entry; nothing written (62a57b781efc)")
 
 
+def _refuse_non_append(p: Path, blob: bytes) -> None:
+    """A ``.jsonl`` record only grows (9df0f230a087; Akien 2026-10-10, "Flat plan + .log.jsonl").
+
+    Judged by byte prefix, never by parsing and comparing objects (D1): the new bytes must
+    start with the record's current bytes (``b''`` when absent), and what they add must be
+    whole lines, ending in a newline, each a JSON object. Anything else is refused, naming the
+    path, and nothing is written."""
+    old = p.read_bytes() if p.exists() else b""
+    if not blob.startswith(old):
+        at = next((i for i, (a, b) in enumerate(zip(old, blob)) if a != b), min(len(old), len(blob)))
+        raise Refused(f"{p} is an append-only record (.jsonl) and this write does not start with "
+                      f"its current {len(old)} bytes (first difference at byte {at}); append "
+                      "whole lines, never rewrite; nothing written (9df0f230a087)")
+    tail = blob[len(old):]
+    if tail and not tail.endswith(b"\n"):
+        raise Refused(f"{p} is an append-only record (.jsonl) and the appended bytes do not end "
+                      "in a newline; append whole lines; nothing written (9df0f230a087)")
+    for n, line in enumerate(tail.splitlines(), 1):
+        try:
+            obj = json.loads(line)
+        except ValueError as exc:
+            raise Refused(f"{p}: appended line {n} is not JSON ({exc}); nothing written "
+                          "(9df0f230a087)") from None
+        if not isinstance(obj, dict):
+            raise Refused(f"{p}: appended line {n} is a JSON {type(obj).__name__}, not an "
+                          "object; nothing written (9df0f230a087)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -418,6 +446,8 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         _refuse_non_canonical(p, blob)
         if p.name == "history.json":
             _refuse_history_without_floor(p, blob)
+    if p.suffix == ".jsonl":
+        _refuse_non_append(p, blob)
     before = p.read_bytes() if p.exists() else None
     if before == blob:
         # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let

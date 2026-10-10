@@ -1,21 +1,21 @@
 [
   {
-    "claim": "proof test_artifact_probes_report_to_the_watch.py passes under python3",
+    "claim": "proof test_a_ticket_log_is_append_only.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-10T17:25:40",
+    "date": "2026-10-10T17:25:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_every_standing_artifact_probe_posts_watch\n  PASS  test_every_standing_artifact_spec_names_the_receiver\n  PASS  test_artifact_probes_report_to_the_watch\ngreen — every standing artifact probe reports {ticket, holds, finding} to the watch verb",
+      "stdout_tail": "  PASS  test_a_log_is_created_and_appended_through_the_door  — journaled True/True, journal names the log 2x\n  PASS  test_every_non_append_write_is_refused_and_nothing_moves\n  PASS  test_the_jurisdiction_names_a_ticket_log_as_a_record  — misclassified []; '*.json' matches a log: False\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_every_standing_artifact_probe_posts_watch",
-        "test_every_standing_artifact_spec_names_the_receiver",
-        "test_artifact_probes_report_to_the_watch"
+        "test_a_log_is_created_and_appended_through_the_door",
+        "test_every_non_append_write_is_refused_and_nothing_moves",
+        "test_the_jurisdiction_names_a_ticket_log_as_a_record"
       ],
       "teeth_red": [],
-      "test": "test-1fa2a6fd1fec",
+      "test": "test-94487618fde7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "37851721dbd2714972c001c0e71f856bbb73104f50ea30faf2198d48e5aae59d",
+        "proof": "1a6132202b6b70f7d2c69218a60c2b929f987958d46d66ae4665321e6b189f99",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,18 +40,16 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1fa2a6fd1fec",
-      "source_fingerprint": "57a85badf3cb29b9cd80632114e7faa9ca922489e52c9e2e0d58fe3e9d2509d7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-94487618fde7",
+      "source_fingerprint": "33f0a09843abe3a8d0a0e4ca2b42965130be788dcf2ded084768907a61280ee9",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
-        "cairn/tools/artifact/probes/__init__.py",
-        "cairn/tools/artifact/probes/callers_are_known.py",
-        "cairn/tools/artifact/proofs/test_artifact_probes_report_to_the_watch.py"
+        "cairn/tools/artifact/proofs/test_a_ticket_log_is_append_only.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1000918-7kp30vlt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000918-vkvm7ci_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,10 +62,9 @@
           "disk_bytes": 129413120,
           "entries": 9432,
           "builds": 1,
-          "reuses": 4
+          "reuses": 2
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

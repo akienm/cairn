@@ -1,18 +1,18 @@
 [
   {
     "claim": "proof test_artifact_door.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-06T15:05:49",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-10-10T17:25:37",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 7380 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 16297 → 16297 lines, 0 scratch entries\n\nGREEN",
+      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 8106 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 17798 → 17798 lines, 0 scratch entries\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "this proof's own process classifies as cc or akien (it was started by one of them)  — cc /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope",
-        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-3999374.service",
-        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 3999374",
+        "this proof's own process classifies as cc or akien (it was started by one of them)  — cc /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-873859.scope",
+        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-1000999.service",
+        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 1000999",
         "a plain child of CC reads as cc",
         "a live process in a login-session or desktop-app scope reads as AKIEN  — [(73483, 'akien'), (73491, 'akien'), (74481, 'akien'), (75197, 'akien')]",
         "no live hand-at-a-terminal process has a cc ancestor (the ancestry walk does not over-reach)",
@@ -73,10 +73,10 @@
         "test_a_scratch_world_never_reaches_the_live_journal"
       ],
       "teeth_red": [],
-      "test": "test-07def00dbb53",
+      "test": "test-525d5e5df5c5",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -86,19 +86,20 @@
         "proof": "4624f6156d072790078210b2bfd6674d48f59195419fad6e39fbf4c8c6685b2f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-07def00dbb53",
-      "source_fingerprint": "a7b991b091f10984b74d28cc14fa37c3e3214de6d361762a9097e45268588745",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-525d5e5df5c5",
+      "source_fingerprint": "6db68b20d5f6cec7137342969fc900d8095a1dc39d1e0f7ba3a60a88343779d5",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -108,24 +109,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3999284-b585nsvg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000918-qb75138d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/charter/0/20261006.210548.387198.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261010.232535.465823.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102994442,
-          "disk_bytes": 123965440,
-          "entries": 8634,
+          "bytes": 106248805,
+          "disk_bytes": 129417216,
+          "entries": 9435,
           "builds": 1,
-          "reuses": 1
+          "reuses": 3
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

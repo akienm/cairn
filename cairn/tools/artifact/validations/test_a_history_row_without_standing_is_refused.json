@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_history_row_without_standing_is_refused.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-06T15:06:04",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-10T17:25:28",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-_bt27ebz/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-uk_x7n8x/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_row_without_standing_is_refused_and_nothing_lands",
@@ -15,32 +15,52 @@
         "test_an_old_row_already_standing_is_not_re_judged"
       ],
       "teeth_red": [],
-      "test": "test-e1dbd63ee7aa",
+      "test": "test-04c0da3c4dd0",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 18,
+        "tables": [
+          "bus_proc_968233_1342488269_delivery",
+          "bus_proc_968233_1342488269",
+          "bus_proc_968283_1342566026_delivery",
+          "bus_proc_968283_1342566026",
+          "bus_proc_968344_1342592174_delivery",
+          "bus_proc_968344_1342592174",
+          "bus_proc_974021_1422063936_delivery",
+          "bus_proc_974021_1422063936",
+          "bus_proc_992895_1702535418_delivery",
+          "bus_proc_992895_1702535418",
+          "bus_proc_992947_1703014853_delivery",
+          "bus_proc_992947_1703014853",
+          "bus_proc_998329_1715158876_delivery",
+          "bus_proc_998329_1715158876",
+          "bus_proc_998381_1715240412_delivery",
+          "bus_proc_998381_1715240412",
+          "bus_proc_998459_1715266422_delivery",
+          "bus_proc_998459_1715266422"
+        ]
       },
       "conditions": {
         "proof": "e849e8cc9092f205839a2d9d3d8f23221496782b3200f5de24b22d67b8c03026",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1dbd63ee7aa",
-      "source_fingerprint": "855a5822359798b323b93fab4e4960a01fbe6bea73a44d5e1729bc15d4632784",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-04c0da3c4dd0",
+      "source_fingerprint": "91142d3cb589c6d77f134cb73f936bda712bcaf6e390eca7f48bf3111b68c1b0",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -48,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3999692-ju16itge/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000918-jm53z61t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,28 +77,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102993799,
-          "disk_bytes": 123961344,
-          "entries": 8631,
+          "bytes": 106248162,
+          "disk_bytes": 129413120,
+          "entries": 9432,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "62a57b781efc": {
-          "cairn/tools/artifact/artifact.py": [
-            "test_a_row_without_standing_is_refused_and_nothing_lands"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "62a57b781efc": {
-          "anchor_rule": "journal",
-          "anchor_journal": "82aed40c027a48a13e81cecda562e1aa145b0f2d",
-          "anchor_first_build": "ef50c547b2118c0d75b2a0e8534679b46c84bfc1",
-          "commit": "82aed40c027a48a13e81cecda562e1aa145b0f2d"
-        }
-      }
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

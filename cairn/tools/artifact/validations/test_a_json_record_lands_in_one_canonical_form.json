@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_json_record_lands_in_one_canonical_form.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-06T15:05:46",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-10-10T17:25:32",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-8646c950/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-8646c950/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 2671 records\n\nGREEN",
+      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-d7cpcdh6/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-d7cpcdh6/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 3056 records\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_indent_1_record_is_refused_and_nothing_lands",
@@ -17,37 +17,33 @@
         "test_every_live_json_record_is_canonical"
       ],
       "teeth_red": [],
-      "test": "test-62ec20624220",
+      "test": "test-16d599baa825",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 4,
-        "tables": [
-          "bus_proc_3993390_1445514367_delivery",
-          "bus_proc_3993390_1445514367",
-          "bus_proc_3994129_1447156617_delivery",
-          "bus_proc_3994129_1447156617"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "9213abe12857fe1ce02ec0df7ca0b4b16349392dcf0fca4caa0012bb9bf95797",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-62ec20624220",
-      "source_fingerprint": "3873cde5349788c4876cb19cdb5d8e6ca9ddc05313fe1e98e4462b6ac799778c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16d599baa825",
+      "source_fingerprint": "618a87dc59f4dd82f4d161769208e0ab730bef5072d67bda6fd1e6655b829521",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -55,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3999284-it5qd8qh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1000918-czkmuig_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,13 +60,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102993799,
-          "disk_bytes": 123961344,
-          "entries": 8631,
+          "bytes": 106248162,
+          "disk_bytes": 129413120,
+          "entries": 9432,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

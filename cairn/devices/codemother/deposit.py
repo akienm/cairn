@@ -26,6 +26,7 @@ from cairn.devices.codemother.machines.verdict.verdict import (VerdictRefused, m
                                  verdict_node_parts)
 from cairn.tools.bus_client import reach
 from cairn.tools.chain.grammar import CAIRN_ROOT
+from cairn.tools.chain.verdict_contract import mark_failed
 from cairn.tools.tree.tree import deposit_learning
 
 EMBED_MODEL = "nomic-embed-text"
@@ -201,8 +202,20 @@ def drain_pending(*, root: str = CAIRN_ROOT, nexus: str | None = None,
                             "parts": got["parts"], "duplicates": got["duplicates"],
                             "tokens": got["tokens"], "nexus": got["nexus"]})
         except Exception as e:  # noqa: BLE001 — deliberate: the door must still serve
-            drained.append({"berth": berth, "failed": "%s: %s" % (type(e).__name__, e),
-                            "still_pending": True})
+            # THE FAILURE IS A RECORD (ticket 637d206be821): the line is rendered ONCE,
+            # here, written to the ledger and carried back for the printer — two
+            # renderings drift. A ledger that cannot take the record does not stop the
+            # drain; the entry says so instead (the door must still serve).
+            failed = "%s: %s" % (type(e).__name__, e)
+            line = "DEPOSIT FAILED — %s STANDS PENDING on the ledger: %s" % (berth, failed)
+            out = {"berth": berth, "failed": failed, "still_pending": True,
+                   "stderr": line, "result_code": type(e).__name__}
+            try:
+                mark_failed(berth, stderr=line, result_code=type(e).__name__,
+                            ticket=entry.get("ticket"), ledger_path=ledger_path)
+            except Exception as w:  # noqa: BLE001 — named in the entry, never swallowed
+                out["ledger_write_failed"] = "%s: %s" % (type(w).__name__, w)
+            drained.append(out)
     return drained
 
 

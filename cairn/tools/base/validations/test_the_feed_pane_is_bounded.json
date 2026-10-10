@@ -2,19 +2,20 @@
   {
     "claim": "proof test_the_feed_pane_is_bounded.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-10T17:39:27",
+    "date": "2026-10-10T17:43:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_pane_carries_the_newest_limit_turns_newest_last  — FEED_PANE_LIMIT 200; 200 turns, first [800] last [999]\n  PASS  test_the_pane_names_the_older_messages_only_when_there_are_any  — 1000: older 800 note '800 older messages not shown — read them all: PYTHONPATH=~/dev/src/cairn python3'; 5: keys ['turns'] turns [0, 1, 2, 3, 4]\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_pane_carries_the_newest_limit_turns_newest_last  — FEED_PANE_LIMIT 200; 200 turns, first [800] last [999]\n  PASS  test_the_pane_names_the_older_messages_only_when_there_are_any  — 1000: older 800 note '800 older messages not shown — read them all: PYTHONPATH=~/dev/src/cairn python3'; 5: keys ['turns'] turns [0, 1, 2, 3, 4]\n  PASS  test_an_oversized_body_renders_as_a_stub  — FEED_PANE_BODY_BYTES 8192; big body 20028 bytes -> \"{'too_large': 20028, 'keys': ['count', 'troubles']}\"; small -> {'n': 7, 'text': 'hello'}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_pane_carries_the_newest_limit_turns_newest_last",
-        "test_the_pane_names_the_older_messages_only_when_there_are_any"
+        "test_the_pane_names_the_older_messages_only_when_there_are_any",
+        "test_an_oversized_body_renders_as_a_stub"
       ],
       "teeth_red": [],
-      "test": "test-0d346eca2148",
+      "test": "test-0e94da2a085c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "adc4258c5f270547fda7aa877b64e75794a69ff83e2bc5feac63bb798e4aaa73",
+        "proof": "61098f049d8ccf0759ede06a848769a2ecde85693c0cef73e1b4e6524b62f451",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -39,8 +40,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0d346eca2148",
-      "source_fingerprint": "ff475f5af4a076456f91261d7b2be2459ece9c086625c17724785918fab21600",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e94da2a085c",
+      "source_fingerprint": "3c288db4faec09b0aa662d8fc56341f76de60dcf9db3ea06c7887571ef6a7f0a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,7 +56,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1004710-3i8drpku/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1006456-a_zno2yn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,9 +65,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 106262629,
-          "disk_bytes": 129437696,
-          "entries": 9436,
+          "bytes": 106264972,
+          "disk_bytes": 129445888,
+          "entries": 9437,
           "builds": 1,
           "reuses": 0
         }

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_root_verb_vocabulary.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-10T17:40:23",
+    "date": "2026-10-10T17:44:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 4.93s",
+      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 5.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_vocabulary_is_one_table_and_list_carries_it",
@@ -16,7 +16,7 @@
         "test_get_status_is_uniform_across_the_roster"
       ],
       "teeth_red": [],
-      "test": "test-e51d45d29b99",
+      "test": "test-3d2983c34e3e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,14 +40,14 @@
       },
       "killed": [
         {
-          "pid": 1005361,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-1005351-zjp_pdg7/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "pid": 1007196,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-1007186-sivhm81f/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e51d45d29b99",
-      "source_fingerprint": "f3d41f1478aaaf3bb34d78a3201c4c14cafd15f1662333cbb4ee9063bd961b2b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3d2983c34e3e",
+      "source_fingerprint": "e0e88e504faf0877ce681ced7ad57726c21c66f27e50ecbab0df133bbeef8067",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -62,7 +62,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1004819-uttnh_v4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1006559-a_t54_q9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,14 +71,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 106262629,
-          "disk_bytes": 129437696,
-          "entries": 9436,
+          "bytes": 106264972,
+          "disk_bytes": 129445888,
+          "entries": 9437,
           "builds": 1,
           "reuses": 15
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

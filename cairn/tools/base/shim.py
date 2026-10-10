@@ -64,6 +64,19 @@ HOT = "hot"
 # The Chat pane carries at most this many turns, the newest (a43109013780): the whole channel
 # made GET /device/cairn 1.45 GB on 2026-10-10.
 FEED_PANE_LIMIT = 200
+# ...and each turn's body at most this many serialized bytes (a43109013780 D5): after the slice
+# the page was still 131.9 MB, 199 of 200 turns being ~355 KB trouble snapshots.
+FEED_PANE_BODY_BYTES = 8192
+
+
+def _bounded_body(body):
+    """The body as the pane shows it: whole, or — past FEED_PANE_BODY_BYTES — a stub naming
+    its size and its top-level keys (the type name when it has none)."""
+    size = len(json.dumps(body, default=str))
+    if size <= FEED_PANE_BODY_BYTES:
+        return body
+    keys = sorted(map(str, body)) if isinstance(body, dict) else type(body).__name__
+    return {"too_large": size, "keys": keys}
 
 
 class RootVerbCollision(ValueError):
@@ -629,7 +642,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         turns = [
             {"sender": m.get("sender", "?"),
              "date": m.get("date", "?"),
-             "body": m.get("body", {})}
+             "body": _bounded_body(m.get("body", {}))}
             for m in messages[-FEED_PANE_LIMIT:]
         ]
         data: dict = {"turns": turns}

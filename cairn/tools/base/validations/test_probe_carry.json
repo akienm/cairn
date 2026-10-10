@@ -2,7 +2,7 @@
   {
     "claim": "proof test_probe_carry.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-10T17:40:10",
+    "date": "2026-10-10T17:44:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -29,7 +29,7 @@
         "test_the_shim_fires_the_carrier_against_the_pulse_context"
       ],
       "teeth_red": [],
-      "test": "test-8fbbe4b19904",
+      "test": "test-308f17a0267b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -53,8 +53,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8fbbe4b19904",
-      "source_fingerprint": "fc062dd4efe0ef54130540b18906611666f5d1096ef043c2ddee19ef00756e12",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-308f17a0267b",
+      "source_fingerprint": "b49775736ffb0634e49aa770f7b44ad41db01c1e3775b7eae1aa5284b9a0b8c4",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -70,26 +70,25 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1004819-t1kmarme/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1006559-c6l003_q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/bus/0/20261010.234009.155784.BusDevice.post.json",
-            "logs/bus/0/20261010.234009.265403.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261010.234432.139968.BusDevice.post.json",
+            "logs/bus/0/20261010.234432.190672.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 106263227,
-          "disk_bytes": 129445888,
-          "entries": 9440,
+          "bytes": 106265570,
+          "disk_bytes": 129454080,
+          "entries": 9441,
           "builds": 1,
           "reuses": 11
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,30 +1,27 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "FIXME",
-    "standing": "FIXME",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(deposit-drain) -> PROVED",
-    "direction": "back",
-    "severity": 3,
-    "entry_gate": "not_applicable",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '4818f7f37e1e', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'FIXME' in the code-seam@v2 vocabulary",
-        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
-            "FIXME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -38,13 +35,13 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> FIXME moves the cursor off position 5",
-        "actual": "WATCHME -> FIXME moves the cursor off position 5",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
-          "cursor": 5,
+          "target": "BUILDME",
+          "cursor": 1,
           "resolved": 2
         }
       },
@@ -52,53 +49,127 @@
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> FIXME",
-        "actual": "WATCHME -> FIXME",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
-            "FIXME",
-            "PROVED",
-            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
-          "direction": "back"
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "4818f7f37e1e",
+          "component": "chart",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '4818f7f37e1e' is cast",
+        "actual": "named ticket '4818f7f37e1e' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "4818f7f37e1e",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4818f7f37e1e-the-chart-verbs-print-the-drain-s-failure-line-and-exit-non-zero.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "4818f7f37e1e"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "4818f7f37e1e"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "4818f7f37e1e"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "4818f7f37e1e"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "4818f7f37e1e"
         }
       }
     ],
-    "checks_proved": 3,
-    "ticket": "12c293481037",
+    "checks_proved": 10,
+    "ticket": "4818f7f37e1e",
     "actor": "cc",
-    "missing": [
-      "[watchme] the WATCHME probe this ticket names, cairn/machines/chart/probes/deposit_drain.py, was never written: no file at that path, no cairn/machines/chart directory (the chart machine dissolved 2026-08-13 into skills/chart), and no deposit_drain probe anywhere in the repo (grep, 2026-10-03). The watch has nothing to fire and no receiver can be named; per the answer to open-291189a9766a it comes back for fixing (835b5736bf2b)"
-    ],
-    "why": "a WATCHME finding: the WATCHME probe this ticket names, cairn/machines/chart/probes/deposit_drain.py, was never written: no file at that path, no cairn/machines/chart directory (the chart machine dissolved 2026-08-13 into skills/chart), and no deposit_drain probe anywhere in the repo (grep, 2026-10-03). The watch has nothing to fire and no receiver can be named; per the answer to open-291189a9766a it comes back for fixing (835b5736bf2b)",
-    "fingerprint": "c39e15ce899e91856a51a608a087a119317a1076cf98b28b82db60e796c4415e",
-    "at": "2026-10-03T07:22:21",
-    "seq": 47
+    "why": "chart berthed (validate-20261010T114826-c784cc9e9e40), rehearsal clean; the chart verbs print the carried line and exit 3 on a failed drain",
+    "fingerprint": "0501e295f81b320fda0fb63db832cc4a690adb0c0c15295f3d7382b0943835c3",
+    "at": "2026-10-10T12:16:07",
+    "seq": 48
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "PROVED",
-      "standing": "PROVED",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]",
-      "direction": "forward",
-      "build_gate": "clean — build_inspector ran 18 filters over chart",
-      "exit_gate": "clean — no unanswered chart claim stands against ticket 'chart-doors-refuse-in-one-pass'",
-      "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260803T112953-a9b316502884.json",
-      "ticket": "chart-doors-refuse-in-one-pass",
-      "note": "PROVED — THE SEVEN CHART DOORS REFUSE COMPLETE IN ONE PASS. The copied first-failure cascade (103 raise sites) is gone: shape lacks accumulate in common_shape_lacks/render_lacks (ONE implementation in orient.py, the shared home all six already imported from), the composed judges keep their own one-pass raise, and the two tiers are documented as exactly that — the four false one-pass docstrings are now TRUE claims pinned by teeth. Every chain-read refusal carries CHAIN_REMEDY: the stage-to-writer map plus the fire-command shape, so a broken link hands the executor the producing command, not doctrine. DoorRefused renders field: why. The conforming side is bit-unmoved: every pre-existing tooth across ten chart suites green, judges untouched. Opus-pass ranks 2+7 ruled 2026-08-03; a stage refusal now costs ONE fix-and-refire where it cost three to five round trips.",
-      "at": "2026-08-03T11:30:59",
-      "seq": 43
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -220,7 +291,177 @@
       "fingerprint": "c39e15ce899e91856a51a608a087a119317a1076cf98b28b82db60e796c4415e",
       "at": "2026-10-03T07:22:21",
       "seq": 47
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '4818f7f37e1e', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "4818f7f37e1e",
+            "component": "chart",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '4818f7f37e1e' is cast",
+          "actual": "named ticket '4818f7f37e1e' is cast",
+          "fatality": "none",
+          "source": "transitions.inspect_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "4818f7f37e1e",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/4818f7f37e1e-the-chart-verbs-print-the-drain-s-failure-line-and-exit-non-zero.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "4818f7f37e1e"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "4818f7f37e1e"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "4818f7f37e1e"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "4818f7f37e1e"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "4818f7f37e1e"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "ticket": "4818f7f37e1e",
+      "actor": "cc",
+      "why": "chart berthed (validate-20261010T114826-c784cc9e9e40), rehearsal clean; the chart verbs print the carried line and exit 3 on a failed drain",
+      "fingerprint": "0501e295f81b320fda0fb63db832cc4a690adb0c0c15295f3d7382b0943835c3",
+      "at": "2026-10-10T12:16:07",
+      "seq": 48
     }
   ],
-  "count": 48
+  "count": 49
 }

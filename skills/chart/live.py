@@ -11,7 +11,8 @@ deposit-back — the whole embed cost of the stratum, readable in the yield repo
     python3 -m skills.chart.live counsel "<request>" [nexus] [owner]  # the walk, live
     python3 -m skills.chart.live learn <berth-path> [nexus]           # deposit-back one packet
     python3 -m skills.chart.live moreabout "<ask>" [nexus] [owner]    # the learning door
-    # exit 0 = the verb returned; a refusal prints loud and exits 1
+    # exit 0 = the verb returned; a refusal prints loud and exits 1; exit 3 = learn or
+    # counsel SERVED, but an owed verdict failed to deposit in the drain (ticket 4818f7f37e1e)
     # [owner] serves the grafted tenants: `counsel "<text>" corrections orient` walks
     # orient's correction corpus; default is chart's own nexi.
     # moreabout = walk + write-back in ONE act, one embed serving both — the invocation
@@ -33,6 +34,7 @@ from cairn.tools.system_word import fold_head
 
 _BUS = None
 _SENDER = "chart"
+DRAIN_FAILED_EXIT = 3  # served, but an owed deposit failed — 1 stays the verb's own refusal
 EMBED_MODEL = "nomic-embed-text"
 
 
@@ -76,9 +78,18 @@ def _drain_before_serving() -> list[dict]:
     drained = got.get("drained") or []
     for entry in drained:
         if "failed" in entry:
-            print("DEPOSIT FAILED — %s STANDS PENDING on the ledger: %s"
+            # The drain rendered the line once and wrote it to the ledger (ticket
+            # 637d206be821); print THAT line — a second rendering here would drift.
+            # The fallback is for a codemother that predates the carried line.
+            print(entry.get("stderr") or "DEPOSIT FAILED — %s STANDS PENDING on the ledger: %s"
                   % (entry["berth"], entry["failed"]), file=sys.stderr)
     return drained
+
+
+def _served(drained: list[dict]) -> int:
+    """The exit of a verb that SERVED: 3 when any owed deposit failed in the drain, so a
+    caller sees it in the status as well as on stderr (ticket 4818f7f37e1e)."""
+    return DRAIN_FAILED_EXIT if any("failed" in e for e in drained) else 0
 
 
 def _counsel(argv: list[str]) -> int:
@@ -97,7 +108,7 @@ def _counsel(argv: list[str]) -> int:
                   "standing": n["standing"], "provenance": n["provenance"]}
                  for n in got["walk"]],
     }, indent=2, default=str))
-    return 0
+    return _served(drained)
 
 
 def _learn(argv: list[str]) -> int:
@@ -118,7 +129,7 @@ def _learn(argv: list[str]) -> int:
                       "drained": drained,
                       "dial": dial()["nexi"].get(nexus, {}).get("aggregate")},
                      indent=2, default=str))
-    return 0
+    return _served(drained)
 
 
 def _moreabout(argv: list[str]) -> int:

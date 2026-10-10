@@ -114,11 +114,11 @@ def main() -> int:
         tmp = str(scratch_dir("cairn-chain-failed-deposit-"))
         try:
             tooth(tmp)
-            print("GREEN  %s" % tooth.__name__)
+            print("  green %s" % tooth.__name__)
         except Exception as e:  # noqa: BLE001 — a tooth's every failure is a red, named
             failed += 1
-            print("RED    %s — %s: %s" % (tooth.__name__, type(e).__name__, e))
-    print("%d of %d green" % (len(TEETH) - failed, len(TEETH)))
+            print("  RED   %s — %s: %s" % (tooth.__name__, type(e).__name__, e))
+    print("%d passed, %d failed out of %d" % (len(TEETH) - failed, failed, len(TEETH)))
     return 1 if failed else 0
 
 

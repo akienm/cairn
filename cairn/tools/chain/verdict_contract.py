@@ -193,16 +193,20 @@ def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
 
 
 # ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────
-# An append-only JSONL in chart's instance-space, TWO RECORD KINDS and no third
+# An append-only JSONL in chart's instance-space, THREE RECORD KINDS and no fourth
 # motion: ``enqueued`` (a crossing named a verdict berth that owes the tree a
-# deposit) and ``deposited`` (the door landed it, with the node it became).
+# deposit), ``deposited`` (the door landed it, with the node it became) and, since
+# 2026-10-10 (ticket 2b34b52f80f3), ``failed`` (one deposit attempt was refused,
+# with the stderr line it was reported with and its result code).
 # PENDING IS DERIVED BY READ — enqueued minus deposited — never by editing or
 # removing a line: a record of truth is never changed in place (Law 7), so a
 # failed deposit leaves its enqueued line standing and loud instead of vanishing.
+# A ``failed`` record answers nothing: pending() keys on ``deposited`` alone, so a
+# failed berth stays owed however many times it fails.
 #
-# Law 6: chart owns the ledger. Both writers (the chokepoint's enqueue and the
-# live door's deposited-mark) append through THIS module; nothing else touches
-# the file. Tree-free by construction, like everything else here — the crossing
+# Law 6: chart owns the ledger. Every writer (the chokepoint's enqueue, the
+# drain's deposited-mark and failed-mark) appends through THIS module; nothing
+# else touches the file. Tree-free by construction, like everything else here — the crossing
 # side of the deposit may never reach the db or the embed host, which is the
 # whole reason the deposit is split in two.
 
@@ -290,7 +294,9 @@ def mark_deposited(berth: str, node_ids, *,
                    ledger_path: str | None = None) -> dict:
     """Append the SECOND record kind after the tree door landed the verdict. The
     enqueued line is never touched — 'drained' is a record appended by the
-    depositor, so the ledger reads as the whole story of every deposit.
+    depositor, so the ledger reads as the whole story of every deposit (whole
+    since ticket 2b34b52f80f3, when a refused attempt became a ``failed`` record
+    instead of a stderr print — see mark_failed).
 
     MANY NODES PER BERTH since 2026-07-29 (ticket a-node-holds-one-claim): a verdict
     now lands as its PARTS, so the record names every node the berth became. This
@@ -317,3 +323,35 @@ def mark_deposited(berth: str, node_ids, *,
                     "at": _stamp()},
                    os.path.expanduser(ledger_path if ledger_path is not None
                                       else LEDGER_PATH))
+
+
+def mark_failed(berth: str, *, stderr: str, result_code: str, ticket: str | None = None,
+                ledger_path: str | None = None) -> dict:
+    """Append the THIRD record kind: one deposit attempt on ``berth`` was refused
+    (ticket 2b34b52f80f3). Akien, 2026-10-10: "we need to make the queue record
+    stderr. and the result code for heavens sake." Until this record existed a
+    refused drain left nothing on the ledger but the enqueued line it could not
+    close, and the only trace of each refusal was a print on stderr.
+
+    ``stderr`` is the line the failure was reported with, verbatim; ``result_code``
+    is the failure's class name (e.g. 'VerdictRefused') — a string, not a process
+    exit integer, because the drain runs inside a bus verb where no process exits.
+    Both must be non-empty strings, else ValueError and NOTHING is appended: an
+    empty failure record is the silent lapse again, wearing a record's shape.
+
+    ``ticket`` defaults to the ticket on the berth's enqueued record, when the
+    ledger holds one. One record per attempt, never de-duplicated — growth is
+    measured after it runs. pending() ignores this kind, so the berth stays owed."""
+    for name, value in (("stderr", stderr), ("result_code", result_code)):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(
+                "mark_failed: berth %r carries %s=%r — a 'failed' record exists to say "
+                "what went wrong, and an empty one is the silent lapse again"
+                % (berth, name, value))
+    path = os.path.expanduser(ledger_path if ledger_path is not None else LEDGER_PATH)
+    if ticket is None:
+        for r in read_ledger(ledger_path=path):
+            if r.get("kind") == "enqueued" and r.get("berth") == berth:
+                ticket = r.get("ticket")
+    return _append({"kind": "failed", "berth": berth, "ticket": ticket, "at": _stamp(),
+                    "stderr": stderr, "result_code": result_code}, path)

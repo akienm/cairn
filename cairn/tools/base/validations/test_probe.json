@@ -2,12 +2,12 @@
   {
     "claim": "proof test_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T23:38:45",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-10T17:40:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\n  PASS  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path\n  census: names=86 hex-holes=0 disagree=0\n  PASS  test_owning_ticket_agrees_with_the_one_locator_over_every_probe\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
+      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\n  PASS  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path\n  census: names=85 hex-holes=0 disagree=0\n  PASS  test_owning_ticket_agrees_with_the_one_locator_over_every_probe\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_trigger_is_any_predicate_evaluated_where_owned",
@@ -18,10 +18,10 @@
         "test_owning_ticket_agrees_with_the_one_locator_over_every_probe"
       ],
       "teeth_red": [],
-      "test": "test-3dce32127d34",
+      "test": "test-0dd4ea6aa230",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -31,7 +31,7 @@
         "proof": "4c741da03cd0b17e7902bcf6d1d575eae40335da6a67ee2bdbbb6c5ed641fd8a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3dce32127d34",
-      "source_fingerprint": "85052a24b61f8b6eaa2388bc840e50458824d26b6c2b07f52a46d20a0b4705f9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0dd4ea6aa230",
+      "source_fingerprint": "37bf8210fee9eeeffe81752a64a176b016a710ab126b1550c0c49e9ad5255759",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -58,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3693506-ndhg5lk4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1004819-c49rthr1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,13 +67,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 175141791,
-          "disk_bytes": 203046912,
-          "entries": 11948,
+          "bytes": 106262629,
+          "disk_bytes": 129437696,
+          "entries": 9436,
           "builds": 1,
           "reuses": 10
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

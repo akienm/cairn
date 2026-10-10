@@ -61,6 +61,9 @@ ROOT_VERB_SEMANTICS = {
 ROOT_VERBS = tuple(ROOT_VERB_SEMANTICS)
 ROOT_VIEWS = ("status", "settings")
 HOT = "hot"
+# The Chat pane carries at most this many turns, the newest (a43109013780): the whole channel
+# made GET /device/cairn 1.45 GB on 2026-10-10.
+FEED_PANE_LIMIT = 200
 
 
 class RootVerbCollision(ValueError):
@@ -620,13 +623,25 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         except Exception as exc:  # noqa: BLE001
             return {"kind": "personal_feed", "label": "Chat",
                     "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
+        # Sliced after the read: bus.read takes no limit, so the whole channel still crosses
+        # the wire once per page load — the pane is bounded, the read is not (yet).
+        older = len(messages) - FEED_PANE_LIMIT
         turns = [
             {"sender": m.get("sender", "?"),
              "date": m.get("date", "?"),
              "body": m.get("body", {})}
-            for m in messages
+            for m in messages[-FEED_PANE_LIMIT:]
         ]
-        return {"kind": "personal_feed", "label": "Chat", "data": {"turns": turns}}
+        data: dict = {"turns": turns}
+        if older > 0:
+            data["older"] = older
+            data["older_note"] = (
+                f"{older} older messages not shown — read them all: "
+                "PYTHONPATH=~/dev/src/cairn python3 -c \"import json; "
+                "from cairn.tools.bus_client.remote import RemoteBus; "
+                "[print(json.dumps(m, default=str)) for m in "
+                f"RemoteBus().read(to='{self.device_id}', channel='personal')]\"")
+        return {"kind": "personal_feed", "label": "Chat", "data": data}
 
     def _info_pane(self) -> dict:
         """Floor pane: the info channel projected as a diagnostic log."""

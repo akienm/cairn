@@ -2,12 +2,12 @@
   {
     "claim": "proof test_packet_index.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T08:35:38",
+    "date": "2026-10-10T11:06:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.21s",
+      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.25s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_index_answers_exactly_what_a_full_scan_answers",
@@ -19,6 +19,7 @@
         "test_a_packet_naming_NO_ticket_indexes_under_nothing"
       ],
       "teeth_red": [],
+      "test": "test-b01846908ad9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,29 +28,32 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "6c252cacd3afa47acad5de0807246f4bc4c3f4ed81937147d39a48d0b64594b1",
+      "conditions": {
+        "proof": "fe837a95d73b28f8f26f175a9b86eaff4e1e832cc7aa6d06fbb93d09886f23af",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b01846908ad9",
+      "source_fingerprint": "8a2144401cebbe92bf593939e6b68cfa6bf32f69578bdf1a60b16dc99ed886fe",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/settled.py",
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/proofs/test_packet_index.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/tools/chain/proofs/test_packet_index.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1011457-wuxxtii4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-940664-ghtgm1mc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,11 +62,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 154898646,
-          "disk_bytes": 175882240,
-          "entries": 8763,
+          "bytes": 105715832,
+          "disk_bytes": 128675840,
+          "entries": 9343,
           "builds": 1,
-          "reuses": 86
+          "reuses": 2
         }
       }
     },

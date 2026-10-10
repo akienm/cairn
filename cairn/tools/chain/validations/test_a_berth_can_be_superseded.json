@@ -1,21 +1,21 @@
 [
   {
-    "claim": "proof test_the_ledger_records_a_failed_deposit.py passes under python3",
+    "claim": "proof test_a_berth_can_be_superseded.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-10T13:36:46",
+    "date": "2026-10-10T13:36:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green a_failed_attempt_is_a_record\n  green a_failed_berth_stays_owed\n  green an_empty_failure_is_refused\n3 passed, 0 failed out of 3",
+      "stdout_tail": "  green a_supersede_answers_the_old_berth\n  green every_refusal_appends_nothing\n  green a_failed_berth_can_still_be_superseded\n3 passed, 0 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
-        "a_failed_attempt_is_a_record",
-        "a_failed_berth_stays_owed",
-        "an_empty_failure_is_refused"
+        "a_supersede_answers_the_old_berth",
+        "every_refusal_appends_nothing",
+        "a_failed_berth_can_still_be_superseded"
       ],
       "teeth_red": [],
-      "test": "test-611c57c1e66b",
+      "test": "test-cb33620efad9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "525bef7559bc1f8ed4c8ac249530d62782dce7896de6ffd8eef034e0abd1c70e",
+        "proof": "5e3111e18a6c7307daffc0795cf2ed1a7dcb2bffb4a7f0cddb3e9062fd44f2d1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,18 +40,18 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-611c57c1e66b",
-      "source_fingerprint": "95e19fb53a48ef36bc6d93a1b5cd695f630c3c10bc842e491b243258022cfba5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cb33620efad9",
+      "source_fingerprint": "0835a302fd4f533cbc633a633376107a2372f56bbc4fcb7c7c2ca04d81f39034",
       "fingerprint_closure": [
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
-        "cairn/tools/chain/proofs/test_the_ledger_records_a_failed_deposit.py",
+        "cairn/tools/chain/proofs/test_a_berth_can_be_superseded.py",
         "cairn/tools/chain/verdict_contract.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-965776-ysm8i830/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-965745-8oqdqdwl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

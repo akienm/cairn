@@ -193,19 +193,21 @@ def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
 
 
 # ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────
-# An append-only JSONL in chart's instance-space, THREE RECORD KINDS and no fourth
+# An append-only JSONL in chart's instance-space, FOUR RECORD KINDS and no fifth
 # motion: ``enqueued`` (a crossing named a verdict berth that owes the tree a
-# deposit), ``deposited`` (the door landed it, with the node it became) and, since
-# 2026-10-10 (ticket 2b34b52f80f3), ``failed`` (one deposit attempt was refused,
-# with the stderr line it was reported with and its result code).
-# PENDING IS DERIVED BY READ — enqueued minus deposited — never by editing or
-# removing a line: a record of truth is never changed in place (Law 7), so a
-# failed deposit leaves its enqueued line standing and loud instead of vanishing.
-# A ``failed`` record answers nothing: pending() keys on ``deposited`` alone, so a
-# failed berth stays owed however many times it fails.
+# deposit), ``deposited`` (the door landed it, with the node it became), since
+# 2026-10-10 (ticket 2b34b52f80f3) ``failed`` (one deposit attempt was refused,
+# with the stderr line it was reported with and its result code), and since the
+# same day (ticket a76447d28af9) ``superseded`` (an owed berth was replaced by a
+# later verdict berth already owed for the same ticket — see mark_superseded).
+# PENDING IS DERIVED BY READ — enqueued minus answered (deposited or superseded) —
+# never by editing or removing a line: a record of truth is never changed in place
+# (Law 7), so a failed deposit leaves its enqueued line standing and loud instead of
+# vanishing. A ``failed`` record answers nothing: pending() keys on ``deposited``
+# and ``superseded`` alone, so a failed berth stays owed however many times it fails.
 #
 # Law 6: chart owns the ledger. Every writer (the chokepoint's enqueue, the
-# drain's deposited-mark and failed-mark) appends through THIS module; nothing
+# drain's deposited-mark and failed-mark, the supersede) appends through THIS module; nothing
 # else touches the file. Tree-free by construction, like everything else here — the crossing
 # side of the deposit may never reach the db or the embed host, which is the
 # whole reason the deposit is split in two.
@@ -254,10 +256,12 @@ def read_ledger(*, ledger_path: str | None = None) -> list[dict]:
 
 
 def pending(*, ledger_path: str | None = None) -> list[dict]:
-    """The enqueued records no ``deposited`` record answers, in enqueue order, one
-    per berth — DERIVED BY READ, which is why nothing ever has to be edited."""
+    """The enqueued records no ``deposited`` or ``superseded`` record answers, in
+    enqueue order, one per berth — DERIVED BY READ, which is why nothing ever has to
+    be edited."""
     records = read_ledger(ledger_path=ledger_path)
-    landed = {r.get("berth") for r in records if r.get("kind") == "deposited"}
+    landed = {r.get("berth") for r in records
+              if r.get("kind") in ("deposited", "superseded")}
     out, seen = [], set()
     for r in records:
         berth = r.get("berth")
@@ -355,3 +359,53 @@ def mark_failed(berth: str, *, stderr: str, result_code: str, ticket: str | None
                 ticket = r.get("ticket")
     return _append({"kind": "failed", "berth": berth, "ticket": ticket, "at": _stamp(),
                     "stderr": stderr, "result_code": result_code}, path)
+
+
+def mark_superseded(berth: str, *, by: str, why: str,
+                    ledger_path: str | None = None) -> dict:
+    """Append the FOURTH record kind: the owed ``berth`` is replaced by the later
+    verdict berth ``by`` (ticket a76447d28af9). Akien, 2026-10-10: "go ahead and cast
+    the b577 repair ticket". A berth written before a rule it now fails (measured:
+    verdict-20260815T141125-dd35ea1c8f7b, refused on every drain since f8f8ff9d made
+    discriminating_observation required) can never be deposited as it stands; a new
+    verdict alone leaves it owed forever, because pending() is keyed by berth.
+
+    A new kind, never a reuse of ``deposited``: marking the old berth deposited would
+    claim nodes it never became (mark_deposited's own docstring names that lie).
+
+    ``by`` must already be owed for the SAME ticket, so a supersede never retires an
+    obligation without another one standing in its place. Every refusal is a
+    ValueError raised before anything is appended: an empty ``why``; ``berth`` with no
+    enqueued record; ``berth`` already answered by a deposited or superseded record;
+    ``by == berth``; ``by`` with no enqueued record; ``by`` enqueued for another
+    ticket. ``failed`` records on ``berth`` do not stand in the way — they answer
+    nothing."""
+    if not isinstance(why, str) or not why.strip():
+        raise ValueError("mark_superseded: berth %r carries why=%r — a supersede says "
+                         "why the old verdict is replaced" % (berth, why))
+    path = os.path.expanduser(ledger_path if ledger_path is not None else LEDGER_PATH)
+    records = read_ledger(ledger_path=path)
+    enqueued = {}
+    for r in records:
+        if r.get("kind") == "enqueued" and isinstance(r.get("berth"), str):
+            enqueued.setdefault(r["berth"], r.get("ticket"))
+    if berth not in enqueued:
+        raise ValueError("mark_superseded: berth %r was never enqueued — there is no "
+                         "owed deposit to supersede" % (berth,))
+    answered = [r.get("kind") for r in records
+                if r.get("berth") == berth and r.get("kind") in ("deposited", "superseded")]
+    if answered:
+        raise ValueError("mark_superseded: berth %r is already answered (%s) — it is "
+                         "not owed" % (berth, answered[0]))
+    if by == berth:
+        raise ValueError("mark_superseded: berth %r cannot supersede itself" % (berth,))
+    if by not in enqueued:
+        raise ValueError("mark_superseded: by=%r is not enqueued — the replacement must "
+                         "already be owed, or the obligation is retired with nothing in "
+                         "its place" % (by,))
+    if enqueued[by] != enqueued[berth]:
+        raise ValueError("mark_superseded: by=%r is owed for ticket %r, berth %r for "
+                         "ticket %r — a supersede stays within one ticket"
+                         % (by, enqueued[by], berth, enqueued[berth]))
+    return _append({"kind": "superseded", "berth": berth, "by": by,
+                    "ticket": enqueued[berth], "why": why, "at": _stamp()}, path)

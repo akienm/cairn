@@ -78,6 +78,12 @@ DEFAULT_RECIPIENTS = ("cc",)
 # growing without limit. A first guess against real need, like the projector's window — not a law.
 OCCURRENCE_TAIL = 10
 
+# What the bus verb `live` answers per trouble (ticket fa9a2703a9c3) — the six keys both bus
+# callers (cairn's trouble pane, web_server's troubles socket) already keep. The occurrence
+# tail and its details stay in the store; a reply grows with the number of live troubles and
+# never with their history.
+LIVE_SUMMARY_KEYS = ("id", "standing", "why", "count", "first_seen", "last_seen")
+
 LIVE = "OPEN"
 CLEARED = "CLEARED"
 
@@ -143,8 +149,15 @@ class TroubleDevice(BaseDevice):
                 "clear": self._handle_clear}
 
     def _handle_live(self, envelope: dict) -> dict:
-        """The tickets still demanding attention, as JSON. EMPTY is the normal operating state."""
-        return {"troubles": self.live()}
+        """The tickets still demanding attention, one summary row each. EMPTY is the normal
+        operating state.
+
+        A row is LIVE_SUMMARY_KEYS and nothing else (ticket fa9a2703a9c3). The reply is a
+        personal bus message the bus keeps, and cairn's page asks for it on every render.
+        Measured 2026-10-10 while it carried whole tickets (occurrence tail, details, notified,
+        prior attempts): ~355 KB a reply at its worst, ~4,474 replies stored, ~1.5 GB in the
+        bus. Python callers of ``live()`` still get the whole ticket."""
+        return {"troubles": [{k: t.get(k) for k in LIVE_SUMMARY_KEYS} for t in self.live()]}
 
     def _handle_clear(self, envelope: dict) -> dict:
         """A recipient says the change was made. Still the recipient's alone — the bus moves

@@ -224,10 +224,20 @@ class TroubleShim(BaseShim):
         pointer = record.get("pointer") or ""
         values = record.get("values") or {}
         if gate == RAISE_GATE:
+            # A TEXT DETAIL IS CARRIED WHOLE, NEVER REFUSED (ticket 114002d08c46). The raiser
+            # refuses a non-mapping detail since 93a9cc0f7677, but a string detail written
+            # before that (harbor_master, 2026-10-09) still sits in the log, and logs are not
+            # edited. Refusing it here held that home's raise watermark forever, so nothing
+            # behind it landed. The fold reads it as it is: a string under ``text``, anything
+            # else that is not a mapping as its JSON.
+            d = values.get("detail")
+            base = d if isinstance(d, dict) else (
+                {} if d in (None, "") else
+                {"text": d if isinstance(d, str) else json.dumps(d, ensure_ascii=False)})
             return self._device.raise_trouble(
                 pointer,
                 why=values.get("why") or "",
-                detail={**(values.get("detail") or {}),
+                detail={**base,
                         "raised_by": record.get("source"),
                         "raised_at": record.get("ts"),
                         "emission": name})

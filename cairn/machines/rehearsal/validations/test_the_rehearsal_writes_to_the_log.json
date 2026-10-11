@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_rehearsal_writes_to_the_log.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-10T20:13:56",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T16:22:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_log_reaches_count_the_gaps_a_log_entry_answers"
       ],
       "teeth_red": [],
-      "test": "test-5348b9f85b42",
+      "test": "test-e0215a8d65fe",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,14 +34,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5348b9f85b42",
-      "source_fingerprint": "cdca820af96fab05e2f9c5d33ee0bb5510229f633120065d1a4ccd671a70c8fe",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e0215a8d65fe",
+      "source_fingerprint": "77da2bb049fc061fa7f5b7d6a973c0f0ec702e13d95960c064534279f7310565",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py",
@@ -49,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1050338-x2f60fcr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1570503-8zcjfr7_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,34 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 106442227,
-          "disk_bytes": 129757184,
-          "entries": 9493,
+          "bytes": 107122223,
+          "disk_bytes": 130822144,
+          "entries": 9638,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "fad76bb5d1f5": {
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_a_clean_pass_appends_a_log_line_and_leaves_the_plan",
-            "test_a_retired_decision_moves_whole_to_the_log",
-            "test_log_reaches_count_the_gaps_a_log_entry_answers"
-          ],
-          "cairn/machines/rehearsal/proofs/test_rehearsal.py": {
-            "notified": "n-e8f32de9301d"
-          },
-          "cairn/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py": {
-            "notified": "n-6b17f9a370d4"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "fad76bb5d1f5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "84a2dad893901f1446f0268a120e5a4b3c71ae83",
-          "anchor_first_build": "f0345daa9234ae6013914b2235269a270c0d729b",
-          "commit": "84a2dad893901f1446f0268a120e5a4b3c71ae83"
+          "reuses": 7
         }
       }
     },

@@ -71,6 +71,29 @@ tree — every decision the ticket carries, exactly once, in the form above.
 {lacks}
 """
 
+# Ticket c3f8efa612ce: a read whose ONLY lacks are missing decision ids is patched, not re-read
+# whole — measured, a whole re-read told 'missing D<n>' drops the same tail again. The reader is
+# handed its own nodes back and asked for exactly the missing ones (warm only to its own read).
+HANDED_BACK_MISSING = """
+
+# YOUR PREVIOUS READING LEFT DECISIONS OUT
+
+Your reading below covered every other decision and passed the shape, but:
+
+{lacks}
+
+Return a tree whose nodes cover ONLY these decisions, one node each, in the form above —
+nothing else:
+
+{missing}
+
+Your earlier nodes, for reference (do not return them again):
+
+{earlier}
+"""
+
+_MISSING_LACK = re.compile(r"^nodes: every decision gets one node; missing \[(.*)\]$")
+
 Reader = Callable[[str, dict], tuple[dict | None, dict]]
 
 
@@ -414,6 +437,17 @@ def claude_reader(prompt_text: str, schema_doc: dict) -> tuple[dict | None, dict
     return tree, meta
 
 
+def _only_missing(lacks: list[str]) -> list[int] | None:
+    """The missing decision ids when EVERY lack is a missing-id lack, else None."""
+    ids: list[int] = []
+    for lack in lacks:
+        m = _MISSING_LACK.match(lack)
+        if not m:
+            return None
+        ids.extend(int(x) for x in re.findall(r"D(\d+)", m.group(1)))
+    return ids or None
+
+
 def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
               decision_ids: set[int] | None = None) -> tuple[dict, list[dict]]:
     """Read ``n`` of three: call the reader, check the shape, re-read on a schema failure
@@ -423,12 +457,36 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
     schema_doc = schema()
     attempts: list[dict] = []
     handed_back = text
+    earlier: list | None = None     # the nodes a patch attempt merges into (c3f8efa612ce)
+    patch_ids: set[int] | None = None
     for attempt in range(1, RETRIES_PER_READ + 2):
         tree, meta = reader(handed_back, schema_doc)
-        lacks = validate(tree, decision_ids) if tree is not None else [meta.get("error") or "reader returned nothing"]
-        attempts.append({"attempt": attempt, "read": n, "schema_lacks": lacks, **meta})
+        kind = "patch" if earlier is not None else "whole"
+        if tree is not None and earlier is not None:
+            # the patch reply is validated against the missing set alone, then merged and the
+            # merged tree validated against the full set
+            lacks = validate(tree, patch_ids)
+            if not lacks:
+                tree = {**tree, "nodes": [*earlier, *tree["nodes"]]}
+                lacks = validate(tree, decision_ids)
+            elif not validate(tree, decision_ids):
+                lacks = []      # the reader answered the patch with a whole tree that passes: take it
+        else:
+            lacks = validate(tree, decision_ids) if tree is not None else [meta.get("error") or "reader returned nothing"]
+        attempts.append({"attempt": attempt, "read": n, "kind": kind, "schema_lacks": lacks, **meta})
         if not lacks:
             return {"ticket": ticket, "ticket_sha256": sha, "read": n, "nodes": tree["nodes"]}, attempts
+        missing = _only_missing(lacks)
+        if missing and tree is not None:
+            # D1: patch only when every lack is a missing id — a doubled id or a shape lack
+            # cannot say which node the reader meant, so it re-reads whole
+            earlier, patch_ids = list(tree["nodes"]), set(missing)
+            handed_back = text + HANDED_BACK_MISSING.format(
+                lacks="\n".join(f"- {l}" for l in lacks),
+                missing="\n".join(f"- D{i}" for i in sorted(missing)),
+                earlier=json.dumps(earlier, indent=1, ensure_ascii=False))
+            continue
+        earlier = patch_ids = None
         # A re-read is told what it lacked. MEASURED 2026-09-15 on this machine's own ticket
         # (36 decisions): read 3 returned D1..D17 and nothing after, three times running, at
         # $0.27 a time — the same text to the same reader is the same mistake, and a re-read

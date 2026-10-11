@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_crossing_runs_through_one_command.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-09T08:43:43",
+    "date": "2026-10-10T19:02:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-723867-n7roswzn/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: /tmp/cross-command-fixture-scratch.4026531836-1026493-dy1i6uwu/cairn/nowhere/intention+why.json is not a file\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
@@ -17,31 +17,14 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-d78790f221e4",
+      "test": "test-67caa6b823d7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 16,
-        "tables": [
-          "bus_proc_616961_1919528082_delivery",
-          "bus_proc_616961_1919528082",
-          "bus_proc_627525_2015477953_delivery",
-          "bus_proc_627525_2015477953",
-          "bus_proc_627578_2015551896_delivery",
-          "bus_proc_627578_2015551896",
-          "bus_proc_627654_2015576958_delivery",
-          "bus_proc_627654_2015576958",
-          "bus_proc_627756_2016049612_delivery",
-          "bus_proc_627756_2016049612",
-          "bus_proc_628046_2016168481_delivery",
-          "bus_proc_628046_2016168481",
-          "bus_proc_628102_2016243650_delivery",
-          "bus_proc_628102_2016243650",
-          "bus_proc_628262_2016342516_delivery",
-          "bus_proc_628262_2016342516"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "c54b38a6142e3d9e8f444182fa0e43c98315671a670de05286c01fdb3966857a",
@@ -58,8 +41,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d78790f221e4",
-      "source_fingerprint": "73ad582030ab75c06d7370c0dcb3c70f4788be1402966dea8c472ec3c461258c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-67caa6b823d7",
+      "source_fingerprint": "c0d7e17ab4316a435c0cff501369463bcdbfc040e5dbbb46d10504f84d30987a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -73,27 +56,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-723835-rs05gh_5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1026478-_ziyg5lx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261009.144343.090384.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261009.144343.098357.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261011.010233.105109.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261011.010233.113255.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 105303494,
-          "disk_bytes": 128086016,
-          "entries": 9278,
+          "bytes": 106352847,
+          "disk_bytes": 129581056,
+          "entries": 9461,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,0 +1,104 @@
+[
+  {
+    "claim": "proof test_the_ticket_log_door.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-10T19:02:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_append_log_lands_lines_in_order_and_refuses_what_it_must  — lines [{'actor': 'proof', 'at': '2026-10-10T19:02:28', 'field': 'one', 'kind': 'field', 'value': 1}, {'actor': 'proof', 'at': '2026-10-10T19:02:28', 'field': 'two', ' refusals [True, True]\n  PASS  test_split_moves_the_trail_and_reconstructs_the_v1_doc  — moved {'field': 1, 'phase_write': 2, 'rehearsal': 1, 'decision_retired': 1}; plan keys outside: []; lossless True\n  PASS  test_a_second_split_is_a_no_op  — moved {}\n  PASS  test_set_phase_appends_its_record_to_the_log  — log phase_writes 1; plan keys ['id', 'release', 'title', 'workflow_and_state']\n  PASS  test_cast_ticket_refuses_a_field_outside_the_plan  — refusal named the field True; extra cast landed False; clean cast True\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_append_log_lands_lines_in_order_and_refuses_what_it_must",
+        "test_split_moves_the_trail_and_reconstructs_the_v1_doc",
+        "test_a_second_split_is_a_no_op",
+        "test_set_phase_appends_its_record_to_the_log",
+        "test_cast_ticket_refuses_a_field_outside_the_plan"
+      ],
+      "teeth_red": [],
+      "test": "test-df3f836c3454",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 24,
+        "tables": [
+          "bus_proc_1010832_1758127569_delivery",
+          "bus_proc_1010832_1758127569",
+          "bus_proc_1010918_1758209511_delivery",
+          "bus_proc_1010918_1758209511",
+          "bus_proc_1010978_1758235311_delivery",
+          "bus_proc_1010978_1758235311",
+          "bus_proc_1011247_1759326469_delivery",
+          "bus_proc_1011247_1759326469",
+          "bus_proc_1011328_1759436350_delivery",
+          "bus_proc_1011328_1759436350",
+          "bus_proc_1011420_1759464303_delivery",
+          "bus_proc_1011420_1759464303",
+          "bus_proc_1017393_1842140803_delivery",
+          "bus_proc_1017393_1842140803",
+          "bus_proc_1017438_1842219273_delivery",
+          "bus_proc_1017438_1842219273",
+          "bus_proc_1017502_1842245006_delivery",
+          "bus_proc_1017502_1842245006",
+          "bus_proc_1018033_1844555336_delivery",
+          "bus_proc_1018033_1844555336",
+          "bus_proc_1023832_1846420970_delivery",
+          "bus_proc_1023832_1846420970",
+          "bus_proc_1024561_1848036484_delivery",
+          "bus_proc_1024561_1848036484"
+        ]
+      },
+      "conditions": {
+        "proof": "f1f84fe88e84676802064266c39e7706bec3536b40e8c3f5b675c18bae24844c",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-df3f836c3454",
+      "source_fingerprint": "4830f3f47d9e243a3d3391e7363b8cf887510eb82d9af097899dffe1ab34321c",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_the_ticket_log_door.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1026368-wfybtep4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 106351753,
+          "disk_bytes": 129572864,
+          "entries": 9457,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -23,6 +23,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+# Several teeth walk the LIVE ticket corpus, so the run grows with the store: measured
+# 2026-10-10 at 132.5s whole (and timing out at the tester's 120s default with the
+# 76da3a283277 build stashed, so the corpus, not that build, crossed the line).
+PROOF_TIMEOUT_S = 300
+
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -2050,8 +2055,10 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
         after = json.loads(after_raw.decode("utf-8"))
 
         assert "[BUILDME:hold]" in out, out
-        writes = after["phase_writes"]
-        assert isinstance(writes, list) and len(writes) == len(before.get("phase_writes", [])) + 1
+        # The act record lands in the ticket's LOG (76da3a283277), never on the plan.
+        from cairn.tools.base.ticket_log import read_log
+        writes = [x["record"] for x in read_log(ticket_file, "phase_write")]
+        assert len(writes) == 1, writes
         rec = writes[-1]
         assert rec["act"] == "set_phase" and rec["phase"] == "hold"
         assert rec["release"] == "CLAUDE.md" and rec["actor"] == "proof"
@@ -2061,7 +2068,6 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
 
         # NOTHING ELSE MOVED — reconstructed from the ORIGINAL bytes, not from the new ones.
         expected = json.loads(before_raw.decode("utf-8"))
-        expected["phase_writes"] = [*before.get("phase_writes", []), rec]
         expected["workflow_and_state"] = out
         expected["release"] = "CLAUDE.md"  # the pair the watching probe reads (see below)
         ensure_ascii, newline = transitions._ticket_shape(before_raw, before)
@@ -2176,7 +2182,8 @@ def test_ticket_and_projector_records_are_one_body() -> None:
                                   history_path=str(h), state_path=str(st))
         finally:
             transitions._TICKETS = real_root
-        at_ticket = json.loads(ticket_file.read_text(encoding="utf-8"))["phase_writes"][-1]
+        from cairn.tools.base.ticket_log import read_log
+        at_ticket = read_log(ticket_file, "phase_write")[-1]["record"]
         at_component = json.loads(h.read_text())[-1]
         # `seq` is the HISTORY's envelope, not the record's body: it numbers a position in
         # one append-only file, and the ticket's phase_writes list has its own positions. It

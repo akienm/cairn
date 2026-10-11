@@ -43,6 +43,7 @@ from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 from cairn.tools.base.settled import settled
+from cairn.tools.base.ticket_log import read_log
 from cairn.tools.base.transitions import (
     MalformedWorkflow,
     is_terminal,
@@ -109,8 +110,11 @@ def _walk_tickets() -> dict:
         if not isinstance(doc, dict) or not isinstance(doc.get("workflow_and_state"), str):
             continue
         tid = doc.get("id") or path.stem[:12]
-        writes = doc.get("phase_writes")
-        if isinstance(writes, list):
+        # A legacy plan still carries its phase_writes list until the corpus split
+        # (29569fca68a3); every write since 76da3a283277 lands in the ticket's log. Both count.
+        writes = [*(doc.get("phase_writes") if isinstance(doc.get("phase_writes"), list) else []),
+                  *(x.get("record") for x in read_log(path, "phase_write"))]
+        if writes:
             for r in writes:
                 if isinstance(r, dict):
                     records.append({"ticket": tid, "day": _day(r),

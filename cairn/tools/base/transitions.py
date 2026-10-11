@@ -2756,12 +2756,16 @@ def set_phase(
 
     if ticket_file is not None:
         assert ticket_doc is not None and ticket_shape is not None
-        writes = ticket_doc.get("phase_writes")
-        if not isinstance(writes, list):
-            writes = []
-        ticket_doc["phase_writes"] = [*writes, dict(record)]
+        # THE LOG FIRST, THEN THE PLAN (ticket 76da3a283277, D4). The act record is trail,
+        # so it lands in the ticket's log (``<id>-<slug>.log.jsonl``, kind phase_write) and the
+        # plan never grows a ``phase_writes`` list again. Log before plan: a crash between the
+        # two leaves a record ahead of the cursor, which the probe reads as a disagreement
+        # (loud) — never a cursor with no record behind it.
+        from cairn.tools.base.ticket_log import append_log  # at call time: ticket_log imports us
+        append_log(ticket_file, "phase_write", {"record": dict(record)}, actor=actor,
+                   why=f"phase {wf.here} -> {phase}" + (f" ({release})" if release else ""))
         # THE SAME ACT, not a second one: the cursor the record describes and the cursor the
-        # ticket carries are written together, so a reader can never find a phase_writes entry
+        # ticket carries are written together, so a reader can never find a phase_write line
         # whose ``workflow`` disagrees with the ``workflow_and_state`` beside it.
         ticket_doc["workflow_and_state"] = new_str
         # THE PAIR THE WATCHER READS. `the_vocabulary_is_written_not_just_legal` judges a
@@ -2899,7 +2903,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     tickets_dir = _TICKETS if tickets_dir is None else Path(tickets_dir)
     lacks: list[str] = []
 
-    # (a) the required set — absent, None or a blank string is a lack; extras are allowed
+    # (a) the required set — absent, None or a blank string is a lack (extras: see (e))
     for key in _CAST_REQUIRED:
         if _blank(doc.get(key)):
             lacks.append(f"required field {key!r} is absent or blank")
@@ -2932,6 +2936,13 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
 
     # (d) the berths
     lacks.extend(_berth_lacks(doc))
+
+    # (e) the plan holds the plan (ticket 76da3a283277): every top-level key must be one the
+    # store charter declares in ``plan_fields`` — read there, never a second copy here.
+    from cairn.tools.base.ticket_log import plan_fields  # at call time: ticket_log imports us
+    declared = set(plan_fields(tickets_dir / "_charter+why.json"))
+    lacks.extend(f"{key} is not a plan field; trail goes to the log"
+                 for key in doc if key not in declared)
 
     if lacks:
         raise CastRefused(lacks)

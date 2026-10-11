@@ -1,24 +1,24 @@
-"""Teeth for ticket f5bba1daa72a — the tester records an approved proofs-only build.
+"""Teeth for ticket bf1cd5d79805 — the ticket plan approves a proofs-only build.
 
 MEASURED 2026-10-06 on 45c168cc1ff1: its build wrote only its two proofs, so the hollow skipped
 both as the instrument and sealed ``{}``, and clearance refuses hollow_nothing_measured with no
-repair of the code able to give it anything to revert. Akien had already said yes to that proof
-change (open-728473f9b70d). His ruling 8p (2026-10-06): his approval IS the measurement (Law 10)
-— "and then i say it's approved and it then is proved. at that point the tester records that
-proving. and it's the tester that's asking me for a ruling."
+repair of the code able to give it anything to revert. Ruling 8p (f5bba1daa72a) answered that
+with a question to Akien; F50 (Akien, 2026-10-09) retires the question: "tester should never ask
+me about anything that i don't need to have approved. the plan based tickets are inherently
+preapproved."
 
-THE RULE THESE TEETH HOLD. A run that measured nothing because every skip is an instrument skip
-(and no file was unwritten) reads green only when a question bound to the ticket, answered by
-Akien, names one of those files; the finding carries ``approved`` {file: qid} and the --seal
-path seals each such file as {"approved": qid}. Without one the run stays red ("measured
-nothing") and --seal asks him, once. Every other empty run stays red, approval or not.
+THE RULE THESE TEETH HOLD. A run that measured nothing because every skip is an instrument (or
+record) skip, at least one the instrument, and no file was unwritten, reads green only when the
+ticket's plan names EVERY skipped file in its ``writes_to`` list — a field, never prose. The
+finding carries ``approved`` {file: "plan"} and --seal seals each such file as
+{"approved": "plan"}. Otherwise the run stays red ("measured nothing") and --seal opens NO
+question: the red is the record. An Akien-answered question no longer approves. Every other
+empty run stays red, plan or not.
 
 The fixture build is test_the_hollow_skips_only_the_instrument.py's (ticket 763379e32e3b), whose
-tooth 3 — an instrument-only build with no approval measures nothing — must stay red as it is.
-Question records are plain JSON in the fixture's own commons, the shape
-``cairn.tools.question.question.answer`` writes (as test_rung_4_lifts_for_an_answered_question.py
-does). Every tooth imports the tester's modules INSIDE its body, so a reverted hollow.py or
-cli.py reds teeth instead of breaking this file's import.
+tooth 3 — an instrument-only build whose plan names nothing — must stay red as it is. Every tooth
+imports the tester's modules INSIDE its body, so a reverted hollow.py or cli.py reds teeth
+instead of breaking this file's import.
 """
 from __future__ import annotations
 
@@ -40,12 +40,11 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
 PROVES = {
-    "f5bba1daa72a": {
-        "1": "test_an_akien_approval_naming_the_file_makes_an_instrument_only_build_green_and_sealed",
-        "2": "test_an_approval_by_another_hand_or_ticket_or_naming_no_file_stays_red",
-        "3": "test_an_empty_run_that_is_not_only_the_instrument_stays_red_with_an_approval",
-        "4": "test_the_seal_asks_akien_once",
-        "5": "test_the_standing_hollow_proofs_stay_green",
+    "bf1cd5d79805": {
+        "1": "test_a_plan_naming_every_skipped_file_approves_green_and_seals_plan_asking_nothing",
+        "2": "test_a_plan_that_does_not_name_every_skipped_file_stays_red_and_asks_nothing",
+        "3": "test_an_empty_run_that_is_not_only_the_instrument_stays_red_with_a_naming_plan",
+        "4": "test_the_standing_hollow_proofs_stay_green",
     },
 }
 
@@ -121,50 +120,70 @@ def _run_cli(repo, commons, berths, argv):
     return rc, sealed, out.getvalue()
 
 
-def _questions(commons: Path) -> list[dict]:
-    return [json.loads(p.read_text()) for p in sorted((commons / "questions").glob("open-*.json"))]
+def _plan(commons: Path, writes_to: list[str]) -> None:
+    """The fixture ticket's flat plan, naming ``writes_to`` in the field the tester reads."""
+    (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(
+        json.dumps({"id": FIXTURE, "how": "fixture", "writes_to": writes_to}), encoding="utf-8")
 
 
-def test_an_akien_approval_naming_the_file_makes_an_instrument_only_build_green_and_sealed():
-    """45c1's shape: an Akien-answered question bound to the ticket names the instrument. The
-    run is green, the finding carries the approval on every skipped file, and --seal records
-    each as {"approved": qid}."""
+def _asked(commons: Path) -> list[dict]:
+    """Every question in the fixture store the tester raised."""
+    return [q for q in (json.loads(p.read_text()) for p in sorted((commons / "questions").glob("*.json")))
+            if q.get("raised_by") == "tester"]
+
+
+def test_a_plan_naming_every_skipped_file_approves_green_and_seals_plan_asking_nothing():
+    """45c1's shape under F50: the plan's writes_to names the instrument and its import. The run
+    is green, the finding carries "plan" on every skipped file, --seal records each as
+    {"approved": "plan"}, and no question is opened."""
     repo, commons, berths = _instrument_only()
-    qid = _question(commons, "open-f1x7a99e0001")
+    _plan(commons, [INSTRUMENT, HELPER, "elsewhere.py"])
     f = _measure(repo, commons, berths)
     assert not f["measured"], f["measured"]
-    assert f.get("approved") == {INSTRUMENT: qid, HELPER: qid}, (f.get("approved"), f["reasons"])
+    assert f.get("approved") == {INSTRUMENT: "plan", HELPER: "plan"}, (f.get("approved"), f["reasons"])
     assert not any("measured nothing" in r for r in f["reasons"]), f["reasons"]
     assert f["verdict"] == "green", f["reasons"]
     rc, sealed, out = _run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
     assert rc == 0, out
-    assert sealed == {INSTRUMENT: {"approved": qid}, HELPER: {"approved": qid}}, sealed
-    assert [q["id"] for q in _questions(commons)] == [qid], _questions(commons)
+    assert sealed == {INSTRUMENT: {"approved": "plan"}, HELPER: {"approved": "plan"}}, sealed
+    assert _asked(commons) == [], _asked(commons)
 
 
-def test_an_approval_by_another_hand_or_ticket_or_naming_no_file_stays_red():
-    """Only Akien's answer, on this ticket, about these files, is the measurement."""
+def test_a_plan_that_does_not_name_every_skipped_file_stays_red_and_asks_nothing():
+    """A plan naming only some skipped files, none, or naming them only in prose — or an
+    Akien-answered question in place of the plan — leaves the run red, and --seal opens no
+    question: the red is the record."""
     cases = {
-        "answered by cc": dict(answered_by="cc"),
-        "measured, not his": dict(answered_by="measurement: /tmp/x.json, recorded by caller class cc"),
-        "still open": dict(resolved=False),
-        "bound to another ticket": dict(ticket="0ther71cket00"),
-        "names no skipped file": dict(names="some/other/proofs/test_elsewhere.py"),
+        "names only the instrument": ([INSTRUMENT], False),
+        "names nothing": ([], False),
+        "named only in prose": (None, False),
+        "a question answered by Akien, no plan": ([], True),
     }
-    for i, (label, kw) in enumerate(cases.items()):
+    for label, (writes, question) in cases.items():
         repo, commons, berths = _instrument_only()
-        _question(commons, f"open-f1x7a99e01{i:02d}", **kw)
+        if writes is None:
+            (commons / "tickets" / f"{FIXTURE}-fixture.json").write_text(json.dumps(
+                {"id": FIXTURE, "how": f"write {INSTRUMENT} and {HELPER}"}), encoding="utf-8")
+        else:
+            _plan(commons, writes)
+        if question:
+            _question(commons, "open-b71cd5d70001")
         f = _measure(repo, commons, berths)
         assert not f.get("approved"), (label, f.get("approved"))
         assert any("measured nothing" in r for r in f["reasons"]), (label, f["reasons"])
         assert f["verdict"] == "red", (label, f["verdict"])
+        rc, sealed, out = _run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
+        assert rc == 1, (label, out)
+        assert _asked(commons) == [], (label, _asked(commons))
+        assert not any(isinstance(r, dict) and "approved" in r for r in sealed.values()), (label, sealed)
 
 
-def test_an_empty_run_that_is_not_only_the_instrument_stays_red_with_an_approval():
+def test_an_empty_run_that_is_not_only_the_instrument_stays_red_with_a_naming_plan():
     """A run that measured nothing for any other reason stays red: here one writes_to file is
-    absent at HEAD with no successor, so not every skip is an instrument skip."""
+    absent at HEAD with no successor, so not every skip is an instrument skip — though the plan
+    names every file."""
     repo, commons, berths = _instrument_only(extra_writes=["gone.py"])
-    _question(commons, "open-f1x7a99e0201")
+    _plan(commons, [INSTRUMENT, HELPER, "gone.py"])
     f = _measure(repo, commons, berths)
     skips = {s["file"]: s["why"] for s in f["skipped"]}
     assert "gone.py" in skips and skips["gone.py"] != sk.SKIP_INSTRUMENT, skips
@@ -173,29 +192,9 @@ def test_an_empty_run_that_is_not_only_the_instrument_stays_red_with_an_approval
     assert f["verdict"] == "red", f["verdict"]
 
 
-def test_the_seal_asks_akien_once():
-    """With no answer, --seal opens one question to Akien bound to the ticket and naming the
-    files; a second --seal finds it standing and opens none. Nothing is sealed approved."""
-    repo, commons, berths = _instrument_only()
-    rc, sealed, out = _run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
-    asked = _questions(commons)
-    assert rc == 1, out
-    assert len(asked) == 1, asked
-    q = asked[0]
-    assert q["ticket"] == FIXTURE and not q["resolved"], q
-    assert q["question"].endswith("?") and INSTRUMENT in q["question"], q["question"]
-    assert q["raised_by"] == "tester", q["raised_by"]
-    assert q["id"] in out, out
-    assert not any(isinstance(r, dict) and "approved" in r for r in sealed.values()), sealed
-    rc2, _, out2 = _run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
-    assert rc2 == 1 and len(_questions(commons)) == 1, (out2, _questions(commons))
-    rc3, _, _ = _run_cli(repo, commons, berths, ["--hollow", FIXTURE, "-q"])
-    assert len(_questions(commons)) == 1, _questions(commons)
-
-
 def test_the_standing_hollow_proofs_stay_green():
-    """763379e32e3b's tooth 3 (no approval: still measures nothing), rung 4's teeth, and the
-    hollow's own proof hold."""
+    """763379e32e3b's tooth 3 (a plan naming nothing: still measures nothing), rung 4's teeth,
+    and the hollow's own proof hold."""
     sk.test_a_build_of_only_the_instrument_still_measures_nothing()
     for rel in ("cairn/devices/tester/proofs/test_rung_4_lifts_for_an_answered_question.py",
                 "cairn/devices/tester/proofs/test_hollow.py"):

@@ -35,7 +35,10 @@ FAILURES: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'PASS' if ok else 'FAIL'}  {name}" + (f"  — {detail}" if detail else ""))
+    # The detail rides its own line: the tester reads the whole PASS/FAIL line as the tooth name.
+    print(f"  {'PASS' if ok else 'FAIL'}  {name}")
+    if detail:
+        print(f"        {detail}")
     if not ok:
         FAILURES.append(name)
 

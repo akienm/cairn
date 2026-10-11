@@ -142,11 +142,27 @@ def run() -> int:
     return 0
 
 
+USAGE = """usage: cairn sudorelay [--status | --help]
+  cairn sudorelay            start the daemon (prompts for the sudo password, once)
+  cairn sudorelay --status   report the live root window (up since / expires when)
+  cairn sudorelay --help     print this and exit
+  Ctrl-C in the daemon's window releases root immediately."""
+
+
 def main(argv: list | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    if argv and is_word(argv[0], "--status"):  # system words fold (ruled 2026-09-07)
+    # Root is acquired only by a bare call (ticket 8902708b6212): any word we do not know
+    # refuses loudly, so a typo or a --help can never mean "start".
+    if not argv:
+        return run()
+    if is_word(argv[0], "--status"):  # system words fold (ruled 2026-09-07)
         return _print_status()
-    return run()
+    if is_word(argv[0], "--help") or is_word(argv[0], "-h"):
+        print(USAGE)
+        return 0
+    print(f"sudorelay: unknown argument {argv[0]!r} — nothing started, no root acquired", file=sys.stderr)
+    print(USAGE, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":

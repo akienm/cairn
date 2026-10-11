@@ -71,12 +71,21 @@ def _tooth(name, fn):
         print(f"  green {name}")
 
 
+def _fixture_charter(tickets: Path) -> None:
+    """A store charter in the scratch tickets dir: ticket_log reads the declared log kinds beside
+    the plan, and a worktree (the hollow reading's) has no live commons beside it to fall back on."""
+    (tickets / "_charter+why.json").write_text(json.dumps({
+        "plan_fields": ["id", "title", "intention", "workflow_and_state", "decisions", "questions"],
+        "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
+
+
 class World:
     def __init__(self, decisions):
         from cairn.tools.scratch.scratch import scratch_dir
         self.dir = Path(scratch_dir("testing-4968b5d18645-retired-"))
         self.commons = self.dir / "CairnCommons"
         (self.commons / "tickets").mkdir(parents=True)
+        _fixture_charter(self.commons / "tickets")
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
         self.ticket.write_text(json.dumps(_ticket(decisions), indent=2) + "\n", encoding="utf-8")
 

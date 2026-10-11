@@ -69,6 +69,14 @@ class Stub:
         return json.loads(json.dumps(self.tree)), {"model": "stub", "cost_usd": 0.0, "duration_ms": 1}
 
 
+def _fixture_charter(tickets: Path) -> None:
+    """A store charter in the scratch tickets dir: ticket_log reads the declared log kinds beside
+    the plan, and a worktree (the hollow reading's) has no live commons beside it to fall back on."""
+    (tickets / "_charter+why.json").write_text(json.dumps({
+        "plan_fields": ["id", "title", "intention", "workflow_and_state", "decisions", "questions"],
+        "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
+
+
 class World:
     def __init__(self, ticket=None):
         from cairn.tools.artifact import artifact as door
@@ -80,6 +88,7 @@ class World:
         for d in ("tickets", "rehearsals", "questions"):
             (self.commons / d).mkdir(parents=True)
         self.cairn.mkdir()
+        _fixture_charter(self.commons / "tickets")
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
         self.ticket.write_text(json.dumps(ticket or TICKET, indent=2) + "\n", encoding="utf-8")
         door.set_diagnostic_roots({"cairn": self.cairn, "CairnCommons": self.commons})

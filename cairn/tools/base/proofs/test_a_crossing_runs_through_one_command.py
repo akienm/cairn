@@ -76,6 +76,10 @@ class World:
         self.commons = root / "CairnCommons"
         self.tickets = self.commons / "tickets"
         self.tickets.mkdir(parents=True)
+        # The door reads a ticket's keys from the store charter beside it (1fc53d5d96cc); a
+        # scratch store carries its own, written plain so the journal still starts at genesis.
+        (self.tickets / "_charter+why.json").write_text(json.dumps(
+            {"plan_fields": ["id", "owning_intention", "workflow_and_state"]}) + "\n")
         self.repo = root / "cairn"
         self.comp = self.repo / "comp"
         self.comp.mkdir(parents=True)

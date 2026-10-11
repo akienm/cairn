@@ -293,6 +293,11 @@ def test_the_door_the_sweep_and_the_watch_end_to_end(A) -> None:
         tmp = Path(d)
         commons = tmp / "CairnCommons"
         (commons / "tickets").mkdir(parents=True)
+        # The door reads a ticket's keys from the store charter beside it (1fc53d5d96cc), and
+        # cast_ticket already reads the live one when none sits there: the scratch store carries
+        # those same bytes, written plain so the sweep still counts only door casts.
+        from cairn.tools.base.ticket_log import _LIVE_CHARTER
+        (commons / "tickets" / "_charter+why.json").write_bytes(_LIVE_CHARTER.read_bytes())
         A.set_diagnostic_roots({"CairnCommons": commons, "cairn": REPO})
         try:
             print("1. the cast lands and the journal line is the record")

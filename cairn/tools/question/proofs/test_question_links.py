@@ -85,6 +85,9 @@ def _world(tmp: Path) -> Path:
     doc = {"id": TID, "intent_berth": BERTH, "sorted_berth": "none, because a proof world",
            "questions": "none, because the proof opens them through the door",
            "workflow_and_state": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"}
+    # The door reads a ticket's keys from the store charter beside it (1fc53d5d96cc); a
+    # scratch store carries its own, written plain so the journal still starts at genesis.
+    (commons / "tickets" / "_charter+why.json").write_text(json.dumps({"plan_fields": sorted(doc)}) + "\n")
     A.write_json(commons / "tickets" / f"{TID}-a-proof-world-ticket.json", doc,
                  verb="cast", why="the scratch ticket the proof's questions are about")
     return commons

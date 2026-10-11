@@ -427,6 +427,35 @@ def _refuse_non_append(p: Path, blob: bytes) -> None:
                           "object; nothing written (9df0f230a087)")
 
 
+def _refuse_undeclared_keys(name: str, root: Path, rel: Path, p: Path, blob: bytes) -> None:
+    """A record set's keys are declared once, in its store's own charter (1fc53d5d96cc).
+
+    The matched record entry's ``keys_from`` (``<path under the root>#<field>``) names the
+    list; a body key outside it is refused by name. A charter or field that cannot be read
+    refuses every write to the set (gates are hard). A name starting ``_`` is the store's own
+    charter, not a member, and writes freely — it is what a member's keys are read FROM."""
+    rule = next((r for r in jurisdiction()["roots"].get(name, {}).get("records", [])
+                 if _rule_matches(r, rel)), None)
+    if not rule or "keys_from" not in rule or rel.name.startswith("_"):
+        return
+    where, _, field = rule["keys_from"].partition("#")
+    try:
+        declared = json.loads((root / where).read_text(encoding="utf-8"))[field]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise Refused(f"{p}: its record set reads its keys from {rule['keys_from']} and that "
+                      f"cannot be read ({type(exc).__name__}: {exc}); every write to the set is "
+                      "refused until it can; nothing written (1fc53d5d96cc)") from None
+    doc = json.loads(blob.decode("utf-8"))
+    if not isinstance(doc, dict):
+        raise Refused(f"{p}: a member of a keyed record set is a JSON object, not a "
+                      f"{type(doc).__name__}; nothing written (1fc53d5d96cc)")
+    extras = sorted(set(doc) - set(declared))
+    if extras:
+        raise Refused(f"{p}: key(s) {extras} are not declared in {rule['keys_from']} — the plan "
+                      "holds the plan; a trail goes to the .log.jsonl beside it; nothing written "
+                      "(1fc53d5d96cc)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -446,6 +475,7 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         _refuse_non_canonical(p, blob)
         if p.name == "history.json":
             _refuse_history_without_floor(p, blob)
+        _refuse_undeclared_keys(name, root, rel, p, blob)
     if p.suffix == ".jsonl":
         _refuse_non_append(p, blob)
     before = p.read_bytes() if p.exists() else None

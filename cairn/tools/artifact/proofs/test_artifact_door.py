@@ -159,6 +159,10 @@ def _world(tmp: Path) -> tuple[Path, Path]:
         _git(r, "config", "user.name", "proof")
         _git(r, "config", "commit.gpgsign", "false")
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": cairn, "parked": tmp / "parked"})
+    # The door reads a ticket's keys from the store charter beside it (1fc53d5d96cc). The
+    # charter is itself a record, so it lands through the door and is the journal's first entry.
+    A.write_json(commons / "tickets" / "_charter+why.json", {"plan_fields": ["id", "x", "workflow_and_state"]},
+                 verb="cast", why="proof: the scratch store's charter")
     return commons, cairn
 
 
@@ -172,7 +176,8 @@ def teeth_door(tmp: Path) -> None:
     check("the entry names the caller class from the kernel", e["caller"]["class"] in ("cc", "akien", "gate"))
     check("the entry carries a stack whose top frame is this proof, not the door",
           bool(e["stack"]) and "test_artifact_door.py" in e["stack"][0], e["stack"][0])
-    check("the first entry chains from genesis", e["prev"] == "genesis" and e["sha_before"] == "absent")
+    check("the first entry chains from genesis",
+          A.read_journal(commons)[0]["prev"] == "genesis" and e["sha_before"] == "absent")
     check("the bytes on disk hash to sha_after", A._sha(t.read_bytes()) == e["sha_after"])
     again = A.write(t, json.dumps({"id": "abc123def456"}, indent=2) + "\n", verb="cast", why="proof: same bytes")
     check("writing the same bytes is a no-op with no entry", not again["journaled"] and again.get("unchanged"))
@@ -294,13 +299,14 @@ def teeth_door(tmp: Path) -> None:
     check("test_a_chain_break_is_detected_by_replay", any("entry sha" in f for f in faults), faults and faults[0][:80])
     check("the commit question carries the chain fault", any("journal chain" in f for f in A.check_staged("CairnCommons")))
 
-    print("GENESIS — every standing record gets one entry, and the second run is a no-op")
+    print("GENESIS — every standing record gets one entry (the charter, the ticket, old1, old2), "
+          "and the second run is a no-op")
     (commons / "tickets" / "old1.json").write_text("{}")
     (commons / "tickets" / "old2.json").write_text("{}")
     jp.unlink()
     g1 = A.genesis("CairnCommons", why="proof: genesis")
     g2 = A.genesis("CairnCommons", why="proof: genesis again")
-    check("genesis journals each standing record once", g1["journaled"] == 3 and g2["journaled"] == 0, f"{g1} {g2}")
+    check("genesis journals each standing record once", g1["journaled"] == 4 and g2["journaled"] == 0, f"{g1} {g2}")
     check("the genesis chain verifies", A.verify_chain(commons) == [])
     _git(commons, "add", "-A")
     check("after genesis the whole tree passes the commit question", A.check_staged("CairnCommons") == [])

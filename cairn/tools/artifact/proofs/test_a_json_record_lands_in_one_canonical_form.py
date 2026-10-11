@@ -59,6 +59,9 @@ def _canonical(doc, ensure_ascii=False, newline=True) -> str:
 def _world(tmp: Path) -> Path:
     commons = tmp / "CairnCommons"
     (commons / "tickets").mkdir(parents=True)
+    # The door reads a ticket's keys from the store charter beside it (1fc53d5d96cc); a
+    # scratch store carries its own, written plain so the journal still starts at genesis.
+    (commons / "tickets" / "_charter+why.json").write_text(json.dumps({"plan_fields": sorted(TICKET)}) + "\n")
     cairn = tmp / "cairn"
     cairn.mkdir()
     for r in (commons, cairn):

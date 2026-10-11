@@ -156,6 +156,9 @@ never had.
   the stone-1 failure with the survey sitting right there.
 - **survey's absences are what you may BUILD** — each was measured absent;
   build minimal, grow against need.
+- **The ticket names its model** — `transitions.ticket_model(ticket)` (opus when
+  absent). When it differs from the builder's own model, spawn an Agent on that
+  model for the build rather than building it yourself (ticket 2cee2c5e8478).
 - **If the prebuild packet is thin — fire `/moreabout`** with `--context build`
   to expand what you need before proceeding. The invocation itself is the
   training signal: it records that the prebuild was not adequate, so the

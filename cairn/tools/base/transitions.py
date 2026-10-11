@@ -2888,6 +2888,20 @@ def _berth_lacks(doc: dict) -> list[str]:
     return lacks
 
 
+TICKET_MODELS = ("haiku", "sonnet", "opus", "fable")
+DEFAULT_TICKET_MODEL = "opus"
+
+
+def ticket_model(doc: dict) -> str:
+    """The model a ticket's work runs on, folded to the table's spelling — ``'opus'`` when the
+    ticket names none (or names one outside the table). Never raises (ticket 2cee2c5e8478)."""
+    try:
+        folded = canon(doc.get("model"), TICKET_MODELS) if not _blank(doc.get("model")) else None
+    except Exception:  # noqa: BLE001 — a reader of the model never refuses
+        folded = None
+    return folded or DEFAULT_TICKET_MODEL
+
+
 def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Path:
     """Cast ``doc`` into the store as ``<tickets_dir>/<id>-<slug>.json``, or refuse it
     with every lack named. Returns the path written.
@@ -2896,8 +2910,9 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     one — the artifact door then journals under whichever root ``set_diagnostic_roots``
     says that directory belongs to.
 
-    Touches no key of ``doc`` but ``cast``, which it stamps with today's ISO date only when
-    absent (a caster that already dated the cast keeps its date)."""
+    Touches no key of ``doc`` but ``cast`` and ``model``: ``cast`` it stamps with today's ISO
+    date only when absent (a caster that already dated the cast keeps its date), and ``model``
+    it stamps ``'opus'`` when absent, or folds to the table's spelling (ticket 2cee2c5e8478)."""
     if not isinstance(doc, dict):
         raise CastRefused(["the cast is not a JSON object"])
     tickets_dir = _TICKETS if tickets_dir is None else Path(tickets_dir)
@@ -2937,6 +2952,16 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     # (d) the berths
     lacks.extend(_berth_lacks(doc))
 
+    # (d2) the model the ticket's work runs on (ticket 2cee2c5e8478): absent is opus; a named
+    # one folds into the table's spelling, and anything outside the table is a lack
+    model = doc.get("model")
+    if not _blank(model):
+        folded = canon(model, TICKET_MODELS)
+        if folded is None:
+            lacks.append(f"model {model!r} is not one of {list(TICKET_MODELS)}")
+        else:
+            doc["model"] = folded
+
     # (e) the plan holds the plan (ticket 76da3a283277): every top-level key must be one the
     # store charter declares in ``plan_fields`` — read there, never a second copy here.
     from cairn.tools.base.ticket_log import plan_fields  # at call time: ticket_log imports us
@@ -2950,6 +2975,8 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
 
     if _blank(doc.get("cast")):
         doc["cast"] = datetime.now().date().isoformat()
+    if _blank(doc.get("model")):
+        doc["model"] = DEFAULT_TICKET_MODEL
     from cairn.tools.artifact import artifact as door
     body = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
     door.write(target, body, verb="cast",

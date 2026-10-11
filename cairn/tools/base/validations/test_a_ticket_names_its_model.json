@@ -2,23 +2,22 @@
   {
     "claim": "proof test_a_ticket_names_its_model.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-11T15:51:44",
+    "date": "2026-10-11T16:07:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  a_cast_without_model_is_written_with_opus\n        None\n  FAIL  a_cast_with_fable_keeps_it\n        CastRefused: cast_ticket refused (1 lack): model is not a plan field; trail goes to the log. Nothing was written.\n  FAIL  a_cast_with_gpt_is_refused_naming_model\n        lacks=['model is not a plan field; trail goes to the log'], written=[]\n  FAIL  ticket_model_reads_opus_when_absent\n        AttributeError: module 'cairn.tools.base.transitions' has no attribute 'ticket_model'\n  PASS  the live journal never moved\n\nRED — 4 failure(s)\n  - a_cast_without_model_is_written_with_opus\n  - a_cast_with_fable_keeps_it\n  - a_cast_with_gpt_is_refused_naming_model\n  - ticket_model_reads_opus_when_absent",
+      "returncode": 0,
+      "stdout_tail": "  PASS  a_cast_without_model_is_written_with_opus\n        'opus'\n  PASS  a_cast_with_fable_keeps_it\n        'fable', 'fable'\n  PASS  a_cast_with_gpt_is_refused_naming_model\n        lacks=[\"model 'gpt' is not one of ['haiku', 'sonnet', 'opus', 'fable']\"], written=[]\n  PASS  ticket_model_reads_opus_when_absent\n        ('opus', 'haiku')\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "the live journal never moved"
-      ],
-      "teeth_red": [
         "a_cast_without_model_is_written_with_opus",
         "a_cast_with_fable_keeps_it",
         "a_cast_with_gpt_is_refused_naming_model",
-        "ticket_model_reads_opus_when_absent"
+        "ticket_model_reads_opus_when_absent",
+        "the live journal never moved"
       ],
-      "test": "test-bd76f7fccf7f",
+      "teeth_red": [],
+      "test": "test-a0b39bd6553c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,8 +41,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bd76f7fccf7f",
-      "source_fingerprint": "140cb17d66a4d7321e8755e7b9da31d2ba25ce6e6d9d95c2bf50f16856f82d87",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a0b39bd6553c",
+      "source_fingerprint": "7b2c288106e4572846e7c9e5865fd529c534030a762576b2b9a50539a846cd35",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -59,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1526541-1bgwy0_d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1543104-o4g2fsyp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,21 +67,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107081043,
-          "disk_bytes": 130736128,
-          "entries": 9622,
+          "bytes": 107091086,
+          "disk_bytes": 130756608,
+          "entries": 9627,
           "builds": 1,
-          "reuses": 8
+          "reuses": 4
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "cf368d277a573f9b489238ed26c67cb772e7f9d4f424128581a2d1b1df3c3f34",
         "opened": "2026-10-11T15:51:44",
         "last_red": "2026-10-11T15:51:44",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-11T16:07:03",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "cf368d277a573f9b489238ed26c67cb772e7f9d4f424128581a2d1b1df3c3f34"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

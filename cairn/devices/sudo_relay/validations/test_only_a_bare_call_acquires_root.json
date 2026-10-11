@@ -1,0 +1,141 @@
+[
+  {
+    "claim": "proof test_only_a_bare_call_acquires_root.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T13:26:48",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_help_prints_usage_and_starts_nothing\n  PASS  test_an_unknown_argument_refuses_and_starts_nothing\n  PASS  test_a_bare_call_still_starts_the_daemon\ngreen — sudorelay: only a bare call acquires root; --help prints usage, an unknown word refuses",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_help_prints_usage_and_starts_nothing",
+        "test_an_unknown_argument_refuses_and_starts_nothing",
+        "test_a_bare_call_still_starts_the_daemon"
+      ],
+      "teeth_red": [],
+      "test": "test-642d860ea3ae",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 48,
+        "tables": [
+          "bus_proc_1390376_1224392723_delivery",
+          "bus_proc_1390376_1224392723",
+          "bus_proc_1390430_1224488583_delivery",
+          "bus_proc_1390430_1224488583",
+          "bus_proc_1392423_1229502953_delivery",
+          "bus_proc_1392423_1229502953",
+          "bus_proc_1400077_1238247286_delivery",
+          "bus_proc_1400077_1238247286",
+          "bus_proc_1406008_1240211265_delivery",
+          "bus_proc_1406008_1240211265",
+          "bus_proc_1406891_1241468002_delivery",
+          "bus_proc_1406891_1241468002",
+          "bus_proc_1407611_1244454119_delivery",
+          "bus_proc_1407611_1244454119",
+          "bus_proc_1407674_1244553089_delivery",
+          "bus_proc_1407674_1244553089",
+          "bus_proc_1407873_1245100046_delivery",
+          "bus_proc_1407873_1245100046",
+          "bus_proc_1407927_1245166687_delivery",
+          "bus_proc_1407927_1245166687",
+          "bus_proc_1408509_1248271471_delivery",
+          "bus_proc_1408509_1248271471",
+          "bus_proc_1408554_1248311318_delivery",
+          "bus_proc_1408554_1248311318",
+          "bus_proc_1408655_1248447340_delivery",
+          "bus_proc_1408655_1248447340",
+          "bus_proc_1408803_1249023027_delivery",
+          "bus_proc_1408803_1249023027",
+          "bus_proc_1408965_1249146983_delivery",
+          "bus_proc_1408965_1249146983",
+          "bus_proc_1410284_1250340735_delivery",
+          "bus_proc_1410284_1250340735",
+          "bus_proc_1411277_1251395555_delivery",
+          "bus_proc_1411277_1251395555",
+          "bus_proc_1411805_1252117669_delivery",
+          "bus_proc_1411805_1252117669",
+          "bus_proc_1417605_1259216603_delivery",
+          "bus_proc_1417605_1259216603",
+          "bus_proc_1417661_1259293067_delivery",
+          "bus_proc_1417661_1259293067",
+          "bus_proc_1417735_1259319841_delivery",
+          "bus_proc_1417735_1259319841",
+          "bus_proc_1418003_1300468361_delivery",
+          "bus_proc_1418003_1300468361",
+          "bus_proc_1418052_1300546255_delivery",
+          "bus_proc_1418052_1300546255",
+          "bus_proc_1418124_1300572767_delivery",
+          "bus_proc_1418124_1300572767"
+        ]
+      },
+      "conditions": {
+        "proof": "10c4fea31737d3f987bea14a037bb1ff44833756927bc9322468d1d108fd25a3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-642d860ea3ae",
+      "source_fingerprint": "2fc50d813e00bc1d3a979156ae2a0b90966217b5e3d07a0d89176b1cc02aa8e5",
+      "fingerprint_closure": [
+        "cairn/devices/sudo_relay/__init__.py",
+        "cairn/devices/sudo_relay/daemon.py",
+        "cairn/devices/sudo_relay/proofs/test_only_a_bare_call_acquires_root.py",
+        "cairn/devices/sudo_relay/relay.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1422469-y4cwa3xr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 106942756,
+          "disk_bytes": 130342912,
+          "entries": 9529,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "8902708b6212": {
+          "cairn/devices/sudo_relay/daemon.py": [
+            "test_an_unknown_argument_refuses_and_starts_nothing",
+            "test_help_prints_usage_and_starts_nothing"
+          ],
+          "bin/cmd/sudorelay": {
+            "notified": "n-7b3859be892b"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "8902708b6212": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "f169b2931bf616b96782db63f2d85e80b9f478d8",
+          "anchor_first_build": "f169b2931bf616b96782db63f2d85e80b9f478d8",
+          "commit": "09d34468908cd67ff1cea71f26bd3bf5798fed69"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

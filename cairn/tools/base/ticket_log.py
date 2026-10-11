@@ -24,6 +24,10 @@ _RESERVED = ("kind", "at", "actor")
 _PHASE_WRITES = "phase_writes"
 _REHEARSAL = "rehearsal"
 
+# The plan's one statement of intent, and the v1 keys that carried it, in precedence order.
+_INTENTION = "intention"
+_INTENTION_V1 = ("intent", "what")
+
 
 _LIVE_CHARTER = Path(__file__).resolve().parents[4] / "CairnCommons" / "tickets" / "_charter+why.json"
 
@@ -112,7 +116,10 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     - each top-level key outside plan_fields -> kind 'field' {field, value};
     - each entry of a non-empty ``phase_writes`` list -> kind 'phase_write' {record};
     - a string ``rehearsal`` pointer -> kind 'rehearsal' {record};
-    - each decision carrying 'retired' -> kind 'decision_retired' {decision} (whole).
+    - each decision carrying 'retired' -> kind 'decision_retired' {decision} (whole);
+    - a plan then left with no 'intention' takes a v1 string 'intent', else 'what', as it,
+      with one kind 'renamed' {from, to[, was]} line (the v1 key's 'field' line stays too;
+      a blank 'intention' it replaces rides as ``was``).
 
     An empty or non-list ``phase_writes`` and a non-string ``rehearsal`` go as 'field' lines,
     so ``reconstruct`` returns them exactly. The log lines land first, then the plan is
@@ -142,6 +149,11 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
             new[key] = live
         else:
             new[key] = value
+    stood = {"was": new[_INTENTION]} if _INTENTION in new else {}
+    named = _name_intention(new, [*read_log(plan, "field"), *lines])
+    if named:
+        body = {"from": named, "to": _INTENTION, **stood}
+        lines.append(_line(plan, "renamed", body, actor, at))
     moved: dict[str, int] = {}
     for x in lines:
         moved[x["kind"]] = moved.get(x["kind"], 0) + 1
@@ -154,6 +166,26 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     return {"moved": moved}
 
 
+def _blank(value) -> bool:
+    return value is None or (isinstance(value, str) and not value.strip())
+
+
+def _name_intention(new: dict, field_lines: list[dict]) -> str | None:
+    """A plan left with no 'intention' (absent, or blank: it states nothing) takes a v1 string
+    'intent', else a string 'what', as its one statement of intent (29569fca68a3, CC's call
+    per Akien 2026-10-09: one key, renamed once, at the split). The v1 key's own 'field' line
+    stays in the log; a non-string value is trail and is never promoted. Returns the key
+    renamed, or None. Mutates ``new``."""
+    if not _blank(new.get(_INTENTION)):
+        return None
+    values = {x["field"]: x["value"] for x in field_lines if x.get("kind") == "field"}
+    for key in _INTENTION_V1:
+        if isinstance(values.get(key), str) and values[key].strip():
+            new[_INTENTION] = values[key]
+            return key
+    return None
+
+
 def _has_non_ascii(raw: bytes) -> bool:
     return any(b > 127 for b in raw)
 
@@ -161,11 +193,19 @@ def _has_non_ascii(raw: bytes) -> bool:
 def reconstruct(plan_doc: dict, log: list[dict]) -> dict:
     """The v1 doc a split started from: the plan plus every trail line put back.
 
+    a 'renamed' line's ``to`` key leaves the plan, or takes back the blank ``was`` it replaced
+    (its v1 key returns by its 'field' line);
     'field' values return to their keys; 'phase_write' records rebuild ``phase_writes`` in
     log order; the last 'rehearsal' record is the pointer; retired decisions rejoin the live
     ones in ``n`` order (the corpus measured 2026-10-10: every decisions list carrying a
     retired line is sorted by integer n)."""
     doc = dict(plan_doc)
+    for x in log:
+        if x.get("kind") == "renamed":
+            if "was" in x:
+                doc[x["to"]] = x["was"]
+            else:
+                doc.pop(x["to"], None)
     pw = [x["record"] for x in log if x.get("kind") == "phase_write"]
     if pw:
         doc[_PHASE_WRITES] = pw

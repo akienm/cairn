@@ -17,6 +17,12 @@ the LIVE store charter (so the declared sets under proof are the real ones):
   (4) set_phase on a fixture ticket appends one 'phase_write' line whose record.workflow is
       the plan's new workflow_and_state, and the plan carries no phase_writes key;
   (5) cast_ticket with an extra non-plan field is refused naming it; without it, it casts.
+29569fca68a3 (1), the plan keeps its one statement of intent:
+  a v1 plan with no 'intention' splits into a plan whose 'intention' is its string 'intent'
+  (over 'what'), else its string 'what' — a blank 'intention' counts as none and one that
+  states something is kept; a dict 'intent' is never promoted; a plan split before
+  the rename takes it from its log on the next split; each rename is one 'renamed' line; every
+  plan + log still reconstructs its v1 doc exactly, and a further split is a no-op.
 
     bin/cairn test cairn/tools/base/proofs/test_the_ticket_log_door.py
 """
@@ -41,6 +47,8 @@ PROVES = {"76da3a283277": {
     "3": "test_a_second_split_is_a_no_op",
     "4": "test_set_phase_appends_its_record_to_the_log",
     "5": "test_cast_ticket_refuses_a_field_outside_the_plan",
+}, "29569fca68a3": {
+    "1": "test_split_names_the_plans_one_intention",
 }}
 
 FAILURES: list[str] = []
@@ -174,6 +182,47 @@ def test_cast_ticket_refuses_a_field_outside_the_plan(T, t: Path, tmp: Path) -> 
           f"refusal named the field {named}; extra cast landed {bool(landed_bad)}; clean cast {cast_ok}")
 
 
+def test_split_names_the_plans_one_intention(L, t: Path) -> None:
+    base = {k: v for k, v in _v1("x").items() if k != "intention"}
+    cases = {  # id: (v1 extras, the intention the plan must carry, the renamed-from key)
+        "feed00000001": ({"intent": "the intent", "what": "the what"}, "the intent", "intent"),
+        "feed00000002": ({"intent": {"challenge": "trail"}, "what": "the what"}, "the what", "what"),
+        "feed00000003": ({"intent": {"challenge": "trail"}}, None, None),
+        "feed00000005": ({"intention": "", "what": "the what"}, "the what", "what"),
+        "feed00000006": ({"intention": "kept", "intent": "not this"}, "kept", None),
+    }
+    bad = []
+    for tid, (extra, want, frm) in cases.items():
+        plan = t / f"{tid}-intent.json"
+        v1 = {**base, "id": tid, **extra}
+        _write(plan, v1)
+        L.split(plan, actor="proof", why="proof: split names the intention")
+        doc = json.loads(plan.read_text(encoding="utf-8"))
+        ren = L.read_log(plan, "renamed")
+        pb, lb = plan.read_bytes(), L.log_path(plan).read_bytes()
+        again = L.split(plan, actor="proof", why="proof: split again")
+        ok = (doc.get("intention") == want
+              and [(x["from"], x["to"]) for x in ren] == ([(frm, "intention")] if frm else [])
+              and L.reconstruct(doc, L.read_log(plan)) == v1
+              and not again.get("moved") and plan.read_bytes() == pb
+              and L.log_path(plan).read_bytes() == lb)
+        if not ok:
+            bad.append(f"{tid}: intention {doc.get('intention')!r} renamed {ren!r:.120}")
+    # a plan split before the rename existed: v2-clean, its 'what' only in the log
+    plan = t / "feed00000004-presplit.json"
+    v1 = {**base, "id": "feed00000004", "what": "the old what"}
+    _write(plan, {k: v for k, v in v1.items() if k not in ("what", "phase_writes", "rehearsal")})
+    L.append_log(plan, "field", {"field": "what", "value": "the old what"}, actor="proof",
+                 why="proof: the trail an earlier split left")
+    L.split(plan, actor="proof", why="proof: the rename reaches a split plan")
+    doc = json.loads(plan.read_text(encoding="utf-8"))
+    want = {k: v for k, v in v1.items() if k not in ("phase_writes", "rehearsal")}
+    if not (doc.get("intention") == "the old what"
+            and L.reconstruct(doc, L.read_log(plan)) == want):
+        bad.append(f"feed00000004: intention {doc.get('intention')!r}")
+    check("test_split_names_the_plans_one_intention", not bad, "; ".join(bad))
+
+
 def main() -> int:
     try:
         from cairn.tools.base import ticket_log as L
@@ -181,7 +230,7 @@ def main() -> int:
         from cairn.tools.artifact import artifact as A
     except Exception as exc:  # noqa: BLE001 — the reverted world is the case this handles
         print(f"the subject does not load: {exc!r}")
-        for n in PROVES["76da3a283277"].values():
+        for n in [*PROVES["76da3a283277"].values(), *PROVES["29569fca68a3"].values()]:
             check(n, False, "subject absent")
         return 1
     try:
@@ -198,11 +247,12 @@ def main() -> int:
                 test_a_second_split_is_a_no_op(L, t)
                 test_set_phase_appends_its_record_to_the_log(L, T, t)
                 test_cast_ticket_refuses_a_field_outside_the_plan(T, t, tmp)
+                test_split_names_the_plans_one_intention(L, t)
             finally:
                 A.set_diagnostic_roots(None)
     except Exception as exc:  # noqa: BLE001
         print(f"the teeth could not run to the end: {exc!r}")
-        for n in PROVES["76da3a283277"].values():
+        for n in [*PROVES["76da3a283277"].values(), *PROVES["29569fca68a3"].values()]:
             if n not in FAILURES:
                 check(n, False, f"aborted: {type(exc).__name__}")
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")

@@ -63,6 +63,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -108,9 +109,16 @@ class TroubleDevice(BaseDevice):
     through here; nothing else writes a trouble file. The lane's whole value is that a count is
     trustworthy, and a count is only trustworthy if there is one way to increment it."""
 
-    def __init__(self, root: str | os.PathLike | None = None) -> None:
+    def __init__(self, root: str | os.PathLike | None = None, *,
+                 roots: dict | None = None) -> None:
         super().__init__()
         self._root = Path(root) if root else Path.home() / "dev" / "src" / "CairnCommons" / "troubles"
+        # WHICH LOG HOMES A READ FOLDS (ticket 3c62020b0d88). The live store folds the live
+        # log homes; a store at a scratch root folds only the homes its caller names. A
+        # scratch store with no roots folds nothing — folding the live homes into it would
+        # advance the LIVE watermark past emissions the live store never received.
+        self._roots = roots
+        self._folds = root is None or roots is not None
 
     # --- introspection (Form v0 #2: intention, state, settings) -------------
 
@@ -365,7 +373,23 @@ class TroubleDevice(BaseDevice):
         failure this whole lane exists to end, so the default leans the safe way (Law 7)."""
         return [t for t in self.all() if t.get("standing") != CLEARED]
 
+    def fold_pending(self) -> dict | None:
+        """Fold what is pending before a read answers (ticket 3c62020b0d88).
+
+        A read never fails because a fold did: the fold's fault goes to stderr and the read
+        answers from the store as it stands (Law 7 — loud at the diagnostic surface)."""
+        if not self._folds:
+            return None
+        from cairn.devices.trouble.shim import fold_pending
+        try:
+            return fold_pending(self, self._roots)
+        except Exception as exc:  # noqa: BLE001 — the read still answers
+            print(f"trouble: fold before read failed: {type(exc).__name__}: {exc}",
+                  file=sys.stderr)
+            return {"outcome": "failed", "error": f"{type(exc).__name__}: {exc}"}
+
     def all(self) -> list[dict]:
+        self.fold_pending()
         if not self._root.exists():
             return []
         out = []

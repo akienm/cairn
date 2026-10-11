@@ -44,6 +44,14 @@ already folded. The beat is the backstop, not a poller: it drains what it finds 
 nothing else (memory ``reaching-for-daemons-is-drift`` — a backstop that grew logic would
 be a poller wearing a coat).
 
+THE READ IS THE EVENT THAT DRAINS (ticket 3c62020b0d88). Measured 2026-10-10: nothing
+hosts this shim's beat — the ground loop is only a heartbeat (bae622881f03) — so emissions
+sat unfolded until a hand drained them. ``TroubleDevice`` now calls ``fold_pending`` before
+it answers a read: a reader is the consumer asking, so the next read drains what is
+pending. Every fold, from any caller, holds an exclusive ``flock`` on a lock file beside
+the watermark for the whole walk and re-reads the watermark inside it, so two processes
+reading at once fold each emission once.
+
 THE WATERMARK is per source directory, and it is the emission FILENAME. Breadcrumb files
 are named by a UTC stamp to the microsecond, so filename order IS write order within a
 directory, and "everything after this name" is a complete, gap-free description of what
@@ -55,13 +63,27 @@ device has done, which is instance-space, never git (the roots table).
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import json
+import os
+import threading
 from pathlib import Path
 
 from cairn.tools.base.address import LOGS, instance_path, resolve
 from cairn.tools.base.shim import BaseShim
 
 WATERMARK_NAME = "drained.json"
+
+# The fold's lock, beside the watermark and never the watermark itself: opening the watermark
+# to lock it would create it empty, and an empty watermark reads as unreadable (below), which
+# refuses every drain after it.
+LOCK_NAME = "drained.json.lock"
+
+# The lock files THIS thread already holds. A fold calls the device (``live()``, ``clear()``),
+# and the device's read calls ``fold_pending`` — a second ``flock`` on a new descriptor in the
+# same process would wait on itself forever, so an inner fold sees the path here and returns.
+_HELD = threading.local()
 
 # The gate every raise is emitted under, and therefore the suffix every raise's filename
 # carries (``BreadcrumbLog._emission_filename`` puts the gate in the name). Globbing on it
@@ -98,7 +120,7 @@ class TroubleShim(BaseShim):
 
     def _start_device(self):
         from cairn.devices.trouble.trouble import TroubleDevice
-        return TroubleDevice(root=self._root)
+        return TroubleDevice(root=self._root, roots=self._roots)
 
     # --- the watermark: what has already been folded ------------------------
 
@@ -167,6 +189,22 @@ class TroubleShim(BaseShim):
         watermark past itself either. The alternative — skip it and move on — would make
         an unreadable raise a silently dropped fault, in the lane whose entire purpose is
         that nothing fails silently."""
+        # The lock is taken BEFORE the device starts: starting it reads ``introspect()``,
+        # which reads ``live()``, which folds — inside the lock that read sees itself and
+        # returns, so what this drain folds is what this drain reports.
+        with _fold_lock(self._watermark_path().parent / LOCK_NAME) as held:
+            if not held:
+                return {"outcome": "reentrant", "folded": []}
+            self._ensure_device()
+            if self._device is None:
+                self._device = self._start_device()
+            return self._drain_walk()
+
+    def _drain_walk(self) -> dict:
+        """The walk, the watermark re-read first (3c62020b0d88). A cached watermark is a
+        stale one once another process can fold: the reader that waited on the lock would
+        walk from where it last looked and fold again what the holder just folded."""
+        self._watermarks = None
         marks = self._load_watermarks()
         if "__unreadable__" in marks:
             return {"outcome": "refused", "folded": [], "refused": [
@@ -174,13 +212,14 @@ class TroubleShim(BaseShim):
                           "been folded is unknown — draining now would re-fold history "
                           "into inflated counts. Read or remove: "
                           + marks["__unreadable__"]}]}
-        self._ensure_device()
-        if self._device is None:
-            self._device = self._start_device()
         folded: list[dict] = []
         refused: list[dict] = []
         for source in self._source_dirs():
             key = f"{source.parent.name}/{source.name}"
+            # ONE LISTING PER SOURCE, split by gate suffix. A read now drains (3c62020b0d88),
+            # and a glob per gate walked every log file three times — measured 2026-10-11 at
+            # 1.2 s a read over ~280,000 files, paid on every page that asks for the lane.
+            listing = os.listdir(source)
             for gate in GATES:
                 # ONE WATERMARK PER GATE. The raise lane keeps the bare key it has always
                 # used, so watermarks written before the other two lanes existed still mean
@@ -189,7 +228,8 @@ class TroubleShim(BaseShim):
                 # high-water mark would let a late raise skip an early clear for good.
                 mark_key = key if gate == RAISE_GATE else f"{key}::{gate}"
                 high = marks.get(mark_key, "")
-                names = sorted(p.name for p in source.glob(f"*.{gate}.json"))
+                suffix = f".{gate}.json"
+                names = sorted(n for n in listing if n.endswith(suffix) and n > high)
                 for name in names:
                     if name <= high:
                         continue
@@ -298,10 +338,10 @@ class TroubleShim(BaseShim):
         The record it is handed is IGNORED, exactly as ``BaseShim._receive_poke`` ignores
         its envelope: the emission is already on disk, and reading it from there is the
         one path that cannot double-count against the watermark. What this buys over the
-        beat alone is latency — the ticket exists now, not on the next pulse."""
+        next read alone is latency — the ticket exists now, not when someone next asks."""
         return self.drain()
 
-    # --- (1) the beat is the backstop --------------------------------------
+    # --- (1) the beat is the backstop; the read is the host (3c62020b0d88) ---
 
     def on_pulse(self, now, context: dict | None = None) -> dict:
         """The ordinary pulse, plus a drain of anything no poke delivered.
@@ -312,3 +352,37 @@ class TroubleShim(BaseShim):
         record = super().on_pulse(now, context)
         record["drained"] = self.drain()
         return record
+
+
+def fold_pending(device, roots: dict[str, Path] | None = None) -> dict:
+    """Fold every pending emission into ``device``'s store, under the fold lock.
+
+    The device's read path calls this before it answers (ticket 3c62020b0d88). The reading
+    device is handed in rather than started: a fold from a read must not register a second
+    device or rewrite the shim's last-known snapshot, which ``drain`` (the shim's own path)
+    does on its way in."""
+    shim = TroubleShim(roots=roots, root=device._root)
+    shim._device = device
+    with _fold_lock(shim._watermark_path().parent / LOCK_NAME) as held:
+        return shim._drain_walk() if held else {"outcome": "reentrant", "folded": []}
+
+
+@contextlib.contextmanager
+def _fold_lock(lock: Path):
+    """An exclusive ``flock`` on ``lock`` for the whole fold; yields False instead of
+    waiting when this thread already holds it (the device's read inside a fold)."""
+    held = getattr(_HELD, "paths", None)
+    if held is None:
+        held = _HELD.paths = set()
+    if str(lock) in held:
+        yield False
+        return
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with open(lock, "a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        held.add(str(lock))
+        try:
+            yield True
+        finally:
+            held.discard(str(lock))
+            fcntl.flock(fh, fcntl.LOCK_UN)

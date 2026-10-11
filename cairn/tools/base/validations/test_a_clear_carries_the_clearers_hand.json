@@ -1,27 +1,30 @@
 [
   {
     "claim": "proof test_a_clear_carries_the_clearers_hand.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-11T15:50:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T15:51:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  the_clear_carries_the_measured_hand\n        want class 'cc'; hand={}\n  FAIL  a_failed_measure_still_clears\n        landed=1; hand={}\n\nRED — 2 failure(s)\n  - the_clear_carries_the_measured_hand\n  - a_failed_measure_still_clears",
+      "returncode": 0,
+      "stdout_tail": "  PASS  the_clear_carries_the_measured_hand\n        want class 'cc'; hand={\"ancestry\": [\"1526608:superclaude-873859.scope\", \"1526607:superclaude-873859.scope\", \"1526541:superclaude-873859.scope\", \"1526525:superclaude-873859.scope\", \"1526517:superclaude-873859.scope\", \"1526512:superclaude-873859.scope\", \"873947:superclaude-873859.scope\", \"873859:tab(7\n  PASS  a_failed_measure_still_clears\n        landed=1; hand={\"class\": \"unknown\", \"error\": \"OSError: no /proc here\"}\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "the_clear_carries_the_measured_hand",
         "a_failed_measure_still_clears"
       ],
-      "test": "test-10bfc193f42a",
+      "teeth_red": [],
+      "test": "test-36ae9c717e3b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_1526562_1551246320_delivery",
+          "bus_proc_1526562_1551246320"
+        ]
       },
       "conditions": {
         "proof": "4f4901db88dfc6ba41a0687fcbaf1997256c231975c72f3c01539a600dd61d3d",
@@ -33,14 +36,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10bfc193f42a",
-      "source_fingerprint": "c04344674306a6ce3597872ce389fdb4cba48f8ad147660dd2005f67aab65bce",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-36ae9c717e3b",
+      "source_fingerprint": "967227168b63a4797375b83a7d697a46b49cd2b3c289da6c06493a09cfc11667",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -50,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1525894-vsx93d5v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1526541-flg37yeb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,12 +61,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107079037,
-          "disk_bytes": 130727936,
-          "entries": 9620,
+          "bytes": 107081043,
+          "disk_bytes": 130736128,
+          "entries": 9622,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
+      },
+      "conditions_moved": {
+        "notified": "n-00ae6c002d8a",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

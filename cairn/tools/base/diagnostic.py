@@ -419,8 +419,17 @@ class DiagnosticBase:
             raise TroubleRaiseRefused(
                 "a clear carries what_changed — 'it stopped happening' is not a fix, and "
                 "recording it as one is how a fault comes back unexplained")
+        # THE HAND IS MEASURED, NOT TYPED (ticket c2172127d7a4): ``by`` is whatever the sender
+        # says; ``hand`` is the artifact door's own caller() read in this process. A failed
+        # measure never loses the clear — it lands with the error on it.
+        from cairn.tools.artifact import artifact
+        try:
+            hand = artifact.caller()
+        except Exception as exc:  # noqa: BLE001 — the clear is the record; the hand is testimony
+            hand = {"class": "unknown", "error": f"{type(exc).__name__}: {exc}"}
         record = self.emit("clear_trouble", pointer=identity,
-                           values={"by": by, "what_changed": what_changed}, now=now)
+                           values={"by": by, "what_changed": what_changed, "hand": hand},
+                           now=now)
         return self._poke_trouble_lane(record)
 
     def reconcile_troubles(self, scope: str, still: list[str], *, by: str,

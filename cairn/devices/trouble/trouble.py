@@ -72,6 +72,11 @@ from cairn.tools.system_word import fold
 # The stopgap, written down as one: today CC is told about everything. A second recipient is
 # an entry in this list, not a redesign — the notified/cleared sets are already per-recipient.
 DEFAULT_RECIPIENTS = ("cc",)
+# The operators (ticket 1c1b18bac2eb). Akien 2026-10-11: "tickets announce themselves to the
+# operator, and because of how you and i work together, for that statement you and i are both
+# operators." A clear whose MEASURED hand is one of these closes the trouble whichever of them
+# was notified; the ``by`` word alone never does (D2).
+OPERATORS = ("akien", "cc")
 
 # How many recent occurrences ride on the ticket. The COUNT is exact and unbounded; this is the
 # tail that shows the SHAPE of a recurrence (is it flapping? accelerating?) without the ticket
@@ -146,7 +151,8 @@ class TroubleDevice(BaseDevice):
         system is unhealthy enough to be worth reporting."""
         return {**super().declared_verbs(),
                 "live": self._handle_live,
-                "clear": self._handle_clear}
+                "clear": self._handle_clear,
+                "clears": self._handle_clears}
 
     def _handle_live(self, envelope: dict) -> dict:
         """The tickets still demanding attention, one summary row each. EMPTY is the normal
@@ -158,6 +164,23 @@ class TroubleDevice(BaseDevice):
         prior attempts): ~355 KB a reply at its worst, ~4,474 replies stored, ~1.5 GB in the
         bus. Python callers of ``live()`` still get the whole ticket."""
         return {"troubles": [{k: t.get(k) for k in LIVE_SUMMARY_KEYS} for t in self.live()]}
+
+    def _handle_clears(self, envelope: dict) -> dict:
+        """Every clear on the record, one small row each — for the counting block, which
+        learns whose hand cleared what (ticket 1c1b18bac2eb, D4). ``body.prefix`` narrows by
+        trouble id (empty or absent: every trouble). A row is exactly {id, standing, by,
+        hand_class, at}; no occurrences ride it, so the reply stays small by construction."""
+        prefix = str((envelope.get("body") or {}).get("prefix") or "")
+        rows = []
+        for t in self.all():
+            if not str(t.get("id", "")).startswith(prefix):
+                continue
+            for c in t.get("cleared_by") or []:
+                hand = c.get("hand") if isinstance(c.get("hand"), dict) else {}
+                rows.append({"id": t.get("id"), "standing": t.get("standing"), "by": c.get("by"),
+                             "hand_class": fold(hand.get("class")) if hand.get("class") else "unknown",
+                             "at": c.get("at")})
+        return {"clears": rows}
 
     def _handle_clear(self, envelope: dict) -> dict:
         """A recipient says the change was made. Still the recipient's alone — the bus moves
@@ -241,14 +264,16 @@ class TroubleDevice(BaseDevice):
                   values={"outcome": "raised", "count": 1})
         return {"outcome": "raised", "id": ident, "count": 1, "notified": told}
 
-    def clear(self, identity: str, *, by: str, what_changed: str) -> dict:
+    def clear(self, identity: str, *, by: str, what_changed: str, hand: dict | None = None) -> dict:
         """The recipient says the change was made. Nothing else may say it — not a timeout, not
         a later passing run. ``what_changed`` is required: a clear with no change behind it is
         the silent failure this lane exists to remove.
 
         The ticket is not deleted. It keeps its whole occurrence history and gains a resolution,
         so the next recurrence can point at the fix that did not hold (Law 7 — append, never
-        erase). Once every notified recipient has cleared, the ticket leaves ``live()``."""
+        erase). Once every notified recipient has cleared, the ticket leaves ``live()`` — or at
+        once, when ``hand`` (the clearer's measured hand, c2172127d7a4) is an operator's
+        (ticket 1c1b18bac2eb; Akien 2026-10-11: "you and i are both operators")."""
         ident = self._slug(identity)
         ticket = self._read(ident)
         if not ticket:
@@ -264,9 +289,11 @@ class TroubleDevice(BaseDevice):
         # A pre-template record (the lane's first real files predate the schema) carries no
         # count — live() already leans that way, and a record clear() cannot process is a
         # ticket that can never leave the live list through its own door.
-        ticket.setdefault("cleared_by", []).append(
-            {"by": by, "at": _now(), "what_changed": what_changed,
-             "at_count": ticket.get("count")})
+        entry = {"by": by, "at": _now(), "what_changed": what_changed,
+                 "at_count": ticket.get("count")}
+        if hand is not None:
+            entry["hand"] = hand
+        ticket.setdefault("cleared_by", []).append(entry)
         # THE RECIPIENT NAME IS A SYSTEM WORD (ruling 2026-09-07,
         # 2026-09-07-system-words-are-case-insensitive-when-akien-types-them). It arrives from
         # ``cairn trouble clear --by <who>`` — a token his fingers produce — and the notified
@@ -279,6 +306,8 @@ class TroubleDevice(BaseDevice):
         _cleared = {fold(c["by"]) for c in ticket["cleared_by"]}
         outstanding = [r for r in ticket.get("notified", [])
                        if fold(r) not in _cleared]
+        if isinstance(hand, dict) and fold(hand.get("class") or "") in OPERATORS:
+            outstanding = []    # an operator's measured hand closes it (1c1b18bac2eb, D1/D2)
         if not outstanding:
             ticket["standing"] = CLEARED
             ticket["resolution"] = ticket["cleared_by"][-1]

@@ -255,8 +255,10 @@ class TroubleShim(BaseShim):
             if wanted not in {t.get("id") for t in self._device.live()}:
                 return {"outcome": "declined", "id": wanted,
                         "why": "not live — nothing standing under that identity to clear"}
+            hand = values.get("hand")
             return self._device.clear(wanted, by=values.get("by") or "cc",
-                                      what_changed=values.get("what_changed") or "")
+                                      what_changed=values.get("what_changed") or "",
+                                      hand=hand if isinstance(hand, dict) else None)
         if gate == RECONCILE_GATE:
             still = {ident_of(s) for s in (values.get("still") or [])}
             # THE TRAILING SEPARATOR IS PART OF THE SCOPE AND `identity_of` STRIPS IT.

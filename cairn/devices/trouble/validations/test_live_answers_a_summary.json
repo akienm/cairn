@@ -1,32 +1,27 @@
 [
   {
     "claim": "proof test_live_answers_a_summary.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-10T19:35:25",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T16:24:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_live_answers_one_summary_row_per_trouble\n.\n  ok   test_the_live_answer_does_not_grow_with_history\n                                                                       [100%]\n2 passed in 0.16s",
+      "stdout_tail": ".\n  ok   test_live_answers_one_summary_row_per_trouble\n.\n  ok   test_the_live_answer_does_not_grow_with_history\n                                                                       [100%]\n2 passed in 0.19s",
       "stderr_tail": "",
       "teeth_green": [
         "test_live_answers_one_summary_row_per_trouble",
         "test_the_live_answer_does_not_grow_with_history"
       ],
       "teeth_red": [],
-      "test": "test-5aa9a58f4cfd",
+      "test": "test-8546dcc9147f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 4,
-        "tables": [
-          "bus_proc_1035709_1916009104_delivery",
-          "bus_proc_1035709_1916009104",
-          "bus_proc_1035771_1916087159_delivery",
-          "bus_proc_1035771_1916087159"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "d1227d9d79bd003745d578ef9ec3a4e06cb142a0faaa5d91f5955d7f696a2340",
@@ -38,14 +33,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5aa9a58f4cfd",
-      "source_fingerprint": "fcf0653859079dc1ae914768bea0dd1c6b54dc801d5b19b534ccd011e75e9c8a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8546dcc9147f",
+      "source_fingerprint": "68e46a7b7d06d82dc4f000bf90911eaa0b87adc9545ee86c30479b7a20fb8308",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/__init__.py",
@@ -54,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1039183-w07bkmlj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1572283-hyx3plaz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,27 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 106384797,
-          "disk_bytes": 129646592,
-          "entries": 9471,
+          "bytes": 107125085,
+          "disk_bytes": 130834432,
+          "entries": 9640,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "fa9a2703a9c3": {
-          "cairn/devices/trouble/trouble.py": [
-            "test_live_answers_one_summary_row_per_trouble",
-            "test_the_live_answer_does_not_grow_with_history"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "fa9a2703a9c3": {
-          "anchor_rule": "journal",
-          "anchor_journal": "19a41cb1179c598aa61733a92358cb81864da4bb",
-          "anchor_first_build": "c0bc9b85943d24c49bb75a374e8a030f71486683",
-          "commit": "19a41cb1179c598aa61733a92358cb81864da4bb"
         }
       }
     },

@@ -1,5 +1,6 @@
 """Proof for ticket 4968b5d18645 — a superseded decision line is retired through the rehearsal
-door: the reader stops being handed it, and the file keeps its text and who retired it.
+door: the reader stops being handed it, and the ticket keeps its text and who retired it — on
+its log since fad76bb5d1f5.
 
 Measured 2026-10-06 on 45c168cc1ff1: ``--decide`` only appends, so D22, D31 and D32 each
 corrected D3 while D3's wrong text stayed on the ticket, and round 9 returned 'cannot_proceed D3
@@ -11,7 +12,7 @@ exit); none reads the live corpus or calls a reader.
 
   1. RETIRED LINES LEAVE THE VIEW AND STAY IN THE FILE. After decide() of a corrected D5 and
      retire([3, 22], into=5), reader_view's copy holds neither text, decision_ids_of omits 3
-     and 22, and the file keeps both texts with retired.by/at/because/into.
+     and 22, and the ticket's log keeps both texts with retired.by/at/because/into.
   2. A FOREIGN AUTHOR'S LINE IS REFUSED. Retiring a line whose by is 'akien' with by='cc'
      refuses and writes nothing.
   3. A DANGLING CITATION IS REFUSED. Retiring D3 while a live D4 says 'per D3' refuses naming D4.
@@ -112,8 +113,11 @@ def retired_lines_leave_the_view_and_stay_in_the_file():
         assert RIGHT in view, "the corrected line left the view"
         ids = R.decision_ids_of(doc)
         assert 3 not in ids and 22 not in ids and new in ids, f"vocabulary still owes a retired id: {ids}"
-        by_n = {d["n"]: d for d in doc["decisions"]}
-        assert by_n[3]["text"] == WRONG and by_n[22]["text"] == PATCH, "the file lost a retired text"
+        # a retired line is trail: it lives whole on the ticket's log (fad76bb5d1f5), not the plan
+        from cairn.tools.base.ticket_log import read_log
+        assert not {3, 22} & {d["n"] for d in doc["decisions"]}, "a retired line is still on the plan"
+        by_n = {x["decision"]["n"]: x["decision"] for x in read_log(w.ticket, "decision_retired")}
+        assert by_n[3]["text"] == WRONG and by_n[22]["text"] == PATCH, "the ticket lost a retired text"
         for n in (3, 22):
             r = by_n[n].get("retired")
             assert isinstance(r, dict) and r.get("by") == "cc" and r.get("at") and r.get("because") \

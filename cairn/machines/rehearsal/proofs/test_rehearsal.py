@@ -181,6 +181,11 @@ class World:
                 "CAIRN_ARTIFACT_ROOTS": json.dumps({"cairn": str(self.cairn), "CairnCommons": str(self.commons)})}
 
 
+def _log_records(w):
+    from cairn.tools.base.ticket_log import read_log
+    return [x["record"] for x in read_log(w.ticket, "rehearsal")]
+
+
 def _kw(w):
     return dict(root=w.commons, berths_root=w.dir / "no-berths", repo=w.dir / "no-repo")
 
@@ -291,12 +296,14 @@ def test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record
         rec = R.rehearse(TID, reader=Stub([CLEAN_TREE_WIRED]), **_kw(w))
         # the decide reset the count (open-8b95d8bb20c5, "Reset it fully."), so this is pass 1
         assert rec["clean"] and rec["gaps"] == [] and rec["pass"] == 1, rec
+        # the pointer is a line on the ticket's log (fad76bb5d1f5), never a key on the plan
         doc = json.loads(w.ticket.read_text())
-        assert doc["rehearsal"] == rec["record"], doc.get("rehearsal")
+        assert "rehearsal" not in doc, doc.get("rehearsal")
+        assert _log_records(w) == [rec["record"]], _log_records(w)
         live = R._sha(w.ticket.read_bytes())
         assert rec["ticket_sha256"] == live, "the record hashes the bytes the lane will see"
-        assert rec["ticket_sha256_at_read"] != live, "the pointer changed the bytes after the read — both hashes kept"
-        assert [e["verb"] for e in w.journal()] == ["rehearse", "cast", "cast", "rehearse"]
+        assert rec["ticket_sha256_at_read"] == live, "the clean pass left the plan's bytes as read"
+        assert [e["verb"] for e in w.journal()] == ["rehearse", "cast", "append", "rehearse"]
         st = R.standing(TID, w.commons)
         assert st["ok"] and st["record"] == rec["record"], st
         assert R.passes_since_clean(TID, w.commons) == 0
@@ -327,11 +334,11 @@ def test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_
         assert len(f) == 1 and "edited after its rehearsal" in f[0]["values"]["lack"], f
         assert f[0]["values"]["ticket_sha256"] != f[0]["values"]["live_sha256"]
         # the pointer at an unclean record is red too
-        doc = json.loads(w.ticket.read_text())
         unclean = [p for p, d in R.records_for(TID, w.commons) if not d.get("clean")]
         assert len(unclean) == 1, "one gappy record stands beside the clean one — same second, two files"
-        doc["rehearsal"] = "rehearsals/" + unclean[0].name
-        door.write(str(w.ticket), json.dumps(doc, indent=2) + "\n", verb="cast", why="the proof repoints the ticket")
+        from cairn.tools.base.ticket_log import append_log
+        append_log(w.ticket, "rehearsal", {"record": "rehearsals/" + unclean[0].name}, actor="the proof",
+                   why="the proof repoints the ticket's last rehearsal line")
         f = sieve(TID, root=w.commons)
         assert len(f) == 1 and "is not clean" in f[0]["values"]["lack"], f
         # a ticket that is not on file is the chokepoint's refusal, not this sieve's
@@ -494,7 +501,7 @@ def test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways(
         assert d["teeth_unforeseen"] == ["test_the_rack_hums"], d
         assert d["matched"] == [["write the widget", "test_write_the_widget_lands"]], d
         assert R.step_text("unlisted: wire the widget", {}) == "wire the widget" and R.step_text("D7", {}) == "D7"
-        rec = json.loads((w.commons / json.loads(w.ticket.read_text())["rehearsal"]).read_text())
+        rec = json.loads((w.commons / _log_records(w)[-1]).read_text())
         assert rec["divergence"]["steps_unproved"] == ["prove the widget"] and rec["divergence"]["proofs"] == [str(proof)]
         assert w.journal()[-1]["verb"] == "rehearse" and "divergence" in w.journal()[-1]["why"]
         assert R.divergence(["a", "b"], []) == {"steps_unproved": ["a", "b"], "teeth_unforeseen": [], "matched": []}

@@ -39,6 +39,7 @@ from pathlib import Path
 from typing import Callable
 
 from cairn.tools.artifact import artifact as door
+from cairn.tools.base import ticket_log
 from cairn.tools.system_word import fold
 
 HERE = Path(__file__).resolve().parent
@@ -620,6 +621,10 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         meta.extend(attempts)
     found = gaps(reads, ids)
     clean = not found
+    try:
+        reaches = log_reaches(found, ticket_log.read_log(tk))
+    except (OSError, ValueError) as exc:   # an unreadable log is said on the record, never skipped
+        reaches = [{"unreadable_log": f"{type(exc).__name__}: {exc}"}]
     stamp = _stamp()
     rec_path = records_dir(root) / f"{ticket}-{stamp}.json"
     n = 1
@@ -629,9 +634,11 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     rec_rel = rec_path.relative_to(commons(root)).as_posix()
     if clean:
         # D8 as amended: the pointer lands first, the record hashes what the lane will see.
-        doc = json.loads(tk.read_text(encoding="utf-8"))
-        doc["rehearsal"] = rec_rel
-        live = _write_ticket(tk, doc, why=f"rehearsal clean on pass {passes + 1}: {rec_rel}")
+        # The pointer is trail, so it is a line on the ticket's log (fad76bb5d1f5); the plan's
+        # bytes are not touched.
+        ticket_log.append_log(tk, "rehearsal", {"record": rec_rel}, actor=by or "rehearsal",
+                              why=f"rehearsal clean on pass {passes + 1}: {rec_rel}")
+        live = tk.read_bytes()
         sha_live = _sha(live)
         design = design_sha(live)
     else:
@@ -649,6 +656,9 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         "design_sha256": design,
         "reads": reads,
         "gaps": found,
+        # gaps a ticket-log line already speaks to (fad76bb5d1f5 D1: heuristic token overlap)
+        "log_reaches": reaches,
+        "log_reach_count": sum(1 for r in reaches if "gap_step" in r),
         "meta": {
             "model": MODEL,
             "attempts": meta,
@@ -703,7 +713,7 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     doc = json.loads(tk.read_text(encoding="utf-8"))
     have = doc.get("decisions")
     have = list(have) if isinstance(have, list) else []
-    n = 1 + max((d.get("n", 0) for d in have if isinstance(d, dict)), default=0)
+    n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
     entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step.strip(), "source": "rehearsal",
              "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     have.append(entry)
@@ -726,6 +736,7 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
     doc = json.loads(tk.read_text(encoding="utf-8"))
     have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     by_n = {d["n"]: d for d in have}
+    on_log = set(_retired_on_log(tk))
     want = sorted(set(ns))
     lacks: list[str] = []
     if not (isinstance(by, str) and by.strip()):
@@ -737,7 +748,7 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
     for n in want:
         d = by_n.get(n)
         if d is None:
-            lacks.append(f"D{n} is not on the ticket")
+            lacks.append(f"D{n} is already retired" if n in on_log else f"D{n} is not on the ticket")
         elif d.get("retired"):
             lacks.append(f"D{n} is already retired")
         elif isinstance(by, str) and fold(str(d.get("by") or "")) != fold(by.strip()):
@@ -752,7 +763,7 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
     if into is not None:
         t = by_n.get(into)
         if t is None:
-            lacks.append(f"--into D{into} is not on the ticket")
+            lacks.append(f"--into D{into} is retired" if into in on_log else f"--into D{into} is not on the ticket")
         elif t.get("retired"):
             lacks.append(f"--into D{into} is retired")
         elif into in want:
@@ -761,12 +772,25 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
         raise Refused(f"retire refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
     at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     stamped = []
+    why = (f"retired {', '.join('D%d' % n for n in want)} by {by.strip()}"
+           f"{f' into D{into}' if into is not None else ''}: {because.strip()}")
     for n in want:
         by_n[n]["retired"] = {"by": by.strip(), "at": at, "because": because.strip(), "into": into}
         stamped.append(by_n[n])
-    _write_ticket(tk, doc, why=f"retired {', '.join('D%d' % n for n in want)} by {by.strip()}"
-                               f"{f' into D{into}' if into is not None else ''}: {because.strip()}")
+    # a retired line is trail (fad76bb5d1f5): it moves whole to the log, then leaves the plan
+    for d in stamped:
+        ticket_log.append_log(tk, "decision_retired", {"decision": d}, actor=by.strip(), why=why)
+    doc["decisions"] = [d for d in doc["decisions"]
+                        if not (isinstance(d, dict) and d.get("n") in want)]
+    _write_ticket(tk, doc, why=why)
     return stamped
+
+
+def _retired_on_log(tk: Path) -> list[int]:
+    """The ``n`` of every decision the ticket's log holds as retired — names the plan no
+    longer carries and a new line must never reuse."""
+    return [x["decision"]["n"] for x in ticket_log.read_log(tk, "decision_retired")
+            if isinstance(x.get("decision"), dict) and isinstance(x["decision"].get("n"), int)]
 
 
 def scope(ticket: str, ns: list[int], *, by: str, because: str,
@@ -831,9 +855,16 @@ def standing(ticket: str, root: Path | str | None = None) -> dict:
         doc = json.loads(blob)
     except (OSError, json.JSONDecodeError) as exc:
         return {"ok": False, "lack": f"ticket unreadable: {exc}", "record": None}
-    ptr = doc.get("rehearsal") if isinstance(doc, dict) else None
+    try:
+        lines = ticket_log.read_log(tk, "rehearsal")
+    except (OSError, ValueError) as exc:
+        return {"ok": False, "lack": f"ticket log unreadable: {exc}", "record": None, "live_sha256": _sha(blob)}
+    # the last 'rehearsal' line on the log (fad76bb5d1f5); a v1 plan not yet split by
+    # 29569fca68a3 still carries its pointer on the plan, and stands on it (D3)
+    ptr = lines[-1].get("record") if lines else (doc.get("rehearsal") if isinstance(doc, dict) else None)
     if not isinstance(ptr, str) or not ptr.strip():
-        return {"ok": False, "lack": "the ticket carries no rehearsal pointer — `cairn rehearse <id>`",
+        return {"ok": False, "lack": "the ticket carries no rehearsal pointer (no 'rehearsal' line on its log) "
+                                     "— `cairn rehearse <id>`",
                 "record": None, "live_sha256": _sha(blob)}
     rec_path = commons(root) / ptr
     try:
@@ -865,6 +896,26 @@ _STOP = {"the", "a", "an", "and", "or", "of", "to", "in", "is", "it", "its", "fo
 
 def _tokens(s: str) -> set[str]:
     return {t for t in _TOKEN.findall(fold(s).replace("_", " ")) if t not in _STOP and len(t) > 1}
+
+
+REACH = 4   # D1: shared significant tokens for a log line to speak to a gap — heuristic
+
+
+def log_reaches(found: list[dict], log: list[dict], *, overlap: int = REACH) -> list[dict]:
+    """The gaps a ticket-log line already speaks to (fad76bb5d1f5): words the plan did not
+    carry and the log does. A gap's words are its step plus its assumption and would_settle
+    texts; a line's are its whole JSON. One reach per gap — the line sharing the most tokens,
+    ties to the lowest index — when that is at least ``overlap``:
+    ``{gap_step, gap_kind, log_index, kind, overlap}``, ``kind`` the line's."""
+    lines = [_tokens(json.dumps(x, ensure_ascii=False)) for x in log]
+    out = []
+    for g in found:
+        words = _tokens(" ".join([g.get("step", ""), *g.get("assumption", []), *g.get("would_settle", [])]))
+        best = max(range(len(lines)), key=lambda i: (len(words & lines[i]), -i), default=None)
+        if best is not None and len(words & lines[best]) >= overlap:
+            out.append({"gap_step": g.get("step"), "gap_kind": g.get("kind"), "log_index": best,
+                        "kind": log[best].get("kind"), "overlap": len(words & lines[best])})
+    return out
 
 
 def decision_ids_and_text(tk: Path | None) -> list[dict]:

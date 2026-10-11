@@ -2,12 +2,12 @@
   {
     "claim": "proof test_raise_trouble.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T15:32:11",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-11T15:33:21",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.06s",
+      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.12s",
       "stderr_tail": "",
       "teeth_green": [
         "test_raising_does_not_pull_the_trouble_DEVICE_into_the_process",
@@ -22,9 +22,10 @@
         "test_an_UNNAMED_module_raiser_is_refused"
       ],
       "teeth_red": [],
+      "test": "test-ba64d3bea13b",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -34,7 +35,7 @@
         "proof": "078dfd020ae307e955333f9cc24c2bdee956e83ac1e55aeb969e9f5d183a2256",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
@@ -43,7 +44,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "83040f4da03dc112be72563ca62d38a8256686a2db4273937bb5b104bdfab06e",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ba64d3bea13b",
+      "source_fingerprint": "f770836b644231bb34072148d22df07cd353886b8b09e94bb9f12cc996e6c005",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -53,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3488615-5y3eqmkl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1509419-_389nty5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,13 +66,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 168961068,
-          "disk_bytes": 196034560,
-          "entries": 11577,
+          "bytes": 107048627,
+          "disk_bytes": 130646016,
+          "entries": 9602,
           "builds": 1,
-          "reuses": 26
+          "reuses": 33
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

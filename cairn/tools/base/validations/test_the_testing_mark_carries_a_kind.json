@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_the_testing_mark_carries_a_kind.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-05T15:37:30",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T15:33:47",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -16,9 +16,10 @@
         "one_definition_and_it_is_public"
       ],
       "teeth_red": [],
+      "test": "test-ac99574c4d94",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -28,8 +29,8 @@
         "proof": "23cbf64458b75224a9b7641c0c337ecbcf8a00abf7fbde5012af57eda88d0021",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 1200,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -37,7 +38,10 @@
           "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
-      "source_fingerprint": "ead42fb6f98303f1a7200134161b8475b799600ad5d2b24c56b1f4975e8652b4",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ac99574c4d94",
+      "source_fingerprint": "2f3339980c40a6582bf6937ed8f7295ae7704493e96f1a8d30b5e64786714a45",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -48,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3494678-ba0wps5m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1509419-syb4z6vs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,35 +61,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 169048488,
-          "disk_bytes": 196145152,
-          "entries": 11585,
+          "bytes": 107048627,
+          "disk_bytes": 130646016,
+          "entries": 9602,
           "builds": 1,
-          "reuses": 0
+          "reuses": 40
         }
       },
-      "hollow": {
-        "be4a7b3c7caa": {
-          "cairn/tools/base/testing_mark.py": [
-            "a_mark_is_built_one_way",
-            "a_mark_is_read_one_way"
-          ],
-          "cairn/tools/base/diagnostic.py": [
-            "no_emission_is_stamped"
-          ],
-          "cairn/tools/base/intention+why.json": [
-            "one_definition_and_it_is_public"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "be4a7b3c7caa": {
-          "anchor_rule": "journal",
-          "anchor_journal": "289747dd0e876248b1881f86257fbc88a6c60738",
-          "anchor_first_build": "4996134123eb0d606c0f24734886ae932095bf27",
-          "commit": "289747dd0e876248b1881f86257fbc88a6c60738"
-        }
-      }
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

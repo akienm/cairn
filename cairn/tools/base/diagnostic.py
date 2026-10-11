@@ -356,6 +356,13 @@ class DiagnosticBase:
             raise TroubleRaiseRefused(
                 "a trouble carries a why (CP3) — a fault with no reason is not a report, "
                 "it is a shrug")
+        # A DETAIL IS A MAPPING (ticket 93a9cc0f7677). A string detail was written as handed and
+        # refused at every drain after ("'str' object is not a mapping" in the shim's fold),
+        # holding the raiser's watermark behind it. Refused here, loud at its caller, unwritten.
+        if detail is not None and not isinstance(detail, dict):
+            raise TroubleRaiseRefused(
+                "a trouble's detail is a mapping (this occurrence's own data, keyed); "
+                f"got {type(detail).__name__}")
         record = self.emit("raise_trouble", pointer=identity,
                            values={"why": why, "detail": detail or {}}, now=now)
         return self._poke_trouble_lane(record)

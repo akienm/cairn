@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_a_ticket_names_its_model.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T15:50:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  a_cast_without_model_is_written_with_opus\n        None\n  FAIL  a_cast_with_fable_keeps_it\n        CastRefused: cast_ticket refused (1 lack): model is not a plan field; trail goes to the log. Nothing was written.\n  FAIL  a_cast_with_gpt_is_refused_naming_model\n        lacks=['model is not a plan field; trail goes to the log'], written=[]\n  FAIL  ticket_model_reads_opus_when_absent\n        AttributeError: module 'cairn.tools.base.transitions' has no attribute 'ticket_model'\n  PASS  the live journal never moved\n\nRED — 4 failure(s)\n  - a_cast_without_model_is_written_with_opus\n  - a_cast_with_fable_keeps_it\n  - a_cast_with_gpt_is_refused_naming_model\n  - ticket_model_reads_opus_when_absent",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the live journal never moved"
+      ],
+      "teeth_red": [
+        "a_cast_without_model_is_written_with_opus",
+        "a_cast_with_fable_keeps_it",
+        "a_cast_with_gpt_is_refused_naming_model",
+        "ticket_model_reads_opus_when_absent"
+      ],
+      "test": "test-d731921ccbea",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "cf368d277a573f9b489238ed26c67cb772e7f9d4f424128581a2d1b1df3c3f34",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d731921ccbea",
+      "source_fingerprint": "4e87f7299eef11e161135d21d7bd7e2deb917f6ec61fecc783f08c753d4e465e",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/proofs/test_a_ticket_names_its_model.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1525894-3mavrd7v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107079037,
+          "disk_bytes": 130727936,
+          "entries": 9620,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

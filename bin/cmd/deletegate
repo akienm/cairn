@@ -86,12 +86,15 @@ GUARDED_FORMS = ("~/.cairn", "$HOME/.cairn", str(Path.home() / ".cairn"), ".cair
 # The verbs that unlink. `find -delete` and `-exec rm` are here because the miss that
 # taught this repo about spellings was exactly this shape: the first corpus tooth for the
 # temp-dir leak grepped for `mkdtemp` and missed a leak wearing `gettempdir` (scratch.py,
-# 2026-08-03). A gate narrower than its own defect is the hollow kind.
+# 2026-08-03). A gate narrower than its own defect is the hollow kind. A quote or backtick
+# starts a command too, and Python's delete calls are deleting verbs (ticket d6f0732afe8a:
+# os.system('rm -rf ~/.cairn/foo') passed, measured 2026-10-11).
 DESTRUCTIVE = re.compile(
-    r"(?:^|[\s;&|(])(?:rm|rmdir|shred|unlink)\b"
-    r"|(?:^|[\s;&|(])find\b[^;&|]*?(?:-delete\b|-exec\s+rm\b|-execdir\s+rm\b)"
-    r"|(?:^|[\s;&|(])truncate\b"
-    r"|(?:^|[\s;&|(])(?:mkfs|dd)\b",
+    r"(?:^|[\s;&|('\"`])(?:rm|rmdir|shred|unlink)\b"
+    r"|(?:^|[\s;&|('\"`])find\b[^;&|]*?(?:-delete\b|-exec\s+rm\b|-execdir\s+rm\b)"
+    r"|(?:^|[\s;&|('\"`])truncate\b"
+    r"|(?:^|[\s;&|('\"`])(?:mkfs|dd)\b"
+    r"|\.(?:remove|unlink|rmdir|rmtree)\s*\(",
 )
 
 REFUSAL = """REFUSED — this deletes under ~/.cairn, the one root with no undo.

@@ -757,6 +757,10 @@ def format_inbox(data: dict) -> str:
             lines.append(f"      {q.get('question', '')}")
             if q.get("born_of"):
                 lines.append(f"      born of {q['born_of']}")
+            # a note taken to help him answer stands where he answers (ticket abcad52a407e),
+            # in the shape `cairn question show` prints it
+            for n in q.get("notes") or []:
+                lines.append(f"      note {n.get('at')} ({n.get('by')}): {n.get('text')}")
         lines.append("")
         lines.append('  answer with: cairn question answer <id> "your words" --spawned none | --spawned "<q?>"')
         lines.append("")

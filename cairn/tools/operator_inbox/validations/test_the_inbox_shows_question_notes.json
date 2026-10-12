@@ -2,21 +2,19 @@
   {
     "claim": "proof test_the_inbox_shows_question_notes.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-11T22:58:46",
+    "date": "2026-10-11T23:00:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "E         \nE             I-orient-is-a-universal-qualified-verb\nE             I-the-cheapest-reader-proves-a-ticket-before-it-is-built\nE         \nE         \nE         -- IDEAS (4 open, not yet at intent; 90 moved on) --------------------------\nE         \nE             2026-09-09  re-paths-lets-make-everything-either-cairn\nE             2026-09-23  side-thought-this-might-be-an-idea\nE             2026-09-24  a-clean-rehearsal-at-ticketme-waiting-never\nE             2026-09-24  the-librarian-launcher-starts-the-ground-loop\nE         \nE         ============================================================================\nE         \nE       assert '    open-00000000000a  [aaaaaaaaaaaa]\\n      a noted question?\\n      note 2026-10-11T10:00:00+00:00 (cc): NOTEMARKER...note 2026-10-11T11:00:00+00:00 (akien): NOTEMARKER-TWO the second read agrees\\n    open-00000000000b  [bbbbbbbbbbbb]\\n' in '\\n============================================================================\\n                    OPERATOR INBOX\\n=...rian-launcher-starts-the-ground-loop\\n\\n============================================================================\\n'\n\ntest_the_inbox_shows_question_notes.py:56: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_inbox_shows_question_notes.py::test_notes_render_under_their_question_oldest_first\n1 failed, 1 passed in 1.63s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_notes_render_under_their_question_oldest_first\n.\n  ok   test_a_question_with_no_notes_renders_as_before\n                                                                       [100%]\n2 passed in 1.60s",
       "stderr_tail": "",
       "teeth_green": [
+        "test_notes_render_under_their_question_oldest_first",
         "test_a_question_with_no_notes_renders_as_before"
       ],
-      "teeth_red": [
-        "test_notes_render_under_their_question_oldest_first",
-        "test_the_inbox_shows_question_notes"
-      ],
-      "test": "test-ff27a4d1ae24",
+      "teeth_red": [],
+      "test": "test-f63a3629d291",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,8 +22,8 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_1805552_2258328322_delivery",
-          "bus_proc_1805552_2258328322"
+          "bus_proc_1806859_2259588099_delivery",
+          "bus_proc_1806859_2259588099"
         ]
       },
       "conditions": {
@@ -43,14 +41,14 @@
       },
       "killed": [
         {
-          "pid": 1805736,
+          "pid": 1807067,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ff27a4d1ae24",
-      "source_fingerprint": "8f25af503e72a51f6ec5d766bc65f2e6277e6cf7dfc0ea34ce5f36b3b1a27a0f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f63a3629d291",
+      "source_fingerprint": "841512d21efd770dc5dfb5b1032496a4150d941d46bca0e89c563658318a4a0b",
       "fingerprint_closure": [
         "cairn/tools/operator_inbox/__init__.py",
         "cairn/tools/operator_inbox/inbox.py",
@@ -59,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1805225-25yk90fr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1806533-ma5hn490/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 17,
@@ -68,39 +66,42 @@
             "devices/tester/0/last_known.json",
             "devices/trouble/0/drained.json",
             "logs/bus.log",
-            "logs/bus/0/20261012.045844.369591.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261012.045844.377967.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261012.045844.569883.BusDevice.post.json",
-            "logs/bus/0/20261012.045844.579843.BusDevice.post.json",
-            "logs/bus/0/20261012.045844.679550.BusDevice.post.json",
-            "logs/bus/0/20261012.045844.680680.BusDevice.delivered.json",
-            "logs/bus/0/20261012.045844.684178.BusDevice.delivered.json",
-            "logs/bus/0/20261012.045845.323653.BusDevice.post.json",
-            "logs/bus/0/20261012.045845.423255.BusDevice.post.json",
-            "logs/bus/0/20261012.045845.424062.BusDevice.delivered.json",
-            "logs/bus/0/20261012.045845.424647.BusDevice.delivered.json",
-            "logs/tester/0/20261012.045844.682723.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261012.045844.683592.TesterShim.clear_trouble.json"
+            "logs/bus/0/20261012.050010.413738.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261012.050010.422308.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261012.050010.611389.BusDevice.post.json",
+            "logs/bus/0/20261012.050010.620844.BusDevice.post.json",
+            "logs/bus/0/20261012.050010.721371.BusDevice.post.json",
+            "logs/bus/0/20261012.050010.722522.BusDevice.delivered.json",
+            "logs/bus/0/20261012.050010.726216.BusDevice.delivered.json",
+            "logs/bus/0/20261012.050011.354000.BusDevice.post.json",
+            "logs/bus/0/20261012.050011.451234.BusDevice.post.json",
+            "logs/bus/0/20261012.050011.452016.BusDevice.delivered.json",
+            "logs/bus/0/20261012.050011.452625.BusDevice.delivered.json",
+            "logs/tester/0/20261012.050010.724638.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261012.050010.725555.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107537223,
-          "disk_bytes": 131887104,
-          "entries": 9864,
+          "bytes": 107542229,
+          "disk_bytes": 131899392,
+          "entries": 9867,
           "builds": 1,
           "reuses": 5
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "2e1828f1ac5527d3a11b3434275238fcb5dac7d220b14c742e1f51c45915fff0",
         "opened": "2026-10-11T22:58:46",
         "last_red": "2026-10-11T22:58:46",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-operator-inbox",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-11T23:00:12",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "2e1828f1ac5527d3a11b3434275238fcb5dac7d220b14c742e1f51c45915fff0"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

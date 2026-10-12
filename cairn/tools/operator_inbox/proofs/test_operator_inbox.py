@@ -393,13 +393,18 @@ def test_adjudication_shows_berth_and_skill():
 
 
 def _operator_word_reds(output: str) -> list[str]:
-    """Every structural line of a rendered inbox that says 'Akien' where it should say 'Operator'."""
+    """Every structural line of a rendered inbox that says 'Akien' where it should say 'Operator'.
+
+    A structural line is the inbox's own (0162736f42ed): it starts, as rendered, with -- or ==, or it is
+    unindented and names INBOX. A relayed line — a notice, a trouble's why, a diff — renders indented, and
+    may name /home/akien without the inbox saying 'Akien'."""
     reds = []
     for line in output.split("\n"):
-        upper = line.strip().upper()
-        if upper.startswith("--") or upper.startswith("==") or "INBOX" in upper:
-            if "AKIEN" in upper:
-                reds.append(line)
+        upper = line.upper()
+        structural = (line.startswith("--") or line.startswith("==")
+                      or (not line[:1].isspace() and "INBOX" in upper))
+        if structural and "AKIEN" in upper:
+            reds.append(line)
     return reds
 
 

@@ -29,6 +29,7 @@ from cairn.tools.scratch.scratch import scratch_dir           # noqa: E402
 # itself. The other three teeth pin the rest of that clause and run beside it in TEETH.
 PROVES = {"ba4166fe51c4": {
     "1": "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",
+    "2": "test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones",
 }}
 TEETH = [
     "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",

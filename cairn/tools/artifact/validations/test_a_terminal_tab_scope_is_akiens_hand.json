@@ -1,0 +1,88 @@
+[
+  {
+    "claim": "proof test_a_terminal_tab_scope_is_akiens_hand.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T17:49:54",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_konsole_tab_is_akien  — {'class': 'akien', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/app-org.kde.konsole-78471.scope/tab(3360690).scope', 'unit': 'app-org.kde.konsole-78471.scope'}\n  PASS  test_nested_scopes_keep_their_class  — cc: {'class': 'cc', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-42.scope/tab(1).scope', 'unit': 'superclaude-42.scope'}; gate: {'class': 'gate', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-web-server.service/worker.scope', 'unit': 'cairn-web-server.service'}\n  PASS  test_the_existing_cases_stand  — wrong: []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_konsole_tab_is_akien",
+        "test_nested_scopes_keep_their_class",
+        "test_the_existing_cases_stand"
+      ],
+      "teeth_red": [],
+      "test": "test-1f4ffded14ba",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "8d429f4f83e594c9284811a77f6301d0ef130734876a405ca0c2c4b706597e4e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1f4ffded14ba",
+      "source_fingerprint": "7009d2d5d71240d39aefa893d1fd4325b330ff11d1e1356721514efedae6cb47",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_a_terminal_tab_scope_is_akiens_hand.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2161482-ty_pyfo4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107928416,
+          "disk_bytes": 132849664,
+          "entries": 10051,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "b63f5bbbef89": {
+          "cairn/tools/artifact/artifact.py": [
+            "test_a_konsole_tab_is_akien",
+            "test_nested_scopes_keep_their_class"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "b63f5bbbef89": {
+          "anchor_rule": "journal",
+          "anchor_journal": "d6d35c96ac103586f5ca80cd90b2edaf3adbdf9f",
+          "anchor_first_build": "04c0e6c0bb4b45c4368208e22cea1a9984ad1df0",
+          "commit": "d6d35c96ac103586f5ca80cd90b2edaf3adbdf9f"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

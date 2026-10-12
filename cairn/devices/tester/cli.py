@@ -448,6 +448,16 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(folded)
 
     if args.exec_command is not None:
+        # --exec runs a command and mints no validation; a flag it would silently drop is
+        # refused by name before anything runs (d181339da3c3).
+        bad = [f for f, on in (("--seal", args.seal), ("--netns", args.netns),
+                               ("--hollow", args.hollow), ("--reseal", args.reseal)) if on]
+        bad += list(args.targets)
+        if bad:
+            print("cairn test --exec runs a command and mints no validation; it cannot honour: "
+                  + ", ".join(bad) + ". Run the proof path without --exec to seal.", file=sys.stderr)
+            return 2
+    if args.exec_command is not None:
         return TesterDevice().run_exec(args.exec_command,
                                        timeout=3600 if args.timeout is None else args.timeout,
                                        cwd=os.environ.get("CAIRN_TESTER_CALLER_CWD") or None)

@@ -1,25 +1,24 @@
 [
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-08T14:29:00",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "caller": "cairn test",
+    "date": "2026-10-12T14:29:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  RED   the_tool_stands: AssertionError: test_scratch.py exit 1: s/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")\n  cairn/devices/tester/proofs/test_an_unbuildable_network_seal_refuses_the_run.py:74: self.root = Path(tempfile.mkdtemp(prefix=\"unbuildable_seal_proof_fixture_\"))\n  cairn/devices/tester/proofs/test_exec_runs_in_the_callers_cwd.py:44: return os.path.realpath(tempfile.mkdtemp(prefix=f\"exec_cwd_proof_fixture_{tag}_\"))\n  cairn/tools/base/proofs/test_a_watch_stands_while_its_probe_is_installed.py:84: root = Path(tempfile.mkdtemp(prefix=\"stands-watch-fixture-probes-\"))\n\n2 passed, 1 failed out of 3",
+      "returncode": 0,
+      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  green the_tool_stands\n3 passed, 0 failed out of 3",
       "stderr_tail": "",
       "teeth_green": [
         "nothing_reaches_into_the_tester_for_scratch",
-        "the_old_address_is_gone"
+        "the_old_address_is_gone",
+        "the_tool_stands"
       ],
-      "teeth_red": [
-        "the_tool_stands: AssertionError: test_scratch.py exit 1: s/test_a_command_runs_under_the_seal_by_exec.py:80: swap = str(Path(tempfile.mkdtemp(prefix=\"exec_proof_fixture_swap_\")) / \"cairn\")"
-      ],
-      "test": "test-ed30668c86b0",
+      "teeth_red": [],
+      "test": "test-8479d0b78100",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -29,18 +28,19 @@
         "proof": "c55fac7aafdf32dcbe70c0d716b66d323ec35d71bc5155ca954b62ea0fbbd62d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 120,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ed30668c86b0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8479d0b78100",
       "source_fingerprint": "3bcce1c83c2b23213e4a96524144907cd1a89f4d26cc68ae28986395a0e71f5e",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
@@ -49,7 +49,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-547796-mky3p7cj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2036367-8_c0zjc5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,22 +58,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104998885,
-          "disk_bytes": 127549440,
-          "entries": 9182,
+          "bytes": 107857199,
+          "disk_bytes": 132534272,
+          "entries": 9970,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
-        "proof_sha256": "c55fac7aafdf32dcbe70c0d716b66d323ec35d71bc5155ca954b62ea0fbbd62d",
-        "opened": "2026-10-08T03:33:33",
-        "last_red": "2026-10-08T14:29:00",
-        "passes": 3,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-scratch",
-        "ruling": null
-      }
+      "conditions_moved": {
+        "notified": "n-69b9d9936d38",
+        "changed": [
+          "env",
+          "isolation"
+        ]
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_a_read_folds_what_is_pending.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T20:00:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  a_read_folds_what_is_pending\n        {\"unnamed\": [], \"before\": false, \"named\": [\"a-pending-raise\"]}\n  PASS  a_text_detail_does_not_wedge_the_read\n        {\"live\": [\"a-later-raise\", \"a-text-detail-raise\"], \"texts\": [\"some text\"]}\n  PASS  two_readers_fold_each_emission_once\n        {\"exit\": [0, 0], \"n\": 20, \"counts\": [1]}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_read_folds_what_is_pending",
+        "a_text_detail_does_not_wedge_the_read",
+        "two_readers_fold_each_emission_once"
+      ],
+      "teeth_red": [],
+      "test": "test-b4ea371f7ec2",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "411864e0bd3375b762f595ca55b640ffa1432a5fceab4619eb70fd1e20ffea9e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b4ea371f7ec2",
+      "source_fingerprint": "eadc96a010e3dc6a1ee770580f0627df27f591661c85b7bb37a45075d7ab9f59",
+      "fingerprint_closure": [
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/proofs/test_a_read_folds_what_is_pending.py",
+        "cairn/devices/trouble/shim.py",
+        "cairn/devices/trouble/trouble.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1706327-mbopz_hc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107227931,
+          "disk_bytes": 131047424,
+          "entries": 9679,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

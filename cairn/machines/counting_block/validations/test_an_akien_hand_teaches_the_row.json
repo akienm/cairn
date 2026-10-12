@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_an_akien_hand_teaches_the_row.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T20:00:08",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  an_akien_hand_adds_one_to_its_row\n        {\"row\": 2, \"raises\": [[\"CairnCommons/slates|remove|gate\", \"cleared:akien\"]], \"increments\": [{\"clear\": \"who-writes-what-cairncommons-slates-remove-gate\", \"at\": \"2026-10-11T12:00:20.500000+00:00\", \"triple\": \"CairnCommons/slates|remove|gate\", \"count\": 1}]}\n  PASS  a_cc_hand_by_akien_adds_nothing\n        {\"row\": 0, \"raises\": [[\"CairnCommons/slates|remove|gate\", \"cleared:cc\"], [\"CairnCommons/slates|remove|gate\", \"raised\"]], \"increments\": []}\n  PASS  an_unanswered_lane_is_unknown_and_teaches_nothing\n        {\"increments\": \"unknown\", \"row\": 0, \"clears_error\": \"ConnectionRefusedError: the trouble lane is not answering\"}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "an_akien_hand_adds_one_to_its_row",
+        "a_cc_hand_by_akien_adds_nothing",
+        "an_unanswered_lane_is_unknown_and_teaches_nothing"
+      ],
+      "teeth_red": [],
+      "test": "test-5396eebdfe37",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "5d8a1d03cfb810643cc0ba81ef545eb5377da77cb36a74bacf8ab2486b1ecc83",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5396eebdfe37",
+      "source_fingerprint": "6e7680ec92c3ee0fb7fae44d74134de6360e1d012d13b3e9d820f1479a670637",
+      "fingerprint_closure": [
+        "cairn/machines/counting_block/__init__.py",
+        "cairn/machines/counting_block/block.py",
+        "cairn/machines/counting_block/proofs/test_an_akien_hand_teaches_the_row.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1706390-ju7hgd_d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107227931,
+          "disk_bytes": 131047424,
+          "entries": 9679,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

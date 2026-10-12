@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cairn_instance_address.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T22:10:39",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-11T21:51:00",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 37 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 37 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
+      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 38 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 38 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "(a) a dotted address reaches the named instance, 0 and 1 alike",
@@ -18,7 +18,7 @@
         "test_an_absent_instance_names_the_instances_that_exist",
         "args after the two resolved tokens ride verbatim and unfolded",
         "test_args_after_the_address_ride_verbatim",
-        "(b) all 37 mirrored devices still resolve instance 0, byte for byte",
+        "(b) all 38 mirrored devices still resolve instance 0, byte for byte",
         "test_every_bare_address_still_resolves_instance_zero",
         "the token folds BEFORE it splits, so CC.1 and cc.1 are one address",
         "test_the_address_folds_before_it_splits",
@@ -27,21 +27,39 @@
         "test_the_instance_is_part_of_the_address"
       ],
       "teeth_red": [],
+      "test": "test-21dc81b24157",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
+      "conditions": {
+        "proof": "9e4f0f40d6f44662c981abc8c19cbb8b3915fd76cdd2b5b74966cac2735dbbed",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-21dc81b24157",
       "source_fingerprint": "a8c9b43bd42bdce851513d434299522e71ede6e5a7e957e6404c32e272e06baa",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_instance_address.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2205240-wtmtenwj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1772238-amg5mkqa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -50,13 +68,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123843569,
-          "disk_bytes": 145686528,
-          "entries": 9170,
+          "bytes": 107455039,
+          "disk_bytes": 131612672,
+          "entries": 9798,
           "builds": 1,
-          "reuses": 5
+          "reuses": 6
         }
       },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
       "hollow": {
         "55fc9263bf5a": {
           "bin/cairn": [

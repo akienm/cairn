@@ -2,7 +2,7 @@
   {
     "claim": "proof test_turnscan.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T22:11:03",
+    "date": "2026-10-11T21:51:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -44,6 +44,7 @@
         "empty transcript: still receipts"
       ],
       "teeth_red": [],
+      "test": "test-30e2bf2b880b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -52,13 +53,30 @@
         "dropped": 0,
         "tables": []
       },
+      "conditions": {
+        "proof": "d83d27e2bc2a7e092e14288f23bbf0b6f119b13e8de5107f4040eb620aef7b3b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-30e2bf2b880b",
       "source_fingerprint": "304d81ea4df32777ab0fa7c19833574e5bf95dfcbc0c851bfa58e0d18ac6d773",
       "fingerprint_closure": [
         "bin/proofs/test_turnscan.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2205240-gr3wv9py/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1772238-gaz10jrg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,11 +85,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123843569,
-          "disk_bytes": 145686528,
-          "entries": 9170,
+          "bytes": 107455039,
+          "disk_bytes": 131612672,
+          "entries": 9798,
           "builds": 1,
-          "reuses": 11
+          "reuses": 13
         }
       }
     },

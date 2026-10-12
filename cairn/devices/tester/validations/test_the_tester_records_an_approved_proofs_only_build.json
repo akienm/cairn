@@ -117,6 +117,31 @@
           "builds": 1,
           "reuses": 9
         }
+      },
+      "hollow": {
+        "bf1cd5d79805": {
+          "cairn/devices/cairn/machines/harbor_master/proofs/test_clearance_reads_a_plan_approval.py": {
+            "notified": "n-f674e32da9fe"
+          },
+          "cairn/devices/tester/hollow.py": [
+            "test_a_plan_naming_every_skipped_file_approves_green_and_seals_plan_asking_nothing",
+            "test_a_plan_that_does_not_name_every_skipped_file_stays_red_and_asks_nothing"
+          ],
+          "cairn/devices/tester/cli.py": {
+            "notified": "n-82c6ebb5fb2f"
+          },
+          "cairn/devices/cairn/machines/harbor_master/clearance.py": {
+            "notified": "n-ba62c2f3b23a"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "bf1cd5d79805": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "7c4d576c3af2a8cd22cff5a677dcf7f8e697a5cb",
+          "anchor_first_build": "b9e2bc0cd54d1b586465d7ce99e4d1887778ee6a",
+          "commit": "b1b8a46a46d3f7a3f0eb5a5cce2884521380b228"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

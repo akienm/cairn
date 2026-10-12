@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_unit_a_test_run_starts_is_the_runs.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-12T12:47:20",
+    "date": "2026-10-12T13:05:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-44b84a06f20a', want 'test-44b84a06f20a'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 2001502) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-2001874-1']; left after its kill=[]\n\nGREEN — 5/5",
+      "stdout_tail": "  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-736427ed746b', want 'test-736427ed746b'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 2006114) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-2006495-1']; left after its kill=[]\n\nGREEN — 5/5",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id",
@@ -17,7 +17,7 @@
         "test_a_killed_run_leaves_no_unit_of_its_own"
       ],
       "teeth_red": [],
-      "test": "test-44b84a06f20a",
+      "test": "test-736427ed746b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 500,
+        "timeout": 600,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -42,7 +42,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-44b84a06f20a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-736427ed746b",
       "source_fingerprint": "6f4033e75f37c51f5c168a58013b36225ef47a2d4e195430c7074b61bed58cda",
       "fingerprint_closure": [
         "cairn/__init__.py",
@@ -53,30 +53,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2001445-3e4yuc1j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2006056-xeu69drz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261012.184626.497601.TesterDevice.run_proof.json",
-            "logs/tester/0/20261012.184715.225904.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-5a657fdcdff8/stderr.txt",
-            "logs/tester/0/runs/test-5a657fdcdff8/stdout.txt",
-            "logs/tester/0/runs/test-c6a85e16da2a/stderr.txt",
-            "logs/tester/0/runs/test-c6a85e16da2a/stdout.txt"
+            "logs/tester/0/20261012.190430.899328.TesterDevice.run_proof.json",
+            "logs/tester/0/20261012.190519.517592.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-14d6cc6ea1db/stderr.txt",
+            "logs/tester/0/runs/test-14d6cc6ea1db/stdout.txt",
+            "logs/tester/0/runs/test-625264c1847e/stderr.txt",
+            "logs/tester/0/runs/test-625264c1847e/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107716153,
-          "disk_bytes": 132263936,
-          "entries": 9935,
+          "bytes": 107723627,
+          "disk_bytes": 132280320,
+          "entries": 9937,
           "builds": 1,
           "reuses": 0
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
       "hollow": {
         "d50d162c5428": {
           "launchers/proofs/test_a_unit_a_test_run_starts_is_the_runs.py": {

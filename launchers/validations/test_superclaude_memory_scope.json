@@ -1,46 +1,65 @@
 [
   {
     "claim": "proof test_superclaude_memory_scope.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:19:53",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cairn test",
+    "date": "2026-10-12T13:07:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  MemoryHigh is a finite limit on the launched process  — HIGH='6442450944'\n  PASS  MemorySwapMax is a finite limit on the launched process  — SWAP='1073741824'\n  PASS  MemoryHigh sits BELOW MemoryMax (throttle before kill)  — high=6442450944 max=8589934592\n  PASS  the cap is below the smallest measured blowup (12.4GB, 2026-08-18)  — max=8.0GiB\n\nPER-INSTANCE — CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE overrides the global default\n  PASS  the per-instance launch reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819343.scope', 'MAX': '4294967296', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  the per-instance launch sits in a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819343.scope\n  PASS  the per-instance value is not the global default  — override=4.0GiB default=8.0GiB\n  PASS  the kernel sees the per-instance value (4G)  — max=4.00GiB (expected ~4.0GiB)\n\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing\n  PASS  this process's own cgroup is readable (the comparison below needs it)  — cgroup_of() -> '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope'\n  PASS  SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  NO_SCOPE does not create a NEW superclaude scope for this launch  — child=superclaude-512525.scope parent=superclaude-512525.scope (if both superclaude-*, child must equal parent — inherited, not new)\n  PASS  the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20261002.011952.849273.819410: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)\n  PASS  a scoped launch says so too, with its limits  — 20261002.011952.384884.819209: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-819209.scope)\n  PASS  --dry-run still exits 0 and prints its exec line  — rc=0\n\nGREEN — a runaway session dies alone, and the launch is still unstoppable.",
+      "returncode": 1,
+      "stdout_tail": "  PASS  MemorySwapMax is a finite limit on the launched process  — SWAP='1073741824'\n  PASS  MemoryHigh sits BELOW MemoryMax (throttle before kill)  — high=6442450944 max=8589934592\n  PASS  the cap is below the smallest measured blowup (12.4GB, 2026-08-18)  — max=8.0GiB\n\nPER-INSTANCE — CAIRN_SUPERCLAUDE_MEMORY_MAX_PER_INSTANCE overrides the global default\n  PASS  the per-instance launch reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007852.scope', 'MAX': '4294967296', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  the per-instance launch sits in a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007852.scope\n  PASS  the per-instance value is not the global default  — override=4.0GiB default=8.0GiB\n  PASS  the kernel sees the per-instance value (4G)  — max=4.00GiB (expected ~4.0GiB)\n\nTHE PRIME DIRECTIVE — declining or losing the scope costs the launch nothing\n  PASS  this process's own cgroup is readable (the comparison below needs it)  — cgroup_of() -> '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-873859.scope'\n  PASS  SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-873859.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}\n  PASS  NO_SCOPE does not create a NEW superclaude scope for this launch  — child=superclaude-873859.scope parent=superclaude-873859.scope (if both superclaude-*, child must equal parent — inherited, not new)\n  PASS  the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20261012.130706.394078.2007910: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)\n  PASS  a scoped launch says so too, with its limits  — 20261012.130705.936869.2007736: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-2007736.scope)\n  PASS  --dry-run still exits 0 and prints its exec line  — rc=0\n\nRED — 1 failure(s):\n  - the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional): stdout='' rc=-9",
       "stderr_tail": "",
       "teeth_green": [
         "a 100M scope with swap capped kills the balloon  — stdout='' rc=-9",
-        "the sibling that did not balloon is still alive  — pid 819192",
-        "the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — stdout='REACHED 400' rc=0",
-        "the launch reaches the binary at all (the prime directive)  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819209.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
-        "the launched process sits in a superclaude scope, not the terminal's  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819209.scope",
+        "the sibling that did not balloon is still alive  — pid 2007726",
+        "the launch reaches the binary at all (the prime directive)  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007736.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
+        "the launched process sits in a superclaude scope, not the terminal's  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007736.scope",
         "MemoryMax is a finite limit on the launched process  — MAX='8589934592'",
         "MemoryHigh is a finite limit on the launched process  — HIGH='6442450944'",
         "MemorySwapMax is a finite limit on the launched process  — SWAP='1073741824'",
         "MemoryHigh sits BELOW MemoryMax (throttle before kill)  — high=6442450944 max=8589934592",
         "the cap is below the smallest measured blowup (12.4GB, 2026-08-18)  — max=8.0GiB",
-        "the per-instance launch reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819343.scope', 'MAX': '4294967296', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
-        "the per-instance launch sits in a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-819343.scope",
+        "the per-instance launch reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007852.scope', 'MAX': '4294967296', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
+        "the per-instance launch sits in a superclaude scope  — /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-2007852.scope",
         "the per-instance value is not the global default  — override=4.0GiB default=8.0GiB",
         "the kernel sees the per-instance value (4G)  — max=4.00GiB (expected ~4.0GiB)",
-        "this process's own cgroup is readable (the comparison below needs it)  — cgroup_of() -> '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope'",
-        "SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-512525.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
-        "NO_SCOPE does not create a NEW superclaude scope for this launch  — child=superclaude-512525.scope parent=superclaude-512525.scope (if both superclaude-*, child must equal parent — inherited, not new)",
-        "the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20261002.011952.849273.819410: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)",
-        "a scoped launch says so too, with its limits  — 20261002.011952.384884.819209: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-819209.scope)",
+        "this process's own cgroup is readable (the comparison below needs it)  — cgroup_of() -> '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-873859.scope'",
+        "SUPERCLAUDE_NO_SCOPE still reaches the binary  — {'CGROUP': '/user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-873859.scope', 'MAX': '8589934592', 'HIGH': '6442450944', 'SWAP': '1073741824', 'ARGV': '--name akiendelllinux_cc_0 --remote-control akiendelllinux_cc_0 --dangerously-skip-permissions'}",
+        "NO_SCOPE does not create a NEW superclaude scope for this launch  — child=superclaude-873859.scope parent=superclaude-873859.scope (if both superclaude-*, child must equal parent — inherited, not new)",
+        "the boot log names the unbounded launch, and says it was DECLINED not unavailable  — last line: 20261012.130706.394078.2007910: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)",
+        "a scoped launch says so too, with its limits  — 20261012.130705.936869.2007736: scope: MemoryHigh=6G MemoryMax=8G MemorySwapMax=1G (unit superclaude-2007736.scope)",
         "--dry-run still exits 0 and prints its exec line  — rc=0"
       ],
-      "teeth_red": [],
+      "teeth_red": [
+        "the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — stdout='' rc=-9"
+      ],
+      "test": "test-9e53fb999d4a",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "d1db9943d772e9e1a4dee7bb9f653a4de4de1dc948f8b6c382639e451e80d5da",
+      "conditions": {
+        "proof": "82f4e31cd7844ca57733f9dbdc10b4b7504a26776c8f2877fa2b21230061861e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9e53fb999d4a",
+      "source_fingerprint": "103c662d335cdbc948d95f9e675fbe5ea918ebe085e4e8219c86bba68930396a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -52,7 +71,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-wi31djz0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2006056-hzef3co6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
@@ -69,13 +88,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141506359,
-          "disk_bytes": 161026048,
-          "entries": 8151,
+          "bytes": 107726112,
+          "disk_bytes": 132276224,
+          "entries": 9927,
           "builds": 1,
-          "reuses": 80
+          "reuses": 6
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

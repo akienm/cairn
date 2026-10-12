@@ -1,0 +1,72 @@
+[
+  {
+    "claim": "proof test_an_append_keeps_what_was_there.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T21:31:19",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_append_that_keeps_every_entry_lands  — journaled True/True\n  PASS  test_an_append_that_drops_or_edits_an_entry_is_refused\n  PASS  test_cast_and_a_non_list_record_are_not_judged  — cast journaled True, dict append journaled True\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_append_that_keeps_every_entry_lands",
+        "test_an_append_that_drops_or_edits_an_entry_is_refused",
+        "test_cast_and_a_non_list_record_are_not_judged"
+      ],
+      "teeth_red": [],
+      "test": "test-d007b4c9119b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "45ff5aec873a8e6791229d051e537264a3d6cde40547bc6cb6b3300d4f62a397",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d007b4c9119b",
+      "source_fingerprint": "6088cb6d7724ed86a80c508d871375515b114a76e86fa0cb275b29024c671de1",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_an_append_keeps_what_was_there.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1760998-roxgc5nh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107353350,
+          "disk_bytes": 131387392,
+          "entries": 9754,
+          "builds": 1,
+          "reuses": 4
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

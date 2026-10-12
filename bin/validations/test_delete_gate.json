@@ -2,12 +2,12 @@
   {
     "claim": "proof test_delete_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T22:10:41",
+    "date": "2026-10-11T21:31:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_command_that_caused_the_loss_is_refused\n  PASS  test_every_spelling_of_the_same_delete_is_caught\n  PASS  test_the_door_itself_is_never_refused\n  PASS  test_the_bound_the_git_roots_are_not_gated\n  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (64 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
+      "stdout_tail": "  PASS  test_every_spelling_of_the_same_delete_is_caught\n  PASS  test_the_door_itself_is_never_refused\n  PASS  test_the_bound_the_git_roots_are_not_gated\n  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (1816 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_command_that_caused_the_loss_is_refused",
@@ -16,6 +16,9 @@
         "test_the_bound_the_git_roots_are_not_gated",
         "test_a_command_that_only_reads_the_root_passes",
         "test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property",
+        "test_a_data_heredocs_body_is_not_read_as_a_command",
+        "test_a_heredoc_fed_to_a_shell_is_still_judged",
+        "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing",
         "test_the_gate_runs_as_a_hook_and_blocks_with_exit_2",
         "test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly",
         "test_the_gate_is_registered_where_it_claims_to_be",
@@ -24,9 +27,10 @@
         "test_restore_refuses_to_overwrite_what_is_there_now",
         "test_the_sweep_keeps_what_it_cannot_date",
         "test_an_entry_with_no_readable_origin_is_reported_not_hidden",
-        "the live trash is untouched (64 entries before and after)"
+        "the live trash is untouched (1816 entries before and after)"
       ],
       "teeth_red": [],
+      "test": "test-97604814120d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,13 +39,30 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "64c11791904a06a87bce15068a9fc8442b64c98b7eb169c2316dcb01a603b947",
+      "conditions": {
+        "proof": "c0a03e17f64184c860edfe4ae12aa1fa7b30c8527d4de0ba9b217c296357a263",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-97604814120d",
+      "source_fingerprint": "2dce1ed04a4d71950e8f666c2edcba95816e4184f93f13a051dacf02b7072298",
       "fingerprint_closure": [
         "bin/proofs/test_delete_gate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2205240-3n_gi6cd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1760998-ut5voews/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -50,11 +71,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123843569,
-          "disk_bytes": 145686528,
-          "entries": 9170,
+          "bytes": 107353350,
+          "disk_bytes": 131387392,
+          "entries": 9754,
           "builds": 1,
-          "reuses": 6
+          "reuses": 1
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_artifact_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-03T22:10:00",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-11T21:31:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  allowed: \"python3 - <<EOF\\nopen('cairn/tools/x/x.py','w').write('')\\nEOF\"\n  PASS  refused: 'echo {} > ../CairnCommons/tickets/x.json'\n  PASS  refused: 'python3 gen.py >> cairn/tools/x/history.json'\n  PASS  refused: 'sed -i s/a/b/ cairn/tools/x/intention+why.json'\n  PASS  refused: 'cp /tmp/x.json CairnCommons/decisions/2026-x.json'\n  PASS  refused: 'mv CairnCommons/tickets/a.json CairnCommons/tickets/b.json'\n  PASS  refused: 'rm CairnCommons/slates/2026-x.json'\n  PASS  refused: 'python3 - <<EOF\\nopen(\"cairn/tools/x/state.json\",\"w\").write(\"{}\")\\nEOF'\n  PASS  refused: 'python3 -c \"import json;json.dump({}, open(\\'CairnCommons/ideas/x.json\\''\n  PASS  refused: 'python3 -c \"from pathlib import Path; Path(\\'cairn/tools/x/validations/'\n  PASS  an empty command is allowed\n  PASS  an unrelated tool is allowed\nTHE HOOK CONTRACT\n  PASS  test_the_pretooluse_gate_refuses_a_write_to_a_record\n  PASS  exit 0 to allow\n  PASS  unreadable stdin allows and says so\nTHE WIRING — the gate stands at PreToolUse for every tool that can write a record\n  PASS  test_the_gate_is_wired_at_pretooluse_for_every_writing_tool  — matchers=['Bash', 'Edit', 'MultiEdit', 'Write']\n\nGREEN",
+      "stdout_tail": "  PASS  refused: 'sed -i s/a/b/ cairn/tools/x/intention+why.json'\n  PASS  refused: 'cp /tmp/x.json CairnCommons/decisions/2026-x.json'\n  PASS  refused: 'mv CairnCommons/tickets/a.json CairnCommons/tickets/b.json'\n  PASS  refused: 'rm CairnCommons/slates/2026-x.json'\n  PASS  refused: 'python3 - <<EOF\\nopen(\"cairn/tools/x/state.json\",\"w\").write(\"{}\")\\nEOF'\n  PASS  refused: 'python3 -c \"import json;json.dump({}, open(\\'CairnCommons/ideas/x.json\\''\n  PASS  refused: 'python3 -c \"from pathlib import Path; Path(\\'cairn/tools/x/validations/'\n  PASS  an empty command is allowed\n  PASS  an unrelated tool is allowed\nWHERE A REDIRECT LANDS (a55a82b351c6)\n  PASS  test_a_redirect_into_a_worktree_copy_is_allowed  — cd-form=allowed hook-cwd-form rc=0\n  PASS  test_a_redirect_that_lands_on_a_record_is_still_refused  — refused=[True, True, True, True]\nTHE HOOK CONTRACT\n  PASS  test_the_pretooluse_gate_refuses_a_write_to_a_record\n  PASS  exit 0 to allow\n  PASS  unreadable stdin allows and says so\nTHE WIRING — the gate stands at PreToolUse for every tool that can write a record\n  PASS  test_the_gate_is_wired_at_pretooluse_for_every_writing_tool  — matchers=['Bash', 'Edit', 'MultiEdit', 'Write']\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "Write to CairnCommons/tickets/x.json is refused",
@@ -54,21 +54,41 @@
         "refused: 'python3 -c \"from pathlib import Path; Path(\\'cairn/tools/x/validations/'",
         "an empty command is allowed",
         "an unrelated tool is allowed",
+        "test_a_redirect_into_a_worktree_copy_is_allowed",
+        "test_a_redirect_that_lands_on_a_record_is_still_refused",
         "test_the_pretooluse_gate_refuses_a_write_to_a_record",
         "exit 0 to allow",
         "unreadable stdin allows and says so",
         "test_the_gate_is_wired_at_pretooluse_for_every_writing_tool"
       ],
       "teeth_red": [],
+      "test": "test-87868873bc04",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "4ec898ac977031d96b966cbedb70f9bea06b414eb68de6fa61e4338b9a85875d",
+      "conditions": {
+        "proof": "e045f418abd4e9bf450b969b8904119d935c4391363a43b52ff67345232b5762",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-87868873bc04",
+      "source_fingerprint": "8fe4e98a61c97ca58bf3112ee8cf2231a2f12335ef7f1e515ab37c607a61b8d9",
       "fingerprint_closure": [
         "bin/proofs/test_artifact_gate.py",
         "cairn/__init__.py",
@@ -80,7 +100,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2205240-oc1hmr2b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1760998-lkq3h_1g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,13 +109,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 123843569,
-          "disk_bytes": 145686528,
-          "entries": 9170,
+          "bytes": 107353350,
+          "disk_bytes": 131387392,
+          "entries": 9754,
           "builds": 1,
           "reuses": 0
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

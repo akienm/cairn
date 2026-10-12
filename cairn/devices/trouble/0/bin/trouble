@@ -68,10 +68,18 @@ if not identity or not what_changed:
     # operator one retry instead of costing the record its meaning.
     sys.exit(1)
 
+# THE HAND IS MEASURED HERE, IN THE CLEARER'S OWN PROCESS (c2172127d7a4, 63e6eb836769): in the
+# device's process caller() would read the device, so the CLI measures and the body carries it.
+from cairn.tools.artifact import artifact
+try:
+    hand = artifact.caller()
+except Exception as exc:  # noqa: BLE001 — the clear is the record; the hand is testimony
+    hand = {'class': 'unknown', 'error': f'{type(exc).__name__}: {exc}'}
 bus = reach('trouble')
 reply = bus.request(sender='cli', to='trouble', verb='clear',
                     why='an operator says the change was made',
-                    body={'identity': identity, 'by': by, 'what_changed': what_changed})
+                    body={'identity': identity, 'by': by, 'what_changed': what_changed,
+                          'hand': hand})
 body = reply.get('body') or {}
 if '--json' in args:
     print(json.dumps(body, indent=2))

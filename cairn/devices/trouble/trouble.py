@@ -197,12 +197,17 @@ class TroubleDevice(BaseDevice):
         A refusal comes back as a VALUE, not an exception: the shim would record a raised
         handler as a delivery failure and the asker would be told nothing about why the
         clear did not take. ``what_changed`` missing is the commonest such refusal, and it
-        is precisely the one the caller has to see."""
+        is precisely the one the caller has to see.
+
+        The CLI's measured hand rides the body as ``hand`` and is passed to clear() as is
+        (63e6eb836769) — here caller() would read the device itself."""
         body = envelope.get("body") or {}
+        hand = body.get("hand")
         try:
             return self.clear(body.get("identity") or body.get("id") or "",
                               by=body.get("by") or envelope.get("sender") or "",
-                              what_changed=body.get("what_changed") or "")
+                              what_changed=body.get("what_changed") or "",
+                              hand=hand if isinstance(hand, dict) else None)
         except TroubleError as exc:
             return {"outcome": "refused", "reason": str(exc)}
 

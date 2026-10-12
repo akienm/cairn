@@ -103,8 +103,14 @@ class Refused(Exception):
 
 class ReaderFailed(Refused):
     """The reader never returned a tree the schema accepts, ``RETRIES_PER_READ`` re-reads in.
-    An instrument failure, not a gap in the ticket: NO record is written, because a record
-    would count toward the pass cap against a ticket the reader never actually read."""
+    An instrument failure, not a gap in the ticket — and still a RUN (ticket ba4166fe51c4,
+    Akien 2026-09-29: *"shouldn't a rehsersal pass be counted like a testing pass?"*):
+    ``rehearse`` catches it and writes a record with ``ran: false`` carrying this text, and
+    that record counts toward the pass cap. ``attempts`` carries every failed attempt."""
+
+    def __init__(self, message: str, attempts: list[dict] | None = None):
+        super().__init__(message)
+        self.attempts = list(attempts or [])
 
 
 # ---------------------------------------------------------------------------
@@ -495,7 +501,7 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
         handed_back = text + HANDED_BACK.format(lacks="\n".join(f"- {l}" for l in lacks))
     raise ReaderFailed(
         f"read {n}: no tree passed the schema in {RETRIES_PER_READ + 1} attempts — last lacks: "
-        + "; ".join(attempts[-1]["schema_lacks"][:5]))
+        + "; ".join(attempts[-1]["schema_lacks"][:5]), attempts)
 
 
 # ---------------------------------------------------------------------------
@@ -673,10 +679,21 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     text, sha_at_read, tk = render(ticket, root=root, berths_root=berths_root, repo=repo)
     ids = decision_ids_of(json.loads(tk.read_text(encoding="utf-8")))
     reads, meta = [], []
+    failed: ReaderFailed | None = None
     for n in range(1, READS + 1):
-        tree, attempts = read_tree(text, reader, n, ticket=ticket, sha=sha_at_read, decision_ids=ids)
+        try:
+            tree, attempts = read_tree(text, reader, n, ticket=ticket, sha=sha_at_read, decision_ids=ids)
+        except ReaderFailed as exc:
+            # A RUN THAT FAILS TO RUN IS STILL A RUN (ticket ba4166fe51c4 D2): it leaves a
+            # ran:false record and counts toward the cap; it never moves the pointer.
+            failed = exc
+            meta.extend(exc.attempts)
+            break
         reads.append(tree)
         meta.extend(attempts)
+    if failed is not None:
+        return _record_the_failed_run(ticket, root, failed, reads=reads, meta=meta, text=text,
+                                      sha_at_read=sha_at_read, passes=passes, by=by)
     found = gaps(reads, ids)
     clean = not found
     try:
@@ -684,11 +701,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     except (OSError, ValueError) as exc:   # an unreadable log is said on the record, never skipped
         reaches = [{"unreadable_log": f"{type(exc).__name__}: {exc}"}]
     stamp = _stamp()
-    rec_path = records_dir(root) / f"{ticket}-{stamp}.json"
-    n = 1
-    while rec_path.exists():   # two passes inside one second are two records, never one overwritten
-        n += 1
-        rec_path = records_dir(root) / f"{ticket}-{stamp}-{n}.json"
+    rec_path = _record_path(ticket, root, stamp)
     rec_rel = rec_path.relative_to(commons(root)).as_posix()
     if clean:
         # D8 as amended: the pointer lands first, the record hashes what the lane will see.
@@ -708,6 +721,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         "record": rec_rel,
         "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "pass": passes + 1,
+        "ran": True,
         "clean": clean,
         "ticket_sha256": sha_live,
         "ticket_sha256_at_read": sha_at_read,
@@ -733,12 +747,88 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     return dict(record, path=str(rec_path))
 
 
+def _record_path(ticket: str, root: Path | str | None, stamp: str) -> Path:
+    rec_path = records_dir(root) / f"{ticket}-{stamp}.json"
+    n = 1
+    while rec_path.exists():   # two passes inside one second are two records, never one overwritten
+        n += 1
+        rec_path = records_dir(root) / f"{ticket}-{stamp}-{n}.json"
+    return rec_path
+
+
+def _record_the_failed_run(ticket: str, root: Path | str | None, failed: ReaderFailed, *,
+                           reads: list[dict], meta: list[dict], text: str, sha_at_read: str,
+                           passes: int, by: str | None) -> dict:
+    """The ran:false record (ticket ba4166fe51c4 D2): same door, same naming, same verb as a
+    pass that ran. ``clean`` is false and ``gaps`` empty — the reader failed, the ticket was
+    not judged — and the ticket's rehearsal pointer is never written (D4)."""
+    rec_path = _record_path(ticket, root, _stamp())
+    record = {
+        "ticket": ticket,
+        "record": rec_path.relative_to(commons(root)).as_posix(),
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "pass": passes + 1,
+        "ran": False,
+        "clean": False,
+        "why": str(failed),
+        "ticket_sha256_at_read": sha_at_read,
+        "reads": reads,
+        "gaps": [],
+        "meta": {
+            "model": MODEL,
+            "attempts": meta,
+            "cost_usd": round(sum((m.get("cost_usd") or 0) for m in meta), 6),
+            "duration_ms": sum((m.get("duration_ms") or 0) for m in meta),
+            "rendered_chars": len(text),
+            "by": by,
+        },
+    }
+    door.write(str(rec_path), json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+               verb="rehearse", why=f"pass {passes + 1} over {ticket}: did not run — {failed}")
+    return dict(record, path=str(rec_path))
+
+
+def drive_a_failed_run(scratch: Path | str) -> dict:
+    """The runner's failure path, driven on purpose (ticket ba4166fe51c4 D20): one pass with a
+    reader that returns nothing, over a scratch commons built under ``scratch`` with one
+    testing ticket. Its trail is ``<scratch>/CairnCommons/rehearsals/*.json``. This is the
+    verb build_inspector's ``a_run_that_fails_to_run_leaves_a_trail`` drives (RULE 1: the
+    sieve calls this public verb, never the code)."""
+    scratch = Path(scratch)
+    root = scratch / "CairnCommons"
+    for d in ("tickets", "rehearsals", "questions"):
+        (root / d).mkdir(parents=True, exist_ok=True)
+    (scratch / "cairn").mkdir(parents=True, exist_ok=True)
+    (root / "tickets" / "_charter+why.json").write_text(json.dumps({
+        "plan_fields": ["id", "title", "intention", "workflow_and_state", "decisions", "questions"],
+        "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
+    tid = "d71fe0000001"
+    (root / "tickets" / f"{tid}-testing-a-driven-failed-run.json").write_text(json.dumps({
+        "id": tid, "title": "testing: a driven failed run", "intention": "testing fixture",
+        "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PR",
+        "decisions": [{"n": 1, "text": "D1 testing: build the widget", "by": "drive", "source": "cast"}],
+        "questions": []}, indent=2) + "\n")
+
+    def nothing(text, schema_doc):
+        return None, {"model": "drive", "cost_usd": 0.0, "duration_ms": 0,
+                      "error": "testing: the driven reader returns nothing"}
+
+    door.set_diagnostic_roots({"cairn": scratch / "cairn", "CairnCommons": root})
+    try:
+        return rehearse(tid, reader=nothing, root=root, berths_root=scratch / "no-berths",
+                        repo=scratch / "no-repo", by="drive")
+    finally:
+        door.set_diagnostic_roots(None)
+
+
 def _open_the_question(ticket: str, root: Path | str | None) -> dict:
-    """The sixth pass (D11): one question on the ticket naming the standing gaps; no read."""
+    """The sixth pass (D11): one question on the ticket naming the standing gaps; no read.
+    The gaps come from the latest record that RAN (ticket ba4166fe51c4 D16): a ran:false
+    record names none, and reading it would hide the last real ones."""
     from cairn.tools.question import question as Q
     qroot = commons(root) / "questions"
-    latest = records_for(ticket, root)[-1][1]
-    standing = latest.get("gaps") or []
+    ran = [doc for _, doc in records_for(ticket, root) if doc.get("ran") is not False]
+    standing = (ran[-1].get("gaps") or []) if ran else []
     already = [q for q in Q.open_for(ticket, root=qroot) if q.get("source") == "rehearsal"]
     if already:
         # ONE question (D11): the standing one is the answer owed, not a second copy of it

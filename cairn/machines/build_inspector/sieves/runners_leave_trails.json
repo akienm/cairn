@@ -1,0 +1,16 @@
+[
+  {
+    "runner": "rehearsal",
+    "component": "rehearsal",
+    "failure": "ReaderFailed: the reader returned no tree on every attempt of a read",
+    "trail": "CairnCommons/rehearsals/*.json",
+    "drive": ["python3", "-m", "cairn.machines.rehearsal", "--drive-a-failed-run", "{scratch}"]
+  },
+  {
+    "runner": "tester",
+    "component": "tester",
+    "failure": "a proof killed by its timeout",
+    "trail": ".cairn/logs/tester/0/*.TesterDevice.run_proof.json",
+    "drive": ["bin/cairn", "test", "--drive-a-failed-run", "{scratch}"]
+  }
+]

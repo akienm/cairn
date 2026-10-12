@@ -11,9 +11,12 @@ rehearsal.py; this file only parses and prints.
                                                              retire superseded decision lines: out of the reader's view, kept in the file
   cairn rehearse <ticket> --scope D<n> [D<n> ...] --because "<why>" --by <who>
                                                              scope decision lines as context: handed to the reader to read, never a step
+  python3 -m cairn.machines.rehearsal --drive-a-failed-run <scratch>
+                                                             drive the failure path under <scratch>: one pass whose reader returns nothing
 
 Exit 0 on a clean pass; 1 on a pass with gaps (they are printed, one per line, with the
-line that would settle each); 2 on a refusal or a reader failure; 3 when the pass cap opened
+line that would settle each); 2 on a refusal or a reader failure (a reader failure still writes
+its ran:false record, and the path is printed); 3 when the pass cap opened
 a question instead of reading. Flags fold case (ruled 2026-09-07); his words never do.
 """
 from __future__ import annotations
@@ -47,6 +50,13 @@ def _decision_id(p: argparse.ArgumentParser, v: str) -> int:
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     argv = [fold(a) if a.startswith("--") else a for a in argv]
+    if argv[:1] == ["--drive-a-failed-run"]:
+        if len(argv) != 2:
+            print("usage: python3 -m cairn.machines.rehearsal --drive-a-failed-run <scratch>", file=sys.stderr)
+            return 2
+        rec = R.drive_a_failed_run(argv[1])
+        print(f"driven: ran={rec['ran']} — {rec['path']}")
+        return 0
     p = argparse.ArgumentParser(prog="cairn rehearse", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("ticket")
@@ -121,6 +131,10 @@ def main(argv: list[str] | None = None) -> int:
             return 3
         if args.json:
             print(json.dumps(rec, indent=1, ensure_ascii=False))
+        if rec.get("ran") is False:
+            print(f"reader failed on pass {rec['pass']} over {args.ticket}: {rec['why']} — {rec['path']}",
+                  file=sys.stderr)
+            return 2
         m = rec["meta"]
         print(f"pass {rec['pass']} over {args.ticket}: {'CLEAN' if rec['clean'] else str(len(rec['gaps'])) + ' gap(s)'} "
               f"— {rec['record']} (${m['cost_usd']:.4f}, {m['duration_ms'] / 1000:.1f}s, "

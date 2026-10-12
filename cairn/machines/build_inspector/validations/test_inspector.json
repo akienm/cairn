@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-07T17:26:43",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-12T00:13:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the\n  ok    THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors\n  ok    positive — the three forms the docstring names, each pointing at something the\n  ok    negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real\n  ok    negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the\n  ok    negative 3 — the shape the floor was built against in the first place: one\n  ok    THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the\n  ok    AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries\nbuild_inspector proofs: all teeth green",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  ok    1 — a healthy component is CLEAN: a gate that always fires is a smoke alarm\n  ok    2 — each seeded failure fires exactly its sieve, nothing else\n  ok    3 — state_is_projection: a voyage written THROUGH THE DOOR is clean\n  ok    4 — ...and a HAND-EDIT to state.json is caught as drift, with the diverging keys\n  ok    5 — repair goes through the door (append), never an edit — and the gate agrees\n  ok    6 — an orphan half of the pair is a finding (state without history)\n  ok    7 — the gate cannot silently inspect nothing: unknown component refuses, and\n  ok    8 — a bad root refuses (inherited from the census, verified at THIS surface)\n  ok    9 — every finding is complete on first pass: full shape, non-empty why\n  FAIL  10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance\n        AssertionError: a_run_that_fails_to_run_leaves_a_trail: no provenance — a check nobody was taught by",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector.py\", line 1487, in <module>\n    main()\n    ~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector.py\", line 215, in main\n    assert \"Provenance:\" in doc, f\"{name}: no provenance — a check nobody was taught by\"\n           ^^^^^^^^^^^^^^^^^^^^\nAssertionError: a_run_that_fails_to_run_leaves_a_trail: no provenance — a check nobody was taught by",
       "teeth_green": [
         "1 — a healthy component is CLEAN: a gate that always fires is a smoke alarm",
         "2 — each seeded failure fires exactly its sieve, nothing else",
@@ -18,67 +18,15 @@
         "6 — an orphan half of the pair is a finding (state without history)",
         "7 — the gate cannot silently inspect nothing: unknown component refuses, and",
         "8 — a bad root refuses (inherited from the census, verified at THIS surface)",
-        "9 — every finding is complete on first pass: full shape, non-empty why",
-        "10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance",
-        "11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably",
-        "12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,",
-        "13 — PACKET JURISDICTION (packet-inspector-wire, 2026-07-28): the gate finds a",
-        "14 — an UNREADABLE berth is a named finding on the berth owner (chart)",
-        "15 — THE JUDGES BEFORE THE JUDGED (constrain-filters): a charted constrain",
-        "16 — ONE IMPLEMENTATION, TWO MOUTHS: the registry sieves report exactly",
-        "17 — THE JUDGES BEFORE THE JUDGED, SECOND INSTANCE (survey-filters): a",
-        "18 — one implementation, two mouths, for the survey judge too",
-        "19 — THE JUDGES BEFORE THE JUDGED, THIRD APPLICATION (decompose-filters)",
-        "20 — one implementation, two mouths, for the decompose judge too",
-        "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket",
-        "NO RETRO-RED, ASSERTED OVER THE REAL STANDING CORPUS AS AN INVARIANT",
-        "21 — THE JUDGES BEFORE THE JUDGED, FOURTH APPLICATION (triage-filters)",
-        "22 — one implementation, two mouths, for the triage judge too; and the",
-        "23 — THE JUDGES BEFORE THE JUDGED, FIFTH APPLICATION",
-        "24 — one implementation, two mouths, for the hypothesize judge too",
-        "25 — THE JUDGES BEFORE THE JUDGED, SIXTH APPLICATION",
-        "26 — one implementation, two mouths, for the validate judge too",
-        "26a — validate_criterion_is_runnable_before_the_crossing: a criterion",
-        "26b — THE FORWARDING ORDER (watchme-emits-a-probe, 2026-07-30). A charted",
-        "THE THIRD SIEVE OF THE FAMILY, added 2026-08-14. A constraint's `source` is",
-        "27 — THE ENTRY GATE (buildme-rides-the-chart, 2026-07-29): green iff a",
-        "28 — THE EXIT GATE (proved-answers-the-chart, 2026-07-29): the loop's",
-        "DEFECT-FIRST: a component that grows a second door to the inference host. The",
-        "durable_state_declared (relational-state-goes-through-the-one-door)",
-        "learning_declared (learning-as-a-pattern)",
-        "claim_provenance (a-claim-carries-its-provenance)",
-        "working_tree_clean (nothing-rides-loose)",
-        "Tooth 1 — planted-graph: a dirty subtree fires working_tree_clean",
-        "Tooth 2 — real-corpus: a clean subtree stays quiet",
-        "Tooth 3a — dirt in A outside the component subtree reds, naming the path under A",
-        "Tooth 3b — dirt only in B reds, naming the path under B",
-        "Tooth 3c — a modified intentions-congruency-lab/history.json in B reds, naming it",
-        "Tooth 3d — both trees clean stay quiet, and dirt inside the subtree still reds",
-        "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold",
-        "history_reach (history-reach-feeds-a-migration)",
-        "Tooth 1 — a component with PROVED-ticket history entries fires",
-        "Tooth 2 — a component with only active-ticket entries stays quiet",
-        "Tooth 3 — a component with no history.json stays quiet",
-        "slate_reach (history-reach-feeds-a-migration)",
-        "Tooth 4 — a slates store with PROVED-ticket slates fires",
-        "Tooth 5 — a slates store with only active-ticket slates stays quiet",
-        "the nest (2026-08-06, ticket the-questions-are-the-sieve)",
-        "THE GRADATION: a score per sieve that RAN, and the vector Akien drew",
-        "BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's",
-        "ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the",
-        "THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors",
-        "positive — the three forms the docstring names, each pointing at something the",
-        "negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real",
-        "negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the",
-        "negative 3 — the shape the floor was built against in the first place: one",
-        "THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the",
-        "AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries"
+        "9 — every finding is complete on first pass: full shape, non-empty why"
       ],
-      "teeth_red": [],
-      "test": "test-9f8f00aff2f1",
+      "teeth_red": [
+        "10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance"
+      ],
+      "test": "test-81401a4425ed",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -88,20 +36,19 @@
         "proof": "adbf26519244cd82148df1965c8546e648ae30d9ad7a829522bf6139aea88cda",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 1200,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9f8f00aff2f1",
-      "source_fingerprint": "695aaec7256c23dacffacaf9eac756e813821bb837059edd7ea313656cd97c72",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-81401a4425ed",
+      "source_fingerprint": "de7074c401d647d7148a1d1f8bfdbc46be2095c2f825c8af00e1bd6ec2821cf3",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -109,42 +56,35 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-180276-8mg427zz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1835487-qtkwfp6x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 2,
           "paths": [
-            "logs/charter/0/20261007.232239.879112.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.232240.461427.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.232421.877228.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261007.232422.437010.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261012.061259.670275.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261012.061300.603727.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 103918276,
-          "disk_bytes": 125579264,
-          "entries": 8877,
+          "bytes": 107607203,
+          "disk_bytes": 132018176,
+          "entries": 9885,
           "builds": 1,
-          "reuses": 0
+          "reuses": 22
         }
       },
-      "hollow": {
-        "c1cca2e3dc23": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"
-          ]
-        }
+      "reseal_ladder": {
+        "proof_sha256": "adbf26519244cd82148df1965c8546e648ae30d9ad7a829522bf6139aea88cda",
+        "opened": "2026-10-12T00:13:05",
+        "last_red": "2026-10-12T00:13:05",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       },
-      "hollow_anchor": {
-        "c1cca2e3dc23": {
-          "anchor_rule": "journal",
-          "anchor_journal": "2543b4fc1eecfa6fc64ba66be5d9ef722bd301b4",
-          "anchor_first_build": "dad625d549855618f44c2197ce4e3bb9518d83cb",
-          "commit": "2543b4fc1eecfa6fc64ba66be5d9ef722bd301b4"
-        }
-      }
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

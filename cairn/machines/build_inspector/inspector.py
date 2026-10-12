@@ -3713,6 +3713,47 @@ def green_seal_names_a_tooth(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+_RUNNERS_FILE = Path(__file__).resolve().parent / "sieves" / "runners_leave_trails.json"
+
+
+def declared_runners() -> list[dict]:
+    """The runners whose failure-to-run must still leave a trail (ticket ba4166fe51c4 D19):
+    rows {runner, component, failure, trail, drive}, read from sieves/runners_leave_trails.json."""
+    return json.loads(_RUNNERS_FILE.read_text())
+
+
+def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
+                                           runners: list | None = None) -> list[dict]:
+    """A RUN THAT FAILS TO RUN IS STILL A RUN (ticket ba4166fe51c4; Akien, 2026-09-29: *"shouldn't
+    a rehsersal pass be counted like a testing pass?"*). For each declared runner whose component
+    is this row's, drive its failure path on purpose — its own public CLI verb, under a scratch
+    dir (RULE 1: never an import of its code) — and glob its trail there. No trail, or a drive
+    that cannot be run, is one finding. Measured by running, never by reading code."""
+    import subprocess  # local, as in _git: the sieve's only reach is the runner's own verb
+    from cairn.tools.scratch.scratch import scratch_dir
+    findings = []
+    for r in (declared_runners() if runners is None else runners):
+        if r.get("component") != row.get("component"):
+            continue
+        scratch = scratch_dir("runner-trail-testing-")
+        argv = [str(scratch) if a == "{scratch}" else a for a in r["drive"]]
+        try:
+            exit_code = subprocess.run(argv, cwd=_REPO_ROOT, capture_output=True, text=True,
+                                       timeout=180).returncode
+        except (OSError, subprocess.SubprocessError) as e:
+            exit_code = f"un-runnable: {type(e).__name__}: {e}"
+        if sorted(scratch.glob(r["trail"])):
+            continue
+        findings.append(_finding(
+            "a_run_that_fails_to_run_leaves_a_trail", row["component"],
+            f"runner {r['runner']}'s failure ({r['failure']}) leaves a trail at {r['trail']}",
+            expected=">= 1", actual=0,
+            runner=r["runner"], failure=r["failure"], trail=r["trail"], exit=exit_code,
+            reason="a run that failed to run wrote nothing — the record says it never happened (Law 7)",
+        ))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "proofs_exist": proofs_exist,
@@ -3752,6 +3793,7 @@ SIEVES = {
     "encapsulation_holds": encapsulation_holds,
     "working_tree_clean": working_tree_clean,
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
+    "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
 }
 
 

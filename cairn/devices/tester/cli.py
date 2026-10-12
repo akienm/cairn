@@ -47,6 +47,7 @@ invisible while it was being worked around.
     cairn test --reseal --ruling <id> <path>    rung 4: reseal over a proof whose bytes moved
     cairn test --reseal-install                 install the pre-commit hook that fires it
     cairn test --exec "<command>"               run any command under the instance seal (exit passes through; 2 when no seal)
+    cairn test --drive-a-failed-run <scratch>   a proof killed by its timeout under a scratch instance root
 """
 
 from __future__ import annotations
@@ -380,7 +381,30 @@ def _announce_seals(tester, sealed_green: list) -> None:
               f"would have fired did not)")
 
 
+def drive_a_failed_run(scratch) -> int:
+    """`cairn test --drive-a-failed-run <scratch>` — the tester's failure path, driven on purpose
+    (ticket ba4166fe51c4 D20): a testing proof that sleeps 30s, run under a 2s timeout by a
+    TesterDevice whose trail is pointed at <scratch>/.cairn. Its trail is
+    ``<scratch>/.cairn/logs/tester/0/*.TesterDevice.run_proof.json`` — the row build_inspector's
+    ``a_run_that_fails_to_run_leaves_a_trail`` globs (RULE 1: the sieve calls this verb)."""
+    from cairn.tools.base import address
+    scratch = Path(scratch)
+    scratch.mkdir(parents=True, exist_ok=True)
+    proof = scratch / "test_testing_a_proof_killed_by_its_timeout.py"
+    proof.write_text('"""testing: a proof that outlives its 2s timeout (ticket ba4166fe51c4)."""\n'
+                     "import time\ntime.sleep(30)\n")
+    device = TesterDevice()
+    device.set_diagnostic_roots({"repo": address.ROOTS["repo"], "commons": address.ROOTS["commons"],
+                                 "instance": scratch / ".cairn"})
+    v = device.run_proof(proof, sink="none", timeout=2)
+    print(f"driven: verdict={v.get('verdict')} — trail {device.diagnostic_trail()}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    if raw_argv[:1] == ["--drive-a-failed-run"] and len(raw_argv) == 2:
+        return drive_a_failed_run(raw_argv[1])
     ap = argparse.ArgumentParser(
         prog="cairn test",
         description="Run proofs through the tester and report the verdicts. "

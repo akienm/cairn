@@ -85,7 +85,7 @@ PROVES = {
         "6": "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
         # the rest of the teeth, under the name of what each pins — the hollow reading counts
         # DECLARED teeth only, so an undeclared tooth is one a reverted file can never red
-        "reread": "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing",
+        "reread": "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record",
         "lanes": "test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal",
         "cap": "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing",
         "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
@@ -241,7 +241,7 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
 
 # 2 ------------------------------------------------------------------------
 
-def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_nothing():
+def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record():
     w = World()
     try:
         bad = {"nodes": [{"step": "x", "state": "maybe", "assumption": "", "would_settle": "", "confidence": 2}]}
@@ -280,13 +280,13 @@ def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes
     w = World()
     try:
         stub = Stub([bad])
-        try:
-            R.rehearse(TID, reader=stub, **_kw(w))
-        except R.ReaderFailed as exc:
-            assert "read 1" in str(exc) and stub.calls == R.RETRIES_PER_READ + 1, (exc, stub.calls)
-        else:
-            raise AssertionError("a reader that never passes the schema must refuse the pass")
-        assert not list((w.commons / "rehearsals").iterdir()) and w.journal() == [], "no record on an instrument failure"
+        # ba4166fe51c4 D18: a reader that never passes the schema is still a RUN — one
+        # ran:false record, through the door, carrying the refusal
+        rec = R.rehearse(TID, reader=stub, **_kw(w))
+        assert rec["ran"] is False and "read 1" in rec["why"], rec
+        assert stub.calls == R.RETRIES_PER_READ + 1, stub.calls
+        assert len(list((w.commons / "rehearsals").iterdir())) == 1 and [e["verb"] for e in w.journal()] == ["rehearse"], \
+            "one ran:false record on an instrument failure"
     finally:
         w.close()
 

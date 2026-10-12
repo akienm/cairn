@@ -36,6 +36,11 @@ PROVES = {
         "4": "test_the_dead_from_idea_rule_is_gone",
         "5": "test_inbox_and_dashboard_print_the_same_open_idea_and_intention_counts",
     },
+    # 0162736f42ed — the operator-word tooth judges only the inbox's own structure (2026-10-11)
+    "0162736f42ed": {
+        "1": "test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_check",
+        "2": "test_an_unindented_akien_inbox_header_still_fails_the_operator_word_check",
+    },
 }
 
 
@@ -387,14 +392,36 @@ def test_adjudication_shows_berth_and_skill():
     assert '[sorted]' in output
 
 
-def test_format_uses_operator_not_akien():
-    data = gather_all()
-    output = format_inbox(data)
+def _operator_word_reds(output: str) -> list[str]:
+    """Every structural line of a rendered inbox that says 'Akien' where it should say 'Operator'."""
+    reds = []
     for line in output.split("\n"):
         upper = line.strip().upper()
         if upper.startswith("--") or upper.startswith("==") or "INBOX" in upper:
-            assert "AKIEN" not in upper, \
-                f"Structural line uses 'Akien' instead of 'Operator': {line}"
+            if "AKIEN" in upper:
+                reds.append(line)
+    return reds
+
+
+def test_format_uses_operator_not_akien():
+    reds = _operator_word_reds(format_inbox(gather_all()))
+    assert not reds, f"Structural line uses 'Akien' instead of 'Operator': {reds[0]}"
+
+
+def test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_check():
+    """0162736f42ed (1): a trouble the inbox only relays may name a path under /home/akien —
+    measured 2026-10-11, such a line red this proof and the red fed itself through its own seal."""
+    path = "/home/akien/dev/src/cairn/cairn/tools/operator_inbox/proofs/test_operator_inbox.py"
+    live = [{"id": "testing-relayed-path", "standing": "OPEN", "why": f"the verdict standing at {path} changed"}]
+    out = format_inbox(dict(gather_all(), troubles={"live": live, "live_count": 1, "total_count": 1}))
+    assert path in out, "the fixture trouble did not render"
+    assert _operator_word_reds(out) == [], _operator_word_reds(out)
+
+
+def test_an_unindented_akien_inbox_header_still_fails_the_operator_word_check():
+    """0162736f42ed (2): the inbox's own structure still may not say 'Akien'."""
+    assert _operator_word_reds("AKIEN INBOX\n  body") == ["AKIEN INBOX"]
+    assert _operator_word_reds("-- AKIEN'S QUEUE --") == ["-- AKIEN'S QUEUE --"]
 
 
 def test_format_summary_carries_ticket_breakdown():

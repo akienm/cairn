@@ -121,7 +121,11 @@ def main() -> int:
     commons = tmp / "CairnCommons"
     tickets = commons / "tickets"
     tickets.mkdir(parents=True)
-    (tickets / "_charter+why.json").write_bytes(_LIVE_CHARTER.read_bytes())
+    # The hollow's worktree has no CairnCommons beside it, so _LIVE_CHARTER (REPO.parent) is absent
+    # there; the charter is then read from the home checkout, as hollow.py resolves the commons.
+    charter = _LIVE_CHARTER if _LIVE_CHARTER.is_file() else (
+        Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json")
+    (tickets / "_charter+why.json").write_bytes(charter.read_bytes())
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": REPO})
     try:
         tooth_1(tmp, tickets)

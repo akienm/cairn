@@ -107,7 +107,8 @@ def _hollow_run(args) -> int:
     # --proof IS A PREDICTION AND SEALS NOTHING (ticket fb47d26f7a43). It names the instrument
     # by hand, before any crossing does; a seal lands only from the proofs the crossing named,
     # so the two together are refused before anything runs, by name.
-    if args.proof and args.seal:
+    proofs = getattr(args, "proof", None) or []   # a caller's hand-built Namespace may omit it
+    if proofs and args.seal:
         print("cairn test --hollow --proof is a prediction and seals nothing; it cannot honour "
               "--seal. A hollow reading lands only from the proofs the ticket's crossing named: "
               "cross PROVEME with --proven-by, then run --hollow <ticket> --seal.", file=sys.stderr)
@@ -115,7 +116,7 @@ def _hollow_run(args) -> int:
     try:
         finding = measure(args.hollow, repo_root=REPO_ROOT, timeout=args.timeout,
                           log=(lambda m: None) if args.quiet else print,
-                          proofs=[str(Path(p).resolve()) for p in args.proof] or None)
+                          proofs=[str(Path(p).resolve()) for p in proofs] or None)
     except HollowUnmeasurable as why:
         # LAW 3'S DISTINCTION AT THE SURFACE: "the measurement could not be taken" exits 2,
         # the same code discover() uses for "nothing to run", and never 0. A run that could

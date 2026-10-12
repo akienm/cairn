@@ -2902,6 +2902,18 @@ def ticket_model(doc: dict) -> str:
     return folded or DEFAULT_TICKET_MODEL
 
 
+def _sorted_builder_check(doc: dict) -> str:
+    """The sorted berth's ``answers.builder_check``, or '' when the berth, the field or its text
+    is missing — the berth was already judged by ``_berth_lacks``, so nothing here refuses."""
+    try:
+        berth = json.loads(Path(str(doc.get("sorted_berth") or "")).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    ans = berth.get("answers") if isinstance(berth, dict) else None
+    check = ans.get("builder_check") if isinstance(ans, dict) else None
+    return check if isinstance(check, str) and check.strip() else ""
+
+
 def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Path:
     """Cast ``doc`` into the store as ``<tickets_dir>/<id>-<slug>.json``, or refuse it
     with every lack named. Returns the path written.
@@ -2910,9 +2922,11 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     one — the artifact door then journals under whichever root ``set_diagnostic_roots``
     says that directory belongs to.
 
-    Touches no key of ``doc`` but ``cast`` and ``model``: ``cast`` it stamps with today's ISO
-    date only when absent (a caster that already dated the cast keeps its date), and ``model``
-    it stamps ``'opus'`` when absent, or folds to the table's spelling (ticket 2cee2c5e8478)."""
+    Touches no key of ``doc`` but ``cast``, ``model`` and ``decisions``: ``cast`` it stamps with
+    today's ISO date only when absent (a caster that already dated the cast keeps its date),
+    ``model`` it stamps ``'opus'`` when absent, or folds to the table's spelling (ticket
+    2cee2c5e8478), and ``decisions`` it seeds with the sorted builder_check only when the doc
+    carries none (ticket 0dbc830e58d2)."""
     if not isinstance(doc, dict):
         raise CastRefused(["the cast is not a JSON object"])
     tickets_dir = _TICKETS if tickets_dir is None else Path(tickets_dir)
@@ -2977,6 +2991,18 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
         doc["cast"] = datetime.now().date().isoformat()
     if _blank(doc.get("model")):
         doc["model"] = DEFAULT_TICKET_MODEL
+    # (f) THE CAST'S OWN ANSWERS SEED THE DECISIONS (ticket 0dbc830e58d2). /sorted already
+    # answered the builder's questions in builder_check, but they rode the ticket only as notes
+    # the rehearsal reader ties to no step, so its first pass rediscovered them as gaps — peer
+    # F35 measured 40 of one cause on 80518446bfc8. One D1, verbatim (open-c3c6a660608e), and
+    # only when the doc carries no decisions: a caster's own decisions are never touched.
+    if doc.get("decisions") in (None, []):
+        check = _sorted_builder_check(doc)
+        if check:
+            from datetime import timezone
+            doc["decisions"] = [{"n": 1, "text": f"D1 (the /sorted builder_check): {check}",
+                                 "by": actor, "step": "cast", "source": "sorted",
+                                 "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}]
     from cairn.tools.artifact import artifact as door
     body = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
     door.write(target, body, verb="cast",

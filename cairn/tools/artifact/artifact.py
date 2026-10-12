@@ -163,17 +163,16 @@ def journal_path(root: Path) -> Path:
 
 
 def classify(cgroup: str | None) -> dict:
-    """The caller class from a cgroup path. Pure, so a proof can pin it over text."""
-    leaf = (cgroup or "").rstrip("/").rsplit("/", 1)[-1]
-    if _GATE.match(leaf):
-        cls, unit = "gate", leaf
-    elif _CC.match(leaf):
-        cls, unit = "cc", leaf
-    elif _AKIEN.match(leaf):
-        cls, unit = "akien", leaf
-    else:
-        cls, unit = "unknown", None
-    return {"class": cls, "cgroup": cgroup, "unit": unit}
+    """The caller class from a cgroup path. Pure, so a proof can pin it over text.
+
+    The segments are walked from the leaf outward and the innermost class-naming one
+    decides, so a scope a terminal nests per tab (Konsole's ``tab(N).scope``) reads as
+    the terminal that holds it (ticket b63f5bbbef89)."""
+    for seg in reversed((cgroup or "").rstrip("/").split("/")):
+        for cls, pat in (("gate", _GATE), ("cc", _CC), ("akien", _AKIEN)):
+            if pat.match(seg):
+                return {"class": cls, "cgroup": cgroup, "unit": seg}
+    return {"class": "unknown", "cgroup": cgroup, "unit": None}
 
 
 def _ppid(pid: int) -> int | None:

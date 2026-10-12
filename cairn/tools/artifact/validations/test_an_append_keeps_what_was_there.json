@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_an_append_keeps_what_was_there.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-11T21:31:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-12T17:47:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_cast_and_a_non_list_record_are_not_judged"
       ],
       "teeth_red": [],
-      "test": "test-d007b4c9119b",
+      "test": "test-10925a4c52b3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,14 +34,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d007b4c9119b",
-      "source_fingerprint": "6088cb6d7724ed86a80c508d871375515b114a76e86fa0cb275b29024c671de1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10925a4c52b3",
+      "source_fingerprint": "a213df5b779ad6b154ef52fff48f686e761ab65501d8d272e748fe0aab3d4e52",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -49,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1760998-roxgc5nh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2153577-anghgpgz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,26 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107353350,
-          "disk_bytes": 131387392,
-          "entries": 9754,
+          "bytes": 107921500,
+          "disk_bytes": 132820992,
+          "entries": 10045,
           "builds": 1,
           "reuses": 4
-        }
-      },
-      "hollow": {
-        "a742af217819": {
-          "cairn/tools/artifact/artifact.py": [
-            "test_an_append_that_drops_or_edits_an_entry_is_refused"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a742af217819": {
-          "anchor_rule": "journal",
-          "anchor_journal": "dbb976efe94bc48ebbd22bf6066796905324658f",
-          "anchor_first_build": "d8deb253a721cd55789d2d51a850172736061a82",
-          "commit": "dbb976efe94bc48ebbd22bf6066796905324658f"
         }
       }
     },

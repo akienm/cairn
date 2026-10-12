@@ -30,11 +30,8 @@ Teeth a hollow build could not pass:
 """
 from __future__ import annotations
 
-import atexit
 import json
-import shutil
 import sys
-import tempfile
 from functools import cache
 from pathlib import Path
 
@@ -43,6 +40,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import watchme_spec as ws
+from cairn.tools.scratch.scratch import scratch_dir
 
 PROVES = {"8e37bf2be2dc": {
     "1": "test_a_ticket_off_rest_with_an_ARMED_probe_stands",
@@ -81,8 +79,7 @@ def _ticket(here: str, probe: str) -> tuple[dict, dict]:
 
 @cache
 def _root() -> Path:
-    root = Path(tempfile.mkdtemp(prefix="stands-watch-fixture-probes-"))
-    atexit.register(shutil.rmtree, root, True)
+    root = scratch_dir("stands-watch-fixture-probes-")
     (root / "armed.py").write_text(_ARMED, encoding="utf-8")
     (root / "unarmed.py").write_text(_UNARMED, encoding="utf-8")
     return root

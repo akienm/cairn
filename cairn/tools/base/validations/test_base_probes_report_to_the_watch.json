@@ -2,7 +2,7 @@
   {
     "claim": "proof test_base_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T15:21:15",
+    "date": "2026-10-12T17:49:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,14 +17,19 @@
         "test_base_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-a3bf3ee63d48",
+      "test": "test-1fe8b90fe51e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 4,
+        "tables": [
+          "bus_proc_2154674_1748007292_delivery",
+          "bus_proc_2154674_1748007292",
+          "bus_proc_2154735_1748033163_delivery",
+          "bus_proc_2154735_1748033163"
+        ]
       },
       "conditions": {
         "proof": "56f8e5a8ae7c8ca62e5c2699d1b6b4d2be2d23ec82a8b2f07396dc3b467da02e",
@@ -41,12 +46,50 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a3bf3ee63d48",
-      "source_fingerprint": "7386cb53151e66e45f6f7734ede754e8c2e136641963f240f0d5cf9c96b4b8df",
-      "fingerprint_closure_absent": "the tree moved under the run — sealed against the pre-run directory hash, so this seal reads expired until the proof is re-run",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1fe8b90fe51e",
+      "source_fingerprint": "1e4b44ba92836059aef7dd444966fd0b3e46cedc30d752932b22880ad89acafc",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/cast.py",
+        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/deviceness.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/probes/__init__.py",
+        "cairn/tools/base/probes/a_pickup_is_witnessed.py",
+        "cairn/tools/base/probes/an_emission_is_one_file_named_by_its_pointer.py",
+        "cairn/tools/base/probes/are_crossing_fingerprints_verified.py",
+        "cairn/tools/base/probes/bounce_returns_to_sender.py",
+        "cairn/tools/base/probes/device_claims_match_shims.py",
+        "cairn/tools/base/probes/does_optional_mean_never_carried.py",
+        "cairn/tools/base/probes/does_the_bounce_blame_the_right_party.py",
+        "cairn/tools/base/probes/does_the_gradation_find_a_reader.py",
+        "cairn/tools/base/probes/does_the_mail_lane_get_worked.py",
+        "cairn/tools/base/probes/every_boundary_crossing_lands_in_the_logs_tree.py",
+        "cairn/tools/base/probes/hand_spelled_instance_paths.py",
+        "cairn/tools/base/probes/no_component_reaches_proved_with_an_uncharted_build.py",
+        "cairn/tools/base/probes/no_ticket_carries_a_stored_chart_chain.py",
+        "cairn/tools/base/probes/no_ticket_carries_a_stored_crossing.py",
+        "cairn/tools/base/probes/the_casting_door_has_callers.py",
+        "cairn/tools/base/probes/the_durability_lane_refuses.py",
+        "cairn/tools/base/probes/the_seed_versus_living_delta.py",
+        "cairn/tools/base/probes/the_ticket_write_door_has_callers.py",
+        "cairn/tools/base/probes/the_vocabulary_is_written_not_just_legal.py",
+        "cairn/tools/base/probes/unchartered_build_edits.py",
+        "cairn/tools/base/proofs/test_base_probes_report_to_the_watch.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/watchme_spec.py"
+      ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2063191-nlaw7j2u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2154871-39hsdlwn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,11 +98,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107904922,
-          "disk_bytes": 132685824,
-          "entries": 10002,
+          "bytes": 107926551,
+          "disk_bytes": 132841472,
+          "entries": 10049,
           "builds": 1,
-          "reuses": 6
+          "reuses": 0
         }
       }
     },

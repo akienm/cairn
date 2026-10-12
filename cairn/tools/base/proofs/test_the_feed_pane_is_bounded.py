@@ -55,9 +55,13 @@ class _Bus:
             self.rows = [{"sender": "proof", "date": "2026-10-10T00:00:00", "body": b}
                          for b in bodies]
 
-    def read(self, *, to=None, channel=None, reply_to=None):
+    def read(self, *, to=None, channel=None, reply_to=None, limit=None):
         assert channel == "personal", channel
-        return list(self.rows)
+        return list(self.rows) if limit is None else self.rows[-limit:] if limit > 0 else []
+
+    def count(self, *, to=None, channel=None, reply_to=None):
+        assert channel == "personal", channel
+        return len(self.rows)
 
 
 def _pane(n: int, bodies: list | None = None) -> dict:

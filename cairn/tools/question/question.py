@@ -250,6 +250,28 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
     return record
 
 
+def note(qid: str, text: str, *, by: str, root: Path | str | None = None) -> dict:
+    """Append a note — a measurement taken while the question stands open — to its ``notes``
+    list (db99e97f7b4f). A note is not an answer: it resolves nothing. Refused on an answered
+    question, on empty text, and on an empty ``by``; a refusal writes nothing."""
+    lacks = []
+    if not (isinstance(text, str) and text.strip()):
+        lacks.append("the note's text is empty")
+    if not (isinstance(by, str) and by.strip()):
+        lacks.append("by: a note names who took it")
+    if lacks:
+        raise Refused("note refused — " + "; ".join(lacks))
+    record = read(qid, root)
+    if record.get("resolved"):
+        raise Refused(f"note refused — {record['id']} is already answered "
+                      f"({record.get('answered_at')}); a measurement after the answer is a new question")
+    record["notes"] = list(record.get("notes") or []) + [
+        {"text": text.strip(), "by": by.strip(), "at": _now()}]
+    _write(_path(record["id"], root), record, verb="cast",
+           why=f"note on {record['id']} by {by.strip()}")
+    return record
+
+
 def rebind(ticket: str, root: Path | str | None = None) -> list[dict]:
     """Move every question bound to the ticket's intent berth path onto the ticket id, and
     write the ticket-side end for each. Fired at /sorted step 5, once the ticket file exists
@@ -332,6 +354,8 @@ def render(records: list[dict]) -> str:
         lines.append(f"{head}  {q.get('question', '')}")
         if q.get("born_of"):
             lines.append(f"{' ' * len(head)}  born of {q['born_of']}")
+        for n in q.get("notes") or []:
+            lines.append(f"{' ' * len(head)}  note {n.get('at')} ({n.get('by')}): {n.get('text')}")
         if q.get("resolved"):
             lines.append(f"{' ' * len(head)}  answered {q.get('answered_at')}: {q.get('answer')}")
     return "\n".join(lines)

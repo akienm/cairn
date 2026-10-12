@@ -183,7 +183,7 @@ def test_a_heredoc_fed_to_a_shell_is_still_judged():
     for command in [
         "bash <<'EOF'\nrm -rf ~/.cairn\nEOF",
         "sh <<EOF\nrm -rf ~/.cairn/logs\nEOF",
-        "python3 - <<'EOF'\nimport os; os.system('rm -rf ~/.cairn/logs')\nEOF",
+        "python3 - <<'EOF'\nimport os\nos.system('cd ~ && rm -rf ~/.cairn/logs')\nEOF",
         "cat <<'EOF' | bash\nrm -rf ~/.cairn/logs\nEOF",
         "cat <<'EOF'\nrm -rf ~/.cairn/logs",
     ]:

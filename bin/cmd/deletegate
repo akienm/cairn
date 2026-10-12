@@ -53,6 +53,17 @@ here-documents and ``eval`` has become a thing that can be wrong in ways nobody 
 against a cost of one retype. Recorded here so the next mind meeting a puzzling refusal
 reads a measured property rather than a bug, and knows the answer is to split the command.
 
+ONE NARROWING, MEASURED (ticket 76d35575aead): the body of a DATA here-document is not read
+as a command. Measured 2026-10-08, n>=5 — an append to a ``~/.cairn`` note whose prose said
+"rm" was refused by co-occurrence, every time a mind wrote down what a delete had done. A
+here-document is data when the segment holding its ``<<`` starts with ``cat`` or ``tee`` and
+nothing after the heredoc word on that line pipes onward; its body (through the terminator)
+is dropped before the two questions are asked, and the command line itself always stays. A
+here-document fed to anything else — ``bash``, ``sh``, ``python3``, a ``cat`` piped onward —
+is judged exactly as before, and so is one with no terminator. The trade is unchanged in
+kind: a script written by a ``cat`` here-document and run later was never seen by this gate
+(a script file's text is not the command), and stripping the body does not widen that.
+
 Contract, measured 2026-08-18 rather than assumed: stdin is JSON carrying ``tool_name``
 and ``tool_input.command``; exit 0 allows, exit 2 blocks and feeds stderr back to Claude.
 Registered at ``.claude/settings.json`` under ``hooks.PreToolUse`` with matcher ``Bash``.
@@ -107,11 +118,44 @@ including a 54-record archive that was kept on purpose. If it is genuinely wrong
 that is a finding worth recording rather than a flag worth adding — say so to Akien."""
 
 
+_HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)\s*(['\"]?)(\w+)\2")
+_DATA_WRITERS = ("cat", "tee")
+
+
+def _strip_data_heredocs(command: str) -> str:
+    """The command with every data here-document's body removed (76d35575aead).
+
+    A heredoc is data when the first word of the segment holding its ``<<`` (the text before
+    it, after the last ``;`` ``&`` ``|`` or ``(`` on that line) is ``cat`` or ``tee`` and the
+    rest of that line carries no ``|``. Its body lines through the terminator (the line equal
+    to the word, leading tabs stripped for ``<<-``) are dropped; with no terminator, nothing
+    is. The line carrying the ``<<`` is always kept."""
+    lines = command.split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        line = lines[i]
+        out.append(line)
+        i += 1
+        m = _HEREDOC.search(line)
+        if not m:
+            continue
+        segment = re.split(r"[;&|(]", line[:m.start()])[-1].split()
+        if not segment or segment[0] not in _DATA_WRITERS or "|" in line[m.end():]:
+            continue
+        word, tabs = m.group(3), m.group(1) == "-"
+        end = next((j for j in range(i, len(lines))
+                    if (lines[j].lstrip("\t") if tabs else lines[j]) == word), None)
+        if end is not None:
+            i = end + 1
+    return "\n".join(out)
+
+
 def verdict(command: str) -> str | None:
     """``None`` to allow; the refusal text to block. The whole judgement, one function,
     so the proof measures what the hook does rather than something shaped like it."""
     if not command:
         return None
+    original, command = command, _strip_data_heredocs(command)
     if not DESTRUCTIVE.search(command):
         return None
     if not any(form in command for form in GUARDED_FORMS):
@@ -120,7 +164,7 @@ def verdict(command: str) -> str | None:
     # is a wall. Read as a substring of the command because that is how it will be typed.
     if "cmd/trash" in command or "bin/cmd/trash" in command:
         return None
-    return REFUSAL.format(command=command.strip()[:400])
+    return REFUSAL.format(command=original.strip()[:400])
 
 
 def _main() -> int:

@@ -27,6 +27,7 @@ Claude. Registered at ``.claude/settings.json`` under ``hooks.PreToolUse``.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -38,7 +39,8 @@ from cairn.tools.artifact import artifact as door  # noqa: E402
 
 # The co-occurrence verbs. A shell REDIRECT is not here: `cat <record> > /tmp/x` is a read,
 # and ``>`` beside a record path is the commonest honest shape — so a redirect refuses
-# only when its TARGET is a record (``_redirect_re``), measured against the text after it.
+# only when its TARGET is a record, judged where it LANDS (``_redirect_lands_on_a_record``,
+# ticket a55a82b351c6): the command's effective directory, asked of the door's ``locate()``.
 WRITE_VERBS = re.compile(
     r"\btee\b|\bsed\s+-[a-zA-Z]*i|(?:^|[\s;&|(])(?:cp|mv|rm|truncate)\b"
     r"|write_text\(|write_bytes\(|json\.dump\(|open\([^)]*[\"'][wa][\"']"
@@ -84,8 +86,32 @@ def _record_re() -> re.Pattern:
     return re.compile("(?:" + "|".join(alts) + r")(?=$|[\s'\";:|&)>])")
 
 
-def _redirect_re() -> re.Pattern:
-    return re.compile(r">>?\s*['\"]?[^\s'\"]*" + _record_re().pattern)
+_LEADING_CD = re.compile(r"^\s*cd\s+(\S+)\s*(?:&&|;)")
+_REDIRECT = re.compile(r"(?<![<0-9&])>>?\s*(?!&)['\"]?([^\s'\";&|)<>]+)")
+
+
+def _base(cmd: str, tool_input: dict) -> Path:
+    """The directory a redirect in ``cmd`` lands relative to: a leading ``cd X &&|;``, else
+    the hook's cwd, else this process's (a55a82b351c6). A relative base resolves against
+    the cwd."""
+    cwd = Path(tool_input.get("cwd") or os.getcwd())
+    m = _LEADING_CD.match(cmd)
+    if not m:
+        return cwd
+    d = Path(os.path.expandvars(os.path.expanduser(m.group(1).strip("'\""))))
+    return d if d.is_absolute() else cwd / d
+
+
+def _redirect_lands_on_a_record(cmd: str, tool_input: dict) -> str | None:
+    """The first redirect target in ``cmd`` that the door's ``locate()`` names a record, or
+    ``None`` — the same question the Edit/Write branch asks, asked of where ``>`` lands."""
+    base = _base(cmd, tool_input)
+    for m in _REDIRECT.finditer(cmd):
+        target = Path(os.path.expandvars(os.path.expanduser(m.group(1))))
+        landing = (target if target.is_absolute() else base / target).resolve()
+        if door.locate(str(landing)) is not None:
+            return str(landing)
+    return None
 
 
 def verdict(tool_name: str, tool_input: dict) -> str | None:
@@ -100,9 +126,11 @@ def verdict(tool_name: str, tool_input: dict) -> str | None:
         cmd = tool_input.get("command") or ""
         if not cmd or any(f in cmd for f in DOOR_FORMS):
             return None
+        if _redirect_lands_on_a_record(cmd, tool_input) is not None:
+            return REFUSAL.format(what=f"blocked: Bash: {cmd.strip()[:300]}")
         if not _record_re().search(cmd):
             return None
-        if not WRITE_VERBS.search(cmd) and not _redirect_re().search(cmd):
+        if not WRITE_VERBS.search(cmd):
             return None
         return REFUSAL.format(what=f"blocked: Bash: {cmd.strip()[:300]}")
     return None
@@ -115,7 +143,10 @@ def _main() -> int:
         print("artifactgate: could not read the hook payload as JSON — allowing, unguarded",
               file=sys.stderr)
         return 0
-    refusal = verdict(payload.get("tool_name", ""), payload.get("tool_input") or {})
+    tool_input = dict(payload.get("tool_input") or {})
+    if payload.get("cwd") and not tool_input.get("cwd"):
+        tool_input["cwd"] = payload["cwd"]
+    refusal = verdict(payload.get("tool_name", ""), tool_input)
     if refusal is None:
         return 0
     print(refusal, file=sys.stderr)

@@ -7,7 +7,8 @@ question.py; this file only parses and prints.
   cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
   cairn question answer <qid> "<the finding>" --measured <record> --spawned none
                                                    a measurement settles it (Law 9); never recorded as his
-  cairn question rebind <ticket-id>                questions bound to the ticket's intent berth → the id
+  cairn question note <qid> "<text>" --by <who>    a measurement on an OPEN question; resolves nothing
+  cairn question rebind <ticket-id>               questions bound to the ticket's intent berth → the id
   cairn question list [<ticket>]                   open questions (all), or one ticket's whole tree
   cairn question show <qid>
 
@@ -48,6 +49,10 @@ def main(argv: list[str] | None = None) -> int:
                    help="'none', or a question this answer bore (repeatable); required")
     a.add_argument("--measured", help="the record on disk that settles it — answered_by reads "
                    "'measurement: <record>', never Akien")
+    n = sub.add_parser("note")
+    n.add_argument("qid")
+    n.add_argument("text")
+    n.add_argument("--by", required=True)
     rb = sub.add_parser("rebind")
     rb.add_argument("ticket")
     ls = sub.add_parser("list")
@@ -75,6 +80,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  spawned: {f}")
             if not rec["spawned"]:
                 print("  spawned: none")
+            return 0
+        if args.verb == "note":
+            rec = Q.note(args.qid, args.text, by=args.by)
+            print(f"noted: {rec['id']} ({len(rec['notes'])} note(s))")
             return 0
         if args.verb == "rebind":
             recs = Q.rebind(args.ticket)

@@ -3728,7 +3728,10 @@ def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
     a rehsersal pass be counted like a testing pass?"*). For each declared runner whose component
     is this row's, drive its failure path on purpose — its own public CLI verb, under a scratch
     dir (RULE 1: never an import of its code) — and glob its trail there. No trail, or a drive
-    that cannot be run, is one finding. Measured by running, never by reading code."""
+    that cannot be run, is one finding. Measured by running, never by reading code.
+
+    Provenance: 2026-10-11, ticket ba4166fe51c4 (a-failed-run-is-counted). Measured 2026-09-29 on
+    cd8096f9eeca: two rehearsal passes refused with exit 2 wrote no record and did not count."""
     import subprocess  # local, as in _git: the sieve's only reach is the runner's own verb
     from cairn.tools.scratch.scratch import scratch_dir
     findings = []

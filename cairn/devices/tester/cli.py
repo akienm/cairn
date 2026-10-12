@@ -149,16 +149,12 @@ def _hollow_run(args) -> int:
             nid = notices.post(finding["ticket"], f, diff)
             reading[f] = {"notified": nid}
             print(f"  NOTIFIED {f} -> {nid} (operator inbox: the tester's notices verb)")
-        # AN APPROVED PROOFS-ONLY BUILD IS SEALED AS APPROVED, AND ONE NOT YET APPROVED ASKS
-        # (ticket f5bba1daa72a, 8p). harbor_master reads {"approved": qid} as covered only on
-        # re-reading the question (ec4ca415f43d).
-        from cairn.devices.tester import hollow
-        for f, qid in sorted(finding.get("approved", {}).items()):
-            reading[f] = {"approved": qid}
-            print(f"  APPROVED {f} -> {qid} (Akien's answer, recorded as the proving)")
-        if finding.get("approval_wanted"):
-            qid = hollow.ask_for_approval(finding["ticket"], finding["approval_wanted"])
-            print(f"  ASKED Akien -> {qid} (cairn question list): once answered, re-run --seal")
+        # A PROOFS-ONLY BUILD ITS PLAN NAMES IS SEALED AS APPROVED BY THE PLAN (ticket
+        # bf1cd5d79805). harbor_master reads {"approved": "plan"} as covered only on re-reading
+        # the plan's writes_to; nothing here asks a question.
+        for f, by in sorted(finding.get("approved", {}).items()):
+            reading[f] = {"approved": by}
+            print(f"  APPROVED {f} -> {by} (the ticket plan names it)")
         persisted = 0
         # THE SEAL THAT COMPLETES THE RECORD IS THE ONE CODEMOTHER MUST HEAR (ticket
         # 9bdbeeaa1f8b). The reading can only be taken AFTER a seal stands, so the sealing

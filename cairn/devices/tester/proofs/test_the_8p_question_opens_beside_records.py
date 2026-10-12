@@ -12,6 +12,12 @@ become the escape hatch hollow.py's own comment warns about:
   (2) record skips only, no instrument -> red, never asked;
   (3) any unchanged file or any other skip reason beside them -> red, never asked.
 
+RE-POINTED 2026-10-11 BY bf1cd5d79805: the per-build question retired, and the ticket's plan is
+the approval. The widening stands and so do its edges, read against a plan whose writes_to
+names every file: (1) instrument + record skips are approved "plan", green, nothing asked;
+(2) and (3) stay red and ask nothing even though the plan names every file — the plan approves
+only a build the instrument rule already admits.
+
 Fixtures are f5bba1daa72a's (test_the_tester_records_an_approved_proofs_only_build.py), loaded the
 way it loads test_the_hollow_skips_only_the_instrument.py. The record path need not exist:
 ``_classify`` skips a record before the existence check. Every tooth imports the tester's modules
@@ -33,7 +39,7 @@ from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: 
 
 PROVES = {
     "af394c12b62a": {
-        "1": "test_instrument_and_record_skips_open_the_8p_question",
+        "1": "test_instrument_and_record_skips_are_approved_by_the_plan",
         "2": "test_record_skips_alone_stay_red_and_ask_nothing",
         "3": "test_an_unchanged_file_or_another_skip_beside_them_stays_red",
     },
@@ -57,59 +63,51 @@ RECORD = "validations/test_fixture.json"
 
 def _world(writes_to: list[str]):
     """f5bba's instrument-only build (the instrument and its import touched), with the writes_to
-    the tooth names."""
+    the tooth names — in the decompose berth AND in the ticket's plan, so every edge is read
+    against a plan that names every file."""
     repo, commons, berths, _ = sk._fixture(
         {INSTRUMENT: sk._PROOF_SRC + "# touched\n", HELPER: sk._HELPER_SRC + "# touched\n"},
         writes_to, subject0=sk._SUBJECT_CLEAN)
     (commons / "questions").mkdir()
+    ap._plan(commons, list(writes_to))
     return repo, commons, berths
 
 
 def _asks_nothing(repo, commons, berths, label):
     rc, sealed, out = ap._run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
     assert rc in (1, 2), (label, rc, out)  # 1 red, 2 unmeasurable; never 0
-    asked = [q for q in ap._questions(commons) if q.get("raised_by") == "tester"]
-    assert not asked, (label, asked)
+    assert ap._asked(commons) == [], (label, ap._asked(commons))
     assert not any(isinstance(r, dict) and "approved" in r for r in sealed.values()), (label, sealed)
 
 
-def test_instrument_and_record_skips_open_the_8p_question():
-    """writes_to = the instrument, its import and the build's own validation record. With no
-    answer, --seal opens exactly one question raised by the tester naming the instrument; with
-    an Akien-answered question naming the instrument the run is green and approved covers every
-    skipped file, the record included."""
+def test_instrument_and_record_skips_are_approved_by_the_plan():
+    """writes_to = the instrument, its import and the build's own validation record, and the plan
+    names all three: the run is green, approved is "plan" on every skipped file, the record
+    included, --seal records each as {"approved": "plan"}, and no question is opened."""
     from cairn.devices.tester.hollow import SKIP_INSTRUMENT, SKIP_RECORD
     repo, commons, berths = _world([INSTRUMENT, HELPER, RECORD])
     f = ap._measure(repo, commons, berths)
     skips = {s["file"]: s["why"] for s in f["skipped"]}
     assert skips.get(RECORD) == SKIP_RECORD and skips.get(INSTRUMENT) == SKIP_INSTRUMENT, skips
     assert not f["measured"] and not f["unchanged"], (f["measured"], f["unchanged"])
-    assert sorted(f.get("approval_wanted") or []) == sorted([INSTRUMENT, HELPER, RECORD]), \
-        (f.get("approval_wanted"), f["reasons"])
-    rc, sealed, out = ap._run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
-    asked = ap._questions(commons)
-    assert rc == 1, out
-    assert len(asked) == 1, asked
-    q = asked[0]
-    assert q["ticket"] == FIXTURE and not q["resolved"] and q["raised_by"] == "tester", q
-    assert INSTRUMENT in q["question"] and q["question"].endswith("?"), q["question"]
-
-    repo, commons, berths = _world([INSTRUMENT, HELPER, RECORD])
-    qid = ap._question(commons, "open-f1x7a99e0801")
-    f = ap._measure(repo, commons, berths)
-    assert f.get("approved") == {INSTRUMENT: qid, HELPER: qid, RECORD: qid}, (f.get("approved"), f["reasons"])
+    assert f.get("approved") == {INSTRUMENT: "plan", HELPER: "plan", RECORD: "plan"}, \
+        (f.get("approved"), f["reasons"])
     assert f["verdict"] == "green", f["reasons"]
+    rc, sealed, out = ap._run_cli(repo, commons, berths, ["--hollow", FIXTURE, "--seal", "-q"])
+    assert rc == 0, out
+    assert all(sealed.get(x) == {"approved": "plan"} for x in (INSTRUMENT, HELPER, RECORD)), sealed
+    assert ap._asked(commons) == [], ap._asked(commons)
 
 
 def test_record_skips_alone_stay_red_and_ask_nothing():
     """writes_to = the validation record only: verdict red 'measured nothing', nothing approved
-    or wanted even with an Akien answer naming the record, and --seal opens no question."""
+    even with a plan and an Akien answer naming the record, and --seal opens no question."""
     from cairn.devices.tester.hollow import SKIP_INSTRUMENT, SKIP_RECORD
     repo, commons, berths = _world([RECORD])
     ap._question(commons, "open-f1x7a99e0802", names=RECORD)
     f = ap._measure(repo, commons, berths)
     assert [s["why"] for s in f["skipped"]] == [SKIP_RECORD], f["skipped"]
-    assert not f.get("approved") and not f.get("approval_wanted"), (f.get("approved"), f.get("approval_wanted"))
+    assert not f.get("approved"), f.get("approved")
     assert any("measured nothing" in r for r in f["reasons"]), f["reasons"]
     assert f["verdict"] == "red", f["verdict"]
     repo, commons, berths = _world([RECORD])
@@ -119,7 +117,7 @@ def test_record_skips_alone_stay_red_and_ask_nothing():
 def test_an_unchanged_file_or_another_skip_beside_them_stays_red():
     """Instrument + record beside an absent gone.py (another skip reason), and separately
     beside a writes_to file the build never touched (unchanged): each red, nothing approved,
-    nothing asked, even with an Akien answer naming the instrument.
+    nothing asked, even with a plan naming every file and an Akien answer naming the instrument.
 
     The unchanged case has two red shapes, and either holds the edge. MEASURED 2026-10-07: when
     the untouched file is the only eligible one, the anchor refusal fires before the 8p branch
@@ -143,7 +141,7 @@ def test_an_unchanged_file_or_another_skip_beside_them_stays_red():
             skips = {s["file"]: s["why"] for s in f["skipped"]}
             assert extra in skips and skips[extra] not in (SKIP_INSTRUMENT, SKIP_RECORD), (label, skips)
         if f is not None:
-            assert not f.get("approved") and not f.get("approval_wanted"), (label, f.get("approved"))
+            assert not f.get("approved"), (label, f.get("approved"))
             assert f["verdict"] == "red", (label, f["reasons"])
         repo, commons, berths = _world([INSTRUMENT, HELPER, RECORD, extra])
         _asks_nothing(repo, commons, berths, label)

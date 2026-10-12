@@ -746,13 +746,17 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None,
                     if isinstance(r, dict) and isinstance(r.get("notified"), str)
                     and r["notified"].strip()}
         # AN APPROVED FILE IS COVERED ONLY ON RE-READ (ticket ec4ca415f43d, ruling 8p). The
-        # tester seals a proofs-only build Akien approved as {"approved": <qid>}; this rung
-        # does not take its word — the question must resolve, be bound to this ticket, and
-        # carry his answer. Anything else is its own lack, never folded into unreadable.
+        # tester seals a proofs-only build its plan names as {"approved": "plan"} (ticket
+        # bf1cd5d79805): this rung re-reads the plan, and the file must be an element of the
+        # ticket's writes_to. An older {"approved": <qid>} still re-reads the question — it must
+        # resolve, be bound to this ticket, and carry his answer. Anything else is its own lack,
+        # never folded into unreadable.
         approved = {f: r["approved"] for f, r in reading.items()
                     if isinstance(r, dict) and "approved" in r}
-        unresolved = sorted(f for f, qid in approved.items()
-                            if not _approval_holds(tid, qid, question_root))
+        named = ticket.get("writes_to") if isinstance(ticket.get("writes_to"), list) else []
+        unresolved = sorted(f for f, by in approved.items()
+                            if not (f in named if by == "plan"
+                                    else _approval_holds(tid, by, question_root)))
         if unresolved:
             out.append(_lack(
                 tid, "hollow_approval_unresolved",

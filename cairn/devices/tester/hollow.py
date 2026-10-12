@@ -709,48 +709,20 @@ def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) ->
     return list(dict.fromkeys(out)), skips
 
 
-ASKER = "tester"  # raised_by on the question this device opens (ticket f5bba1daa72a)
+def approval(ticket: dict, files: list[str]) -> str | None:
+    """``'plan'`` when this ticket's plan names every skipped file of a proofs-only build, else None.
 
-
-def approval(tid: str, files: list[str], root: Path) -> str | None:
-    """The id of Akien's answered question approving this ticket's proofs-only build, or None.
-
-    RULING 8p (Akien, 2026-10-06): "and then i say it's approved and it then is proved. at that
-    point the tester records that proving." A build that wrote only its own proofs leaves the
-    hollow nothing to revert, so his answer IS the measurement (Law 10). It counts only when the
-    question is bound to the ticket, names one of the skipped files, and was answered by him —
-    the same judge rung 4 uses (``reseal.ruling_refusal``), read through the question tool's
-    public interface under ``root``, so a fixture's commons never reads the live store.
+    THE PLAN IS THE APPROVAL (ticket bf1cd5d79805). Akien approves a ticket's plan before it
+    is built; a build that wrote only the proofs its plan named has nothing left for him to
+    approve, so asking him again per build was a second gate on a decision already made. A file
+    is named when its repo-relative path is an element of the plan's top-level ``writes_to``
+    list — a field, never prose. A file the plan does not name stays red: the red is the record,
+    and no question is opened on any path.
     """
-    from cairn.tools.question import question as question_mod
-    from cairn.devices.tester.reseal import ruling_refusal
-
-    for q in question_mod.for_ticket(tid, root=root):
-        text = q.get("question") or ""
-        if any(f in text for f in files) and ruling_refusal(q.get("id") or "", question_root=root) is None:
-            return q["id"]
+    named = ticket.get("writes_to")
+    if isinstance(named, list) and files and all(f in named for f in files):
+        return "plan"
     return None
-
-
-def ask_for_approval(tid: str, files: list[str], root: Path | None = None) -> str:
-    """Ask Akien, once, to approve a proofs-only build; return the question's id.
-
-    "it's the tester that's asking me for a ruling" (8p). An open question this device already
-    raised on the ticket is the ask standing, so a second --seal opens none.
-    """
-    from cairn.tools.question import question as question_mod
-
-    for q in question_mod.open_for(tid, root=root):
-        if q.get("raised_by") == ASKER:
-            return q["id"]
-    q = question_mod.open_question(
-        tid,
-        f"May {tid} cross PROVED on your approval — its build wrote only its own proofs "
-        f"({', '.join(files)}), so the hollow can revert nothing and measure nothing?",
-        f"the hollow of {tid} reads red ('measured nothing') until the proof change is approved; "
-        f"the answer is recorded as the hollow reading (ruling 8p)",
-        raised_by=ASKER, root=root)
-    return q["id"]
 
 
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
@@ -1080,12 +1052,11 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             f"resolve the names this build ADDED at call time rather than binding them at "
             f"import, and keep the reverted world reachable enough to run")
     approved: dict[str, str] = {}
-    approval_wanted: list[str] = []
     if not measured:
-        # AN APPROVED PROOFS-ONLY BUILD IS MEASURED BY HIS WORD (ticket f5bba1daa72a, 8p). When
-        # every skip is the instrument and no file went unwritten, nothing here CAN be reverted;
-        # Akien's answer approving the proof change is the measurement. Every other empty run
-        # stays red, approval or not.
+        # AN APPROVED PROOFS-ONLY BUILD IS MEASURED BY ITS PLAN (ticket bf1cd5d79805, which
+        # retired f5bba1daa72a's per-build question). When every skip is the instrument and no
+        # file went unwritten, nothing here CAN be reverted; the plan naming those files is the
+        # approval. Every other empty run stays red, plan or not.
         #
         # RECORD SKIPS BESIDE THE INSTRUMENT ARE ADMITTED (ticket af394c12b62a, F19). An honest
         # writes_to lists the build's own validation record, and that is SKIP_RECORD, so the
@@ -1096,11 +1067,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         if only and not unchanged \
                 and all(s["why"] in (SKIP_INSTRUMENT, SKIP_RECORD) for s in skipped) \
                 and any(s["why"] == SKIP_INSTRUMENT for s in skipped):
-            qid = approval(tid, only, commons / "questions")
-            if qid:
-                approved = {f: qid for f in only}
-            else:
-                approval_wanted = only
+            if approval(ticket, only):
+                approved = {f: "plan" for f in only}
     if not measured and not approved:
         # THE SKIP LIST IS NOT AN ESCAPE HATCH. Every file skipped and none measured is a run
         # that proved nothing, and reporting it green would make "add it to the skip list" the
@@ -1115,7 +1083,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
             "unchanged": unchanged, "moved": moved,
-            "approved": approved, "approval_wanted": approval_wanted,
+            "approved": approved,
             "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
             "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,
             "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],

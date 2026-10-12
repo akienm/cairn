@@ -209,9 +209,9 @@ this step is built past.
 ## 4. Journal PROVEME, then seal
 
 Cross PROVEME through the chokepoint (the build gate fires there — a red is a
-finding to dispose, not to argue with), then seal under the tester
-(`TesterDevice().run_proof(path, caller=..., isolation="netns")`) and persist
-the validation beside the code.
+finding to dispose, not to argue with), then seal with `bin/cairn test --seal
+<proof>` — the tester's door, which persists the validation beside the code
+itself.
 
 ## 5. Live fire
 

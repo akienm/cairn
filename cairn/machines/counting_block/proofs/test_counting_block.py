@@ -110,6 +110,10 @@ class World:
         self.table = base / "table"
         self.store = self.roots["CairnCommons"] / "troubles"
         self.t = datetime.datetime(2026, 9, 17, 12, 0, 0, tzinfo=datetime.timezone.utc)
+        # The trouble lane's clears rows (ticket 0539e85f8b2d): what its 'clears' verb would
+        # answer. ``pulse`` hands the block an ask over this list, so no World pulse reaches
+        # the live bus.
+        self.clears: list[dict] = []
         door.set_diagnostic_roots(dict(self.roots))
 
     def close(self):
@@ -128,7 +132,15 @@ class World:
         return ModuleRaiser(block.COMPONENT, roots=self.iroots)
 
     def pulse(self):
-        return block.pulse(roots=self.roots, raiser=self.raiser(), where=self.table, now=self.t)
+        return block.pulse(roots=self.roots, raiser=self.raiser(), where=self.table, now=self.t,
+                           ask=lambda: {"body": {"clears": list(self.clears)}})
+
+    def clear(self, slug: str, hand_class: str, why: str):
+        """A clear as both records hold it: the journal's write, and the trouble's own row
+        naming the hand, stamped with the same ``at``."""
+        self.append("CairnCommons", f"troubles/{slug}.json", "clear", hand_class, why)
+        self.clears.append({"id": slug, "standing": "CLEARED", "by": hand_class,
+                            "hand_class": hand_class, "at": self.t.isoformat(timespec="seconds")})
 
     def table_doc(self):
         return json.loads((self.table / block.TABLE_FILE).read_text())
@@ -284,8 +296,8 @@ def an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not():
         w.append(*UNSEEN_1)
         assert len(w.pulse()["raised"]) == 1
         k1 = _key(*UNSEEN_1)
-        w.append("CairnCommons", f"troubles/{block.slug(ident)}.json", "clear", "akien",
-                 "Akien cleared it: a gate hand-editing state is how the reseal ladder lands")
+        w.clear(block.slug(ident), "akien",
+                "Akien cleared it: a gate hand-editing state is how the reseal ladder lands")
         out = w.pulse()
         assert out["raised"] == [], out
         doc = w.table_doc()
@@ -303,8 +315,7 @@ def an_akien_clearance_teaches_the_row_and_a_cc_clearance_does_not():
         assert len(out["raised"]) == 1
         ident2 = out["raised"][0]["identity"]
         k2 = _key(*UNSEEN_2)
-        w.append("CairnCommons", f"troubles/{block.slug(ident2)}.json", "clear", "cc",
-                 "cc cleared its own novelty")
+        w.clear(block.slug(ident2), "cc", "cc cleared its own novelty")
         out = w.pulse()
         assert out["raised"] == [], out
         doc = w.table_doc()

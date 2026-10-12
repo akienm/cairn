@@ -44,7 +44,10 @@ def _measure(context: dict) -> dict:
         "raises": len(table.get("raises", [])),
         "post_appends": int(table.get("post_appends", 0)),
         "windows": dict(table.get("windows", {})),
-        "increments": len(table.get("increments", [])),
+        # A pulse that could not reach the trouble lane writes increments "unknown" (0539e85f8b2d);
+        # it is carried as the word, never counted as its letters.
+        "increments": (len(table["increments"]) if isinstance(table.get("increments", []), list)
+                       else table["increments"]),
         "rows": len(table.get("rows", {})),
         "entries": sum(table.get("compiled_to", {}).values()),
         "raised": [{"triple": r["triple"], "at": r.get("at"), "disposition": r.get("disposition")}
@@ -106,7 +109,8 @@ def _enough(context: dict) -> bool:
         _measure(context)
     first, last = _rates(context)
     return (context["post_appends"] >= ENOUGH_APPENDS and first is not None
-            and last < first and context["increments"] >= 1)
+            and last < first and isinstance(context["increments"], int)
+            and context["increments"] >= 1)
 
 
 PROBE = Probe(

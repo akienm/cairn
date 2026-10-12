@@ -45,6 +45,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
@@ -131,8 +132,24 @@ def arming_index(seq: list[tuple[str, int, dict]]) -> int | None:
     return None
 
 
-def compile(journals: dict[str, list[dict]], rules: dict | None = None) -> dict:
-    """The table, from the journals alone. Pure: same journals, same bytes.
+def _when(at) -> datetime | None:
+    """An ``at`` as an aware datetime (naive reads as UTC), or None when it does not parse."""
+    try:
+        d = datetime.fromisoformat(str(at))
+    except (TypeError, ValueError):
+        return None
+    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
+def compile(journals: dict[str, list[dict]], rules: dict | None = None,
+            clears: list[dict] | None = None) -> dict:
+    """The table, from the journals and the trouble lane's clears. Pure: same inputs, same bytes.
+
+    ``clears`` are the rows the trouble device's ``clears`` verb answers — ``{id, standing, by,
+    hand_class, at}`` (ticket 0539e85f8b2d). WHOSE HAND CLEARED A TROUBLE IS THE TROUBLE'S OWN
+    RECORD, not the artifact journal's: the journal names the process that wrote the file, and
+    after the store leaves the commons (4ddc9df3369e) there is no journal entry to read at all.
+    Each row applies in time order, before the first journal entry later than it.
 
     Returns ``{rows, raises, increments, post_appends, windows, unclassed, armed, compiled_to}``
     where ``rows`` maps triple → count, ``raises`` lists every post-arming zero-count entry
@@ -149,8 +166,28 @@ def compile(journals: dict[str, list[dict]], rules: dict | None = None) -> dict:
     slug_to_triple: dict[str, str] = {}
     post = 0
     windows: dict[str, int] = {}
-    trouble_class = f"{TROUBLE_ROOT}/{TROUBLE_DIR}"
+    pending = sorted((c for c in (clears or []) if _when(c.get("at")) is not None),
+                     key=lambda c: (_when(c.get("at")), str(c.get("id", ""))))
+    pending += [c for c in (clears or []) if _when(c.get("at")) is None]
+
+    def apply(c: dict) -> None:
+        # A clear on a who-writes-what trouble teaches the row it names — by an akien hand only.
+        s = str(c.get("id", ""))
+        hand = str(c.get("hand_class") or "unknown")
+        for r in raises:
+            if r["identity_slug"] == s:
+                r["disposition"] = f"cleared:{hand}"
+        target = slug_to_triple.get(s)
+        if target is not None and hand == "akien":
+            rows[target] = rows.get(target, 0) + 1
+            increments.append({"clear": s, "at": c.get("at"), "triple": target,
+                               "count": rows[target]})
+
     for i, (root, line, e) in enumerate(seq):
+        at = _when(e.get("at"))
+        while pending and at is not None and _when(pending[0].get("at")) is not None \
+                and _when(pending[0].get("at")) < at:
+            apply(pending.pop(0))
         rel = str(e.get("path", ""))
         verb = str(e.get("verb", ""))
         cls = str((e.get("caller") or {}).get("class", "unknown"))
@@ -161,19 +198,6 @@ def compile(journals: dict[str, list[dict]], rules: dict | None = None) -> dict:
         key = triple(pc, verb, cls)
         slug_to_triple.setdefault(slug(identity(pc, verb, cls)), key)
         judged = armed is not None and i > armed
-        # A clearance on a who-writes-what trouble teaches the row it names — by an akien
-        # hand only. It is read BEFORE this entry's own triple is counted, so the clear's
-        # own row (troubles|clear|akien) is judged like any other write.
-        if pc == trouble_class and verb == "clear" and Path(rel).stem.startswith(IDENTITY_PREFIX):
-            s = Path(rel).stem
-            target = slug_to_triple.get(s)
-            for r in raises:
-                if r["identity_slug"] == s:
-                    r["disposition"] = f"cleared:{cls}"
-            if target is not None and cls == "akien":
-                rows[target] = rows.get(target, 0) + 1
-                increments.append({"root": root, "line": line, "at": e.get("at"), "triple": target,
-                                   "count": rows[target]})
         if not judged:
             rows[key] = rows.get(key, 0) + 1
             continue
@@ -189,6 +213,8 @@ def compile(journals: dict[str, list[dict]], rules: dict | None = None) -> dict:
                        "identity": identity(pc, verb, cls),
                        "identity_slug": slug(identity(pc, verb, cls)),
                        "post_append": post, "disposition": "raised"})
+    for c in pending:
+        apply(c)
     return {
         "rows": dict(sorted(rows.items())),
         "raises": raises,
@@ -244,8 +270,17 @@ def _atomic(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
+def _ask_clears() -> dict:
+    """The trouble lane's clears, asked through its public verb (RULE 1)."""
+    from cairn.tools.bus_client import reach
+    return reach("trouble").request(
+        sender=COMPONENT, to="trouble", verb="clears",
+        why="counting_block learns whose hand cleared each who-writes-what trouble (0539e85f8b2d)",
+        body={"prefix": IDENTITY_PREFIX})
+
+
 def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None = None,
-          now=None) -> dict:
+          now=None, ask=None) -> dict:
     """One beat: recompile the table from both journals, raise each NEW zero-count entry
     once through the inherited emission, write the table, the probe's acknowledgement and
     the ledger of what has been reported.
@@ -263,9 +298,22 @@ def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None 
     lags one beat on purpose: the probe runs BEFORE the pulse modules on a beat, so it reads
     the previous beat's table against the previous beat's ack, and a raise fires the probe
     exactly once — on the beat after it was compiled. The first compile acks itself, so the
-    prior seeds without firing."""
+    prior seeds without firing.
+
+    ``ask`` is a zero-argument callable returning the trouble lane's bus reply to ``clears``;
+    None asks the live lane. ONE ask per pulse. If it raises, the fold runs with no clears and
+    the table says so — ``increments`` is ``"unknown"`` and ``clears_error`` names the fault —
+    rather than reading a lane it could not reach as a lane with nothing cleared (Law 7)."""
     where = table_dir() if where is None else Path(where)
-    table = compile(read_journals(roots))
+    try:
+        clears = list(((ask or _ask_clears)() or {}).get("body", {}).get("clears") or [])
+        error = None
+    except Exception as exc:  # noqa: BLE001 — the fold still runs, and says what it lacked
+        clears, error = [], f"{type(exc).__name__}: {exc}"
+    table = compile(read_journals(roots), clears=clears)
+    if error is not None:
+        table["increments"] = "unknown"
+        table["clears_error"] = error
     prev = _load(where / TABLE_FILE)
     ledger = _load(where / LEDGER_FILE) or {"reported": []}
     seen = set(ledger.get("reported", []))

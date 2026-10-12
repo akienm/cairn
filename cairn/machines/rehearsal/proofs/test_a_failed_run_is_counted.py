@@ -25,7 +25,7 @@ from cairn.machines.rehearsal import rehearsal as R          # noqa: E402
 from cairn.tools.artifact import artifact as door             # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir           # noqa: E402
 
-# The falsifier is one clause (proves_green), so it takes ONE key (clause 1, added by D7): its tooth is the record
+# The falsifier is one clause (proves_green), so it takes ONE key (clause 1, added by D22): its tooth is the record
 # itself. The other three teeth pin the rest of that clause and run beside it in TEETH.
 PROVES = {"ba4166fe51c4": {
     "1": "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",

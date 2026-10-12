@@ -1,0 +1,105 @@
+[
+  {
+    "claim": "proof test_a_failed_run_is_counted.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T11:55:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "ran:false record ba41f00dfa11-20261012T175502.json, why='read 1: no tree passed the schema in 3 attempts — last lacks'\n  ok   test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal\npasses_since_clean 0 -> 1\n  ok   test_a_failed_pass_counts_toward_the_cap\npointer unmoved; ticket bytes unchanged\n  ok   test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer\nplanted red: \"runner testing-planted's failure (testing: a drive that writes nothing\"; declared green: ['rehearsal', 'tester']\n  ok   test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones\nGREEN — 4/4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",
+        "test_a_failed_pass_counts_toward_the_cap",
+        "test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer",
+        "test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones"
+      ],
+      "teeth_red": [],
+      "test": "test-b15ef6ad68ce",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 4,
+        "tables": [
+          "bus_proc_1989724_1149032708_delivery",
+          "bus_proc_1989724_1149032708",
+          "bus_proc_1989842_1149170004_delivery",
+          "bus_proc_1989842_1149170004"
+        ]
+      },
+      "conditions": {
+        "proof": "4bb45df2df207edf4726cb6e6f0bc1d2fed650d7a2c88dc932afe6085cd91df8",
+        "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 500,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b15ef6ad68ce",
+      "source_fingerprint": "e44b816fd174f47be43f6d49e54f209c07cf284adb9f54e23e46401c62915a15",
+      "fingerprint_closure": [
+        "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py",
+        "cairn/machines/rehearsal/rehearsal.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1990728-st6acrik/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-635908f3f7ae/stderr.txt",
+            "logs/tester/0/runs/test-635908f3f7ae/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107688987,
+          "disk_bytes": 132190208,
+          "entries": 9917,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "ba4166fe51c4": {
+          "cairn/machines/rehearsal/rehearsal.py": [
+            "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal"
+          ],
+          "cairn/machines/rehearsal/__main__.py": {
+            "notified": "n-fefcde69cf3b"
+          },
+          "cairn/machines/build_inspector/inspector.py": {
+            "notified": "n-1774e41cb091"
+          },
+          "cairn/machines/build_inspector/sieves/runners_leave_trails.json": {
+            "notified": "n-3c8d9050b4d0"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "ba4166fe51c4": {
+          "anchor_rule": "journal",
+          "anchor_journal": "f14267ab9a2e46b8a188a7c3c3e65d119260a196",
+          "anchor_first_build": "97f1fa39902b455137766bea7a93436ccd150f6d",
+          "commit": "f14267ab9a2e46b8a188a7c3c3e65d119260a196"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

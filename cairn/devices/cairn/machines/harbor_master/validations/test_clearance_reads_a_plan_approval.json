@@ -1,0 +1,119 @@
+[
+  {
+    "claim": "proof test_clearance_reads_a_plan_approval.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-11T20:23:12",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_plan_approval_the_plan_names_is_covered\n  ok   test_a_plan_approval_the_plan_does_not_name_is_unresolved\n  ok   test_the_standing_clearance_proofs_stay_green\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_plan_approval_the_plan_names_is_covered",
+        "test_a_plan_approval_the_plan_does_not_name_is_unresolved",
+        "test_the_standing_clearance_proofs_stay_green"
+      ],
+      "teeth_red": [],
+      "test": "test-873aaa0bc280",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "3eca448ede6fcfe880c3530799b4580e09f6a8303af7cab3140bf3e470bf8e54",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 1800,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [
+        {
+          "pid": 1715413,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-873aaa0bc280",
+      "source_fingerprint": "2f57f05ec8decaf9a3696b88cb62cf122c0ceaaf7918b763e47cba769a6bbb70",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/harbor_master/__init__.py",
+        "cairn/devices/cairn/machines/harbor_master/clearance.py",
+        "cairn/devices/cairn/machines/harbor_master/proofs/test_clearance_reads_a_plan_approval.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1715383-u8dznfmm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 338,
+          "paths": [
+            "devices/cairn/0/machines/sail/sail.json",
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/chart/0/verdict-deposits.jsonl",
+            "devices/tester/0/last_known.json",
+            "logs/bus.log",
+            "logs/bus/0/20261012.022127.065200.BusDevice.post.json",
+            "logs/bus/0/20261012.022127.085827.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261012.022127.101573.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261012.022127.121002.BusDevice.post.json",
+            "logs/bus/0/20261012.022129.126113.BusDevice.post.json",
+            "logs/bus/0/20261012.022129.127304.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022129.130387.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022129.172873.BusDevice.post.json",
+            "logs/bus/0/20261012.022131.182223.BusDevice.post.json",
+            "logs/bus/0/20261012.022131.182945.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022131.183072.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022131.216832.BusDevice.post.json",
+            "logs/bus/0/20261012.022133.528095.BusDevice.post.json",
+            "logs/bus/0/20261012.022133.528948.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022133.529091.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022133.589239.BusDevice.post.json",
+            "logs/bus/0/20261012.022136.119143.BusDevice.post.json",
+            "logs/bus/0/20261012.022136.120019.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022136.120167.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022136.181846.BusDevice.post.json",
+            "logs/bus/0/20261012.022138.717403.BusDevice.post.json",
+            "logs/bus/0/20261012.022138.718209.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022138.718348.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022139.572009.BusDevice.post.json",
+            "logs/bus/0/20261012.022142.027494.BusDevice.post.json",
+            "logs/bus/0/20261012.022142.028322.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022142.028462.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022142.078108.BusDevice.post.json",
+            "logs/bus/0/20261012.022144.588235.BusDevice.post.json",
+            "logs/bus/0/20261012.022144.589061.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022144.589208.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022144.624211.BusDevice.post.json",
+            "logs/bus/0/20261012.022147.095960.BusDevice.post.json",
+            "logs/bus/0/20261012.022147.096794.BusDevice.delivered.json",
+            "logs/bus/0/20261012.022147.096938.BusDevice.delivered.json"
+          ],
+          "elided": 298
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107355511,
+          "disk_bytes": 132349952,
+          "entries": 10086,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

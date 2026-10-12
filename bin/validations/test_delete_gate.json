@@ -2,12 +2,12 @@
   {
     "claim": "proof test_delete_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-11T21:31:12",
+    "date": "2026-10-11T23:31:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_every_spelling_of_the_same_delete_is_caught\n  PASS  test_the_door_itself_is_never_refused\n  PASS  test_the_bound_the_git_roots_are_not_gated\n  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (1816 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
+      "stdout_tail": "  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_a_delete_inside_a_quoted_string_is_refused\n  PASS  test_a_python_delete_call_and_a_backticked_rm_are_refused\n  PASS  test_every_allow_tooth_stays_allowed_beside_the_widening\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (1816 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_command_that_caused_the_loss_is_refused",
@@ -19,6 +19,9 @@
         "test_a_data_heredocs_body_is_not_read_as_a_command",
         "test_a_heredoc_fed_to_a_shell_is_still_judged",
         "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing",
+        "test_a_delete_inside_a_quoted_string_is_refused",
+        "test_a_python_delete_call_and_a_backticked_rm_are_refused",
+        "test_every_allow_tooth_stays_allowed_beside_the_widening",
         "test_the_gate_runs_as_a_hook_and_blocks_with_exit_2",
         "test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly",
         "test_the_gate_is_registered_where_it_claims_to_be",
@@ -30,17 +33,46 @@
         "the live trash is untouched (1816 entries before and after)"
       ],
       "teeth_red": [],
-      "test": "test-97604814120d",
+      "test": "test-73c7b2cf00f7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 28,
+        "tables": [
+          "bus_proc_1821600_2326289490_delivery",
+          "bus_proc_1821600_2326289490",
+          "bus_proc_1821875_2326506897_delivery",
+          "bus_proc_1821875_2326506897",
+          "bus_proc_1822176_2327248219_delivery",
+          "bus_proc_1822176_2327248219",
+          "bus_proc_1822219_2327291257_delivery",
+          "bus_proc_1822219_2327291257",
+          "bus_proc_1822324_2327418920_delivery",
+          "bus_proc_1822324_2327418920",
+          "bus_proc_1822438_2327573151_delivery",
+          "bus_proc_1822438_2327573151",
+          "bus_proc_1822626_2328090605_delivery",
+          "bus_proc_1822626_2328090605",
+          "bus_proc_1822662_2328132491_delivery",
+          "bus_proc_1822662_2328132491",
+          "bus_proc_1823339_2329411659_delivery",
+          "bus_proc_1823339_2329411659",
+          "bus_proc_1823379_2329454671_delivery",
+          "bus_proc_1823379_2329454671",
+          "bus_proc_1823536_2329580812_delivery",
+          "bus_proc_1823536_2329580812",
+          "bus_proc_1823651_2330134982_delivery",
+          "bus_proc_1823651_2330134982",
+          "bus_proc_1823831_2330250655_delivery",
+          "bus_proc_1823831_2330250655",
+          "bus_proc_1823889_2330293387_delivery",
+          "bus_proc_1823889_2330293387"
+        ]
       },
       "conditions": {
-        "proof": "c0a03e17f64184c860edfe4ae12aa1fa7b30c8527d4de0ba9b217c296357a263",
+        "proof": "7b53c4b07ea4901ff256c5bd520318ddd542515ea0316242b890de9255ebbcf7",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -55,14 +87,14 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-97604814120d",
-      "source_fingerprint": "2dce1ed04a4d71950e8f666c2edcba95816e4184f93f13a051dacf02b7072298",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-73c7b2cf00f7",
+      "source_fingerprint": "446d9005f93b7f2b6eeb6a12325333a26bfbc95e658ff90ba0ca5e1f1ccb8339",
       "fingerprint_closure": [
         "bin/proofs/test_delete_gate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1760998-ut5voews/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1825104-qvyr2cso/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,28 +103,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107353350,
-          "disk_bytes": 131387392,
-          "entries": 9754,
+          "bytes": 107596859,
+          "disk_bytes": 131977216,
+          "entries": 9874,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "76d35575aead": {
-          "bin/cmd/deletegate": [
-            "test_a_data_heredocs_body_is_not_read_as_a_command",
-            "test_a_heredoc_fed_to_a_shell_is_still_judged",
-            "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "76d35575aead": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d8deb253a721cd55789d2d51a850172736061a82",
-          "anchor_first_build": "3add99710f451a939458d3c4e3e457673a1c63e7",
-          "commit": "d8deb253a721cd55789d2d51a850172736061a82"
+          "reuses": 0
         }
       }
     },

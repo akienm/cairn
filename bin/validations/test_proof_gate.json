@@ -2,7 +2,7 @@
   {
     "claim": "proof test_proof_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-11T21:51:13",
+    "date": "2026-10-12T14:20:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,24 +27,21 @@
         "test_the_whole_fix_holds_end_to_end"
       ],
       "teeth_red": [],
-      "test": "test-e73442b971b3",
+      "test": "test-afeae74ac3aa",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_1776461_2151080814_delivery",
-          "bus_proc_1776461_2151080814"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "3d62793947be45413bd6579ce69d4d8de21b1547811dbf66f72df5ce15a86716",
+        "proof": "c48469d757c460a34d145428b795f99c232becd1d9cc1e6dd7fba14aec95d2aa",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -55,14 +52,18 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e73442b971b3",
-      "source_fingerprint": "6b590a210e6c786f54ad9178909be68e2193062bc801f0cdcd5b9525dfb8585d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-afeae74ac3aa",
+      "source_fingerprint": "3f11ebff4185a059051be1bf8e628c71cbc7aeb9c4961f9d45554e1c9220267b",
       "fingerprint_closure": [
-        "bin/proofs/test_proof_gate.py"
+        "bin/proofs/test_proof_gate.py",
+        "cairn/__init__.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1772238-3seo4hy0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2032723-7orc4tj_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,31 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107455039,
-          "disk_bytes": 131612672,
-          "entries": 9798,
+          "bytes": 107834043,
+          "disk_bytes": 132489216,
+          "entries": 9962,
           "builds": 1,
-          "reuses": 10
-        }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
-      "hollow": {
-        "72a37498c601": {
-          "bin/cmd/proofgate": [
-            "test_a_proof_path_as_an_argument_is_not_a_proof_run",
-            "test_a_separator_inside_an_assignment_hides_no_proof_run",
-            "test_a_wrapped_command_is_judged_as_the_command_it_is",
-            "test_cairn_test_seals_only_its_own_segment",
-            "test_the_word_as_an_argument_passes_untouched"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "72a37498c601": {
-          "anchor_rule": "journal",
-          "anchor_journal": "955490ca587c55ef77751e2a81f2be5bba346b1c",
-          "anchor_first_build": "204b8b59b528044b5a173fa07dedeb5caee47c3b",
-          "commit": "955490ca587c55ef77751e2a81f2be5bba346b1c"
+          "reuses": 0
         }
       }
     },

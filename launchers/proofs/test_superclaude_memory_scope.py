@@ -87,10 +87,23 @@ _BALLOON = (
     "print('REACHED', len(b))\n"
 )
 
+# The balloon touches 400 MiB under a 100M cap, so escaping the cap needs ~300 MiB of swap; 512 is
+# that plus margin. Below it the kernel kills the balloon for want of swap, and the unswapped arm
+# would read that as "contained" (a9d43ca95d78, measured at SwapFree 220 MiB on 2026-10-12).
+NEED_SWAP_MIB = 512
+
+
+def _swap_free_mib() -> int:
+    for line in Path("/proc/meminfo").read_text().splitlines():
+        if line.startswith("SwapFree:"):
+            return int(line.split()[1]) // 1024
+    return 0
+
 
 def _run_ballooned(limits: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["systemd-run", "--user", "--scope", "--quiet", *limits, "--", sys.executable, "-c", _BALLOON],
+        ["systemd-run", "--user", "--scope", "--quiet", "-p", "CollectMode=inactive-or-failed", *limits,
+         "--", sys.executable, "-c", _BALLOON],
         capture_output=True, text=True, timeout=120, env=_env(),
     )
 
@@ -112,6 +125,22 @@ def half_one_mechanism() -> None:
         f"pid {os.getpid()}",
     )
 
+    _unswapped_arm()
+
+
+def _unswapped_arm() -> None:
+    # A HOST SHORT OF SWAP CANNOT RUN THIS ARM. The balloon would die for want of swap, not by
+    # the cap, and "did not escape" would read as containment. So it is measured first and a
+    # short host is a red that names the unmet precondition — never a PASS, never a skip.
+    free = _swap_free_mib()
+    if free < NEED_SWAP_MIB:
+        check(
+            "the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)",
+            False,
+            f"precondition unmet: SwapFree {free} MiB < {NEED_SWAP_MIB} MiB needed — this arm "
+            "cannot tell contained from killed for lack of swap",
+        )
+        return
     # THE NON-HOLLOW ARM. Same limit, swap left alone. If this ever starts containing too,
     # the swap cap has become belt-and-braces rather than load-bearing and this proof should
     # be re-read — but today it is the difference between a cap and a cap that works.

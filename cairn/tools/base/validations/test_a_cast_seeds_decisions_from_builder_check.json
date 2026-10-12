@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_cast_seeds_decisions_from_builder_check.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-12T17:57:28",
+    "caller": "cairn test",
+    "date": "2026-10-12T17:58:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_decision_less_cast_gains_the_builder_check_as_d1\n        [{\"n\": 1, \"text\": \"D1 (the /sorted builder_check): WHERE? x.py\", \"by\": \"proof-actor\", \"step\": \"cast\", \"source\": \"sorted\", \"at\": \"2026-10-12T23:57:28+00:00\"}]\n  PASS  a_cast_carrying_decisions_keeps_them_byte_identical\n        [{\"n\": 1, \"text\": \"D1: keep\"}]\n  PASS  a_blank_or_absent_builder_check_adds_no_decisions_key\n        [null, null, null]\n\nGREEN",
+      "stdout_tail": "  PASS  a_decision_less_cast_gains_the_builder_check_as_d1\n        [{\"n\": 1, \"text\": \"D1 (the /sorted builder_check): WHERE? x.py\", \"by\": \"proof-actor\", \"step\": \"cast\", \"source\": \"sorted\", \"at\": \"2026-10-12T23:58:05+00:00\"}]\n  PASS  a_cast_carrying_decisions_keeps_them_byte_identical\n        [{\"n\": 1, \"text\": \"D1: keep\"}]\n  PASS  a_blank_or_absent_builder_check_adds_no_decisions_key\n        [null, null, null]\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_decision_less_cast_gains_the_builder_check_as_d1",
@@ -15,7 +15,7 @@
         "a_blank_or_absent_builder_check_adds_no_decisions_key"
       ],
       "teeth_red": [],
-      "test": "test-0540ea2b4810",
+      "test": "test-4aeb922bed74",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,17 +29,18 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0540ea2b4810",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4aeb922bed74",
       "source_fingerprint": "5333ee8a5444711b23283a9715c650212319fe85278674bf94e99d84207178b8",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -53,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2168265-1yr4b2kk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2168895-_lgzqa9c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +63,26 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107950327,
-          "disk_bytes": 132894720,
-          "entries": 10059,
+          "bytes": 107951361,
+          "disk_bytes": 132902912,
+          "entries": 10061,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "0dbc830e58d2": {
+          "cairn/tools/base/transitions.py": [
+            "a_decision_less_cast_gains_the_builder_check_as_d1"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "0dbc830e58d2": {
+          "anchor_rule": "journal",
+          "anchor_journal": "1946f570a35f0f2ca18f9d6c993f4a0e6c79cddc",
+          "anchor_first_build": "a5735e1156dc0e99d7269062b6c2c3aa5b979d0b",
+          "commit": "1946f570a35f0f2ca18f9d6c993f4a0e6c79cddc"
         }
       }
     },

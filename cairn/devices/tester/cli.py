@@ -104,9 +104,18 @@ def _hollow_run(args) -> int:
     """
     from cairn.devices.tester.hollow import measure, HollowUnmeasurable
 
+    # --proof IS A PREDICTION AND SEALS NOTHING (ticket fb47d26f7a43). It names the instrument
+    # by hand, before any crossing does; a seal lands only from the proofs the crossing named,
+    # so the two together are refused before anything runs, by name.
+    if args.proof and args.seal:
+        print("cairn test --hollow --proof is a prediction and seals nothing; it cannot honour "
+              "--seal. A hollow reading lands only from the proofs the ticket's crossing named: "
+              "cross PROVEME with --proven-by, then run --hollow <ticket> --seal.", file=sys.stderr)
+        return 2
     try:
         finding = measure(args.hollow, repo_root=REPO_ROOT, timeout=args.timeout,
-                          log=(lambda m: None) if args.quiet else print)
+                          log=(lambda m: None) if args.quiet else print,
+                          proofs=[str(Path(p).resolve()) for p in args.proof] or None)
     except HollowUnmeasurable as why:
         # LAW 3'S DISTINCTION AT THE SURFACE: "the measurement could not be taken" exits 2,
         # the same code discover() uses for "nothing to run", and never 0. A run that could
@@ -439,6 +448,15 @@ def main(argv: list[str] | None = None) -> int:
              "go red. A file that reds none is named and the run exits non-zero.",
     )
     ap.add_argument(
+        "--proof",
+        metavar="PATH",
+        action="append",
+        default=[],
+        help="with --hollow: the builder's prediction — measure over this proof (repeatable) "
+             "instead of the proofs the ticket's crossings name, in the same worktree the "
+             "hollow uses. Seals nothing; refused with --seal.",
+    )
+    ap.add_argument(
         "--reseal",
         action="store_true",
         help="run the four-rung ladder over the proofs a staged change touched (or over "
@@ -475,7 +493,8 @@ def main(argv: list[str] | None = None) -> int:
         # --exec runs a command and mints no validation; a flag it would silently drop is
         # refused by name before anything runs (d181339da3c3).
         bad = [f for f, on in (("--seal", args.seal), ("--netns", args.netns),
-                               ("--hollow", args.hollow), ("--reseal", args.reseal)) if on]
+                               ("--hollow", args.hollow), ("--reseal", args.reseal),
+                               ("--proof", args.proof)) if on]
         bad += list(args.targets)
         if bad:
             print("cairn test --exec runs a command and mints no validation; it cannot honour: "
@@ -496,6 +515,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.hollow:
         return _hollow_run(args)
+    if args.proof:
+        print("cairn test --proof names the instrument of a --hollow prediction and means "
+              "nothing alone: cairn test --hollow <ticket> --proof <path>.", file=sys.stderr)
+        return 2
 
     proofs = discover(args.targets)
     if not proofs:

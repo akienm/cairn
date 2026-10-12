@@ -726,12 +726,21 @@ def approval(ticket: dict, files: list[str]) -> str | None:
 
 
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
-            berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None) -> dict:
+            berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None,
+            proofs: list[str] | None = None) -> dict:
     """Revert this ticket's build file by file and report which declared teeth each one reds.
 
     Returns the finding as data — ``verdict`` green|red, ``measured`` {file: [teeth]},
     ``hollow`` the files that redded nothing, ``skipped`` with a reason each. The caller
     decides what to print and what to seal; nothing is written here.
+
+    ``proofs`` NAMES THE INSTRUMENT BY HAND, and it is the builder's prediction (ticket
+    fb47d26f7a43). Before PROVEME no crossing names a proof, so the builder used to predict in a
+    worktree built by hand, and peer F18 (2026-10-07) measured the two constructions apart: a
+    CairnCommons sat beside the hand-built one and nothing sits beside this one, so 11cd253f10bc
+    predicted green and its hollow refused. Given, these proofs replace
+    ``proven_by_since_buildme()`` and nothing else changes — the same worktree, the same
+    commons-beside rule — so a prediction cannot be green where the hollow will refuse.
     """
     from cairn.devices.tester.device import TesterDevice
     tester = tester or TesterDevice()
@@ -750,7 +759,9 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             cfiles.append(c)
     # The instrument is read before the anchor, through the reader that does not raise, so a
     # ticket with no BUILDME is still refused by build_anchor for THAT reason (test_hollow.py).
-    instrument = instrument_set(proven_by_since_buildme(tid, roots) or [], repo_root)
+    named = [_inside(str(p), repo_root) for p in proofs] if proofs else None
+    instrument = instrument_set(named if named is not None
+                                else (proven_by_since_buildme(tid, roots) or []), repo_root)
     read_by = instrument_text(instrument, repo_root)
     anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument,
                           read_by=read_by)
@@ -765,7 +776,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         ccommit = canchor["commit"]
         cfiles, cdir_skips = _expand_dirs(cfiles, ccommit, commons, tid=tid)
         dir_skips += [{**s, "file": COMMONS_KEY + s["file"]} for s in cdir_skips]
-    proofs = proven_by(ticket, roots)
+    proofs = named if named is not None else proven_by(ticket, roots)
 
     # THE DECLARED TEETH ARE THE ONLY ONES THAT COUNT, and they are read from the proof's own
     # PROVES map for THIS ticket. A proof holding teeth for three tickets would otherwise let a

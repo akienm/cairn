@@ -165,6 +165,10 @@ PROVES = {"76d35575aead": {
     "1": "test_a_data_heredocs_body_is_not_read_as_a_command",
     "2": "test_a_heredoc_fed_to_a_shell_is_still_judged",
     "3": "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing",
+}, "d6f0732afe8a": {
+    "1": "test_a_delete_inside_a_quoted_string_is_refused",
+    "2": "test_a_python_delete_call_and_a_backticked_rm_are_refused",
+    "3": "test_every_allow_tooth_stays_allowed_beside_the_widening",
 }}
 
 
@@ -198,6 +202,45 @@ def test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing():
         "cat > /tmp/n.md <<'EOF' && rm -rf ~/.cairn/foo\nnote\nEOF",
     ]:
         assert gate.verdict(command) is not None, f"a guarded delete went through: {command!r}"
+
+
+# Ticket d6f0732afe8a: a delete written inside a quoted string deletes all the same. Measured
+# 2026-10-11 proving 76d35575aead: os.system('rm -rf ~/.cairn/foo') passed rc 0, because a verb
+# right after a quote was no command start and the Python delete calls were no verbs at all.
+def test_a_delete_inside_a_quoted_string_is_refused():
+    """The ticket's own measured string, and the double-quoted spelling of it."""
+    for command in [
+        "python3 -c \"import os; os.system('rm -rf ~/.cairn/foo')\"",
+        "bash -c \"rm -rf ~/.cairn/foo\"",
+    ]:
+        assert gate.verdict(command) is not None, f"a quoted delete went through: {command!r}"
+
+
+def test_a_python_delete_call_and_a_backticked_rm_are_refused():
+    """Python's delete calls are deleting verbs, and a backtick starts a command."""
+    for command in [
+        "python3 -c \"import shutil; shutil.rmtree('/home/x/.cairn/foo')\"",
+        "python3 -c \"import os; os.remove('/home/x/.cairn/foo')\"",
+        "python3 -c \"import os; os.unlink('~/.cairn/foo')\"",
+        "python3 -c \"from pathlib import Path; Path('~/.cairn/foo').unlink()\"",
+        "echo `rm ~/.cairn/x`",
+    ]:
+        assert gate.verdict(command) is not None, f"a delete call went through: {command!r}"
+
+
+def test_every_allow_tooth_stays_allowed_beside_the_widening():
+    """The widening names deleting verbs; it must not make the guarded root unreadable.
+    The allow teeth above run in this same proof — this tooth re-asks them by name so a
+    widening that reds one is attributed to d6f0732afe8a, not found later."""
+    test_the_door_itself_is_never_refused()
+    test_the_bound_the_git_roots_are_not_gated()
+    test_a_command_that_only_reads_the_root_passes()
+    test_a_data_heredocs_body_is_not_read_as_a_command()
+    for command in [
+        "python3 -c \"print(open('/home/x/.cairn/foo').read())\"",
+        "grep -c remove ~/.cairn/logs/boot",
+    ]:
+        assert gate.verdict(command) is None, f"a read was refused: {command!r}"
 
 
 def test_the_gate_runs_as_a_hook_and_blocks_with_exit_2():
@@ -414,6 +457,9 @@ def _main() -> int:
         test_a_data_heredocs_body_is_not_read_as_a_command,
         test_a_heredoc_fed_to_a_shell_is_still_judged,
         test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing,
+        test_a_delete_inside_a_quoted_string_is_refused,
+        test_a_python_delete_call_and_a_backticked_rm_are_refused,
+        test_every_allow_tooth_stays_allowed_beside_the_widening,
         test_the_gate_runs_as_a_hook_and_blocks_with_exit_2,
         test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly,
         test_the_gate_is_registered_where_it_claims_to_be,

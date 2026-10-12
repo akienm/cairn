@@ -456,6 +456,30 @@ def _refuse_undeclared_keys(name: str, root: Path, rel: Path, p: Path, blob: byt
                       "(1fc53d5d96cc)")
 
 
+def _refuse_dropped_entries(p: Path, blob: bytes) -> None:
+    """An append keeps what was there (a742af217819; 9528475c replaced a 29-entry history with
+    one entry under verb ``append`` and nothing fired).
+
+    Judged only when the record's current value is a JSON list: the new value must be a list
+    beginning with every current element, unchanged and in order. A record that is absent,
+    unparseable, or not a list (a state.json re-projected under append) is not judged here."""
+    try:
+        old = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    if not isinstance(old, list):
+        return
+    new = json.loads(blob.decode("utf-8"))
+    if not isinstance(new, list):
+        raise Refused(f"{p} holds a list and an append must keep it one; this write is a JSON "
+                      f"{type(new).__name__}; nothing written (a742af217819)")
+    at = next((i for i, e in enumerate(old) if i >= len(new) or new[i] != e), None)
+    if at is not None:
+        raise Refused(f"{p}: this append drops or changes the entry at index {at} of the "
+                      f"{len(old)} it holds; an append keeps what was there; nothing written "
+                      "(a742af217819)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -476,6 +500,8 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         if p.name == "history.json":
             _refuse_history_without_floor(p, blob)
         _refuse_undeclared_keys(name, root, rel, p, blob)
+        if verb == "append":
+            _refuse_dropped_entries(p, blob)
     if p.suffix == ".jsonl":
         _refuse_non_append(p, blob)
     before = p.read_bytes() if p.exists() else None

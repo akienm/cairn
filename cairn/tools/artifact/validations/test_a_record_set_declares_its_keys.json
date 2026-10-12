@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_record_set_declares_its_keys.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-11T20:00:01",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T21:22:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-0biqxtar/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-10-12T02:00:00+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-0biqxtar/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
+      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-ili3u498/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-10-12T03:22:08+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-ili3u498/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_body_of_declared_keys_lands",
@@ -15,7 +15,7 @@
         "no_charter_refuses_and_the_charter_writes_freely"
       ],
       "teeth_red": [],
-      "test": "test-66eb8bea973e",
+      "test": "test-7dc0f9697a6d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,14 +34,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-66eb8bea973e",
-      "source_fingerprint": "ee313873d1554b5115f59f5acc062aec0388d56b43863f040ace476037f748b2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7dc0f9697a6d",
+      "source_fingerprint": "fcf1150773e58d3c3a4702931efd377f37f518f5c6e7d5a3a948b6e99b81bfc6",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -49,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1706288-g8ezv7as/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1747715-c32c_liv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,31 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107227023,
-          "disk_bytes": 131039232,
-          "entries": 9677,
+          "bytes": 107341771,
+          "disk_bytes": 131354624,
+          "entries": 9747,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "1fc53d5d96cc": {
-          "cairn/tools/artifact/jurisdiction.json": [
-            "an_extra_key_is_refused_by_name",
-            "no_charter_refuses_and_the_charter_writes_freely"
-          ],
-          "cairn/tools/artifact/artifact.py": [
-            "an_extra_key_is_refused_by_name",
-            "no_charter_refuses_and_the_charter_writes_freely"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "1fc53d5d96cc": {
-          "anchor_rule": "journal",
-          "anchor_journal": "df344bbb07f446f20453bb20729f018b5bf43c7b",
-          "anchor_first_build": "d215a69c6e3faf37b737c4ad8e4a2d6f206eb5b9",
-          "commit": "df344bbb07f446f20453bb20729f018b5bf43c7b"
+          "reuses": 2
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_long_ticket_is_read_whole.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-11T16:28:48",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-11T21:14:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "a_doubled_id_still_gets_a_whole_re_read"
       ],
       "teeth_red": [],
-      "test": "test-9a08b921c108",
+      "test": "test-05650ed79aa0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,14 +34,13 @@
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9a08b921c108",
-      "source_fingerprint": "5be4fe38b885dafbbbc95ed59f500cabc51ee878470dc4bfdcff3bcce7e3e7ab",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-05650ed79aa0",
+      "source_fingerprint": "83194884111ab346fd9220bf15eba149519adc01063510a49ed887d51c7a80b1",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py",
@@ -49,7 +48,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1574659-zc_kig69/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1738841-b_24jl25/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,27 +57,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107128603,
-          "disk_bytes": 130846720,
-          "entries": 9643,
+          "bytes": 107336326,
+          "disk_bytes": 131346432,
+          "entries": 9745,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "c3f8efa612ce": {
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "a_dropped_tail_is_patched_into_one_whole_tree",
-            "the_patch_prompt_asks_for_exactly_the_missing_ids"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "c3f8efa612ce": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ce310f445bf680ed7f172f175ddbfca6239d7a41",
-          "anchor_first_build": "92e471315893feae13cbcedbb3b2a24379891378",
-          "commit": "ce310f445bf680ed7f172f175ddbfca6239d7a41"
+          "reuses": 1
         }
       }
     },

@@ -3,6 +3,8 @@ rehearsal.py; this file only parses and prints.
 
   cairn rehearse <ticket>                                    one pass: render, three cold reads, the diff, one record
   cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line on the ticket (step is D<n> or "unlisted: <text>")
+  cairn rehearse <ticket> --decide <step> "<line>" --supersedes D<n> [--supersedes D<m>] --by <who>
+                                                             the new line retires D<n> into itself, in one act
   cairn rehearse <ticket> --proved <proof.py> [<proof.py> ...]  after PROVED: the divergence list onto the clean record
   cairn rehearse <ticket> --standing                         what the BUILDME lane reads, as JSON
   cairn rehearse <ticket> --retire D<n> [D<n> ...] --because "<why>" [--into D<m>] --by <who>
@@ -51,6 +53,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--decide", nargs=2, metavar=("STEP", "LINE"),
                    help="dispose the gap at STEP (D<n> or 'unlisted: <text>') as the decision LINE on the ticket")
     p.add_argument("--by", help="who made the decision (required with --decide)")
+    p.add_argument("--supersedes", action="append", metavar="D<n>",
+                   help="with --decide: retire this line into the new one in the same act (repeatable)")
     p.add_argument("--proved", nargs="+", metavar="PROOF",
                    help="after PROVED: diff these proofs' teeth against the converged tree")
     p.add_argument("--standing", action="store_true", help="print what the BUILDME lane reads")
@@ -85,11 +89,16 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"scoped D{d['n']} on {args.ticket} by {args.by}: {d['text']}")
             print("the ticket's bytes changed — rehearse again before BUILDME")
             return 0
+        if args.supersedes and not args.decide:
+            p.error("--supersedes goes with --decide: the new line is what the old ones retire into")
         if args.decide:
             if not args.by:
                 p.error("--decide needs --by <who> (each decision carries who made it)")
-            entry = R.decide(args.ticket, args.decide[0], args.decide[1], by=args.by)
+            sup = [_decision_id(p, v) for v in args.supersedes] if args.supersedes else None
+            entry = R.decide(args.ticket, args.decide[0], args.decide[1], by=args.by, supersedes=sup)
             print(f"decided D{entry['n']} on {args.ticket} at '{entry['step']}' by {entry['by']}: {entry['text']}")
+            for k in sorted(set(sup or [])):
+                print(f"retired D{k} into D{entry['n']}")
             print("the ticket's bytes changed — rehearse again before BUILDME")
             return 0
         if args.proved:

@@ -756,11 +756,31 @@ def _open_the_question(ticket: str, root: Path | str | None) -> dict:
     return {"ticket": ticket, "question": rec["id"], "gaps": standing, "passes": PASS_CAP, "clean": False}
 
 
-def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | None = None) -> dict:
+def names_as_replaced(step: str, line: str) -> int | None:
+    """The 996668eceef1 shape (ticket c70eeeef73ac): a step shaped ``D<n>`` whose line names
+    that same D<n> as replaced or superseded — a line meant to stand IN PLACE of D<n>, which
+    ``decide`` would land BESIDE it. Returns n, or None. Any other line at a D<n> step is a
+    gap disposed at its own label and lands (the peer's ruling 2026-10-11 on clause 2)."""
+    m = re.fullmatch(r"D(\d+)", (step or "").strip())
+    if not m:
+        return None
+    n = m.group(1)
+    if (re.search(rf"\b(replac(?:es|ed|ing)|supersed(?:es|ed|ing))\s+D{n}\b", line, re.I)
+            or re.search(rf"\bD{n}\b(?:'s)?\s+(?:is\s+|are\s+)?(?:replaced|superseded)\b", line, re.I)):
+        return int(n)
+    return None
+
+
+def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | None = None,
+           supersedes: list[int] | None = None) -> dict:
     """A gap disposed as a decision line on the ticket (D3: a ticket is a list of one-line
     decisions): appends ``{n, text, by, step, source: "rehearsal"}`` to ``decisions`` through
     the door's ``cast`` verb. The next pass reads the edited ticket, so the pointer (if any)
-    goes stale by construction — the lane demands a fresh clean record."""
+    goes stale by construction — the lane demands a fresh clean record.
+
+    ``supersedes=[n, ...]`` (ticket c70eeeef73ac) retires each named line INTO the new one in
+    the same act — retire()'s rules and refusals, the plan written once. Without it, a line at
+    a ``D<n>`` step that names D<n> as replaced is refused naming --supersedes."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
@@ -768,34 +788,49 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         raise Refused("a decision is one line of text — an empty one decides nothing")
     if not (isinstance(by, str) and by.strip()):
         raise Refused("--by: who made this decision (D3 — each decision carries who made it)")
+    if not supersedes:
+        shaped = names_as_replaced(step, line)
+        if shaped is not None:
+            raise Refused(f"the line at step D{shaped} names D{shaped} as replaced — decide would land it "
+                          f"BESIDE D{shaped}, not in its place; say --supersedes D{shaped} to retire D{shaped} "
+                          f"into the new line in one act (c70eeeef73ac); nothing written")
     doc = json.loads(tk.read_text(encoding="utf-8"))
     have = doc.get("decisions")
     have = list(have) if isinstance(have, list) else []
     n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
     entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step.strip(), "source": "rehearsal",
              "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    why = f"rehearsal gap at '{step.strip()}' decided by {by.strip()}: D{n}"
+    if supersedes:
+        want = sorted(set(supersedes))
+        because = f"superseded by D{n}"
+        lacks = _retire_lacks(doc, tk, want, by, because, into=None)
+        if lacks:
+            raise Refused(f"decide refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
+        at = entry["at"]
+        why = f"{why}, superseding {', '.join('D%d' % k for k in want)}"
+        by_n = {d["n"]: d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)}
+        for k in want:
+            by_n[k]["retired"] = {"by": by.strip(), "at": at, "because": because, "into": n}
+            # a retired line is trail (fad76bb5d1f5): it moves whole to the log, then leaves the plan
+            ticket_log.append_log(tk, "decision_retired", {"decision": by_n[k]}, actor=by.strip(),
+                                  why=f"retired D{k} by {by.strip()} into D{n}: {because}")
+        have = [d for d in have if not (isinstance(d, dict) and d.get("n") in want)]
     have.append(entry)
     doc["decisions"] = have
-    _write_ticket(tk, doc, why=f"rehearsal gap at '{step.strip()}' decided by {by.strip()}: D{n}")
+    _write_ticket(tk, doc, why=why)
     return entry
 
 
-def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | None = None,
-           root: Path | str | None = None) -> list[dict]:
-    """Superseded decision lines retired through the door (ticket 4968b5d18645): each named
-    entry gains ``retired = {by, at, because, into}`` and keeps its text, so the file still
-    says who said what, while ``reader_view`` and ``decision_ids_of`` stop handing it on.
-    Every lack is named in ONE refusal and nothing is written: an id absent or already
-    retired; a line another author wrote (his lines are not CC's to fold); a live line still
-    citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``."""
-    tk = ticket_file(ticket, root)
-    if tk is None:
-        raise Refused(f"no ticket file for {ticket!r}")
-    doc = json.loads(tk.read_text(encoding="utf-8"))
+def _retire_lacks(doc: dict, tk: Path, want: list[int], by: str, because: str,
+                  into: int | None) -> list[str]:
+    """Every reason the lines ``want`` cannot be retired, named once (retire()'s rules,
+    shared with ``decide(supersedes=)``): an id absent or already retired; a line another
+    author wrote; a live line still citing a retired id; an ``into`` absent, retired, or
+    itself being retired; no ``because``."""
     have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     by_n = {d["n"]: d for d in have}
     on_log = set(_retired_on_log(tk))
-    want = sorted(set(ns))
     lacks: list[str] = []
     if not (isinstance(by, str) and by.strip()):
         lacks.append("--by: who is retiring these lines")
@@ -826,6 +861,25 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
             lacks.append(f"--into D{into} is retired")
         elif into in want:
             lacks.append(f"--into D{into} is one of the lines being retired")
+    return lacks
+
+
+def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | None = None,
+           root: Path | str | None = None) -> list[dict]:
+    """Superseded decision lines retired through the door (ticket 4968b5d18645): each named
+    entry gains ``retired = {by, at, because, into}`` and keeps its text, so the file still
+    says who said what, while ``reader_view`` and ``decision_ids_of`` stop handing it on.
+    Every lack is named in ONE refusal and nothing is written: an id absent or already
+    retired; a line another author wrote (his lines are not CC's to fold); a live line still
+    citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``."""
+    tk = ticket_file(ticket, root)
+    if tk is None:
+        raise Refused(f"no ticket file for {ticket!r}")
+    doc = json.loads(tk.read_text(encoding="utf-8"))
+    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    by_n = {d["n"]: d for d in have}
+    want = sorted(set(ns))
+    lacks = _retire_lacks(doc, tk, want, by, because, into)
     if lacks:
         raise Refused(f"retire refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
     at = datetime.now(timezone.utc).isoformat(timespec="seconds")

@@ -39,7 +39,11 @@ _GATE = _REPO_ROOT / "bin" / "cmd" / "artifactgate"
 # The declared tooth for the artifact-door ticket: the PreToolUse gate is the build-time half
 # of clause (1) — a hand edit to a record is refused before the commit question ever sees it.
 PROVES = {"30531f6e1c5d": {"gate": "test_the_pretooluse_gate_refuses_a_write_to_a_record",
-                           "wired": "test_the_gate_is_wired_at_pretooluse_for_every_writing_tool"}}
+                           "wired": "test_the_gate_is_wired_at_pretooluse_for_every_writing_tool"},
+          # ticket a55a82b351c6: a redirect is judged where it LANDS — the command's effective
+          # directory (a leading `cd X &&`, else the hook's cwd), asked of the door's locate()
+          "a55a82b351c6": {"1": "test_a_redirect_into_a_worktree_copy_is_allowed",
+                           "2": "test_a_redirect_that_lands_on_a_record_is_still_refused"}}
 _COMMONS = _REPO_ROOT.parent / "CairnCommons"
 
 
@@ -65,7 +69,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _red_every_declared_tooth(reason: str) -> None:
-    for name in PROVES["30531f6e1c5d"].values():
+    for name in (n for teeth in PROVES.values() for n in teeth.values()):
         if name not in FAILURES:
             check(name, False, reason)
 
@@ -137,9 +141,31 @@ def _teeth() -> int:
         "python3 -c \"from pathlib import Path; Path('cairn/tools/x/validations/test_x.json').write_text('{}')\"",
     ]
     for c in refused:
-        check(f"refused: {c[:70]!r}", gate.verdict("Bash", {"command": c}) is not None)
+        check(f"refused: {c[:70]!r}", gate.verdict("Bash", {"command": c, "cwd": str(_REPO_ROOT)}) is not None)
     check("an empty command is allowed", gate.verdict("Bash", {"command": ""}) is None)
     check("an unrelated tool is allowed", gate.verdict("Read", {"file_path": str(_COMMONS / "tickets" / "x.json")}) is None)
+
+    print("WHERE A REDIRECT LANDS (a55a82b351c6)")
+    import tempfile
+    rec = "cairn/machines/rehearsal/intention+why.json"
+    with tempfile.TemporaryDirectory(prefix="cairn-artifactgate-worktree-proof-") as wt:
+        measured = f"cd {wt} && git show 9edee02e:{rec} > {rec}"
+        hook = subprocess.run([sys.executable, str(_GATE)], input=json.dumps(
+            {"tool_name": "Bash", "cwd": wt, "tool_input": {"command": f"git show 9edee02e:{rec} > {rec}"}}),
+            capture_output=True, text=True)
+        check(PROVES["a55a82b351c6"]["1"],
+              gate.verdict("Bash", {"command": measured, "cwd": str(_REPO_ROOT)}) is None
+              and hook.returncode == 0,
+              f"cd-form={'allowed' if gate.verdict('Bash', {'command': measured, 'cwd': str(_REPO_ROOT)}) is None else 'REFUSED'} "
+              f"hook-cwd-form rc={hook.returncode}")
+    home = Path.home()
+    tilde = ("~/" + str(_REPO_ROOT.relative_to(home))) if _REPO_ROOT.is_relative_to(home) else str(_REPO_ROOT)
+    still = [f"git show 9edee02e:{rec} > {rec}",
+             f"cd {tilde} && git show 9edee02e:{rec} > {rec}",
+             f"cd {_REPO_ROOT}; echo x >> {rec}",
+             f"echo x > {_REPO_ROOT / rec}"]
+    verdicts = [gate.verdict("Bash", {"command": c, "cwd": str(_REPO_ROOT)}) is not None for c in still]
+    check(PROVES["a55a82b351c6"]["2"], all(verdicts), f"refused={verdicts}")
 
     print("THE HOOK CONTRACT")
     p = subprocess.run([sys.executable, str(_GATE)], input=json.dumps(

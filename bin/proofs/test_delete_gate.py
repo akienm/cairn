@@ -159,6 +159,47 @@ def test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_proper
     assert gate.verdict('rm -rf /tmp/anything && rm -rf ~/dev/src/cairn/build') is None
 
 
+# Ticket 76d35575aead: a data heredoc's body is data, not a command. Measured 2026-10-08,
+# n>=5 — an append to a ~/.cairn note whose prose said "rm" was refused by co-occurrence.
+PROVES = {"76d35575aead": {
+    "1": "test_a_data_heredocs_body_is_not_read_as_a_command",
+    "2": "test_a_heredoc_fed_to_a_shell_is_still_judged",
+    "3": "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing",
+}}
+
+
+def test_a_data_heredocs_body_is_not_read_as_a_command():
+    """cat/tee writing a here-document is a data write: its body's words are prose."""
+    for command in [
+        "cat >> ~/.cairn/x.md <<'EOF'\nwe rm nothing\nEOF",
+        "cat > ~/.cairn/foreground-decisions.md <<EOF\nthe rm -rf ~/.cairn/logs of 08-18\nEOF",
+        "tee -a ~/.cairn/x.md <<-\"END\"\n\trm is a word here\n\tEND",
+    ]:
+        assert gate.verdict(command) is None, f"a data heredoc's body was judged as a command: {command!r}"
+
+
+def test_a_heredoc_fed_to_a_shell_is_still_judged():
+    """A here-document fed to anything that runs it keeps its body judged as today."""
+    for command in [
+        "bash <<'EOF'\nrm -rf ~/.cairn\nEOF",
+        "sh <<EOF\nrm -rf ~/.cairn/logs\nEOF",
+        "python3 - <<'EOF'\nimport os; os.system('rm -rf ~/.cairn/logs')\nEOF",
+        "cat <<'EOF' | bash\nrm -rf ~/.cairn/logs\nEOF",
+        "cat <<'EOF'\nrm -rf ~/.cairn/logs",
+    ]:
+        assert gate.verdict(command) is not None, f"a heredoc that runs went through: {command!r}"
+
+
+def test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing():
+    """The narrowing touches heredoc bodies only; a delete outside one is refused as before."""
+    for command in [
+        "rm -rf ~/.cairn/foo",
+        "cat >> ~/.cairn/x.md <<'EOF'\nnote\nEOF\nrm -rf ~/.cairn/foo",
+        "cat > /tmp/n.md <<'EOF' && rm -rf ~/.cairn/foo\nnote\nEOF",
+    ]:
+        assert gate.verdict(command) is not None, f"a guarded delete went through: {command!r}"
+
+
 def test_the_gate_runs_as_a_hook_and_blocks_with_exit_2():
     """END TO END, through the real contract — measured 2026-08-18 rather than assumed:
     stdin is JSON, exit 0 allows, exit 2 blocks and feeds stderr back to Claude."""
@@ -370,6 +411,9 @@ def _main() -> int:
         test_the_bound_the_git_roots_are_not_gated,
         test_a_command_that_only_reads_the_root_passes,
         test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property,
+        test_a_data_heredocs_body_is_not_read_as_a_command,
+        test_a_heredoc_fed_to_a_shell_is_still_judged,
+        test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing,
         test_the_gate_runs_as_a_hook_and_blocks_with_exit_2,
         test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly,
         test_the_gate_is_registered_where_it_claims_to_be,

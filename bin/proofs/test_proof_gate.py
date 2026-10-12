@@ -44,7 +44,6 @@ import json
 import shlex
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -214,7 +213,10 @@ _FIXTURE: list = []
 def _fixture_proofs() -> Path:
     """Two fixture proofs in a proofs/ directory outside the repo, named so a leak explains itself."""
     if not _FIXTURE:
-        d = Path(tempfile.mkdtemp(prefix="proofgate_fixture_proof_")) / "proofs"
+        if str(_REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(_REPO_ROOT))
+        from cairn.tools.scratch.scratch import scratch_dir
+        d = scratch_dir("proofgate_fixture_proof_") / "proofs"
         d.mkdir()
         (d / "test_prints_the_seal_marker.py").write_text(
             "import os\nprint('sealed=' + os.environ.get('CAIRN_TESTER_INSTANCE_SEALED', 'absent'))\n")

@@ -278,7 +278,7 @@ def _by_label(records: list[dict]) -> dict[str, list[str]]:
 
 def _trouble_store() -> Path:
     """The trouble store, as the trouble device names it (its declared public interface)."""
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.store import store_root
     return store_root()
 
 

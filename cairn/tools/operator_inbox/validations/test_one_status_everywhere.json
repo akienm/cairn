@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T21:27:23",
+    "date": "2026-10-13T12:59:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 96 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 96 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 96 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 76 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:in-process', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 76 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 76 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
       "teeth_green": [
         "test_fixture_one_label_per_id_across_all_three",
@@ -21,7 +21,7 @@
         "test_live_akienupdate_reports_agree"
       ],
       "teeth_red": [],
-      "test": "test-49cfba5d91f3",
+      "test": "test-9015e22e28a0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,14 +45,14 @@
       },
       "killed": [
         {
-          "pid": 2246331,
+          "pid": 2849341,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-49cfba5d91f3",
-      "source_fingerprint": "b27704aec2fb190fcf5d819569f4c3d1d51fee540ff8b1b45f258f43476b5420",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9015e22e28a0",
+      "source_fingerprint": "35aec5279623882bf83dcd445280efed7b5ebc970a48ffc79ee42b44595dd3a7",
       "fingerprint_closure": [
         "cairn/tools/operator_inbox/__init__.py",
         "cairn/tools/operator_inbox/inbox.py",
@@ -60,7 +60,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2237976-5vdcu2qq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841117-as_ia651/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
@@ -68,28 +68,28 @@
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261013.032721.119240.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.032721.333351.BusDevice.post.json",
-            "logs/bus/0/20261013.032721.343669.BusDevice.post.json",
-            "logs/bus/0/20261013.032721.448199.BusDevice.post.json",
-            "logs/bus/0/20261013.032721.449347.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032721.452946.BusDevice.delivered.json",
+            "logs/bus/0/20261013.185943.763568.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261013.185944.018151.BusDevice.post.json",
+            "logs/bus/0/20261013.185944.029950.BusDevice.post.json",
+            "logs/bus/0/20261013.185944.157554.BusDevice.post.json",
+            "logs/bus/0/20261013.185944.158941.BusDevice.delivered.json",
+            "logs/bus/0/20261013.185944.163641.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261013.032720.278119.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261013.032720.837031.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261013.032722.029683.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261013.032721.451432.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261013.032721.452366.TesterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261013.185942.801048.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261013.185943.446783.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261013.185944.893927.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261013.185944.161501.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261013.185944.162719.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 108095135,
-          "disk_bytes": 133259264,
-          "entries": 10140,
+          "bytes": 109112680,
+          "disk_bytes": 135163904,
+          "entries": 10436,
           "builds": 1,
-          "reuses": 41
+          "reuses": 40
         }
       }
     },

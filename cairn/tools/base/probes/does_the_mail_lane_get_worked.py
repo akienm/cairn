@@ -50,7 +50,7 @@ _ENOUGH_CLEARED = 6
 def _trouble_root() -> Path:
     # The store the trouble device names (ticket 4ddc9df3369e); cleared ones sit in cleared/,
     # so the survey below reads the tree, not only the top.
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.store import store_root
     return store_root()
 
 

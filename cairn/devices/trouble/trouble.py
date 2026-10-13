@@ -114,10 +114,9 @@ WORKFLOW_CLEARED = "trouble@v1: OPEN -> [CLEARED]"
 CLEARED_DIR = "cleared"
 
 
-def store_root(roots: dict | None = None) -> Path:
-    """Where the trouble store lives: ``log_path('cairn', 0, roots)/troubletickets``. Public,
-    so every reader of the store asks here instead of naming the path (RULE 1)."""
-    return log_path("cairn", 0, roots) / "troubletickets"
+# store_root lives in store.py so callers outside the component can ask for the path without
+# importing this module's fold path (and the bus client's socket behind it); re-exported here.
+from cairn.devices.trouble.store import store_root  # noqa: E402,F401
 
 _SLUG = re.compile(r"[^a-z0-9-]+")
 

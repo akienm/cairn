@@ -2483,7 +2483,7 @@ _QUESTIONS = _REPO_ROOT.parent / "CairnCommons" / "questions"
 def _trouble_folders() -> tuple[Path, Path]:
     """The trouble store's top and its cleared/, as the trouble device names them (ticket
     4ddc9df3369e). Asked at call time: this module loads before any device does."""
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.store import store_root
     root = store_root()
     return (root, root / "cleared")
 

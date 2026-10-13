@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_trouble.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-12T22:22:35",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T12:55:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_inspector_troubles_were_cleared_through_the_door\n.\n  ok   test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution\n.\n  ok   test_a_clear_for_a_trouble_that_is_NOT_LIVE_is_DECLINED_and_does_not_WEDGE_the_lane\n.\n  ok   test_a_reconcile_clears_the_stale_spares_the_standing_and_CANNOT_REACH_OUTSIDE_ITS_SCOPE\n.\n  ok   test_BOTH_CLEARING_LANES_COMPARE_THROUGH_THE_STORES_OWN_ADDRESSING_RULE\n.\n  ok   test_a_RECONCILE_SCOPE_KEEPS_ITS_TRAILING_SEPARATOR\n.\n  ok   test_the_THREE_LANES_keep_INDEPENDENT_watermarks\n.\n  ok   test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS\n.\n  ok   test_the_narrowed_lane_scan_still_bites\n                                 [100%]\n40 passed in 6.30s",
+      "stdout_tail": ".\n  ok   test_the_inspector_troubles_were_cleared_through_the_door\n.\n  ok   test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution\n.\n  ok   test_a_clear_for_a_trouble_that_is_NOT_LIVE_is_DECLINED_and_does_not_WEDGE_the_lane\n.\n  ok   test_a_reconcile_clears_the_stale_spares_the_standing_and_CANNOT_REACH_OUTSIDE_ITS_SCOPE\n.\n  ok   test_BOTH_CLEARING_LANES_COMPARE_THROUGH_THE_STORES_OWN_ADDRESSING_RULE\n.\n  ok   test_a_RECONCILE_SCOPE_KEEPS_ITS_TRAILING_SEPARATOR\n.\n  ok   test_the_THREE_LANES_keep_INDEPENDENT_watermarks\n.\n  ok   test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS\n.\n  ok   test_the_narrowed_lane_scan_still_bites\n                                 [100%]\n40 passed in 6.33s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_first_raise_notifies",
@@ -52,7 +52,7 @@
         "test_the_narrowed_lane_scan_still_bites"
       ],
       "teeth_red": [],
-      "test": "test-767c026ef9b6",
+      "test": "test-f106d967281a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -66,65 +66,65 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_RUNTIME": "29aa6f71459e"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-767c026ef9b6",
-      "source_fingerprint": "fa92de4286e83ec579d88c7fd8664510aa3e36a041f45b31b8694f77d798c4d8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f106d967281a",
+      "source_fingerprint": "53ad29bdc0ed9e325d69ae626678d15018cf9b1dbd635993444f28422b572e57",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/__init__.py",
         "cairn/devices/trouble/proofs/test_trouble.py",
         "cairn/devices/trouble/shim.py",
+        "cairn/devices/trouble/store.py",
         "cairn/devices/trouble/trouble.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2258701-8_x1wr47/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2841117-qt2xa4lc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 22,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261013.042228.092469.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042228.093134.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042228.134473.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042232.927714.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042232.984523.TroubleDevice.clear.json",
-            "logs/trouble/0/20261013.042233.090493.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.199081.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.199610.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.200098.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.233279.TroubleDevice.clear.json",
-            "logs/trouble/0/20261013.042233.264977.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.326371.TroubleDevice.clear.json",
-            "logs/trouble/0/20261013.042233.386345.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.387133.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.417753.TroubleDevice.clear.json",
-            "logs/trouble/0/20261013.042233.478686.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.479201.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.510169.TroubleDevice.clear.json",
-            "logs/trouble/0/20261013.042233.541954.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.630533.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261013.042233.631591.TroubleDevice.clear.json"
+            "logs/trouble/0/20261013.185517.791184.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185517.791786.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185517.827238.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185522.761842.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185522.819464.TroubleDevice.clear.json",
+            "logs/trouble/0/20261013.185522.908158.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185522.997941.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185522.998428.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185522.998894.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.031995.TroubleDevice.clear.json",
+            "logs/trouble/0/20261013.185523.070247.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.135281.TroubleDevice.clear.json",
+            "logs/trouble/0/20261013.185523.200701.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.201481.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.232897.TroubleDevice.clear.json",
+            "logs/trouble/0/20261013.185523.294300.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.294812.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.324656.TroubleDevice.clear.json",
+            "logs/trouble/0/20261013.185523.356371.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.446192.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261013.185523.447236.TroubleDevice.clear.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 108347115,
-          "disk_bytes": 133582848,
-          "entries": 10153,
+          "bytes": 109110446,
+          "disk_bytes": 135196672,
+          "entries": 10439,
           "builds": 1,
-          "reuses": 0
+          "reuses": 7
         }
       }
     },

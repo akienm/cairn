@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_run_stops_the_units_it_started.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-09T09:07:18",
+    "date": "2026-10-13T15:10:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_a_unit_not_carrying_the_id_is_left_alone"
       ],
       "teeth_red": [],
-      "test": "test-afc6c9f24b33",
+      "test": "test-4c3398a50c91",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,8 +40,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-afc6c9f24b33",
-      "source_fingerprint": "426c864ea623793e4b6e93aa5df64774a80e839270a82bc9a9d4666c126f98f2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c3398a50c91",
+      "source_fingerprint": "bc319eab85ecce83ac15afd99f5a8567ddcd4da7ea4e38a714f5e41f5ab9bc01",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -52,36 +52,35 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-736698-ooohhmgc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2921888-nimlbj6q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261009.150705.074431.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.150708.109155.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.150715.139632.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.150717.151310.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-082081a3717a/stderr.txt",
-            "logs/tester/0/runs/test-082081a3717a/stdout.txt",
-            "logs/tester/0/runs/test-10f20c7597af/stderr.txt",
-            "logs/tester/0/runs/test-10f20c7597af/stdout.txt",
-            "logs/tester/0/runs/test-4a6a4f4d689d/stderr.txt",
-            "logs/tester/0/runs/test-4a6a4f4d689d/stdout.txt",
-            "logs/tester/0/runs/test-9a52c241a0cf/stderr.txt",
-            "logs/tester/0/runs/test-9a52c241a0cf/stdout.txt"
+            "logs/tester/0/20261013.211007.846851.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.211012.637717.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.211020.867523.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.211023.666857.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-4031b7380cf4/stderr.txt",
+            "logs/tester/0/runs/test-4031b7380cf4/stdout.txt",
+            "logs/tester/0/runs/test-c828f3f836ca/stderr.txt",
+            "logs/tester/0/runs/test-c828f3f836ca/stdout.txt",
+            "logs/tester/0/runs/test-cdccda08f823/stderr.txt",
+            "logs/tester/0/runs/test-cdccda08f823/stdout.txt",
+            "logs/tester/0/runs/test-f4de7ef01c99/stderr.txt",
+            "logs/tester/0/runs/test-f4de7ef01c99/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 105354944,
-          "disk_bytes": 128176128,
-          "entries": 9300,
+          "bytes": 109302432,
+          "disk_bytes": 135602176,
+          "entries": 10521,
           "builds": 1,
           "reuses": 7
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

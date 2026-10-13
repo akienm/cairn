@@ -57,6 +57,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
+from cairn.tools.scratch.scratch import git_env  # 25ee4866642e: the subject's env drops git's repo-location vars
 from cairn.devices.tester.conditions import compare, measure  # f0aad0cd0f56
 from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed by its test id
     ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir,
@@ -191,8 +192,16 @@ def _env_pinned_to(proof_path) -> dict:
     that DID pin — the convention, not the instrument. This is the instrument: whatever the
     caller's environment, ``import cairn`` inside a subject resolves to the tree the subject
     sits in. A proof's own ``sys.path.insert(0, root)`` still agrees with it.
+
+    AND IT STARTS FROM ``git_env()``, NOT THE RAW ENVIRONMENT (ticket 25ee4866642e). Measured
+    2026-10-13 on a135bdb13646's build commit: a ``git commit -- <paths>`` hook exports
+    GIT_INDEX_FILE=<abs>/.git/next-index-*.lock, the subject inherited it, and
+    test_rehearsal.py's own scratch-repo commits wrote through the caller's index and sealed
+    RED ('invalid object ... Error building trees'); rerun bare it sealed green. A verdict that
+    depends on who called the tester is a verdict about the caller, so the subject gets the
+    same scrub the tester's own git calls take.
     """
-    env = dict(os.environ)
+    env = git_env()
     root = _tree_root(proof_path)
     if root is not None:
         prior = env.get("PYTHONPATH", "")

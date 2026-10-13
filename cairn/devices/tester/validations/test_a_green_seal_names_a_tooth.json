@@ -2,19 +2,19 @@
   {
     "claim": "proof test_a_green_seal_names_a_tooth.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-09T09:05:50",
+    "date": "2026-10-13T15:08:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 6.10s",
+      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 5.85s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_exit_zero_run_that_names_no_tooth_seals_red",
         "test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it"
       ],
       "teeth_red": [],
-      "test": "test-f2a1627438a6",
+      "test": "test-d0688691f4a2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2a1627438a6",
-      "source_fingerprint": "c37366b0cc2560bb11014730e1e97f482cf9453214997ae75e28cd4e66cadad9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d0688691f4a2",
+      "source_fingerprint": "03b4b4b30a384e74d8c5b68631478d4c1f93efa60f5603d879e0b4a51b837d0b",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -50,30 +50,29 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-736698-qf7x9t7o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2921888-pc_qfs14/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261009.150546.164303.TesterDevice.run_proof.json",
-            "logs/tester/0/20261009.150549.245826.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-97b375182496/stderr.txt",
-            "logs/tester/0/runs/test-97b375182496/stdout.txt",
-            "logs/tester/0/runs/test-f81ccb3506eb/stderr.txt",
-            "logs/tester/0/runs/test-f81ccb3506eb/stdout.txt"
+            "logs/tester/0/20261013.210837.068811.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.210839.977947.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-0a1bc812f66d/stderr.txt",
+            "logs/tester/0/runs/test-0a1bc812f66d/stdout.txt",
+            "logs/tester/0/runs/test-f8c7d959d9bd/stderr.txt",
+            "logs/tester/0/runs/test-f8c7d959d9bd/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 105354059,
-          "disk_bytes": 128159744,
-          "entries": 9292,
+          "bytes": 109301545,
+          "disk_bytes": 135585792,
+          "entries": 10513,
           "builds": 1,
-          "reuses": 3
+          "reuses": 2
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

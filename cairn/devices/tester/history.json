@@ -52538,5 +52538,88 @@
     "fingerprint": "bb23f02e3817ef62391cfb089dd39bb8336ba432f6b9388c26b1de42d46dce85",
     "at": "2026-10-13T05:01:25",
     "seq": 193
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "d65fe3aa96e2",
+    "actor": "CC",
+    "missing": [
+      "[hollow_evidence_absent] no hollow reading — the green on this proof has never been distinguished from the green a build with the work reverted would also print. FIX, one command: `cairn test --hollow d65fe3aa96e2 --seal`"
+    ],
+    "why": "clearance refused at PROVED: 1 lack(s)",
+    "fingerprint": "886dc51220cfaeda0c5a850fc20781cdc3959404e5d592944a3c52b4930ae2b3",
+    "at": "2026-10-13T05:01:43",
+    "seq": 194
   }
 ]

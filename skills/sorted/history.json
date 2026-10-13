@@ -3375,5 +3375,81 @@
     "fingerprint": "152e52fb77bec2aa9dd52d077ace931bab9888e87e55060aae35b937d9248fe2",
     "at": "2026-10-03T23:19:52",
     "seq": 13
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the-author-field-holds-more-than-one-name) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e71983e8d76c",
+    "actor": "cc",
+    "why": "triage 2026-10-12 (blanket approval thru PROVED, CC's call, per Akien 2026-10-09): 23089d52d805 (PROVED) puts every cast through cast_ticket on the artifact door, whose journal line names the writer and the door — the who-and-through-which-door this ticket asked for",
+    "fingerprint": "b492477a83dfeccf67d780afdeefec29bc3a576c9c2479ee354e104f861f3637",
+    "at": "2026-10-13T01:40:41",
+    "seq": 14
   }
 ]

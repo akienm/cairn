@@ -346,5 +346,81 @@
     "fingerprint": "9e68e354881cecfe7f40a7aa29eac630e5a5f345ac12d8895503fb34f8e2436e",
     "at": "2026-09-07T19:36:49",
     "seq": 2
+  },
+  {
+    "from": "BUILDME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "actual": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 2,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED",
+        "actual": "BUILDME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "f53cbc262023",
+    "actor": "cc",
+    "why": "triage 2026-10-12 (CC's call, per Akien 2026-10-09): the door it checks is retired — ruling/cli.py:48 refuses 'cairn ruling open'; a decision is now a question answered in the inbox (9adc6fddf185 PROVED), recorded verbatim by cairn question answer",
+    "fingerprint": "b6464dbacdec1d9136beda2244414d8a3e8e4ef79d252f7da1e34a3b2bf6aa9d",
+    "at": "2026-10-13T01:40:42",
+    "seq": 3
   }
 ]

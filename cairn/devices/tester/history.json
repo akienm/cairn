@@ -48431,5 +48431,80 @@
     "fingerprint": "6a8c3f1cbf42165f54e7dd56f1cb27487defded8efc42eef5f87d37c5a8e612e",
     "at": "2026-10-13T01:15:35",
     "seq": 177
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "bug@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the bug@v1 vocabulary",
+        "actual": "'SUPERSEDED' in the bug@v1 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "39966e1cefe4",
+    "actor": "cc",
+    "why": "triage 2026-10-12 (CC's call, per Akien 2026-10-09): Akien answered open-fc534f53014d 'Neither (b) nor (c)', rejecting this ticket's git-diff union; 8e3474a6ae43 (RULE 1) carries the answer: hollow's subject set is the ticket's files inside its own component",
+    "fingerprint": "74b23609b1385a6653986e0898cdb374e14ebe9c464193eee852dd872bbf6d43",
+    "at": "2026-10-13T01:40:41",
+    "seq": 178
   }
 ]

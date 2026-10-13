@@ -1058,5 +1058,81 @@
     "fingerprint": "da0c0c2d6f7fd2f1143546e42839feee3e14c099b219c5642f1a412138551161",
     "at": "2026-10-03T20:31:53",
     "seq": 2
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a-stale-iou-reds) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "ec9c476508dc",
+    "actor": "cc",
+    "why": "triage 2026-10-12 (CC's call, per Akien 2026-10-09): f5dbfddea8c6 'no IOU stands' subsumes this — once no IOU stands, none needs a referent to notice its physics; the 11 stale sites are inside f5db's sweep",
+    "fingerprint": "ea7906fcfb80ca43246c20795877b6db69ab638e0ee2a0dc530c055b90ff0b30",
+    "at": "2026-10-13T01:40:41",
+    "seq": 3
   }
 ]

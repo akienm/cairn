@@ -241,9 +241,21 @@ def _main() -> int:
         test_a_with_block_holds_the_scratch,
         test_every_with_scratch_dir_site_in_the_repo_enters,
     ]
+    # EVERY TOOTH RUNS AND REPORTS ITSELF. A loop that stopped at the first failure printed
+    # nothing when the hollow reading took scratch.py away, and the hollow could not tell a
+    # red from a proof that never ran (UNRAN, ticket e038544a9b60).
+    failed = 0
     for check in checks:
-        check()
+        try:
+            check()
+        except Exception as e:  # noqa: BLE001 — a tooth's crash is that tooth's red
+            failed += 1
+            print(f"  FAIL  {check.__name__}: {type(e).__name__}: {str(e).splitlines()[0] if str(e) else ''}")
+            continue
         print(f"  PASS  {check.__name__}")
+    if failed:
+        print(f"red — scratch: {failed} of {len(checks)} teeth failed")
+        return 1
     print("green — scratch: a proof's throwaway directory cannot outlive the run, "
           "and no proof in this repo can opt out of that")
     return 0

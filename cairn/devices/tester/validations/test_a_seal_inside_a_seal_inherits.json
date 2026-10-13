@@ -104,7 +104,28 @@
           "reuses": 8
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
+      "hollow": {
+        "c54d744aa9ac": {
+          "cairn/devices/tester/isolation.py": [
+            "test_a_nested_tester_run_reports_its_fixture_green",
+            "test_the_inner_write_lands_in_the_outer_swap_only",
+            "test_the_instance_marker_without_a_mount_reads_breached"
+          ],
+          "cairn/devices/tester/device.py": [
+            "test_a_nested_tester_run_reports_its_fixture_green",
+            "test_the_inner_write_lands_in_the_outer_swap_only"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "c54d744aa9ac": {
+          "anchor_rule": "journal",
+          "anchor_journal": "c2f4e710f657dcd6e11a901023354d948d559939",
+          "anchor_first_build": "302eefc5855224827c7468bda5e2cf7d187a54fd",
+          "commit": "c2f4e710f657dcd6e11a901023354d948d559939"
+        }
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -395,5 +395,12 @@ def _main():
     return 0
 
 
+PROVES = {
+    "e9b0a8d4fb99": {
+        "all": "test_the_yield_splits_reflected_from_baseline_over_ONE_population"
+    }
+}
+
+
 if __name__ == "__main__":
     raise SystemExit(_main())

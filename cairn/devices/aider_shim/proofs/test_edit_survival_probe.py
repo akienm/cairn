@@ -295,5 +295,12 @@ def _main():
     return 0
 
 
+PROVES = {
+    "6d3e689b0bf8": {
+        "all": "test_an_edit_MOVED_AGAIN_is_rewritten"
+    }
+}
+
+
 if __name__ == "__main__":
     raise SystemExit(_main())

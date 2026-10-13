@@ -3462,6 +3462,94 @@ def claim_provenance(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+
+
+_CLAIM_FIELDS = ("role", "what", "why")
+_CLAIM_MIN_WORDS = 8
+_CLAIM_MARKS = ("akien", "cc-read")
+
+
+def _claim_sentences(text: str) -> list[str]:
+    """The definitional claims in one charter field: each sentence of eight or more words,
+    lowercased, punctuation stripped, whitespace collapsed (ticket d48d54dccde6, D-a)."""
+    out = []
+    for sentence in re.split(r"(?<=[.!?])\s+", text):
+        norm = " ".join(re.sub(r"[^\w\s]", "", sentence.lower()).split())
+        if len(norm.split()) >= _CLAIM_MIN_WORDS:
+            out.append(norm)
+    return out
+
+
+def _claim_carried(marks: list) -> bool:
+    """A recurring claim is attributed when ANY artifact carrying it marks the field
+    'akien' or 'cc-read' (D-c green): one attributed carrier is the provenance trail."""
+    return any(m in _CLAIM_MARKS for m in marks)
+
+
+def _claim_corpus(repo: Path, commons: Path | None) -> list[Path]:
+    """Both roots (clause 4, D-b): every charter in the cairn repo, and every JSON
+    intention in the commons' intentions-not-beside-code. intentions-congruency-lab is
+    NOT read — it is a derived copy of all of these and would double every sentence."""
+    files = sorted(p for p in repo.rglob("intention+why.json") if ".git" not in p.parts)
+    if commons is not None:
+        home = commons / "intentions-not-beside-code"
+        if home.is_dir():
+            files += sorted(home.rglob("*.json"))
+    return files
+
+
+def claim_propagates_with_provenance(row: dict, comp_dir: Path, *, repo: Path | None = None,
+                                     commons: Path | None = None) -> list[dict]:
+    """A definitional claim that recurs across artifacts carries its provenance somewhere.
+
+    Provenance: ticket d48d54dccde6 (a-claim-carries-its-provenance) — twice in two days a
+    CC definition propagated at full confidence into other artifacts with no mark that Akien
+    never gave it. ``claim_provenance`` above checks a charter HAS the field; this reads what
+    the field is FOR: a normalized sentence (D-a) appearing in two or more artifacts across
+    BOTH roots (D-b), none of which marks that field 'akien' or 'cc-read', reds (D-c).
+    A corpus-level check, so it runs once, on build_inspector's own row (the same scoping
+    question_links_agree uses for its corpus). Measured on the live corpus at the build,
+    2026-10-13: 102 artifacts, 10 recurring sentences, 0 unattributed.
+    """
+    if row.get("component") != "build_inspector":
+        return []
+    if repo is None:
+        repo = comp_dir
+        while repo.name and not (repo / ".git").exists():
+            repo = repo.parent
+        if not (repo / ".git").exists():
+            return []
+    if commons is None:
+        from cairn.tools.artifact import artifact as door
+        commons = door.roots().get("CairnCommons")
+    seen: dict[str, list[tuple[str, object]]] = {}
+    for path in _claim_corpus(Path(repo), Path(commons) if commons else None):
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(doc, dict):
+            continue
+        marks = doc.get("claim_provenance")
+        marks = marks if isinstance(marks, dict) else {}
+        for field in _CLAIM_FIELDS:
+            text = doc.get(field)
+            if not isinstance(text, str):
+                continue
+            for claim in _claim_sentences(text):
+                seen.setdefault(claim, []).append((str(path), marks.get(field)))
+    findings = []
+    for claim, carriers in sorted(seen.items()):
+        if len({p for p, _ in carriers}) < 2 or _claim_carried([m for _, m in carriers]):
+            continue
+        findings.append(_finding(
+            "claim_propagates_with_provenance", row["component"],
+            "a claim recurring across artifacts carries 'akien' or 'cc-read' on a carrier",
+            expected=True, actual=False,
+            claim=claim, carriers=sorted({p for p, _ in carriers})))
+    return findings
+
+
 def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = None) -> list[dict]:
     """Uncommitted changes anywhere in cairn or CairnCommons at a crossing.
 
@@ -3791,6 +3879,7 @@ SIEVES = {
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,
     "claim_provenance": claim_provenance,
+    "claim_propagates_with_provenance": claim_propagates_with_provenance,
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
     "encapsulation_holds": encapsulation_holds,

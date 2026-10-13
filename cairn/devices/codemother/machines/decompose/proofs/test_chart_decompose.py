@@ -470,5 +470,13 @@ def _main() -> int:
     return 0
 
 
+PROVES = {
+    "68f1fc073512": {
+        "a": "test_every_piece_names_where_it_writes",
+        "d": "test_every_piece_names_where_it_writes"
+    }
+}
+
+
 if __name__ == "__main__":
     raise SystemExit(_main())

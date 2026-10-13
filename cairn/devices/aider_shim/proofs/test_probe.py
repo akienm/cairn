@@ -469,5 +469,12 @@ def main():
     return 0
 
 
+PROVES = {
+    "d7b4019d2407": {
+        "all": "test_the_probe_reads_the_shape_the_DOOR_WRITES_not_one_it_invented"
+    }
+}
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

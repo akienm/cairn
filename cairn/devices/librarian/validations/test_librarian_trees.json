@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_librarian_trees.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T09:02:20",
+    "caller": "cairn test",
+    "date": "2026-10-13T09:15:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -52,7 +52,7 @@
         "test_ingest_asks_and_never_imports"
       ],
       "teeth_red": [],
-      "test": "test-d96c327d9cce",
+      "test": "test-366c3d6ba8cb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -66,17 +66,18 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d96c327d9cce",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-366c3d6ba8cb",
       "source_fingerprint": "b84a6d66e1f98412259c3c16f0ce9b4d646f57525658863b36c04f37fd4b18a2",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
@@ -86,7 +87,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2674761-5pd0eerw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2685436-i8cdn8g_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -95,14 +96,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108784200,
-          "disk_bytes": 134488064,
-          "entries": 10313,
+          "bytes": 108814239,
+          "disk_bytes": 134520832,
+          "entries": 10315,
           "builds": 1,
-          "reuses": 7
+          "reuses": 0
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -1,23 +1,22 @@
 {
   "cursor": {
-    "from": "WATCHME",
-    "to": "FIXME",
-    "standing": "FIXME",
-    "workflow": "skill@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(akien-gate-dial) -> PROVED",
-    "direction": "back",
-    "severity": 3,
+    "from": "FIXME",
+    "to": "RETIRED",
+    "standing": "RETIRED",
+    "workflow": "skill@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(akien-gate-dial) -> PROVED -> [RETIRED]",
+    "direction": "disposition",
     "entry_gate": "not_applicable",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'FIXME' in the skill@v2 vocabulary",
-        "actual": "'FIXME' in the skill@v2 vocabulary",
+        "expected": "'RETIRED' in the skill@v2 vocabulary",
+        "actual": "'RETIRED' in the skill@v2 vocabulary",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
+          "target": "RETIRED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
@@ -38,171 +37,47 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> FIXME moves the cursor off position 5",
-        "actual": "WATCHME -> FIXME moves the cursor off position 5",
+        "expected": "FIXME -> RETIRED moves the cursor off position 2",
+        "actual": "FIXME -> RETIRED moves the cursor off position 2",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
-          "cursor": 5,
-          "resolved": 2
+          "target": "RETIRED",
+          "cursor": 2,
+          "resolved": 7
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "WATCHME -> FIXME",
-        "actual": "WATCHME -> FIXME",
+        "expected": "FIXME -> RETIRED",
+        "actual": "FIXME -> RETIRED",
         "fatality": "none",
         "source": "transitions.inspect_rules",
         "values": {
-          "target": "FIXME",
+          "target": "RETIRED",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
-            "FIXME",
-            "PROVED",
-            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
             "THINKME",
             "TICKETME"
           ],
-          "direction": "back"
+          "direction": "forward"
         }
       }
     ],
     "checks_proved": 3,
     "ticket": "18693659d16b",
     "actor": "cc",
-    "missing": [
-      "[watchme] its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)"
-    ],
-    "why": "a WATCHME finding: its watchme names cairn/machines/learning_block/probes/akien_gate_dial.py, which does not exist and never has (find + git log --diff-filter=D, 2026-10-03), so nothing can post for this watch and no receiver can use it (Akien's answer to open-291189a9766a: no sensible receiver -> FIXME)",
-    "fingerprint": "ca8db845d2beceec169b980b59258ff08f80cd3a5af237b03518ae89ece151a2",
-    "at": "2026-10-05T19:12:40",
-    "seq": 14
+    "why": "re-triage 2026-10-13 (CC's call, per Akien 2026-10-12): a parent whose children are prose, not ticket ids, and with no single build commit, so no hollow can read it (builder, measured 2026-10-13). Measured state of the children: (a) the primitive PROVED 08-01; (b) intent-becomes-a-learning-block PROVED 08-01; (c) roster: challenge, sorted, saveslate, chart, sail, idea, design, ruled, whatslefttodo have skills/<s>/door.py; note, commit, moreabout do not; (d) workflows never cast. The never-written akien_gate_dial WATCHME retires with it. Whether the last three skills should get doors is open as a question for Akien, not owed here. RETIRED, not PROVED (Law 8).",
+    "fingerprint": "136f4a1ee07b02c3d1740beb1c79ddefee2707c15f629c7773ac95f051a1f908",
+    "at": "2026-10-13T03:18:24",
+    "seq": 15
   },
   "window": [
-    {
-      "from": "BUILDME",
-      "to": "PROVEME",
-      "standing": "PROVEME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'd6cacb63868b', and the ticket names its /intent firing and its /sorted door firing; clean — the entry_gate proved 3 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
-          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME moves the cursor off position 2",
-          "actual": "BUILDME -> PROVEME moves the cursor off position 2",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "cursor": 2,
-            "resolved": 3
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "BUILDME -> PROVEME",
-          "actual": "BUILDME -> PROVEME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "PROVEME",
-            "legal_from_here": [
-              "DROPPED",
-              "PROVEME",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "d6cacb63868b"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "d6cacb63868b"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "d6cacb63868b"
-          }
-        }
-      ],
-      "checks_proved": 6,
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": "/home/akien/dev/src/cairn/cairn/machines/learning_block/proofs/test_learning_block.py",
-      "proven_seal_date": "2026-09-02T14:39:04",
-      "delegated": false,
-      "ticket": "d6cacb63868b",
-      "fingerprint": "f3f96451e9d32662b0ecc2e0630ea162d5c1ffb23a0bc0c321e88891f3be6cbe",
-      "at": "2026-09-06T10:22:33",
-      "seq": 10
-    },
     {
       "from": "PROVEME",
       "to": "BUILDME",
@@ -620,7 +495,85 @@
       "fingerprint": "ca8db845d2beceec169b980b59258ff08f80cd3a5af237b03518ae89ece151a2",
       "at": "2026-10-05T19:12:40",
       "seq": 14
+    },
+    {
+      "from": "FIXME",
+      "to": "RETIRED",
+      "standing": "RETIRED",
+      "workflow": "skill@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(akien-gate-dial) -> PROVED -> [RETIRED]",
+      "direction": "disposition",
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'RETIRED' in the skill@v2 vocabulary",
+          "actual": "'RETIRED' in the skill@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "RETIRED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "WATCHME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "FIXME -> RETIRED moves the cursor off position 2",
+          "actual": "FIXME -> RETIRED moves the cursor off position 2",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "RETIRED",
+            "cursor": 2,
+            "resolved": 7
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "FIXME -> RETIRED",
+          "actual": "FIXME -> RETIRED",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "RETIRED",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "18693659d16b",
+      "actor": "cc",
+      "why": "re-triage 2026-10-13 (CC's call, per Akien 2026-10-12): a parent whose children are prose, not ticket ids, and with no single build commit, so no hollow can read it (builder, measured 2026-10-13). Measured state of the children: (a) the primitive PROVED 08-01; (b) intent-becomes-a-learning-block PROVED 08-01; (c) roster: challenge, sorted, saveslate, chart, sail, idea, design, ruled, whatslefttodo have skills/<s>/door.py; note, commit, moreabout do not; (d) workflows never cast. The never-written akien_gate_dial WATCHME retires with it. Whether the last three skills should get doors is open as a question for Akien, not owed here. RETIRED, not PROVED (Law 8).",
+      "fingerprint": "136f4a1ee07b02c3d1740beb1c79ddefee2707c15f629c7773ac95f051a1f908",
+      "at": "2026-10-13T03:18:24",
+      "seq": 15
     }
   ],
-  "count": 15
+  "count": 16
 }

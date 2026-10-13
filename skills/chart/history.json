@@ -1709,5 +1709,83 @@
     "fingerprint": "ea0ea37a744829c6b40cdac4a39fe59cfc980490d8b4229aa6942174b081d2e3",
     "at": "2026-10-10T12:20:36",
     "seq": 50
+  },
+  {
+    "from": "FIXME",
+    "to": "RETIRED",
+    "standing": "RETIRED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(deposit-drain) -> PROVED -> [RETIRED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'RETIRED' in the code-seam@v2 vocabulary",
+        "actual": "'RETIRED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "FIXME -> RETIRED moves the cursor off position 2",
+        "actual": "FIXME -> RETIRED moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "cursor": 2,
+          "resolved": 7
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "FIXME -> RETIRED",
+        "actual": "FIXME -> RETIRED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "RETIRED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "12c293481037",
+    "actor": "cc",
+    "why": "re-triage 2026-10-13 (CC's call, per Akien 2026-10-12 'approved thru PROVED'): the build stands (enqueue transitions.py:2281, drain skills/chart/live.py _drain_before_serving) and its teeth stand sealed (tools/base/proofs/test_transitions.py test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth; codemother/proofs/test_deposit.py), with 2b34b52f80f3 and 637d206be821 PROVED on the same seam since. But its one build commit a3127d21 (2026-07-29) predates the 08-13 move, so a revert-hollow reads UNRAN by construction (builder, measured 2026-10-13) and PROVED's evidence.hollow can never be taken. RETIRED, not PROVED: nothing enters proven-space unhollowed (Law 8); the never-written deposit-drain WATCHME retires with it.",
+    "fingerprint": "ee36c8dbf6f004123c27ae3bf2762f2d70ceab627c0f9de8ed59eb3c610a1867",
+    "at": "2026-10-13T03:18:24",
+    "seq": 51
   }
 ]

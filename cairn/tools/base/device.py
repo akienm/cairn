@@ -81,11 +81,29 @@ purpose and the condition that ends it — otherwise it outlives its reason and 
 
 from __future__ import annotations
 
+import inspect
 from abc import ABC, abstractmethod
 
 from cairn.tools.base.core_values import CoreValuesMixin
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import canon
+
+
+def view_args_refusal(name: str, view_fn, args: dict) -> str | None:
+    """Why ``view_fn`` cannot take ``args``, or None when it can (ticket 35b92c5de7ef).
+
+    A view takes keyword arguments it declares in its signature; a key it does not declare
+    is refused, naming the key and what the view does take. No args is always fine."""
+    if not args:
+        return None
+    params = inspect.signature(view_fn).parameters.values()
+    if any(p.kind is p.VAR_KEYWORD for p in params):
+        return None
+    names = [p.name for p in params if p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)]
+    for key in args:
+        if key not in names:
+            return f"view {name} takes no argument {key} — it takes: {' '.join(names) or '(none)'}"
+    return None
 
 
 class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
@@ -201,7 +219,12 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
             return {"accepted": False, "verb": "get", "device": self.device_id,
                     "reason": f"no view {what!r}",
                     "available": sorted(views)}
-        data = view_fn()
+        args = envelope.get("body", {}).get("args") or {}
+        refusal = (view_args_refusal(what, view_fn, args) if isinstance(args, dict)
+                   else f"view {what} args must be a mapping, got {type(args).__name__}")
+        if refusal:
+            return {"accepted": False, "verb": "get", "device": self.device_id, "reason": refusal}
+        data = view_fn(**args)
         return {"accepted": True, "verb": "get", "view": what,
                 "device": self.device_id, "data": data}
 
@@ -215,7 +238,12 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
             return {"accepted": False, "verb": "show", "device": self.device_id,
                     "reason": f"no view {what!r}",
                     "available": sorted(views)}
-        data = view_fn()
+        args = envelope.get("body", {}).get("args") or {}
+        refusal = (view_args_refusal(what, view_fn, args) if isinstance(args, dict)
+                   else f"view {what} args must be a mapping, got {type(args).__name__}")
+        if refusal:
+            return {"accepted": False, "verb": "show", "device": self.device_id, "reason": refusal}
+        data = view_fn(**args)
         text = self._render_view(what, data)
         return {"accepted": True, "verb": "show", "view": what,
                 "device": self.device_id, "text": text, "data": data}

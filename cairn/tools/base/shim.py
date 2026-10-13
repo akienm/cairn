@@ -37,6 +37,7 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import canon
 from cairn.tools.base.address import instance_path
 from cairn.tools.base import testing_mark
+from cairn.tools.base.device import view_args_refusal
 
 
 NEVER_BOOTED = "NEVER_BOOTED"
@@ -1058,6 +1059,24 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                     "data": None, "cached": None}
         rest = [a for a in argv[1:] if canon(a, (HOT,)) is None]
         hot = len(rest) != len(argv) - 1
+        # --key value pairs after the view name are the view's arguments (ticket 35b92c5de7ef):
+        # a bare --flag is 'true', '-' in a key folds to '_', values stay strings. A
+        # parameterised read is never answered from last_known, so args imply hot.
+        args: dict = {}
+        if verb in ("show", "get") and len(rest) > 1:
+            tokens, rest = rest[1:], rest[:1]
+            i = 0
+            while i < len(tokens):
+                tok = tokens[i]
+                if not tok.startswith("--") or len(tok) < 3:
+                    return {"exit": 2, "text": f"cairn {dev}: {tok!r} is not an argument — "
+                            f"arguments are --key value", "data": None, "cached": None}
+                key = tok[2:].replace("-", "_")
+                if i + 1 < len(tokens) and not tokens[i + 1].startswith("--"):
+                    args[key], i = tokens[i + 1], i + 2
+                else:
+                    args[key], i = "true", i + 1
+            hot = True
 
         if verb == "start":
             if self.running:
@@ -1122,6 +1141,9 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             available = list(ROOT_VIEWS) + list(device_views)
             return {"exit": 2, "text": f"cairn {dev}: no view {what!r} — views: {' '.join(available)}",
                     "data": None, "cached": cached}
+        refusal = view_args_refusal(name, (lambda: None) if root is not None else device_views[name], args)
+        if refusal:
+            return {"exit": 2, "text": f"cairn {dev}: {refusal}", "data": None, "cached": cached}
         if root is not None:
             if introspect is None:
                 data = None
@@ -1130,7 +1152,7 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
             else:
                 data = introspect.get("settings")
         else:
-            data = device_views[name]()
+            data = device_views[name](**args)
 
         if verb == "get":
             payload = {"device": dev, "view": name, "cached": cached, "timestamp": timestamp, "data": data}

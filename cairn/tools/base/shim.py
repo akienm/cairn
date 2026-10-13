@@ -626,71 +626,52 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
         self._ensure_device()
         return self._device
 
-    def _personal_feed_pane(self) -> dict:
-        """Floor pane: the personal channel projected as a conversation view."""
-        if self._bus is None:
-            return {"kind": "personal_feed", "label": "Chat",
-                    "data": None, "absent": "no bus injected"}
-        try:
-            messages = self._bus.read(to=self.device_id, channel="personal")
-        except Exception as exc:  # noqa: BLE001
-            return {"kind": "personal_feed", "label": "Chat",
-                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
-        # Sliced after the read: bus.read takes no limit, so the whole channel still crosses
-        # the wire once per page load — the pane is bounded, the read is not (yet).
-        older = len(messages) - FEED_PANE_LIMIT
-        turns = [
-            {"sender": m.get("sender", "?"),
-             "date": m.get("date", "?"),
-             "body": _bounded_body(m.get("body", {}))}
-            for m in messages[-FEED_PANE_LIMIT:]
-        ]
-        data: dict = {"turns": turns}
+    def _channel_tail(self, channel: str) -> tuple[list[dict], dict]:
+        """The newest FEED_PANE_LIMIT messages on one of this device's channels, and the older
+        line when the channel holds more (ticket 86423bb5f054: no pane reads a whole channel).
+        The bus is asked for exactly what the pane shows and counts the rest; a bus without
+        ``limit``/``count`` raises, and the pane's caller renders it absent with the reason."""
+        messages = self._bus.read(to=self.device_id, channel=channel, limit=FEED_PANE_LIMIT)
+        older = self._bus.count(to=self.device_id, channel=channel) - len(messages)
+        extra: dict = {}
         if older > 0:
-            data["older"] = older
-            data["older_note"] = (
+            extra["older"] = older
+            extra["older_note"] = (
                 f"{older} older messages not shown — read them all: "
                 "PYTHONPATH=~/dev/src/cairn python3 -c \"import json; "
                 "from cairn.tools.bus_client.remote import RemoteBus; "
                 "[print(json.dumps(m, default=str)) for m in "
-                f"RemoteBus().read(to='{self.device_id}', channel='personal')]\"")
-        return {"kind": "personal_feed", "label": "Chat", "data": data}
+                f"RemoteBus().read(to='{self.device_id}', channel='{channel}')]\"")
+        return messages, extra
+
+    def _channel_pane(self, kind: str, label: str, channel: str, key: str) -> dict:
+        """One channel projected as a pane: the bounded tail, each body through _bounded_body."""
+        if self._bus is None:
+            return {"kind": kind, "label": label, "data": None, "absent": "no bus injected"}
+        try:
+            messages, extra = self._channel_tail(channel)
+        except Exception as exc:  # noqa: BLE001
+            return {"kind": kind, "label": label,
+                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
+        rows = [
+            {"sender": m.get("sender", "?"),
+             "date": m.get("date", "?"),
+             "body": _bounded_body(m.get("body", {}))}
+            for m in messages
+        ]
+        return {"kind": kind, "label": label, "data": {key: rows, **extra}}
+
+    def _personal_feed_pane(self) -> dict:
+        """Floor pane: the personal channel projected as a conversation view."""
+        return self._channel_pane("personal_feed", "Chat", "personal", "turns")
 
     def _info_pane(self) -> dict:
         """Floor pane: the info channel projected as a diagnostic log."""
-        if self._bus is None:
-            return {"kind": "info", "label": "Info",
-                    "data": None, "absent": "no bus injected"}
-        try:
-            messages = self._bus.read(to=self.device_id, channel="info")
-        except Exception as exc:  # noqa: BLE001
-            return {"kind": "info", "label": "Info",
-                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
-        entries = [
-            {"sender": m.get("sender", "?"),
-             "date": m.get("date", "?"),
-             "body": m.get("body", {})}
-            for m in messages
-        ]
-        return {"kind": "info", "label": "Info", "data": {"entries": entries}}
+        return self._channel_pane("info", "Info", "info", "entries")
 
     def _debug_pane(self) -> dict:
         """Floor pane: the debug channel projected as a diagnostic log."""
-        if self._bus is None:
-            return {"kind": "debug", "label": "Debug",
-                    "data": None, "absent": "no bus injected"}
-        try:
-            messages = self._bus.read(to=self.device_id, channel="debug")
-        except Exception as exc:  # noqa: BLE001
-            return {"kind": "debug", "label": "Debug",
-                    "data": None, "absent": f"bus read refused: {type(exc).__name__}: {exc}"}
-        entries = [
-            {"sender": m.get("sender", "?"),
-             "date": m.get("date", "?"),
-             "body": m.get("body", {})}
-            for m in messages
-        ]
-        return {"kind": "debug", "label": "Debug", "data": {"entries": entries}}
+        return self._channel_pane("debug", "Debug", "debug", "entries")
 
     def active_page(self, *, cursor: int | None = None) -> dict:
         """Assemble the device's ACTIVE page as structured DATA — the STANDARD

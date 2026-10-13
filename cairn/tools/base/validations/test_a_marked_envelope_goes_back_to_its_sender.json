@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_marked_envelope_goes_back_to_its_sender.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-11T15:51:37",
+    "date": "2026-10-12T18:33:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,14 +16,17 @@
         "test_a_return_is_never_returned_again"
       ],
       "teeth_red": [],
-      "test": "test-e8d9c96220f7",
+      "test": "test-9d7fe8337e22",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2196716_1833346017_delivery",
+          "bus_proc_2196716_1833346017"
+        ]
       },
       "conditions": {
         "proof": "5d622c75fb38ad5babf8c11de714d9b93837875239b07e5d0d81cfee5fd6107d",
@@ -40,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e8d9c96220f7",
-      "source_fingerprint": "b51ec654c605ad3453ea8e313864c5d0882d330346aa949750663fb0c79c976d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9d7fe8337e22",
+      "source_fingerprint": "0a1e78a170a2dd1a424e54a6f1a4e0a0f8972c16e5dd40d41a2240055cc85b03",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1526541-je2j8eg5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2196689-jbgq4yg1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -66,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107081043,
-          "disk_bytes": 130736128,
-          "entries": 9622,
+          "bytes": 108046082,
+          "disk_bytes": 133042176,
+          "entries": 10079,
           "builds": 1,
-          "reuses": 5
+          "reuses": 1
         }
       }
     },

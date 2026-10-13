@@ -24,6 +24,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+PROOF_TIMEOUT_S = 900  # tooth 9 walks the live corpus; measured 153 s on 2026-10-13, over the 120 s default (ticket 8383a32d20c5)
+
 class _Teeth:
     """Announce-style teeth for a monolithic proof (ticket 77f15efd5a96): the proof is one
     main() of sections, so each section headline is a tooth — tooth(name) closes the

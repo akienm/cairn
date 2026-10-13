@@ -25,6 +25,14 @@ from cairn.devices.tester.reseal import stage_clean_seals  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
+PROVES = {
+    # The reshaped tooth (D5): an 'unchanged' seal the index already carries stages nothing,
+    # the other half of the adoption test_a_killed_reseal_leaves_nothing_unstaged.py proves.
+    "143e3974647b": {
+        "2": "test_only_an_outcome_that_wrote_a_seal_is_staged",
+    },
+}
+
 _PROOF = "widget/proofs/test_widget.py"
 _VALIDATION = "widget/validations/test_widget.json"
 _JOURNAL = ".artifact-journal.jsonl"

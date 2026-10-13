@@ -54,6 +54,10 @@ PROVES = {
     },
 }
 
+# The whole inspector runs over the live corpus here, well past the hollow reading's 120s
+# default: measured 2026-10-13, d48d54dccde6's hollow timed out with 0 teeth read.
+PROOF_TIMEOUT_S = 900
+
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))

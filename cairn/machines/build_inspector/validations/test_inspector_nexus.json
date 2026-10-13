@@ -1,23 +1,24 @@
 [
   {
     "claim": "proof test_inspector_nexus.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T08:22:34",
+    "caller": "cairn test",
+    "date": "2026-10-13T13:01:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 267, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 253, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 189, in test_the_fire_path_never_reaches_the_tree\n    assert caught == [], (\n           ^^^^^^^^^^^^\nAssertionError: the verdict path can reach a door it may not: [\"cairn/tools/bus_client/remote.py imports ['socket'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.transitions -> cairn.devices.trouble.trouble -> cairn.devices.trouble.shim -> cairn.tools.base.shim -> cairn.tools.bus_client.remote; nothing on that path may reach it\"] — a verdict that can consult a tree, a database or a host returns an opinion wearing a measurement's clothes",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry\n  PASS  test_the_fire_path_never_reaches_the_tree\ngreen — build_inspector/nexus: the corpus is born the inspector's, undated failures are turned away, the founding questions are seeded-but-unbuilt, counsel keeps its labeled floor, a proposal cannot touch the registry, and the verdict path cannot reach the tree — the graft is additive, by construction",
+      "stderr_tail": "",
       "teeth_green": [
         "test_the_corpus_table_is_born_owned_by_the_inspector",
         "test_an_undated_failure_may_not_take_residence",
         "test_the_founding_questions_are_seeded_but_unbuilt",
         "test_counsel_walks_with_its_floor_visible",
-        "test_a_proposal_never_touches_the_registry"
+        "test_a_proposal_never_touches_the_registry",
+        "test_the_fire_path_never_reaches_the_tree"
       ],
       "teeth_red": [],
-      "test": "test-2458a39c7f4f",
+      "test": "test-59457eb93c45",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,17 +32,18 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2458a39c7f4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-59457eb93c45",
       "source_fingerprint": "f0ab833d5cb96ed18aa5bf38e1f6ef351466b61ee52d2ba32822581fcf92fe97",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
@@ -51,7 +53,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2647544-hipzh8au/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2850952-o_4zk_o5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,21 +62,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108761439,
-          "disk_bytes": 134438912,
-          "entries": 10304,
+          "bytes": 109121067,
+          "disk_bytes": 135135232,
+          "entries": 10419,
           "builds": 1,
-          "reuses": 19
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "e24b06c47fa8d35600d1f1fee88d676032a834d6a5baa796dacf2011d16828c1",
         "opened": "2026-10-13T08:22:34",
         "last_red": "2026-10-13T08:22:34",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-13T13:01:24",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "e24b06c47fa8d35600d1f1fee88d676032a834d6a5baa796dacf2011d16828c1"
+      },
+      "conditions_moved": {
+        "notified": "n-48a146610310",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

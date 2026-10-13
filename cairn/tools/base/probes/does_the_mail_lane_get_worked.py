@@ -48,7 +48,10 @@ _ENOUGH_CLEARED = 6
 
 
 def _trouble_root() -> Path:
-    return Path.home() / "dev" / "src" / "CairnCommons" / "troubles"
+    # The store the trouble device names (ticket 4ddc9df3369e); cleared ones sit in cleared/,
+    # so the survey below reads the tree, not only the top.
+    from cairn.devices.trouble.trouble import store_root
+    return store_root()
 
 
 def _history_path() -> Path:
@@ -91,7 +94,7 @@ def survey_mail_lane(*, root: Path | None = None, history: Path | None = None,
     if not troubles_root.exists():
         return {**base, "hollow": f"the troubles root {troubles_root} does not exist"}
     floor_at = _parse(floor)
-    for p in sorted(troubles_root.glob("mail-*.json")):
+    for p in sorted(troubles_root.rglob("mail-*.json")):
         try:
             t = json.loads(p.read_text(encoding="utf-8"))
         except (ValueError, OSError):

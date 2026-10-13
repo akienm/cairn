@@ -230,7 +230,7 @@ def test_an_off_template_record_can_still_leave_through_the_door():
         got = dev.clear("spine", by="cc", what_changed="the claim under test is now false")
         assert got["outcome"] == "cleared" and got["standing"] == CLEARED, \
             f"an off-template record with nobody notified must clear whole — got {got}"
-        on_disk = json.loads((Path(tmp) / "spine.json").read_text(encoding="utf-8"))
+        on_disk = json.loads((Path(tmp) / "cleared" / "spine.json").read_text(encoding="utf-8"))
     assert on_disk["standing"] == CLEARED and on_disk["cleared_by"][0]["at_count"] is None, \
         f"the clear must land on disk with at_count null, not a manufactured count — got {on_disk}"
     assert on_disk["verdict"] == "FALSIFIED", "clearing is append — the record's own fields survive"
@@ -240,8 +240,9 @@ def test_every_live_trouble_in_the_REAL_store_carries_a_why():
     """LIVE, and stated as an INVARIANT rather than a census: whatever is in the inbox today,
     the lane never hands its reader a trouble it cannot say anything about. Goes red only if
     the reader regresses — not when the inbox changes, and not when it empties."""
-    store = Path(__file__).resolve().parents[4].parent / "CairnCommons" / "troubles"
-    if not store.exists():                       # commons absent (packaged/foreign box) is not a red
+    from cairn.devices.trouble.trouble import store_root
+    store = store_root()
+    if not store.exists():                       # store absent (sealed run, fresh box) is not a red
         return
     for t in TroubleDevice(root=store).live():
         why = (t.get("why") or "").strip()
@@ -250,20 +251,24 @@ def test_every_live_trouble_in_the_REAL_store_carries_a_why():
             f"live trouble {t.get('id')!r} renders as an absence claim about its own author"
 
 
-def test_only_an_explicit_cleared_takes_a_ticket_off_the_live_list():
+def test_only_the_move_into_cleared_takes_a_ticket_off_the_live_list():
     """Found on this device's FIRST contact with a real file. The hand-written trouble said
     ``"OPEN — reported complete, awaiting Akien's ratify"``; an equality test on LIVE reported
-    ZERO troubles with an open one on disk — the silent failure the lane exists to end."""
+    ZERO troubles with an open one on disk — the silent failure the lane exists to end.
+    Since ticket 4ddc9df3369e no field decides it: a file at the top is live whatever its
+    standing says, CLEARED included, and only a file in ``cleared/`` is quiet."""
     with tempfile.TemporaryDirectory() as tmp:
-        for name, standing in (("prose", "OPEN — awaiting ratify"), ("typo", "open"),
-                               ("absent", None), ("gone", CLEARED)):
+        (Path(tmp) / "cleared").mkdir()
+        for name, standing, where in (("prose", "OPEN — awaiting ratify", ""), ("typo", "open", ""),
+                                      ("absent", None, ""), ("said-cleared", CLEARED, ""),
+                                      ("gone", CLEARED, "cleared")):
             t = {"id": name, "count": 1, "why": "x"}
             if standing is not None:
                 t["standing"] = standing
-            (Path(tmp) / f"{name}.json").write_text(json.dumps(t), encoding="utf-8")
+            (Path(tmp) / where / f"{name}.json").write_text(json.dumps(t), encoding="utf-8")
         live = {t["id"] for t in _dev(tmp).live()}
-    assert live == {"prose", "typo", "absent"}, \
-        f"only an explicit CLEARED is quiet; everything else demands attention — got {live}"
+    assert live == {"prose", "typo", "absent", "said-cleared"}, \
+        f"only the move into cleared/ is quiet; everything at the top demands attention — got {live}"
 
 
 def test_a_near_miss_standing_increments_rather_than_being_overwritten():
@@ -371,7 +376,7 @@ def test_an_amendment_appends_a_correction_beside_the_false_statement():
                                  "the clear's claim of NOT DONE is false")
         assert out["outcome"] == "amended"
         assert out["standing"] == CLEARED, "an amendment does NOT change standing"
-        on_disk = json.loads((Path(tmp) / f"{IDENT}.json").read_text(encoding="utf-8"))
+        on_disk = json.loads((Path(tmp) / "cleared" / f"{IDENT}.json").read_text(encoding="utf-8"))
         assert len(on_disk["cleared_by"]) == 2, "the original clear + the amendment"
         original = on_disk["cleared_by"][0]
         amendment = on_disk["cleared_by"][1]
@@ -427,7 +432,7 @@ def test_an_amendment_does_not_change_standing():
         assert d.live() == [], "cleared"
         d.amend(IDENT, by="cc", correction="the fix claim was wrong")
         assert d.live() == [], "still cleared — an amendment is NOT a re-open"
-        on_disk = json.loads((Path(tmp) / f"{IDENT}.json").read_text(encoding="utf-8"))
+        on_disk = json.loads((Path(tmp) / "cleared" / f"{IDENT}.json").read_text(encoding="utf-8"))
         assert on_disk["standing"] == CLEARED
 
 
@@ -702,6 +707,39 @@ def _live_commons() -> Path:
     return Path(__file__).resolve().parents[4].parent / "CairnCommons"
 
 
+class _Named(str):
+    """A record's file name that also answers ``.name``, so the teeth read one shape whether
+    the record came from the working tree or from git history."""
+    @property
+    def name(self) -> str:
+        return self
+
+
+def _isolation_troubles_on_record() -> dict:
+    import subprocess
+    commons = _live_commons()
+    folder = commons / "troubles"
+    here = {_Named(p.name): json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted(folder.glob("*device-isolation*.json"))}
+    if here:
+        return here
+    git = ["git", "-C", str(commons)]
+    gone = subprocess.run(git + ["log", "--diff-filter=D", "--format=%H", "-1", "--",
+                                 "troubles/*device-isolation*.json"],
+                          capture_output=True, text=True).stdout.strip()
+    if not gone:
+        return {}
+    names = subprocess.run(git + ["ls-tree", "--name-only", f"{gone}^", "troubles/"],
+                           capture_output=True, text=True).stdout.split()
+    out = {}
+    for rel in names:
+        if "device-isolation" in rel and rel.endswith(".json"):
+            body = subprocess.run(git + ["show", f"{gone}^:{rel}"],
+                                  capture_output=True, text=True).stdout
+            out[_Named(rel.split("/")[-1])] = json.loads(body)
+    return out
+
+
 def test_the_inspector_troubles_were_cleared_through_the_door():
     """CLAUSE (6): cleared by reconcile through ``clear``, NOT BY HAND — and the difference
     is readable on disk, which is the only reason this is a tooth rather than a promise. A
@@ -712,12 +750,13 @@ def test_the_inspector_troubles_were_cleared_through_the_door():
     number only the door is holding when it writes, and a hand editor setting a field would
     have to go read the count and copy it deliberately. And ``what_changed`` names RECONCILE
     specifically, which is the clause's other half."""
-    troubles = _live_commons() / "troubles"
-    seen = sorted(troubles.glob("*device-isolation*.json"))
-    assert seen, f"the inspector isolation troubles are gone from {troubles} — the record " \
-                 f"of the clearing is the evidence, and it may not be deleted (Law 7)"
-    for path in seen:
-        rec = json.loads(path.read_text(encoding="utf-8"))
+    # THE STORE MOVED TO THE LOGS TREE (ticket 4ddc9df3369e) and ages out there, so the
+    # permanent record of these clears is the commons' git history: the files as they stood
+    # in the commit before the migration deleted them. Before that commit, the working tree.
+    seen = _isolation_troubles_on_record()
+    assert seen, "the inspector isolation troubles are gone from the commons and from its " \
+                 "history — the record of the clearing is the evidence (Law 7)"
+    for path, rec in seen.items():
         assert rec.get("standing") == CLEARED, f"{path.name} still stands {rec.get('standing')}"
         marks = rec.get("cleared_by") or []
         assert marks, (f"{path.name} reads CLEARED with no cleared_by — the mark of a hand "
@@ -732,7 +771,7 @@ def test_the_inspector_troubles_were_cleared_through_the_door():
     # import that went away — a clear through the same door by a different route, and
     # demanding "reconcile" of it would red a correct act. The door's signature above is
     # what proves "not by hand" for all of them; reconcile is what proves it for these two.
-    by_name = {p.name: json.loads(p.read_text(encoding="utf-8")) for p in seen}
+    by_name = dict(seen)
     for want in ("inspector-new-finding-device-isolation-holds-devices-cairn.json",
                  "inspector-new-finding-device-isolation-holds-devices-web-server.json"):
         rec = by_name.get(want)
@@ -796,7 +835,7 @@ def test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution():
         assert len(drained["folded"]) == 1, drained
 
         assert _dev_at(store).live() == [], "the clear crossed the seam but nothing cleared"
-        ticket = json.loads(next((store).glob("*.json")).read_text(encoding="utf-8"))
+        ticket = json.loads(next((store / "cleared").glob("*.json")).read_text(encoding="utf-8"))
         mark = ticket["cleared_by"][-1]
         assert mark["what_changed"] == "the door grew a schema gate", mark
         assert mark["at_count"] == 1, mark

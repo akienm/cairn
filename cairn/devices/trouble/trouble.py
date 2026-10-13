@@ -51,9 +51,20 @@ THE NORMAL OPERATING STATE IS ZERO. ``live()`` returning empty is the system wor
 that is the horizon this lane is measured against. We are a long way from it, which is the
 point: every ticket here is the system telling us how to improve it.
 
-WHERE THE RECORDS LIVE — ``CairnCommons/troubles/``, git-JSON. A trouble is shareable
-provenance, and losing it loses knowledge, so it is commons and not a row (the roots table).
-The path is injectable so a proof runs on a temp directory it owns.
+WHERE THE RECORDS LIVE — ``store_root()``: ``log_path('cairn', 0)/troubletickets``
+(ticket 4ddc9df3369e). Akien 2026-10-11: "trouble tickets are a system alarm, and the ticket
+itself is of no use once it's resolved. as such, trouble tickets are logging artifacts ... so
+they live in .cairn/logs/cairn/troubletickets and as part of the logging tree, all elemets over
+30 days old are deleted as part of the cairn device sleep cycle." The ``0`` is the instance
+segment, which is never optional. Until 2026-10-12 the store was ``CairnCommons/troubles/``;
+its last committed state is in that repo's history.
+
+A TROUBLE'S LOCATION IS ITS LIVENESS. A file at the top of the store is live; clearing moves it
+into ``cleared/``; a recurrence moves it back. No field is read to decide it, because two state
+vocabularies once made CC read the wrong one. Each ticket carries the development tickets'
+fields under the ``trouble`` node class (``CairnCommons/node_classes/trouble.json``,
+OPEN -> CLEARED): born red, green when cleared. The path is injectable so a proof runs on a
+temp directory it owns.
 
     python3 cairn/devices/trouble/proofs/test_trouble.py     # exit 0 = green
 """
@@ -67,6 +78,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.address import log_path
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.system_word import fold
 
@@ -93,6 +105,20 @@ LIVE_SUMMARY_KEYS = ("id", "standing", "why", "count", "first_seen", "last_seen"
 LIVE = "OPEN"
 CLEARED = "CLEARED"
 
+# The development-ticket fields a trouble carries (ticket 4ddc9df3369e): same names, its own
+# class. parse_workflow reads both cursors; load_class_def("trouble") loads the class.
+NODE_CLASS = "trouble"
+SCHEMA_VERSION = "trouble-v1"
+WORKFLOW_OPEN = "trouble@v1: [OPEN] -> CLEARED"
+WORKFLOW_CLEARED = "trouble@v1: OPEN -> [CLEARED]"
+CLEARED_DIR = "cleared"
+
+
+def store_root(roots: dict | None = None) -> Path:
+    """Where the trouble store lives: ``log_path('cairn', 0, roots)/troubletickets``. Public,
+    so every reader of the store asks here instead of naming the path (RULE 1)."""
+    return log_path("cairn", 0, roots) / "troubletickets"
+
 _SLUG = re.compile(r"[^a-z0-9-]+")
 
 
@@ -112,7 +138,7 @@ class TroubleDevice(BaseDevice):
     def __init__(self, root: str | os.PathLike | None = None, *,
                  roots: dict | None = None) -> None:
         super().__init__()
-        self._root = Path(root) if root else Path.home() / "dev" / "src" / "CairnCommons" / "troubles"
+        self._root = Path(root) if root else store_root(roots)
         # WHICH LOG HOMES A READ FOLDS (ticket 3c62020b0d88). The live store folds the live
         # log homes; a store at a scratch root folds only the homes its caller names. A
         # scratch store with no roots folds nothing — folding the live homes into it would
@@ -239,10 +265,13 @@ class TroubleDevice(BaseDevice):
         stamp = _now()
         occurrence = {"at": stamp, **(detail or {})}
 
-        # Same lean as live(): anything not explicitly CLEARED is still open, so a ticket with a
-        # near-miss standing gets its count incremented rather than being silently replaced.
-        if existing and existing.get("standing") != CLEARED:
-            existing["count"] += 1
+        # Location decides, as in live(): a file at the top of the store is open whatever its
+        # standing field says, so its count increments rather than being silently replaced.
+        if existing and self._path(ident).exists():
+            existing["count"] = (existing.get("count") or 0) + 1
+            existing.setdefault("node_class", NODE_CLASS)
+            existing.setdefault("schema_version", SCHEMA_VERSION)
+            existing["workflow_and_state"] = WORKFLOW_OPEN
             existing["last_seen"] = stamp
             existing["occurrences"] = (existing.get("occurrences", []) + [occurrence])[-OCCURRENCE_TAIL:]
             self._write(ident, existing, verb="raise",
@@ -268,13 +297,20 @@ class TroubleDevice(BaseDevice):
             # Per-recipient because the CLEAR is per-recipient: it stays live for whoever was
             # told until THEY say the change was made. One name today, more when help arrives.
             "notified": told,
-            "cleared_by": [],
+            # A recurrence keeps the clears that did not hold: the fix's record rides back to
+            # the top with it, and a hand that taught from it stays on the record.
+            "cleared_by": list((existing or {}).get("cleared_by") or []),
             # Set when a prior ticket of the same identity was cleared and the fault came back:
             # the evidence that a specific attempted fix did not hold.
             "recurred_after_clear": (existing or {}).get("resolution") if existing else None,
             "prior_attempts": ((existing or {}).get("prior_attempts", 0) + 1) if existing else 0,
+            "node_class": NODE_CLASS,
+            "schema_version": SCHEMA_VERSION,
+            "workflow_and_state": WORKFLOW_OPEN,
         }
         self._write(ident, ticket, verb="raise", why=f"raised: {why}"[:200])
+        if existing:
+            self._drop(self._cleared_path(ident), why=f"{ident} recurred after a clear")
         # GATE CONTACT (DiagnosticBase): a NEW ticket landed and attention was spent — the
         # lane's first-class crossing. Emitted after the write lands; thin (the ticket on
         # disk is the record of truth; the breadcrumb points at it).
@@ -297,7 +333,7 @@ class TroubleDevice(BaseDevice):
         if not ticket:
             raise TroubleError(f"no trouble {ident!r} to clear — clearing a ticket that was "
                                "never raised would quietly manufacture an all-clear")
-        if ticket.get("standing") == CLEARED:
+        if not self._path(ident).exists():          # found only in cleared/ (4ddc9df3369e)
             raise TroubleError(f"trouble {ident!r} is already cleared — a second all-clear "
                                "would overwrite the record of what actually fixed it")
         if not what_changed:
@@ -326,11 +362,19 @@ class TroubleDevice(BaseDevice):
                        if fold(r) not in _cleared]
         if isinstance(hand, dict) and fold(hand.get("class") or "") in OPERATORS:
             outstanding = []    # an operator's measured hand closes it (1c1b18bac2eb, D1/D2)
+        why_clear = f"cleared by {by}: {what_changed}"[:200]
         if not outstanding:
             ticket["standing"] = CLEARED
             ticket["resolution"] = ticket["cleared_by"][-1]
-        self._write(ident, ticket, verb="clear",
-                    why=f"cleared by {by}: {what_changed}"[:200])
+            ticket.setdefault("node_class", NODE_CLASS)
+            ticket.setdefault("schema_version", SCHEMA_VERSION)
+            ticket["workflow_and_state"] = WORKFLOW_CLEARED
+            # The move IS the clear: written into cleared/, then gone from the top.
+            self._write(ident, ticket, verb="clear", why=why_clear,
+                        where=self._cleared_path(ident))
+            self._drop(self._path(ident), why=why_clear)
+        else:
+            self._write(ident, ticket, verb="clear", why=why_clear)
         # GATE CONTACT (DiagnosticBase): a recipient said the change was made — the crossing
         # that takes (or moves toward taking) a ticket off the live list. Reads (live/all)
         # emit nothing: no crossing, no state change.
@@ -365,7 +409,9 @@ class TroubleDevice(BaseDevice):
 
         ticket["cleared_by"].append(
             {"amendment": True, "by": by, "at": _now(), "correction": correction})
-        self._write(ident, ticket, verb="clear", why=f"amended by {by}: {correction}"[:200])
+        where = self._path(ident) if self._path(ident).exists() else self._cleared_path(ident)
+        self._write(ident, ticket, verb="clear", why=f"amended by {by}: {correction}"[:200],
+                    where=where)
         self.emit("amend", pointer=ident,
                   values={"outcome": "amended", "standing": ticket.get("standing")})
         return {"outcome": "amended", "id": ident, "standing": ticket.get("standing")}
@@ -375,13 +421,13 @@ class TroubleDevice(BaseDevice):
     def live(self) -> list[dict]:
         """The tickets still demanding attention. EMPTY is the normal operating state.
 
-        ONLY AN EXPLICIT ``CLEARED`` TAKES A TICKET OFF THIS LIST. Anything else — a missing
-        standing, a typo, prose where a token belongs — counts as LIVE. This is not pedantry:
-        the first real file this device ever read said ``"OPEN — reported complete, awaiting
-        Akien's ratify"``, and an equality test on ``LIVE`` quietly reported zero troubles with
-        an open one on disk. Reading the normal operating state off a near-miss is the silent
-        failure this whole lane exists to end, so the default leans the safe way (Law 7)."""
-        return [t for t in self.all() if t.get("standing") != CLEARED]
+        THE TOP OF THE STORE IS THE LIST, AND NO FIELD IS READ (ticket 4ddc9df3369e). A file
+        there is live whatever its standing says; only the clear's move into ``cleared/``
+        takes it off. The field test this replaced leaned the safe way for the same reason
+        (the first real file said ``"OPEN — reported complete, awaiting Akien's ratify"``);
+        location leans that way by construction (Law 7)."""
+        self.fold_pending()
+        return self._listing(self._root)
 
     def fold_pending(self) -> dict | None:
         """Fold what is pending before a read answers (ticket 3c62020b0d88).
@@ -399,11 +445,34 @@ class TroubleDevice(BaseDevice):
             return {"outcome": "failed", "error": f"{type(exc).__name__}: {exc}"}
 
     def all(self) -> list[dict]:
+        """Every trouble in the store: the live ones at the top, then ``cleared/``."""
         self.fold_pending()
-        if not self._root.exists():
+        return self._listing(self._root) + self._listing(self._root / CLEARED_DIR)
+
+    def migrate_from(self, old: str | os.PathLike) -> dict:
+        """Move an old store whole into this one (ticket 4ddc9df3369e): a file whose standing
+        is CLEARED lands in ``cleared/``, every other file (unreadable included) at the top.
+        Each move rides the artifact door's ``rename``, so leaving a record of truth is
+        journaled. Returns ``{"live": n, "cleared": n}``."""
+        from cairn.tools.artifact import artifact as door
+        counts = {"live": 0, "cleared": 0}
+        for p in sorted(Path(old).glob("*.json")):
+            try:
+                standing = json.loads(p.read_text(encoding="utf-8")).get("standing")
+            except (json.JSONDecodeError, AttributeError):
+                standing = None
+            kind = "cleared" if standing == CLEARED else "live"
+            dest = (self._root / CLEARED_DIR if kind == "cleared" else self._root) / p.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            door.rename(p, dest, why=f"trouble store moved to {self._root} (ticket 4ddc9df3369e)")
+            counts[kind] += 1
+        return counts
+
+    def _listing(self, folder: Path) -> list[dict]:
+        if not folder.is_dir():
             return []
         out = []
-        for p in sorted(self._root.glob("*.json")):
+        for p in sorted(folder.glob("*.json")):
             try:
                 ticket = json.loads(p.read_text(encoding="utf-8"))
             except json.JSONDecodeError as exc:
@@ -469,21 +538,33 @@ class TroubleDevice(BaseDevice):
     def _path(self, ident: str) -> Path:
         return self._root / f"{ident}.json"
 
-    def _read(self, ident: str) -> dict | None:
-        p = self._path(ident)
-        if not p.exists():
-            return None
-        try:
-            return json.loads(p.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return None
+    def _cleared_path(self, ident: str) -> Path:
+        return self._root / CLEARED_DIR / f"{ident}.json"
 
-    def _write(self, ident: str, ticket: dict, *, verb: str, why: str) -> None:
+    def _read(self, ident: str) -> dict | None:
+        """The ticket at the top of the store, else the one in ``cleared/``."""
+        for p in (self._path(ident), self._cleared_path(ident)):
+            if not p.exists():
+                continue
+            try:
+                return json.loads(p.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return None
+        return None
+
+    def _drop(self, path: Path, *, why: str) -> None:
+        from cairn.tools.artifact import artifact as door
+        if path.exists():
+            door.remove(path, why=why)
+
+    def _write(self, ident: str, ticket: dict, *, verb: str, why: str,
+               where: Path | None = None) -> None:
         """Every trouble lands through the artifact door (ticket 30531f6e1c5d): the write is
         atomic and the journal names WHO raised, cleared or amended it from the caller's
         cgroup. A store under a scratch root (a proof's world) is outside the door's
         jurisdiction and is written plainly — the door says so rather than pretending."""
         from cairn.tools.artifact import artifact as door
-        self._root.mkdir(parents=True, exist_ok=True)
-        door.write(self._path(ident), json.dumps(ticket, indent=2, ensure_ascii=False) + "\n",
+        target = where or self._path(ident)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        door.write(target, json.dumps(ticket, indent=2, ensure_ascii=False) + "\n",
                    verb=verb, why=why)

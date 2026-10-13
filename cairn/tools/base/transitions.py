@@ -2478,7 +2478,14 @@ def pickup(
 # and a refusal a caller cannot act on is a refusal that gets plastered over (Law 7).
 
 _QUESTIONS = _REPO_ROOT.parent / "CairnCommons" / "questions"
-_TROUBLES = _REPO_ROOT.parent / "CairnCommons" / "troubles"
+
+
+def _trouble_folders() -> tuple[Path, Path]:
+    """The trouble store's top and its cleared/, as the trouble device names them (ticket
+    4ddc9df3369e). Asked at call time: this module loads before any device does."""
+    from cairn.devices.trouble.trouble import store_root
+    root = store_root()
+    return (root, root / "cleared")
 
 
 def _find_in(folder: Path, name: str) -> Path | None:
@@ -2518,7 +2525,8 @@ def resolve_release(ref: str, *, as_ticket: bool = False) -> tuple[str | None, s
         return ("ticket", str(hit))
     if as_ticket:
         return (None, None)
-    for kind, folder in (("question", _QUESTIONS), ("trouble", _TROUBLES)):
+    for kind, folder in (("question", _QUESTIONS),
+                         *(("trouble", f) for f in _trouble_folders())):
         hit = _find_in(folder, ref)
         if hit is not None:
             return (kind, str(hit))

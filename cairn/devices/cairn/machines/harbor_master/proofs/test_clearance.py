@@ -1974,7 +1974,9 @@ def test_a_fixture_refusal_WRITES_NOTHING_LIVE():
     assert _at_fixme(json.loads(ticket_path.read_text(encoding="utf-8"))["workflow_and_state"]), \
         "the fixture-world ticket was not written, so 'nothing live' would be vacuous"
     live = Path(_clearance.COMMONS_ROOT)
+    from cairn.devices.trouble.trouble import store_root
     leaked = sorted(str(p) for d in ("tickets", "troubles") for p in (live / d).glob(f"*{tid}*"))
+    leaked += sorted(str(p) for p in store_root().rglob(f"*{tid}*"))   # the store (4ddc9df3369e)
     assert leaked == [], f"a fixture refusal wrote into the live commons: {leaked}"
 
 

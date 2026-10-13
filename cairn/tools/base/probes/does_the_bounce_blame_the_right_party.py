@@ -56,7 +56,10 @@ _ENOUGH_SENDER = 6
 
 
 def _trouble_root() -> Path:
-    return Path.home() / "dev" / "src" / "CairnCommons" / "troubles"
+    # The store the trouble device names (ticket 4ddc9df3369e); cleared ones sit in cleared/,
+    # so the survey below reads the tree, not only the top.
+    from cairn.devices.trouble.trouble import store_root
+    return store_root()
 
 
 def _is_bounce_related(trouble: dict) -> bool:
@@ -117,7 +120,7 @@ def survey_bounce_blame(*, root: Path | None = None) -> dict:
         return {"bounce_troubles": [], "hollow": "the troubles root does not exist"}
 
     bounce_troubles: list[dict] = []
-    for p in sorted(troubles_root.glob("*.json")):
+    for p in sorted(troubles_root.rglob("*.json")):
         try:
             t = json.loads(p.read_text(encoding="utf-8"))
         except (ValueError, OSError):

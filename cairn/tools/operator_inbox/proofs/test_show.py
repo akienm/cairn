@@ -46,7 +46,8 @@ def _scratch_commons(root: Path) -> dict:
         (ideas / f"{stem}.json").write_text(json.dumps({"prose": stem, "author": "Akien"}))
     (questions / "open-0123456789ab.json").write_text(json.dumps({
         "id": "open-0123456789ab", "question": "one question?", "ticket": "aaaaaaaaaaaa"}))
-    (troubles / "boat-stuck-at-buildme.json").write_text(json.dumps({
+    (troubles / "cleared").mkdir()      # a cleared trouble sits in cleared/ (4ddc9df3369e)
+    (troubles / "cleared" / "boat-stuck-at-buildme.json").write_text(json.dumps({
         "id": "boat-stuck-at-buildme", "standing": "CLEARED", "count": 1,
         "why": "a fixture trouble, cleared"}))
     (troubles / "loop-not-beating.json").write_text(json.dumps({
@@ -112,6 +113,7 @@ def test_a_moved_on_idea_still_resolves_to_its_file():
         cleared = resolve("boat-stuck-at-buildme", **f)
         assert len(cleared) == 1 and cleared[0]["lane"] == "troubles_all", cleared
         assert cleared[0]["record"]["standing"] == "CLEARED"
+        assert Path(cleared[0]["path"]) == Path(f["troubles_dir"]) / "cleared" / "boat-stuck-at-buildme.json"
 
 
 def test_a_collision_is_announced_never_picked():

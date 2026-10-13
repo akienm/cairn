@@ -276,6 +276,12 @@ def _by_label(records: list[dict]) -> dict[str, list[str]]:
 # Readers — each calls the source's own API, never stores.
 # ---------------------------------------------------------------------------
 
+def _trouble_store() -> Path:
+    """The trouble store, as the trouble device names it (its declared public interface)."""
+    from cairn.devices.trouble.trouble import store_root
+    return store_root()
+
+
 def read_troubles(*, path: str | None = None) -> dict:
     from cairn.devices.trouble.trouble import TroubleDevice
     td = TroubleDevice(path)
@@ -927,7 +933,7 @@ _LANE_FILES = {
     "lap": lambda kw: (kw.get("adjudications_dir") or ADJUDICATIONS_DIR, ".json"),
     "intentions": lambda kw: (kw.get("intentions_dir") or INTENTIONS_DIR, ".md"),
     "troubles": lambda kw: (Path(kw["troubles_dir"]) if kw.get("troubles_dir")
-                            else COMMONS_ROOT / "troubles", ".json"),
+                            else _trouble_store(), ".json"),
 }
 
 # The list each lane payload carries its items under — the readers' own shapes.
@@ -1032,6 +1038,10 @@ def resolve(token: str, **kw) -> list[dict]:
             elif lane.split("_")[0] in _LANE_FILES:
                 d, ext = _LANE_FILES[lane.split("_")[0]](kw)
                 path = Path(d) / f"{ident}{ext}"
+                # A cleared trouble sits in the store's cleared/ (ticket 4ddc9df3369e).
+                if lane.startswith("troubles") and not path.exists() \
+                        and (Path(d) / "cleared" / path.name).exists():
+                    path = Path(d) / "cleared" / path.name
             graded.append((grade, {"lane": lane, "id": ident, "path": path,
                                    "title": title, "record": item}))
     if not graded:

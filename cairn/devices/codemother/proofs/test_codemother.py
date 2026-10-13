@@ -1165,8 +1165,10 @@ def _troubles_now():
     coin-toss shape (a check that passes for the wrong reason), and it is worse here than
     the crossing bug above, which at least failed loudly.
     """
-    troubles = _commons_root() / "troubles"
-    return len(list(troubles.glob("*.json"))) if troubles.is_dir() else 0
+    # The store moved to the logs tree (ticket 4ddc9df3369e); its cleared/ counts too.
+    from cairn.devices.trouble.trouble import store_root
+    troubles = store_root()
+    return len(list(troubles.rglob("*.json"))) if troubles.is_dir() else 0
 
 
 def test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof():

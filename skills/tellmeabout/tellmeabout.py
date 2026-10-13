@@ -53,13 +53,19 @@ DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-")
 CURSOR = re.compile(r"\[([A-Za-z:()<>_-]+)\]")
 
 
+def _trouble_store() -> Path:
+    """The trouble store as the trouble device names it (ticket 4ddc9df3369e)."""
+    from cairn.devices.trouble.trouble import store_root
+    return store_root()
+
+
 def _stores_searched() -> list[str]:
     """Every store this resolver reaches, named with its address — the not-found
     answer carries this whole, so a store the resolver misses is visible."""
     return [
         f"findings — {lb.trace_root()} (learning_block trace store, by hex id or unique prefix)",
         f"tickets — {COMMONS / 'tickets'} (by file stem)",
-        f"troubles — {COMMONS / 'troubles'} (by file stem)",
+        f"troubles — {_trouble_store()} and its cleared/ (by file stem)",
         f"decisions — {COMMONS / 'decisions'} (by stem, date prefix optional)",
         f"ideas — {COMMONS / 'ideas'} (by stem, date prefix optional)",
         f"charters — intention+why.json beside code, indexed by {LAB} (by component name)",
@@ -171,7 +177,8 @@ def resolve(token: str) -> dict:
     matches = (
         _find_findings(token)
         + _find_by_stem(token, COMMONS / "tickets", "tickets")
-        + _find_by_stem(token, COMMONS / "troubles", "troubles")
+        + _find_by_stem(token, _trouble_store(), "troubles")
+        + _find_by_stem(token, _trouble_store() / "cleared", "troubles")
         + _find_by_stem(token, COMMONS / "decisions", "decisions", date_stripped=True)
         + _find_by_stem(token, COMMONS / "ideas", "ideas", date_stripped=True)
         + _find_charters(token)

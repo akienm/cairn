@@ -54,7 +54,8 @@ def tooth(name: str, ok: bool, detail: str = "") -> None:
 def snapshot_stores() -> dict:
     """(path -> (mtime_ns, size)) over every file in every presented store."""
     snap = {}
-    roots = [lb.trace_root(), COMMONS / "tickets", COMMONS / "troubles",
+    from cairn.devices.trouble.trouble import store_root
+    roots = [lb.trace_root(), COMMONS / "tickets", store_root(),
              COMMONS / "decisions", COMMONS / "ideas", LAB]
     for root in roots:
         if not root.is_dir():

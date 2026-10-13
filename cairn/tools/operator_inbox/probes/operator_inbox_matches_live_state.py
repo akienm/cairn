@@ -37,13 +37,13 @@ def _check_all() -> dict:
         read_troubles, read_adjudications, read_questions,
         read_tickets, read_ideas, read_intentions,
     )
-    from cairn.devices.trouble.trouble import TroubleDevice
+    from cairn.devices.trouble.trouble import store_root
 
     mismatches = []
 
+    # Location is liveness (ticket 4ddc9df3369e): the independent read is the store's top.
     script_troubles = read_troubles()
-    independent_troubles = [t for t in TroubleDevice().all()
-                            if t.get("standing") != "CLEARED"]
+    independent_troubles = sorted(store_root().glob("*.json"))
     if script_troubles["live_count"] != len(independent_troubles):
         mismatches.append({
             "section": "troubles",

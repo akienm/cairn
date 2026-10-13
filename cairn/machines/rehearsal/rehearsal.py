@@ -412,6 +412,9 @@ def claude_reader(prompt_text: str, schema_doc: dict) -> tuple[dict | None, dict
     carries cost, duration and the raw result tail — the machine validates the tree, this
     only fetches it."""
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+    # Stripping CLAUDECODE takes the child out of the session, so it says whose hand it is
+    # (ticket a135bdb13646): CAIRN_USER set is a machine, unset is Akien.
+    env["CAIRN_USER"] = "rehearsal"
     cmd = [CLAUDE, "-p", "--model", MODEL, "--output-format", "json", "--tools", "",
            "--json-schema", json.dumps(schema_doc)]
     try:

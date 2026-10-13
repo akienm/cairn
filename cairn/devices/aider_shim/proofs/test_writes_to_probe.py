@@ -48,7 +48,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import driver  # noqa: E402
-from cairn.devices.aider_shim.probes import writes_to_is_where_it_landed_probe as probe  # noqa: E402
+probe = None  # bound in main(): this build adds the probe, so the hollow takes it away
 
 REPO = Path(__file__).resolve().parents[4]
 TICKET = "a-piece-names-where-its-output-lands"
@@ -123,7 +123,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     sibling probe's teeth carry the scar that taught this: resolving the berth against the
     CURRENT WORKING DIRECTORY was green bare and red under the netns seal.)
     """
-    spec = json.loads((Path.home() / "dev/src/CairnCommons/tickets" / f"{TICKET}.json")
+    from cairn.tools.chain.grammar import ticket_path
+    spec = json.loads(Path(ticket_path(TICKET))
                       .read_text(encoding="utf-8"))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
@@ -348,6 +349,11 @@ def test_the_probe_WRITES_NOTHING(mutates=None):
 
 
 def main():
+    global probe
+    try:
+        from cairn.devices.aider_shim.probes import writes_to_is_where_it_landed_probe as probe
+    except ImportError:
+        pass
     print("aider_shim :: writes_to is where it landed")
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):

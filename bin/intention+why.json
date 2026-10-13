@@ -103,5 +103,10 @@
     "for_whom": "the hand closing a piece of work; the session-open banner and the operator inbox, which then read the world and not a backlog."
   },
   "runtime_role": "tool",
-  "public_interface": []
+  "public_interface": [],
+  "proof_gate": {
+    "what": "THE GATE ON PROOFS RUN BY HAND OUTSIDE `cairn test` (ticket 1af0564c0db3; segment judging and the script slot under 72a37498c601). `bin/cmd/proofgate` is a PreToolUse hook on Bash: a command whose python segment runs a file under a `proofs/` directory is rewritten to `<repo>/bin/cairn test --exec '<the original, shlex-quoted>'` through hookSpecificOutput.updatedInput, so it runs under the tester's instance seal; pytest in any spelling is refused with exit 2 naming `cairn test`; `cairn test` itself, reads of a proof and python that runs no proof pass untouched.",
+    "why": "Measured 2026-10-06: run under raw pytest, 88 of 290 proofs wrote into live ~/.cairn (2705 paths), and the same day a CC session's own `python3 <proof>` landed 6 fixture inference tickets in the live log. A hand that skips the seal runs against the operator's world, and the operator cannot tell fixture records from real ones. It rewrites rather than refuses because 313 files of standing advice say `python3 <proof>`; a rewrite keeps them true in effect.",
+    "invoke": "`cairn proofgate` is not typed by a human — it is registered in .claude/settings.json under hooks.PreToolUse with matcher Bash, reads the hook payload on stdin, exits 0 (allow, possibly with a rewritten command) or 2 (refuse pytest, reason on stderr). Prove: `bin/cairn test bin/proofs/test_proof_gate.py`."
+  }
 }

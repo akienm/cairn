@@ -14,7 +14,11 @@ legs (a) and (b) run with ``transitions._entry_gate`` replaced by a stub that re
 "charted" and ``transitions._stamp_sail`` replaced by a no-op (a fixture ticket must
 not claim the live sail record in instance-space). The seat, the red class, the
 inspector and the history write are all REAL; only the chart is pretended. Both are
-restored in ``finally``.
+restored in ``finally``. The world also carries ``<tmp>/node_classes/bug.json``, a copy
+of the live class definition handed to every ``emit`` as ``node_class_root`` (the F18
+pattern): the hollow's worktree has no CairnCommons beside it, so transitions' default
+node-class root points at nothing there (measured 2026-10-13 at e6c8b395: "unknown
+node-class 'bug'" redded the tooth at HEAD and hollow could attribute nothing).
 
 The names ``ProofNamedRed`` and ``inspect_proof_named`` are bound at CALL time via
 getattr, so a hollow reversion of transitions.py reds this tooth instead of crashing
@@ -42,6 +46,9 @@ _AT_BUILDME = "bug@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
 _FIXTURE_TICKET = "fixture-7203-no-journal-carries-this-id"
 _LANE = "the_proveme_crossing_names_its_proof"
 _THIS_PROOF = "cairn/tools/base/proofs/test_proveme_names_its_proof.py"
+_LIVE_NODE_CLASSES = next((c / "node_classes" for c in (_REPO.parent / "CairnCommons",
+                                                        Path.home() / "dev" / "src" / "CairnCommons")
+                           if (c / "node_classes" / "bug.json").is_file()), None)
 
 
 def _records(hist: str) -> list[dict]:
@@ -83,7 +90,12 @@ def test_a_proveme_crossing_without_a_proof_is_refused_by_name():
     assert crossings.proven_by_since_buildme(_FIXTURE_TICKET) == [], \
         "the fixture ticket id is carried by a live journal — pick another"
 
+    assert _LIVE_NODE_CLASSES is not None, \
+        "no CairnCommons/node_classes/bug.json beside the repo or under $HOME"
     with tempfile.TemporaryDirectory() as d:
+        classes = Path(d) / "node_classes"
+        classes.mkdir()
+        (classes / "bug.json").write_bytes((_LIVE_NODE_CLASSES / "bug.json").read_bytes())
         comp = Path(d) / "fixture_component"
         comp.mkdir()
         hist, state = str(comp / "history.json"), str(comp / "state.json")
@@ -92,7 +104,8 @@ def test_a_proveme_crossing_without_a_proof_is_refused_by_name():
         with _PretendCharted():
             try:
                 transitions.emit(_AT_BUILDME, "PROVEME", history_path=hist, state_path=state,
-                                 ticket=_FIXTURE_TICKET, actor="proof", note="leg a")
+                                 ticket=_FIXTURE_TICKET, actor="proof", note="leg a",
+                                 node_class_root=classes)
             except red as e:
                 assert "proven_by" in str(e), f"the refusal must name the missing argument: {e}"
                 assert _FIXTURE_TICKET in str(e), f"the refusal must name the ticket: {e}"
@@ -108,7 +121,7 @@ def test_a_proveme_crossing_without_a_proof_is_refused_by_name():
             # (b) proven_by names this proof -> the crossing lands, the lane reads clean
             new = transitions.emit(_AT_BUILDME, "PROVEME", history_path=hist, state_path=state,
                                    ticket=_FIXTURE_TICKET, actor="proof", note="leg b",
-                                   proven_by=_THIS_PROOF)
+                                   proven_by=_THIS_PROOF, node_class_root=classes)
         assert transitions.parse_workflow(new).here == "PROVEME", new
         rec = _records(hist)[-1]
         assert rec["to"] == "PROVEME" and rec.get("proof_gate", "").startswith("clean — proof named:"), rec
@@ -125,7 +138,7 @@ def test_a_proveme_crossing_without_a_proof_is_refused_by_name():
         comp2.mkdir()
         hist2, state2 = str(comp2 / "history.json"), str(comp2 / "state.json")
         new2 = transitions.emit(_AT_BUILDME, "PROVEME", history_path=hist2, state_path=state2,
-                                actor="proof", note="leg c")
+                                actor="proof", note="leg c", node_class_root=classes)
         assert transitions.parse_workflow(new2).here == "PROVEME", new2
         rec2 = _records(hist2)[-1]
         assert rec2.get("proof_gate") == "not_checked", rec2

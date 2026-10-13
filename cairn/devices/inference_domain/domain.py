@@ -718,8 +718,16 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             own.close()
 
 
+def _as_utc(when):
+    """A datetime or ISO string as an aware UTC datetime; a naive value is taken as UTC."""
+    from datetime import datetime, timezone
+    if isinstance(when, str):
+        when = datetime.fromisoformat(when)
+    return when if when.tzinfo else when.replace(tzinfo=timezone.utc)
+
+
 def read_ticket(*, canonical: str | None = None, limit: int | None = None,
-                table: str = CACHE, conn=None) -> list[dict]:
+                since: str | None = None, table: str = CACHE, conn=None) -> list[dict]:
     """The reader face: inference_calls rows themselves, not an aggregate (yield_report) but
     the individual tickets — request and answer.
 
@@ -729,6 +737,9 @@ def read_ticket(*, canonical: str | None = None, limit: int | None = None,
         ``"unknowable"`` if the row predates the build that carries it (pre-build rows are
         never "empty" — absent-not-empty, which is where a hollow green would hide)
       - everything else the row already has
+
+    ``since`` (ISO, ticket b905340f8162) drops every row created at or before it, BEFORE
+    the limit — so an asker that remembers the newest row it has read gets only what is new.
     """
     own_conn = conn or store.connect()
     try:
@@ -737,6 +748,9 @@ def read_ticket(*, canonical: str | None = None, limit: int | None = None,
         else:
             rows = store.read(table, conn=own_conn)
         rows.sort(key=lambda r: r["created"], reverse=True)
+        if since is not None:
+            floor = _as_utc(since)
+            rows = [r for r in rows if _as_utc(r["created"]) > floor]
         if limit is not None:
             rows = rows[:limit]
         result = []

@@ -23,6 +23,21 @@ def _with_kind(envelope: dict, kind: str) -> dict:
     return {**envelope, "body": body}
 
 
+def _json_safe(value):
+    """A row as something json.dumps takes: datetimes to ISO strings, Decimal to float."""
+    from datetime import date, datetime
+    from decimal import Decimal
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, Decimal):
+        return float(value)
+    return value
+
+
 class InferenceDomainDevice(BaseDevice):
 
     def __init__(self) -> None:
@@ -41,7 +56,22 @@ class InferenceDomainDevice(BaseDevice):
         # that wants a vector or a completion asks for THAT over the bus and never needs the
         # domain's request vocabulary — or its module — to ask.
         return {**super().declared_verbs(), "resolve": self._handle_resolve,
-                "embed": self._handle_embed, "infer": self._handle_infer}
+                "embed": self._handle_embed, "infer": self._handle_infer,
+                "calls": self._handle_calls}
+
+    def _handle_calls(self, envelope: dict, *, table: str | None = None) -> dict:
+        """Who asks for the domain's calls gets them (ticket b905340f8162): stored
+        inference_calls rows, most recent first, bounded by ``limit`` (default 100, capped
+        at 1000) and ``since`` (ISO; rows created at or before it are dropped). A verb, not a
+        view, because a view takes no arguments. The domain does not know who asks or why.
+        ``table`` is a proof seam for a scratch table; the bus never passes it."""
+        from cairn.devices.inference_domain import domain
+
+        body = envelope.get("body") or {}
+        limit = max(1, min(int(body.get("limit") or 100), 1000))
+        kw = {"table": table} if table else {}
+        rows = domain.read_ticket(limit=limit, since=body.get("since"), **kw)
+        return {"calls": [_json_safe(r) for r in rows]}
 
     def _handle_embed(self, envelope: dict) -> dict:
         return self._handle_resolve(_with_kind(envelope, "embed"))

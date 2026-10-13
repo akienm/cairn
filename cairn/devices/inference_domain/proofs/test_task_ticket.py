@@ -46,8 +46,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.inference_domain import domain
-from cairn.devices.inference_domain.probes import are_inference_task_tickets_complete as probe
+# The subject binds at CALL time (_bind, from the declared tooth), never at import: a hollow
+# reading that reverts domain.py to an unimportable tree must print a RED tooth, not die
+# before the first one (measured 2026-10-13: the 09-06 domain.py imports a store that is gone).
+domain = None
+probe = None
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.base import address
 
@@ -333,8 +336,16 @@ _NARROW = [
 ]
 
 
+def _bind() -> None:
+    global domain, probe
+    from cairn.devices.inference_domain import domain as _domain
+    from cairn.devices.inference_domain.probes import are_inference_task_tickets_complete as _probe
+    domain, probe = _domain, _probe
+
+
 def test_every_inference_call_produces_a_complete_task_ticket():
     """THE ONE DECLARED TOOTH for the falsifier's one clause: the narrow teeth end to end."""
+    _bind()
     for check in _NARROW:
         check()
         print(f"    PASS  {check.__name__}")
@@ -355,7 +366,8 @@ def _main() -> int:
             return 1
         print("  PASS  test_every_inference_call_produces_a_complete_task_ticket")
     finally:
-        domain.set_diagnostic_roots(None)
+        if domain is not None:
+            domain.set_diagnostic_roots(None)
         _SCRATCH.close()
     print("green — every inference call produces a complete task ticket, and a refusal raises a trouble")
     return 0

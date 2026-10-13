@@ -45,6 +45,7 @@ invisible while it was being worked around.
     cairn test --seal <path>                    land each verdict through the store's door
     cairn test --reseal                         the four-rung ladder over what git has staged
     cairn test --reseal --ruling <id> <path>    rung 4: reseal over a proof whose bytes moved
+    cairn test --seal --ruling <id> <path>      rung 4: the same gate, asked by the plain seal
     cairn test --reseal-install                 install the pre-commit hook that fires it
     cairn test --exec "<command>"               run any command under the instance seal (exit passes through; 2 when no seal)
     cairn test --drive-a-failed-run <scratch>   a proof killed by its timeout under a scratch instance root
@@ -467,7 +468,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--ruling",
         metavar="ID",
-        help="rung 4: the CONFIRMED ruling id that lets a reseal land over a proof file "
+        help="rung 4: the CONFIRMED ruling id that lets a reseal (or a --seal) land over a proof file "
              "whose bytes have moved. Akien's alone — 'the proof's claim no longer matches "
              "the spec' is a ruling, never a declaration",
     )
@@ -559,12 +560,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  UNRUNNABLE  {proof}")
             reds.append((proof, {}))
             continue
+        # RUNG 4 ASKS BEFORE THE RUN, AND AN OPEN LADDER RIDES THE SEAL (ticket 2dd69b2ba087):
+        # the reseal door's gate, asked by the other seal writer. A refusal joins the refused
+        # lane — nothing ran, nothing landed; a seal over an open ladder lands through
+        # carry_ladder so the bound the repair answers to is not dropped by a plain --seal.
+        ladder = None
+        if sink == "validations":
+            from cairn.devices.tester.reseal import carry_ladder, read_ladder, rung4_refusal
+            why = rung4_refusal(proof, args.ruling)
+            if why is not None:
+                print(f"  REFUSED {rel}  (rung 4: its bytes moved under an open ladder)")
+                refused.append((proof, why))
+                continue
+            ladder = read_ladder(proof)
         isolation = isolation_for(proof)
         isolations[isolation] += 1
         try:
-            record = tester.run_proof(proof, sink=sink, caller="cairn test",
+            record = tester.run_proof(proof, sink="none" if ladder else sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation,
                                       scratch_sweep=sweep_scratch() if sink == "validations" else None)
+            if ladder:
+                record = carry_ladder(record, proof, ladder, ruling_id=args.ruling)
         except SealUnavailable as refusal:
             # THE SEAL COULD NOT BE BUILT, SO THE PROOF NEVER RAN (67af8b743a63): nothing was
             # measured and nothing persisted. It joins the refused lane, the batch continues.

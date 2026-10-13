@@ -305,6 +305,57 @@ def proofs_touching(staged: list[str], *, root: Path | None = None,
     return out
 
 
+def rung4_refusal(proof_path, ruling_id: str | None) -> str | None:
+    """``None`` when rung 4 lets a seal land on this proof; else the refusal, naming the proof.
+
+    ONE GATE FOR BOTH SEAL WRITERS (ticket 2dd69b2ba087). Measured 2026-10-08 on
+    test_scratch.py: this door refused at rung 4, and ``cairn test --seal`` on the same proof
+    then landed a seal with the ladder gone — the second writer never asked. So the check is
+    a function the reseal and the plain seal both call before they run anything."""
+    proof = Path(proof_path).resolve()
+    ladder = read_ladder(proof)
+    now_hash = proof_sha256(proof)
+    if not (ladder and ladder.get("proof_sha256") and ladder["proof_sha256"] != now_hash):
+        return None
+    why = ruling_refusal(ruling_id or "")
+    if why is None:
+        return None
+    return (f"{_rel(proof)}: the ladder opened {ladder.get('opened')} bounded the repair to a "
+            f"proof file hashing {ladder['proof_sha256']}, and the file on disk now hashes "
+            f"{now_hash}. The assertions moved, so this is not a repair — it is 'the "
+            f"proof's claim no longer matches the spec', which is a RULING and Akien's "
+            f"alone (ruling 2026-09-06-a-seal-that-cannot-be-reproven-is-red-then-repaired-"
+            f"then-a-trouble-then-design). Refused: {why}. The component stays red until "
+            f"it is reproven under one.")
+
+
+def carry_ladder(record: dict, proof_path, ladder: dict, *, ruling_id: str | None = None) -> dict:
+    """Land a plain seal's ``record`` over an OPEN ladder without dropping it (2dd69b2ba087).
+
+    A green closes the ladder as rung 2 does (``reseal_closed``, plus ``reseal_ruling`` when
+    one rode along); a red carries it forward, bound to the bytes on disk — the same bytes
+    when nothing moved, and the re-based bytes when rung 4 was lifted, because re-basing is
+    what a ruling MEANS (see rung 3 below). Returns the record that landed."""
+    proof = Path(proof_path).resolve()
+    now_hash = proof_sha256(proof)
+    evidence = dict(record.get("evidence") or {})
+    if record.get("verdict") == GREEN:
+        if ruling_id:
+            evidence["reseal_ruling"] = ruling_id
+        evidence["reseal_closed"] = {**ladder, "closed_at": _now(), "closed_by": "cairn test --seal",
+                                     "closed_proof_sha256": now_hash}
+        sealed = {**record, "evidence": evidence}
+        compare(sealed, proof)
+    else:
+        carried = {**ladder, "proof_sha256": now_hash}
+        if ruling_id:
+            carried["ruling"] = ruling_id
+        evidence["reseal_ladder"] = carried
+        sealed = {**record, "evidence": evidence}
+    persist_validation(sealed, proof_path=str(proof), unsealing_because=NETWORK_SEAL_RETIRED)
+    return sealed
+
+
 def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None,
            skip_settled: bool = False,
            timeout: int = 120, isolation: str | None = None,
@@ -329,17 +380,9 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     now_hash = proof_sha256(proof)
 
     # ── RUNG 4: the gate, and it is the first thing that happens ──────────────────────
-    if ladder and ladder.get("proof_sha256") and ladder["proof_sha256"] != now_hash:
-        why = ruling_refusal(ruling_id or "")
-        if why is not None:
-            raise ResealRefused(
-                f"{rel}: the ladder opened {ladder.get('opened')} bounded the repair to a proof "
-                f"file hashing {ladder['proof_sha256']}, and the file on disk now hashes "
-                f"{now_hash}. The assertions moved, so this is not a repair — it is 'the "
-                f"proof's claim no longer matches the spec', which is a RULING and Akien's "
-                f"alone (ruling 2026-09-06-a-seal-that-cannot-be-reproven-is-red-then-repaired-"
-                f"then-a-trouble-then-design). Refused: {why}. The component stays red until "
-                f"it is reproven under one.")
+    refusal = rung4_refusal(proof, ruling_id)
+    if refusal is not None:
+        raise ResealRefused(refusal)
 
     before = standing(str(proof))
     if before["proven"]:

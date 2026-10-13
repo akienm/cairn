@@ -38,7 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import driver  # noqa: E402
-from cairn.devices.aider_shim.probes import edit_survival_probe as probe  # noqa: E402
+probe = None  # bound in main(): this build adds the probe, so the hollow takes it away
 
 REPO = Path(__file__).resolve().parents[4]
 FAILURES = []
@@ -98,7 +98,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     itself rather than re-deriving what it does, which also means a tooth that cannot go
     green while the gate would refuse the crossing.
     """
-    spec = json.loads((Path.home() / "dev/src/CairnCommons/tickets/aider-builds-a-piece.json")
+    from cairn.tools.chain.grammar import ticket_path
+    spec = json.loads(Path(ticket_path('6d3e689b0bf8'))
                       .read_text(encoding="utf-8"))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
@@ -278,6 +279,11 @@ def test_running_the_probe_MOVES_NO_STATE():
 
 
 def _main():
+    global probe
+    try:
+        from cairn.devices.aider_shim.probes import edit_survival_probe as probe
+    except ImportError:
+        pass
     print(__doc__.splitlines()[0])
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):

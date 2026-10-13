@@ -2,7 +2,7 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-12T11:18:59",
+    "date": "2026-10-13T10:21:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -47,6 +47,10 @@
         "durable_state_declared (relational-state-goes-through-the-one-door)",
         "learning_declared (learning-as-a-pattern)",
         "claim_provenance (a-claim-carries-its-provenance)",
+        "claim_propagates 1 — a recurring claim with no provenance on any carrier reds",
+        "claim_propagates 2 — the same pair with provenance on one carrier stays quiet",
+        "claim_propagates 4 — a pair with one carrier under each root reds",
+        "claim_propagates 3 — the sieve is a runnable check: an accept-all mutant turns tooth 1 red",
         "working_tree_clean (nothing-rides-loose)",
         "Tooth 1 — planted-graph: a dirty subtree fires working_tree_clean",
         "Tooth 2 — real-corpus: a clean subtree stays quiet",
@@ -75,34 +79,21 @@
         "AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries"
       ],
       "teeth_red": [],
-      "test": "test-b0ccbb8abb42",
+      "test": "test-b0825cb34748",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 12,
-        "tables": [
-          "bus_proc_1916072_0133154879_delivery",
-          "bus_proc_1916072_0133154879",
-          "bus_proc_1916161_0133254809_delivery",
-          "bus_proc_1916161_0133254809",
-          "bus_proc_1918447_0138248332_delivery",
-          "bus_proc_1918447_0138248332",
-          "bus_proc_1971168_1113179555_delivery",
-          "bus_proc_1971168_1113179555",
-          "bus_proc_1971226_1113259782_delivery",
-          "bus_proc_1971226_1113259782",
-          "bus_proc_1971336_1113286160_delivery",
-          "bus_proc_1971336_1113286160"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "adbf26519244cd82148df1965c8546e648ae30d9ad7a829522bf6139aea88cda",
+        "proof": "8e64e96cd9eadb613aaaa532f85ecaffd950a3e5cc20593bd6fedaa13ef495c2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 800,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -113,8 +104,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b0ccbb8abb42",
-      "source_fingerprint": "6d190e55a5b014982f175fd98cbd37dae4fb367a61b9aa895113916963cee4b0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b0825cb34748",
+      "source_fingerprint": "969e8efe4751c6c007062ef9a1facf53db8d85dcaa24da2e8fa0f69803a624ec",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -122,27 +113,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1971419-xzjcg855/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2713281-fx8tobie/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/charter/0/20261012.171337.507982.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261012.171338.181301.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261012.171546.364465.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261012.171547.171930.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/runs/test-70dfb65d22df/stderr.txt",
-            "logs/tester/0/runs/test-70dfb65d22df/stdout.txt",
-            "logs/tester/0/runs/test-ed402d4d0dd7/stderr.txt",
-            "logs/tester/0/runs/test-ed402d4d0dd7/stdout.txt"
+            "logs/charter/0/20261013.161607.064196.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261013.161607.705180.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261013.161827.265604.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261013.161827.996246.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/runs/test-9514230d2c78/stderr.txt",
+            "logs/tester/0/runs/test-9514230d2c78/stdout.txt",
+            "logs/tester/0/runs/test-ef49b71c69ec/stderr.txt",
+            "logs/tester/0/runs/test-ef49b71c69ec/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107662417,
-          "disk_bytes": 132141056,
-          "entries": 9915,
+          "bytes": 108857784,
+          "disk_bytes": 134610944,
+          "entries": 10342,
           "builds": 1,
           "reuses": 0
         }

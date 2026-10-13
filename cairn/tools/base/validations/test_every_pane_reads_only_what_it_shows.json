@@ -1,0 +1,100 @@
+[
+  {
+    "claim": "proof test_every_pane_reads_only_what_it_shows.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T18:55:21",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_each_pane_renders_the_newest_limit_and_names_the_older  — _personal_feed_pane: asked [200], 200 shown, older 800; _info_pane: asked [200], 200 shown, older 800; _debug_pane: asked [200], 200 shown, older 800\n  PASS  test_no_pane_reads_without_a_limit  — 3 read(s) over ['debug', 'info', 'personal']; unlimited: []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_each_pane_renders_the_newest_limit_and_names_the_older",
+        "test_no_pane_reads_without_a_limit"
+      ],
+      "teeth_red": [],
+      "test": "test-0905a8795282",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2203087_1847305147_delivery",
+          "bus_proc_2203087_1847305147"
+        ]
+      },
+      "conditions": {
+        "proof": "83bbe0726909c57f9daad382aeab915577ddef6a082e1de2635e8641b04ac572",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0905a8795282",
+      "source_fingerprint": "d25bbe0d6790e58d9da5ec58efe4935f85253078f7f1db826c73cc6a32af54be",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_every_pane_reads_only_what_it_shows.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2206325-udl9at1f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 108075950,
+          "disk_bytes": 133107712,
+          "entries": 10092,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "86423bb5f054": {
+          "cairn/tools/base/shim.py": [
+            "test_each_pane_renders_the_newest_limit_and_names_the_older",
+            "test_no_pane_reads_without_a_limit"
+          ],
+          "cairn/tools/base/proofs/test_the_feed_pane_is_bounded.py": {
+            "notified": "n-aba31374a7df"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "86423bb5f054": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "bcc0f7e53c5d2a1eb4c8aac00e2276de4d80bfe7",
+          "anchor_first_build": "07aeef0aa3cc4d8f30ebeadf26881247081ccb9b",
+          "commit": "0292f793f2700af1abda5ecebbf630b5f40d9bf0"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

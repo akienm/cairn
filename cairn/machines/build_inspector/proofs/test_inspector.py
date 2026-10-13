@@ -46,16 +46,10 @@ tooth = _Teeth()
 PROVES = {
     "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
     "68f1fc073512": {"b": "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket"},
-    "d48d54dccde6": {
-        "1": "claim_propagates 1 — a recurring claim with no provenance on any carrier reds",
-        "2": "claim_propagates 2 — the same pair with provenance on one carrier stays quiet",
-        "3": "claim_propagates 3 — the sieve is a runnable check: an accept-all mutant turns tooth 1 red",
-        "4": "claim_propagates 4 — a pair with one carrier under each root reds",
-    },
 }
 
 # The whole inspector runs over the live corpus here, well past the hollow reading's 120s
-# default: measured 2026-10-13, d48d54dccde6's hollow timed out with 0 teeth read.
+# default (measured 2026-10-13: a hollow timed out at 120s with 0 teeth read; a run is ~340s).
 PROOF_TIMEOUT_S = 900
 
 
@@ -1069,75 +1063,8 @@ def main() -> None:
         f"a charter with no claim_provenance key must red exactly claim_provenance: {f}"
 
 
-    # ── claim_propagates_with_provenance (d48d54dccde6, D-a..D-d) ────────────
-    # A definitional claim (a normalized sentence of 8+ words in role/what/why) recurring
-    # across two or more artifacts in EITHER root reds unless some carrier marks that
-    # field 'akien' or 'cc-read'. Each tooth builds its own two scratch roots, so no live
-    # corpus is read.
-    from cairn.machines.build_inspector import inspector as _cp_insp
-    _CP_CLAIM = ("The ledger is the one record every delivery is counted from, "
-                 "and nothing else counts them.")
-    _cp_row = {"component": "build_inspector", "dir": "build_inspector",
-               "charter_on_disk": True}
-
-    def _cp_world(prefix, *, a_mark=None, b_in_commons=False):
-        world = scratch_dir(prefix)
-        repo, commons = world / "repo", world / "CairnCommons"
-        (repo / ".git").mkdir(parents=True)
-        (commons / "intentions-not-beside-code").mkdir(parents=True)
-        a = {"component": "a", "what": _CP_CLAIM, "claim_provenance": {}}
-        if a_mark:
-            a["claim_provenance"] = {"what": a_mark}
-        (repo / "a").mkdir()
-        (repo / "a" / "intention+why.json").write_text(json.dumps(a))
-        b = {"component": "b", "why": "Said again. " + _CP_CLAIM}
-        if b_in_commons:
-            (commons / "intentions-not-beside-code" / "I-b.json").write_text(json.dumps(b))
-        else:
-            (repo / "b").mkdir()
-            (repo / "b" / "intention+why.json").write_text(json.dumps(b))
-        # the derived lab copy must never count as a second carrier
-        lab = commons / "intentions-congruency-lab"
-        lab.mkdir()
-        (lab / "a.json").write_text(json.dumps(a))
-        return repo, commons
-
-    def _cp_run(repo, commons):
-        return _cp_insp.claim_propagates_with_provenance(
-            _cp_row, repo / "a", repo=repo, commons=commons)
-
-    tooth('claim_propagates 1 — a recurring claim with no provenance on any carrier reds')
-    repo, commons = _cp_world("inspector-proof-cp-bare-")
-    f = _cp_run(repo, commons)
-    assert [x["method"] for x in f] == ["claim_propagates_with_provenance"], \
-        f"a bare recurring claim must red exactly once: {f}"
-    assert len(f[0]["values"]["carriers"]) == 2, f"both carriers named: {f[0]}"
-
-    tooth('claim_propagates 2 — the same pair with provenance on one carrier stays quiet')
-    for mark in ("akien", "cc-read"):
-        repo, commons = _cp_world("inspector-proof-cp-marked-", a_mark=mark)
-        assert _cp_run(repo, commons) == [], f"a carrier marked {mark!r} must keep it green"
-    repo, commons = _cp_world("inspector-proof-cp-badmark-", a_mark="someone")
-    assert len(_cp_run(repo, commons)) == 1, "a mark outside akien|cc-read is no provenance"
-
-    tooth('claim_propagates 4 — a pair with one carrier under each root reds')
-    repo, commons = _cp_world("inspector-proof-cp-roots-", b_in_commons=True)
-    f = _cp_run(repo, commons)
-    assert len(f) == 1, f"a claim crossing cairn into CairnCommons must red: {f}"
-    roots = {Path(p).resolve().is_relative_to(commons.resolve()) for p in f[0]["values"]["carriers"]}
-    assert roots == {True, False}, f"one carrier per root: {f[0]}"
-
-    tooth('claim_propagates 3 — the sieve is a runnable check: an accept-all mutant turns tooth 1 red')
-    assert _cp_insp.SIEVES.get("claim_propagates_with_provenance") is \
-        _cp_insp.claim_propagates_with_provenance, "the sieve must be registered in the nest"
-    saved = _cp_insp._claim_carried
-    _cp_insp._claim_carried = lambda marks: True
-    try:
-        repo, commons = _cp_world("inspector-proof-cp-mutant-")
-        assert _cp_run(repo, commons) == [], \
-            "the accept-all mutant must silence tooth 1's red, or tooth 1 could not catch it"
-    finally:
-        _cp_insp._claim_carried = saved
+    # claim_propagates_with_provenance (d48d54dccde6) is proved in its own file,
+    # test_claim_propagates_with_provenance.py, with the inspector bound at call time.
 
     # ── working_tree_clean (nothing-rides-loose) ────────────────────────────
     # The main fixture is NOT a git repo, so working_tree_clean returns []

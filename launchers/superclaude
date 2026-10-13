@@ -224,6 +224,9 @@ fi
 host=$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')
 instance="${instance:-0}"
 session="${host}_cc_${instance}"
+# WHICH CLAUDE THIS IS (8c899e9ea338). Akien 2026-10-13: "if CAIRN_USER is set, then it's you";
+# overwrites any inherited value, so a session started from another session names itself.
+export CAIRN_USER="cc${instance}"
 
 # ── preflight: get ourselves started ─────────────────────────────────────────
 # "Launch with as many of the things as you can already working" (Akien, 2026-07-30) —
@@ -581,6 +584,7 @@ if [[ "$dry_run" -eq 1 ]]; then
   echo "# context: $context_state"
   echo "# tmux: $([[ "$tmux_mode" -eq 1 ]] && echo "on (session: cairn_cc_${instance})" || echo "off")"
   echo "# CLAUDE_CODE_DISABLE_1M_CONTEXT=${CLAUDE_CODE_DISABLE_1M_CONTEXT:-<unset>}"
+  echo "# CAIRN_USER=$(printenv CAIRN_USER || echo "<unset>")"
   if [[ "$tmux_mode" -eq 1 ]]; then
     printf 'tmux new-session -d -s %q -- %s' "cairn_cc_${instance}" "$claude_bin"
     printf ' %q' "$@"

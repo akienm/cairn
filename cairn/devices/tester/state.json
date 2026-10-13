@@ -5,8 +5,8 @@
     "standing": "PROVEME",
     "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> [PROVEME:waiting] -> PROVED",
     "direction": "forward",
-    "entry_gate": "clean — a berthed chart chain claims ticket 'e038544a9b60', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
-    "proof_gate": "clean — proof named: cairn/tools/scratch/proofs/test_scratch.py",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'd65fe3aa96e2', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proof_gate": "clean — proof named: cairn/devices/tester/proofs/test_hollow_follows_a_move.py",
     "tree_gate": "clean — both trees committed at the PROVEME entry of tester",
     "proved": [
       {
@@ -80,7 +80,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "e038544a9b60"
+          "ticket": "d65fe3aa96e2"
         }
       },
       {
@@ -93,7 +93,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "e038544a9b60"
+          "ticket": "d65fe3aa96e2"
         }
       },
       {
@@ -106,7 +106,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "e038544a9b60"
+          "ticket": "d65fe3aa96e2"
         }
       },
       {
@@ -119,7 +119,7 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "e038544a9b60"
+          "ticket": "d65fe3aa96e2"
         }
       },
       {
@@ -132,21 +132,21 @@
         "source": "transitions.inspect_entry",
         "values": {
           "findings": [],
-          "ticket": "e038544a9b60"
+          "ticket": "d65fe3aa96e2"
         }
       },
       {
         "identity": "the_proveme_crossing_names_its_proof",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_proof_named",
-        "expected": "the PROVEME crossing of ticket 'e038544a9b60' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
-        "actual": "the PROVEME crossing of ticket 'e038544a9b60' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "expected": "the PROVEME crossing of ticket 'd65fe3aa96e2' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket 'd65fe3aa96e2' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
         "fatality": "none",
         "source": "transitions.inspect_proof_named",
         "values": {
-          "ticket": "e038544a9b60",
+          "ticket": "d65fe3aa96e2",
           "named": [
-            "cairn/tools/scratch/proofs/test_scratch.py"
+            "cairn/devices/tester/proofs/test_hollow_follows_a_move.py"
           ],
           "since_buildme": [],
           "dead": []
@@ -167,95 +167,17 @@
       }
     ],
     "checks_proved": 10,
-    "ticket": "e038544a9b60",
+    "ticket": "d65fe3aa96e2",
     "actor": "cc",
-    "why": "FIXME 1 answered: the proof moved to cairn/tools/scratch/proofs/test_scratch.py",
+    "why": "FIXME 1 answered: hollow sealed at cairn bfcf8682; test_hollow_follows_a_move.py 3/3 green as built",
     "proven_by": [
-      "cairn/tools/scratch/proofs/test_scratch.py"
+      "cairn/devices/tester/proofs/test_hollow_follows_a_move.py"
     ],
-    "fingerprint": "791cfa4db409a47e3c418c59734512ecb80ad6fb4caa7a609ba7b49086dbf5dd",
-    "at": "2026-10-13T02:42:57",
-    "seq": 186
+    "fingerprint": "31377ff659b7e582ac05e99a1a7e2664fea2b7ed1b77714c8a84468c22ca37fd",
+    "at": "2026-10-13T02:43:16",
+    "seq": 187
   },
   "window": [
-    {
-      "from": "PROVEME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "back",
-      "severity": 1,
-      "entry_gate": "not_applicable",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "PROVEME -> BUILDME moves the cursor off position 3",
-          "actual": "PROVEME -> BUILDME moves the cursor off position 3",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 3,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "PROVEME -> BUILDME",
-          "actual": "PROVEME -> BUILDME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "PROVED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "back"
-          }
-        }
-      ],
-      "checks_proved": 3,
-      "ticket": "e038544a9b60",
-      "actor": "cc",
-      "why": "retreat to re-name the proof: test_scratch.py moved from cairn/devices/tester/proofs to cairn/tools/scratch/proofs; no code change",
-      "fingerprint": "76d9c669aef18d7b1460a70f4e24781795cc5dd88172ae124d0bcb0a066be4c3",
-      "at": "2026-10-13T02:11:31",
-      "seq": 182
-    },
     {
       "from": "BUILDME",
       "to": "FIXME",
@@ -887,7 +809,185 @@
       "fingerprint": "791cfa4db409a47e3c418c59734512ecb80ad6fb4caa7a609ba7b49086dbf5dd",
       "at": "2026-10-13T02:42:57",
       "seq": 186
+    },
+    {
+      "from": "BUILDME",
+      "to": "PROVEME",
+      "standing": "PROVEME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'd65fe3aa96e2', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+      "proof_gate": "clean — proof named: cairn/devices/tester/proofs/test_hollow_follows_a_move.py",
+      "tree_gate": "clean — both trees committed at the PROVEME entry of tester",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+          "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME moves the cursor off position 3",
+          "actual": "BUILDME -> PROVEME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "cursor": 3,
+            "resolved": 4
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> PROVEME",
+          "actual": "BUILDME -> PROVEME",
+          "fatality": "none",
+          "source": "transitions.inspect_rules",
+          "values": {
+            "target": "PROVEME",
+            "legal_from_here": [
+              "DROPPED",
+              "FIXME",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d65fe3aa96e2"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d65fe3aa96e2"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d65fe3aa96e2"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d65fe3aa96e2"
+          }
+        },
+        {
+          "identity": "the_ticket_rehearses_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "d65fe3aa96e2"
+          }
+        },
+        {
+          "identity": "the_proveme_crossing_names_its_proof",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_proof_named",
+          "expected": "the PROVEME crossing of ticket 'd65fe3aa96e2' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "actual": "the PROVEME crossing of ticket 'd65fe3aa96e2' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+          "fatality": "none",
+          "source": "transitions.inspect_proof_named",
+          "values": {
+            "ticket": "d65fe3aa96e2",
+            "named": [
+              "cairn/devices/tester/proofs/test_hollow_follows_a_move.py"
+            ],
+            "since_buildme": [],
+            "dead": []
+          }
+        },
+        {
+          "identity": "working_tree_clean",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_clean_tree",
+          "expected": "both trees are committed at the PROVEME entry of 'tester' (no uncommitted changes in its repo or the sibling CairnCommons)",
+          "actual": "both trees are committed at the PROVEME entry of 'tester' (no uncommitted changes in its repo or the sibling CairnCommons)",
+          "fatality": "none",
+          "source": "transitions.inspect_clean_tree",
+          "values": {
+            "component": "tester",
+            "dirty": {}
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "ticket": "d65fe3aa96e2",
+      "actor": "cc",
+      "why": "FIXME 1 answered: hollow sealed at cairn bfcf8682; test_hollow_follows_a_move.py 3/3 green as built",
+      "proven_by": [
+        "cairn/devices/tester/proofs/test_hollow_follows_a_move.py"
+      ],
+      "fingerprint": "31377ff659b7e582ac05e99a1a7e2664fea2b7ed1b77714c8a84468c22ca37fd",
+      "at": "2026-10-13T02:43:16",
+      "seq": 187
     }
   ],
-  "count": 188
+  "count": 189
 }

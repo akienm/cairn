@@ -9125,5 +9125,299 @@
     "fingerprint": "3855c972449f172c71e350db39316261ac650ea89cf809b7c91e4bb296f0d691",
     "at": "2026-10-13T12:24:11",
     "seq": 44
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(aider_shim_offload_yield) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'd7b4019d2407'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/aider_shim/proofs/test_probe.py (seal 2026-10-13T12:20:51, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(aider_shim_offload_yield) emitted the probe berthed at /home/akien/dev/src/cairn/cairn/devices/aider_shim/probes/offload_yield_probe.py (ticket 'd7b4019d2407')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20260816T192157-e18aa4a953b7.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 5",
+        "actual": "WATCHME -> PROVED moves the cursor off position 5",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 5,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(aider_shim_offload_yield) crossing",
+        "actual": "a cast ticket for the WATCHME(aider_shim_offload_yield) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "d7b4019d2407",
+          "watch_object": "aider_shim_offload_yield",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d7b4019d2407-aider-shim.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'd7b4019d2407' carries a watchme spec for 'aider_shim_offload_yield'",
+        "actual": "ticket 'd7b4019d2407' carries a watchme spec for 'aider_shim_offload_yield'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "d7b4019d2407",
+          "watch_object": "aider_shim_offload_yield",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "d7b4019d2407",
+          "watch_object": "aider_shim_offload_yield",
+          "berth": "/home/akien/dev/src/cairn/cairn/devices/aider_shim/probes/offload_yield_probe.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'aider_shim' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "d7b4019d2407",
+          "component": "aider_shim",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'd7b4019d2407' is cast",
+        "actual": "named ticket 'd7b4019d2407' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "d7b4019d2407",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/d7b4019d2407-aider-shim.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "d7b4019d2407"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "d7b4019d2407",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "d41856973203162ec88e3d41c6e60d5112049cbd",
+              "upstream": "d41856973203162ec88e3d41c6e60d5112049cbd",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/cairn/cairn/devices/aider_shim",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "639a8b9f8c580a155c74c77855bb3e62a09127ae",
+              "upstream": "639a8b9f8c580a155c74c77855bb3e62a09127ae",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'aider_shim' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "aider_shim",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/aider_shim/proofs/test_probe.py stands in proven-space",
+        "actual": "cairn/devices/aider_shim/proofs/test_probe.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/aider_shim/proofs/test_probe.py",
+          "named": [
+            "cairn/devices/aider_shim/proofs/test_probe.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/aider_shim/proofs/test_probe.py's seal at '2026-10-13T12:20:51'",
+        "actual": "the witness dates cairn/devices/aider_shim/proofs/test_probe.py's seal at '2026-10-13T12:20:51'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/aider_shim/proofs/test_probe.py",
+          "named": [
+            "cairn/devices/aider_shim/proofs/test_probe.py"
+          ],
+          "seal": "2026-10-13T12:20:51",
+          "claimed": "2026-10-13T12:20:51"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket 'd7b4019d2407' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "d7b4019d2407"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/aider_shim/proofs/test_probe.py",
+    "proven_seal_date": "2026-10-13T12:20:51",
+    "delegated": false,
+    "ticket": "d7b4019d2407",
+    "why": "offload_yield probe back at its berth; PROVES declared; proof green",
+    "fingerprint": "1f6c7f70ca5f3ee2556e573b074ee4d0b6287ff7efc4ca54c23935cc94a4551f",
+    "at": "2026-10-13T12:24:25",
+    "seq": 45
   }
 ]

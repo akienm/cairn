@@ -1,0 +1,77 @@
+[
+  {
+    "claim": "proof test_the_shim_delivers_mail.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-13T04:29:17",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_device_is_whole\n.\n  ok   test_the_probes_load_with_zero_failures\n.\n  ok   test_a_delivery_is_ledgered\n.\n  ok   test_a_consumption_names_its_session\n.\n  ok   test_enough_needs_two_sessions\n.\n  ok   test_an_empty_ledger_never_fires\n.\n  ok   test_undelivered_mail_fails_after_a_day\n                                                                  [100%]\n7 passed in 0.03s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_device_is_whole",
+        "test_the_probes_load_with_zero_failures",
+        "test_a_delivery_is_ledgered",
+        "test_a_consumption_names_its_session",
+        "test_enough_needs_two_sessions",
+        "test_an_empty_ledger_never_fires",
+        "test_undelivered_mail_fails_after_a_day"
+      ],
+      "teeth_red": [],
+      "test": "test-415d3439fa42",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "30ebadf4b7cbe949953bac890ab38e846e61b2ad62db09fc1e58b6fdf8171984",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-415d3439fa42",
+      "source_fingerprint": "309ae71bd1355abf791b2ab7564cbd7b6b859f4596ad8747c6423e96a2d19111",
+      "fingerprint_closure": [
+        "cairn/devices/cc/__init__.py",
+        "cairn/devices/cc/probes/the_shim_delivers_mail.py",
+        "cairn/devices/cc/proofs/test_the_shim_delivers_mail.py",
+        "cairn/devices/cc/shim.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2537136-fjqnbbo0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 108674429,
+          "disk_bytes": 134197248,
+          "entries": 10254,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

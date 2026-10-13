@@ -2,7 +2,7 @@
   {
     "claim": "proof test_reported_but_unfixed_probe.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-12T13:07:04",
+    "date": "2026-10-13T11:22:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "test_it_reaches_nowhere"
       ],
       "teeth_red": [],
-      "test": "test-0e54d7dca25d",
+      "test": "test-aea3e0f8a619",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -49,8 +49,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e54d7dca25d",
-      "source_fingerprint": "f7c8e45fdabadbccc465e2ae50cabb8210eac837d13091f1c082b3f6b0c31ac3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aea3e0f8a619",
+      "source_fingerprint": "731fe39a64f26ab5ddc6025dd7d90ede98159c8a715bddfc89c053560ba970a5",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -79,7 +79,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2006056-p634jdoz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2765112-8t7nf3md/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -88,14 +88,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107722461,
-          "disk_bytes": 132268032,
-          "entries": 9926,
+          "bytes": 108971974,
+          "disk_bytes": 134828032,
+          "entries": 10368,
           "builds": 1,
-          "reuses": 5
+          "reuses": 1
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

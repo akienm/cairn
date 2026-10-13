@@ -50101,5 +50101,165 @@
     "fingerprint": "a4cf6c0c084db9a25d02de26761b52441b0d538736ebf17c11a03a0ee3c1fede",
     "at": "2026-10-13T01:59:28",
     "seq": 181
+  },
+  {
+    "from": "PROVEME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME moves the cursor off position 3",
+        "actual": "PROVEME -> BUILDME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME",
+        "actual": "PROVEME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e038544a9b60",
+    "actor": "cc",
+    "why": "retreat to re-name the proof: test_scratch.py moved from cairn/devices/tester/proofs to cairn/tools/scratch/proofs; no code change",
+    "fingerprint": "76d9c669aef18d7b1460a70f4e24781795cc5dd88172ae124d0bcb0a066be4c3",
+    "at": "2026-10-13T02:11:31",
+    "seq": 182
+  },
+  {
+    "from": "BUILDME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME moves the cursor off position 3",
+        "actual": "BUILDME -> FIXME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME",
+        "actual": "BUILDME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "DROPPED",
+            "FIXME",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e038544a9b60",
+    "actor": "cc",
+    "why": "kick back so a forward BUILDME cuts the stale proof name",
+    "missing": [
+      "the PROVEME crossing names cairn/devices/tester/proofs/test_scratch.py, which moved to cairn/tools/scratch/proofs/test_scratch.py; only a forward BUILDME cuts the stale name"
+    ],
+    "fingerprint": "ad72c1ec1bf52f5af18238fd6bf7d7437a36bb60388c31b2e7fd5076ff7aceb2",
+    "at": "2026-10-13T02:11:41",
+    "seq": 183
   }
 ]

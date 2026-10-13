@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_librarian_chat.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:31:01",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T09:01:50",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -29,10 +29,10 @@
         "test_chat_opens_no_door_of_its_own"
       ],
       "teeth_red": [],
-      "test": "test-406486bcd9fb",
+      "test": "test-66e3bb344011",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -42,8 +42,8 @@
         "proof": "c442040bf63303740529303c26aee4e7a0cae6d5be685bd5e30e0132e0698f4a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -53,8 +53,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-406486bcd9fb",
-      "source_fingerprint": "072f844f43375ac47348c710934af317f377adc43f7f843425379bde883f0907",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-66e3bb344011",
+      "source_fingerprint": "21c43fa993a2f4518f9ca7ed27affb050fcb4f222171df787151744934f08526",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/chat.py",
@@ -68,52 +68,52 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-pylik08a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2674761-40d5oddh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 29,
+          "count": 28,
           "paths": [
             "devices/inference_domain/0/last_known.json",
             "devices/librarian/0/last_known.json",
-            "logs/bus/0/20261006.063059.981945.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.032230.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.063100.039667.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.052483.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.053507.BusDevice.delivered.json",
-            "logs/bus/0/20261006.063100.053904.BusDevice.delivered.json",
-            "logs/bus/0/20261006.063100.054067.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.054336.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.055009.BusDevice.delivered.json",
-            "logs/bus/0/20261006.063100.055128.BusDevice.delivered.json",
-            "logs/bus/0/20261006.063100.055257.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.055515.BusDevice.post.json",
-            "logs/bus/0/20261006.063100.056155.BusDevice.delivered.json",
-            "logs/bus/0/20261006.063100.056271.BusDevice.delivered.json",
-            "logs/ground_loop_nohup.log",
-            "logs/inference_domain/0/20261006.063100.052237.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/20261006.063100.053636.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261006.063100.053769.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261006.063100.054198.inference_domain_domain_resolve.resolve.json",
-            "logs/inference_domain/0/20261006.063100.055384.inference_domain_domain_resolve.resolve.json",
-            "logs/librarian/0/20261006.063054.528898.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261006.063054.545009.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063054.580063.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261006.063054.580296.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261006.063054.999979.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063055.041031.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261006.063055.041397.LibrarianDevice.chat.json"
+            "logs/bus/0/20261013.150148.952330.BusDevice.post.json",
+            "logs/bus/0/20261013.150148.999750.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261013.150149.006673.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.020293.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.021578.BusDevice.delivered.json",
+            "logs/bus/0/20261013.150149.025343.BusDevice.delivered.json",
+            "logs/bus/0/20261013.150149.025504.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.025789.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.026471.BusDevice.delivered.json",
+            "logs/bus/0/20261013.150149.026599.BusDevice.delivered.json",
+            "logs/bus/0/20261013.150149.026728.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.026977.BusDevice.post.json",
+            "logs/bus/0/20261013.150149.027636.BusDevice.delivered.json",
+            "logs/bus/0/20261013.150149.027750.BusDevice.delivered.json",
+            "logs/inference_domain/0/20261013.150149.020039.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261013.150149.024176.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261013.150149.025188.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261013.150149.025649.inference_domain_domain_resolve.resolve.json",
+            "logs/inference_domain/0/20261013.150149.026848.inference_domain_domain_resolve.resolve.json",
+            "logs/librarian/0/20261013.150142.803428.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261013.150142.815795.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150142.847687.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261013.150142.847904.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261013.150143.277275.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150143.309954.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261013.150143.310165.LibrarianDevice.chat.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 177028948,
-          "disk_bytes": 205238272,
-          "entries": 12082,
+          "bytes": 108792531,
+          "disk_bytes": 134594560,
+          "entries": 10345,
           "builds": 1,
-          "reuses": 63
+          "reuses": 1
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

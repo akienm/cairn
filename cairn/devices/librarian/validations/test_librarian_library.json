@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_librarian_library.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:31:10",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T09:01:59",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -24,10 +24,10 @@
         "test_library_opens_no_door_of_its_own"
       ],
       "teeth_red": [],
-      "test": "test-d0be69cc712b",
+      "test": "test-3633a84c17e7",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -37,8 +37,8 @@
         "proof": "1e7cf2605f1721070486d1e4b1a8c64107aa8471f4541ff1b08841f4a0efd57e",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -48,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d0be69cc712b",
-      "source_fingerprint": "fee794275ab00ee86435d918f6e556c40c8140784e095a7a8f1a5b93a34c9d48",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3633a84c17e7",
+      "source_fingerprint": "b48a13d7bc92c9b3fce3db5cc919082031d3ead0b7258674a856d34980f3f5da",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
@@ -58,32 +58,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-bnmz_ikk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2674761-gfhrncwt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
           "paths": [
-            "logs/librarian/0/20261006.063109.173953.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.197994.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.198205.LibrarianDevice.learn.json",
-            "logs/librarian/0/20261006.063109.236810.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.250645.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.250821.LibrarianDevice.learn.json",
-            "logs/librarian/0/20261006.063109.281018.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.305023.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261006.063109.305221.LibrarianDevice.learn.json"
+            "logs/librarian/0/20261013.150158.876848.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150158.900846.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150158.901121.LibrarianDevice.learn.json",
+            "logs/librarian/0/20261013.150158.950849.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150158.971860.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150158.972130.LibrarianDevice.learn.json",
+            "logs/librarian/0/20261013.150159.013824.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150159.046809.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261013.150159.047116.LibrarianDevice.learn.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 177022893,
-          "disk_bytes": 205164544,
-          "entries": 12060,
+          "bytes": 108786552,
+          "disk_bytes": 134524928,
+          "entries": 10324,
           "builds": 1,
-          "reuses": 65
+          "reuses": 3
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

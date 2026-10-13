@@ -975,6 +975,100 @@ def test_the_borrow_is_cited_not_grafted():
     assert "cairn/machines/ruling" in src, "the borrow must be CITED in the module that composes it"
 
 
+
+# ---------------------------------------------------------------------------
+# THE INFERENCE CALLS REACH THE SHARED NODE SET (ticket 95f8c561e742). The librarian ASKS the
+# inference domain's 'calls' verb and deposits each resolved answer; it never imports the
+# domain. The ask is faked here with rows shaped as the verb returns them (JSON-safe, created
+# as ISO), and embed is a deterministic vector, so no host and no bus are touched. ingest.py
+# is the build's addition, so it binds at call time, inside each tooth.
+# ---------------------------------------------------------------------------
+
+_INGEST_ROWS = [
+    {"canonical": json.dumps({"kind": "generate", "prompt": f"ingest tooth {_RUN} resolved"}),
+     "verdict": "miss", "created": "2026-10-13T08:00:00-06:00",
+     "answer": {"body": {"response": f"an answer the host gave, run {_RUN}, worth keeping"}}},
+    {"canonical": json.dumps({"kind": "generate", "prompt": f"ingest tooth {_RUN} refused"}),
+     "verdict": "refused", "created": "2026-10-13T08:00:01-06:00", "answer": None},
+    {"canonical": json.dumps({"kind": "generate", "prompt": f"ingest tooth {_RUN} resolved"}),
+     "verdict": "hit", "created": "2026-10-13T08:00:02-06:00",
+     "answer": {"body": {"response": f"an answer the host gave, run {_RUN}, worth keeping"}}},
+]
+
+
+def _ingest_embed(text: str) -> list[float]:
+    seed = hashlib.sha256(text.encode()).digest()
+    return [((seed[i % 32] + i) % 97 + 1) / 97.0 for i in range(768)]
+
+
+def _ingest_ask(body: dict) -> dict:
+    return {"calls": [dict(r) for r in _INGEST_ROWS]}
+
+
+def _nodes_carrying(cid: str) -> list[dict]:
+    return store.read(trees.NODES_TABLE,
+                      where="provenance->>'call_id' = %s OR provenance->'attestations' @> %s::jsonb",
+                      params=(cid, json.dumps([{"call_id": cid}])))
+
+
+def _ingest_counts(cid: str, table: str) -> tuple:
+    nodes = _nodes_carrying(cid)
+    nids = [n["node_id"] for n in nodes]
+    emb = sum(len(store.read(trees.EMBEDDINGS_TABLE, where="node_id = %s", params=(n,))) for n in nids)
+    leaf = sum(len(store.read(table, where="node_id = %s", params=(n,))) for n in nids)
+    return nodes, emb, leaf
+
+
+def test_an_inference_call_becomes_one_node():
+    from cairn.devices.librarian import ingest as ing
+    table = _t("ingest")
+    result = ing.ingest(_ingest_ask, _ingest_embed, table=table)
+    assert result["deposited"] == 1, f"one resolved row must deposit exactly one node: {result}"
+    resolved, refused, hit = _INGEST_ROWS
+    nodes, emb, leaf = _ingest_counts(ing.call_id(resolved), table)
+    assert len(nodes) == 1, f"one cairn_nodes row must carry the call_id: {len(nodes)}"
+    _CREATED_NODES.append(nodes[0]["node_id"])
+    prov = nodes[0]["provenance"]
+    assert prov.get("source") == "inference_calls" and prov.get("call_id") == ing.call_id(resolved), prov
+    assert emb == 1, f"the node must carry one cairn_embeddings row: {emb}"
+    assert leaf == 1, f"the node must carry one leaf row: {leaf}"
+    for row in (refused, hit):
+        assert not _nodes_carrying(ing.call_id(row)), (
+            f"a {row['verdict']!r} row is not resolved and must deposit nothing")
+
+
+def test_a_second_ingest_adds_nothing():
+    from cairn.devices.librarian import ingest as ing
+    table = _t("ingest")
+    cid = ing.call_id(_INGEST_ROWS[0])
+    before_nodes, before_emb, before_leaf = _ingest_counts(cid, table)
+    assert len(before_nodes) == 1, "the first ingest must have run (tooth order)"
+    result = ing.ingest(_ingest_ask, _ingest_embed, table=table)
+    assert result["deposited"] == 0, f"a second ingest must deposit nothing: {result}"
+    after_nodes, after_emb, after_leaf = _ingest_counts(cid, table)
+    assert after_nodes[0]["provenance"] == before_nodes[0]["provenance"], (
+        "a second ingest must append no attestation")
+    assert (after_emb, after_leaf) == (before_emb, before_leaf), "a second ingest must add no rows"
+
+
+def test_ingest_asks_and_never_imports():
+    from cairn.devices.librarian import ingest as ing
+    from cairn.devices.librarian import device as dev_mod
+    for mod in (ing, dev_mod):
+        src = Path(mod.__file__).read_text(encoding="utf-8")
+        for node in ast.walk(ast.parse(src)):
+            names = ([a.name for a in node.names] if isinstance(node, ast.Import)
+                     else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
+            for name in names:
+                assert not name.startswith("cairn.devices.inference_domain"), (
+                    f"{Path(mod.__file__).name} imports {name}: the librarian asks over the bus "
+                    "and never imports the inference domain (RULE 1)")
+    assert "ingest" in _fresh_librarian().declared_verbs(), "the librarian must declare 'ingest'"
+
+
+PROVES = {"95f8c561e742": {"all": "test_an_inference_call_becomes_one_node"}}
+
+
 def _main() -> int:
     checks = [
         test_the_door_refuses_the_untraceable,
@@ -1014,6 +1108,9 @@ def _main() -> int:
         test_pure_topic_resolves_by_plain_cosine,
         test_warm_set_is_event_driven_not_daemon,
         test_the_borrow_is_cited_not_grafted,
+        test_an_inference_call_becomes_one_node,
+        test_a_second_ingest_adds_nothing,
+        test_ingest_asks_and_never_imports,
     ]
     try:
         for check in checks:
@@ -1036,7 +1133,7 @@ def _main() -> int:
           "consolidated sources, warm-set threads crystallize from co-occurrence and "
           "boost awake nodes, sleeping threads wake on deposit, important threads "
           "preserve their importance, temporal parsing extracts time windows, "
-          "pure-topic queries resolve by plain cosine, and no daemon or timer, "
+          "pure-topic queries resolve by plain cosine, a resolved inference call lands once as a node carrying its call_id, and no daemon or timer, "
           "and the module opens no door of its own")
     return 0
 

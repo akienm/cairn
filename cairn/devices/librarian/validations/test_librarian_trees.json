@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_librarian_trees.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:31:31",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T09:02:20",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_contradiction_scan_refutes_a_contradicted_hypothesis\n  PASS  test_contradiction_scan_leaves_non_contradictory_alone\n  PASS  test_correction_source_refutes_earned_node\n  PASS  test_hypothesis_cannot_refute_earned_via_scan\n  PASS  test_contradicts_provenance_field_is_set\n  PASS  test_device_deposit_fires_contradiction_scan\n  PASS  test_consolidation_deposits_with_source_consolidated\n  PASS  test_consolidated_node_enters_as_hypothesis\n  PASS  test_source_nodes_in_provenance\n  PASS  test_recursive_gate_blocks_unearned_consolidated_sources\n  PASS  test_consolidation_links_to_source_nodes\n  PASS  test_co_occurrence_crystallizes_into_thread\n  PASS  test_awake_thread_boosts_walk\n  PASS  test_sleeping_thread_wakes_on_deposit\n  PASS  test_important_recurring_thread_does_not_decay_to_zero\n  PASS  test_yesterday_filters_to_last_24h\n  PASS  test_pure_topic_resolves_by_plain_cosine\n  PASS  test_warm_set_is_event_driven_not_daemon\n  PASS  test_the_borrow_is_cited_not_grafted\ngreen — librarian/trees: the untraceable never lands, vectors are physics, nodes are born hypotheses, a duplicate grows nothing but its provenance lands as an attestation, links are bounded and weighted (no unbounded edge table), trees do not cross, the owner-gate holds, crossings breadcrumb, a retirement invalidates in ONE owner-gated act and never deletes, the door names every lack in one pass, the standing gate stops the guess and lets the signature through, contradiction_scan refutes via inference and leaves non-contradictory alone, the standing gate holds through the scan, the contradicts provenance links both sides, consolidation deposits with source='consolidated' at hypothesis standing with source_nodes and links, and the recursive gate blocks un-earned consolidated sources, warm-set threads crystallize from co-occurrence and boost awake nodes, sleeping threads wake on deposit, important threads preserve their importance, temporal parsing extracts time windows, pure-topic queries resolve by plain cosine, and no daemon or timer, and the module opens no door of its own",
+      "stdout_tail": "  PASS  test_hypothesis_cannot_refute_earned_via_scan\n  PASS  test_contradicts_provenance_field_is_set\n  PASS  test_device_deposit_fires_contradiction_scan\n  PASS  test_consolidation_deposits_with_source_consolidated\n  PASS  test_consolidated_node_enters_as_hypothesis\n  PASS  test_source_nodes_in_provenance\n  PASS  test_recursive_gate_blocks_unearned_consolidated_sources\n  PASS  test_consolidation_links_to_source_nodes\n  PASS  test_co_occurrence_crystallizes_into_thread\n  PASS  test_awake_thread_boosts_walk\n  PASS  test_sleeping_thread_wakes_on_deposit\n  PASS  test_important_recurring_thread_does_not_decay_to_zero\n  PASS  test_yesterday_filters_to_last_24h\n  PASS  test_pure_topic_resolves_by_plain_cosine\n  PASS  test_warm_set_is_event_driven_not_daemon\n  PASS  test_the_borrow_is_cited_not_grafted\n  PASS  test_an_inference_call_becomes_one_node\n  PASS  test_a_second_ingest_adds_nothing\n  PASS  test_ingest_asks_and_never_imports\ngreen — librarian/trees: the untraceable never lands, vectors are physics, nodes are born hypotheses, a duplicate grows nothing but its provenance lands as an attestation, links are bounded and weighted (no unbounded edge table), trees do not cross, the owner-gate holds, crossings breadcrumb, a retirement invalidates in ONE owner-gated act and never deletes, the door names every lack in one pass, the standing gate stops the guess and lets the signature through, contradiction_scan refutes via inference and leaves non-contradictory alone, the standing gate holds through the scan, the contradicts provenance links both sides, consolidation deposits with source='consolidated' at hypothesis standing with source_nodes and links, and the recursive gate blocks un-earned consolidated sources, warm-set threads crystallize from co-occurrence and boost awake nodes, sleeping threads wake on deposit, important threads preserve their importance, temporal parsing extracts time windows, pure-topic queries resolve by plain cosine, a resolved inference call lands once as a node carrying its call_id, and no daemon or timer, and the module opens no door of its own",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_door_refuses_the_untraceable",
@@ -46,24 +46,27 @@
         "test_yesterday_filters_to_last_24h",
         "test_pure_topic_resolves_by_plain_cosine",
         "test_warm_set_is_event_driven_not_daemon",
-        "test_the_borrow_is_cited_not_grafted"
+        "test_the_borrow_is_cited_not_grafted",
+        "test_an_inference_call_becomes_one_node",
+        "test_a_second_ingest_adds_nothing",
+        "test_ingest_asks_and_never_imports"
       ],
       "teeth_red": [],
-      "test": "test-e162e485788d",
+      "test": "test-d96c327d9cce",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "0d53d2764ff36982109d40120a771d0b6675746af44c100bc669303e699858ca",
+        "proof": "d00e1342e707bd10b25f4ee0ec82dd48e978596fcdb3c282c29dcbcc3e4c50da",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -73,16 +76,17 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e162e485788d",
-      "source_fingerprint": "f74acbaa6c384a066397358e42c7fecc4f9c1963c5a163020365f5c216ded764",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d96c327d9cce",
+      "source_fingerprint": "b84a6d66e1f98412259c3c16f0ce9b4d646f57525658863b36c04f37fd4b18a2",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
+        "cairn/devices/librarian/ingest.py",
         "cairn/devices/librarian/proofs/test_librarian_trees.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-_le8_422/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2674761-5pd0eerw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -91,13 +95,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 177020541,
-          "disk_bytes": 205127680,
-          "entries": 12049,
+          "bytes": 108784200,
+          "disk_bytes": 134488064,
+          "entries": 10313,
           "builds": 1,
-          "reuses": 69
+          "reuses": 7
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

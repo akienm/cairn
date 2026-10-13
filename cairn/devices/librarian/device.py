@@ -39,6 +39,27 @@ class LibrarianDevice(BaseDevice):
     def device_id(self) -> str:
         return "librarian"
 
+    def declared_verbs(self) -> dict:
+        # ``ingest`` (ticket 95f8c561e742): the librarian asks the inference domain for its
+        # calls and keeps the resolved answers as nodes. The ask is the event; nothing polls.
+        return {**super().declared_verbs(), "ingest": self._handle_ingest}
+
+    def _handle_ingest(self, envelope: dict) -> dict:
+        """Ask inference_domain's ``calls`` verb over the bus and deposit each resolved
+        answer once (cairn/devices/librarian/ingest.py). The domain is reached only by the
+        bus, never imported (RULE 1)."""
+        from cairn.devices.librarian import ingest
+        from cairn.devices.librarian.live import embed_via_bus
+        from cairn.tools.bus_client import reach
+
+        bus = reach("inference_domain")
+
+        def ask(body: dict) -> dict:
+            return bus.request(sender="librarian", to="inference_domain", verb="calls",
+                               why="librarian ingest", body=body)["body"]
+
+        return ingest.ingest(ask, embed_via_bus(bus))
+
     def deposit(self, content: str, vector, provenance: dict, *,
                 tree: str = "commons", table: str = NODES,
                 render_method: str = "embed:default",

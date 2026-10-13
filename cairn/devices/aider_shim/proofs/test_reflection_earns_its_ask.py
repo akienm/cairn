@@ -39,7 +39,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.devices.aider_shim import driver  # noqa: E402
-from cairn.devices.aider_shim.probes import reflection_earns_its_ask as probe  # noqa: E402
+probe = None  # bound in main(): this build adds the probe, so the hollow takes it away
 
 REPO = Path(__file__).resolve().parents[4]
 TICKET = "the-apprentice-learns-its-test-failed"
@@ -119,7 +119,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     does. A relative berth resolved against the cwd is green bare and red under the netns
     seal; the gate joins the berth to the repo root and never touches cwd.
     """
-    spec = json.loads((Path.home() / f"dev/src/CairnCommons/tickets/{TICKET}.json")
+    from cairn.tools.chain.grammar import ticket_path
+    spec = json.loads(Path(ticket_path(TICKET))
                       .read_text(encoding="utf-8"))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
@@ -378,6 +379,11 @@ def test_running_the_probe_MOVES_NO_STATE():
 
 
 def _main():
+    global probe
+    try:
+        from cairn.devices.aider_shim.probes import reflection_earns_its_ask as probe
+    except ImportError:
+        pass
     print(__doc__.splitlines()[0])
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):

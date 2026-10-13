@@ -603,7 +603,7 @@ def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_lis
     and asserts the one thing that matters to the operator: after the green, ``live()`` no
     longer carries the trouble. The device's own docstring says nothing but the recipient
     may clear — this tooth is what proves the door speaks as one."""
-    from cairn.devices.trouble.trouble import TroubleDevice
+    from cairn.devices.trouble.trouble import CLEARED_DIR, TroubleDevice
 
     root, proof = _component()
     store = root / "troubles"
@@ -632,7 +632,9 @@ def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_lis
     green = reseal(proof, tester=_FakeTester(GREEN), raiser=raiser)
     assert green["outcome"] == "resealed", green
     still = [t["id"] for t in holder.live()]
-    record = json.loads((store / f"{identity}.json").read_text(encoding="utf-8"))
+    # A trouble's location is its liveness (4ddc9df3369e): a cleared record berths in cleared/.
+    assert not (store / f"{identity}.json").exists(), "the cleared trouble still berths as live"
+    record = json.loads((store / CLEARED_DIR / f"{identity}.json").read_text(encoding="utf-8"))
     assert still == [], (
         f"the door's clear reached the holder and the trouble is STILL LIVE: standing="
         f"{record.get('standing')!r}, notified={record.get('notified')!r}, cleared_by="

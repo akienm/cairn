@@ -1,0 +1,99 @@
+[
+  {
+    "claim": "proof test_a_plain_seal_answers_rung_four.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T18:35:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_moved_proof_under_an_open_ladder_is_refused_without_a_ruling\n.\n  ok   test_an_answered_question_lets_the_seal_land\n.\n  ok   test_a_red_seal_over_an_open_ladder_keeps_the_ladder\n                                                                      [100%]\n3 passed in 0.04s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_moved_proof_under_an_open_ladder_is_refused_without_a_ruling",
+        "test_an_answered_question_lets_the_seal_land",
+        "test_a_red_seal_over_an_open_ladder_keeps_the_ladder"
+      ],
+      "teeth_red": [],
+      "test": "test-b31995fbd527",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "316fe614b52513f272f42cd7b2ce82ece894668358a4eef93c19a26fd0b5155b",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b31995fbd527",
+      "source_fingerprint": "f9347f4e70db56d7d78555febebe9048bd311dfdc64f21b187baec4cb6fbd26a",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_a_plain_seal_answers_rung_four.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2198222-4c1n1649/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 108048905,
+          "disk_bytes": 133050368,
+          "entries": 10080,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "2dd69b2ba087": {
+          "cairn/devices/tester/reseal.py": [
+            "test_a_moved_proof_under_an_open_ladder_is_refused_without_a_ruling",
+            "test_a_red_seal_over_an_open_ladder_keeps_the_ladder",
+            "test_an_answered_question_lets_the_seal_land"
+          ],
+          "cairn/devices/tester/cli.py": [
+            "test_a_moved_proof_under_an_open_ladder_is_refused_without_a_ruling",
+            "test_a_red_seal_over_an_open_ladder_keeps_the_ladder"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "2dd69b2ba087": {
+          "anchor_rule": "journal",
+          "anchor_journal": "fe8de02efb43e6406fa79904aca9d6b57848b25d",
+          "anchor_first_build": "d0d93b3e912b7e93a2a6b8f164d09c11571b1fe7",
+          "commit": "fe8de02efb43e6406fa79904aca9d6b57848b25d"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

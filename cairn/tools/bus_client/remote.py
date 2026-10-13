@@ -289,6 +289,9 @@ class RemoteBus:
     def read(self, **kwargs):
         return self._method("read", **kwargs)
 
+    def count(self, **kwargs):
+        return self._method("count", **kwargs)
+
     def request(self, **kwargs):
         return self._method("request", **kwargs)
 

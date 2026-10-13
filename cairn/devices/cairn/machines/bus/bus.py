@@ -481,12 +481,9 @@ class BusDevice(BaseDevice):
             result.append(env)
         return result
 
-    def read(self, *, to: str | None = None, channel: str | None = None,
-             reply_to: str | None = None) -> list[dict]:
-        """Read the feed — the RECORD, always the full truth (Law 7: the substrate never
-        collapses). Merges flushed rows from DB with the in-memory ring, so the full truth
-        is visible between flushes. DB rows (older, already flushed) come first; ring rows
-        (recent, not yet flushed) come after — insertion order preserved."""
+    def _clauses(self, to: str | None, channel: str | None,
+                 reply_to: str | None) -> tuple[list[str], list]:
+        """The WHERE clauses ``read()`` and ``count()`` share, so the two can never disagree."""
         if channel is not None:
             _require_channel(channel)
         self._ensure()
@@ -500,11 +497,43 @@ class BusDevice(BaseDevice):
         if reply_to is not None:
             clauses.append("reply_to = %s")
             params.append(reply_to)
-        where = (" AND ".join(clauses) + " ORDER BY ctid") if clauses else "TRUE ORDER BY ctid"
-        db_rows = store.read(self._table, where=where, params=tuple(params))
+        return clauses, params
+
+    def read(self, *, to: str | None = None, channel: str | None = None,
+             reply_to: str | None = None, limit: int | None = None) -> list[dict]:
+        """Read the feed — the RECORD, always the full truth (Law 7: the substrate never
+        collapses). Merges flushed rows from DB with the in-memory ring, so the full truth
+        is visible between flushes. DB rows (older, already flushed) come first; ring rows
+        (recent, not yet flushed) come after — insertion order preserved.
+
+        ``limit=N`` returns only the newest N, in the same oldest-first order (ticket
+        f8a97b570073: a pane showing 200 read the whole channel, ~25 s). The table is asked
+        for its newest N by ctid and reversed; the ring is newer than every flushed row, so
+        the merge sliced to its last N is exactly the newest N of the whole record."""
+        clauses, params = self._clauses(to, channel, reply_to)
+        where = " AND ".join(clauses) if clauses else "TRUE"
+        if limit is None:
+            db_rows = store.read(self._table, where=where + " ORDER BY ctid", params=tuple(params))
+        else:
+            db_rows = store.read(self._table, where=where + " ORDER BY ctid DESC LIMIT %s",
+                                 params=tuple(params) + (int(limit),))
+            db_rows.reverse()
         self._db_reads += 1
         ring_rows = self._ring_matches(to=to, channel=channel, reply_to=reply_to)
-        return db_rows + ring_rows
+        merged = db_rows + ring_rows
+        return merged if limit is None else merged[-int(limit):] if limit > 0 else []
+
+    def count(self, *, to: str | None = None, channel: str | None = None,
+              reply_to: str | None = None) -> int:
+        """How many messages match — the flushed rows counted in the table, plus the ring's.
+        The ring holds only unflushed envelopes (``flush`` swaps it to [] and puts a failed
+        batch back), so no message is counted twice (ticket f8a97b570073)."""
+        clauses, params = self._clauses(to, channel, reply_to)
+        where = " AND ".join(clauses) if clauses else "TRUE"
+        rows = store.query("SELECT count(*) AS n FROM {t} WHERE " + where,
+                           tables={"t": self._table}, params=tuple(params))
+        self._db_reads += 1
+        return int(rows[0]["n"]) + len(self._ring_matches(to=to, channel=channel, reply_to=reply_to))
 
     def request(self, *, sender: str, to: str, channel: str = "personal", why: str,
                 verb: str = "", body: dict | None = None,

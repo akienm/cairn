@@ -46,7 +46,7 @@ DEFAULT_HOME = Path("~/.cairn/devices/cairn/machines/bus/0")
 
 # The bus methods a caller may reach through ``call``. Named, not getattr-anything: the
 # socket is the bus's public interface, and a private method is not on it (RULE 1).
-CALLABLE = ("post", "read", "request", "undelivered", "record_delivery",
+CALLABLE = ("post", "read", "count", "request", "undelivered", "record_delivery",
             "digest", "list", "toggle")
 
 

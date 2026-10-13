@@ -1,0 +1,114 @@
+[
+  {
+    "claim": "proof test_location_is_liveness.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T22:22:24",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_clearing_moves_the_file_into_cleared\n.\n  ok   test_live_is_the_top_level_listing\n.\n  ok   test_a_raise_on_a_cleared_trouble_brings_it_back\n.\n  ok   test_a_trouble_carries_the_development_ticket_fields\n.\n  ok   test_the_trouble_node_class_loads\n.\n  ok   test_the_default_store_is_under_the_instance_logs\n.\n  ok   test_migrate_from_moves_the_old_store_whole\n                                                                  [100%]\n7 passed in 0.03s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_clearing_moves_the_file_into_cleared",
+        "test_live_is_the_top_level_listing",
+        "test_a_raise_on_a_cleared_trouble_brings_it_back",
+        "test_a_trouble_carries_the_development_ticket_fields",
+        "test_the_trouble_node_class_loads",
+        "test_the_default_store_is_under_the_instance_logs",
+        "test_migrate_from_moves_the_old_store_whole"
+      ],
+      "teeth_red": [],
+      "test": "test-8fc01806ab1b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 36,
+        "tables": [
+          "bus_proc_2248855_2131308123_delivery",
+          "bus_proc_2248855_2131308123",
+          "bus_proc_2249162_2132196306_delivery",
+          "bus_proc_2249162_2132196306",
+          "bus_proc_2249788_2134411420_delivery",
+          "bus_proc_2249788_2134411420",
+          "bus_proc_2249926_2135556266_delivery",
+          "bus_proc_2249926_2135556266",
+          "bus_proc_2249972_2136005035_delivery",
+          "bus_proc_2249972_2136005035",
+          "bus_proc_2250071_2136145085_delivery",
+          "bus_proc_2250071_2136145085",
+          "bus_proc_2250205_2136303618_delivery",
+          "bus_proc_2250205_2136303618",
+          "bus_proc_2250394_2136436022_delivery",
+          "bus_proc_2250394_2136436022",
+          "bus_proc_2250466_2136480644_delivery",
+          "bus_proc_2250466_2136480644",
+          "bus_proc_2250554_2136555208_delivery",
+          "bus_proc_2250554_2136555208",
+          "bus_proc_2250866_2137520316_delivery",
+          "bus_proc_2250866_2137520316",
+          "bus_proc_2251430_2140261765_delivery",
+          "bus_proc_2251430_2140261765",
+          "bus_proc_2251634_2141408210_delivery",
+          "bus_proc_2251634_2141408210",
+          "bus_proc_2251715_2141461417_delivery",
+          "bus_proc_2251715_2141461417",
+          "bus_proc_2251941_2141588780_delivery",
+          "bus_proc_2251941_2141588780",
+          "bus_proc_2252171_2142160248_delivery",
+          "bus_proc_2252171_2142160248",
+          "bus_proc_2252344_2142276859_delivery",
+          "bus_proc_2252344_2142276859",
+          "bus_proc_2252415_2142316502_delivery",
+          "bus_proc_2252415_2142316502"
+        ]
+      },
+      "conditions": {
+        "proof": "0264e9fc288ff28766c7e7da8b4b33c9cdef6ebe08e5a7f13701e66821d30121",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8fc01806ab1b",
+      "source_fingerprint": "d97920d34ff237009b0cc7ecdd7f218833f4d1669f8856eae39721ef26038d1e",
+      "fingerprint_closure": [
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/proofs/__init__.py",
+        "cairn/devices/trouble/proofs/test_location_is_liveness.py",
+        "cairn/devices/trouble/trouble.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2258668-mu9mzr9k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 108342653,
+          "disk_bytes": 133496832,
+          "entries": 10130,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

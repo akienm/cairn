@@ -56,6 +56,7 @@ PROVES = {
                      "6": "the_old_sieves_are_retired_and_encapsulation_holds_stands",
                      "7": "the_live_into_device_findings_equal_an_independent_census"},
     "76639374d9f9": {"a": "a_machine_importing_a_device_reds_by_file_and_module"},
+    "135a905eac3c": {"all": "the_build_inspector_reaches_no_device"},
 }
 
 PASS = 0
@@ -249,6 +250,21 @@ def the_live_into_device_findings_equal_an_independent_census():
                              f"inspector-only {sorted(found - census)[:5]}")
 
 
+def the_build_inspector_reaches_no_device():
+    """Ticket 135a905eac3c: the inspector's verdict gate imported codemother's verdict machine,
+    a top-level machine reaching into a device. 36d272c9 moved the import into cairn.tools.chain.
+    Over the LIVE tree, RULE 1's predicate finds nothing on build_inspector's row and no import
+    line in inspector.py names cairn.devices. The inspector binds late (_Late), so hollow
+    reverting inspector.py reds this tooth rather than crashing the file."""
+    row = {"dir": "machines/build_inspector", "component": "build_inspector"}
+    found = _inspector.encapsulation_holds(row, _REPO_ROOT / "cairn/machines/build_inspector")
+    assert found == [], found
+    src = (_REPO_ROOT / "cairn/machines/build_inspector/inspector.py").read_text()
+    reach = [ln.strip() for ln in src.splitlines()
+             if ln.lstrip().startswith(("from cairn.devices", "import cairn.devices"))]
+    assert reach == [], reach
+
+
 TEETH = [
     a_tool_reaching_into_a_device_is_into_device,
     a_skill_importing_an_undeclared_module_reds_until_declared,
@@ -259,6 +275,7 @@ TEETH = [
     a_device_importing_another_device_is_into_device,
     a_machine_importing_a_device_reds_by_file_and_module,
     the_live_into_device_findings_equal_an_independent_census,
+    the_build_inspector_reaches_no_device,
 ]
 
 if __name__ == "__main__":

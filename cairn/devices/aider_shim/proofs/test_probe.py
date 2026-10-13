@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from cairn.devices.aider_shim.probes import offload_yield_probe as probe  # noqa: E402
+probe = None  # bound in main(): this build adds the probe, so the hollow takes it away
 from cairn.tools.chain.chain import (  # noqa: E402
     OUTCOMES, verdict_error,
 )
@@ -112,7 +112,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     Both now call `armed_error`, which is the gate's own question and joins to the repo
     root rather than to wherever the runner happened to stand.
     """
-    spec = json.loads((Path.home() / "dev/src/CairnCommons/tickets/aider-shim.json")
+    from cairn.tools.chain.grammar import ticket_path
+    spec = json.loads(Path(ticket_path('d7b4019d2407'))
                       .read_text(encoding="utf-8"))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
@@ -452,6 +453,11 @@ def test_the_trigger_fires_on_a_NEW_artifact_and_not_on_a_standing_one():
 
 
 def main():
+    global probe
+    try:
+        from cairn.devices.aider_shim.probes import offload_yield_probe as probe
+    except ImportError:
+        pass
     print("aider_shim :: probe")
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):

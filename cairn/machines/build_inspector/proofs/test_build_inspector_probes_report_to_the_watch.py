@@ -5,8 +5,8 @@
 FIXME. This proof measures the cairn/machines/build_inspector child: every standing build_inspector probe posting through watch_carry to harbor_master's watch verb, and every such spec naming the receiver. d48d54dccde6, whose probe watches markers nothing writes, stands at FIXME and so is outside the population.
 
 What a hollow build cannot pass (Law 8):
-  - An unreceivable ticket (d48d54dccde6) not at FIXME, or at FIXME with no watchme
-    finding, fails test_the_unreceivable_probes_sent_their_tickets_to_fixme.
+  - An unreceivable ticket (d48d54dccde6) neither at FIXME with a watchme finding nor repaired (WATCHME
+    dropped, watchme 'none, because <X>', probe gone) fails test_the_unreceivable_probes_sent_their_tickets_to_fixme.
   - A probe left verbless, or carrying its ticket's PATH as
     ``ticket`` fails every_standing_build_inspector_probe_posts_watch, which reads each live payload's
     verb, ``to``, ``ticket``, ``holds`` and ``finding``.
@@ -40,7 +40,7 @@ PROVES = {
 }
 
 BERTH = "cairn/machines/build_inspector/probes/"
-UNRECEIVABLE = ('d48d54dccde6',)
+UNRECEIVABLE = {'d48d54dccde6': 'cairn/machines/build_inspector/probes/unattributed_definitional_claims.py'}
 RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
 
 
@@ -54,6 +54,27 @@ def _main_tree() -> Path:
 
 def _tickets() -> Path:
     return _main_tree().parent / "CairnCommons" / "tickets"
+
+
+def _off_the_watch(doc: dict, probe: str) -> str | None:
+    """None when an unreceivable ticket stands off the watch in either settled shape; else why not.
+    (a) at FIXME with a watchme finding (the watch verb's kick-back), or (b) repaired the 95f8 way:
+    WATCHME dropped from the string, watchme recorded as 'none, because <loud surface>', and the
+    probe gone from its berth. Both keep the ticket out of the standing population; an invariant,
+    not a snapshot of one cursor (reshaped 2026-10-13, CC's call per Akien 2026-10-09)."""
+    wf = doc["workflow_and_state"]
+    if "[FIXME" in wf:
+        if any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []):
+            return None
+        return f"at FIXME with no watchme finding in fixme: {doc.get('fixme')}"
+    w = doc.get("watchme")
+    if "WATCHME" in wf:
+        return f"neither at FIXME nor WATCHME dropped: {wf}"
+    if not (isinstance(w, str) and w.startswith("none, because ")):
+        return f"WATCHME dropped but watchme is not 'none, because <X>': {w!r}"
+    if (_REPO_ROOT / probe).exists():
+        return f"WATCHME dropped but the probe still stands at {probe}"
+    return None
 
 
 def _specs(doc: dict) -> list[dict]:
@@ -110,9 +131,8 @@ def test_the_unreceivable_probes_sent_their_tickets_to_fixme():
     for uid in UNRECEIVABLE:
         [path] = list(_tickets().glob(f"{uid}-*.json"))
         doc = json.loads(path.read_text("utf-8"))
-        assert "[FIXME" in doc["workflow_and_state"], f"{uid}: {doc['workflow_and_state']}"
-        assert any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []), \
-            f"{uid}: no watchme finding in fixme: {doc.get('fixme')}"
+        why = _off_the_watch(doc, UNRECEIVABLE[uid])
+        assert why is None, f"{uid}: {why}"
 
 
 def test_build_inspector_probes_report_to_the_watch():

@@ -45,6 +45,7 @@ PROVES = {
 BERTH = "cairn/tools/base/probes/"
 RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
 UNRECEIVABLE = "b0c0c47835c1"
+UNRECEIVABLE_PROBE = "cairn/tools/base/probes/gate_parameters_adjust_from_feedback.py"
 
 
 def _main_tree() -> Path:
@@ -57,6 +58,27 @@ def _main_tree() -> Path:
 
 def _tickets() -> Path:
     return _main_tree().parent / "CairnCommons" / "tickets"
+
+
+def _off_the_watch(doc: dict, probe: str) -> str | None:
+    """None when an unreceivable ticket stands off the watch in either settled shape; else why not.
+    (a) at FIXME with a watchme finding (the watch verb's kick-back), or (b) repaired the 95f8 way:
+    WATCHME dropped from the string, watchme recorded as 'none, because <loud surface>', and the
+    probe gone from its berth. Both keep the ticket out of the standing population; an invariant,
+    not a snapshot of one cursor (reshaped 2026-10-13, CC's call per Akien 2026-10-09)."""
+    wf = doc["workflow_and_state"]
+    if "[FIXME" in wf:
+        if any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []):
+            return None
+        return f"at FIXME with no watchme finding in fixme: {doc.get('fixme')}"
+    w = doc.get("watchme")
+    if "WATCHME" in wf:
+        return f"neither at FIXME nor WATCHME dropped: {wf}"
+    if not (isinstance(w, str) and w.startswith("none, because ")):
+        return f"WATCHME dropped but watchme is not 'none, because <X>': {w!r}"
+    if (_REPO_ROOT / probe).exists():
+        return f"WATCHME dropped but the probe still stands at {probe}"
+    return None
 
 
 def _specs(doc: dict) -> list[dict]:
@@ -141,9 +163,8 @@ def test_every_standing_base_spec_names_the_receiver():
 def test_the_unreceivable_probe_sent_its_ticket_to_fixme():
     [path] = list(_tickets().glob(f"{UNRECEIVABLE}-*.json"))
     doc = json.loads(path.read_text("utf-8"))
-    assert "[FIXME" in doc["workflow_and_state"], doc["workflow_and_state"]
-    assert any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []), \
-        doc.get("fixme")
+    why = _off_the_watch(doc, UNRECEIVABLE_PROBE)
+    assert why is None, why
 
 
 def test_base_probes_report_to_the_watch():

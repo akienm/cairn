@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_the_caller_reads_whose_terminal_it_is.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-13T11:16:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_operator_terminal_is_akien  — ('akien', 'Akien', 'env')\n  PASS  test_cairn_user_names_the_cc  — ('cc', 'cc0', 'env')\n  PASS  test_claudecode_is_cc  — ('cc', 'cc', 'env')\n  PASS  test_the_env_cannot_upgrade_a_measured_cc  — ('cc', 'cc', None)\n  PASS  test_nothing_set_stays_unknown  — ('unknown', None, None)\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_operator_terminal_is_akien",
+        "test_cairn_user_names_the_cc",
+        "test_claudecode_is_cc",
+        "test_the_env_cannot_upgrade_a_measured_cc",
+        "test_nothing_set_stays_unknown"
+      ],
+      "teeth_red": [],
+      "test": "test-c6c807cc5398",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "8b89436c43436cf1bbd09b9d5f05165c79e4f3ef1677313511d73abc7741a909",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c6c807cc5398",
+      "source_fingerprint": "7220f03b9c7489ff72999bd5d1e5f2842172747e94842ae45ab0f9080b956f33",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_the_caller_reads_whose_terminal_it_is.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2758560-ptlorp1f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 108957969,
+          "disk_bytes": 134782976,
+          "entries": 10358,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

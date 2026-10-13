@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_cc_device.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:26:34",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T04:28:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_charter_is_valid_json_with_required_fields\n.\n  ok   test_the_shim_inherits_baseshim_and_device_id_is_cc\n.\n  ok   test_the_shim_probes_return_a_list\n.\n  ok   test_discover_finds_cc_with_zero_failures\n.\n  ok   test_deliver_routes_through_the_shim\n.\n  ok   test_the_probe_module_declares_a_probe\n                                                                   [100%]\n6 passed in 0.10s",
+      "stdout_tail": ".\n  ok   test_the_charter_is_valid_json_with_required_fields\n.\n  ok   test_the_shim_inherits_baseshim_and_device_id_is_cc\n.\n  ok   test_the_shim_probes_return_a_list\n.\n  ok   test_discover_finds_cc_with_zero_failures\n.\n  ok   test_deliver_routes_through_the_shim\n.\n  ok   test_the_probe_module_declares_a_probe\n                                                                   [100%]\n6 passed in 0.15s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_charter_is_valid_json_with_required_fields",
@@ -18,21 +18,24 @@
         "test_the_probe_module_declares_a_probe"
       ],
       "teeth_red": [],
-      "test": "test-e90db66aa877",
+      "test": "test-f2861c27700f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2535036_0426553785_delivery",
+          "bus_proc_2535036_0426553785"
+        ]
       },
       "conditions": {
         "proof": "360ae19eb7240250dd5e5cf610725323d590e9255a83ac3841a4962e2517250c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -42,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e90db66aa877",
-      "source_fingerprint": "48c1bb3ff6f33d4768ab5798981d09aa7ebd66a38a5fae2adfc11113e4c88a74",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2861c27700f",
+      "source_fingerprint": "574a43fdfd2304b72e493d18b8121d0ae95d4b2f4d1344a644420316927200c6",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/probes/the_shim_delivers_mail.py",
@@ -52,20 +55,22 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-jhogkosw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2536418-e65op89g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "devices/cc/0/mail_ledger.jsonl"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 177020541,
-          "disk_bytes": 205127680,
-          "entries": 12049,
+          "bytes": 108672815,
+          "disk_bytes": 134193152,
+          "entries": 10254,
           "builds": 1,
-          "reuses": 34
+          "reuses": 0
         }
       }
     },

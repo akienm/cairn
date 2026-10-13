@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:26:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T04:28:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.62s",
+      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.64s",
       "stderr_tail": "",
       "teeth_green": [
         "test_deliver_persists_mail_to_disk",
@@ -24,7 +24,7 @@
         "test_launcher_env_var_enables_tmux"
       ],
       "teeth_red": [],
-      "test": "test-0de649f1ddb7",
+      "test": "test-b3842a088292",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -48,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0de649f1ddb7",
-      "source_fingerprint": "69d3800da1a07725284e918f924fa70599a410fc092a35eadbaf22ab3e817601",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b3842a088292",
+      "source_fingerprint": "6b2bc466b6db325f41146463a219fc11215d155dc02050cf69b5fa30728eb160",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_tmux_mode.py",
@@ -57,11 +57,12 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-g1hc3xxw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2536418-rs8nk7cx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 6,
+          "count": 7,
           "paths": [
+            "devices/cc/0/mail_ledger.jsonl",
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
             "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
@@ -73,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 177023682,
-          "disk_bytes": 205135872,
-          "entries": 12051,
+          "bytes": 108676349,
+          "disk_bytes": 134201344,
+          "entries": 10256,
           "builds": 1,
-          "reuses": 36
+          "reuses": 2
         }
       }
     },

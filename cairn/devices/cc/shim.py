@@ -25,6 +25,16 @@ from cairn.tools.base.shim import BaseShim
 
 _INSTANCE_ROOT = address.instance_path("cc", 0)
 _MAIL_DIR = _INSTANCE_ROOT / "mail"
+_LEDGER = _INSTANCE_ROOT / "mail_ledger.jsonl"
+
+
+def _ledger(event: dict, ledger: Path | None = None) -> None:
+    """Append one line to the mail ledger: the record the mail probe counts, because
+    consume_mail deletes what it reads and the mail folder cannot count deliveries."""
+    p = Path(ledger) if ledger is not None else _LEDGER
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(json.dumps(event, ensure_ascii=False) + "\n")
 
 
 class CCShim(BaseShim):
@@ -59,6 +69,8 @@ class CCShim(BaseShim):
         tmp = path.with_suffix(".tmp")
         tmp.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         os.replace(tmp, path)
+        _ledger({"event": "delivered", "id": msg_id, "at": now.isoformat(),
+                 "from": envelope.get("from", envelope.get("sender", "unknown"))})
         return {"persisted": True, "path": str(path)}
 
     @staticmethod
@@ -77,17 +89,21 @@ class CCShim(BaseShim):
 
     @staticmethod
     def consume_mail(mail_dir: Path | str | None = None) -> list[dict]:
-        """Read and remove all pending mail."""
+        """Read and remove all pending mail, ledgering each read with the CC session."""
         d = Path(mail_dir) if mail_dir else _MAIL_DIR
         if not d.is_dir():
             return []
         messages = []
         for p in sorted(d.glob("msg-*.json")):
             try:
-                messages.append(json.loads(p.read_text()))
+                record = json.loads(p.read_text())
                 p.unlink()
             except (json.JSONDecodeError, OSError):
                 continue
+            messages.append(record)
+            _ledger({"event": "consumed", "id": record.get("id", p.stem),
+                     "at": datetime.now(timezone.utc).isoformat(),
+                     "session": os.environ.get("CLAUDE_CODE_SESSION_ID", "")})
         return messages
 
     # ── tmux idle detection and command injection ────────────────────────

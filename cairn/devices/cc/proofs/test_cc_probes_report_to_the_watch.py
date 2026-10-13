@@ -106,10 +106,15 @@ def test_every_standing_cc_spec_names_the_receiver():
 
 def test_the_unreceivable_probes_sent_their_tickets_to_fixme():
     """A probe no receiver can use (Akien's answer to open-291189a9766a) sends its ticket to
-    FIXME through the watch verb, which takes it out of the standing population."""
+    FIXME through the watch verb, which takes it out of the standing population. Once repaired
+    and back at a rest it is among _standing(), and the other teeth measure it (078476729bca D3)."""
     for uid in UNRECEIVABLE:
+        if uid in {tid for tid, _doc, _spec in _standing()}:
+            continue  # repaired: it stands at a rest, and the teeth above measure it
         [path] = list(_tickets().glob(f"{uid}-*.json"))
         doc = json.loads(path.read_text("utf-8"))
+        if parse_workflow(doc["workflow_and_state"]).here in ("BUILDME", "PROVEME"):
+            continue  # under repair: in voyage past FIXME, claiming no rest; its own proof measures it
         assert "[FIXME" in doc["workflow_and_state"], f"{uid}: {doc['workflow_and_state']}"
         assert any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []), \
             f"{uid}: no watchme finding in fixme: {doc.get('fixme')}"

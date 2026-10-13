@@ -177,7 +177,9 @@ class TroubleDevice(BaseDevice):
         """Every clear on the record, one small row each — for the counting block, which
         learns whose hand cleared what (ticket 1c1b18bac2eb, D4). ``body.prefix`` narrows by
         trouble id (empty or absent: every trouble). A row is exactly {id, standing, by,
-        hand_class, at}; no occurrences ride it, so the reply stays small by construction."""
+        hand_class, at}; no occurrences ride it, so the reply stays small by construction.
+        A stored class of 'unknown' beside a stored cgroup is classed from that cgroup, so a
+        clear recorded before the classifier walked outward is learned (ticket 4f8d11706516)."""
         prefix = str((envelope.get("body") or {}).get("prefix") or "")
         rows = []
         for t in self.all():
@@ -185,9 +187,12 @@ class TroubleDevice(BaseDevice):
                 continue
             for c in t.get("cleared_by") or []:
                 hand = c.get("hand") if isinstance(c.get("hand"), dict) else {}
+                hand_class = fold(hand.get("class")) if hand.get("class") else "unknown"
+                if hand_class == "unknown" and isinstance(hand.get("cgroup"), str):
+                    from cairn.tools.artifact import artifact as door
+                    hand_class = fold(door.classify(hand["cgroup"])["class"])
                 rows.append({"id": t.get("id"), "standing": t.get("standing"), "by": c.get("by"),
-                             "hand_class": fold(hand.get("class")) if hand.get("class") else "unknown",
-                             "at": c.get("at")})
+                             "hand_class": hand_class, "at": c.get("at")})
         return {"clears": rows}
 
     def _handle_clear(self, envelope: dict) -> dict:

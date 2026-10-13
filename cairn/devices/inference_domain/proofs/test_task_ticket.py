@@ -341,8 +341,18 @@ def test_every_inference_call_produces_a_complete_task_ticket():
 
 
 def _main() -> int:
+    # A failing tooth PRINTS its FAIL line and the run exits 1, never raises out: a hollow
+    # reading that reverts domain.py (no scratch_cache, no ticket writer) must read a RED
+    # tooth, not a proof that "printed no teeth at all" (measured 2026-10-13, UNRAN).
     try:
-        test_every_inference_call_produces_a_complete_task_ticket()
+        try:
+            test_every_inference_call_produces_a_complete_task_ticket()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print(f"  FAIL  test_every_inference_call_produces_a_complete_task_ticket — "
+                  f"{type(e).__name__}: {e}")
+            return 1
         print("  PASS  test_every_inference_call_produces_a_complete_task_ticket")
     finally:
         domain.set_diagnostic_roots(None)

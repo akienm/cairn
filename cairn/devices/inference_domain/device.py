@@ -80,7 +80,31 @@ class InferenceDomainDevice(BaseDevice):
         return self._handle_resolve(_with_kind(envelope, "generate"))
 
     def declared_views(self) -> dict:
-        return {"yield": self._yield_view, "models": self._models_view}
+        return {"yield": self._yield_view, "models": self._models_view,
+                "calls": self._calls_view}
+
+    def _calls_view(self, limit=None, since=None) -> dict:
+        """The calls as a view (ticket f09c594cf6d8): ``cairn inference_domain show calls
+        --limit 20`` for a human, ``get calls`` for JSON. Delegates to the ``calls`` verb's own
+        handler, so the bound (default 100, capped at 1000) and ``since`` are the verb's; the
+        verb stays, because the librarian asks for the calls over the bus."""
+        return self._handle_calls({"body": {"limit": limit, "since": since}})
+
+    def _render_view(self, name: str, data: dict) -> str:
+        """``calls`` is one line per call, newest first: created to the second, verdict, cost,
+        and the canonical request cut to 80 characters; then ``N calls``. Every other view
+        renders as the base renders it."""
+        if name != "calls":
+            return super()._render_view(name, data)
+        rows = data.get("calls") or []
+        lines = []
+        for r in rows:
+            created = str(r.get("created") or "")[:19].replace("T", " ")
+            lines.append(f"{created}  {str(r.get('verdict') or ''):<7} "
+                         f"{str(r.get('cost') if r.get('cost') is not None else ''):>8}  "
+                         f"{str(r.get('canonical') or '')[:80]}")
+        lines.append(f"{len(rows)} calls")
+        return "\n".join(lines)
 
     def _handle_resolve(self, envelope: dict) -> dict:
         from cairn.devices.inference_domain import domain, host

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_translation.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T08:16:52",
+    "caller": "cairn test",
+    "date": "2026-10-13T12:31:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -38,7 +38,7 @@
         "test_the_test_command_never_enters_the_prompt"
       ],
       "teeth_red": [],
-      "test": "test-bd8d4ad8af25",
+      "test": "test-a3b688cefca0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -52,17 +52,18 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bd8d4ad8af25",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a3b688cefca0",
       "source_fingerprint": "c18d05ae1b0746f02dbc5c473cc7068edef3685adabf8b5e2b82c87c72d3b5aa",
       "fingerprint_closure": [
         "cairn/devices/aider_shim/__init__.py",
@@ -73,7 +74,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2647544-h6oyj1gc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2833509-wqattxxr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -82,11 +83,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108761439,
-          "disk_bytes": 134438912,
-          "entries": 10304,
+          "bytes": 109094248,
+          "disk_bytes": 135077888,
+          "entries": 10409,
           "builds": 1,
-          "reuses": 4
+          "reuses": 0
         }
       }
     },

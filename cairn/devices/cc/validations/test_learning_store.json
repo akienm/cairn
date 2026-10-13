@@ -2,12 +2,12 @@
   {
     "claim": "proof test_learning_store.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-02T01:08:10",
+    "date": "2026-10-13T04:24:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_write_record_creates_a_file_at_the_store_path\n.\n  ok   test_read_records_retrieves_what_was_written\n.\n  ok   test_read_records_filters_by_gate\n.\n  ok   test_write_refuses_invalid_signal\n.\n  ok   test_write_refuses_empty_gate\n.\n  ok   test_record_has_v0_required_fields\n.\n  ok   test_read_records_returns_empty_for_missing_dir\n                                                                  [100%]\n7 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_write_record_creates_a_file_at_the_store_path\n.\n  ok   test_read_records_retrieves_what_was_written\n.\n  ok   test_read_records_filters_by_gate\n.\n  ok   test_write_refuses_invalid_signal\n.\n  ok   test_write_refuses_empty_gate\n.\n  ok   test_record_has_v0_required_fields\n.\n  ok   test_read_records_returns_empty_for_missing_dir\n                                                                  [100%]\n7 passed in 0.02s",
       "stderr_tail": "",
       "teeth_green": [
         "test_write_record_creates_a_file_at_the_store_path",
@@ -19,6 +19,7 @@
         "test_read_records_returns_empty_for_missing_dir"
       ],
       "teeth_red": [],
+      "test": "test-f812afdfd22f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,26 +28,31 @@
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "1299f53fa03ed55c9abf732180e341a99fda46dd0c57494b9ba89bdc5bab06a5",
+      "conditions": {
+        "proof": "271c633abdfa4c0d6feff461ea718ef3ffd6b3d068d52a42c0dd48890388b1d2",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f812afdfd22f",
+      "source_fingerprint": "f21476fddf94616c6da7564e3a5fe37548558d940705befea2febce6271655be",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/learning.py",
-        "cairn/devices/cc/proofs/test_learning_store.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/cc/proofs/test_learning_store.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-805468-33246ehr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2531268-258adz6v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 141501597,
-          "disk_bytes": 161021952,
-          "entries": 8150,
+          "bytes": 108667218,
+          "disk_bytes": 134168576,
+          "entries": 10248,
           "builds": 1,
-          "reuses": 10
+          "reuses": 0
         }
       }
     },

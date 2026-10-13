@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_librarian_structure.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-04T02:11:08",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T04:24:49",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_link_id_is_direction_independent\n.\n  ok   test_link_creates_and_updates\n.\n  ok   test_linked_returns_both_directions\n.\n  ok   test_traverse_increments_count\n.\n  ok   test_traverse_nonexistent_returns_none\n.\n  ok   test_link_neighbors_creates_links\n.\n  ok   test_route_ranks_by_attractor_proximity\n.\n  ok   test_route_skips_empty_trees\n.\n  ok   test_route_respects_k\n                                                         [100%]\n16 passed in 5.25s",
+      "stdout_tail": ".\n  ok   test_link_id_is_direction_independent\n.\n  ok   test_link_creates_and_updates\n.\n  ok   test_linked_returns_both_directions\n.\n  ok   test_traverse_increments_count\n.\n  ok   test_traverse_nonexistent_returns_none\n.\n  ok   test_link_neighbors_creates_links\n.\n  ok   test_route_ranks_by_attractor_proximity\n.\n  ok   test_route_skips_empty_trees\n.\n  ok   test_route_respects_k\n                                                         [100%]\n16 passed in 4.99s",
       "stderr_tail": "",
       "teeth_green": [
         "test_attractor_of_an_empty_tree_is_none",
@@ -28,34 +28,39 @@
         "test_route_respects_k"
       ],
       "teeth_red": [],
+      "test": "test-02af5b993bec",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "c19624cc392a32f220524cb5ea460014346b06eb246888ab7b62abdb58fcf95b",
+      "conditions": {
+        "proof": "4ba6dff6ef67e08c286f0e4813fe632cb8ff0f4453d46cab7efaeab793ee9382",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-02af5b993bec",
+      "source_fingerprint": "f81e3438ca7c451e3cc0358ec31c4c1c80c84f7521a4f91ad0bb18a9a553d23f",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/db_domain/__init__.py",
-        "cairn/devices/db_domain/tools/__init__.py",
-        "cairn/devices/db_domain/tools/client/__init__.py",
-        "cairn/devices/db_domain/tools/client/store.py",
         "cairn/devices/librarian/__init__.py",
-        "cairn/devices/librarian/proofs/test_librarian_structure.py",
-        "cairn/devices/librarian/tools/trees/trees.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/proof_coverage/__init__.py",
-        "cairn/tools/proof_coverage/proof_coverage.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/devices/librarian/proofs/test_librarian_structure.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2336032-a5iwa_7j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2531268-do0zku48/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,13 +69,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 125723254,
-          "disk_bytes": 148094976,
-          "entries": 9361,
+          "bytes": 108667218,
+          "disk_bytes": 134168576,
+          "entries": 10248,
           "builds": 1,
-          "reuses": 5
+          "reuses": 2
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

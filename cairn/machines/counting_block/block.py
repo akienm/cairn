@@ -68,6 +68,7 @@ BUCKET = 100
 TABLE_FILE = "table.json"
 ACK_FILE = "probe_ack.json"
 LEDGER_FILE = "raised.json"
+TAUGHT_FILE = "taught.json"
 
 # The trouble store's addressing rule, restated — the fold must find the row a clearance
 # names, and what is on disk is the slug. The proof pins this against
@@ -263,6 +264,16 @@ def _load(path: Path) -> dict | None:
         return None
 
 
+def _load_taught(path: Path) -> list[dict]:
+    """The taught ledger: the akien clears the fold has applied. Absent or unreadable is []."""
+    rows = _load(path)
+    return [r for r in rows if isinstance(r, dict)] if isinstance(rows, list) else []
+
+
+def _clear_key(c: dict) -> tuple[str, str, str]:
+    return (str(c.get("id", "")), str(c.get("at", "")), str(c.get("hand_class", "")))
+
+
 def _atomic(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -289,7 +300,7 @@ def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None 
     runs the whole beat over a world it owns; ``raiser`` is injectable so a proof can hand
     it a ``ModuleRaiser`` diverted to a scratch log home.
 
-    THREE FILES, BECAUSE THEY ARE THREE THINGS. ``table.json`` is the pure fold and nothing
+    FOUR FILES, BECAUSE THEY ARE FOUR THINGS. ``table.json`` is the pure fold and nothing
     else — delete it, recompile, byte-identical (clause 1). ``raised.json`` is the ledger of
     which journal lines have already been reported, keyed ``root:line``; it is not part of
     the table because a ledger of what was SAID is not a measurement of what IS. Delete the
@@ -298,7 +309,10 @@ def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None 
     lags one beat on purpose: the probe runs BEFORE the pulse modules on a beat, so it reads
     the previous beat's table against the previous beat's ack, and a raise fires the probe
     exactly once — on the beat after it was compiled. The first compile acks itself, so the
-    prior seeds without firing.
+    prior seeds without firing. ``taught.json`` is the ledger of akien clears the fold has
+    applied, unioned with the live clears on every pulse so a taught row survives its trouble
+    being re-raised or expiring (ticket 01d34298ecae); delete it and the next pulse is today's
+    (only the clears the lane serves now teach).
 
     ``ask`` is a zero-argument callable returning the trouble lane's bus reply to ``clears``;
     None asks the live lane. ONE ask per pulse. If it raises, the fold runs with no clears and
@@ -310,10 +324,22 @@ def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None 
         error = None
     except Exception as exc:  # noqa: BLE001 — the fold still runs, and says what it lacked
         clears, error = [], f"{type(exc).__name__}: {exc}"
-    table = compile(read_journals(roots), clears=clears)
+    taught = _load_taught(where / TAUGHT_FILE)
+    known = {_clear_key(c) for c in taught}
+    union = taught + [c for c in clears if _clear_key(c) not in known]
+    table = compile(read_journals(roots), clears=union)
     if error is not None:
         table["increments"] = "unknown"
         table["clears_error"] = error
+    else:
+        applied = {(str(i["clear"]), str(i["at"])) for i in table["increments"]}
+        learned = [c for c in union if str(c.get("hand_class")) == "akien"
+                   and (str(c.get("id", "")), str(c.get("at", ""))) in applied
+                   and _clear_key(c) not in known]
+        if learned:
+            _atomic(where / TAUGHT_FILE, json.dumps(
+                sorted(taught + learned, key=lambda c: (str(c.get("at", "")), str(c.get("id", "")))),
+                sort_keys=True) + "\n")
     prev = _load(where / TABLE_FILE)
     ledger = _load(where / LEDGER_FILE) or {"reported": []}
     seen = set(ledger.get("reported", []))

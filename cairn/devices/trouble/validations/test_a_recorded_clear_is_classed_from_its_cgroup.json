@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_a_recorded_clear_is_classed_from_its_cgroup.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-12T18:08:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  an_unknown_clear_with_a_tab_cgroup_is_served_akien\n        {\"recorded-clear-proof-bare\": \"unknown\", \"recorded-clear-proof-cc\": \"cc\", \"recorded-clear-proof-tab\": \"akien\"}\n  PASS  a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored\n        {\"recorded-clear-proof-bare\": \"unknown\", \"recorded-clear-proof-cc\": \"cc\", \"recorded-clear-proof-tab\": \"akien\"}\n  PASS  the_trouble_file_is_not_rewritten\n        changed: []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "an_unknown_clear_with_a_tab_cgroup_is_served_akien",
+        "a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored",
+        "the_trouble_file_is_not_rewritten"
+      ],
+      "teeth_red": [],
+      "test": "test-e31b8a5d0e57",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "418de240e4d19a5c9fdd714c553cad1883807d558d0c503ee4dad20be4ca5cdc",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e31b8a5d0e57",
+      "source_fingerprint": "ee1bbd7152590cc9300ba86a3bb3e62a70eb0427e5dc513dfa07b7f7878e7760",
+      "fingerprint_closure": [
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py",
+        "cairn/devices/trouble/trouble.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2173006-rb7u20c3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 107961769,
+          "disk_bytes": 132923392,
+          "entries": 10065,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "4f8d11706516": {
+          "cairn/devices/trouble/trouble.py": [
+            "an_unknown_clear_with_a_tab_cgroup_is_served_akien"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "4f8d11706516": {
+          "anchor_rule": "journal",
+          "anchor_journal": "1cc1aecdb0f9be7c6bb56f467e98b364688df82e",
+          "anchor_first_build": "0a633d33b403e4abb6f58c3f4465bfd7365e2af8",
+          "commit": "1cc1aecdb0f9be7c6bb56f467e98b364688df82e"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -210,8 +210,12 @@ def test_three_classes_register_no_workflow_at_all_and_that_is_named_here():
     design act with an owner who is not me (piece (e-ii) already routes operational-driver to
     Akien), so this row PINS the gap rather than papering it: if someone mints one, this row
     goes red and the migration row above must be widened in the same act."""
+    # trouble (ticket 4ddc9df3369e) is minted with a v1 path of its own, OPEN -> CLEARED, and no
+    # v2: its cursors are trouble@v1, which the migration row above leaves alone, so that row
+    # needs no widening. It lands in this bucket because the bucket is "no v2", not "no path".
     with_v2, empty = _classes_by_registration()
-    assert sorted(empty) == ["bug", "concept-piece", "host-seam", "operational-driver"], empty
+    assert sorted(empty) == ["bug", "concept-piece", "host-seam", "operational-driver",
+                             "trouble"], empty
     assert sorted(with_v2) == ["code-seam", "skill"], sorted(with_v2)
 
 

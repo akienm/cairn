@@ -204,19 +204,40 @@ def ancestry(pid: int | None = None, limit: int = 64) -> list[dict]:
     return out
 
 
+def _env(name: str) -> str:
+    """One environment variable, empty when unset: the one place caller() reads the environment (8a53046951bb)."""
+    return os.environ.get(name) or ""
+
+
 def caller() -> dict:
     """This process's caller record — kernel truth, read now, never cached.
 
     The class is decided over the ANCESTRY, not the leaf alone: a ``cc`` anywhere up the
     tree makes the caller cc, because a process CC started is CC's hand whatever scope it
     sits in; otherwise the leaf decides. The chain rides the entry so a reader can see
-    how the class was reached."""
+    how the class was reached. The environment then names whose hand it is, and can never
+    turn a measured cc into akien (ticket 8a53046951bb)."""
     chain = ancestry()
     me = classify(chain[0]["cgroup"] if chain else cgroup_of("self"))
     if me["class"] != "cc" and any(a["class"] == "cc" for a in chain[1:]):
         cc = next(a for a in chain[1:] if a["class"] == "cc")
         me = {"class": "cc", "cgroup": me["cgroup"], "unit": classify(cc["cgroup"])["unit"],
               "via_ancestor": cc["pid"]}
+    # WHOSE TERMINAL IT IS (8a53046951bb). Akien 2026-10-13: "if CAIRN_USER is set, then it's
+    # you... if it's not, then it's me." CC evidence (a cc up the tree, CAIRN_USER, CLAUDECODE)
+    # always wins: CC's shells snapshot ~/.bashrc and so carry CAIRN_OPERATOR=Akien too.
+    if me["class"] == "cc":
+        me["who"] = _env("CAIRN_USER") or "cc"
+    elif _env("CAIRN_USER") or _env("CLAUDECODE"):
+        me.update({"class": "cc", "who": _env("CAIRN_USER") or "cc", "via": "env"})
+    elif me["class"] == "akien":
+        me["who"] = _env("CAIRN_OPERATOR") or "akien"
+    elif me["class"] == "unknown" and _env("CAIRN_OPERATOR"):
+        me.update({"class": "akien", "who": _env("CAIRN_OPERATOR"), "via": "env"})
+    elif me["class"] == "gate":
+        me["who"] = "gate"
+    else:
+        me["who"] = None
     me["ancestry"] = [f"{a['pid']}:{(a['cgroup'] or '').rsplit('/', 1)[-1]}" for a in chain]
     return me
 

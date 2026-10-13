@@ -1,0 +1,81 @@
+[
+  {
+    "claim": "proof test_a_view_takes_arguments.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-13T13:08:26",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-10-13T19:08:25.671511+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_get_passes_the_args",
+        "test_show_renders_with_the_args",
+        "test_an_undeclared_key_is_refused",
+        "test_a_view_with_no_params_refuses_args",
+        "test_the_bus_get_passes_args"
+      ],
+      "teeth_red": [],
+      "test": "test-32b6717770d8",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "5abbdd9f5e4dc9e2807caf46137edbbc3ade0c9d02333ed40c7533561bfb1515",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-32b6717770d8",
+      "source_fingerprint": "6d145eb899dd6c6e7aad4c83ab8073ade1004989b56cf26e52c200c89343071f",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_a_view_takes_arguments.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2858851-r_muxmcx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 109131483,
+          "disk_bytes": 135192576,
+          "entries": 10433,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -1,0 +1,71 @@
+[
+  {
+    "claim": "proof test_the_cold_reader_says_it_is_the_rehearsal.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-13T13:50:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_child_says_it_is_the_rehearsal  — CAIRN_USER='rehearsal'\n  PASS  test_the_child_is_outside_the_session  — 114 vars, CLAUDECODE present: False\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_child_says_it_is_the_rehearsal",
+        "test_the_child_is_outside_the_session"
+      ],
+      "teeth_red": [],
+      "test": "test-4e764152d06d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4aa284a390450797208f4896ec3d553c1564b39a3c9bee177cb137c7da90e877",
+        "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 900,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4e764152d06d",
+      "source_fingerprint": "605d715d81325a434228894176173557c0aa37aab3ed55a8a3918b2e7fcf4c4f",
+      "fingerprint_closure": [
+        "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/proofs/test_the_cold_reader_says_it_is_the_rehearsal.py",
+        "cairn/machines/rehearsal/rehearsal.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2887957-g7t9udj_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 109215815,
+          "disk_bytes": 135401472,
+          "entries": 10475,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

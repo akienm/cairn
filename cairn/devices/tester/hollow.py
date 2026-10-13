@@ -232,6 +232,40 @@ def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, env=git_env())
 
 
+def _named_build_commits(ticket: dict, files: list[str], repo_root: Path) -> list[tuple[str, str]]:
+    """[(full_sha, committer_iso)] for each sha the ticket's ``build_commits`` names (ticket 217c82fe7b57).
+
+    A ticket built before hex ids names no id in its commits, so ``_build_commits`` finds none.
+    Each named sha must resolve to a commit AND change one of ``files`` (the measured writes_to);
+    either failure refuses, naming the sha, so a wrong name reds instead of greening (Law 8).
+    """
+    out = []
+    for name in ticket.get("build_commits") or []:
+        name = str(name).strip()
+        proc = _git_ok(repo_root, "rev-parse", "--verify", "-q", f"{name}^{{commit}}")
+        sha = proc.stdout.strip()
+        if proc.returncode != 0 or not sha:
+            raise HollowUnmeasurable(
+                f"hollow: build_commits names {name[:12]!r} on ticket {ticket.get('id')!r}, and it "
+                f"does not resolve to a commit.")
+        changed = set(_git_ok(repo_root, "show", "--format=", "--name-only", sha).stdout.split())
+        if not changed & set(files):
+            raise HollowUnmeasurable(
+                f"hollow: build_commits names {sha[:12]} on ticket {ticket.get('id')!r}, and it "
+                f"changes no measured writes_to file ({', '.join(files) or 'none measured'}).")
+        when = _git_ok(repo_root, "show", "-s", "--format=%cI", sha).stdout.strip()
+        out.append((sha, when))
+    return out
+
+
+def _with_named(builds: list[tuple[str, str]], named: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """The union of two build-commit lists, deduped by sha, oldest first."""
+    seen: dict[str, str] = {}
+    for sha, when in builds + named:
+        seen.setdefault(sha, when)
+    return sorted(seen.items(), key=lambda b: _when(b[1]))
+
+
 def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path,
                  instrument: frozenset[str] = frozenset(), read_by: str = "") -> dict:
     """The commit the reversion lands on: BEFORE THE BUILD THAT STANDS (ticket 06f0445e7a63).
@@ -263,6 +297,13 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     ``buildme_crossing`` returns None (the peer's reading, 2026-10-12): read as "no crossing
     after the first build commit" it would switch nearly every ticket onto it, because the
     normal order is crossing first, build commit after.
+
+    NAMED BUILD COMMITS (ticket 217c82fe7b57). A ticket built before hex ids names no id in its
+    commits, so the grep finds none and a fresh BUILDME anchors AFTER the build. Its
+    ``build_commits`` field names them; each must resolve and change a measured writes_to file
+    or the run refuses naming the sha (``_named_build_commits``), and the named commits join the
+    counted ones in both rules above. Grepping the title slug was rejected: an auto-commit carries
+    no slug, and a slug is prose other commits can contain.
     """
     tid = str(ticket.get("id") or "")
     crossing = buildme_crossing(tid, roots)
@@ -274,9 +315,9 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     # touches only instruments or records (whatever _classify skips) is a repair of the proof,
     # not a new build, so it neither bounds nor anchors (ticket 479f75cc0917, measured on
     # 7cb1989e7825: its proofs-only repair c3f72a3f anchored the hollow after the build).
-    builds = _build_commits(tid, [f for f in files
-                                  if _classify(f, instrument=instrument, read_by=read_by) is None],
-                            repo_root)
+    measured_files = [f for f in files if _classify(f, instrument=instrument, read_by=read_by) is None]
+    builds = _with_named(_build_commits(tid, measured_files, repo_root),
+                         _named_build_commits(ticket, measured_files, repo_root))
     # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
     # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
     # anchored the hollow at the repair's parent, and the build itself fell outside the window).
@@ -329,13 +370,9 @@ def _anchor_without_a_crossing(ticket: dict, files: list[str], *, roots: dict, r
         sha, _, when = line.strip().partition(" ")
         if sha and when:
             named.append((sha, when))
-    measured = _build_commits(tid, [f for f in files
-                                    if _classify(f, instrument=instrument, read_by=read_by) is None],
-                              repo_root)
-    seen: dict[str, str] = {}
-    for sha, when in named + measured:
-        seen.setdefault(sha, when)
-    builds = sorted(seen.items(), key=lambda b: _when(b[1]))
+    measured_files = [f for f in files if _classify(f, instrument=instrument, read_by=read_by) is None]
+    builds = _with_named(named + _build_commits(tid, measured_files, repo_root),
+                         _named_build_commits(ticket, measured_files, repo_root))
     bound = _bound(tid, roots, builds)
     counted = [sha for sha, w in builds if bound is None or _when(w) > _when(bound)]
     if not counted:

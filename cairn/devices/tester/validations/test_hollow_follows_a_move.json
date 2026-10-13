@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_follows_a_move.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T23:48:22",
+    "date": "2026-10-13T03:40:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 10.33s",
+      "stdout_tail": ".\n  ok   test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds\n.\n  ok   test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence\n.\n  ok   test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure\n                                                                      [100%]\n3 passed in 9.77s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds",
@@ -15,7 +15,7 @@
         "test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure"
       ],
       "teeth_red": [],
-      "test": "test-2c326e6cbbc8",
+      "test": "test-3907dc9fee99",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c326e6cbbc8",
-      "source_fingerprint": "c50c1b16689d3066352b5ed164fb13a1a4af4260a355456c5604af0d1788de60",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3907dc9fee99",
+      "source_fingerprint": "fd0fe60023a3526e2f60be03a439a40f4b138de2019eb8445b397a6a8dfa63d9",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -52,50 +52,33 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2294632-unelv35e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2507767-bjhj3sdd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261013.054813.537521.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.054816.008217.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.054818.537008.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.054821.000751.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-000fae2500a0/stderr.txt",
-            "logs/tester/0/runs/test-000fae2500a0/stdout.txt",
-            "logs/tester/0/runs/test-4db3bf6371e5/stderr.txt",
-            "logs/tester/0/runs/test-4db3bf6371e5/stdout.txt",
-            "logs/tester/0/runs/test-b90ca480b909/stderr.txt",
-            "logs/tester/0/runs/test-b90ca480b909/stdout.txt",
-            "logs/tester/0/runs/test-f5c8095b513a/stderr.txt",
-            "logs/tester/0/runs/test-f5c8095b513a/stdout.txt"
+            "logs/tester/0/20261013.094008.943793.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.094011.001055.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.094013.685302.TesterDevice.run_proof.json",
+            "logs/tester/0/20261013.094016.385691.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1da9df3db9c7/stderr.txt",
+            "logs/tester/0/runs/test-1da9df3db9c7/stdout.txt",
+            "logs/tester/0/runs/test-91d55d647cff/stderr.txt",
+            "logs/tester/0/runs/test-91d55d647cff/stdout.txt",
+            "logs/tester/0/runs/test-c33ecf0474d8/stderr.txt",
+            "logs/tester/0/runs/test-c33ecf0474d8/stdout.txt",
+            "logs/tester/0/runs/test-f934342aa2e8/stderr.txt",
+            "logs/tester/0/runs/test-f934342aa2e8/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 108492655,
-          "disk_bytes": 133754880,
-          "entries": 10177,
+          "bytes": 108656425,
+          "disk_bytes": 134180864,
+          "entries": 10264,
           "builds": 1,
-          "reuses": 4
-        }
-      },
-      "hollow": {
-        "d65fe3aa96e2": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_moved_file_is_measured_at_its_successor_and_its_tooth_reds",
-            "test_an_absent_file_with_no_successor_is_skipped_with_a_reason_naming_the_absence",
-            "test_the_live_move_of_9245_resolves_to_a_file_the_hollow_can_measure"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "d65fe3aa96e2": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c2c176fae2a87c03e74337b833e565a405d71cc7",
-          "anchor_first_build": "68fccabbe32c1ffd6efdcfed7363a74b7203deeb",
-          "commit": "c2c176fae2a87c03e74337b833e565a405d71cc7"
+          "reuses": 5
         }
       }
     },

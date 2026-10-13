@@ -47,13 +47,32 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.db_domain.tools.client.store import OwnershipError
-from cairn.devices.librarian.tools.trees import trees
-from cairn.devices.librarian.tools.trees.trees import (
-    DepositRefused, WalkRefused, consolidate, deposit, linked, nearest, neighbors,
-    contradiction_scan, ensure_threads, get_threads, detect_threads, wake_threads,
-    attend_thread, sleep_check, parse_temporal, awake_thread_node_ids, THREADS_TABLE,
-    MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD)
-from cairn.devices.librarian.device import LibrarianDevice
+# THE SUBJECT MAY BE TAKEN AWAY. A hollow reading reverts trees.py to before the build that
+# made it — at the 95f8c561e742 anchor the file did not exist at this path at all — and a
+# module-level import would then crash the run before any tooth, which reads as UNREAD rather
+# than as red. So a missing subject binds every name to a stand-in that raises the original
+# ImportError the moment a tooth touches it: each tooth reds, by name, and nothing is skipped.
+try:
+    from cairn.devices.librarian.tools.trees import trees
+    from cairn.devices.librarian.tools.trees.trees import (
+        DepositRefused, WalkRefused, consolidate, deposit, linked, nearest, neighbors,
+        contradiction_scan, ensure_threads, get_threads, detect_threads, wake_threads,
+        attend_thread, sleep_check, parse_temporal, awake_thread_node_ids, THREADS_TABLE,
+        MAX_THREADS, WARM_BOOST, SLEEP_AFTER, CO_OCCURRENCE_THRESHOLD)
+    from cairn.devices.librarian.device import LibrarianDevice
+except ImportError as _absent:
+    _ABSENT = _absent   # an except-name is unbound when the block ends; the stand-ins need it
+
+    class _Absent:
+        def __getattr__(self, name):
+            raise _ABSENT
+        def __call__(self, *args, **kwargs):
+            raise _ABSENT
+    trees = DepositRefused = WalkRefused = consolidate = deposit = linked = nearest = _Absent()
+    neighbors = contradiction_scan = ensure_threads = get_threads = detect_threads = _Absent()
+    wake_threads = attend_thread = sleep_check = parse_temporal = _Absent()
+    awake_thread_node_ids = THREADS_TABLE = MAX_THREADS = WARM_BOOST = SLEEP_AFTER = _Absent()
+    CO_OCCURRENCE_THRESHOLD = LibrarianDevice = _Absent()
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
@@ -1112,13 +1131,24 @@ def _main() -> int:
         test_a_second_ingest_adds_nothing,
         test_ingest_asks_and_never_imports,
     ]
+    # EVERY TOOTH PRINTS ITS VERDICT BY NAME. A raise out of the loop printed no tooth at all,
+    # and a proof that prints none reads as never having run (the hollow reading's UNREAD).
+    failures = 0
     try:
         for check in checks:
-            check()
+            try:
+                check()
+            except Exception as exc:  # noqa: BLE001
+                failures += 1
+                print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
+                continue
             print(f"  PASS  {check.__name__}")
     finally:
         _warm_cleanup_threads()
         _cleanup()
+    if failures:
+        print(f"RED — {failures} tooth/teeth bit")
+        return 1
     print("green — librarian/trees: the untraceable never lands, vectors are physics, "
           "nodes are born hypotheses, a duplicate grows nothing but its provenance lands "
           "as an attestation, links are bounded and weighted "

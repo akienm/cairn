@@ -96,10 +96,18 @@ def test_a_red_seal_over_a_clean_closure_is_staged_too():
 
 
 def test_only_an_outcome_that_wrote_a_seal_is_staged():
+    # settled-red and timeout write nothing, so even a validation dirty against the index stays
+    # out. An ``unchanged`` over a DIRTY validation is a killed run's leftover and is adopted
+    # (ticket 143e3974647b, proved in test_a_killed_reseal_leaves_nothing_unstaged.py); an
+    # ``unchanged`` whose validation the index already carries has nothing to stage.
     repo = _repo()
-    results = [{"proof": _PROOF, "outcome": o} for o in
-               ("unchanged", "settled-red", "timeout")]
+    results = [{"proof": _PROOF, "outcome": o} for o in ("settled-red", "timeout")]
     got = stage_clean_seals(results, root=repo)
+    assert got == {"staged": [], "held": []}, got
+    assert _staged(repo) == set(), _staged(repo)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "the seal is committed")
+    got = stage_clean_seals([{"proof": _PROOF, "outcome": "unchanged"}], root=repo)
     assert got == {"staged": [], "held": []}, got
     assert _staged(repo) == set(), _staged(repo)
 

@@ -659,6 +659,15 @@ def dirty_against_index(proof_rel: str, closure: list[str] | None, base: Path) -
     return sorted(dirty + untracked)
 
 
+def _differs_from_index(rel: str, base: Path) -> bool:
+    """True when the file at ``rel`` is untracked or carries a change the index lacks."""
+    if subprocess.run(["git", "-C", str(base), "ls-files", "--error-unmatch", "--", rel],
+                      capture_output=True).returncode != 0:
+        return (base / rel).exists()
+    return bool(subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", rel],
+                               capture_output=True, text=True).stdout.strip())
+
+
 def stage_clean_seals(results, *, root: Path | None = None) -> dict:
     """Stage the seals the hook just wrote whose WHOLE closure is what the commit carries.
 
@@ -687,9 +696,18 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
             continue
         # A RED IS STAGED TOO: the door seals its red (Law 7), and a red over the committed tree
         # is as true a record as a green. settled-red and timeout write nothing, so nothing moves.
-        if r.get("outcome") not in ("resealed", "sealed", "red"):
+        # AN UNCHANGED SEAL CAN BE A KILLED RUN'S LEFTOVER (ticket 143e3974647b): a run killed
+        # after writing a seal and before this stage leaves it unstaged, and the next run reads
+        # it ``unchanged`` because its fingerprint still reproduces. That seal is adopted here,
+        # under the same clean-closure test, so the next clearance is not refused for it. A
+        # non-reproducing leftover never reads ``unchanged``; it re-runs and its new seal stages.
+        outcome = r.get("outcome")
+        if outcome not in ("resealed", "sealed", "red", "unchanged"):
             continue
         proof = base / r["proof"]
+        if outcome == "unchanged" and not _differs_from_index(
+                os.path.relpath(validations_path_for(str(proof)), base), base):
+            continue
         trail = read_validations(str(proof))
         if not trail:
             continue

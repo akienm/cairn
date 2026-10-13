@@ -49931,5 +49931,83 @@
     "fingerprint": "74e423cf8eb9087bc8b58e0be2fe68b9d3a8d4ac54860c83124ffa11e521fab4",
     "at": "2026-10-12T18:55:08",
     "seq": 224
+  },
+  {
+    "from": "PROVEME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME moves the cursor off position 3",
+        "actual": "PROVEME -> BUILDME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> BUILDME",
+        "actual": "PROVEME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "86423bb5f054",
+    "actor": "cc",
+    "why": "back-edge: the PROVEME crossing named only test_every_pane_reads_only_what_it_shows.py, so hollow reverted test_the_feed_pane_is_bounded.py (edited per D3) as source and read it HOLLOW; re-crossing names it as an instrument",
+    "fingerprint": "1e10a303cefce581b81fe811908c18e455a8fd25443b772ea34f177de431767c",
+    "at": "2026-10-12T18:56:45",
+    "seq": 225
   }
 ]

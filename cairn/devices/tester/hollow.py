@@ -253,9 +253,22 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
 
     MEASURED LIVE (2026-10-02): 68f563403c8f anchors at edb4e137^ and c691e19d5464 at
     448601ca^, both by rule 'first-build-commit'.
+
+    NO JOURNALED CROSSING (ticket f8d58aff88f9). When no journal records a forward crossing into
+    BUILDME at all, the anchor is the parent of the first build commit after the bound (rule
+    'first-build-commit-no-crossing', ``_anchor_without_a_crossing``). Measured 2026-10-12 on
+    4ddc9df3369e: its forward BUILDME predated the journals (they begin 2026-09-06) and its later
+    BUILDME stood by a back-edge, so this function refused a build committed as 3024a302
+    "4ddc9df3369e: build" that a hand measured at n=1. The fallback runs ONLY when
+    ``buildme_crossing`` returns None (the peer's reading, 2026-10-12): read as "no crossing
+    after the first build commit" it would switch nearly every ticket onto it, because the
+    normal order is crossing first, build commit after.
     """
     tid = str(ticket.get("id") or "")
-    crossing = _buildme_crossing(ticket, roots)
+    crossing = buildme_crossing(tid, roots)
+    if crossing is None:
+        return _anchor_without_a_crossing(ticket, files, roots=roots, repo_root=repo_root,
+                                          instrument=instrument, read_by=read_by)
     at = _buildme_at(ticket, crossing, repo_root)
     # A build commit changes a file this run would MEASURE. A commit that names the ticket but
     # touches only instruments or records (whatever _classify skips) is a repair of the proof,
@@ -267,15 +280,7 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     # A back-edge INTO FIXME repairs the standing build and does not replace it, so it bounds
     # nothing (ticket e08c996f939c, measured on efb670ff1dd8: its PROVEME->FIXME back-edge
     # anchored the hollow at the repair's parent, and the build itself fell outside the window).
-    backs = [c for c in crossings_for(tid, roots)
-             if c.get("direction") in ("back", "backward")
-             and c.get("from") in ("BUILDME", "PROVEME") and c.get("at")
-             and c.get("to") != "FIXME"]
-    bound = None
-    for c in sorted(backs, key=lambda c: _when(str(c["at"])), reverse=True):
-        if any(_when(w) > _when(str(c["at"])) for _, w in builds):
-            bound = str(c["at"])
-            break
+    bound = _bound(tid, roots, builds)
     journal_at = bound if bound is not None and _when(at) < _when(bound) else at
     anchor_journal = prebuild_commit(journal_at, repo_root=repo_root)
     after = [sha for sha, w in builds if bound is None or _when(w) > _when(bound)]
@@ -292,6 +297,70 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
     return {"commit": commit, "anchor_rule": rule, "anchor_journal": anchor_journal,
             "anchor_first_build": first, "anchor_first_build_parent": parent,
             "buildme_at": at, "bound": bound}
+
+
+def _bound(tid: str, roots: dict, builds: list[tuple[str, str]]) -> str | None:
+    """The 'at' of the latest back-edge out of BUILDME or PROVEME with a build commit after it
+    (a back-edge INTO FIXME bounds nothing — ticket e08c996f939c), else None."""
+    backs = [c for c in crossings_for(tid, roots)
+             if c.get("direction") in ("back", "backward")
+             and c.get("from") in ("BUILDME", "PROVEME") and c.get("at")
+             and c.get("to") != "FIXME"]
+    for c in sorted(backs, key=lambda c: _when(str(c["at"])), reverse=True):
+        if any(_when(w) > _when(str(c["at"])) for _, w in builds):
+            return str(c["at"])
+    return None
+
+
+def _anchor_without_a_crossing(ticket: dict, files: list[str], *, roots: dict, repo_root: Path,
+                               instrument: frozenset[str] = frozenset(), read_by: str = "") -> dict:
+    """The anchor when no journal records a forward crossing into BUILDME (ticket f8d58aff88f9).
+
+    The build commits are the union of the commits whose subject starts '<tid>: build' and the
+    commits ``_build_commits`` counts (naming the ticket and changing a measured file), after the
+    same bound build_anchor uses. The anchor is the parent of the first, and every later one must
+    descend from it, so a later build commit cannot hide. The measured file set stays writes_to:
+    each file a counted commit wrote is pre-build at the anchor because the anchor precedes them all.
+    """
+    tid = str(ticket.get("id") or "")
+    proc = _git_ok(repo_root, "log", "--reverse", "--format=%H %cI", f"--grep=^{tid}: build", "HEAD")
+    named = []
+    for line in proc.stdout.splitlines():
+        sha, _, when = line.strip().partition(" ")
+        if sha and when:
+            named.append((sha, when))
+    measured = _build_commits(tid, [f for f in files
+                                    if _classify(f, instrument=instrument, read_by=read_by) is None],
+                              repo_root)
+    seen: dict[str, str] = {}
+    for sha, when in named + measured:
+        seen.setdefault(sha, when)
+    builds = sorted(seen.items(), key=lambda b: _when(b[1]))
+    bound = _bound(tid, roots, builds)
+    counted = [sha for sha, w in builds if bound is None or _when(w) > _when(bound)]
+    if not counted:
+        raise HollowUnmeasurable(
+            f"hollow: no journal in either root records a forward crossing into BUILDME for "
+            f"ticket {tid!r}, and no '{tid}: build' commit (nor a commit naming the ticket that "
+            f"changes a measured file) exists after the bound, so there is no 'before the "
+            f"build' to revert to.")
+    first = counted[0]
+    proc = _git_ok(repo_root, "rev-parse", "--verify", "-q", f"{first}^")
+    anchor = proc.stdout.strip()
+    if proc.returncode != 0 or not anchor:
+        raise HollowUnmeasurable(
+            f"hollow: the first build commit {first[:12]} for ticket {tid!r} has no parent, so "
+            f"there is no 'before the build' to revert to.")
+    for sha in counted[1:]:
+        if _git_ok(repo_root, "merge-base", "--is-ancestor", anchor, sha).returncode != 0:
+            raise HollowUnmeasurable(
+                f"hollow: build commit {sha[:12]} for ticket {tid!r} does not descend from the "
+                f"anchor {anchor[:12]} (the parent of the first build commit {first[:12]}), so "
+                f"one anchor cannot stand before the whole build.")
+    return {"commit": anchor, "anchor_rule": "first-build-commit-no-crossing",
+            "anchor_journal": None, "anchor_first_build": first,
+            "anchor_first_build_parent": anchor, "buildme_at": None, "bound": bound,
+            "build_commits": counted}
 
 
 def writes_to(ticket: dict, *, berths_root=None) -> list[str]:
@@ -1024,7 +1093,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # the blame on the chart's writes_to in a record a later reader trusts (Law 7).
         raise HollowUnmeasurable(
             f"hollow: the anchor {commit[:12]} (rule {anchor['anchor_rule']}; journal "
-            f"{anchor['anchor_journal'][:12]}, first build commit "
+            f"{(anchor['anchor_journal'] or 'none')[:12]}, first build commit "
             f"{(anchor['anchor_first_build'] or 'none')[:12]}) postdates the build — every one of "
             f"the {len(unchanged)} eligible file(s) is byte-identical there, so no file can be "
             f"reverted. This is the anchor's fault, not the chart's writes_to: commit the build "

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_history_row_without_standing_is_refused.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T11:09:16",
+    "caller": "cairn test",
+    "date": "2026-10-14T04:57:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-oaofzxj6/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-fdl_5lgp/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_row_without_standing_is_refused_and_nothing_lands",
@@ -15,7 +15,7 @@
         "test_an_old_row_already_standing_is_not_re_judged"
       ],
       "teeth_red": [],
-      "test": "test-d4e42cacb7a5",
+      "test": "test-164b616bfb62",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,17 +29,20 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d4e42cacb7a5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-164b616bfb62",
       "source_fingerprint": "e6f4c7dcd3f5c5073fa73c270270d73152bdd96a06523e02b521d14ed46fce01",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
@@ -48,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2756223-pbmtct68/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3284273-xoc4eot4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,9 +60,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108954752,
-          "disk_bytes": 134774784,
-          "entries": 10357,
+          "bytes": 109753927,
+          "disk_bytes": 136777728,
+          "entries": 10741,
           "builds": 1,
           "reuses": 0
         }

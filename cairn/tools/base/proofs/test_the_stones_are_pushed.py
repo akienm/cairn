@@ -105,6 +105,18 @@ def _berths(commons: Path) -> Path:
     return commons / "berths"
 
 
+def _built_before_the_verdict(base: Path) -> dict:
+    """A fixture crossing world in which 'widget' crossed BUILDME before its verdict was
+    written, so the exit gate's freshness read (ticket 6ebec06794ac) is clean and the
+    durability lane alone decides. Stood behind ``inspector._crossing_roots``."""
+    journal = base / "crossings"
+    journal.mkdir()
+    (journal / "history.json").write_text(json.dumps([{
+        "ticket": "widget", "at": "2026-07-29T00:00:00", "from": "TICKETME", "to": "BUILDME",
+        "direction": "forward", "by": "fixture"}]))
+    return {"repo": journal, "commons": journal}
+
+
 def _cleared(d: Path, **extra) -> dict:
     """Copied from test_transitions._cleared: a REAL seal minted in the fixture's tempdir, so
     the clearance gate's re-read of the world passes and the durability lane alone decides."""
@@ -171,8 +183,11 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         comp.mkdir()
         witness = _cleared(comp)
 
+        roots = _built_before_the_verdict(base)
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
-                 transitions._stamp_sail, transitions._ledger_durability_refusal)
+                 transitions._stamp_sail, transitions._ledger_durability_refusal,
+                 _insp._crossing_roots)
+        _insp._crossing_roots = lambda: roots
         ledgered: list[dict] = []
         transitions._TICKETS, _insp._CHART_BERTHS = commons / "tickets", berths
         transitions._stamp_sail = lambda _t, _s: None
@@ -242,7 +257,8 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             assert len(ledgered) == 1, f"no landed crossing ledgers: {ledgered}"
         finally:
             (transitions._TICKETS, _insp._CHART_BERTHS,
-             transitions._stamp_sail, transitions._ledger_durability_refusal) = saved
+             transitions._stamp_sail, transitions._ledger_durability_refusal,
+             _insp._crossing_roots) = saved
 
     # (e) composition: the lane imports repo_truth from orient and shells no git of its own
     tree = ast.parse(Path(transitions.__file__).read_text())

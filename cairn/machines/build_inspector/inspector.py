@@ -56,7 +56,7 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (t
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
 from cairn.tools.chain.chain import claiming_packets, verdict_error  # noqa: E402
-from cairn.tools.chain.verdict_contract import unanswered  # noqa: E402  (ticket d8e8a2dc1176: chart's contract, not codemother's)
+from cairn.tools.chain.verdict_contract import unanswered, predates_the_build  # noqa: E402  (ticket d8e8a2dc1176: chart's contract, not codemother's; predates_the_build joined 2026-10-14, ticket 6ebec06794ac)
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
 #   chart.orient, pinned transitively by the inspector-nexus allowlist tooth.
@@ -2363,13 +2363,57 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
             artifact=str(path),
             claiming=[str(p) for p, _ in claiming],
         )]
+    # A verdict answers the build it was written AFTER (ticket 6ebec06794ac): a stale one
+    # is refused by name before its coverage is read as this build's.
+    buildme_at, commit_times = build_started(ticket, roots=_crossing_roots())
+    stale = predates_the_build(ticket, path, buildme_at=buildme_at, commit_times=commit_times)
     return [_finding(
         "proved_answers_the_chart", ticket,
         item,
         expected=True, actual=False,
         artifact=str(path),
         validate_ref=artifact["validate_ref"])
-        for item in unanswered(artifact)]
+        for item in stale + unanswered(artifact)]
+
+
+def build_started(ticket: str, *, roots=None, root=CAIRN_ROOT, tickets_dir=None):
+    """When the build that stands began, for the freshness read (ticket 6ebec06794ac):
+    ``(buildme_at, commit_times)`` — the latest forward BUILDME crossing's ``at`` (None when
+    none is journaled), and only then the epoch times of the ticket's ``build_commits`` as
+    git reads them in this repo or the ticket's own. Gathered HERE so verdict_contract stays
+    pure; tree-free — one journal read, and a ``git show -s`` per build commit only when no
+    BUILDME stands."""
+    from cairn.tools.base import crossings  # lazy: crossings reads the journals of the roots
+    entry = crossings.buildme_crossing(ticket, roots)
+    if entry is not None:
+        return entry.get("at"), []
+    path = ticket_path(ticket, str(root), tickets_dir)
+    if not path:
+        return None, []
+    try:
+        with open(path) as f:
+            commits = list(json.load(f).get("build_commits") or [])
+    except (OSError, ValueError):
+        return None, []
+    times = []
+    for sha in commits:
+        for repo in (root, os.path.dirname(os.path.dirname(path))):
+            try:
+                out = _git_lines(repo, "show", "-s", "--format=%ct", str(sha))
+            except GitUnreadable:
+                continue
+            if out and out[-1].strip().isdigit():
+                times.append(float(out[-1].strip()))
+                break
+    return None, times
+
+
+def _crossing_roots() -> dict | None:
+    """Which world the exit gate derives a ticket's BUILDME crossing from — ``None`` for the
+    live one. A read, not a parameter (precedent ``clearance._crossing_roots``, ticket
+    d2ecdb867bc9): a caller may not choose the evidence the gate reads, but a proof may stand
+    a fixture world behind it."""
+    return None
 
 
 # The mesh, verbatim from the component's own proof-time seat (inference_domain/proofs/

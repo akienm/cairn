@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_berth_can_be_superseded.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-10T13:36:43",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-14T02:45:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "a_failed_berth_can_still_be_superseded"
       ],
       "teeth_red": [],
-      "test": "test-cb33620efad9",
+      "test": "test-3d00a507844b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,15 +33,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cb33620efad9",
-      "source_fingerprint": "0835a302fd4f533cbc633a633376107a2372f56bbc4fcb7c7c2ca04d81f39034",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3d00a507844b",
+      "source_fingerprint": "3a6c0ad18bd2badee9ae78348af408c09d7c847aa4d839503f212cf64688cde8",
       "fingerprint_closure": [
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
@@ -51,7 +52,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-965745-8oqdqdwl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3232512-yhhgjgus/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,28 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 105851860,
-          "disk_bytes": 128917504,
-          "entries": 9385,
+          "bytes": 109666823,
+          "disk_bytes": 136564736,
+          "entries": 10699,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "a76447d28af9": {
-          "cairn/tools/chain/verdict_contract.py": [
-            "a_failed_berth_can_still_be_superseded",
-            "a_supersede_answers_the_old_berth",
-            "every_refusal_appends_nothing"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a76447d28af9": {
-          "anchor_rule": "journal",
-          "anchor_journal": "8b39f83441550f25ea041c6c5518531378b7f1bb",
-          "anchor_first_build": "fec828beba5c14fb9c2f2ed083e84fd624b624e5",
-          "commit": "8b39f83441550f25ea041c6c5518531378b7f1bb"
+          "reuses": 21
         }
       }
     },

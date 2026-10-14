@@ -192,6 +192,66 @@ def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
     return items
 
 
+# ── FRESHNESS (ticket 6ebec06794ac, 2026-10-14) ──────────────────────────────
+# A verdict answers the build it was written AFTER. unanswered() reads coverage only, so
+# 6890cf7e4053 crossed PROVED on 2026-10-13 on a verdict written 2026-09-02 — a different
+# build — while its criterion 3 was failing. The verdict carries no time field; its written
+# time is the berth stamp write_verdict gives it (verdict-%Y%m%dT%H%M%S-<digest>.json, local
+# time). PURE: the caller hands in when the build that stands began (the latest forward
+# BUILDME crossing's naive local ``at``, or the ticket's build commit times) — this module
+# reads no journal and runs nothing, so its import surface stays what it was.
+
+_STAMP_RE = re.compile(r"^verdict-(\d{8}T\d{6})-")
+
+
+def _verdict_time(verdict_path) -> float | None:
+    m = _STAMP_RE.match(os.path.basename(str(verdict_path)))
+    if not m:
+        return None
+    try:
+        return time.mktime(time.strptime(m.group(1), "%Y%m%dT%H%M%S"))
+    except ValueError:
+        return None
+
+
+def _when(t: float) -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t))
+
+
+def predates_the_build(ticket: str, verdict_path, *, buildme_at: str | None,
+                       commit_times=()) -> list[str]:
+    """Freshness: empty iff the verdict at ``verdict_path`` was written at or after the
+    start of the build that stands — ``buildme_at`` (the latest forward BUILDME crossing),
+    or with none the latest of ``commit_times`` (epoch seconds of the ticket's build
+    commits). A verdict written before it is refused naming both times; with neither
+    reference the refusal names both missing. A sibling of unanswered(), never a new
+    positional on it (its arity is a shared surface)."""
+    written = _verdict_time(verdict_path)
+    name = os.path.basename(str(verdict_path))
+    if written is None:
+        return ["verdict written-time unreadable: %s carries no verdict-<YYYYmmddTHHMMSS>- "
+                "berth stamp, so nothing says which build it answers" % verdict_path]
+    if buildme_at is not None:
+        try:
+            ref = time.mktime(time.strptime(str(buildme_at)[:19], "%Y-%m-%dT%H:%M:%S"))
+        except ValueError:
+            return ["latest forward BUILDME crossing of %s carries an unreadable time %r"
+                    % (ticket, buildme_at)]
+        what = "its latest forward BUILDME crossing"
+    elif commit_times:
+        ref = max(commit_times)
+        what = "its latest build commit"
+    else:
+        return ["no build to answer: ticket %s has no forward BUILDME crossing journaled "
+                "and no build_commits whose time reads, so the verdict %s (written %s) "
+                "cannot be shown to answer the build that stands" % (ticket, name, _when(written))]
+    if written >= ref:
+        return []
+    return ["verdict predates the build: %s was written %s, before %s at %s — it answers "
+            "a different build; run the criteria again and write a fresh verdict"
+            % (name, _when(written), what, _when(ref))]
+
+
 # ── THE PENDING LEDGER (ticket the-deposit-rides-the-read, 2026-07-29) ───────
 # An append-only JSONL in chart's instance-space, FOUR RECORD KINDS and no fifth
 # motion: ``enqueued`` (a crossing named a verdict berth that owes the tree a

@@ -244,6 +244,22 @@ def test_coverage_is_complete_on_first_pass(root, berths, val):
 
 
 def test_one_validator_two_mouths_by_identity(root, berths, val):
+    # 'sworn' crossed BUILDME before the verdict below was written, so the gate's freshness
+    # read (ticket 6ebec06794ac) is clean and coverage alone decides here.
+    journal = os.path.join(root, "crossings")
+    os.makedirs(journal, exist_ok=True)
+    with open(os.path.join(journal, "history.json"), "w") as fh:
+        json.dump([{"ticket": "sworn", "at": "2026-07-29T00:00:00", "from": "TICKETME",
+                    "to": "BUILDME", "direction": "forward", "by": "fixture"}], fh)
+    saved_roots = inspector_mod._crossing_roots
+    inspector_mod._crossing_roots = lambda: {"repo": Path(journal), "commons": Path(journal)}
+    try:
+        _two_mouths(root, berths, val)
+    finally:
+        inspector_mod._crossing_roots = saved_roots
+
+
+def _two_mouths(root, berths, val):
     assert inspector_mod.verdict_error is verdict_mod.verdict_error
     assert inspector_mod.unanswered is verdict_mod.unanswered
     # the same artifact admits at both mouths...

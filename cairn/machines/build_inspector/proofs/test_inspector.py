@@ -894,6 +894,15 @@ def main() -> None:
         #      greens. Same crossing-jurisdiction, same NOT-in-SIEVES reason.
         tooth("28 — THE EXIT GATE (proved-answers-the-chart, 2026-07-29): the loop's")
         from cairn.machines.build_inspector.inspector import proved_answers_the_chart
+        # 'sworn' crossed BUILDME before every verdict below was written, so the gate's
+        # freshness read (ticket 6ebec06794ac) is clean and coverage alone decides here.
+        xjournal = tmp / "exit-crossings"
+        xjournal.mkdir()
+        (xjournal / "history.json").write_text(json.dumps([{
+            "ticket": "sworn", "at": "2026-07-29T00:00:00", "from": "TICKETME",
+            "to": "BUILDME", "direction": "forward", "by": "fixture"}]))
+        saved_roots = _insp._crossing_roots
+        _insp._crossing_roots = lambda: {"repo": xjournal, "commons": xjournal}
         xroot = tmp / "exit-berths"
         xp = xroot / "0" / "packets"
         xp.mkdir(parents=True)
@@ -961,6 +970,8 @@ def main() -> None:
             "crossing-jurisdiction: the promotion sweep must not run the exit check"
     finally:
         _insp._CHART_BERTHS = saved_berths
+        if "saved_roots" in locals():
+            _insp._crossing_roots = saved_roots
 
     # ── the sole path (2026-08-08, ruling the-inference-proxy-is-a-rules-stack,
     #    item 1: "THAT NEEDS TO BE IN THE BUILD INSPECTION") ─────────────────

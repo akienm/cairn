@@ -369,6 +369,7 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -391,6 +392,7 @@ def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET, "BUILDME",
@@ -492,6 +494,7 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -517,6 +520,7 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET_SKILL, "BUILDME",
@@ -557,6 +561,20 @@ def _exit_world(d: Path, *, cast=("widget",), claim=True, verdict=None):
             (packets / "verdict-20260729T000002-feed.json").write_text(json.dumps(
                 {"ticket": "widget", "validate_ref": str(val), **verdict}))
     return tickets, berths
+
+
+def _built_before_the_verdict(tickets: Path):
+    """Stand ``inspector._crossing_roots`` on a fixture journal in which every cast ticket
+    crossed BUILDME before the fixture verdicts were written (2026-07-29T00:00:02), so the
+    exit gate's freshness read (ticket 6ebec06794ac) is clean and the lane each tooth
+    measures alone decides. It reads the live world (None) again once the tooth's
+    tempdir is gone, so no tooth leaks a fixture world into the next."""
+    journal = tickets.parent / "crossings"
+    journal.mkdir(exist_ok=True)
+    (journal / "history.json").write_text(json.dumps([
+        {"ticket": t.stem, "at": "2026-07-29T00:00:00", "from": "TICKETME", "to": "BUILDME",
+         "direction": "forward", "by": "fixture"} for t in sorted(tickets.glob("*.json"))]))
+    return lambda: {"repo": journal, "commons": journal} if journal.is_dir() else None
 
 
 _ANSWERED = {
@@ -616,6 +634,7 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
         tickets, berths = _exit_world(Path(d), verdict=None)  # claimed, never answered
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             # a real prior record on disk — the refusal must leave it byte-identical
@@ -662,6 +681,7 @@ def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
@@ -691,6 +711,7 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
         tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             base = Path(d)
             hist, state = str(base / "history.json"), str(base / "state.json")
@@ -789,6 +810,7 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -825,6 +847,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -849,6 +872,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
         saved = (transitions._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -1378,6 +1402,7 @@ def _healthy_records():
         import cairn.machines.build_inspector.inspector as _insp
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             out.append(("inspect_named_ticket", transitions.inspect_named_ticket(
                 "BUILDME", "widget", history_path=str(Path(d) / "history.json"))))
@@ -1392,6 +1417,7 @@ def _healthy_records():
         import cairn.machines.build_inspector.inspector as _insp
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             out.append(("inspect_exit", transitions.inspect_exit("widget")))
         finally:
@@ -1487,6 +1513,7 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             record = transitions.inspect_entry("widget")
             assert [e["identity"] for e in record] == [
@@ -1524,6 +1551,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = transitions._TICKETS, _insp._CHART_BERTHS
         transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             record = transitions.inspect_entry("widget")
             try:

@@ -17,9 +17,6 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.machines.build_inspector.inspector import (  # noqa: E402
-    SIEVES, green_seal_names_a_tooth,
-)
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
@@ -33,6 +30,17 @@ PROVES = {
 # Seals Akien decided to KEEP standing without a tooth, by the answer that kept them —
 # empty until an answer says otherwise (open-6b86f1467e6d, open-d415cbb00c56).
 KEPT_BY_ANSWER: dict[str, str] = {}
+
+
+def _inspector():
+    """The build subject, bound when a tooth asks — never at import, so a reverted inspector.py
+    reds each tooth by name instead of crashing the file before its first tooth."""
+    from cairn.machines.build_inspector import inspector
+    return inspector
+
+
+def green_seal_names_a_tooth(row, comp_dir):
+    return _inspector().green_seal_names_a_tooth(row, comp_dir)
 
 
 def _row(name):
@@ -95,7 +103,8 @@ def test_an_orphan_seal_is_caught():
 
 def test_the_seat_is_in_the_nest():
     """A sieve that exists and is not registered judges nothing."""
-    assert SIEVES.get("green_seal_names_a_tooth") is green_seal_names_a_tooth, sorted(SIEVES)
+    insp = _inspector()
+    assert insp.SIEVES.get("green_seal_names_a_tooth") is insp.green_seal_names_a_tooth, sorted(insp.SIEVES)
 
 
 def test_the_live_corpus_has_no_green_seal_naming_no_tooth():

@@ -286,11 +286,15 @@ def test_the_verbs_resolve() -> None:
 def main() -> int:
     for fn in (test_the_librarian_answers_before_akien_is_asked, test_the_verbs_resolve):
         print(fn.__name__)
+        before = len(FAILURES)
         try:
             fn()
         except Exception as e:  # a tooth that cannot run is a red, loud (Law 7)
             check(f"{fn.__name__} ran", False, f"{type(e).__name__}: {e}")
             traceback.print_exc()
+        # The tooth itself, on its own line: red when any of its checks failed, so the
+        # hollow reading sees the declared name and not only the sub-checks beneath it.
+        print(f"  {'FAIL' if len(FAILURES) > before else 'PASS'}  {fn.__name__}")
     print(f"\n{'RED' if FAILURES else 'GREEN'} — {len(FAILURES)} failure(s)")
     return 1 if FAILURES else 0
 

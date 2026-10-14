@@ -29,6 +29,7 @@ PROVES = {
         "1": "test_a_build_on_the_moved_file_anchors_at_its_parent",
         "2": "test_a_commit_touching_neither_path_still_refuses_naming_it",
         "3": "test_a_commit_on_the_charted_path_is_still_accepted",
+        "4": "test_the_live_87a7_build_anchors_at_its_parent",
     },
 }
 
@@ -113,6 +114,25 @@ def test_a_commit_on_the_charted_path_is_still_accepted():
     f = _anchor({"id": FIXTURE, "build_commits": [c["pre"]]}, repo, roots)
     assert f["commit"] == c["c0"], (f, c)
     assert f["anchor_first_build"] == c["pre"], (f, c)
+
+
+def test_the_live_87a7_build_anchors_at_its_parent():
+    """Clause 4, live: 87a7f1c7ae21 charts cairn/tools/base/bus_client.py, which moved to
+    cairn/tools/bus_client/bus_client.py before its build 18e1923d. Its named build_commits
+    anchor at 18e1923d^ — never a refusal, never a later commit (Law 8). Invariant, not a
+    snapshot: the parent is read from git, not written here."""
+    from cairn.devices.tester.hollow import COMMONS, _roots
+    tid, first = "87a7f1c7ae21", "18e1923d06e13995084b72751801d4ccfd5d9f17"
+    ticket = json.loads(next((Path(COMMONS) / "tickets").glob(f"{tid}-*.json")).read_text())
+    assert first in (ticket.get("build_commits") or []), ticket.get("build_commits")
+    files = ["cairn/devices/inference_domain/device.py", "cairn/tools/base/bus_client.py"]
+    try:
+        f = build_anchor(ticket, files, roots=_roots(), repo_root=_REPO_ROOT)
+    except HollowUnmeasurable as why:
+        raise AssertionError(f"87a7's true build_commits were refused: {why}")
+    parent = subprocess.run(["git", "-C", str(_REPO_ROOT), "rev-parse", f"{first}^"],
+                            capture_output=True, text=True, env=git_env()).stdout.strip()
+    assert f["commit"] == parent, (f, parent)
 
 
 if __name__ == "__main__":

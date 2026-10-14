@@ -27,8 +27,7 @@ from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: 
 
 PROVES = {
     "77f15efd5a96": {
-        "1": ["test_an_exit_zero_run_that_names_no_tooth_seals_red"],
-        "2": ["test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it"],
+        "1": "test_an_exit_zero_run_that_names_no_tooth_seals_red",
     },
 }
 

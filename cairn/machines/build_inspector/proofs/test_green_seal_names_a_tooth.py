@@ -25,13 +25,8 @@ from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: 
 
 PROVES = {
     "77f15efd5a96": {
-        "2": ["test_a_green_seal_with_empty_teeth_fires",
-              "test_a_green_seal_with_no_teeth_key_fires",
-              "test_a_green_seal_naming_a_tooth_is_quiet",
-              "test_a_red_seal_is_quiet",
-              "test_an_orphan_seal_is_caught",
-              "test_the_seat_is_in_the_nest"],
-        "4": ["test_the_live_corpus_has_no_green_seal_naming_no_tooth"],
+        "2": "test_a_green_seal_with_empty_teeth_fires",
+        "3": "test_the_live_corpus_has_no_green_seal_naming_no_tooth",
     },
 }
 

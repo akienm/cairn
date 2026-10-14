@@ -34,11 +34,21 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
-from cairn.devices.inference_domain.device import InferenceDomainDevice  # noqa: E402
-from cairn.devices.inference_domain.shim import InferenceDomainShim  # noqa: E402
+
+# THE SUBJECT IS BOUND AT CALL TIME, never at import (ticket 87a7f1c7ae21's FIXME 1-2): the
+# bus, the roster and the domain all import cairn.tools.bus_client, whose package __init__
+# names inference_bus — the name this build ADDED. A hollow reading that takes the build's
+# hunks out of bus_client.py breaks that import, and bound here it crashed the file before
+# the first tooth (UNREAD). Bound in the teeth, each tooth FAILS by name instead.
+
+
+def _subject():
+    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.devices.cairn.machines.bus.shim import BusShim
+    from cairn.tools.bus_client.roster import DeviceRoster
+    from cairn.devices.inference_domain.device import InferenceDomainDevice
+    from cairn.devices.inference_domain.shim import InferenceDomainShim
+    return BusDevice, BusShim, DeviceRoster, InferenceDomainDevice, InferenceDomainShim
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
 _SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
@@ -87,6 +97,7 @@ class CallerShim(BaseShim):
 
 
 def _fresh_bus():
+    BusDevice, BusShim, DeviceRoster, _, InferenceDomainShim = _subject()
     bus = _SCRATCH.enter_context(BusDevice.scratch("bus_infer"))
     loop = DeviceRoster(bus)
     loop.hold(BusShim(bus, loop))
@@ -106,6 +117,7 @@ def _ask(bus, verb, body):
 # --- teeth ------------------------------------------------------------------
 
 def test_embed_and_infer_are_declared_beside_resolve():
+    InferenceDomainDevice = _subject()[3]
     verbs = InferenceDomainDevice().declared_verbs()
     assert {"embed", "infer", "resolve"} <= set(verbs), sorted(verbs)
     assert all(callable(verbs[v]) for v in ("embed", "infer", "resolve"))
@@ -153,10 +165,14 @@ if __name__ == "__main__":
     teeth = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     # The device's trail and task tickets ride the roots (ticket ea4a6151300f): moved into a
     # fixture world for the run so a bus proof leaves nothing in the live tickets folder.
-    from cairn.devices.inference_domain import domain as _domain
     from cairn.tools.scratch.scratch import scratch_dir
     from cairn.tools.base import address as _address
-    _domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_bus_infer_")})
+    try:
+        from cairn.devices.inference_domain import domain as _domain
+        _domain.set_diagnostic_roots({**_address.ROOTS, "instance": scratch_dir("cairn_bus_infer_")})
+    except Exception as exc:  # noqa: BLE001 — the subject is gone; every tooth below FAILS by name
+        _domain = None
+        print(f"  (the domain did not import: {type(exc).__name__}: {exc})")
     rc = 0
     try:
         for t in teeth:
@@ -167,7 +183,8 @@ if __name__ == "__main__":
                 rc = 1
                 print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
     finally:
-        _domain.set_diagnostic_roots(None)
+        if _domain is not None:
+            _domain.set_diagnostic_roots(None)
         _SCRATCH.close()
     print("green — infer and embed answer over the bus, no host dialed" if rc == 0 else "RED")
     sys.exit(rc)

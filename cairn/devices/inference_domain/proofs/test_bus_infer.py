@@ -46,6 +46,13 @@ NOW = datetime(2026, 9, 18, 12, 0, tzinfo=timezone.utc)
 FAKE_VECTOR = [0.5, 0.25, 0.125]
 SEEN: list[dict] = []
 
+PROVES = {
+    # A device asks infer then embed over the bus and gets an answer, kind fixed by the verb.
+    "87a7f1c7ae21": {
+        "all": "test_infer_over_the_bus_answers_a_completion",
+    },
+}
+
 
 def _stub_resolver(request):
     """Answers by kind and records what it was asked — no host anywhere near it."""

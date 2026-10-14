@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_ticket_names_its_build_commits.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T04:29:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T18:40:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_named_build_commits_refuses_as_today\n.\n  ok   test_a_named_build_commit_anchors_at_its_parent\n.\n  ok   test_a_named_sha_that_changes_no_measured_file_refuses_naming_it\n.\n  ok   test_a_named_sha_that_does_not_resolve_refuses_naming_it\n                                                                     [100%]\n4 passed in 0.19s",
+      "stdout_tail": ".\n  ok   test_no_named_build_commits_refuses_as_today\n.\n  ok   test_a_named_build_commit_anchors_at_its_parent\n.\n  ok   test_a_named_sha_that_changes_no_measured_file_refuses_naming_it\n.\n  ok   test_a_named_sha_that_does_not_resolve_refuses_naming_it\n                                                                     [100%]\n4 passed in 0.20s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_named_build_commits_refuses_as_today",
@@ -16,7 +16,7 @@
         "test_a_named_sha_that_does_not_resolve_refuses_naming_it"
       ],
       "teeth_red": [],
-      "test": "test-b4a32d67149c",
+      "test": "test-cebb6a4abd6d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,19 +30,20 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b4a32d67149c",
-      "source_fingerprint": "1dcf4102dbbd01b10d2be36f8be75d1010b7c1b1b46bdf0b34f359a7b61b0f5b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cebb6a4abd6d",
+      "source_fingerprint": "e7aa4b8aea6afff46536f65bfc1376a4cc260296baea9f0c7ca3e7bcf4e4b597",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/hollow.py",
@@ -50,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2537166-jrx_pank/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3021835-ye05rvq7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,28 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108674429,
-          "disk_bytes": 134197248,
-          "entries": 10254,
+          "bytes": 109481841,
+          "disk_bytes": 136032256,
+          "entries": 10593,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "217c82fe7b57": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_named_build_commit_anchors_at_its_parent",
-            "test_a_named_sha_that_changes_no_measured_file_refuses_naming_it",
-            "test_a_named_sha_that_does_not_resolve_refuses_naming_it"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "217c82fe7b57": {
-          "anchor_rule": "journal",
-          "anchor_journal": "0e2a48dbd14176ea894bfae215e069ea04f3f687",
-          "anchor_first_build": "82a2c9e77794d67010a66fe7f47e359ccd30cb0d",
-          "commit": "0e2a48dbd14176ea894bfae215e069ea04f3f687"
+          "reuses": 1
         }
       }
     },

@@ -240,6 +240,11 @@ def _named_build_commits(ticket: dict, files: list[str], repo_root: Path) -> lis
     either failure refuses, naming the sha, so a wrong name reds instead of greening (Law 8).
     """
     out = []
+    # A charted path the build MOVED is read where it lives now too (ticket 5e1b73029444): the
+    # chart names files as they stood before, and the revert loop already follows the move.
+    here = set(files) | {m for f in files
+                         if (m := moved_to(f, ticket.get("id", ""), repo_root=repo_root,
+                                           worktree=repo_root))}
     for name in ticket.get("build_commits") or []:
         name = str(name).strip()
         proc = _git_ok(repo_root, "rev-parse", "--verify", "-q", f"{name}^{{commit}}")
@@ -249,7 +254,7 @@ def _named_build_commits(ticket: dict, files: list[str], repo_root: Path) -> lis
                 f"hollow: build_commits names {name[:12]!r} on ticket {ticket.get('id')!r}, and it "
                 f"does not resolve to a commit.")
         changed = set(_git_ok(repo_root, "show", "--format=", "--name-only", sha).stdout.split())
-        if not changed & set(files):
+        if not changed & here:
             raise HollowUnmeasurable(
                 f"hollow: build_commits names {sha[:12]} on ticket {ticket.get('id')!r}, and it "
                 f"changes no measured writes_to file ({', '.join(files) or 'none measured'}).")

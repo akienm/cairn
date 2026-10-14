@@ -6,7 +6,8 @@
 One standing door for every NON-REST crossing, so no voyage crosses through an ad hoc script
 again (F21: each voyage had been writing its own). It finds the ticket in the store
 transitions already names, derives the component from the ticket's owning_intention (the
-charter's directory, refusing one that carries no charter), calls ``transitions.emit`` with
+charter's directory under the cairn root or the commons root, ``charter_dir``, refusing one
+that carries no charter), calls ``transitions.emit`` with
 that component's history and state and ``ticket=<id>``, and writes emit's returned cursor
 onto the ticket through the artifact door (verb cast) in the same act — the write-back
 pattern ``set_phase(ticket=)`` already uses. emit refuses before writing anything, so a
@@ -28,10 +29,29 @@ from cairn.tools.artifact.artifact import write
 from cairn.tools.base import transitions
 
 
+CHARTER_NAMES = ("intention+why.json", "_charter+why.json")
+
+
+def charter_dir(owning: str, repo_root: Path, commons_root: Path) -> Path:
+    """The directory a crossing journals in: where ``owning`` names a charter, tried under the
+    cairn root and then the commons root (ticket 546c97b24d58). A charter is a file named
+    intention+why.json (class-space) or _charter+why.json (a commons folder's charter), and it
+    must exist. Read-only; the refusal names every path it tried."""
+    tried: list[str] = []
+    for root in ((Path(repo_root), Path(commons_root)) if owning else ()):
+        p = root / owning
+        if p.name in CHARTER_NAMES and p.is_file():
+            return p.parent
+        tried.append(str(p))
+    raise ValueError(f"owning_intention {owning!r} names no charter: tried "
+                     + (", ".join(tried) or "nothing, it is empty")
+                     + f"; none is an existing {' or '.join(CHARTER_NAMES)}")
+
+
 def cross(ticket_id: str, target: str, *, actor: str, why: str,
           proven_by: list[str] | None = None, missing: list[str] | None = None,
           tickets_dir: Path | None = None, repo_root: Path | None = None,
-          node_class_root: Path | None = None) -> str:
+          node_class_root: Path | None = None, commons_root: Path | None = None) -> str:
     """Cross ``ticket_id``'s cursor to ``target``; return the new workflow string."""
     tickets_dir = Path(tickets_dir if tickets_dir is not None else transitions._TICKETS)
     repo_root = Path(repo_root if repo_root is not None else transitions._REPO_ROOT)
@@ -51,11 +71,8 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
         raise ValueError(f"{tgt} is a rest: the crossing into it is cleared by "
                          "cairn.devices.cairn.machines.harbor_master.clearance.clear, "
                          "not by this command")
-    owning = str(t.get("owning_intention") or "")
-    dev = repo_root / Path(owning).parent
-    if not owning or not (dev / "intention+why.json").is_file():
-        raise ValueError(f"owning_intention {owning!r} names no charter: "
-                         f"{dev}/intention+why.json is not a file")
+    dev = charter_dir(str(t.get("owning_intention") or ""), repo_root,
+                      Path(commons_root if commons_root is not None else tickets_dir.parent))
     extra: dict = {"ticket": ticket_id, "actor": actor, "why": why}
     if proven_by:
         extra["proven_by"] = list(proven_by)

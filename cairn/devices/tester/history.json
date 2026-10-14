@@ -61091,5 +61091,175 @@
     "fingerprint": "fc8c31614733b680fc21ce710d51f3ec0447a522151b86ebc67f57492c7c9058",
     "at": "2026-10-13T19:33:24",
     "seq": 220
+  },
+  {
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "bug@v1: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'ce92eb562cf9', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'BUILDME' in the bug@v1 vocabulary",
+        "actual": "'BUILDME' in the bug@v1 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "BUILDME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "ce92eb562cf9",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'ce92eb562cf9' is cast",
+        "actual": "named ticket 'ce92eb562cf9' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "ce92eb562cf9",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/ce92eb562cf9-hollow-takes-away-the-build-not-the-years-since.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "ce92eb562cf9"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "ce92eb562cf9"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "ce92eb562cf9"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "ce92eb562cf9"
+        }
+      },
+      {
+        "identity": "the_ticket_rehearses_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "ce92eb562cf9"
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "ticket": "ce92eb562cf9",
+    "actor": "cc",
+    "why": "build per decisions 'hunk revert' and 'retry trigger': a file whose whole-file revert prints no teeth is retried as the build's own hunks (3-way merge-file), revert_mode sealed; proof committed red-first at c269775d; rehearsal clean",
+    "fingerprint": "a6e68c8be21f3ae42ae17a28ab4e944b7263d4ae30fe41f27587d547e515049d",
+    "at": "2026-10-13T19:54:51",
+    "seq": 221
   }
 ]

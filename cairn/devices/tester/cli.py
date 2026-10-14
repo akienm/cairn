@@ -180,8 +180,9 @@ def _hollow_run(args) -> int:
         landed_green: list[tuple[Path, dict]] = []
         for rel in finding["proofs"]:
             landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading,
-                                   anchor={k: finding[k] for k in ("anchor_rule", "anchor_journal",
-                                                                   "anchor_first_build", "commit")})
+                                   anchor={**{k: finding[k] for k in ("anchor_rule", "anchor_journal",
+                                                                      "anchor_first_build", "commit")},
+                                           "revert_mode": finding.get("revert_mode", {})})
             persisted += 1 if landed else 0
             if landed:
                 standing = read_validations(str(REPO_ROOT / rel))[-1]

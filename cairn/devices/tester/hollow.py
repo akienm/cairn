@@ -97,7 +97,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from cairn.tools.scratch.scratch import git_env, scratch_worktree
+from cairn.tools.scratch.scratch import git_env, scratch_dir, scratch_worktree
 from cairn.tools.proof_coverage.proof_coverage import declared
 
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
@@ -342,7 +342,7 @@ def build_anchor(ticket: dict, files: list[str], *, roots: dict, repo_root: Path
         commit, rule = anchor_journal, "journal"
     return {"commit": commit, "anchor_rule": rule, "anchor_journal": anchor_journal,
             "anchor_first_build": first, "anchor_first_build_parent": parent,
-            "buildme_at": at, "bound": bound}
+            "buildme_at": at, "bound": bound, "build_commits": after}
 
 
 def _bound(tid: str, roots: dict, builds: list[tuple[str, str]]) -> str | None:
@@ -757,6 +757,54 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
     return "reverted"
 
 
+def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Path) -> str | None:
+    """Take away only the build commits' own hunks to ``rel`` from HEAD's bytes (ticket ce92eb562cf9).
+
+    THE COUNTERFACTUAL IS "THIS BUILD NEVER HAPPENED", NOT "THIS FILE AS IT STOOD AT THE ANCHOR".
+    Measured 2026-10-13 on 6890cf7e4053: the anchor's domain.py died at its own import line (a
+    store module moved since), so the proof printed no teeth and the reading was UNRAN — while
+    removing only the build's hunk by hand redded clause 2. Each commit that touched ``rel`` is
+    reverse-applied, newest first, onto the worktree's bytes. Returns ``None`` when no build
+    commit touched ``rel`` (there is nothing to take away this way). A hunk that will not
+    reverse-apply raises, naming the file and the commit: a later change overlapping the build
+    is a reading this instrument cannot take, never an UNRAN (Law 7).
+    """
+    def blob(spec):
+        got = subprocess.run(["git", "-C", str(repo_root), "show", spec], capture_output=True, env=git_env())
+        return got.stdout if got.returncode == 0 else b""
+    touched = []
+    for c in commits:
+        names = subprocess.run(["git", "-C", str(repo_root), "show", "--format=", "--name-only", c, "--", rel],
+                               capture_output=True, text=True, env=git_env())
+        if names.returncode != 0:
+            raise HollowUnmeasurable(f"hollow: could not read build commit {c[:12]}'s change to {rel}: "
+                                     f"{names.stderr!r}")
+        if names.stdout.strip():
+            touched.append(c)
+    if not touched:
+        return None
+    # A three-way merge per commit, newest first: HEAD's bytes are "ours", the commit's own
+    # version the base, its parent's the side being merged in. Line drift in the years since
+    # moves a hunk without stopping it (6890's domain.py hunk sits 180 lines lower at HEAD,
+    # where `git apply -R` refused it); only a later change to the build's own lines conflicts.
+    target, tmp = worktree / rel, scratch_dir("cairn-hollow-hunks-")
+    base, other = tmp / "base", tmp / "other"
+    for c in reversed(touched):
+        base.write_bytes(blob(f"{c}:{rel}"))
+        other.write_bytes(blob(f"{c}^:{rel}"))
+        proc = subprocess.run(["git", "merge-file", "-p", "-q", str(target), str(base), str(other)],
+                              capture_output=True, env=git_env())
+        if proc.returncode != 0:
+            shutil.rmtree(tmp, ignore_errors=True)
+            raise HollowUnmeasurable(
+                f"hollow: {rel}'s whole-file revert printed no teeth, and build commit {c[:12]}'s "
+                f"hunks to it will not reverse-apply onto HEAD (a later change overlaps them), so "
+                f"neither counterfactual can be taken")
+        target.write_bytes(proc.stdout)
+    shutil.rmtree(tmp, ignore_errors=True)
+    return f"build hunks taken away ({', '.join(c[:12] for c in reversed(touched))}, newest first)"
+
+
 def _restore(worktree: Path, rel: str) -> None:
     """Back to the worktree's own HEAD — checkout restores a removed file as well as a changed one.
 
@@ -877,6 +925,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     anchor = build_anchor(ticket, files, roots=roots, repo_root=repo_root, instrument=instrument,
                           read_by=read_by)
     commit, at = anchor["commit"], anchor["buildme_at"]
+    builds_in = {Path(repo_root): list(anchor.get("build_commits") or [])}
     files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
     # THE COMMONS HAS ITS OWN HISTORY, so its anchor is asked of it: the same rule over the
     # commons commits that name the ticket and change a commons writes_to file.
@@ -885,6 +934,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     if c_tracked:
         canchor = build_anchor(ticket, cfiles, roots=roots, repo_root=commons)
         ccommit = canchor["commit"]
+        builds_in[commons] = list(canchor.get("build_commits") or [])
         cfiles, cdir_skips = _expand_dirs(cfiles, ccommit, commons, tid=tid)
         dir_skips += [{**s, "file": COMMONS_KEY + s["file"]} for s in cdir_skips]
     proofs = named if named is not None else proven_by(ticket, roots)
@@ -1043,6 +1093,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
 
     measured: dict[str, list[str]] = {}
     unran: dict[str, list[str]] = {}
+    revert_mode: dict[str, str] = {}  # file -> 'whole-file' | 'hunks' (ticket ce92eb562cf9)
     unchanged: list[str] = []
     skipped: list[dict] = list(dir_skips)
     for s in dir_skips:
@@ -1104,6 +1155,21 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             _restore(wtree, rel)
             if source is not None and (wtree / source).exists():
                 (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
+        revert_mode[key] = "whole-file"
+        # A WHOLE-FILE REVERT THAT CANNOT RUN IN TODAY'S TREE IS RETRIED AS THE BUILD'S HUNKS
+        # (ticket ce92eb562cf9). Only this file, and only when some proof printed no teeth. A
+        # moved file is retried at the path it lives now: a build commit that wrote it there
+        # carries hunks to take away, one that only moved it carries none (None, reading kept).
+        # A file whose whole-file revert ran keeps today's reading, untouched.
+        if any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
+            try:
+                hunks = _revert_hunks(wtree, rel, builds_in.get(Path(root), []), repo_root=root)
+                if hunks is not None:
+                    after, after_ran, _ = run_all()
+                    revert_mode[key] = "hunks"
+                    how = f"{how}; printed no teeth whole-file, so {hunks}"
+            finally:
+                _restore(wtree, rel)
         # DECLARED TEETH ONLY, and the filter is the ticket's bound rather than a nicety.
         # Without it, the reading counts any tooth in the file that went red — including the
         # 55 teeth these three proofs hold for OTHER tickets. A neighbour's tooth reddening
@@ -1204,7 +1270,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "isolation": depth,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
-            "unchanged": unchanged, "moved": moved,
+            "unchanged": unchanged, "moved": moved, "revert_mode": revert_mode,
             "approved": approved,
             "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
             "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,

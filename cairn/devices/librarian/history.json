@@ -10231,5 +10231,83 @@
     "fingerprint": "7cf22088e45cbda084234a6fbe9b4d1744fa9fc44735e33847c84c8440efda01",
     "at": "2026-10-13T10:09:07",
     "seq": 83
+  },
+  {
+    "from": "BUILDME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> WATCHME(ask_spares_akien) -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME moves the cursor off position 2",
+        "actual": "BUILDME -> TICKETME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 2,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME",
+        "actual": "BUILDME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "cd8096f9eeca",
+    "actor": "cc",
+    "why": "retreat: the latest forward BUILDME (2026-09-29) named no proof; re-cross BUILDME naming test_librarian_ask.py after the instrument repairs and a clean rehearsal",
+    "fingerprint": "edbb2612e7e041ed3f51f831bdaa9583aeab71c808c17e49aa1dd16a7afcaa6d",
+    "at": "2026-10-14T08:12:20",
+    "seq": 84
   }
 ]

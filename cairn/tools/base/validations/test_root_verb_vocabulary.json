@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_root_verb_vocabulary.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T13:08:02",
+    "caller": "cairn test",
+    "date": "2026-10-14T04:12:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 5.01s",
+      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 5.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_vocabulary_is_one_table_and_list_carries_it",
@@ -16,31 +16,43 @@
         "test_get_status_is_uniform_across_the_roster"
       ],
       "teeth_red": [],
-      "test": "test-187701d152c9",
+      "test": "test-68664792877e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_3269794_0404546662_delivery",
+          "bus_proc_3269794_0404546662"
+        ]
       },
       "conditions": {
         "proof": "c76bfaaa22583ad6adfa560a5586035f0a846af855edd173cdfb570109f75974",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 3272062,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-3272052-9o1u3n19/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-187701d152c9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-68664792877e",
       "source_fingerprint": "2fad688b1a9d86340eb1745a048998ff518df26902f5c9a1e1124e9c9af89692",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -56,7 +68,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2857563-rlgdrd_h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3272030-xl9vkx06/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,11 +77,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109131534,
-          "disk_bytes": 135192576,
-          "entries": 10433,
+          "bytes": 109718842,
+          "disk_bytes": 136687616,
+          "entries": 10724,
           "builds": 1,
-          "reuses": 16
+          "reuses": 0
         }
       }
     },

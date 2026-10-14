@@ -11263,5 +11263,297 @@
     "fingerprint": "80ae34beb1a79c5778db72f9a31cd4bea180c0905642fd2b2aed7b7cfd97201c",
     "at": "2026-10-14T08:52:42",
     "seq": 87
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(ask_spares_akien) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'cd8096f9eeca'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto cairn/devices/librarian/proofs/test_librarian_ask.py (seal 2026-10-14T08:51:26, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(ask_spares_akien) emitted the probe berthed at cairn/devices/librarian/probes/ask_spares_akien.py (ticket 'cd8096f9eeca')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20261014T085348-e93ffd94e859.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(ask_spares_akien) crossing",
+        "actual": "a cast ticket for the WATCHME(ask_spares_akien) crossing",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cd8096f9eeca",
+          "watch_object": "ask_spares_akien",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/cd8096f9eeca-the-librarian-answers-before-akien-is-asked.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'cd8096f9eeca' carries a watchme spec for 'ask_spares_akien'",
+        "actual": "ticket 'cd8096f9eeca' carries a watchme spec for 'ask_spares_akien'",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cd8096f9eeca",
+          "watch_object": "ask_spares_akien",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "transitions.inspect_emission",
+        "values": {
+          "ticket": "cd8096f9eeca",
+          "watch_object": "ask_spares_akien",
+          "berth": "cairn/devices/librarian/probes/ask_spares_akien.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'librarian' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "cd8096f9eeca",
+          "component": "librarian",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'cd8096f9eeca' is cast",
+        "actual": "named ticket 'cd8096f9eeca' is cast",
+        "fatality": "none",
+        "source": "transitions.inspect_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "cd8096f9eeca",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/cd8096f9eeca-the-librarian-answers-before-akien-is-asked.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "cd8096f9eeca"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "transitions.inspect_durability",
+        "values": {
+          "ticket": "cd8096f9eeca",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "48751eb73ea320288697ebfe6f786441c7b98750",
+              "upstream": "48751eb73ea320288697ebfe6f786441c7b98750",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/cairn/cairn/devices/librarian",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "fe8873073335f61ff41f8c8c6bbd165f6ced1662",
+              "upstream": "fe8873073335f61ff41f8c8c6bbd165f6ced1662",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'librarian' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "librarian",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/librarian/proofs/test_librarian_ask.py stands in proven-space",
+        "actual": "cairn/devices/librarian/proofs/test_librarian_ask.py stands in proven-space",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/librarian/proofs/test_librarian_ask.py",
+          "named": [
+            "cairn/devices/librarian/proofs/test_librarian_ask.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/librarian/proofs/test_librarian_ask.py's seal at '2026-10-14T08:51:26'",
+        "actual": "the witness dates cairn/devices/librarian/proofs/test_librarian_ask.py's seal at '2026-10-14T08:51:26'",
+        "fatality": "none",
+        "source": "transitions.inspect_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/librarian/proofs/test_librarian_ask.py",
+          "named": [
+            "cairn/devices/librarian/proofs/test_librarian_ask.py"
+          ],
+          "seal": "2026-10-14T08:51:26",
+          "claimed": "2026-10-14T08:51:26"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": "ticket carries demo flag, or does not",
+        "actual": "ticket 'cd8096f9eeca' has no demo flag — gate does not fire",
+        "fatality": "closes the gate",
+        "source": "transitions._require_demo",
+        "values": {
+          "ticket": "cd8096f9eeca"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": "cairn/devices/librarian/proofs/test_librarian_ask.py",
+    "proven_seal_date": "2026-10-14T08:51:26",
+    "delegated": false,
+    "ticket": "cd8096f9eeca",
+    "why": "the librarian answers before Akien is asked: a paraphrase of an answered question resolves by walk to his words and who answered, a re-ask spends no inference, an uncovered question opens exactly one operator question, and once answered the same ask resolves without reaching him",
+    "fingerprint": "f8ee4f3c8c5c8154c93769ed8ac9b534386ef6157878c7da88fc95e4a446c4ab",
+    "at": "2026-10-14T08:53:59",
+    "seq": 88
   }
 ]

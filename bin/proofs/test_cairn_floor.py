@@ -180,9 +180,16 @@ def test_present_floor_lays_nothing() -> None:
 
 
 if __name__ == "__main__":
-    test_bin_cairn_names_the_venv()
-    test_present_floor_lays_nothing()
-    test_down_db_refuses_named_and_never_resolves()
-    test_happy_path_costs_under_10ms()
-    test_absent_venv_is_laid_then_answers()
-    print("test_cairn_floor: green")
+    # Every tooth runs and prints its own line, red or green: one failing assert must not
+    # silence the teeth after it, or a reverted bin/cairn reads as a proof that never ran.
+    failed = []
+    for tooth in (test_bin_cairn_names_the_venv, test_present_floor_lays_nothing,
+                  test_down_db_refuses_named_and_never_resolves, test_happy_path_costs_under_10ms,
+                  test_absent_venv_is_laid_then_answers):
+        try:
+            tooth()
+        except Exception as e:  # loud at the diagnostic surface (Law 7)
+            failed.append(tooth.__name__)
+            print(f"FAIL {tooth.__name__}  — {type(e).__name__}: {str(e)[:400]}")
+    print(f"test_cairn_floor: {'red — ' + ', '.join(failed) if failed else 'green'}")
+    sys.exit(1 if failed else 0)

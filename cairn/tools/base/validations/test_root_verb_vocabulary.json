@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_root_verb_vocabulary.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-14T04:14:42",
+    "caller": "cairn test",
+    "date": "2026-10-14T04:15:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 4.94s",
+      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 5.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_vocabulary_is_one_table_and_list_carries_it",
@@ -16,24 +16,16 @@
         "test_get_status_is_uniform_across_the_roster"
       ],
       "teeth_red": [],
-      "test": "test-38f7fed338ba",
+      "test": "test-7da173e12358",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 10,
+        "dropped": 2,
         "tables": [
-          "bus_proc_3272062_0412442269_delivery",
-          "bus_proc_3272062_0412442269",
-          "bus_proc_3273118_0413170516_delivery",
-          "bus_proc_3273118_0413170516",
-          "bus_proc_3273446_0414028705_delivery",
-          "bus_proc_3273446_0414028705",
-          "bus_proc_3273557_0414141200_delivery",
-          "bus_proc_3273557_0414141200",
-          "bus_proc_3273663_0414225418_delivery",
-          "bus_proc_3273663_0414225418"
+          "bus_proc_3274538_0415082280_delivery",
+          "bus_proc_3274538_0415082280"
         ]
       },
       "conditions": {
@@ -41,19 +33,20 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-38f7fed338ba",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7da173e12358",
       "source_fingerprint": "6761ef229de40461b8e7cbdc748e6a4c284afd1df2e5269c79209243795ee7d1",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -69,7 +62,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3273793-etfthnfu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3274735-lm8xoetl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,9 +71,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109719753,
-          "disk_bytes": 136695808,
-          "entries": 10726,
+          "bytes": 109720281,
+          "disk_bytes": 136699904,
+          "entries": 10727,
           "builds": 1,
           "reuses": 0
         }

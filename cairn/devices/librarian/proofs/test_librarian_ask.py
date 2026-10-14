@@ -46,7 +46,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 TICKET = "cd8096f9eeca"
-PROVES = {TICKET: {"all": "test_the_librarian_answers_before_akien_is_asked"}}
+PROVES = {"cd8096f9eeca": {"all": "test_the_librarian_answers_before_akien_is_asked"}}
 MARK = "proofs/test_librarian_ask.py"
 TID = "0badc0ffee01"
 FAILURES: list[str] = []

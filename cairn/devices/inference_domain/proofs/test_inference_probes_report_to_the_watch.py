@@ -39,6 +39,7 @@ PROVES = {
     },
 }
 
+PROOF_TIMEOUT_S = 400  # 10 live probe surveys, each run twice by the composite tooth: measured 126 s bare on 2026-10-14
 BERTH = "cairn/devices/inference_domain/probes/"
 RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
 

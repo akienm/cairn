@@ -160,14 +160,14 @@ def _tree_bytes(d: Path) -> dict:
 
 
 def test_the_live_commons_owner_resolves_without_writing(A) -> None:
-    from cairn.tools.base import transitions as T
-    live = Path(T._TICKETS).parent
-    hits = [p for p in Path(T._TICKETS).glob("6bc43453ca64-*.json") if not p.name.endswith(".log.jsonl")]
+    # the home checkout when no commons sits beside this tree (hollow's worktree), never transitions._TICKETS
+    live = _LIVE_COMMONS
+    hits = [p for p in (live / "tickets").glob("6bc43453ca64-*.json") if not p.name.endswith(".log.jsonl")]
     owning = json.loads(hits[0].read_text(encoding="utf-8"))["owning_intention"] if hits else ""
     watched = live / "intentions-not-beside-code"
     before = _tree_bytes(watched)
     try:
-        got, exc = _cross().charter_dir(owning, Path(T._REPO_ROOT), live), None
+        got, exc = _cross().charter_dir(owning, REPO, live), None
     except ImportError:
         raise
     except Exception as e:  # noqa: BLE001

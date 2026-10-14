@@ -31,7 +31,9 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "ea4a6151300f"
 
 _OWNING_TICKET = "ea4a6151300f"
 
@@ -130,7 +132,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

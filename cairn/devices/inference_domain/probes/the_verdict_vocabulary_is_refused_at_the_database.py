@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+_TICKET_ID = "6890cf7e4053"
 
 _OWNING_TICKET = "the-verdict-vocabulary-is-held-by-postgres"
 
@@ -92,9 +94,10 @@ PROBE = Probe(
         "replaced prose enforcement — if it disappears, the three valid values (hit, miss, "
         "refused) are back to being held by convention alone",
     trigger=_trigger,
-    to="inference_domain",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

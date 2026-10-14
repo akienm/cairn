@@ -262,6 +262,14 @@ def _the_walk_answers() -> None:
 
 
 def _the_verbs_resolve() -> None:
+    # The berth the build wrote, run as itself: `cairn librarian ask` resolves through the
+    # instance's wired bin/ (~/.cairn/devices/librarian/0/bin/ask, a link into the live
+    # checkout), so only a direct run measures THIS tree's berth.
+    berth = REPO / "cairn" / "devices" / "librarian" / "0" / "bin" / "ask"
+    r = subprocess.run([str(berth), "--help"], capture_output=True, text=True, timeout=60, cwd=REPO)
+    check("the class-space berth bin/ask answers --help naming --ticket",
+          r.returncode == 0 and "--ticket" in r.stdout,
+          f"exit={r.returncode} {(r.stdout + r.stderr)[-300:]!r}")
     r = subprocess.run([str(REPO / "bin" / "cairn"), "librarian", "ask", "--help"], capture_output=True, text=True,
                        timeout=60, cwd=REPO)
     check("`cairn librarian ask --help` answers", r.returncode == 0 and "--ticket" in r.stdout,

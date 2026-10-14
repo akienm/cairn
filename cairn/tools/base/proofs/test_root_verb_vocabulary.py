@@ -45,8 +45,6 @@ ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from cairn.tools.base.device import BaseDevice  # noqa: E402
-from cairn.tools.base.shim import BaseShim, cli_main  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir
 
 PROVES = {"15d6a0ef9c11": {
@@ -61,71 +59,77 @@ _GET_SHAPE = ["device", "view", "cached", "timestamp", "data"]
 
 
 # --- fixtures for tooth 3 ---------------------------------------------------------------
+# Built at call time, never at import: the subjects (BaseDevice, BaseShim) are what the build
+# changed, and a hollow reading that reverts one must red the teeth by name rather than crash
+# the module before the first tooth prints.
 
-class _Fixture(BaseDevice):
-    def __init__(self, device_id: str) -> None:
-        super().__init__()
-        self._device_id = device_id
+def _fixtures() -> dict:
+    from cairn.tools.base.device import BaseDevice
+    from cairn.tools.base.shim import BaseShim
 
-    @property
-    def device_id(self) -> str:
-        return self._device_id
+    class _Fixture(BaseDevice):
+        def __init__(self, device_id: str) -> None:
+            super().__init__()
+            self._device_id = device_id
 
-    def intention(self) -> dict:
-        return {"what": f"fixture {self._device_id}", "why": "proof 15d6a0ef9c11"}
+        @property
+        def device_id(self) -> str:
+            return self._device_id
 
-    def state(self) -> dict:
-        return {"awake": True}
+        def intention(self) -> dict:
+            return {"what": f"fixture {self._device_id}", "why": "proof 15d6a0ef9c11"}
 
-    def settings(self) -> dict:
-        return {}
+        def state(self) -> dict:
+            return {"awake": True}
 
-
-class ViewCollider(_Fixture):
-    def declared_views(self) -> dict:
-        return {"Settings": lambda: {"mine": True}}   # folds onto the root view (ruled 2026-09-07)
-
-
-class VerbCollider(_Fixture):
-    def _my_get(self, envelope: dict) -> dict:
-        return {"rebound": True}
-
-    def declared_verbs(self) -> dict:
-        return {**super().declared_verbs(), "get": self._my_get}
+        def settings(self) -> dict:
+            return {}
 
 
-class Extender(_Fixture):
-    def _frob(self, envelope: dict) -> dict:
-        return {"frobbed": True}
-
-    def declared_verbs(self) -> dict:
-        return {**super().declared_verbs(), "frob": self._frob}
+    class ViewCollider(_Fixture):
+        def declared_views(self) -> dict:
+            return {"Settings": lambda: {"mine": True}}   # folds onto the root view (ruled 2026-09-07)
 
 
-class _FixtureShim(BaseShim):
-    KIND: type = _Fixture
+    class VerbCollider(_Fixture):
+        def _my_get(self, envelope: dict) -> dict:
+            return {"rebound": True}
 
-    @property
-    def device_id(self) -> str:
-        return f"15d6-{self.KIND.__name__.lower()}"
-
-    def _start_device(self):
-        return self.KIND(self.device_id)
+        def declared_verbs(self) -> dict:
+            return {**super().declared_verbs(), "get": self._my_get}
 
 
-class ViewColliderShim(_FixtureShim):
-    KIND = ViewCollider
+    class Extender(_Fixture):
+        def _frob(self, envelope: dict) -> dict:
+            return {"frobbed": True}
+
+        def declared_verbs(self) -> dict:
+            return {**super().declared_verbs(), "frob": self._frob}
 
 
-class VerbColliderShim(_FixtureShim):
-    KIND = VerbCollider
+    class _FixtureShim(BaseShim):
+        KIND: type = _Fixture
+
+        @property
+        def device_id(self) -> str:
+            return f"15d6-{self.KIND.__name__.lower()}"
+
+        def _start_device(self):
+            return self.KIND(self.device_id)
 
 
-class ExtenderShim(_FixtureShim):
-    KIND = Extender
+    class ViewColliderShim(_FixtureShim):
+        KIND = ViewCollider
 
 
-FIXTURES = {"view": ViewColliderShim, "verb": VerbColliderShim, "extender": ExtenderShim}
+    class VerbColliderShim(_FixtureShim):
+        KIND = VerbCollider
+
+
+    class ExtenderShim(_FixtureShim):
+        KIND = Extender
+
+    return {"view": ViewColliderShim, "verb": VerbColliderShim, "extender": ExtenderShim}
 
 
 # --- the harness ------------------------------------------------------------------------
@@ -135,6 +139,7 @@ def _roster() -> list[str]:
 
 
 def _shim_class(name: str) -> type:
+    from cairn.tools.base.shim import BaseShim
     mod = importlib.import_module(f"cairn.devices.{name}.shim")
     classes = [c for _, c in sorted(vars(mod).items())
                if inspect.isclass(c) and issubclass(c, BaseShim) and c is not BaseShim
@@ -209,6 +214,7 @@ def test_the_vocabulary_is_one_table_and_list_carries_it(home: Path) -> None:
 
 
 def test_every_roster_device_inherits_the_root_verbs(home: Path) -> None:
+    from cairn.tools.base.shim import BaseShim
     roster = _roster()
     assert len(roster) >= 5, roster
     for name in roster:
@@ -268,8 +274,10 @@ def test_get_status_is_uniform_across_the_roster(home: Path) -> None:
 # --- the driver: what the subprocess runs ---------------------------------------------------
 
 def _drive(argv: list[str]) -> int:
+    from cairn.tools.base.shim import BaseShim, cli_main
     which, rest = argv[0], argv[1:]
-    cls = FIXTURES[which] if which in FIXTURES else _shim_class(which)
+    fixtures = _fixtures()
+    cls = fixtures[which] if which in fixtures else _shim_class(which)
     if rest and rest[0] == "--register":
         s = cls()
         dev = s._start_device()

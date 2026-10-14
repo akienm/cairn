@@ -21,11 +21,8 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
 WEB_LOG="${HOME}/.cairn/logs/web_server.log"
 WEB_UNIT="${CAIRN_WEB_UNIT:-cairn-web-server}"
-LOOP_UNIT="${CAIRN_GROUND_LOOP_UNIT:-cairn-ground-loop}"
-LOOP_LOG="${HOME}/.cairn/logs/ground_loop_nohup.log"
 
 mkdir -p "$(dirname "$WEB_LOG")" 2>/dev/null || true
-mkdir -p "$(dirname "$LOOP_LOG")" 2>/dev/null || true
 
 # --- status check -----------------------------------------------------------
 _is_listening() {
@@ -84,26 +81,6 @@ _start_unit() {
 _note() {
   local log="$1"; shift
   printf '%s %s\n' "$(date -Is 2>/dev/null || date)" "$*" >>"$log" 2>/dev/null || true
-}
-
-# --- ensure the ground loop is up (same singleton pattern as superclaude) ----
-_ensure_loop() {
-  if ! command -v systemd-run >/dev/null 2>&1; then
-    ( setsid python3 -m cairn.devices.ground_loop \
-        >>"$LOOP_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-    return
-  fi
-  local err
-  if err="$(_start_unit "$LOOP_UNIT" "$LOOP_LOG" python3 -m cairn.devices.ground_loop)"; then
-    return
-  fi
-  _note "$LOOP_LOG" "$err"
-  case "$err" in
-    *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
-      systemctl --user reset-failed "${LOOP_UNIT}.service" >/dev/null 2>&1 || true
-      _start_unit "$LOOP_UNIT" "$LOOP_LOG" python3 -m cairn.devices.ground_loop >/dev/null 2>&1 || true
-      ;;
-  esac
 }
 
 # --- ensure the web server is up --------------------------------------------
@@ -178,7 +155,6 @@ _ensure_web() {
 }
 
 # --- main -------------------------------------------------------------------
-_ensure_loop
 _ensure_web
 
 if _is_listening; then

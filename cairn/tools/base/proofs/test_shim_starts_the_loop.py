@@ -3,7 +3,7 @@
 PROVES: falsifier clauses (1) with no loop running (liveness DEAD), one shim construction leaves
 liveness LIVE within one beat plus spawn cost; (2) two shims started inside 100ms leave exactly
 one loop; (3) the ground loop package gains no line; (4) the check lives in exactly one place,
-the base. Plus the resting case: a LIVE record means no spawn at all.
+the base — and in no device launcher (D19). Plus the resting case: a LIVE record means no spawn at all.
 
 THE SHIM IS CONSTRUCTED IN A SUBPROCESS WITH A SCRATCH HOME, because the instance root is read
 from HOME at import (address.py:_INSTANCE) — so the liveness the shim reads, and the liveness
@@ -220,6 +220,15 @@ def test_check_lives_in_the_base_only() -> None:
     assert base.read_text().count("ensure_ground_loop(") >= 2  # the def and the one call
     others = [p for p in (ROOT / "cairn" / "devices").glob("*/shim.py") if "ensure_ground_loop(" in p.read_text()]
     assert others == [], others
+    # Widened under D19: a device launcher (cairn/devices/<d>/<i>/bin/*) is a second starter if it
+    # spawns the loop module itself — the librarian's _ensure_loop was one, and it started a module
+    # path that no longer resolved, so it silently started nothing.
+    starts = ("-m cairn.devices.ground_loop", "-m cairn.devices.cairn.machines.ground_loop", "_ensure_loop")
+    launchers = [p for p in (ROOT / "cairn" / "devices").glob("*/*/bin/*") if p.is_file()]
+    assert any(p.name == "librarian" for p in launchers), "the librarian launcher is in the population"
+    starters = [str(p.relative_to(ROOT)) for p in launchers
+                if any(s in p.read_text(errors="replace") for s in starts)]
+    assert starters == [], f"a device launcher starts the ground loop beside the shim: {starters}"
     print("ok test_check_lives_in_the_base_only")
 
 

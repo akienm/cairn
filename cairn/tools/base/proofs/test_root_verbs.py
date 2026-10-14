@@ -38,21 +38,22 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
 from cairn.tools.base.device import BaseDevice  # noqa: E402
-from cairn.tools.base.shim import NEVER_BOOTED, OFFLINE, ONLINE, ROOT_VERBS, ROOT_VIEWS, BaseShim, cli_main  # noqa: E402
+# ROOT_VERBS, ROOT_VIEWS and cli_main are what the build ADDED to shim.py, so they are bound at
+# call time: a hollow reading that takes them away reds the teeth by name instead of killing
+# the import before the first one prints.
+from cairn.tools.base.shim import NEVER_BOOTED, OFFLINE, ONLINE, BaseShim  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir
 
-PROVES = [
-    "cold list names the six verbs and the two root views and starts nothing",
-    "cold show status before any run prints never run and starts nothing",
-    "show status hot starts the device and stamps a timestamp after the call began",
-    "a new process's cold show status answers cached with the hot run's timestamp",
-    "get status is one line of JSON with exactly device/view/cached/timestamp/data",
-    "settings prints exactly No settings on an empty dict and the rendered dict otherwise",
-    "start then stop read started/stopped with presence ONLINE then OFFLINE; a fresh stop reads not running",
-    "hot as the verb and an unknown verb are refused exit 2 with the six named",
-    "def resolve lives once, in the base, and in no device shim",
-    "a device view named status is refused as a collision",
-]
+# Keyed to the falsifier's proves_red clauses (1)-(4); the other six teeth guard the same
+# resolver and are run and printed beside them.
+PROVES = {
+    "b41b0c0fff0e": {
+        "1": "test_resolve_lives_in_the_base_only",
+        "2": "test_hot_show_starts_and_stamps",
+        "3": "test_new_process_cold_show_is_cached",
+        "4": "test_settings_literal_and_rendered",
+    },
+}
 
 
 # --- the fixtures: two devices, two shims ------------------------------------------------
@@ -154,6 +155,7 @@ def _snapshot_path_exists(home: Path, which: str) -> bool:
 def test_cold_list_starts_nothing(home: Path) -> None:
     r = _run(home, "weather", "list")
     assert r.returncode == 0, r.stderr
+    from cairn.tools.base.shim import ROOT_VERBS, ROOT_VIEWS
     lines = [ln.strip() for ln in r.stdout.splitlines()]
     for v in ROOT_VERBS:
         assert v in lines, (v, r.stdout)
@@ -278,6 +280,7 @@ def _drive(argv: list[str]) -> int:
     which, rest = argv[0], argv[1:]
     cls = SHIMS[which]
     if "--then" not in rest:
+        from cairn.tools.base.shim import cli_main
         return cli_main(cls, rest)
     # `--then start --then stop`: several lines through ONE shim, presence printed after each.
     shim = cls()
@@ -293,18 +296,32 @@ def _drive(argv: list[str]) -> int:
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--drive":
         sys.exit(_drive(sys.argv[2:]))
-    test_resolve_lives_in_the_base_only()
+    # Every tooth runs and prints `ok <name>` or `FAIL <name>`: a red stops nothing after it,
+    # so a hollow reading names each tooth it broke. Teeth 4-5 read tooth 3's stamp; with no
+    # stamp they FAIL by name rather than vanish.
+    failed = []
+
+    def tooth(fn, *a):
+        try:
+            return fn(*a)
+        except Exception as why:
+            print(f"FAIL {fn.__name__}: {type(why).__name__}: {str(why)[:300]}")
+            failed.append(fn.__name__)
+            return None
+
+    tooth(test_resolve_lives_in_the_base_only)
     home = _scratch()
     try:
-        test_cold_list_starts_nothing(home)
-        test_cold_show_never_run(home)
-        stamp = test_hot_show_starts_and_stamps(home)
-        test_new_process_cold_show_is_cached(home, stamp)
-        test_get_is_one_line_one_shape(home, stamp)
-        test_settings_literal_and_rendered(home)
-        test_start_then_stop(home)
-        test_refusals_name_the_six(home)
-        test_status_view_collision_refused(home)
+        tooth(test_cold_list_starts_nothing, home)
+        tooth(test_cold_show_never_run, home)
+        stamp = tooth(test_hot_show_starts_and_stamps, home) or "no stamp: test_hot_show_starts_and_stamps failed"
+        tooth(test_new_process_cold_show_is_cached, home, stamp)
+        tooth(test_get_is_one_line_one_shape, home, stamp)
+        tooth(test_settings_literal_and_rendered, home)
+        tooth(test_start_then_stop, home)
+        tooth(test_refusals_name_the_six, home)
+        tooth(test_status_view_collision_refused, home)
     finally:
         shutil.rmtree(home, ignore_errors=True)
-    print("test_root_verbs: green")
+    print(f"test_root_verbs: {'red: ' + ', '.join(failed) if failed else 'green'}")
+    sys.exit(1 if failed else 0)

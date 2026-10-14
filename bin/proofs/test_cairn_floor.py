@@ -84,6 +84,8 @@ def test_absent_venv_is_laid_then_answers() -> None:
         assert (venv / "bin" / "python3").exists(), f"no venv laid at {venv}: {r.stderr[-600:]}"
         assert r.stdout.startswith("librarian: web server is"), (r.returncode, r.stdout, r.stderr[-600:])
         assert r.returncode in (0, 1), r.returncode
+        # The devices root started empty, so the same one invocation laid the instance too.
+        assert (home / "devices" / "cairn" / "0").is_dir(), "no cairn/0 instance home laid"
         out = subprocess.run([str(venv / "bin" / "python3"), "-c", "import cairn; print(cairn.__file__)"],
                              capture_output=True, text=True, cwd="/")
         assert out.stdout.strip().startswith(str(ROOT)), out.stdout + out.stderr

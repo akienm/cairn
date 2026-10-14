@@ -262,7 +262,7 @@ def _the_walk_answers() -> None:
 
 
 def _the_verbs_resolve() -> None:
-    r = subprocess.run(["cairn", "librarian", "ask", "--help"], capture_output=True, text=True,
+    r = subprocess.run([str(REPO / "bin" / "cairn"), "librarian", "ask", "--help"], capture_output=True, text=True,
                        timeout=60, cwd=REPO)
     check("`cairn librarian ask --help` answers", r.returncode == 0 and "--ticket" in r.stdout,
           f"exit={r.returncode} {(r.stdout + r.stderr)[-300:]!r}")

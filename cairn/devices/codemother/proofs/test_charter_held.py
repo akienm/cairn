@@ -39,11 +39,19 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import address as _address  # noqa: E402
-from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
-from cairn.devices.codemother import shim as _codemother  # noqa: E402
-from cairn.devices.codemother.shim import CodeMotherShim  # noqa: E402
+
+# The subjects are bound at call time, never at import: a hollow reading that takes one away
+# must red the teeth by name, not crash the file before the first tooth prints.
+BusDevice = BusShim = DeviceRoster = _codemother = CodeMotherShim = None
+
+
+def _bind() -> None:
+    global BusDevice, BusShim, DeviceRoster, _codemother, CodeMotherShim
+    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.devices.cairn.machines.bus.shim import BusShim
+    from cairn.tools.bus_client.roster import DeviceRoster
+    from cairn.devices.codemother import shim as _codemother
+    from cairn.devices.codemother.shim import CodeMotherShim
 
 PROVES = {"65b34c57ab71": {
     "1": "test_the_instance_exists_under_codemother_in_both_roots",
@@ -179,6 +187,7 @@ def _run_all() -> int:
     try:
         for t in teeth:
             try:
+                _bind()
                 t()
                 print(f"  PASS  {t.__name__}")
             except Exception as exc:  # noqa: BLE001

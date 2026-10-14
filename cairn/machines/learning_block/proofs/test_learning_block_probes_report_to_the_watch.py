@@ -61,8 +61,12 @@ def _off_the_watch(doc: dict, probe: str) -> str | None:
     (a) at FIXME with a watchme finding (the watch verb's kick-back), or (b) repaired the 95f8 way:
     WATCHME dropped from the string, watchme recorded as 'none, because <loud surface>', and the
     probe gone from its berth. Both keep the ticket out of the standing population; an invariant,
-    not a snapshot of one cursor (reshaped 2026-10-13, CC's call per Akien 2026-10-09)."""
+    not a snapshot of one cursor (reshaped 2026-10-13, CC's call per Akien 2026-10-09). (c) RETIRED:
+    a terminal cursor takes the ticket out of the standing population whole (18693659d16b was
+    retired 2026-10-13, CairnCommons 21e465d2)."""
     wf = doc["workflow_and_state"]
+    if "[RETIRED]" in wf:
+        return None
     if "[FIXME" in wf:
         if any(isinstance(f, dict) and f.get("kind") == "watchme" for f in doc.get("fixme") or []):
             return None

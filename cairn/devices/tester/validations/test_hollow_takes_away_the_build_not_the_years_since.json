@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_hollow_takes_away_the_build_not_the_years_since.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T20:29:42",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-13T20:42:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_checked_build_hunk_reads_ok_in_hunk_mode_not_unran\n.\n  ok   test_an_unchecked_build_hunk_reads_hollow_not_unran\n.\n  ok   test_a_whole_file_revert_that_runs_keeps_its_reading\n.\n  ok   test_an_overlapping_later_change_is_unmeasurable_by_name\n.\n  ok   test_the_seal_carries_revert_mode_per_file\n.\n  ok   test_the_live_6890_clause_2_proof_reads_ok\n                                                                   [100%]\n6 passed in 35.76s",
+      "stdout_tail": ".\n  ok   test_a_checked_build_hunk_reads_ok_in_hunk_mode_not_unran\n.\n  ok   test_an_unchecked_build_hunk_reads_hollow_not_unran\n.\n  ok   test_a_whole_file_revert_that_runs_keeps_its_reading\n.\n  ok   test_an_overlapping_later_change_is_unmeasurable_by_name\n.\n  ok   test_the_seal_carries_revert_mode_per_file\n.\n  ok   test_the_live_6890_clause_2_proof_reads_ok\n                                                                   [100%]\n6 passed in 38.64s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_checked_build_hunk_reads_ok_in_hunk_mode_not_unran",
@@ -18,7 +18,7 @@
         "test_the_live_6890_clause_2_proof_reads_ok"
       ],
       "teeth_red": [],
-      "test": "test-4e2e949dba22",
+      "test": "test-fee5eb16069d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4e2e949dba22",
-      "source_fingerprint": "eb8e62c9830c6a5942bf6767a3d8c4da5e1f92992e00e380a90d296d0d80ca19",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fee5eb16069d",
+      "source_fingerprint": "9368e0e855586adc4d44c9203c5e0aa38f942bfc622c4d19f9dbbf5f981a6708",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -61,87 +60,61 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3087539-owachle0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3098573-1_qv7bx3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 42,
           "paths": [
-            "logs/tester/0/20261014.022907.485525.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022909.560315.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022911.653659.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022913.748336.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022915.793695.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022917.879989.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022919.989875.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022922.089777.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022924.157601.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022926.228953.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022931.297124.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022934.000972.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022937.557103.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.022941.045601.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-08c330213ea3/stderr.txt",
-            "logs/tester/0/runs/test-08c330213ea3/stdout.txt",
-            "logs/tester/0/runs/test-0b1d6e7a2bb3/stderr.txt",
-            "logs/tester/0/runs/test-0b1d6e7a2bb3/stdout.txt",
-            "logs/tester/0/runs/test-39a785eb49e6/stderr.txt",
-            "logs/tester/0/runs/test-39a785eb49e6/stdout.txt",
-            "logs/tester/0/runs/test-6c9a03279ce8/stderr.txt",
-            "logs/tester/0/runs/test-6c9a03279ce8/stdout.txt",
-            "logs/tester/0/runs/test-7cb9e9bc2e1c/stderr.txt",
-            "logs/tester/0/runs/test-7cb9e9bc2e1c/stdout.txt",
-            "logs/tester/0/runs/test-82ec2b4f1b20/stderr.txt",
-            "logs/tester/0/runs/test-82ec2b4f1b20/stdout.txt",
-            "logs/tester/0/runs/test-84fd8d139dc3/stderr.txt",
-            "logs/tester/0/runs/test-84fd8d139dc3/stdout.txt",
-            "logs/tester/0/runs/test-861104a5204c/stderr.txt",
-            "logs/tester/0/runs/test-861104a5204c/stdout.txt",
-            "logs/tester/0/runs/test-8b546b2d917a/stderr.txt",
-            "logs/tester/0/runs/test-8b546b2d917a/stdout.txt",
-            "logs/tester/0/runs/test-a4201eb44401/stderr.txt",
-            "logs/tester/0/runs/test-a4201eb44401/stdout.txt",
-            "logs/tester/0/runs/test-a93477dc3ae5/stderr.txt",
-            "logs/tester/0/runs/test-a93477dc3ae5/stdout.txt",
-            "logs/tester/0/runs/test-ac817c174716/stderr.txt",
-            "logs/tester/0/runs/test-ac817c174716/stdout.txt",
-            "logs/tester/0/runs/test-c58ba57eefbb/stderr.txt",
-            "logs/tester/0/runs/test-c58ba57eefbb/stdout.txt"
+            "logs/tester/0/20261014.024146.838694.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024149.399735.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024151.943451.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024154.617042.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024157.200311.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024159.784475.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024202.393856.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024204.609098.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024206.668396.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024209.289485.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024213.898694.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024216.566178.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024219.940362.TesterDevice.run_proof.json",
+            "logs/tester/0/20261014.024222.885682.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-0dd945be3421/stderr.txt",
+            "logs/tester/0/runs/test-0dd945be3421/stdout.txt",
+            "logs/tester/0/runs/test-14e0462084bb/stderr.txt",
+            "logs/tester/0/runs/test-14e0462084bb/stdout.txt",
+            "logs/tester/0/runs/test-29341a8f6e75/stderr.txt",
+            "logs/tester/0/runs/test-29341a8f6e75/stdout.txt",
+            "logs/tester/0/runs/test-3275c0366bfa/stderr.txt",
+            "logs/tester/0/runs/test-3275c0366bfa/stdout.txt",
+            "logs/tester/0/runs/test-35ff009c24c7/stderr.txt",
+            "logs/tester/0/runs/test-35ff009c24c7/stdout.txt",
+            "logs/tester/0/runs/test-4ad0fa7009c4/stderr.txt",
+            "logs/tester/0/runs/test-4ad0fa7009c4/stdout.txt",
+            "logs/tester/0/runs/test-50931a52ce66/stderr.txt",
+            "logs/tester/0/runs/test-50931a52ce66/stdout.txt",
+            "logs/tester/0/runs/test-602d47e6a182/stderr.txt",
+            "logs/tester/0/runs/test-602d47e6a182/stdout.txt",
+            "logs/tester/0/runs/test-75d6fa72791c/stderr.txt",
+            "logs/tester/0/runs/test-75d6fa72791c/stdout.txt",
+            "logs/tester/0/runs/test-946485a70ae7/stderr.txt",
+            "logs/tester/0/runs/test-946485a70ae7/stdout.txt",
+            "logs/tester/0/runs/test-99a2eb30acb4/stderr.txt",
+            "logs/tester/0/runs/test-99a2eb30acb4/stdout.txt",
+            "logs/tester/0/runs/test-bcd50b00409a/stderr.txt",
+            "logs/tester/0/runs/test-bcd50b00409a/stdout.txt",
+            "logs/tester/0/runs/test-cbb90653ebb5/stderr.txt",
+            "logs/tester/0/runs/test-cbb90653ebb5/stdout.txt"
           ],
           "elided": 2
         },
         "scratch": {
           "measured": true,
-          "bytes": 109543458,
-          "disk_bytes": 136294400,
-          "entries": 10682,
+          "bytes": 109554351,
+          "disk_bytes": 136323072,
+          "entries": 10687,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "ce92eb562cf9": {
-          "cairn/devices/tester/hollow.py": [
-            "test_a_checked_build_hunk_reads_ok_in_hunk_mode_not_unran",
-            "test_a_whole_file_revert_that_runs_keeps_its_reading",
-            "test_an_overlapping_later_change_is_unmeasurable_by_name",
-            "test_an_unchecked_build_hunk_reads_hollow_not_unran",
-            "test_the_live_6890_clause_2_proof_reads_ok"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_the_seal_carries_revert_mode_per_file"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ce92eb562cf9": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c269775d7ec99a5b511ef855630d70851d297399",
-          "anchor_first_build": "f08afa5e7f9db7335425abaf61011ef203fadfb8",
-          "commit": "c269775d7ec99a5b511ef855630d70851d297399",
-          "revert_mode": {
-            "cairn/devices/tester/hollow.py": "whole-file",
-            "cairn/devices/tester/cli.py": "whole-file"
-          }
+          "reuses": 5
         }
       }
     },

@@ -179,10 +179,17 @@ def _hollow_run(args) -> int:
         # the rung judges, and FIXME holds the real lack, 973574dddb77).
         landed_green: list[tuple[Path, dict]] = []
         for rel in finding["proofs"]:
-            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading,
-                                   anchor={**{k: finding[k] for k in ("anchor_rule", "anchor_journal",
-                                                                      "anchor_first_build", "commit")},
-                                           "revert_mode": finding.get("revert_mode", {})})
+            anchor = {k: finding[k] for k in ("anchor_rule", "anchor_journal",
+                                              "anchor_first_build", "commit")}
+            # ONLY THE FILES READ IN HUNK MODE ride the anchor (ticket ce92eb562cf9). A
+            # whole-file revert is the reading every seal before this ticket carries, so its
+            # absence says whole-file; writing it for every file would change the anchor of
+            # every reading that never needed the retry (measured: 06f0445e7a63's tooth 4
+            # holds a whole-file anchor to exactly its four keys). The finding keeps the full map.
+            hunks = {f: m for f, m in (finding.get("revert_mode") or {}).items() if m == "hunks"}
+            if hunks:
+                anchor["revert_mode"] = hunks
+            landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading, anchor=anchor)
             persisted += 1 if landed else 0
             if landed:
                 standing = read_validations(str(REPO_ROOT / rel))[-1]

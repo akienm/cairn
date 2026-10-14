@@ -245,9 +245,7 @@ def test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates():
         cli._hollow_run(argparse.Namespace(hollow=FIXTURE, timeout=60, quiet=True, seal=True))
     finally:
         hollow.measure, cli.record_hollow = real_measure, real_record
-    # Since ce92eb562cf9 the CLI's anchor also carries the per-file revert_mode the reading
-    # measured ('whole-file' | 'hunks'); a finding without one is a KeyError here, not a pass.
-    assert seen and seen[0].get("anchor") == dict(anchor, revert_mode=f["revert_mode"]), seen
+    assert seen and seen[0].get("anchor") == anchor, seen
 
 
 def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():

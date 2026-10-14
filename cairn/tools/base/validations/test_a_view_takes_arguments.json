@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_view_takes_arguments.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T13:08:26",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-14T09:05:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-10-13T19:08:25.671511+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
+      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-10-14T15:05:25.167933+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_get_passes_the_args",
@@ -17,7 +17,7 @@
         "test_the_bus_get_passes_args"
       ],
       "teeth_red": [],
-      "test": "test-32b6717770d8",
+      "test": "test-61de68b3b913",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,19 +31,20 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-32b6717770d8",
-      "source_fingerprint": "6d145eb899dd6c6e7aad4c83ab8073ade1004989b56cf26e52c200c89343071f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-61de68b3b913",
+      "source_fingerprint": "888d734f538f8dff343387ea750f155c7b35e9653438fc98d1841e61f3f27bcd",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -58,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2858851-r_muxmcx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3367148-88_vjzb6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,35 +68,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109131483,
-          "disk_bytes": 135192576,
-          "entries": 10433,
+          "bytes": 110148214,
+          "disk_bytes": 137478144,
+          "entries": 10846,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "35b92c5de7ef": {
-          "cairn/tools/base/device.py": [
-            "test_a_view_with_no_params_refuses_args",
-            "test_an_undeclared_key_is_refused",
-            "test_get_passes_the_args",
-            "test_show_renders_with_the_args",
-            "test_the_bus_get_passes_args"
-          ],
-          "cairn/tools/base/shim.py": [
-            "test_an_undeclared_key_is_refused",
-            "test_get_passes_the_args",
-            "test_show_renders_with_the_args"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "35b92c5de7ef": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6e523121a8e1508907b119071ad74e37fe0ede98",
-          "anchor_first_build": "c1b54bd6d41fe94071c69846a8c8844fc1c732ee",
-          "commit": "6e523121a8e1508907b119071ad74e37fe0ede98"
+          "reuses": 2
         }
       }
     },

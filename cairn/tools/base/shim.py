@@ -793,7 +793,24 @@ class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
                           "not callable")
                 return self._bounce_to_sender(
                     envelope, reason, trouble=f"mail-{self.device_id}-has-no-verb-{verb}")
-            result = handler(envelope)
+            try:
+                result = handler(envelope)
+            except Exception as exc:
+                # A RAISING HANDLER STILL ANSWERS ITS ASKER (ticket 41f57726a609): the batch
+                # records the raise in refused, but a synchronous asker correlates by reply_to
+                # and heard nothing until its timeout. Bounce, then re-raise the ORIGINAL —
+                # the error stays loud (Law 7). A bounce that cannot be delivered (no sender,
+                # no bus) must not replace it: NotImplementedError reads as no_receiver for
+                # the whole batch.
+                if not envelope.get("body", {}).get("is_bounce"):
+                    try:
+                        self._bounce_to_sender(
+                            envelope, f"{self.device_id} verb {verb!r} handler raised "
+                            f"{type(exc).__name__}: {exc}",
+                            trouble=f"mail-{self.device_id}-verb-{verb}-raised")
+                    except NotImplementedError:
+                        pass
+                raise
             if isinstance(result, dict) and self._bus is not None:
                 self._bus.post(
                     sender=self.device_id, to=envelope["sender"],

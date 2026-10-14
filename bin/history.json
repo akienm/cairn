@@ -10639,5 +10639,82 @@
     "fingerprint": "8c3b531d84008cc326cbeaeafbd485e98ec33dd35019586e796973ea1196fe91",
     "at": "2026-10-13T02:46:21",
     "seq": 37
+  },
+  {
+    "from": "BUILDME",
+    "to": "TICKETME",
+    "standing": "TICKETME",
+    "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'TICKETME' in the code-seam@v2 vocabulary",
+        "actual": "'TICKETME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME moves the cursor off position 2",
+        "actual": "BUILDME -> TICKETME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "cursor": 2,
+          "resolved": 1
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> TICKETME",
+        "actual": "BUILDME -> TICKETME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "TICKETME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "0853294fe972",
+    "actor": "cc",
+    "why": "retreat: the latest forward BUILDME named bin/proofs/test_cairn_command.py, which declares nothing for this ticket; the real proof is bin/proofs/test_cairn_floor.py (PROVES clauses 1-4 + resting). Re-cross BUILDME naming it, per the peer's proven_by check. CC's call, per Akien 2026-10-09 and 2026-10-12 'approved thru PROVED, fastest route'.",
+    "fingerprint": "9fd23d5a27f89b78fd7d58e75abeaaeacd723589c03f22faa3db982ce110969b",
+    "at": "2026-10-14T08:20:02",
+    "seq": 38
   }
 ]

@@ -21,15 +21,27 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.tester.reseal import stage_clean_seals  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
+
+
+def stage_clean_seals(*args, **kwargs):
+    """Bound at CALL time, never at import: the hollow reading takes this function away, and a
+    module-level import would crash before the first tooth instead of redding the teeth."""
+    from cairn.devices.tester.reseal import stage_clean_seals as subject
+    return subject(*args, **kwargs)
+
 
 PROVES = {
     # The reshaped tooth (D5): an 'unchanged' seal the index already carries stages nothing,
     # the other half of the adoption test_a_killed_reseal_leaves_nothing_unstaged.py proves.
     "143e3974647b": {
         "2": "test_only_an_outcome_that_wrote_a_seal_is_staged",
+    },
+    # The hook leaves clean the tree it just rewrote: --stage reaches stage_clean_seals, the
+    # seals whose closure is the commit's are staged (green and red alike), the rest are held.
+    "357c402172ca": {
+        "all": "test_a_commit_that_reseals_stages_what_it_rewrote",
     },
 }
 
@@ -126,6 +138,51 @@ def test_the_hook_passes_stage_and_rechecks_the_artifact_door():
     assert "cairn.tools.artifact check" in hook[reseal_at:], (
         "the hook stages seals and the journal but never re-asks the artifact question over "
         "the new index")
+
+
+def test_the_reseal_stage_flag_hands_its_results_to_the_stager():
+    """``cairn test --reseal --stage`` (what the hook runs) hands the reseal's results to
+    stage_clean_seals. The door's functions are replaced on the module for the call, so no
+    proof runs and nothing touches the live index."""
+    from cairn.devices.tester import cli
+    from cairn.devices.tester import reseal as door
+    results = [{"proof": _PROOF, "outcome": "resealed", "rung": 1}]
+    seen = []
+    patched = {
+        "staged_files": lambda *a, **k: ["widget/code.py"],
+        "proofs_touching": lambda *a, **k: [Path("/nonexistent/widget/proofs/test_widget.py")],
+        "reseal_all": lambda *a, **k: {"results": results, "red": [], "refusals": [],
+                                       "counts": {"resealed": 1}},
+        "stage_clean_seals": lambda rs, **k: (seen.append(rs) or {"staged": [], "held": []}),
+    }
+    saved = {k: getattr(door, k, None) for k in patched}
+    try:
+        for k, v in patched.items():
+            setattr(door, k, v)
+        try:
+            rc = cli.main(["--reseal", "--stage"])
+        except SystemExit as e:
+            raise AssertionError(f"the tester's CLI does not take --reseal --stage: exit {e.code}")
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                delattr(door, k)
+            else:
+                setattr(door, k, v)
+    assert seen == [results], (
+        f"--stage never handed the reseal's results to stage_clean_seals (rc={rc}): {seen}")
+
+
+def test_a_commit_that_reseals_stages_what_it_rewrote():
+    """357c402172ca, end to end: the hook runs --reseal --stage, the CLI hands the results to
+    the stager, a seal over a clean closure is staged with the journal (a red one too), and a
+    seal over a change the commit does not carry is held out. Each narrow tooth still prints on
+    its own, so a red here names which half fell."""
+    test_the_hook_passes_stage_and_rechecks_the_artifact_door()
+    test_the_reseal_stage_flag_hands_its_results_to_the_stager()
+    test_a_seal_over_a_clean_closure_is_staged_with_the_journal()
+    test_a_red_seal_over_a_clean_closure_is_staged_too()
+    test_a_seal_over_an_unstaged_change_is_held_out_of_the_commit()
 
 
 if __name__ == "__main__":

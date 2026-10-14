@@ -115,7 +115,7 @@ def _answered(qdir: Path, qid: str, question: str, words: str) -> None:
     (qdir / f"{qid}.json").write_text(json.dumps(rec, indent=2) + "\n", encoding="utf-8")
 
 
-def test_the_librarian_answers_before_akien_is_asked() -> None:
+def _the_walk_answers() -> None:
     from cairn.tools.artifact import artifact as A
     from cairn.devices.librarian.tools.trees.trees import NODES_TABLE, forget_leaf, node_id_for, refute, scratch_leaf
     from cairn.devices.librarian.device import LibrarianDevice
@@ -261,7 +261,7 @@ def test_the_librarian_answers_before_akien_is_asked() -> None:
             forget_leaf(table)
 
 
-def test_the_verbs_resolve() -> None:
+def _the_verbs_resolve() -> None:
     r = subprocess.run(["cairn", "librarian", "ask", "--help"], capture_output=True, text=True,
                        timeout=60, cwd=REPO)
     check("`cairn librarian ask --help` answers", r.returncode == 0 and "--ticket" in r.stdout,
@@ -283,8 +283,17 @@ def test_the_verbs_resolve() -> None:
               f"exit={r.returncode} records={len(recs)} {(r.stdout + r.stderr)[-300:]!r}")
 
 
+def test_the_librarian_answers_before_akien_is_asked() -> None:
+    """The one declared tooth, whole: the walk answers or escalates, AND the escalation
+    reaches the operator through the verbs a caller actually types (`cairn librarian ask`,
+    `cairn question operator`) — an uncovered ask that opens nothing at the command line
+    has not reached him, whatever the module does."""
+    _the_walk_answers()
+    _the_verbs_resolve()
+
+
 def main() -> int:
-    for fn in (test_the_librarian_answers_before_akien_is_asked, test_the_verbs_resolve):
+    for fn in (test_the_librarian_answers_before_akien_is_asked,):
         print(fn.__name__)
         before = len(FAILURES)
         try:

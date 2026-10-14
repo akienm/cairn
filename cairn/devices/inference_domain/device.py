@@ -110,7 +110,20 @@ class InferenceDomainDevice(BaseDevice):
         from cairn.devices.inference_domain import domain, host
 
         body = envelope.get("body", {})
-        model = body.get("model", "nomic-embed-text")
+        model = body.get("model")
+        if not model:
+            # THE DEFAULT IS DATA, PER KIND (ticket 959bb65192a1): until 2026-10-14 every kind
+            # defaulted to the embed model here, so a model-less generate was refused as if
+            # the route had failed. A kind with no declared default is refused by name BEFORE
+            # any resolver is built; the request itself is left as asked (it is the cache key).
+            from cairn.devices.inference_domain.machines.route.route import kind_default
+            kind = body.get("kind", "generate")      # the domain's own reading of a kindless ask
+            try:
+                model = kind_default(kind)
+            except Exception as refusal:
+                return {"outcome": "refused", "refused": type(refusal).__name__,
+                        "detail": str(refusal)[:2000], "ticket": None, "model": None,
+                        "hit": False, "answer": None}
         temperature = body.get("temperature", 0.0)
         resolver = host.ollama_resolver(model=model, temperature=temperature)
 

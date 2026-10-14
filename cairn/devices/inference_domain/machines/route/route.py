@@ -80,7 +80,36 @@ def load_stacks(stacks_dir: str | Path | None = None) -> dict:
                 f"the {name} stack is missing at {path} — the rules stack routes or nothing "
                 "does; there is no literal to fall back to (ruling 2026-08-08)")
         out[name] = json.loads(path.read_text())
+    _check_kind_defaults(out["models"])
     return out
+
+
+def _check_kind_defaults(models_stack: dict) -> None:
+    """A declared default must name a model that serves its kind (ticket 959bb65192a1): a
+    default that does not would hand a request a model the route then refuses — the wrong
+    cause told to the asker, the defect the table exists to end. Refused at load, by name."""
+    rows = {m["name"]: m for m in models_stack.get("models") or []}
+    for kind, name in (models_stack.get("kind_defaults") or {}).items():
+        row = rows.get(name)
+        if row is None or kind not in (row.get("serves") or []):
+            raise RouteRefused(
+                f"kind_defaults declares {name!r} for kind {kind!r}, but "
+                + ("the models stack carries no such row" if row is None
+                   else f"that model serves {row.get('serves')}, not {kind!r}")
+                + " — fix the default in the models stack")
+
+
+def kind_default(kind: str, stacks: dict | None = None) -> str:
+    """The model a request of ``kind`` gets when it names none, read from the models stack's
+    ``kind_defaults``. A kind that declares none is REFUSED, naming the kind and the kinds that
+    do — the code never picks a model (ticket 959bb65192a1)."""
+    stacks = stacks or load_stacks()
+    defaults = stacks["models"].get("kind_defaults") or {}
+    if kind not in defaults:
+        raise RouteRefused(
+            f"the request names no model and kind {kind!r} declares no default — name a "
+            f"model; kinds that declare a default: {sorted(defaults)}")
+    return defaults[kind]
 
 
 _DOMAIN_ROW_FIELDS = ("name", "why", "prompts", "escalation")

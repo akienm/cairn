@@ -268,7 +268,9 @@ def test_a_refusal_raises_a_trouble_naming_the_ticket_and_the_shim_returns_a_val
         domain.resolve = lambda request, **kw: real(request, table=_table(), **kw)
         try:
             value = dev._handle_resolve({"sender": "some-device", "body": {"kind": "generate",
-                                                                            "prompt": f"busref_{_RUN}"}})
+                                                                            "prompt": f"busref_{_RUN}",
+                                                                            # named: a model-less generate is refused before any dial since 959bb65192a1
+                                                                            "model": "qwen2.5:7b"}})
         finally:
             host.ollama_resolver = kept
             domain.resolve = real

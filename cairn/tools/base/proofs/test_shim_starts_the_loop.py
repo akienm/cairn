@@ -233,9 +233,16 @@ def test_check_lives_in_the_base_only() -> None:
 
 
 if __name__ == "__main__":
-    test_check_lives_in_the_base_only()
-    test_ground_loop_package_untouched()
-    test_live_record_spawns_nothing()
-    test_dead_to_live_one_shim()
-    test_two_shims_one_loop()
-    print("test_shim_starts_the_loop: green")
+    # The house runner: every tooth runs and prints PASS or FAIL by name, so a hollow reading
+    # that takes shim.py's build away reads each tooth failing rather than one crash (UNREAD).
+    rc = 0
+    for t in (test_check_lives_in_the_base_only, test_ground_loop_package_untouched,
+              test_live_record_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
+        try:
+            t()
+            print(f"  PASS  {t.__name__}")
+        except Exception as exc:  # noqa: BLE001
+            rc = 1
+            print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
+    print("test_shim_starts_the_loop: green" if rc == 0 else "test_shim_starts_the_loop: RED")
+    sys.exit(rc)

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_an_idle_cc_session_is_told_it_has_mail.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-17T11:33:42",
+    "date": "2026-10-17T11:35:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_the_shim_dials_nothing_to_name_its_host\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                 [100%]\n8 passed in 6.70s",
+      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                  [100%]\n7 passed in 6.77s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_idle_session_is_poked_once",
@@ -16,11 +16,10 @@
         "test_a_consume_rearms_the_poke",
         "test_no_session_or_garbage_still_persists",
         "test_mail_outside_the_instance_pokes_nobody",
-        "test_the_shim_dials_nothing_to_name_its_host",
         "test_live_mail_to_an_idle_session_is_consumed_within_60s"
       ],
       "teeth_red": [],
-      "test": "test-39788e92c0fb",
+      "test": "test-28c2bfb1818e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,7 +29,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "7398fb4121b2688e992c0382000060c5aad5264fc7d601431385d975d0747dc1",
+        "proof": "bc14ec6eb7d6403ed462a6c04ba8a7008b9e7ca5429893de5575ee18c5229407",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -46,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39788e92c0fb",
-      "source_fingerprint": "54ec6ac5b977e57fed05c4170739fb9b70edb78e388cfe6b28e475b5d81efe5d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-28c2bfb1818e",
+      "source_fingerprint": "62447d4afbd2f0be95b89a4ee7c263c7340f5711d710f27dac8fe5cd9d50eaf1",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_an_idle_cc_session_is_told_it_has_mail.py",
@@ -55,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-59743-49ciqkq4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-60243-7rrmuyww/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,9 +63,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110299487,
-          "disk_bytes": 137740288,
-          "entries": 10888,
+          "bytes": 110302050,
+          "disk_bytes": 137744384,
+          "entries": 10889,
           "builds": 1,
           "reuses": 0
         }

@@ -9,8 +9,7 @@ What a hollow build cannot pass (Law 8):
   - No poke: deliver() never runs the stand-in claude and writes no 'poked' line, so
     an_idle_session_is_poked_once and a_consume_rearms_the_poke read zero runs.
   - A poke without the guards: the busy tooth or the already-poked tooth sees a run.
-  - A shim that names its host through socket: the_shim_dials_nothing_to_name_its_host sees
-    the import.
+  - A shim that names its host through socket: an_idle_session_is_poked_once sees the import.
 
 Every sandboxed tooth runs over a temporary directory: shim._INSTANCE_ROOT, _MAIL_DIR, _LEDGER
 and _SESSIONS_DIR point inside it, and _CLAUDE_CMD is a stand-in script that appends its argv to
@@ -92,6 +91,21 @@ def _events(shim) -> list[dict]:
     return [json.loads(x) for x in Path(shim._LEDGER).read_text().splitlines() if x.strip()]
 
 
+def _names_its_host_without_dialing(shim):
+    """The poke's target is the name superclaude gives CC, read by os.uname(), and the shim
+    imports no dialing module: socket, urllib and requests belong to the sole paths only
+    (build_inspector sole_path_holds). The first build named the host by socket.gethostname()
+    and PROVED refused it."""
+    import ast
+    import os
+    tree = ast.parse(Path(shim.__file__).read_text())
+    dialing = {"socket", "urllib", "requests"}
+    imported = {a.name.split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+    imported |= {(n.module or "").split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+    assert not (imported & dialing), f"the shim imports {sorted(imported & dialing)}"
+    assert shim.CCShim.poke_target() == f"{os.uname().nodename}_cc_0", shim.CCShim.poke_target()
+
+
 # --- teeth ------------------------------------------------------------------
 
 def test_an_idle_session_is_poked_once():
@@ -103,6 +117,7 @@ def test_an_idle_session_is_poked_once():
         got = _runs(runs, 1)
         assert len(got) == 1, f"expected exactly one launch, got {got}"
         argv = got[0]
+        _names_its_host_without_dialing(shim)
         target = shim.CCShim.poke_target()
         assert "-p" in argv and argv[argv.index("--model") + 1] == "haiku", argv
         assert target in argv[-1] and "SendMessage" in argv[-1], argv[-1]
@@ -167,21 +182,6 @@ def test_mail_outside_the_instance_pokes_nobody():
         shim._MAIL_DIR = root / "elsewhere"
         shim.CCShim().deliver({"from": "proof"})
         assert _runs(runs, 0) == []
-
-
-def test_the_shim_dials_nothing_to_name_its_host():
-    """The poke names its target by os.uname(), and the shim imports no dialing module: socket,
-    urllib and requests belong to the sole paths only (build_inspector sole_path_holds). The
-    first build named the host by socket.gethostname() and PROVED refused it."""
-    import ast
-    from cairn.devices.cc import shim
-    tree = ast.parse(Path(shim.__file__).read_text())
-    dialing = {"socket", "urllib", "requests"}
-    imported = {a.name.split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
-    imported |= {(n.module or "").split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
-    assert not (imported & dialing), f"the shim imports {sorted(imported & dialing)}"
-    import os
-    assert shim.CCShim.poke_target() == f"{os.uname().nodename}_cc_0"
 
 
 def test_live_mail_to_an_idle_session_is_consumed_within_60s():

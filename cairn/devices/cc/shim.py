@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import json
 import os
-import socket
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -97,7 +96,7 @@ class CCShim(BaseShim):
     @staticmethod
     def poke_target() -> str:
         """The session name superclaude gives CC (launchers/superclaude --name)."""
-        return f"{socket.gethostname()}_cc_0"
+        return f"{os.uname().nodename}_cc_0"
 
     @staticmethod
     def session_state(target: str, sessions_dir: Path | str | None = None) -> str:

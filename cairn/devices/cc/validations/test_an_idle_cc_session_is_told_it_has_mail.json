@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_an_idle_cc_session_is_told_it_has_mail.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-17T11:13:50",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-17T11:15:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                  [100%]\n7 passed in 6.76s",
+      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                  [100%]\n7 passed in 6.70s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_idle_session_is_poked_once",
@@ -19,7 +19,7 @@
         "test_live_mail_to_an_idle_session_is_consumed_within_60s"
       ],
       "teeth_red": [],
-      "test": "test-7dc2cdf5c400",
+      "test": "test-06970a9f001a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,14 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7dc2cdf5c400",
-      "source_fingerprint": "223fd1b66b70ac830a2d3ad9c5de8440e549354d15699ce8643df7a99e09765e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06970a9f001a",
+      "source_fingerprint": "54cdfab9fa5d0c496645b2607b36f92e670ce65eed97575d9ee8e1df641cb561",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_an_idle_cc_session_is_told_it_has_mail.py",
@@ -55,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-55842-2ey73x5j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-56411-22w1cg2_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,9 +63,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110294805,
-          "disk_bytes": 137723904,
-          "entries": 10884,
+          "bytes": 110295338,
+          "disk_bytes": 137728000,
+          "entries": 10885,
           "builds": 1,
           "reuses": 0
         }

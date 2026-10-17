@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_an_idle_cc_session_is_told_it_has_mail.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-17T11:15:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-17T11:33:42",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                  [100%]\n7 passed in 6.75s",
+      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_the_shim_dials_nothing_to_name_its_host\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                 [100%]\n8 passed in 6.70s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_idle_session_is_poked_once",
@@ -16,10 +16,11 @@
         "test_a_consume_rearms_the_poke",
         "test_no_session_or_garbage_still_persists",
         "test_mail_outside_the_instance_pokes_nobody",
+        "test_the_shim_dials_nothing_to_name_its_host",
         "test_live_mail_to_an_idle_session_is_consumed_within_60s"
       ],
       "teeth_red": [],
-      "test": "test-8254a02d6aa3",
+      "test": "test-39788e92c0fb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,7 +30,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "94a6cbd9b6a440c69b2d3c882dd60f69e0813ee34bad249fa7993f6c6b9d6ad6",
+        "proof": "7398fb4121b2688e992c0382000060c5aad5264fc7d601431385d975d0747dc1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,14 +41,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8254a02d6aa3",
-      "source_fingerprint": "54cdfab9fa5d0c496645b2607b36f92e670ce65eed97575d9ee8e1df641cb561",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39788e92c0fb",
+      "source_fingerprint": "54ec6ac5b977e57fed05c4170739fb9b70edb78e388cfe6b28e475b5d81efe5d",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_an_idle_cc_session_is_told_it_has_mail.py",
@@ -55,7 +55,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-56947-p5tww6mw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-59743-49ciqkq4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,9 +64,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110295334,
-          "disk_bytes": 137728000,
-          "entries": 10885,
+          "bytes": 110299487,
+          "disk_bytes": 137740288,
+          "entries": 10888,
           "builds": 1,
           "reuses": 0
         }

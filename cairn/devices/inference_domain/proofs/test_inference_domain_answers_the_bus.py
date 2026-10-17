@@ -14,7 +14,9 @@ snapshots:
   3. AN UNREACHABLE HOST IS REFUSED BY NAME INSIDE 10s: the resolver raises HostUnreachable
      naming the dead endpoint, so a hang is never the client's timeout.
   4. THE TREE STRATUM IS AVAILABLE: orient packets berthed after 2026-09-07 exist and none
-     carries 'tree stratum unavailable'.
+     records 'tree stratum unavailable' in its unknowns, where the chart skill files it. Not
+     anywhere in the file: a request that quotes the phrase is not a report of it (measured
+     2026-10-17, orient-20261017T132655 — the re-chart of this very ticket).
 
 Run: python3 cairn/devices/inference_domain/proofs/test_inference_domain_answers_the_bus.py
 """
@@ -101,7 +103,8 @@ def test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable():
     late = [p for p in glob.glob(f"{packets}/orient-*.json")
             if os.path.basename(p)[7:15] > "20260907"]
     assert late, "no orient packet berthed after 2026-09-07 to read"
-    bad = [p for p in late if "tree stratum unavailable" in open(p).read()]
+    bad = [p for p in late if "tree stratum unavailable" in
+           " ".join(map(str, json.load(open(p)).get("unknowns") or []))]
     assert not bad, f"{len(bad)} packets report the tree stratum unavailable: {bad[:3]}"
     print("ok test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable")
 

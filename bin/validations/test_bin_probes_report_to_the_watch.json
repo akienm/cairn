@@ -2,7 +2,7 @@
   {
     "claim": "proof test_bin_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-13T01:37:53",
+    "date": "2026-10-17T15:19:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_bin_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-03477bd5cc90",
+      "test": "test-d6d7aaa70472",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,19 +29,21 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-03477bd5cc90",
-      "source_fingerprint": "810637ac39a45ce5150ed897538a93c357a1f3dd37d503258fc6698a6f8e57fd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d6d7aaa70472",
+      "source_fingerprint": "97d6e83725d6d48f161c22fb2fdefbee6203636100d146caf7fe43d9884a63b1",
       "fingerprint_closure": [
         "bin/probes/probescans_device_column_varies_with_the_world.py",
         "bin/probes/retention_window.py",
@@ -75,6 +77,7 @@
         "cairn/devices/tester/runs.py",
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/shim.py",
+        "cairn/devices/trouble/store.py",
         "cairn/devices/trouble/trouble.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
@@ -104,6 +107,8 @@
         "cairn/tools/orient/orient.py",
         "cairn/tools/rack/__init__.py",
         "cairn/tools/rack/rack.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "cairn/tools/validation_store/__init__.py",
@@ -111,7 +116,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2354980-olygq8g0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-99845-hbdcf1d8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
@@ -129,32 +134,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108514737,
-          "disk_bytes": 133767168,
-          "entries": 10165,
+          "bytes": 110395858,
+          "disk_bytes": 137920512,
+          "entries": 10915,
           "builds": 1,
           "reuses": 1
-        }
-      },
-      "hollow": {
-        "62ac5a3dd1c0": {
-          "bin/probes/probescans_device_column_varies_with_the_world.py": [
-            "test_bin_probes_report_to_the_watch"
-          ],
-          "bin/probes/retention_window.py": [
-            "test_bin_probes_report_to_the_watch"
-          ],
-          "bin/proofs/test_cairn_floor.py": {
-            "notified": "n-f92ece32c83a"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "62ac5a3dd1c0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "2637b21144ec183e05fabb71dfdd618d28e72b77",
-          "anchor_first_build": "497a3ee3caafc2be2c5dc7ba9ebb1ef0d0a68278",
-          "commit": "2637b21144ec183e05fabb71dfdd618d28e72b77"
         }
       }
     },

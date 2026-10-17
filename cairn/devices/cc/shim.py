@@ -9,12 +9,22 @@ the instance mail directory so hooks can inject it into the next query.
 tmux mode: when CC runs in a tmux session (superclaude --tmux), the shim can
 detect idle state and inject commands. is_idle() reads the tmux pane; inject()
 sends keys only when idle.
+
+The idle poke (ticket 1e2640bad4dd): the mailcheck hook announces mail only inside
+an active turn, so mail that lands while CC sits idle would wait unread. After
+deliver() persists an envelope, poke_if_idle() reads Claude Code's own session
+record for the session superclaude names <hostname>_cc_0 and, if it is idle,
+launches one detached headless `claude -p` whose only act is SendMessage "you've
+got mail". The content never rides the poke (Akien 2026-10-14: "we only use it
+(if we can) to tell you that you've got mail. then you go read it"). One poke per
+idle stretch: none after a poke until a consume. Every decision is ledgered.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import socket
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -26,6 +36,11 @@ from cairn.tools.base.shim import BaseShim
 _INSTANCE_ROOT = address.instance_path("cc", 0)
 _MAIL_DIR = _INSTANCE_ROOT / "mail"
 _LEDGER = _INSTANCE_ROOT / "mail_ledger.jsonl"
+# Claude Code writes one <pid>.json per running session here (name, status idle|busy).
+# It is Claude Code's internal record, so it is read defensively and never written.
+_SESSIONS_DIR = Path.home() / ".claude" / "sessions"
+_CLAUDE_CMD = ["claude"]
+_CAIRN_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _ledger(event: dict, ledger: Path | None = None) -> None:
@@ -71,7 +86,88 @@ class CCShim(BaseShim):
         os.replace(tmp, path)
         _ledger({"event": "delivered", "id": msg_id, "at": now.isoformat(),
                  "from": envelope.get("from", envelope.get("sender", "unknown"))})
+        # Only the instance's own mailbox belongs to the named session; mail written
+        # anywhere else (a proof's temp dir) is not its mail and pokes nobody.
+        if _MAIL_DIR == _INSTANCE_ROOT / "mail":
+            self.poke_if_idle()
         return {"persisted": True, "path": str(path)}
+
+    # ── the idle poke ────────────────────────────────────────────────────
+
+    @staticmethod
+    def poke_target() -> str:
+        """The session name superclaude gives CC (launchers/superclaude --name)."""
+        return f"{socket.gethostname()}_cc_0"
+
+    @staticmethod
+    def session_state(target: str, sessions_dir: Path | str | None = None) -> str:
+        """'idle', 'busy', 'ambiguous' (two sessions carry the name) or 'absent'.
+        A missing dir or a torn record is never an error here: it is no session."""
+        d = Path(sessions_dir) if sessions_dir is not None else _SESSIONS_DIR
+        try:
+            records = sorted(d.glob("*.json"))
+        except OSError:
+            return "absent"
+        matches = []
+        for p in records:
+            try:
+                rec = json.loads(p.read_text())
+            except (json.JSONDecodeError, OSError):
+                continue
+            if isinstance(rec, dict) and rec.get("name") == target:
+                matches.append(rec)
+        if not matches:
+            return "absent"
+        if len(matches) > 1:
+            return "ambiguous"
+        return "idle" if matches[0].get("status") == "idle" else "busy"
+
+    @staticmethod
+    def _poked_since_consumed(ledger: Path) -> bool:
+        last_poke = last_consume = -1
+        try:
+            lines = ledger.read_text().splitlines()
+        except OSError:
+            return False
+        for i, line in enumerate(lines):
+            try:
+                event = json.loads(line).get("event")
+            except (json.JSONDecodeError, AttributeError):
+                continue
+            if event == "poked":
+                last_poke = i
+            elif event == "consumed":
+                last_consume = i
+        return last_poke > last_consume
+
+    def poke_if_idle(self) -> dict:
+        """Tell an idle CC session it has mail; ledger the decision either way.
+        Never raises: deliver() has already persisted the mail, and that stands."""
+        target = self.poke_target()
+        now = datetime.now(timezone.utc).isoformat()
+        state = self.session_state(target)
+        if state != "idle":
+            reason = {"busy": "busy", "ambiguous": f"two sessions are named {target}",
+                      "absent": f"no session named {target}"}[state]
+            _ledger({"event": "not-poked", "reason": reason, "target": target, "at": now})
+            return {"poked": False, "reason": reason}
+        if self._poked_since_consumed(Path(_LEDGER)):
+            _ledger({"event": "not-poked", "reason": "already poked", "target": target, "at": now})
+            return {"poked": False, "reason": "already poked"}
+        prompt = (f'Call SendMessage exactly once with to="{target}" and '
+                  f'message="you\'ve got mail — {_MAIL_DIR}". Do nothing else.')
+        try:
+            subprocess.Popen(
+                [*_CLAUDE_CMD, "-p", "--model", "haiku",
+                 "--permission-mode", "bypassPermissions", prompt],
+                cwd=str(_CAIRN_ROOT), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, start_new_session=True)
+        except OSError as exc:
+            reason = f"launch failed: {exc}"
+            _ledger({"event": "not-poked", "reason": reason, "target": target, "at": now})
+            return {"poked": False, "reason": reason}
+        _ledger({"event": "poked", "target": target, "at": now})
+        return {"poked": True, "target": target}
 
     @staticmethod
     def pending_mail(mail_dir: Path | str | None = None) -> list[dict]:

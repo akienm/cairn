@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_idle_trigger.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-17T16:38:33",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  tooth_a_quiet_past_the_threshold_mints_once\n  PASS  tooth_b_a_human_turn_holds_sleep\n  PASS  tooth_c_machine_turns_are_not_activity\n  PASS  tooth_d_each_other_source_holds_sleep_alone\n  PASS  tooth_e_one_sleep_per_quiet_spell\n  PASS  tooth_f_an_unread_source_is_never_silence\n  PASS  tooth_g_an_away_window_sleeps_at_once_through_the_verb\n  PASS  tooth_h_the_threshold_is_a_parameter\n  PASS  tooth_i_the_entry_point_runs_once_and_records\n  PASS  test_the_cairn_device_sleeps_after_quiet_and_never_while_active",
+      "stderr_tail": "",
+      "teeth_green": [
+        "tooth_a_quiet_past_the_threshold_mints_once",
+        "tooth_b_a_human_turn_holds_sleep",
+        "tooth_c_machine_turns_are_not_activity",
+        "tooth_d_each_other_source_holds_sleep_alone",
+        "tooth_e_one_sleep_per_quiet_spell",
+        "tooth_f_an_unread_source_is_never_silence",
+        "tooth_g_an_away_window_sleeps_at_once_through_the_verb",
+        "tooth_h_the_threshold_is_a_parameter",
+        "tooth_i_the_entry_point_runs_once_and_records",
+        "test_the_cairn_device_sleeps_after_quiet_and_never_while_active"
+      ],
+      "teeth_red": [],
+      "test": "test-f65a38cfe3e1",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f449300abc2faf72c67ac9c1464731fbc473f5f968d45fc0aaf827b11d68152b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f65a38cfe3e1",
+      "source_fingerprint": "d7852952f5a708b999da5e49a304eb3c7129a90542175aae879cbd0e748537d1",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/sleep_cycle/__init__.py",
+        "cairn/devices/cairn/machines/sleep_cycle/idle.py",
+        "cairn/devices/cairn/machines/sleep_cycle/proofs/test_idle_trigger.py",
+        "cairn/devices/cairn/machines/sleep_cycle/token.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-112720-nb07_c38/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110472205,
+          "disk_bytes": 138027008,
+          "entries": 10929,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

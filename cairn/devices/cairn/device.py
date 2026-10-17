@@ -43,14 +43,34 @@ class CairnDevice(BaseDevice):
         return {}
 
     def settings(self) -> dict:
-        return {}
+        from cairn.devices.cairn.machines.sleep_cycle import idle
+        return {"idle_threshold_s": idle.IDLE_THRESHOLD_S,
+                "idle_threshold_provenance": idle.IDLE_THRESHOLD_PROVENANCE}
 
     def declared_verbs(self) -> dict:
         """``sleep-token`` is a device's answer to the hand (ticket bf146e9e3967, D2(d));
-        ``sleep-cycle`` is the operator's face on the rotation: mint or show."""
+        ``sleep-cycle`` is the operator's face on the rotation: mint or show; ``away`` holds
+        Akien's declared absence, inside which sleep is due at once (ticket 9b6b392ebcfe)."""
         return {**super().declared_verbs(),
                 "sleep-token": self._handle_sleep_token,
-                "sleep-cycle": self._handle_sleep_cycle}
+                "sleep-cycle": self._handle_sleep_cycle,
+                "away": self._handle_away}
+
+    def _handle_away(self, envelope: dict) -> dict:
+        from cairn.devices.cairn.machines.sleep_cycle import idle
+        body = envelope.get("body") or {}
+        act = body.get("act")
+        if act == "set":
+            try:
+                return {"away": idle.set_away(body.get("start"), body.get("end"),
+                                              body.get("why") or "", roots=self._roots)}
+            except ValueError as exc:
+                return {"accepted": False, "reason": str(exc)}
+        if act == "show":
+            return {"away": idle.read_away(self._roots)}
+        if act == "clear":
+            return {"cleared": idle.clear_away(self._roots)}
+        return {"accepted": False, "reason": f"away takes act set|show|clear, got {act!r}"}
 
     def _handle_sleep_token(self, envelope: dict) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import token

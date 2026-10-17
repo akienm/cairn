@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_trouble_panel.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T02:18:35",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-17T16:28:55",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_an_UNHEALTHY_probe_NAMES_ITS_FINDING\n.\n  ok   test_probe_enough_returns_bool\n                                                         [100%]\n16 passed in 0.09s",
+      "stdout_tail": ".\n  ok   test_render_trouble_red_light_none\n.\n  ok   test_render_trouble_escapes_values\n.\n  ok   test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path\n.\n  ok   test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW\n.\n  ok   test_websocket_route_exists\n.\n  ok   test_probe_importable\n.\n  ok   test_probe_carry_returns_data\n.\n  ok   test_an_UNHEALTHY_probe_NAMES_ITS_FINDING\n.\n  ok   test_probe_enough_returns_bool\n                                                         [100%]\n16 passed in 0.11s",
       "stderr_tail": "",
       "teeth_green": [
         "test_declared_panes_has_trouble",
@@ -28,10 +28,10 @@
         "test_probe_enough_returns_bool"
       ],
       "teeth_red": [],
-      "test": "test-2234b56acc72",
+      "test": "test-a60e5d24ad1d",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -41,19 +41,21 @@
         "proof": "241bda14e94704973b2b217ed7ab7a25e6892984add1024a331d46ffbe6e9c84",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2234b56acc72",
-      "source_fingerprint": "fa3b873e75460f9f141d33b04455693cd18de7076fe21124a72836e917fe111a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a60e5d24ad1d",
+      "source_fingerprint": "2e4a6662e730c2f8c6c80b97e52f4272462c23d6161aca120c26c242f1b9c080",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/device.py",
@@ -62,48 +64,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3743517-_kf0krdk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-111160-2y_a7_bs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261006.081834.439203.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261006.081834.441944.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261006.081834.442833.TroubleDevice.raise_trouble.json"
+            "logs/trouble/0/20261017.222853.966691.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261017.222853.969800.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261017.222853.970711.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 101828645,
-          "disk_bytes": 122212352,
-          "entries": 8384,
+          "bytes": 110469350,
+          "disk_bytes": 138035200,
+          "entries": 10933,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       },
-      "conditions_moved": {
-        "notified": "n-417fa6173090",
-        "changed": [
-          "proof"
-        ]
-      },
-      "hollow": {
-        "7a1265439f54": {
-          "cairn/devices/cairn/probes/trouble_panel_surfaces_live_troubles.py": [
-            "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7a1265439f54": {
-          "anchor_rule": "journal",
-          "anchor_journal": "86ac04da405712a6af6e84725e0fcd130b432f4e",
-          "anchor_first_build": "e353632462936423b2b255cd2e3574bae6f2bf86",
-          "commit": "86ac04da405712a6af6e84725e0fcd130b432f4e"
-        }
-      }
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

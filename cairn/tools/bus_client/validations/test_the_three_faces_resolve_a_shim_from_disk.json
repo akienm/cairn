@@ -2,23 +2,25 @@
   {
     "claim": "proof test_the_three_faces_resolve_a_shim_from_disk.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T18:12:09",
+    "date": "2026-10-18T08:02:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  PASS  test_v_every_importer_in_class_space_imports_at_the_new_address (89 file(s) named it · 33 module(s) imported for real · 60 parsed)\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\ngreen — the three faces resolve a shim from the file on disk, a device that is not there refuses loudly, the nested device still resolves, and every importer in class-space was RUN at the new address",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost\n  PASS  test_ii_all_three_faces_go_to_disk_for_the_named_device\n  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says\n  PASS  test_iv_reach_refuses_a_name_no_shim_answers_to\n  RED  test_v_every_importer_in_class_space_imports_at_the_new_address: AssertionError: these still name the old address, which no longer exists: cairn/devices/tester/proofs/test_a_named_build_commit_follows_a_moved_file.py\n  PASS  test_vi_the_ground_loop_fronts_the_loop_it_was_built_in\nRED: 1 failing",
       "stderr_tail": "",
       "teeth_green": [
         "test_i_a_shim_planted_on_disk_is_found_and_a_deleted_one_is_lost",
         "test_ii_all_three_faces_go_to_disk_for_the_named_device",
         "test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says",
         "test_iv_reach_refuses_a_name_no_shim_answers_to",
-        "test_v_every_importer_in_class_space_imports_at_the_new_address",
         "test_vi_the_ground_loop_fronts_the_loop_it_was_built_in"
       ],
-      "teeth_red": [],
-      "test": "test-7598b0008a6a",
+      "teeth_red": [
+        "test_v_every_importer_in_class_space_imports_at_the_new_address",
+        "1 failing"
+      ],
+      "test": "test-9d1ac9d8a861",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,8 +28,8 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_2176573_1811569472_delivery",
-          "bus_proc_2176573_1811569472"
+          "bus_proc_226725_0801476348_delivery",
+          "bus_proc_226725_0801476348"
         ]
       },
       "conditions": {
@@ -39,20 +41,22 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 2176744,
+          "pid": 226911,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7598b0008a6a",
-      "source_fingerprint": "a6b863bf3887f7acb2d8fed2a250c49ca783a1faf59fb0e9e65c4f78d20a34e4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9d1ac9d8a861",
+      "source_fingerprint": "b21c0c4871009610ff3de8a5f0c0968e67cbb959a6721c271b258396aeb63091",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -62,37 +66,47 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2175092-0dwlb74p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-226705-82f15i9j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
+          "count": 15,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cc/0/last_known.json",
             "devices/ground_loop/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261013.001206.072597.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001206.089944.BusDevice.post.json",
-            "logs/bus/0/20261013.001206.293941.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001206.312458.BusDevice.post.json",
-            "logs/bus/0/20261013.001206.496611.BusDevice.post.json",
-            "logs/bus/0/20261013.001206.514264.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001206.528058.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001206.730360.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001207.555431.BusDevice.post.json"
+            "logs/bus/0/20261018.140157.391647.BusDevice.post.json",
+            "logs/bus/0/20261018.140157.409575.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140157.423436.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140157.601556.BusDevice.post.json",
+            "logs/bus/0/20261018.140157.622160.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140157.632198.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140157.808566.BusDevice.post.json",
+            "logs/bus/0/20261018.140157.830283.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140157.839216.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140158.046022.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140158.866943.BusDevice.post.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107971268,
-          "disk_bytes": 132980736,
-          "entries": 10081,
+          "bytes": 110691286,
+          "disk_bytes": 138457088,
+          "entries": 11010,
           "builds": 1,
-          "reuses": 15
+          "reuses": 1
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "reseal_ladder": {
+        "proof_sha256": "7b86d9bb2cc9da43d76caf5d70febfff8e95c1df97fd0bd1ba6dd57dc488046d",
+        "opened": "2026-10-18T08:02:00",
+        "last_red": "2026-10-18T08:02:00",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-bus-client",
+        "ruling": null
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

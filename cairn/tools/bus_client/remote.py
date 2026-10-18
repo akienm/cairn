@@ -162,8 +162,14 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
             "--working-directory", str(_CLASS_ROOT),
             f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
             "-p", "SuccessExitStatus=3",
-            "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}",
-            "--", *cmd]
+            "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
+    # inside a test run the bus is the run's (the twin of 2120e74dcf44's mark on the loop):
+    # systemd-run hands a unit the MANAGER's environment, so the run's id is carried by hand where
+    # the tester's stop reads it (the manager's record), and a failed bus of a run collects itself
+    test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
+    if test_id:
+        argv += [f"--setenv=CAIRN_TESTER_TEST_ID={test_id}", "-p", "CollectMode=inactive-or-failed"]
+    argv += ["--", *cmd]
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=30)
     except FileNotFoundError:

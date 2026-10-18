@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T18:12:12",
+    "date": "2026-10-18T08:02:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "the web server's start holds no heartbeat shim of its own"
       ],
       "teeth_red": [],
-      "test": "test-f03b495222fa",
+      "test": "test-96ffccc61b69",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,8 +25,8 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_2176744_1812066542_delivery",
-          "bus_proc_2176744_1812066542"
+          "bus_proc_226911_0801579643_delivery",
+          "bus_proc_226911_0801579643"
         ]
       },
       "conditions": {
@@ -38,20 +38,22 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 2176806,
+          "pid": 226958,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f03b495222fa",
-      "source_fingerprint": "5c1a1186ddc9be69018c2b90cf16299dfbe013a6b5405e1e3639e6f103423cbe",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-96ffccc61b69",
+      "source_fingerprint": "7fe7884b7a426477d47fd1515a74b14c8bf14ed0345776fcce47e786a2150a74",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -61,7 +63,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2175092-q_4tt1v9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-226705-829lux1m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 17,
@@ -72,30 +74,29 @@
             "devices/trouble/0/drained.json",
             "devices/trouble/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261013.001210.855881.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001210.900189.BusDevice.post.json",
-            "logs/bus/0/20261013.001210.910256.BusDevice.post.json",
-            "logs/bus/0/20261013.001210.910754.BusDevice.post.json",
-            "logs/bus/0/20261013.001210.911824.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001210.915606.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001211.108505.BusDevice.post.json",
-            "logs/bus/0/20261013.001211.192430.BusDevice.post.json",
-            "logs/ground_loop/0/20261013.001210.910500.HeartbeatPage.liveness_answered.json",
-            "logs/ground_loop/0/20261013.001210.915143.GroundLoopShim.clear_trouble.json",
-            "logs/ground_loop/0/20261013.001210.915462.GroundLoopShim.clear_trouble.json"
+            "logs/bus/0/20261018.140202.270628.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.140202.342187.BusDevice.post.json",
+            "logs/bus/0/20261018.140202.351978.BusDevice.post.json",
+            "logs/bus/0/20261018.140202.352453.BusDevice.post.json",
+            "logs/bus/0/20261018.140202.353480.BusDevice.delivered.json",
+            "logs/bus/0/20261018.140202.357111.BusDevice.delivered.json",
+            "logs/bus/0/20261018.140202.524520.BusDevice.post.json",
+            "logs/bus/0/20261018.140202.527157.BusDevice.post.json",
+            "logs/ground_loop/0/20261018.140202.352233.HeartbeatPage.liveness_answered.json",
+            "logs/ground_loop/0/20261018.140202.356656.GroundLoopShim.clear_trouble.json",
+            "logs/ground_loop/0/20261018.140202.356974.GroundLoopShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107971689,
-          "disk_bytes": 132988928,
-          "entries": 10085,
+          "bytes": 110690080,
+          "disk_bytes": 138457088,
+          "entries": 11012,
           "builds": 1,
-          "reuses": 16
+          "reuses": 2
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

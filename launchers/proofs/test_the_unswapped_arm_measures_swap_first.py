@@ -17,7 +17,9 @@ Run bare:  PYTHONPATH=. python3 launchers/proofs/test_the_unswapped_arm_measures
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import json
 import subprocess
 import sys
@@ -70,7 +72,10 @@ def tooth_1() -> None:
         mod._swap_free_mib = lambda: 220
         mod._run_ballooned = balloon("", -9)
         mod.FAILURES.clear()
-        mod._unswapped_arm()
+        # The arm prints its own PASS/FAIL lines; they are the fixture's, not this proof's teeth,
+        # so they are captured — a green seal must not carry a FAIL line a reader parses as red.
+        with contextlib.redirect_stdout(io.StringIO()):
+            mod._unswapped_arm()
         short = list(mod.FAILURES)
         short_ran = len(ran)
         short_ok = (len(short) == 1 and "precondition unmet" in short[0]
@@ -79,7 +84,8 @@ def tooth_1() -> None:
         mod._swap_free_mib = lambda: 4096
         mod._run_ballooned = balloon("REACHED 400", 0)
         mod.FAILURES.clear()
-        mod._unswapped_arm()
+        with contextlib.redirect_stdout(io.StringIO()):
+            mod._unswapped_arm()
         roomy = list(mod.FAILURES)
         check(name, short_ok and roomy == [] and len(ran) == 1,
               json.dumps({"short": short, "balloons_run_when_short": short_ran, "roomy": roomy}))

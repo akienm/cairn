@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_requester_takes_its_reply.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T18:11:18",
+    "date": "2026-10-17T21:46:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "mail_outside_the_request_stays_undelivered"
       ],
       "teeth_red": [],
-      "test": "test-9823d9801b2c",
+      "test": "test-55896612574a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,14 +33,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9823d9801b2c",
-      "source_fingerprint": "ecf7f6eef77ef06ae42929504b85920eaac293a876b98c5ab1cefcec15442c71",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-55896612574a",
+      "source_fingerprint": "63a6718d32150e534489208a868ba02c29cbad4af8d513ddaed8a8261a40816a",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -49,47 +51,46 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2175092-cxq9hgjq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-145238-tzjbjipf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 23,
           "paths": [
-            "logs/bus/0/20261013.001117.397372.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.442393.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001117.458168.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.464747.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.464972.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.466062.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001117.470848.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001117.506455.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.549676.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001117.564133.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.570208.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.576155.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.576369.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.576487.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001117.577399.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001117.609427.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.651493.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001117.665960.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.671914.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.672713.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.672862.BusDevice.post.json",
-            "logs/bus/0/20261013.001117.673500.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001117.675140.BusDevice.delivered.json"
+            "logs/bus/0/20261018.034616.129464.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.176208.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.034616.192015.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.199236.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.199466.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.200612.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034616.205365.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034616.244465.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.288046.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.034616.302037.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.308155.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.313889.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.314109.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.314233.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034616.315177.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034616.349333.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.394096.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.034616.409088.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.415399.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.416287.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.416454.BusDevice.post.json",
+            "logs/bus/0/20261018.034616.417188.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034616.419060.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107973980,
-          "disk_bytes": 133033984,
-          "entries": 10093,
+          "bytes": 110520901,
+          "disk_bytes": 138199040,
+          "entries": 10969,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

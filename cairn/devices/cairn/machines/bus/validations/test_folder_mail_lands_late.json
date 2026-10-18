@@ -2,7 +2,7 @@
   {
     "claim": "proof test_folder_mail_lands_late.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T18:11:41",
+    "date": "2026-10-17T21:46:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,7 +13,7 @@
         "folder_mail_lands_late_and_cairn_owns_press_office"
       ],
       "teeth_red": [],
-      "test": "test-86ffa51ccd92",
+      "test": "test-180b3fd27400",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,14 +31,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-86ffa51ccd92",
-      "source_fingerprint": "50dd68a30fee3fe7598fba0bb432d7038c0bfbe6f339027822166f8996ff52d9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-180b3fd27400",
+      "source_fingerprint": "3c98335a07e9cb8df02c966a2f5081447c4195460de704fbd167adec01119bd1",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -46,52 +48,26 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2175092-gcmjgikm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-145238-33mp7nvp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261013.001139.945570.BusDevice.post.json",
-            "logs/bus/0/20261013.001140.536869.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.001140.557568.BusDevice.post.json",
-            "logs/bus/0/20261013.001140.558971.BusDevice.delivered.json",
-            "logs/bus/0/20261013.001140.559419.BusDevice.delivered.json"
+            "logs/bus/0/20261018.034639.071202.BusDevice.post.json",
+            "logs/bus/0/20261018.034639.120522.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.034639.136889.BusDevice.post.json",
+            "logs/bus/0/20261018.034639.137870.BusDevice.delivered.json",
+            "logs/bus/0/20261018.034639.138218.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107969349,
-          "disk_bytes": 132960256,
-          "entries": 10075,
+          "bytes": 110516272,
+          "disk_bytes": 138125312,
+          "entries": 10951,
           "builds": 1,
-          "reuses": 8
-        }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
-      "hollow": {
-        "cff5a197b3c4": {
-          "cairn/devices/tester/shim.py": [
-            "a_refused_seal_is_printed_at_the_exchange"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "the_tester_clears_its_own_reply"
-          ],
-          "cairn/devices/cairn/machines/bus/bus.py": [
-            "folder_mail_lands_late_and_cairn_owns_press_office",
-            "the_standing_pile_is_drained_by_the_shim"
-          ],
-          "cairn/devices/cairn/intention+why.json": [
-            "folder_mail_lands_late_and_cairn_owns_press_office"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "cff5a197b3c4": {
-          "anchor_rule": "journal",
-          "anchor_journal": "b809c7499de60f72cb3c57604601770091b8e4dd",
-          "anchor_first_build": "d2f9ecd111d9416ee61439b31601666880a931ed",
-          "commit": "b809c7499de60f72cb3c57604601770091b8e4dd"
+          "reuses": 9
         }
       }
     },

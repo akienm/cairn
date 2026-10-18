@@ -34,6 +34,8 @@ import signal
 import socketserver
 import sys
 import threading
+from collections import deque
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -88,12 +90,23 @@ class BusProcess:
         # One RLock per held shim (decision 8): a slow answer blocks only its own device's
         # traffic, and a handler that posts to itself re-enters on the same thread.
         self._shim_locks: dict[str, threading.RLock] = {}
+        # A POKE NEVER WAITS ON ANOTHER SHIM'S LOCK (ticket c2036433beaf). Measured 2026-10-17
+        # by py-spy: a handler holding codemother's lock posted to inference_domain while a
+        # handler holding inference_domain's posted a reply to codemother — each blocked on the
+        # other's lock, and the asker hung the 900s client timeout. Now a poke that finds its
+        # shim's lock held leaves the envelope in that shim's queue and returns; whoever holds
+        # the lock drains the queue before letting go, and a request() made under a held lock
+        # drains its own thread's queues while it waits for the reply.
+        self._queues: dict[str, deque] = {}
+        self._hooks: dict[str, object] = {}
+        self._local = threading.local()
         self._by_spec: dict[str, object] = {}
         self._wired: set[str] = set()
         # MAIL ARRIVES, AND WHAT CANNOT MARKS ITSELF (ticket 7cb1989e7825): a personal post
         # nobody is wired to take wakes its addressee's shim here, in the same call, or comes
         # back to its sender. Installed at construction so no post can slip past it.
         bus.set_no_receiver(self.no_receiver)
+        bus.set_while_waiting(self._serve_held)
 
     # --- holding ----------------------------------------------------------------------
 
@@ -103,17 +116,84 @@ class BusProcess:
         shim's own lock. Not a pulse (decision 12): a pulse fires probes and stamps snapshots."""
         if shim.device_id in self._wired and shim.device_id in self.bus._delivery_hooks:
             return
-        lock = self._shim_locks.setdefault(shim.device_id, threading.RLock())
-        with lock:
+        with self._holding(shim.device_id):
             shim._wire_delivery()
         self._wired.add(shim.device_id)
         hook = self.bus._delivery_hooks.get(shim.device_id)
         if hook is not None and not getattr(hook, "_bus_locked", False):
-            def locked(envelope, _hook=hook, _lock=lock):
-                with _lock:
-                    return _hook(envelope)
+            self._hooks[shim.device_id] = hook
+
+            def locked(envelope, _id=shim.device_id):
+                self._queues[_id].append(envelope)
+                self._drain(_id)
             locked._bus_locked = True
             self.bus._delivery_hooks[shim.device_id] = locked
+
+    # --- one shim, one thread at a time ---------------------------------------------------
+
+    def _held(self) -> list:
+        """The device ids whose locks this thread holds, innermost last."""
+        stack = getattr(self._local, "held", None)
+        if stack is None:
+            stack = self._local.held = []
+        return stack
+
+    def _lock_for(self, device_id: str) -> threading.RLock:
+        self._queues.setdefault(device_id, deque())
+        return self._shim_locks.setdefault(device_id, threading.RLock())
+
+    @contextmanager
+    def _holding(self, device_id: str):
+        """Hold ``device_id``'s lock, blocking — but while waiting, keep serving the queues of
+        the shims this thread already holds, so the holder it waits on can be answered."""
+        lock = self._lock_for(device_id)
+        while not lock.acquire(timeout=0.05):
+            self._serve_held()
+        held = self._held()
+        held.append(device_id)
+        try:
+            yield
+        finally:
+            held.pop()
+            lock.release()
+        self._drain(device_id)
+
+    def _drain(self, device_id: str) -> None:
+        """Run the queued pokes for ``device_id`` if its lock is free to this thread; if another
+        thread holds it, return — that holder drains before it lets go. The outer loop re-reads
+        the queue after release, so a poke queued between the last pop and the release is
+        never stranded."""
+        lock = self._lock_for(device_id)
+        queue = self._queues[device_id]
+        while queue:
+            if not lock.acquire(blocking=False):
+                return
+            held = self._held()
+            held.append(device_id)
+            try:
+                while queue:
+                    try:
+                        envelope = queue.popleft()
+                    except IndexError:
+                        break
+                    hook = self._hooks.get(device_id)
+                    if hook is None:
+                        continue
+                    try:
+                        hook(envelope)
+                    except Exception as exc:  # noqa: BLE001 — as post() reports a failed hook
+                        self.bus.emit("delivery_failed", pointer=envelope.get("id"), values={
+                            "addressee": device_id, "error": f"{type(exc).__name__}: {exc}",
+                        })
+            finally:
+                held.pop()
+                lock.release()
+
+    def _serve_held(self) -> None:
+        """Drain every queue whose lock this thread holds — the bus calls this from inside
+        request() while it waits for a reply (``set_while_waiting``)."""
+        for device_id in list(dict.fromkeys(self._held())):
+            self._drain(device_id)
 
     def hold_name(self, name: str, *, wire: bool = True):
         """The shim that answers to ``name``, held here. ``wire`` holds it for MAIL (its
@@ -238,7 +318,7 @@ class BusProcess:
     def op_verbs(self, req: dict):
         shim = (self.hold_class(req["shim"], wire=False) if req.get("shim")
                 else self.hold_name(req["device"], wire=False))
-        with self._shim_locks.setdefault(shim.device_id, threading.RLock()):
+        with self._holding(shim.device_id):
             result = shim.resolve(list(req.get("verbs") or []))
         return {"ok": True, "exit": int(result.get("exit", 1)), "text": result.get("text", ""),
                 "json": result.get("data")}

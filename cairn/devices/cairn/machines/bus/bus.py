@@ -197,6 +197,10 @@ class BusDevice(BaseDevice):
         # bus process installs it to wake the addressee's shim or return the letter; a bare
         # bus (a proof, a CLI read) has none and the envelope waits, as it always did.
         self._no_receiver: "Callable[[dict], Any] | None" = None
+        # Called on each wait of request()'s reply poll (ticket c2036433beaf): the bus process
+        # installs it to serve the mail queued for shims the waiting thread holds. None on a
+        # bare bus.
+        self._while_waiting: "Callable[[], Any] | None" = None
         # Ids of requests whose asker is inside ``request()`` right now: a bounce answering one
         # is the asker's to take by correlation, never the no-receiver path's (ticket 7cb1989e7825).
         self._asked: set[str] = set()
@@ -250,6 +254,15 @@ class BusDevice(BaseDevice):
         its asker's to take (ticket 6b1e13704e17). A returned letter is, because it must reach
         its sender's shim or be raised."""
         self._no_receiver = callback
+
+    def set_while_waiting(self, callback: "Callable[[], Any] | None") -> None:
+        """Name what request() runs while it waits for a reply (ticket c2036433beaf).
+
+        A handler that asks another shim from inside its own delivery holds its own shim's
+        lock for the whole wait; a poke for its shim arriving meanwhile is queued, not run.
+        The bus process hands this callback over so the wait serves that queue — two handlers
+        that ask each other both get answers. Called each poll, no clock of its own."""
+        self._while_waiting = callback
 
     @staticmethod
     def _instance_folder(addressee: str):
@@ -563,7 +576,12 @@ class BusDevice(BaseDevice):
             import time
             deadline = time.monotonic() + timeout
             while time.monotonic() < deadline:
-                time.sleep(min(0.1, deadline - time.monotonic()))
+                if self._while_waiting is not None:
+                    self._while_waiting()
+                    ring_replies = self._ring_matches(reply_to=envelope["id"])
+                    if ring_replies:
+                        return self._taken(ring_replies[0], sender)
+                time.sleep(max(0.0, min(0.1, deadline - time.monotonic())))
                 replies = self.read(reply_to=envelope["id"])
                 if replies:
                     return self._taken(replies[0], sender)

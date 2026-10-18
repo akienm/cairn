@@ -2,12 +2,12 @@
   {
     "claim": "proof test_list_toggle.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T18:11:44",
+    "date": "2026-10-17T21:46:42",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_list_empty_bus\n.\n  ok   test_list_shows_wired_device\n.\n  ok   test_unwire_removes_from_list\n.\n  ok   test_toggle_suppresses_delivery\n.\n  ok   test_toggle_restores_delivery\n.\n  ok   test_toggle_reflects_in_list\n.\n  ok   test_toggle_on_unwired_device_raises\n.\n  ok   test_toggle_unknown_channel_raises\n.\n  ok   test_roster_minimum\n                                                                [100%]\n9 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_list_empty_bus\n.\n  ok   test_list_shows_wired_device\n.\n  ok   test_unwire_removes_from_list\n.\n  ok   test_toggle_suppresses_delivery\n.\n  ok   test_toggle_restores_delivery\n.\n  ok   test_toggle_reflects_in_list\n.\n  ok   test_toggle_on_unwired_device_raises\n.\n  ok   test_toggle_unknown_channel_raises\n.\n  ok   test_roster_minimum\n                                                                [100%]\n9 passed in 0.02s",
       "stderr_tail": "",
       "teeth_green": [
         "test_list_empty_bus",
@@ -21,7 +21,7 @@
         "test_roster_minimum"
       ],
       "teeth_red": [],
-      "test": "test-0b096cdf8f05",
+      "test": "test-8a9cfb2638f5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0b096cdf8f05",
-      "source_fingerprint": "6243e05f89c13bbf9560a9bae38372c76c9d4be573725e8b8d9831d0ff8a875a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a9cfb2638f5",
+      "source_fingerprint": "c672b1708189cab936e211dca6725a85a2d53b7c8b7ce5e5915f7e9905967b61",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -55,24 +57,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2175092-eqw28w9_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-145238-b219_2fr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20261013.001143.041249.BusDevice.post.json",
-            "logs/bus/0/20261013.001143.041692.BusDevice.post.json",
-            "logs/bus/0/20261013.001143.043586.BusDevice.post.json"
+            "logs/bus/0/20261018.034641.559029.BusDevice.post.json",
+            "logs/bus/0/20261018.034641.559277.BusDevice.post.json",
+            "logs/bus/0/20261018.034641.561043.BusDevice.post.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107968728,
-          "disk_bytes": 132952064,
-          "entries": 10073,
+          "bytes": 110515652,
+          "disk_bytes": 138117120,
+          "entries": 10949,
           "builds": 1,
-          "reuses": 9
+          "reuses": 10
         }
       }
     },

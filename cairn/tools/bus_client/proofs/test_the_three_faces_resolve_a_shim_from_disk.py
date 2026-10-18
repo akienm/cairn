@@ -94,7 +94,10 @@ LIVE_DEVICE = "cc"
 PROVES = {
     "dd8ad9702b49": {
         "all": "test_v_every_importer_in_class_space_imports_at_the_new_address",
-    }
+    },
+    # 05662f9e9bc9 clause (1): no file in class-space carries the departed path as a literal,
+    # the tester's live 87a7 tooth included.
+    "05662f9e9bc9": {"1": "test_v_every_importer_in_class_space_imports_at_the_new_address"},
 }
 
 OLD_DOTTED = "cairn.tools.base.bus_client"

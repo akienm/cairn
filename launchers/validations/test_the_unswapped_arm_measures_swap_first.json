@@ -2,22 +2,19 @@
   {
     "claim": "proof test_the_unswapped_arm_measures_swap_first.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-13T11:46:45",
+    "date": "2026-10-18T14:36:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  FAIL  the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — precondition unmet: SwapFree 220 MiB < 512 MiB needed — this arm cannot tell contained from killed for lack of swap\n  PASS  the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — stdout='REACHED 400' rc=0\n  PASS  an_arm_short_of_swap_reds_as_precondition_unmet\n        {\"short\": [\"the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional): precondition unmet: SwapFree 220 MiB < 512 MiB needed \\u2014 this arm cannot tell contained from killed for lack of swap\"], \"balloons_run_when_short\": 0, \"roomy\": []}\n  PASS  every_balloon_scope_is_collected_on_failure\n        [\"systemd-run\", \"--user\", \"--scope\", \"--quiet\", \"-p\", \"CollectMode=inactive-or-failed\", \"-p\", \"MemoryMax=100M\", \"--\", \"/home/akien/.cairn/venv/bin/python3\", \"-c\", \"b=[]\\nfor i in range(400):\\n    p=bytearray(1024*1024)\\n    for j in range(0,1024*1024,4096): p[j]=1\\n    b.append(p)\\nprint('REACHED', \n\nGREEN",
+      "stdout_tail": "  PASS  an_arm_short_of_swap_reds_as_precondition_unmet\n        {\"short\": [\"the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional): precondition unmet: SwapFree 220 MiB < 512 MiB needed \\u2014 this arm cannot tell contained from killed for lack of swap\"], \"balloons_run_when_short\": 0, \"roomy\": []}\n  PASS  every_balloon_scope_is_collected_on_failure\n        [\"systemd-run\", \"--user\", \"--scope\", \"--quiet\", \"-p\", \"CollectMode=inactive-or-failed\", \"-p\", \"MemoryMax=100M\", \"--\", \"/home/akien/.cairn/venv/bin/python3\", \"-c\", \"b=[]\\nfor i in range(400):\\n    p=bytearray(1024*1024)\\n    for j in range(0,1024*1024,4096): p[j]=1\\n    b.append(p)\\nprint('REACHED', \n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — stdout='REACHED 400' rc=0",
         "an_arm_short_of_swap_reds_as_precondition_unmet",
         "every_balloon_scope_is_collected_on_failure"
       ],
-      "teeth_red": [
-        "the same cap WITHOUT MemorySwapMax does not contain (why the swap limit is not optional)  — precondition unmet: SwapFree 220 MiB < 512 MiB needed — this arm cannot tell contained from killed for lack of swap"
-      ],
-      "test": "test-4c41059648ee",
+      "teeth_red": [],
+      "test": "test-f0a8df948519",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,23 +24,25 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e10e1790076bb36acbdbd20da5c77fb736a879c7520cec39c9765a36fa7420d4",
+        "proof": "de92ed75fc6628435c7262ac64974b64ab7776fd0c568d6b95054e3cbde24be2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c41059648ee",
-      "source_fingerprint": "6174b89bfb2c8e22e613bb586e2ab2484ca7d9af428690715c8eedce6fe61e0d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f0a8df948519",
+      "source_fingerprint": "5dcf29181a0cd274d6e6c1f9c9ac79f38a656b5d1b7e83536e134de5645472be",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/tools/__init__.py",
@@ -55,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2791030-32bab88p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-425905-dw_a7z59/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,27 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108986024,
-          "disk_bytes": 134860800,
-          "entries": 10373,
+          "bytes": 111166752,
+          "disk_bytes": 139370496,
+          "entries": 11156,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "a9d43ca95d78": {
-          "launchers/proofs/test_superclaude_memory_scope.py": [
-            "an_arm_short_of_swap_reds_as_precondition_unmet",
-            "every_balloon_scope_is_collected_on_failure"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a9d43ca95d78": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d7fb1f1bbf615fed188c2023c3764e4c67a28c76",
-          "anchor_first_build": "22e09ea3fd61768312f0bc1ecdebc6594e78dfb1",
-          "commit": "d7fb1f1bbf615fed188c2023c3764e4c67a28c76"
         }
       }
     },

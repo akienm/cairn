@@ -70,6 +70,12 @@ from cairn.devices.tester.isolation import (
 
 from cairn.tools.validation_store.validation_store import GREEN, RED  # the record vocabulary (fe1cba85cb12)
 
+# THE THIRD OUTCOME, AND IT IS NOT RECORD VOCABULARY (ticket 3dfceaa272ec). A run that outlived
+# its budget measured the budget, not the proof, so it is neither green nor red. It rides
+# record["verdict"] out of run_proof and is never persisted, which is why it lives here and
+# not beside GREEN and RED in the store: no validation on disk may carry it.
+TIMEOUT = "timeout"
+
 # WHERE A VALIDATION GOES, named at every call site. Two values, because two are what the
 # corpus needs: seal through the store's door, or write nothing. There is deliberately no
 # third for artifact addressing — quorum.py composes persist_validation directly for that,
@@ -692,13 +698,15 @@ class TesterDevice(BaseDevice):
                 }
             except subprocess.TimeoutExpired as exc:
                 keep_output(test, _text(exc.stdout), _text(exc.stderr))
-                # A proof that hangs is a red, not a crash of the notary (CP1: say what
-                # happened — we measured a timeout, we did not measure a pass).
-                verdict = RED
+                # A proof that hangs is a TIMEOUT — the door ran out of budget; nothing was
+                # measured about the proof (ticket 3dfceaa272ec). Not a red: a record of truth
+                # fed a red the budget manufactured is the same lie as a hollow green (Law 7).
+                verdict = TIMEOUT
                 evidence = {
                     "returncode": None,
                     "stdout_tail": "",
                     "stderr_tail": f"timed out after {timeout}s",
+                    "timeout_s": timeout,
                     # EMPTY, NOT ABSENT. A timed-out proof proved no teeth, and saying so
                     # is a measurement; leaving the keys out would make "we did not look"
                     # and "we looked and found none" the same reading downstream.
@@ -781,7 +789,10 @@ class TesterDevice(BaseDevice):
             falsifier="the same proof exits non-zero on re-run, or the code it proves changes underneath it",
             horizon="valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)",
         )
-        if sink == "validations":
+        # A TIMEOUT IS NEVER PERSISTED, under any sink (ticket 3dfceaa272ec): the standing seal
+        # stays byte-identical, so its source_fingerprint goes on saying whether it still
+        # describes this code. The run is still counted, and still emitted below.
+        if sink == "validations" and verdict != TIMEOUT:
             # THROUGH THE DOOR, and only through it. persist_validation decides what lands
             # and announces a changed verdict before it does; nothing here writes bytes, which
             # is what keeps the store's "one write door" true while giving run_proof a way to

@@ -1,20 +1,20 @@
 [
   {
     "claim": "proof test_a_green_seal_names_a_tooth.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-14T07:54:03",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-18T16:24:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 6.34s",
+      "stdout_tail": ".\n  ok   test_an_exit_zero_run_that_names_no_tooth_seals_red\n.\n  ok   test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it\n                                                                       [100%]\n2 passed in 4.34s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_exit_zero_run_that_names_no_tooth_seals_red",
         "test_an_exit_zero_run_that_names_one_tooth_seals_green_naming_it"
       ],
       "teeth_red": [],
-      "test": "test-d3219baa0a51",
+      "test": "test-2e23572a3b61",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,21 +28,20 @@
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d3219baa0a51",
-      "source_fingerprint": "5fa624c9e840261fed624afcc70a2aca31b499bf7a244f64a26dcd726e10cd73",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2e23572a3b61",
+      "source_fingerprint": "02f097a6045d85ade1ea4aa6a6c92fa30e637403081d25211098be0899d15764",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -53,121 +52,27 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3321834-ffnwyiqp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-445376-2clndyre/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261014.135359.540158.TesterDevice.run_proof.json",
-            "logs/tester/0/20261014.135402.755228.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-57b68f8056e7/stderr.txt",
-            "logs/tester/0/runs/test-57b68f8056e7/stdout.txt",
-            "logs/tester/0/runs/test-d24a1d6fe750/stderr.txt",
-            "logs/tester/0/runs/test-d24a1d6fe750/stdout.txt"
+            "logs/tester/0/20261018.222455.832408.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.222457.985598.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-95d8768f5e7e/stderr.txt",
+            "logs/tester/0/runs/test-95d8768f5e7e/stdout.txt",
+            "logs/tester/0/runs/test-a9e7db8c14a4/stderr.txt",
+            "logs/tester/0/runs/test-a9e7db8c14a4/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 109826665,
-          "disk_bytes": 136962048,
-          "entries": 10785,
+          "bytes": 111217314,
+          "disk_bytes": 139464704,
+          "entries": 11180,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "77f15efd5a96": {
-          "cairn/devices/tester/device.py": [
-            "test_an_exit_zero_run_that_names_no_tooth_seals_red"
-          ],
-          "cairn/machines/build_inspector/inspector.py": [
-            "test_a_green_seal_with_empty_teeth_fires",
-            "test_the_live_corpus_has_no_green_seal_naming_no_tooth"
-          ],
-          "cairn/devices/cc/proofs/test_cc_device.py": {
-            "notified": "n-16c4ae561473"
-          },
-          "cairn/devices/cc/proofs/test_learning_store.py": {
-            "notified": "n-4d835d2f7bc1"
-          },
-          "cairn/devices/cc/proofs/test_memory_probe.py": {
-            "notified": "n-d0aef0aeca7c"
-          },
-          "cairn/devices/cc/proofs/test_tmux_mode.py": {
-            "notified": "n-137b5c9c8ab6"
-          },
-          "cairn/devices/codemother/proofs/test_watch.py": {
-            "notified": "n-3d96ac4cc14c"
-          },
-          "cairn/machines/skill_block/proofs/test_operator_review_step.py": {
-            "notified": "n-ca8e34ecba4c"
-          },
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox.py": {
-            "notified": "n-a25b9fd8c8ec"
-          },
-          "cairn/tools/ticket_inspector/proofs/test_inspector.py": {
-            "notified": "n-ecca4ba67a23"
-          },
-          "cairn/devices/cairn/machines/bus/proofs/test_list_toggle.py": {
-            "notified": "n-c9b708a08d35"
-          },
-          "cairn/devices/cairn/machines/bus/proofs/test_pane_channel_identity.py": {
-            "notified": "n-f0b362116841"
-          },
-          "cairn/devices/librarian/proofs/test_librarian_structure.py": {
-            "notified": "n-f45b7bbc6b73"
-          },
-          "cairn/machines/build_inspector/proofs/test_runtime_role.py": {
-            "notified": "n-0b18f2e7ec8a"
-          },
-          "cairn/machines/skill_block/proofs/test_review_lane_drains_by_measurement.py": {
-            "notified": "n-7d3902e0420a"
-          },
-          "cairn/tools/base/proofs/test_chat_pane.py": {
-            "notified": "n-0ad59e56683a"
-          },
-          "cairn/tools/base/proofs/test_cli_reaches.py": {
-            "notified": "n-10dfd1534542"
-          },
-          "cairn/tools/base/proofs/test_console_pane.py": {
-            "notified": "n-48353850a57d"
-          },
-          "cairn/machines/build_inspector/proofs/test_address_sieve.py": {
-            "notified": "n-183b4e22e745"
-          },
-          "cairn/machines/build_inspector/proofs/test_inspector.py": {
-            "notified": "n-d391e0bcf25f"
-          },
-          "cairn/machines/installer/proofs/test_installer.py": {
-            "notified": "n-833ea54e4548"
-          },
-          "cairn/machines/plan_inspector/proofs/test_inspector.py": {
-            "notified": "n-a79caa2e3a9a"
-          },
-          "cairn/machines/quarry_index/proofs/test_compiler.py": {
-            "notified": "n-fda8d5bba4e6"
-          },
-          "cairn/tools/base/proofs/test_gate_feedback.py": {
-            "notified": "n-32421d1f023d"
-          },
-          "cairn/tools/base/proofs/test_llm_inspection_probe.py": {
-            "notified": "n-ae97c1553d67"
-          },
-          "cairn/tools/orient/proofs/test_orient.py": {
-            "notified": "n-4fe564f07ec1"
-          },
-          "cairn/devices/tester/intention+why.json": {
-            "notified": "n-dee0835d96de"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "77f15efd5a96": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "f3c255237193383f5fce62fb33b3c50baa214280",
-          "anchor_first_build": "5af6422fed96cefdf199cbbe26d30bd58a7ff85b",
-          "commit": "811d02ed9d5e2eb4b8170029604d5221884fb3e2"
+          "reuses": 2
         }
       }
     },

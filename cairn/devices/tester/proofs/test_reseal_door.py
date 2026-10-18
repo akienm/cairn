@@ -34,7 +34,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.tester.device import GREEN, RED  # noqa: E402
+from cairn.devices.tester.device import GREEN, RED, TIMEOUT  # noqa: E402
 from cairn.devices.tester.reseal import (  # noqa: E402
     ResealRefused, proof_sha256, read_ladder, reseal, ruling_refusal, trouble_identity,
 )
@@ -115,7 +115,7 @@ class _FakeTester:
 
 
 class _TimingOut:
-    """What `TesterDevice.run_proof` returns when the subject is killed: RED, no returncode,
+    """What `TesterDevice.run_proof` returns when the subject is killed: TIMEOUT, no returncode,
     and the runner's own wording. Copied from the runner rather than invented, because a
     tooth that made up the shape would prove the door against a fixture of its own design."""
 
@@ -125,9 +125,9 @@ class _TimingOut:
     def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none",
                   scratch_sweep=None):
         self.runs += 1
-        return _record(Path(proof_path), RED, evidence={
+        return _record(Path(proof_path), TIMEOUT, evidence={
             "returncode": None, "stdout_tail": "",
-            "stderr_tail": f"timed out after {timeout}s",
+            "stderr_tail": f"timed out after {timeout}s", "timeout_s": timeout,
             "teeth_green": [], "teeth_red": []})
 
 

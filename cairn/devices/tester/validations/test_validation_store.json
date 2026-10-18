@@ -2,12 +2,12 @@
   {
     "claim": "proof test_validation_store.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T16:04:02",
+    "date": "2026-10-18T17:26:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_FINGERPRINT_is_what_a_FORCED_write_cannot_fake_and_the_LIMIT_is_asserted_too\n  PASS  test_standing_answers_all_FOUR_outcomes_and_says_which\n  PASS  test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands\n  PASS  test_an_AGREEING_rerun_announces_NOTHING\n  PASS  test_the_announcement_fires_in_BOTH_directions\n  PASS  test_a_FAILING_announcement_does_not_lose_the_NEW_measurement\n  PASS  test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING\n  PASS  test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS\n    (440 validations files; every one holds exactly one current record)\n  PASS  test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD\n    (445 proofs censused; 394 standing (88.5%); every non-standing carries a why; standing is subset of sealed)\n  PASS  test_CENSUS_INVARIANTS_over_the_real_corpus\n  PASS  test_an_edit_to_a_file_the_proof_never_IMPORTS_leaves_the_fingerprint_STILL\n  PASS  test_the_CLOSURE_names_only_repo_files_and_always_names_its_own_proof\n  PASS  test_a_file_that_VANISHED_from_the_closure_MOVES_the_digest_rather_than_raising\n  PASS  test_a_closure_that_does_not_name_THIS_proof_is_DISCARDED_not_compared\n  PASS  test_a_proof_OUTSIDE_the_repo_SEALS_no_closure_rather_than_an_EMPTY_one\n  PASS  test_a_PRE_CLOSURE_seal_is_still_re_checked_the_way_it_was_TAKEN\n  PASS  test_the_RUNNER_actually_REPORTS_a_closure_end_to_end\ngreen — validation_store: one current record beside its proof, drift refused, a changed verdict announced before the replace",
+      "stdout_tail": "  PASS  test_the_FINGERPRINT_is_what_a_FORCED_write_cannot_fake_and_the_LIMIT_is_asserted_too\n  PASS  test_standing_answers_all_FOUR_outcomes_and_says_which\n  PASS  test_a_CHANGED_verdict_is_ANNOUNCED_before_the_replace_lands\n  PASS  test_an_AGREEING_rerun_announces_NOTHING\n  PASS  test_the_announcement_fires_in_BOTH_directions\n  PASS  test_a_FAILING_announcement_does_not_lose_the_NEW_measurement\n  PASS  test_a_FIXTURE_seal_under_the_TEMP_ROOT_announces_NOTHING\n  PASS  test_NO_SECOND_WRITER_EXISTS_IN_THE_CORPUS\n    (463 validations files; every one holds exactly one current record)\n  PASS  test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD\n    (467 proofs censused; 413 standing (88.4%); every non-standing carries a why; standing is subset of sealed)\n  PASS  test_CENSUS_INVARIANTS_over_the_real_corpus\n  PASS  test_an_edit_to_a_file_the_proof_never_IMPORTS_leaves_the_fingerprint_STILL\n  PASS  test_the_CLOSURE_names_only_repo_files_and_always_names_its_own_proof\n  PASS  test_a_file_that_VANISHED_from_the_closure_MOVES_the_digest_rather_than_raising\n  PASS  test_a_closure_that_does_not_name_THIS_proof_is_DISCARDED_not_compared\n  PASS  test_a_proof_OUTSIDE_the_repo_SEALS_no_closure_rather_than_an_EMPTY_one\n  PASS  test_a_PRE_CLOSURE_seal_is_still_re_checked_the_way_it_was_TAKEN\n  PASS  test_the_RUNNER_actually_REPORTS_a_closure_end_to_end\ngreen — validation_store: one current record beside its proof, drift refused, a changed verdict announced before the replace",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_real_validation_round_trips_beside_its_proof",
@@ -34,7 +34,7 @@
         "test_the_RUNNER_actually_REPORTS_a_closure_end_to_end"
       ],
       "teeth_red": [],
-      "test": "test-19798477bcb6",
+      "test": "test-ed541dafcc65",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,8 +42,8 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_2946402_1603223360_delivery",
-          "bus_proc_2946402_1603223360"
+          "bus_proc_470926_1725184807_delivery",
+          "bus_proc_470926_1725184807"
         ]
       },
       "conditions": {
@@ -55,14 +55,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-19798477bcb6",
-      "source_fingerprint": "49eb97f2ec00b150eb1dec4f1132c088a300053ec17c05a99ef3ca37c0afce98",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ed541dafcc65",
+      "source_fingerprint": "21356735cbe38578901da160555f08a939be1da4e958d16cd3015aef3a622c53",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -75,61 +77,61 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2921888-wrct49bb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-445376-ci1in19x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 45,
           "paths": [
-            "logs/tester/0/20261013.220327.809204.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220330.540961.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220333.041671.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220335.563619.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220338.072928.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220340.843271.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220343.657077.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220346.166666.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220348.629747.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220350.644670.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220352.664119.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220354.673927.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220356.752318.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220358.736254.TesterDevice.run_proof.json",
-            "logs/tester/0/20261013.220401.290999.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-2fc0c15d6f42/stderr.txt",
-            "logs/tester/0/runs/test-2fc0c15d6f42/stdout.txt",
-            "logs/tester/0/runs/test-3364ea57bf7c/stderr.txt",
-            "logs/tester/0/runs/test-3364ea57bf7c/stdout.txt",
-            "logs/tester/0/runs/test-36097739109c/stderr.txt",
-            "logs/tester/0/runs/test-36097739109c/stdout.txt",
-            "logs/tester/0/runs/test-42ec6c206949/stderr.txt",
-            "logs/tester/0/runs/test-42ec6c206949/stdout.txt",
-            "logs/tester/0/runs/test-485e8d4305ac/stderr.txt",
-            "logs/tester/0/runs/test-485e8d4305ac/stdout.txt",
-            "logs/tester/0/runs/test-5880a8f9398b/stderr.txt",
-            "logs/tester/0/runs/test-5880a8f9398b/stdout.txt",
-            "logs/tester/0/runs/test-750e66ff91c6/stderr.txt",
-            "logs/tester/0/runs/test-750e66ff91c6/stdout.txt",
-            "logs/tester/0/runs/test-95a30555b18e/stderr.txt",
-            "logs/tester/0/runs/test-95a30555b18e/stdout.txt",
-            "logs/tester/0/runs/test-baf56c4b98da/stderr.txt",
-            "logs/tester/0/runs/test-baf56c4b98da/stdout.txt",
-            "logs/tester/0/runs/test-c787cb643764/stderr.txt",
-            "logs/tester/0/runs/test-c787cb643764/stdout.txt",
-            "logs/tester/0/runs/test-ccf271b39b8c/stderr.txt",
-            "logs/tester/0/runs/test-ccf271b39b8c/stdout.txt",
-            "logs/tester/0/runs/test-ecf93e0f9a11/stderr.txt",
-            "logs/tester/0/runs/test-ecf93e0f9a11/stdout.txt",
-            "logs/tester/0/runs/test-f086967bac98/stderr.txt"
+            "logs/tester/0/20261018.232524.077716.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232526.585815.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232529.064055.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232531.557590.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232534.050669.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232536.543097.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232539.036981.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232541.528355.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232543.995165.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232546.557014.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232549.210841.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232551.728147.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232554.345246.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232556.851271.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.232600.074372.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-01c138b4c565/stderr.txt",
+            "logs/tester/0/runs/test-01c138b4c565/stdout.txt",
+            "logs/tester/0/runs/test-23ef781e58df/stderr.txt",
+            "logs/tester/0/runs/test-23ef781e58df/stdout.txt",
+            "logs/tester/0/runs/test-2da95057b6db/stderr.txt",
+            "logs/tester/0/runs/test-2da95057b6db/stdout.txt",
+            "logs/tester/0/runs/test-34a7050a7721/stderr.txt",
+            "logs/tester/0/runs/test-34a7050a7721/stdout.txt",
+            "logs/tester/0/runs/test-4576e6ebd02b/stderr.txt",
+            "logs/tester/0/runs/test-4576e6ebd02b/stdout.txt",
+            "logs/tester/0/runs/test-4910d9ebc0fb/stderr.txt",
+            "logs/tester/0/runs/test-4910d9ebc0fb/stdout.txt",
+            "logs/tester/0/runs/test-4b0e2c451217/stderr.txt",
+            "logs/tester/0/runs/test-4b0e2c451217/stdout.txt",
+            "logs/tester/0/runs/test-50f3d1c0a58e/stderr.txt",
+            "logs/tester/0/runs/test-50f3d1c0a58e/stdout.txt",
+            "logs/tester/0/runs/test-63b114aa5196/stderr.txt",
+            "logs/tester/0/runs/test-63b114aa5196/stdout.txt",
+            "logs/tester/0/runs/test-87581761eacb/stderr.txt",
+            "logs/tester/0/runs/test-87581761eacb/stdout.txt",
+            "logs/tester/0/runs/test-96f04e3debb2/stderr.txt",
+            "logs/tester/0/runs/test-96f04e3debb2/stdout.txt",
+            "logs/tester/0/runs/test-a917ddf82413/stderr.txt",
+            "logs/tester/0/runs/test-a917ddf82413/stdout.txt",
+            "logs/tester/0/runs/test-be8c13f0bec7/stderr.txt"
           ],
           "elided": 5
         },
         "scratch": {
           "measured": true,
-          "bytes": 109306975,
-          "disk_bytes": 135696384,
-          "entries": 10565,
+          "bytes": 111222746,
+          "disk_bytes": 139575296,
+          "entries": 11232,
           "builds": 1,
-          "reuses": 36
+          "reuses": 41
         }
       }
     },

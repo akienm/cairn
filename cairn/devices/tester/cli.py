@@ -59,7 +59,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cairn.devices.tester.device import GREEN, SealUnavailable, TesterDevice
+from cairn.devices.tester.device import GREEN, TIMEOUT, SealUnavailable, TesterDevice
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.tools.validation_store.validation_store import (
@@ -543,6 +543,7 @@ def main(argv: list[str] | None = None) -> int:
     sink = "validations" if args.seal else "none"
     reds: list[tuple[Path, dict]] = []
     refused: list[tuple[Path, str]] = []
+    timeouts: list[tuple[Path, dict]] = []
     persisted = 0
     # WHAT SEAL EACH PERSISTED RECORD ACTUALLY CARRIES (ticket 481221f45884). The count alone
     # cannot tell a record taken under a netns from one taken with the route wide open, and the
@@ -587,13 +588,21 @@ def main(argv: list[str] | None = None) -> int:
             record = tester.run_proof(proof, sink="none" if ladder else sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation,
                                       scratch_sweep=sweep_scratch() if sink == "validations" else None)
-            if ladder:
+            if ladder and record["verdict"] != TIMEOUT:
                 record = carry_ladder(record, proof, ladder, ruling_id=args.ruling)
         except SealUnavailable as refusal:
             # THE SEAL COULD NOT BE BUILT, SO THE PROOF NEVER RAN (67af8b743a63): nothing was
             # measured and nothing persisted. It joins the refused lane, the batch continues.
             print(f"  REFUSED {rel}  (not run: the seal it asks for cannot be built here)")
             refused.append((proof, str(refusal)))
+            continue
+        # A TIMEOUT IS ITS OWN COLUMN (ticket 3dfceaa272ec), the reseal ladder's shape: neither
+        # green nor red, and nothing written — the budget was measured, not the proof.
+        if record["verdict"] == TIMEOUT:
+            budget = record.get("evidence", {}).get("timeout_s", args.timeout)
+            print(f"  TIMEOUT {rel}  (exceeded the {budget}s budget; nothing written — the "
+                  f"standing seal is untouched)")
+            timeouts.append((proof, record))
             continue
         if sink == "validations":
             persisted += 1
@@ -632,7 +641,7 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"    {line}")
 
     total, n_red = len(proofs), len(reds)
-    n_green = total - n_red - len(refused)
+    n_green = total - n_red - len(refused) - len(timeouts)
     # THE ISOLATION IS A DISTRIBUTION NOW, NOT A WORD. It used to print the one hoisted value,
     # which was true only because every proof got the same one. A batch that reproduces each
     # proof's own seal genuinely runs several, so the line reports what actually happened —
@@ -640,8 +649,14 @@ def main(argv: list[str] | None = None) -> int:
     # shape instead of the measurement (Law 7).
     spread = " ".join(f"{k}={v}" for k, v in sorted(isolations.items()))
     print(f"\n{total} proof{'s' if total != 1 else ''} · {n_green} green · {n_red} red"
+          + (f" · {len(timeouts)} timeout" if timeouts else "")
           + (f" · {len(refused)} seal-refused" if refused else "")
           + (f" · isolation {spread}" if (args.netns or args.seal) and spread else ""))
+    if timeouts:
+        budgets = sorted({r.get("evidence", {}).get("timeout_s", args.timeout) for _, r in timeouts})
+        print(f"{len(timeouts)} TIMEOUT(s) exceeded the {'/'.join(f'{b}s' for b in budgets)} "
+              f"budget: nothing was written for them — neither green nor red; raise --timeout "
+              f"(or declare PROOF_TIMEOUT_S) to measure them.")
     # THE NOT-SEALING SAYS ITSELF. This line is the half of --seal that the ticket is
     # actually about: without it, a run that printed green and persisted nothing looked
     # exactly like a run that sealed, so nobody could see the affordance was missing —
@@ -683,7 +698,8 @@ def main(argv: list[str] | None = None) -> int:
         print("NOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, "
               "so nothing here has changed what `standing()` says about any of this code. "
               "Re-run with --seal to land the verdicts.")
-    return 1 if (reds or refused) else 0
+    # a sweep that could not measure part of its target has not passed (ticket 3dfceaa272ec)
+    return 1 if (reds or refused or timeouts) else 0
 
 
 if __name__ == "__main__":

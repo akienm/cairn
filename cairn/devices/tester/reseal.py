@@ -79,7 +79,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.conditions import compare
-from cairn.devices.tester.device import GREEN, TesterDevice
+from cairn.devices.tester.device import GREEN, TIMEOUT, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.tools.base.address import component_of
@@ -497,7 +497,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     #
     # No seal records how long its run took (measured: 177 records, zero durations), so the
     # door cannot size a budget from the standing green. What it CAN do is tell a timeout
-    # apart — `returncode is None` with the runner's own wording — and decline to write.
+    # apart — the runner returns verdict TIMEOUT for it (ticket 3dfceaa272ec) — and decline to write.
     #
     # DECLINING TO WRITE IS NOT LAUNDERING. The stale green stays on disk and `standing()`
     # keeps reading it not-proven, because the fingerprint that expired is what brought us
@@ -505,9 +505,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     # is the door adding a verdict it did not earn. The trouble still fires, saying which of
     # the two things happened (Law 7: loud at a diagnostic surface).
     #   -> ticket: a-seal-record-carries-how-long-its-run-took
-    timed_out = (record["verdict"] != GREEN
-                 and evidence.get("returncode") is None
-                 and "timed out after" in str(evidence.get("stderr_tail") or ""))
+    timed_out = record["verdict"] == TIMEOUT  # the runner says it outright (ticket 3dfceaa272ec)
     if timed_out:
         # the budget the run actually used: a proof's own PROOF_TIMEOUT_S beats --timeout
         budget = (evidence.get("conditions") or {}).get("timeout", timeout)

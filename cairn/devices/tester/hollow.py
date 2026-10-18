@@ -842,6 +842,41 @@ def seal_isolation(proof: Path) -> str:
     return "none"
 
 
+_JOURNAL_NAME = ".artifact-journal.jsonl"
+
+
+def _unplanned(tid: str, commit: str, root: Path, planned: list[str], *,
+               instrument: frozenset[str] = frozenset()) -> dict[str, str]:
+    """{path: build sha} for each path a '<tid>: build' commit after ``commit`` changed that
+    writes_to does not name (trouble build-commit-touches-a-file-outside-writes-to).
+
+    NOTHING ELSE MEASURES SUCH A FILE. This module reverts writes_to and nothing more, and the
+    build commits place the anchor without widening the revert set — so a build that edits a
+    file its plan never named walks through green (measured 2026-10-18: 20 of 111 tickets since
+    2026-09-15). Records, the artifact journal and the instrument are what an honest build also
+    writes without a proof able to pin them, so they are not read; only build commits are, since
+    a records commit or a repair is not what the build did."""
+    proc = subprocess.run(["git", "-C", str(root), "log", "--reverse", "--format=@%H", "--name-only",
+                           "-E", f"--grep=^{tid}: build", f"{commit}..HEAD"],
+                          capture_output=True, text=True, env=git_env())
+    dirs = [p.rstrip("/") + "/" for p in planned]
+    out: dict[str, str] = {}
+    sha = ""
+    for line in proc.stdout.splitlines():
+        if line.startswith("@"):
+            sha = line[1:]
+            continue
+        rel = line.strip()
+        if not rel or rel in out or rel in planned or any(rel.startswith(d) for d in dirs):
+            continue
+        p = Path(rel)
+        if p.name == _JOURNAL_NAME or _RECORD_DIRS & set(p.parts) or p.name in _RECORD_NAMES \
+                or rel in instrument:
+            continue
+        out[rel] = sha
+    return out
+
+
 def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) -> tuple[list[str], list[dict]]:
     """A writes_to entry naming a directory is measured file by file over the files THIS TICKET'S
     OWN build commits (those naming ``tid`` after the anchor) changed under it (ticket e08c996f939c).
@@ -926,6 +961,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                           read_by=read_by)
     commit, at = anchor["commit"], anchor["buildme_at"]
     builds_in = {Path(repo_root): list(anchor.get("build_commits") or [])}
+    unplanned = _unplanned(tid, commit, Path(repo_root), files, instrument=instrument)
     files, dir_skips = _expand_dirs(files, commit, repo_root, tid=tid)
     # THE COMMONS HAS ITS OWN HISTORY, so its anchor is asked of it: the same rule over the
     # commons commits that name the ticket and change a commons writes_to file.
@@ -935,6 +971,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         canchor = build_anchor(ticket, cfiles, roots=roots, repo_root=commons)
         ccommit = canchor["commit"]
         builds_in[commons] = list(canchor.get("build_commits") or [])
+        unplanned.update({COMMONS_KEY + f: s for f, s in _unplanned(tid, ccommit, commons, cfiles).items()})
         cfiles, cdir_skips = _expand_dirs(cfiles, ccommit, commons, tid=tid)
         dir_skips += [{**s, "file": COMMONS_KEY + s["file"]} for s in cdir_skips]
     proofs = named if named is not None else proven_by(ticket, roots)
@@ -1227,6 +1264,11 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             f"unwritten: {f} is byte-identical at the pre-build commit — the decompose berth "
             f"names it as written by this build and the build did not write it (a finding "
             f"against the chart's writes_to, not against the proof)")
+    for f, sha in unplanned.items():
+        reasons.append(
+            f"unplanned: {f} was changed by build commit {sha[:12]} but the decompose berth's "
+            f"writes_to does not name it, so nothing here reverts it and nothing measures it (a "
+            f"finding against the chart's writes_to: name the file, or take it out of the build)")
     for f, broke in unran.items():
         # NOT COUNTED AS HOLLOW, AND NOT COUNTED AS COVERED. The reading is unreadable: the
         # teeth went absent because the proof never ran, so this file is neither shown
@@ -1270,7 +1312,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "isolation": depth,
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
-            "unchanged": unchanged, "moved": moved, "revert_mode": revert_mode,
+            "unchanged": unchanged, "unplanned": unplanned, "moved": moved, "revert_mode": revert_mode,
             "approved": approved,
             "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
             "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,

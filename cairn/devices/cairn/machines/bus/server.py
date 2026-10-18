@@ -45,6 +45,8 @@ from cairn.devices.cairn.machines.bus.bus import BusDevice
 ROOT = Path(__file__).resolve().parents[5]
 EXIT_HELD = 3
 DEFAULT_HOME = Path("~/.cairn/devices/cairn/machines/bus/0")
+# Akien 2026-10-18: "the bus unable to wake a shim for 600 seconds sends trouble ticket."
+STOOD_S = 600
 
 # The bus methods a caller may reach through ``call``. Named, not getattr-anything: the
 # socket is the bus's public interface, and a private method is not on it (RULE 1).
@@ -57,6 +59,18 @@ def bus_home(home: str | Path | None = None) -> Path:
         return Path(home).expanduser()
     env = os.environ.get("CAIRN_BUS_HOME")
     return Path(env).expanduser() if env else DEFAULT_HOME.expanduser()
+
+
+def _age_s(date, now: datetime) -> float | None:
+    """Seconds since an envelope's ``date`` (naive local isoformat at post; the store may hand
+    back a datetime), or None when it cannot be read."""
+    try:
+        posted = date if isinstance(date, datetime) else datetime.fromisoformat(str(date))
+    except (TypeError, ValueError):
+        return None
+    if posted.tzinfo is not None:
+        posted = posted.astimezone().replace(tzinfo=None)
+    return (now - posted).total_seconds()
 
 
 def code_stamp(root: Path = ROOT) -> float:
@@ -102,6 +116,10 @@ class BusProcess:
         self._local = threading.local()
         self._by_spec: dict[str, object] = {}
         self._wired: set[str] = set()
+        # Envelopes already raised as standing past STOOD_S (ticket b30069239480), so each
+        # is reported once per bus life; a restart re-raises the backlog once, and the trouble
+        # device folds that into the same identity's count.
+        self._stood_reported: set[str] = set()
         # MAIL ARRIVES, AND WHAT CANNOT MARKS ITSELF (ticket 7cb1989e7825): a personal post
         # nobody is wired to take wakes its addressee's shim here, in the same call, or comes
         # back to its sender. Installed at construction so no post can slip past it.
@@ -324,7 +342,43 @@ class BusProcess:
                 "json": result.get("data")}
 
     def op_flush(self, _req: dict):
-        return {"ok": True, "json": self.bus.flush()}
+        flushed = self.bus.flush()
+        flushed["stood"] = self.report_stood()
+        return {"ok": True, "json": flushed}
+
+    # --- mail that stands (ticket b30069239480) ----------------------------------------
+
+    def report_stood(self, now: datetime | None = None) -> int:
+        """Raise one trouble for each personal envelope standing undelivered STOOD_S or more,
+        once per envelope. Rides the flush because the flush is the one op the beat sends the
+        bus process. It REPORTS and nothing else: no wake or delivery is retried here, so no
+        message ever waits on a tick to be delivered (bus clause 5). Identity is per
+        addressee — many stuck letters to one name are one trouble with a count. An envelope
+        whose date cannot be read is raised too, with its age unknown, never skipped (Law 7)."""
+        now = now or datetime.now()
+        raised = 0
+        for envelope in self.bus.undelivered(limit=1_000_000):
+            if envelope["id"] in self._stood_reported:
+                continue
+            age = _age_s(envelope.get("date"), now)
+            if age is not None and age < STOOD_S:
+                continue
+            to = envelope.get("addressee") or ""
+            sender = envelope.get("sender") or ""
+            held = to in self.roster.held
+            self.bus.raise_trouble(
+                f"mail-{to}-stood-{STOOD_S}s",
+                why=f"mail to {to} from {sender} has stood undelivered "
+                    f"{'an unknown time' if age is None else f'{int(age)}s'} (over {STOOD_S}s): "
+                    f"{envelope.get('why', '')!r}"
+                    f"{'' if held else f' — no shim for {to} is held'}",
+                detail={"envelope": envelope["id"], "sender": sender, "addressee": to,
+                        "why": envelope.get("why", ""), "verb": envelope.get("verb", ""),
+                        "reply_to": envelope.get("reply_to"), "date": str(envelope.get("date")),
+                        "age_s": None if age is None else int(age), "held": held})
+            self._stood_reported.add(envelope["id"])
+            raised += 1
+        return raised
 
     def op_stats(self, _req: dict):
         bus = self.bus

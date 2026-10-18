@@ -17,7 +17,7 @@
     "(e) an MCP adapter at the edge for outside callers"
   ],
   "gates": "proof gate — proofs/test_bus.py, bare and under the tester. Done means proven and committed.",
-  "falsifier": "RED on any of: (1) a posted message does not read back with its why / sender / reply_to; (2) a whyless message or unknown channel is accepted; (3) a record channel collapses; (4) two components talk by any path but the bus; (5) a message waits on a clock tick to be delivered (the pulse may only persist the ring); (6) a message for a sleeping component is lost instead of waking it.",
+  "falsifier": "RED on any of: (1) a posted message does not read back with its why / sender / reply_to; (2) a whyless message or unknown channel is accepted; (3) a record channel collapses; (4) two components talk by any path but the bus; (5) a message waits on a clock tick to be delivered (the pulse may only persist the ring and report personal mail standing undelivered 600s or more as one trouble per envelope, identity mail-<addressee>-stood-600s, never retry it — Akien 2026-10-18: 'the bus unable to wake a shim for 600 seconds sends trouble ticket', ticket b30069239480); (6) a message for a sleeping component is lost instead of waking it.",
   "how_it_learns": "It does not learn; it carries. Every message is a why-bearing causal record, so what the system said and why is readable evidence for whatever does learn.",
   "traces_to": [
     "Law 4 (one door makes inspectable+logged physics)",

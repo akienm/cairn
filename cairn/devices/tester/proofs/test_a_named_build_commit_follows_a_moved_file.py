@@ -121,13 +121,18 @@ def test_the_live_87a7_build_anchors_at_its_parent():
     cairn/tools/bus_client/bus_client.py before its build 18e1923d. Its named build_commits
     anchor at 18e1923d^ — never a refusal, never a later commit (Law 8). Invariant, not a
     snapshot: the parent is read from git, not written here."""
-    from cairn.devices.tester.hollow import COMMONS, _roots
+    from cairn.devices.tester.hollow import (COMMONS, _roots, instrument_set, proven_by,
+                                             writes_to)
     tid, first = "87a7f1c7ae21", "18e1923d06e13995084b72751801d4ccfd5d9f17"
     ticket = json.loads(next((Path(COMMONS) / "tickets").glob(f"{tid}-*.json")).read_text())
     assert first in (ticket.get("build_commits") or []), ticket.get("build_commits")
-    files = ["cairn/devices/inference_domain/device.py", "cairn/tools/base/bus_client.py"]
+    # The files are what 87a7's chart CLAIMS and the instrument is its proofs, read the way
+    # ``measure`` reads them — never typed here, so the departed path stays in the chart that
+    # named it rather than living on as a literal in class-space (ticket 05662f9e9bc9).
+    files = writes_to(ticket)
+    instrument = instrument_set(proven_by(ticket), _REPO_ROOT)
     try:
-        f = build_anchor(ticket, files, roots=_roots(), repo_root=_REPO_ROOT)
+        f = build_anchor(ticket, files, roots=_roots(), repo_root=_REPO_ROOT, instrument=instrument)
     except HollowUnmeasurable as why:
         raise AssertionError(f"87a7's true build_commits were refused: {why}")
     parent = subprocess.run(["git", "-C", str(_REPO_ROOT), "rev-parse", f"{first}^"],

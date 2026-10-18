@@ -265,6 +265,25 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
     return record
 
 
+# THE SEAL'S EMPTY LOGS TREE, NAMED (ticket 87ea3fb1058c). The sealed exec an instrument
+# re-runs in leaves ~/.cairn/logs empty by design, so an instrument that reads live logs fails
+# here and passes when run by hand, and its refusal was a bare traceback. A tail that cannot
+# find a file under that tree is a cause the builder can act on, so the refusal says it.
+_LIVE_LOGS_MISSING_RE = re.compile(
+    r"(?:FileNotFoundError|No such file or directory)[^\n]*?(/[^\s'\"]*/\.cairn/logs\b[^\s'\":]*)")
+
+
+def _seal_absence(run: dict) -> str:
+    """The sentence naming why a re-run failed inside the seal, or "" when its tail names none."""
+    found = _LIVE_LOGS_MISSING_RE.search(run.get("tail") or "")
+    if not found:
+        return ""
+    return ("\n    --- cause ---\n    the instrument reads %s, under the live logs tree, which "
+            "the verdict's sealed exec leaves empty by design (68cef2ddd8ef); point the "
+            "criterion at state that exists inside the seal, such as the proof's own teeth "
+            "or a sealed validation" % found.group(1))
+
+
 def _declared(criterion, entry, field, default):
     """WHAT A PASS LOOKS LIKE, read from the chart first and the verdict second.
 
@@ -371,9 +390,9 @@ def _observed_entries(observations) -> list:
             contradicted_claims.append(o["claim"])
             contradicted_lines.append(
                 "%r reports pass, but %r exited %r where the claim holding means %r"
-                "\n    --- output tail ---\n%s"
+                "\n    --- output tail ---\n%s%s"
                 % (o["claim"], o["run"]["command"], o["run"].get("exit"),
-                   o["expect_exit"], o["run"].get("tail")))
+                   o["expect_exit"], o["run"].get("tail"), _seal_absence(o["run"])))
         elif o["outcome"] == "fail" and agrees:
             contradicted_claims.append(o["claim"])
             contradicted_lines.append(

@@ -128,7 +128,7 @@ def test_a_failed_unit_of_the_run_is_cleared():
 def test_a_timed_out_run_leaves_no_unit():
     unit = _unit(3)
     rec = _run(_proof(3, unit, '"sleep", "300"', tail="import time; time.sleep(300)\n"), timeout=5)
-    assert rec["verdict"] == "red" and "timed out" in str(rec["evidence"].get("stderr_tail")), rec["evidence"]
+    assert rec["verdict"] == "timeout" and "timed out" in str(rec["evidence"].get("stderr_tail")), rec["evidence"]
     assert _wait_gone(unit), f"{unit} outlived a timed-out run: {_show(unit, 'ActiveState')!r}"
     assert _named(rec, unit), f"evidence does not name the unit: {rec['evidence'].get('killed')!r}"
 

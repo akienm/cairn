@@ -208,7 +208,7 @@ def test_what_the_run_started_is_killed():
 def test_a_timed_out_run_leaves_nothing_running():
     proof = _proof("cairn-bf3c-5-", _LEAKS_THEN_HANGS)
     rec = _run(proof, timeout=3)
-    assert rec["verdict"] == "red" and "timed out" in str(rec["evidence"].get("stderr_tail")), rec["evidence"]
+    assert rec["verdict"] == "timeout" and "timed out" in str(rec["evidence"].get("stderr_tail")), rec["evidence"]
     pid = int(Path(str(proof) + ".child").read_text())
     deadline = time.time() + 5
     while _alive(pid) and time.time() < deadline:

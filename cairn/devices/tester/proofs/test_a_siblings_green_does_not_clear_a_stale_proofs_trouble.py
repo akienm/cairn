@@ -34,7 +34,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.tester.device import GREEN, RED  # noqa: E402
+from cairn.devices.tester.device import GREEN, RED, TIMEOUT  # noqa: E402
 from cairn.devices.tester.reseal import reseal, trouble_identity  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.validation_store.validation_store import (  # noqa: E402
@@ -83,7 +83,7 @@ class _Tester:
     def run_proof(self, proof_path, *, sink, caller=None, timeout=120, isolation="none",
                   scratch_sweep=None):
         if self.timed_out:   # the runner's own shape for a killed subject (test_reseal_door)
-            return _record(Path(proof_path), RED, evidence={
+            return _record(Path(proof_path), TIMEOUT, evidence={
                 "returncode": None, "stdout_tail": "",
                 "stderr_tail": f"timed out after {timeout}s"})
         return _record(Path(proof_path), self.verdict,

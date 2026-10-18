@@ -219,8 +219,8 @@ def test_a_run_killed_by_its_timeout_leaves_no_unit() -> None:
     time.sleep(4)
     left = sorted(u for u in proof_units() - before if "unitmark" not in u)
     ok("test_a_run_killed_by_its_timeout_leaves_no_unit",
-       "timed out" in run.stdout + run.stderr and not left,
-       f"the inner run timed out={'timed out' in run.stdout + run.stderr}; units it left: {left}")
+       "  TIMEOUT " in run.stdout + run.stderr and not left,   # the column since 3dfceaa272ec
+       f"the inner run timed out={'  TIMEOUT ' in run.stdout + run.stderr}; units it left: {left}")
     for u in left:   # never leave the live manager holding what this tooth measured
         _run("systemctl", "--user", "stop", u, timeout=30)
         _run("systemctl", "--user", "reset-failed", u, timeout=30)
@@ -247,8 +247,8 @@ def test_a_killed_run_leaves_no_unit_of_its_own() -> None:
     time.sleep(4)
     left = sorted(u for u in seen if not _gone(u))
     ok("test_a_killed_run_leaves_no_unit_of_its_own",
-       "timed out" in said and bool(seen) and not left,
-       f"the inner run timed out={'timed out' in said}; units it started={sorted(seen)}; "
+       "  TIMEOUT " in said and bool(seen) and not left,   # the column since 3dfceaa272ec
+       f"the inner run timed out={'  TIMEOUT ' in said}; units it started={sorted(seen)}; "
        f"left after its kill={left}")
     for u in sorted(seen):   # never leave the live manager holding what this tooth measured
         _UNITS.extend([u, u.replace("-loop-", "-caller-", 1)])

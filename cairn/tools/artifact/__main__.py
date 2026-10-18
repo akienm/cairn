@@ -12,6 +12,8 @@ this file only parses and prints, so a proof measures the module and the CLI sta
   cairn artifact approve <id> "his words"        refused unless the caller is akien
   cairn artifact refuse <id> "words"
   cairn artifact install-hook <root>             install the blocking pre-commit check
+  cairn artifact check-title <msgfile>           the commit-msg question; exit 2 on refusal
+  cairn artifact install-title-hook <root>       install the blocking commit-msg check
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ from pathlib import Path
 from cairn.tools.artifact import artifact as A
 
 _HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "pre-commit"
+_TITLE_HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "commit-msg"
 
 
 def _out(doc) -> None:
@@ -56,6 +59,21 @@ def _install_hook(name: str) -> dict:
     return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12]}
 
 
+def _install_title_hook(name: str) -> dict:
+    """commit-msg is installed beside whatever pre-commit a root carries (the cairn repo's is
+    the tester's), so it composes with neither; one that is not this hook is refused."""
+    root = A.roots()[name]
+    hooks = root / ".git" / "hooks"
+    if not hooks.is_dir():
+        raise A.Refused(f"{root} has no .git/hooks — is it a repository?")
+    dst = hooks / "commit-msg"
+    if dst.exists() and "artifact check-title" not in dst.read_text(encoding="utf-8", errors="replace"):
+        raise A.Refused(f"{dst} exists and is not the title hook — it must be composed by hand")
+    shutil.copyfile(_TITLE_HOOK_SRC, dst)
+    dst.chmod(0o755)
+    return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12]}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="cairn artifact", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -75,6 +93,8 @@ def main(argv=None) -> int:
     a = sub.add_parser("approve"); a.add_argument("id"); a.add_argument("words")
     f = sub.add_parser("refuse"); f.add_argument("id"); f.add_argument("words")
     sub.add_parser("install-hook").add_argument("root")
+    sub.add_parser("check-title").add_argument("msgfile")
+    sub.add_parser("install-title-hook").add_argument("root")
     args = ap.parse_args(argv)
 
     try:
@@ -120,6 +140,18 @@ def main(argv=None) -> int:
             _out(A.refuse(args.id, args.words))
         elif args.verb == "install-hook":
             _out(_install_hook(args.root))
+        elif args.verb == "check-title":
+            lines = Path(args.msgfile).read_text(encoding="utf-8", errors="replace").splitlines()
+            faults = A.check_title(next((x for x in lines if x.strip() and not x.startswith("#")), ""))
+            for f_ in faults:
+                print(f"artifact check-title: {f_}", file=sys.stderr)
+            if faults:
+                print("\nREFUSED — a records commit is titled by the state its ticket landed "
+                      "(ticket cdac80129536); git log is read as the history of crossings.",
+                      file=sys.stderr)
+                return 2
+        elif args.verb == "install-title-hook":
+            _out(_install_title_hook(args.root))
     except A.Refused as exc:
         print(f"artifact {args.verb}: REFUSED — {exc}", file=sys.stderr)
         return 2

@@ -666,6 +666,38 @@ def check_staged(name: str) -> list[str]:
     return faults
 
 
+# A records commit's title is a record too: git log is read as the history of crossings, so a
+# title naming a state the ticket never reached is a false record (ticket cdac80129536).
+_RECORDS_TITLE = re.compile(r"^records:\s+([0-9a-f]{12})\s+([A-Z]+)\b")
+
+
+def check_title(subject: str) -> list[str]:
+    """Faults for a commit subject of the shape ``records: <ticket> <STATE>``. When STATE is a
+    state of that ticket's workflow, the ticket's cursor (the bracketed state in its
+    workflow_and_state, read from the CairnCommons root) must be STATE. A word that is no state
+    of the workflow (cast, seal, hollow) and every other subject shape pass untouched."""
+    m = _RECORDS_TITLE.match(subject.strip())
+    if not m:
+        return []
+    tid, word = m.groups()
+    tickets = roots()["CairnCommons"] / "tickets"
+    hits = [p for p in tickets.glob(f"{tid}-*.json") if not p.name.endswith(".log.jsonl")]
+    if len(hits) != 1:
+        return [f"title names ticket {tid}, but {tickets} holds {len(hits)} plan(s) for it"]
+    try:
+        wf = str(json.loads(hits[0].read_text(encoding="utf-8")).get("workflow_and_state") or "")
+    except (OSError, ValueError) as exc:
+        return [f"title names ticket {tid}, whose plan {hits[0].name} is unreadable ({exc})"]
+    if word not in re.findall(r"[A-Z]{2,}", wf.split(":", 1)[-1]):
+        return []
+    cur = re.search(r"\[([A-Z]+)", wf)
+    cursor = cur.group(1) if cur else None
+    if cursor != word:
+        return [f"title says {tid} {word}, but its cursor stands at {cursor} ({wf}) — "
+                f"title the commit by the state it landed, not the one it attempted"]
+    return []
+
+
 # ---------------------------------------------------------------------------
 # HAND EDITS: parked, then approved by a measured hand
 

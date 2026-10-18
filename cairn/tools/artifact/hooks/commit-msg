@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# cairn-title-door — the commit-msg question: does a records commit's title tell the truth?
+#
+# Ticket: CairnCommons/tickets/cdac80129536-*.json
+# Source: cairn/tools/artifact/hooks/commit-msg  (tracked; installed by
+#         `cairn artifact install-title-hook <root>` in both repos)
+#
+# WHY COMMIT-MSG. git log is read as the history of crossings, and a title is written by
+# whoever commits — a session's hand, not a script (CairnCommons 708067e8 read "records:
+# e194f4b4cb3e PROVED" over a crossing clearance had bounced to FIXME). The commit is the one
+# moment every writer passes, and pre-commit cannot see the message; commit-msg can.
+#
+# WHY IT BLOCKS. After the commit the title IS the record, and nothing downstream can tell an
+# attempt from an outcome. The refusal names the cursor, so the fix is one retitled commit.
+set -uo pipefail
+
+MSG="${1:-}"
+[ -n "$MSG" ] && [ -f "$MSG" ] || exit 0
+TOP="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+
+# The door lives in the cairn repo, found as the pre-commit finds it; unreachable is a refusal.
+CAIRN="${CAIRN_REPO:-}"
+[ -n "$CAIRN" ] || { [ -f "$TOP/cairn/tools/artifact/artifact.py" ] && CAIRN="$TOP"; }
+[ -n "$CAIRN" ] || { [ -f "$TOP/../cairn/cairn/tools/artifact/artifact.py" ] && CAIRN="$(cd "$TOP/../cairn" && pwd)"; }
+[ -n "$CAIRN" ] || { [ -f "$HOME/dev/src/cairn/cairn/tools/artifact/artifact.py" ] && CAIRN="$HOME/dev/src/cairn"; }
+if [ -z "$CAIRN" ]; then
+  echo "artifact check-title: REFUSED — the artifact door (cairn/tools/artifact) is not reachable from $TOP; set CAIRN_REPO" >&2
+  exit 2
+fi
+
+BOOTSTRAP="$CAIRN/launchers/bootstrap.sh"
+PY="python3"
+if [ -r "$BOOTSTRAP" ]; then
+  # shellcheck source=/dev/null
+  . "$BOOTSTRAP" && PY="$(cairn_python)"
+fi
+
+MSG="$(cd "$(dirname "$MSG")" && pwd)/$(basename "$MSG")"
+cd "$CAIRN" || exit 2
+PYTHONPATH="$CAIRN${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check-title "$MSG"

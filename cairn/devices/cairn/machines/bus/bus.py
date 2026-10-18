@@ -204,6 +204,10 @@ class BusDevice(BaseDevice):
         # Ids of requests whose asker is inside ``request()`` right now: a bounce answering one
         # is the asker's to take by correlation, never the no-receiver path's (ticket 7cb1989e7825).
         self._asked: set[str] = set()
+        # Ids of requests whose asker's ``request()`` reached its deadline, keyed to that asker
+        # (ticket cd2d27fe3261): a reply landing later has nobody to take it, so the bus
+        # receipts it as given up rather than let it stand for report_stood to raise.
+        self._abandoned: dict[str, str] = {}
         self._channel_toggles: dict[str, dict[str, bool]] = {}
         self._ring: list[dict] = []
         self._ring_receipts: list[dict] = []
@@ -456,6 +460,7 @@ class BusDevice(BaseDevice):
             "sender": sender, "addressee": to, "channel": channel,
         })
         if channel == "personal":
+            gave_up = self._abandoned.pop(reply_to, None) if reply_to is not None else None
             hook = self._delivery_hooks.get(to)
             toggles = self._channel_toggles.get(to, {})
             if hook is not None and toggles.get(channel, True):
@@ -467,6 +472,8 @@ class BusDevice(BaseDevice):
                     })
             elif self._try_folder_delivery(to, envelope):
                 pass
+            elif gave_up is not None:
+                self.record_delivery(envelope["id"], to=to, by="bus-asker-gave-up")
             elif (hook is None and self._no_receiver is not None
                   and (reply_to is None or (envelope["body"].get("is_bounce")
                                             and reply_to not in self._asked))):
@@ -587,6 +594,10 @@ class BusDevice(BaseDevice):
                     return self._taken(replies[0], sender)
         finally:
             self._asked.discard(envelope["id"])
+        self._abandoned[envelope["id"]] = sender
+        late = self._ring_matches(reply_to=envelope["id"])
+        if late and self._abandoned.pop(envelope["id"], None) is not None:
+            return self._taken(late[0], sender)
         raise TimeoutError(
             f"no reply to envelope {envelope['id'][:8]}… from {to} "
             f"within {timeout}s — the target did not reply (CP1: loud, not empty)"

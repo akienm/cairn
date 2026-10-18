@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_wake_never_waits_under_the_hold_lock.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-18T07:42:45",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-18T13:24:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "a_shim_woken_from_two_threads_is_wired_once"
       ],
       "teeth_red": [],
-      "test": "test-ca82241b8161",
+      "test": "test-8698c8ea6937",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,14 +36,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca82241b8161",
-      "source_fingerprint": "3a32a474ca514459db4b7089d183c6b4da0be28911c86904fe64c081c3deda12",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8698c8ea6937",
+      "source_fingerprint": "d2d335c0fd2cb0cac01299fc8ca84ade3d6142b2e399a2f60a42f16fc5f8c004",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -52,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-219406-5ljdvliz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-386160-rv6i7z5x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
@@ -66,27 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110638687,
-          "disk_bytes": 138338304,
-          "entries": 10993,
+          "bytes": 111082474,
+          "disk_bytes": 139177984,
+          "entries": 11129,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "445e66f32ba0": {
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "a_busy_shim_never_stalls_an_unrelated_wake",
-            "a_verb_that_mails_a_sleeper_while_its_own_mail_arrives_finishes"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "445e66f32ba0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5b5a8711cfe407d3309fa5599bcd205697d8504e",
-          "anchor_first_build": "488685da028893126f7334243a4126755419ae60",
-          "commit": "5b5a8711cfe407d3309fa5599bcd205697d8504e"
+          "reuses": 2
         }
       }
     },

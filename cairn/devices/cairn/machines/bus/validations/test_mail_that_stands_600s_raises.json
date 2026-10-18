@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_mail_that_stands_600s_raises.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-18T07:16:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green mail_that_stands_600s_raises_at_the_flush\n  green it_is_raised_once\n  green younger_mail_is_not_raised\n  green the_flush_still_flushes\n4 passed, 0 failed out of 4",
+      "stderr_tail": "",
+      "teeth_green": [
+        "mail_that_stands_600s_raises_at_the_flush",
+        "it_is_raised_once",
+        "younger_mail_is_not_raised",
+        "the_flush_still_flushes"
+      ],
+      "teeth_red": [],
+      "test": "test-545d22219dbf",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "102e457ff893a201d1e81cdbcea46a03220eef58b71b66072abd42fae6d126de",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-545d22219dbf",
+      "source_fingerprint": "381f58f3be1554362a4789fb0cac9dea8929ba6bf7cf1ac92382a6bf9e304c53",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_mail_that_stands_600s_raises.py",
+        "cairn/devices/cairn/machines/bus/server.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-205612-u6gf4982/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110577282,
+          "disk_bytes": 138203136,
+          "entries": 10961,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

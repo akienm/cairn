@@ -1101,6 +1101,14 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                                      f"{tail.splitlines()[-1] if tail else 'no output'}")
         return green, ran, why_none
 
+    def _own_green(rel: str) -> set[str]:
+        """The green teeth of one proof file outside the instrument, run in the worktree as it
+        stands, at the depth its own seal was taken."""
+        _purge_bytecode(wt)
+        record = tester.run_proof(wt / rel, sink="none", caller="cairn test --hollow",
+                                  timeout=timeout, isolation=seal_isolation(repo_root / rel))
+        return set(record["evidence"].get("teeth_green") or [])
+
     baseline, baseline_ran, baseline_why = run_all()
     missing = {rel: sorted(set(declared_teeth[rel]) - baseline[rel]) for rel in proofs}
     missing = {k: v for k, v in missing.items() if v}
@@ -1186,12 +1194,24 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                 (wtree / source).unlink()
             log(f"  UNWRIT {key}  (identical at the pre-build commit — the build did not write it)")
             continue
+        # A PROOF FILE OUTSIDE THE INSTRUMENT IS STILL AN INSTRUMENT, so it is also read by its
+        # OWN teeth (ticket ee0a8e836cdb; troubles hollow-reads-an-edited-neighbour-proof-as-
+        # hollow, hollow-reads-a-sibling-proof-as-source). A build that re-points a neighbour's
+        # proof at the new code cannot be seen by this ticket's declared teeth, so it read HOLLOW,
+        # and naming it as the instrument cost PROVED at proof_declares_the_ticket. Its pre-build
+        # text failing against today's code, where its HEAD text passes, is what shows the edit
+        # was load-bearing. A proof the build created (absent before) is not read this way:
+        # removing a file loses every tooth it holds and would vouch for any proof at all.
+        own = (not prefix and source is None and "proofs" in Path(rel).parts
+               and rel.endswith(".py") and (wtree / rel).is_file())
         try:
             after, after_ran, _ = run_all()
+            own_reverted = _own_green(rel) if own else set()
         finally:
             _restore(wtree, rel)
             if source is not None and (wtree / source).exists():
                 (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
+        own_lost = sorted(f"{rel}::{t}" for t in _own_green(rel) - own_reverted) if own else []
         revert_mode[key] = "whole-file"
         # A WHOLE-FILE REVERT THAT CANNOT RUN IN TODAY'S TREE IS RETRIED AS THE BUILD'S HUNKS
         # (ticket ce92eb562cf9). Only this file, and only when some proof printed no teeth. A
@@ -1213,7 +1233,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # says the file is load-bearing for SOMETHING; it says nothing about whether THIS
         # ticket's build earned THIS ticket's crossing, which is the only question here.
         redded = sorted({t for p in proofs for t in (baseline[p] - after[p])
-                         if t in declared_teeth[p]})
+                         if t in declared_teeth[p]}) + own_lost
         # Which proofs stopped RUNNING under this reversion, rather than running and failing.
         broke = sorted(p for p in proofs if baseline_ran[p] and after_ran[p] == 0)
         measured[key] = redded

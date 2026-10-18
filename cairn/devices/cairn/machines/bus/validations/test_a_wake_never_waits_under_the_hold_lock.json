@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_a_wake_never_waits_under_the_hold_lock.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-18T07:42:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_verb_that_mails_a_sleeper_while_its_own_mail_arrives_finishes\n  green a_busy_shim_never_stalls_an_unrelated_wake\n  green a_shim_woken_from_two_threads_is_wired_once\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_verb_that_mails_a_sleeper_while_its_own_mail_arrives_finishes",
+        "a_busy_shim_never_stalls_an_unrelated_wake",
+        "a_shim_woken_from_two_threads_is_wired_once"
+      ],
+      "teeth_red": [],
+      "test": "test-ca82241b8161",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "8afefa57697d5a104d4f7df4ba3bc213e15e78b143acdd4c07252232599c58dd",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca82241b8161",
+      "source_fingerprint": "3a32a474ca514459db4b7089d183c6b4da0be28911c86904fe64c081c3deda12",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_a_wake_never_waits_under_the_hold_lock.py",
+        "cairn/devices/cairn/machines/bus/server.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-219406-5ljdvliz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 4,
+          "paths": [
+            "devices/testing-a1d2-w/0/last_known.json",
+            "devices/testing-a1d2-x/0/last_known.json",
+            "devices/testing-a1d2-y/0/last_known.json",
+            "devices/testing-a1d2-z/0/last_known.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 110638687,
+          "disk_bytes": 138338304,
+          "entries": 10993,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

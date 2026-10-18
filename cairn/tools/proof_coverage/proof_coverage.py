@@ -919,3 +919,33 @@ def print_teeth_main(module_file: str, *extra_argv: str) -> int:
 
     return int(pytest.main([module_file, "-q", "-p", "no:cacheprovider", *extra_argv],
                            plugins=[_Names()]))
+
+
+def run_teeth(checks) -> int:
+    """Run a proof's plain list of checks, EVERY ONE, printing each tooth by name — ticket 280e6daa198e.
+
+    The sibling of ``print_teeth_main`` for a proof that keeps its own ``_main`` (a fixture
+    world set up once around every tooth). A loop that lets the first raise propagate prints
+    nothing for the teeth behind it, and ``teeth_printed`` then cannot tell "this tooth
+    failed" from "this tooth never ran" — opposite findings that send a reader to opposite
+    work (Law 7). Measured: with its probe reverted, that shape in
+    test_the_agent_retry_probe_judges.py reported '1 proof(s) printed no teeth at all'.
+    A crash of any kind is a red, so BaseException; the exit is non-zero with the red names.
+
+    THE SUMMARY OPENS ON A COUNT, NOT A MARKER. ``red: 1 of 3 teeth — x`` is the colon form
+    ``_MARKER_LABEL`` reads, so it came back as a red tooth named "1 of 3 teeth — x"
+    (measured 2026-10-18 by this ticket's own proof); a line opening on a digit mints nothing.
+    """
+    red = []
+    for check in checks:
+        try:
+            check()
+        except BaseException as exc:                       # noqa: BLE001 — a crash is a red
+            red.append(check.__name__)
+            print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
+        else:
+            print(f"  ok    {check.__name__}")
+    if red:
+        print(f"{len(red)} of {len(checks)} teeth red — {', '.join(red)}")
+        return 1
+    return 0

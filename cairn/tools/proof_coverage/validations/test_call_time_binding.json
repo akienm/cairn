@@ -2,12 +2,12 @@
   {
     "claim": "proof test_call_time_binding.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T12:55:12",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-18T14:30:22",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main\n  ok   test_a_transitive_binding_is_red_naming_the_chain\n       (live corpus: 15 lack(s) each anchored on a module-level import of something absent at pre)\n  ok   test_every_live_corpus_lack_is_a_module_level_import_of_something_absent_at_pre\n  ok   test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it\n  ok   test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow\n  ok   test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched\n  ok   test_the_watchme_probe_is_armed_with_carry_and_enough\n  ok   test_this_proof_binds_nothing_the_build_added_at_module_level\nGREEN — 8/8 teeth",
+      "stdout_tail": "  ok   test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main\n  ok   test_a_transitive_binding_is_red_naming_the_chain\n       (live corpus: 16 lack(s) each anchored on a module-level import of something absent at pre)\n  ok   test_every_live_corpus_lack_is_a_module_level_import_of_something_absent_at_pre\n  ok   test_the_sail_liturgy_carries_the_rule_and_the_sail_proof_declares_it\n  ok   test_the_sieve_names_the_file_hollow_reads_unran_and_without_it_the_ticket_reaches_hollow\n  ok   test_the_three_historical_shapes_red_at_the_line_the_hand_fix_touched\n  ok   test_the_watchme_probe_is_armed_with_carry_and_enough\n  ok   test_this_proof_binds_nothing_the_build_added_at_module_level\nGREEN — 8/8 teeth",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main",
@@ -20,37 +20,34 @@
         "test_this_proof_binds_nothing_the_build_added_at_module_level"
       ],
       "teeth_red": [],
-      "test": "test-9811ee6b74be",
+      "test": "test-a7629232832c",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 4,
-        "tables": [
-          "bus_proc_516337_1250461779_delivery",
-          "bus_proc_516337_1250461779",
-          "bus_proc_518338_1252272052_delivery",
-          "bus_proc_518338_1252272052"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "51ba05ccf1b80459cec5a36c0906b81f43675dbe835cdc2bb05980496ffbe726",
         "fixtures": "05fead554cb3bbd2677ec3d46b78aedd70242d445604d0a138c62a2dde5958fb",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9811ee6b74be",
-      "source_fingerprint": "d4d7926da5bcaa30b63f25e800898bff8d64443d9ab59e6c7bb60a70ba62479f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a7629232832c",
+      "source_fingerprint": "85d7363b8a901bdbd2a03009c3039929ec688681cac418c4104e0b60ccbabdea",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/probes/__init__.py",
@@ -62,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-520434-s5czbspk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-419162-2ej3rh8h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,13 +68,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104866928,
-          "disk_bytes": 127336448,
-          "entries": 9147,
+          "bytes": 111153784,
+          "disk_bytes": 139329536,
+          "entries": 11148,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

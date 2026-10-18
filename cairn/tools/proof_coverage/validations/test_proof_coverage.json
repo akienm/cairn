@@ -2,15 +2,14 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-08T12:55:56",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "date": "2026-10-18T14:31:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n  ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n  ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n  ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n  ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n  ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n  ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n  ok   test_an_undeclared_clause_is_named_by_its_number\n  ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n  ok   test_every_printing_style_in_the_corpus_is_read\n  ok   test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing\n  ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n  ok   test_the_live_corpus_reds_every_ticket_at_proveme\n  ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n  ok   test_this_very_proof_declares_the_ticket_that_built_it\n  ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n\n29/29 green",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_proof_with_NO_main_block_is_a_GREEN_over_ZERO_teeth\n  ok   test_a_red_tooth_is_never_recorded_green\n  ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n  ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n  ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n  ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n  ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n  ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n  ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n  ok   test_an_undeclared_clause_is_named_by_its_number\n  ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n  ok   test_every_printing_style_in_the_corpus_is_read\n  ok   test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing\n  ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n  ok   test_the_live_corpus_reds_every_ticket_at_proveme\n  ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n  ok   test_this_very_proof_declares_the_ticket_that_built_it\n  ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n\n28/29 green",
       "stderr_tail": "",
       "teeth_green": [
-        "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
         "test_a_concept_piece_with_a_review_record_is_covered",
         "test_a_concept_piece_with_no_review_record_reds",
         "test_a_declared_tooth_that_never_ran_green_is_named",
@@ -40,11 +39,13 @@
         "test_this_very_proof_declares_the_ticket_that_built_it",
         "test_wrong_intent_clauses_are_not_demanded_as_teeth"
       ],
-      "teeth_red": [],
-      "test": "test-93c65490f148",
+      "teeth_red": [
+        "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH"
+      ],
+      "test": "test-804209950db8",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -54,25 +55,27 @@
         "proof": "4614dee3411e1b91c82cf1e0d48f11bdbaf54136f69f53f04b568ce395e0c51b",
         "fixtures": "05fead554cb3bbd2677ec3d46b78aedd70242d445604d0a138c62a2dde5958fb",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 521531,
+          "pid": 420890,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-93c65490f148",
-      "source_fingerprint": "19b1e72ae5901999620823fadfc53777c1af7c06788f97b25bf59d889fafc5bd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-804209950db8",
+      "source_fingerprint": "9673fb13650ad834a9e0604b6c03589582f844d5a7788be77c69ef62caefe00d",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -80,38 +83,47 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-520434-1hmeoxqr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-419162-wq_u7rup/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
+          "count": 14,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261008.185514.622188.BusDevice.post.json",
-            "logs/bus/0/20261008.185514.625799.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261008.185514.660041.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261008.185514.678331.BusDevice.post.json",
-            "logs/bus/0/20261008.185518.322975.BusDevice.post.json",
-            "logs/bus/0/20261008.185518.324235.BusDevice.delivered.json",
-            "logs/bus/0/20261008.185518.324685.BusDevice.delivered.json",
-            "logs/tester/0/20261008.185518.321435.TesterDevice.run_proof.json",
-            "logs/tester/0/20261008.185518.324370.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261008.185518.324523.TesterShim.clear_trouble.json",
-            "logs/tester/0/runs/test-63c5db811c03/stderr.txt",
-            "logs/tester/0/runs/test-63c5db811c03/stdout.txt"
+            "logs/bus/0/20261018.203024.190891.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261018.203024.212172.BusDevice.post.json",
+            "logs/bus/0/20261018.203024.222911.BusDevice.post.json",
+            "logs/bus/0/20261018.203026.409641.BusDevice.post.json",
+            "logs/bus/0/20261018.203026.410618.BusDevice.delivered.json",
+            "logs/bus/0/20261018.203026.413601.BusDevice.delivered.json",
+            "logs/tester/0/20261018.203026.408260.TesterDevice.run_proof.json",
+            "logs/tester/0/20261018.203026.412623.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261018.203026.413471.TesterShim.clear_trouble.json",
+            "logs/tester/0/runs/test-f7024c4b59bd/stderr.txt",
+            "logs/tester/0/runs/test-f7024c4b59bd/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 104871023,
-          "disk_bytes": 127385600,
-          "entries": 9167,
+          "bytes": 111158767,
+          "disk_bytes": 139374592,
+          "entries": 11167,
           "builds": 1,
-          "reuses": 1
+          "reuses": 3
         }
-      }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "4614dee3411e1b91c82cf1e0d48f11bdbaf54136f69f53f04b568ce395e0c51b",
+        "opened": "2026-10-18T14:31:07",
+        "last_red": "2026-10-18T14:31:07",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-proof-coverage",
+        "ruling": null
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

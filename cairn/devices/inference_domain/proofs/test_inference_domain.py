@@ -835,14 +835,17 @@ def _main() -> int:
     _move_roots = getattr(domain, "set_diagnostic_roots", None)
     if _move_roots:
         _move_roots({**_address.ROOTS, "instance": scratch_dir("cairn_infer_proof_")})
+    # EVERY TOOTH RUNS (ticket 280e6daa198e): a red prints FAIL beside its name and the rest
+    # still run, so a reverted subject is a reading rather than a silence.
+    from cairn.tools.proof_coverage.proof_coverage import run_teeth
     try:
-        for check in checks:
-            check()
-            print(f"  PASS  {check.__name__}")
+        code = run_teeth(checks)
     finally:
         if _move_roots:
             _move_roots(None)
         _SCRATCH.close()
+    if code:
+        return code
     print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
     return 0
 

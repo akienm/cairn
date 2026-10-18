@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_failed_run_is_counted.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T13:48:29",
+    "date": "2026-10-18T13:09:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ran:false record ba41f00dfa11-20261013T194823.json, why='read 1: no tree passed the schema in 3 attempts — last lacks'\n  ok   test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal\npasses_since_clean 0 -> 1\n  ok   test_a_failed_pass_counts_toward_the_cap\npointer unmoved; ticket bytes unchanged\n  ok   test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer\nplanted red: \"runner testing-planted's failure (testing: a drive that writes nothing\"; declared green: ['rehearsal', 'tester']\n  ok   test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones\nGREEN — 4/4",
+      "stdout_tail": "ran:false record ba41f00dfa11-20261018T190953.json, why='read 1: no tree passed the schema in 3 attempts — last lacks'\n  ok   test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal\npasses_since_clean 0 -> 1\n  ok   test_a_failed_pass_counts_toward_the_cap\npointer unmoved; ticket bytes unchanged\n  ok   test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer\nplanted red: \"runner testing-planted's failure (testing: a drive that writes nothing\"; declared green: ['rehearsal', 'tester']\n  ok   test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones\nGREEN — 4/4",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",
@@ -16,7 +16,7 @@
         "test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones"
       ],
       "teeth_red": [],
-      "test": "test-b5c0ae49571b",
+      "test": "test-1db8566ad94f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,14 +34,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b5c0ae49571b",
-      "source_fingerprint": "b475a96cfb6b96728f8b7a32d04349aec29aa313a4006347b3044f698f6d7a5d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1db8566ad94f",
+      "source_fingerprint": "2c46f4852e3b81cf4c756044093088bd62a537f8cd2032eda18e3b67602e4ceb",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py",
@@ -49,21 +51,21 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2886061-4chpmig_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-379531-bt4br381/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/runs/test-277339fae631/stderr.txt",
-            "logs/tester/0/runs/test-277339fae631/stdout.txt"
+            "logs/tester/0/runs/test-2a2f0e6a955e/stderr.txt",
+            "logs/tester/0/runs/test-2a2f0e6a955e/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 109210818,
-          "disk_bytes": 135389184,
-          "entries": 10478,
+          "bytes": 111030291,
+          "disk_bytes": 139055104,
+          "entries": 11105,
           "builds": 1,
           "reuses": 1
         }

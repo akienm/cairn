@@ -29,6 +29,7 @@ What is physics here and what is not:
 """
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -1139,26 +1140,74 @@ def step_text(step: str, decisions: dict[int, str]) -> str:
     return step[len(UNLISTED):] if step.startswith(UNLISTED) else step
 
 
-def teeth_of(proof: Path | str) -> list[str]:
-    """``def test_*`` names in a proof file, in order."""
+def teeth_bodies(proof: Path | str) -> dict[str, str]:
+    """Each top-level ``def test_*`` in a proof file, in order, with its source. A ``def test_``
+    inside a fixture string is not a tooth (8 phantoms measured 2026-10-18). A file that does
+    not parse gives its names by line and empty bodies."""
     text = Path(proof).read_text(encoding="utf-8")
-    return re.findall(r"^\s*def (test_\w+)\s*\(", text, flags=re.M)
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return {t: "" for t in re.findall(r"^\s*def (test_\w+)\s*\(", text, flags=re.M)}
+    return {n.name: ast.get_source_segment(text, n) or "" for n in tree.body
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith("test_")}
 
 
-def divergence(steps: list[str], teeth: list[str], *, overlap: int = 2) -> dict:
+def teeth_of(proof: Path | str) -> list[str]:
+    """``def test_*`` names in a proof file, in order — the top-level ones."""
+    return list(teeth_bodies(proof))
+
+
+_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+def _identifiers(s: str) -> set[str]:
+    """The snake_case code names a text carries — a tooth's other names and dunders aside."""
+    return {w for w in _IDENT.findall(s) if "_" in w.strip("_") and len(w) >= 5
+            and not w.startswith("test_") and not (w.startswith("__") and w.endswith("__"))}
+
+
+def _common(sets: list[set[str]]) -> set[str]:
+    """Names more than half of three or more texts carry: they say which component, not which
+    step (0539e85f8b2d's 'counting_block', measured 2026-10-18)."""
+    if len(sets) < 3:
+        return set()
+    n: dict[str, int] = {}
+    for d in sets:
+        for w in d:
+            n[w] = n.get(w, 0) + 1
+    return {w for w, c in n.items() if c > len(sets) / 2}
+
+
+def divergence(steps: list[str], teeth: list[str], *, overlap: int = 2,
+               bodies: dict[str, str] | None = None) -> dict:
     """The diff both ways between the converged tree's steps and the built proof's teeth:
-    a step is covered when some tooth shares ``overlap`` significant tokens with it; a tooth
-    is expected when some step does. ``{"steps_unproved": [...], "teeth_unforeseen": [...],
+    a step is covered when some tooth shares ``overlap`` significant tokens with it, or —
+    given the teeth's ``bodies`` — when the tooth's body uses a code identifier the step
+    names that most steps and most teeth do not (870d26e0da47); a tooth is expected when
+    some step does. ``{"steps_unproved": [...], "teeth_unforeseen": [...],
     "matched": [[step, tooth], ...]}`` — empty lists both ways is the rehearsal predicting
     the build."""
     st = {s: _tokens(s) for s in steps}
     tt = {t: _tokens(t) for t in teeth}
-    matched = [[s, t] for s in steps for t in teeth if len(st[s] & tt[t]) >= overlap]
+    si = {s: _identifiers(s) for s in steps}
+    bi = {t: _identifiers((bodies or {}).get(t, "")) for t in teeth}
+    drop = _common(list(si.values())) | _common(list(bi.values()))
+    matched = [[s, t] for s in steps for t in teeth
+               if len(st[s] & tt[t]) >= overlap or si[s] & bi[t] - drop]
     covered = {s for s, _ in matched}
     foreseen = {t for _, t in matched}
     return {"steps_unproved": [s for s in steps if s not in covered],
             "teeth_unforeseen": [t for t in teeth if t not in foreseen],
             "matched": matched}
+
+
+def proof_divergence(steps: list[str], proofs: list[Path | str]) -> dict:
+    """``divergence`` of the steps against every proof's teeth, read with their bodies."""
+    bodies: dict[str, str] = {}
+    for p in proofs:
+        bodies.update(teeth_bodies(p))
+    return divergence(steps, list(bodies), bodies=bodies)
 
 
 def record_divergence(ticket: str, proofs: list[Path | str], *, root: Path | str | None = None) -> dict:
@@ -1175,8 +1224,7 @@ def record_divergence(ticket: str, proofs: list[Path | str], *, root: Path | str
     tk = ticket_file(ticket, root)
     decisions = {d["n"]: d.get("text", "") for d in decision_ids_and_text(tk)}
     steps = [step_text(n["step"], decisions) for n in rec["reads"][0]["nodes"]]
-    teeth = [t for p in proofs for t in teeth_of(p)]
-    d = divergence(steps, teeth)
+    d = proof_divergence(steps, proofs)
     d["proofs"] = [str(p) for p in proofs]
     d["at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     rec["divergence"] = d

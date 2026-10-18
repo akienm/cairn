@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_cast_seeds_decisions_from_builder_check.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T12:55:29",
+    "date": "2026-10-18T08:38:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_decision_less_cast_gains_the_builder_check_as_d1\n        [{\"n\": 1, \"text\": \"D1 (the /sorted builder_check): WHERE? x.py\", \"by\": \"proof-actor\", \"step\": \"cast\", \"source\": \"sorted\", \"at\": \"2026-10-13T18:55:28+00:00\"}]\n  PASS  a_cast_carrying_decisions_keeps_them_byte_identical\n        [{\"n\": 1, \"text\": \"D1: keep\"}]\n  PASS  a_blank_or_absent_builder_check_adds_no_decisions_key\n        [null, null, null]\n\nGREEN",
+      "stdout_tail": "  PASS  a_decision_less_cast_gains_the_builder_check_as_d1\n        [{\"n\": 1, \"text\": \"D1 (the /sorted builder_check): WHERE? x.py\", \"by\": \"proof-actor\", \"step\": \"cast\", \"source\": \"sorted\", \"at\": \"2026-10-18T14:38:26+00:00\"}]\n  PASS  a_cast_carrying_decisions_keeps_them_byte_identical\n        [{\"n\": 1, \"text\": \"D1: keep\"}]\n  PASS  a_blank_or_absent_builder_check_adds_no_decisions_key\n        [null, null, null]\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_decision_less_cast_gains_the_builder_check_as_d1",
@@ -15,14 +15,57 @@
         "a_blank_or_absent_builder_check_adds_no_decisions_key"
       ],
       "teeth_red": [],
-      "test": "test-3b349249e6d7",
+      "test": "test-70d81b91387a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 42,
+        "tables": [
+          "bus_proc_232960_0819437038_delivery",
+          "bus_proc_232960_0819437038",
+          "bus_proc_233403_0820086369_delivery",
+          "bus_proc_233403_0820086369",
+          "bus_proc_233550_0820125898_delivery",
+          "bus_proc_233550_0820125898",
+          "bus_proc_234282_0820588163_delivery",
+          "bus_proc_234282_0820588163",
+          "bus_proc_235470_0822310336_delivery",
+          "bus_proc_235470_0822310336",
+          "bus_proc_235873_0823061063_delivery",
+          "bus_proc_235873_0823061063",
+          "bus_proc_235903_0823063663_delivery",
+          "bus_proc_235903_0823063663",
+          "bus_proc_235948_0823075776_delivery",
+          "bus_proc_235948_0823075776",
+          "bus_proc_235983_0823089727_delivery",
+          "bus_proc_235983_0823089727",
+          "bus_proc_236052_0823121040_delivery",
+          "bus_proc_236052_0823121040",
+          "bus_proc_236298_0823343637_delivery",
+          "bus_proc_236298_0823343637",
+          "bus_proc_236369_0823421965_delivery",
+          "bus_proc_236369_0823421965",
+          "bus_proc_236512_0824026011_delivery",
+          "bus_proc_236512_0824026011",
+          "bus_proc_236542_0824028916_delivery",
+          "bus_proc_236542_0824028916",
+          "bus_proc_236588_0824041352_delivery",
+          "bus_proc_236588_0824041352",
+          "bus_proc_236622_0824055114_delivery",
+          "bus_proc_236622_0824055114",
+          "bus_proc_236713_0824084146_delivery",
+          "bus_proc_236713_0824084146",
+          "bus_proc_236744_0824086654_delivery",
+          "bus_proc_236744_0824086654",
+          "bus_proc_236789_0824099395_delivery",
+          "bus_proc_236789_0824099395",
+          "bus_proc_236823_0824113458_delivery",
+          "bus_proc_236823_0824113458",
+          "bus_proc_236868_0824117122_delivery",
+          "bus_proc_236868_0824117122"
+        ]
       },
       "conditions": {
         "proof": "d3bdc0909debc43e47f0e991649583fe305825aa3633b1046d4162afffad209f",
@@ -33,14 +76,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3b349249e6d7",
-      "source_fingerprint": "b3ced35d7d048494398bec2b60fb5465c2fe28c199d10b23c10a983b2b9c5654",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-70d81b91387a",
+      "source_fingerprint": "121461daa29547cc4f09ef81210924915697b5d36608929a4ef2f6bb85c1d451",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -53,7 +98,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2841117-m4uukk8n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-241547-oz25jpoe/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +107,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109106220,
-          "disk_bytes": 135110656,
-          "entries": 10416,
+          "bytes": 110810750,
+          "disk_bytes": 138637312,
+          "entries": 11031,
           "builds": 1,
-          "reuses": 9
+          "reuses": 0
         }
       }
     },

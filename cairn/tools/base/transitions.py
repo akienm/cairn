@@ -2879,6 +2879,13 @@ def _berth_lacks(doc: dict) -> list[str]:
                 if ans.get("node_class") != doc.get("node_class"):
                     lacks.append("sorted_berth's answers.node_class differs from the doc's "
                                  "node_class")
+                # A berth carries the title it was fired under; bound by slug, as the filename is,
+                # so another ticket's berth is refused (c24c5310a727). A titleless berth is
+                # judged by workflow and node_class alone.
+                bt = berth.get("title") or ans.get("title")
+                if not _blank(bt) and _slug(str(bt)) != _slug(str(doc.get("title") or "")):
+                    lacks.append(f"sorted_berth was fired for {bt!r}, not for the doc's title "
+                                 f"{doc.get('title')!r}")
             elif berth is not None:
                 lacks.append(f"sorted_berth {sb!r} does not hold a JSON object")
     ib = doc.get("intent_berth")

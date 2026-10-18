@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_every_tooth_runs_and_a_red_is_named.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-18T14:31:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_broken_first_tooth_leaves_the_rest_named\n.\n  ok   test_an_all_green_run_returns_zero\n.\n  ok   test_a_crash_that_is_not_an_assertion_is_a_red_too\n                                                                      [100%]\n3 passed in 0.01s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_broken_first_tooth_leaves_the_rest_named",
+        "test_an_all_green_run_returns_zero",
+        "test_a_crash_that_is_not_an_assertion_is_a_red_too"
+      ],
+      "teeth_red": [],
+      "test": "test-ac3d4cf74ac0",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "1cb7ef02c7110551f014eae6adcfcdae6d51188ca9261fe00a5564d932205f97",
+        "fixtures": "05fead554cb3bbd2677ec3d46b78aedd70242d445604d0a138c62a2dde5958fb",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ac3d4cf74ac0",
+      "source_fingerprint": "531e0762a835a6f49015a378bf8ed44dd609054a78815c7a62226d87d5ef0e9d",
+      "fingerprint_closure": [
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/proof_coverage/proofs/test_every_tooth_runs_and_a_red_is_named.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-422819-l_v69y3v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 111154334,
+          "disk_bytes": 139333632,
+          "entries": 11149,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

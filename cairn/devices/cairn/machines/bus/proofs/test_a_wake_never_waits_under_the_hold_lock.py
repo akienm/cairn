@@ -40,10 +40,11 @@ from cairn.tools.base.shim import BaseShim  # noqa: E402
 from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
 from cairn.devices.cairn.machines.bus.server import BusProcess  # noqa: E402
 
+# Keyed to the ticket falsifier's clause markers (1)-(3).
 PROVES = {"445e66f32ba0": {
-    "all": "a_verb_that_mails_a_sleeper_while_its_own_mail_arrives_finishes",
-    "no wake waits on a shim lock under the hold lock": "a_busy_shim_never_stalls_an_unrelated_wake",
-    "a shim is wired once however many threads wake it": "a_shim_woken_from_two_threads_is_wired_once",
+    "1": "a_verb_that_mails_a_sleeper_while_its_own_mail_arrives_finishes",
+    "2": "a_busy_shim_never_stalls_an_unrelated_wake",
+    "3": "a_shim_woken_from_two_threads_is_wired_once",
 }}
 
 _SCRATCH = contextlib.ExitStack()

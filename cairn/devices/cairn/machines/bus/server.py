@@ -100,6 +100,9 @@ class BusProcess:
         self.bus = bus
         self.roster = DeviceRoster(bus)
         self.stamp = code_stamp()
+        # Guards the roster lookup and shim construction only, never _wire: holding it while
+        # _wire waits on a busy shim's lock deadlocked that shim's own handler and stalled
+        # every other wake on the bus (ticket 445e66f32ba0, measured 2026-10-18).
         self._hold_lock = threading.RLock()
         # One RLock per held shim (decision 8): a slow answer blocks only its own device's
         # traffic, and a handler that posts to itself re-enters on the same thread.
@@ -132,20 +135,27 @@ class BusProcess:
         """Wire a held shim's delivery onto the ring — ``_wire_delivery``, the one step of a
         first pulse that is about mail — once, then wrap the poke it registered in that
         shim's own lock. Not a pulse (decision 12): a pulse fires probes and stamps snapshots."""
-        if shim.device_id in self._wired and shim.device_id in self.bus._delivery_hooks:
+        if self._is_wired(shim.device_id):
             return
         with self._holding(shim.device_id):
+            # Re-read under the shim's own lock: two wakes can both pass the check above, and
+            # only the first may wire (ticket 445e66f32ba0).
+            if self._is_wired(shim.device_id):
+                return
             shim._wire_delivery()
-        self._wired.add(shim.device_id)
-        hook = self.bus._delivery_hooks.get(shim.device_id)
-        if hook is not None and not getattr(hook, "_bus_locked", False):
-            self._hooks[shim.device_id] = hook
+            self._wired.add(shim.device_id)
+            hook = self.bus._delivery_hooks.get(shim.device_id)
+            if hook is not None and not getattr(hook, "_bus_locked", False):
+                self._hooks[shim.device_id] = hook
 
-            def locked(envelope, _id=shim.device_id):
-                self._queues[_id].append(envelope)
-                self._drain(_id)
-            locked._bus_locked = True
-            self.bus._delivery_hooks[shim.device_id] = locked
+                def locked(envelope, _id=shim.device_id):
+                    self._queues[_id].append(envelope)
+                    self._drain(_id)
+                locked._bus_locked = True
+                self.bus._delivery_hooks[shim.device_id] = locked
+
+    def _is_wired(self, device_id: str) -> bool:
+        return device_id in self._wired and device_id in self.bus._delivery_hooks
 
     # --- one shim, one thread at a time ---------------------------------------------------
 
@@ -219,13 +229,13 @@ class BusProcess:
         announces its menu, which wakes the device, and a cold ``list`` wakes nothing (decision 12)."""
         with self._hold_lock:
             shim = self.roster.shim_for(name)
-            if shim is None:
-                raise LookupError(
-                    f"no shim answers to {name!r} — a device's bus presence IS "
-                    f"cairn/devices/{name}/shim.py on disk, and nothing was discovered there")
-            if wire:
-                self._wire(shim)
-            return shim
+        if shim is None:
+            raise LookupError(
+                f"no shim answers to {name!r} — a device's bus presence IS "
+                f"cairn/devices/{name}/shim.py on disk, and nothing was discovered there")
+        if wire:
+            self._wire(shim)
+        return shim
 
     def hold_class(self, spec: str, *, wire: bool = True):
         """``module:Class`` — a shim class named by its address, constructed here, never in the
@@ -241,9 +251,9 @@ class BusProcess:
                 else:
                     self.roster.hold(shim)
                 self._by_spec[spec] = shim
-            if wire:
-                self._wire(shim)
-            return shim
+        if wire:
+            self._wire(shim)
+        return shim
 
     # --- mail nobody was wired to take (ticket 7cb1989e7825) ---------------------------
 

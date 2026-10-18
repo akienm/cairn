@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_mail_that_stands_600s_raises.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-18T07:16:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-18T07:42:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,14 +16,43 @@
         "the_flush_still_flushes"
       ],
       "teeth_red": [],
-      "test": "test-545d22219dbf",
+      "test": "test-e0bc2adfbfe6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 28,
+        "tables": [
+          "bus_proc_207345_0717540059_delivery",
+          "bus_proc_207345_0717540059",
+          "bus_proc_207578_0718031301_delivery",
+          "bus_proc_207578_0718031301",
+          "bus_proc_208354_0718361793_delivery",
+          "bus_proc_208354_0718361793",
+          "bus_proc_208423_0718387460_delivery",
+          "bus_proc_208423_0718387460",
+          "bus_proc_209938_0720345595_delivery",
+          "bus_proc_209938_0720345595",
+          "bus_proc_210192_0721211081_delivery",
+          "bus_proc_210192_0721211081",
+          "bus_proc_210447_0722080192_delivery",
+          "bus_proc_210447_0722080192",
+          "bus_proc_211045_0724052233_delivery",
+          "bus_proc_211045_0724052233",
+          "bus_proc_212852_0727274061_delivery",
+          "bus_proc_212852_0727274061",
+          "bus_proc_213084_0727365708_delivery",
+          "bus_proc_213084_0727365708",
+          "bus_proc_213149_0727392354_delivery",
+          "bus_proc_213149_0727392354",
+          "bus_proc_217363_0741363225_delivery",
+          "bus_proc_217363_0741363225",
+          "bus_proc_217596_0741455804_delivery",
+          "bus_proc_217596_0741455804",
+          "bus_proc_217656_0741482945_delivery",
+          "bus_proc_217656_0741482945"
+        ]
       },
       "conditions": {
         "proof": "102e457ff893a201d1e81cdbcea46a03220eef58b71b66072abd42fae6d126de",
@@ -37,14 +66,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-545d22219dbf",
-      "source_fingerprint": "381f58f3be1554362a4789fb0cac9dea8929ba6bf7cf1ac92382a6bf9e304c53",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e0bc2adfbfe6",
+      "source_fingerprint": "2447ab493b6c625d2cd2edaa132a2d50fe907a80b9558b468c3154f10bb19e1e",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -53,7 +81,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-205612-u6gf4982/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-218410-7658q9zb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,31 +90,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110577282,
-          "disk_bytes": 138203136,
-          "entries": 10961,
+          "bytes": 110636132,
+          "disk_bytes": 138313728,
+          "entries": 10979,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "b30069239480": {
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "it_is_raised_once",
-            "mail_that_stands_600s_raises_at_the_flush",
-            "younger_mail_is_not_raised"
-          ],
-          "cairn/devices/cairn/machines/bus/intention+why.json": {
-            "notified": "n-ddb19fdceeb2"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "b30069239480": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c708c9fa614e530cdd023b59ef5485e5c81ca34c",
-          "anchor_first_build": "5329d40cdfd8a73a1ce68a2ad6d6cca1fcbb52a7",
-          "commit": "c708c9fa614e530cdd023b59ef5485e5c81ca34c"
         }
       }
     },

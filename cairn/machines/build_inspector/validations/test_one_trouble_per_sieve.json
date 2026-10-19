@@ -1,0 +1,96 @@
+[
+  {
+    "claim": "proof test_one_trouble_per_sieve.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-19T01:35:16",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  one_raise_per_sieve\n  PASS  every_run_raises_the_same_identity\n  PASS  the_standing_set_is_per_sieve\n  PASS  the_old_fan_out_clears\n  PASS  the_detail_stays_bounded\n  PASS  one_trouble_per_sieve\n6 passed, 0 failed out of 6",
+      "stderr_tail": "",
+      "teeth_green": [
+        "one_raise_per_sieve",
+        "every_run_raises_the_same_identity",
+        "the_standing_set_is_per_sieve",
+        "the_old_fan_out_clears",
+        "the_detail_stays_bounded",
+        "one_trouble_per_sieve"
+      ],
+      "teeth_red": [],
+      "test": "test-f5b96d259757",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f196676a7a27300a01cfe14dfa78a4e7913edb3e9f117b37551f9442f83d2d4a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f5b96d259757",
+      "source_fingerprint": "f2975be8db81c64d79182754eb175378a21c6f4a912157e5d0df5b2ab57ef4bd",
+      "fingerprint_closure": [
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_one_trouble_per_sieve.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-594419-po7bt93u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 111445278,
+          "disk_bytes": 139821056,
+          "entries": 11222,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "cd27b72ba964": {
+          "cairn/machines/build_inspector/inspector.py": [
+            "one_trouble_per_sieve"
+          ],
+          "cairn/machines/build_inspector/proofs/test_finding_baseline_reconcile.py": [
+            "cairn/machines/build_inspector/proofs/test_finding_baseline_reconcile.py::the_reconcile_hands_trouble_only_what_still_stands_above_baseline",
+            "cairn/machines/build_inspector/proofs/test_finding_baseline_reconcile.py::the_standing_set_is_the_above_baseline_set"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "cd27b72ba964": {
+          "anchor_rule": "journal",
+          "anchor_journal": "5cc1fc653f0a75870bf1afcf946d1a9a0a096ac4",
+          "anchor_first_build": "4279c80efb67ef09ec7db91412b55064ea360950",
+          "commit": "5cc1fc653f0a75870bf1afcf946d1a9a0a096ac4"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

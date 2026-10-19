@@ -29,7 +29,9 @@ A device's ``introspect()`` can publish onto its ``announce`` feed, so *inspecti
 is reading its feed* — observability and messaging stop being two systems.
 
 RECORD-OF-TRUTH vs DIAGNOSTIC, as physics (Law 7). A RECORD channel (announce/personal)
-never collapses and never expires — it is a record of truth. A DIAGNOSTIC channel
+never collapses and never expires — it is a record of truth — save one door: ``retire``
+deletes a set Akien has RULED gone (a named addressee on named verbs, its replies and
+receipts), and says what it deleted (ticket 976b5a8512c8). A DIAGNOSTIC channel
 (info/debug) may collapse in a VIEW and expire on a rolling window. The crux: the SUBSTRATE
 always stores the full truth; only a ``digest`` VIEW collapses. ``read`` is the record;
 ``digest`` is the collapsible surface, and it refuses to collapse a record channel.
@@ -703,6 +705,69 @@ class BusDevice(BaseDevice):
             self._ring_delivered.difference_update(r["envelope"] for r in to_receipt)
         self._flushed += len(to_flush)
         return {"flushed": len(to_flush), "receipts": len(to_receipt)}
+
+    def retire(self, *, addressee: str, verbs: list[str], why: str) -> dict:
+        """Delete a RULED set of requests, the replies naming them and every receipt of either.
+
+        The one exception to a RECORD channel never expiring, and only on a ruling: Akien,
+        2026-10-18, *"THERE SHOULD BE NO ROWS FOR TROUBLE TICKETS"* and *"those wrong and bad
+        things all deleted once it's fixed"* (ticket 976b5a8512c8). The bus owns the transit
+        table, so only its gate deletes from it (Law 6), and it says what it deleted (Law 7):
+        the counts come back and ride a ``retired`` record into the device's trail.
+
+        A blank addressee, an empty verb list or a blank why is refused before anything is
+        touched — a retire that names nothing would read as one that names everything. The
+        ring is retired too, so a later flush cannot land what was retired."""
+        verbs = [v for v in (verbs or []) if v]
+        if not (addressee or "").strip() or not verbs or not (why or "").strip():
+            raise ValueError("a retire names its addressee, at least one verb and its why — "
+                             f"got addressee={addressee!r} verbs={verbs!r} why={why!r}")
+        self.flush()
+        counts = {"requests": 0, "replies": 0, "receipts": 0}
+        with self._lock:
+            req_ids = {e["id"] for e in self._ring
+                       if e.get("addressee") == addressee and e.get("verb") in verbs}
+            rep_ids = {e["id"] for e in self._ring if e.get("reply_to") in req_ids}
+            ids = req_ids | rep_ids
+            counts["requests"] += len(req_ids)
+            counts["replies"] += len(rep_ids)
+            self._ring = [e for e in self._ring if e["id"] not in ids]
+            kept = [r for r in self._ring_receipts if r["envelope"] not in ids]
+            counts["receipts"] += len(self._ring_receipts) - len(kept)
+            self._ring_receipts = kept
+        self._ensure()
+        conn = store.connect()
+        conn.autocommit = False
+        try:
+            req = [r["id"] for r in store.query(
+                "SELECT id FROM {t} WHERE addressee = %s AND verb = ANY(%s)",
+                tables={"t": self._table}, params=(addressee, verbs), conn=conn)]
+            rep = [r["id"] for r in store.query(
+                "SELECT id FROM {t} WHERE reply_to = ANY(%s)",
+                tables={"t": self._table}, params=(req,), conn=conn)] if req else []
+            stored = req + rep
+            if stored:
+                counts["receipts"] += store.delete(self._delivery_table, _BUS_OWNER,
+                                                   where="envelope = ANY(%s)", params=(stored,),
+                                                   conn=conn)
+                store.delete(self._table, _BUS_OWNER, where="id = ANY(%s)", params=(stored,),
+                             conn=conn)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        counts["requests"] += len(req)
+        counts["replies"] += len(rep)
+        gone = ids | set(stored)
+        with self._lock:
+            for i in gone:
+                self._pending.pop(i, None)
+            self._ring_delivered.difference_update(gone)
+        result = {**counts, "addressee": addressee, "verbs": list(verbs), "why": why}
+        self.emit("retired", pointer=addressee, values=result)
+        return result
 
     def spill(self, path) -> dict:
         """Write what the ring still holds to ``path`` as JSON lines and clear it — the bus's

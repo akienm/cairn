@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_trouble_never_rides_the_bus.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-18T22:31:05",
+    "caller": "cairn test",
+    "date": "2026-10-19T00:28:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,14 +23,17 @@
         "test_trouble_never_rides_the_bus"
       ],
       "teeth_red": [],
-      "test": "test-159baa027ed2",
+      "test": "test-8f09637df700",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_556688_0021565711_delivery",
+          "bus_proc_556688_0021565711"
+        ]
       },
       "conditions": {
         "proof": "838a5bd42058b2bd2c926a1610b654e6d1888984a501ad644c6dede99dc795b2",
@@ -44,12 +47,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-159baa027ed2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8f09637df700",
       "source_fingerprint": "803bb5b474a74ba08b19e743bc368a7fbfc3e5dfd247d1d5e83e0537f853172b",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
@@ -58,20 +63,19 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-535278-h43j4r0p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-8f09637df700/stderr.txt",
+            "logs/tester/0/runs/test-8f09637df700/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 111391850,
-          "disk_bytes": 139718656,
-          "entries": 11205,
-          "builds": 1,
-          "reuses": 9
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {

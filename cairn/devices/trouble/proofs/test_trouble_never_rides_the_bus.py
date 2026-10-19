@@ -27,6 +27,10 @@ by tooth instead of crashing the reader:
                                          clears read a scratch store with the bus refused
   the_store_tool_is_published           — the tool's charter publishes its one module, the old
                                          door is gone, and no encapsulation breach names either
+  nothing_imports_the_old_door          — no module under cairn/ or bin/ imports
+                                         cairn.devices.trouble.store, nested imports included
+  the_pane_probe_reads_with_no_bus      — the pane's probe, no bus in its context and every dial
+                                         refused, reads a seeded store healthy with 3 live rows
 
     bin/cairn test cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py
 """
@@ -380,10 +384,45 @@ def test_the_store_tool_is_published() -> None:
           f"breaches={rows[:5]}")
 
 
+def test_nothing_imports_the_old_door() -> None:
+    """The store moved to tools/store/; a module still naming the old address imports nothing
+    at the moment it runs. Every import, nested in a function or not, across cairn/ and bin/."""
+    hits = []
+    for base in (_REPO / "cairn", _REPO / "bin"):
+        for path in base.rglob("*.py"):
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+            except (SyntaxError, UnicodeDecodeError):
+                continue
+            for node in ast.walk(tree):
+                names = ([node.module] if isinstance(node, ast.ImportFrom)
+                         else [a.name for a in node.names] if isinstance(node, ast.Import) else [])
+                if _OLD in names:
+                    hits.append(f"{path.relative_to(_REPO)}:{node.lineno}")
+    check("nothing_imports_the_old_door", not hits, f"importers={hits[:8]}")
+
+
+def test_the_pane_probe_reads_with_no_bus() -> None:
+    """The probe watching the trouble pane reads the store the pane reads — no bus in its
+    context, every dial refused — and a seeded store reads healthy with its three live rows."""
+    probe = importlib.import_module("cairn.devices.cairn.probes.trouble_panel_surfaces_live_troubles")
+    undo = _refuse_dials()
+    try:
+        with tempfile.TemporaryDirectory(prefix="ee04-probe-") as d:
+            roots, store = _world(Path(d))
+            _seed(store)
+            got = probe._check({"roots": roots})
+    finally:
+        undo()
+    check("the_pane_probe_reads_with_no_bus",
+          got.get("healthy") is True and got.get("live_count") == 3, f"check={got}")
+
+
 TEETH = (test_the_lane_declares_no_trouble_verbs, test_the_tool_reads_the_live_rows,
          test_the_tool_reads_the_clears, test_the_tool_reaches_no_host,
          test_nothing_asks_trouble_over_the_bus, test_the_cli_clears_with_no_bus,
-         test_the_three_readers_read_with_no_bus, test_the_store_tool_is_published)
+         test_the_three_readers_read_with_no_bus, test_the_store_tool_is_published,
+         test_nothing_imports_the_old_door, test_the_pane_probe_reads_with_no_bus)
 
 
 def main() -> int:

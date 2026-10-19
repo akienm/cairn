@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_trouble_never_rides_the_bus.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-19T00:28:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-19T00:38:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "test_trouble_never_rides_the_bus"
       ],
       "teeth_red": [],
-      "test": "test-8f09637df700",
+      "test": "test-788f5e0b76c7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,12 +31,12 @@
       "scratch_sweep": {
         "dropped": 2,
         "tables": [
-          "bus_proc_556688_0021565711_delivery",
-          "bus_proc_556688_0021565711"
+          "bus_proc_558766_0028222266_delivery",
+          "bus_proc_558766_0028222266"
         ]
       },
       "conditions": {
-        "proof": "838a5bd42058b2bd2c926a1610b654e6d1888984a501ad644c6dede99dc795b2",
+        "proof": "cd019f0db777bab847a51462719b9d618be3b66503685e14389ad08d33f01796",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -47,15 +47,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8f09637df700",
-      "source_fingerprint": "803bb5b474a74ba08b19e743bc368a7fbfc3e5dfd247d1d5e83e0537f853172b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-788f5e0b76c7",
+      "source_fingerprint": "cdb4f3379b7c6b5095105b7d90a1614ec4fd1f0cdbc5c5acc1510389e934d858",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py",
@@ -63,110 +61,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-561625-7oxzl461/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-8f09637df700/stderr.txt",
-            "logs/tester/0/runs/test-8f09637df700/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "ee04bb869795": {
-          "cairn/devices/trouble/tools/store/store.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/trouble/tools/store/intention+why.json": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/trouble/intention+why.json": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/tools/base/transitions.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/tools/operator_inbox/inbox.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/tools/operator_inbox/probes/operator_inbox_matches_live_state.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/tools/base/probes/does_the_bounce_blame_the_right_party.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/tools/base/probes/does_the_mail_lane_get_worked.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/trouble/trouble.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/cairn/device.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/cairn/probes/trouble_panel_surfaces_live_troubles.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/web_server/listener.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/machines/counting_block/block.py": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/trouble/0/bin/trouble": [
-            "test_trouble_never_rides_the_bus"
-          ],
-          "cairn/devices/trouble/proofs/test_trouble.py": [
-            "cairn/devices/trouble/proofs/test_trouble.py::test_no_device_reaches_this_one_by_import"
-          ],
-          "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py": [
-            "test_trouble_never_rides_the_bus",
-            "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py::test_the_charter_declares_the_door",
-            "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py::test_the_device_reexports_the_one_root",
-            "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py::test_the_root_is_the_log_path",
-            "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py::test_the_store_imports_only_the_address_door"
-          ],
-          "cairn/devices/trouble/proofs/test_live_answers_a_summary.py": [
-            "cairn/devices/trouble/proofs/test_live_answers_a_summary.py::test_live_answers_one_summary_row_per_trouble",
-            "cairn/devices/trouble/proofs/test_live_answers_a_summary.py::test_the_live_answer_does_not_grow_with_history"
-          ],
-          "cairn/devices/trouble/proofs/test_a_cli_clear_carries_the_hand.py": [
-            "cairn/devices/trouble/proofs/test_a_cli_clear_carries_the_hand.py::a_clear_verb_carrying_an_akien_hand_closes_the_trouble",
-            "cairn/devices/trouble/proofs/test_a_cli_clear_carries_the_hand.py::the_cli_clear_branch_sends_the_measured_hand"
-          ],
-          "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py": [
-            "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py::a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored",
-            "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py::an_unknown_clear_with_a_tab_cgroup_is_served_akien",
-            "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py::the_trouble_file_is_not_rewritten"
-          ],
-          "cairn/devices/trouble/proofs/test_an_operators_measured_clear_closes.py": [
-            "cairn/devices/trouble/proofs/test_an_operators_measured_clear_closes.py::the_clears_verb_answers_one_small_row_per_clear"
-          ],
-          "cairn/devices/cairn/proofs/test_trouble_panel.py": [
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW",
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path",
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_an_ABSENT_store_never_renders_as_ZERO_TROUBLES",
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_handler_reads_the_store_as_files",
-            "cairn/devices/cairn/proofs/test_trouble_panel.py::test_the_pane_projects_and_does_not_filter"
-          ],
-          "cairn/devices/web_server/proofs/test_web_server.py": [
-            "cairn/devices/web_server/proofs/test_web_server.py::test_existing_pane_urls_render_identically_through_the_asgi_app"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ee04bb869795": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "a08fb6907c413b755403f77fc3dd067653993ded",
-          "anchor_first_build": "885564d985ee65cef2e3971eac7d2616d1d25521",
-          "commit": "3f887a31329d5f177fed0014acb49246d66d1ad9"
+          "measured": true,
+          "bytes": 111418023,
+          "disk_bytes": 139763712,
+          "entries": 11212,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

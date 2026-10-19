@@ -22,7 +22,7 @@ by tooth instead of crashing the reader:
                                          bus client and no device code but its own package
   nothing_asks_trouble_over_the_bus     — no request addressed to trouble anywhere outside proofs
   the_cli_clears_with_no_bus            — `trouble live` and `trouble clear` over a scratch HOME
-                                         with every bus dial and socket connect refused
+                                         with every bus dial refused
   the_three_readers_read_with_no_bus    — the cairn pane, the web_server rows and counting_block's
                                          clears read a scratch store with the bus refused
   the_store_tool_is_published           — the tool's charter publishes its one module, the old
@@ -42,7 +42,6 @@ import importlib
 import json
 import os
 import re
-import socket
 import subprocess
 import sys
 import tempfile
@@ -119,21 +118,20 @@ class _NoBus:
 
 
 def _refuse_dials():
-    """Refuse reach() and every socket connect; return the undo."""
+    """Refuse reach(); return the undo. The bus client is the one door to any host — the
+    inspector's sole_path sieve reds any other module importing socket — so refusing it refuses
+    every dial a reader may legally make. (A socket patch here was itself a second door: the
+    sieve redded this proof for it, 2026-10-19.)"""
     import cairn.tools.bus_client as bc
-    saved = (bc.reach, socket.socket.connect)
+    saved = bc.reach
 
     def no_reach(*a, **kw):
         raise _Refused(f"reach{a}")
 
-    def no_connect(self, *a, **kw):
-        raise _Refused(f"socket connect {a}")
-
     bc.reach = no_reach
-    socket.socket.connect = no_connect
 
     def undo():
-        bc.reach, socket.socket.connect = saved
+        bc.reach = saved
     return undo
 
 
@@ -266,14 +264,10 @@ def test_nothing_asks_trouble_over_the_bus() -> None:
 
 
 _SITE = '''
-import os, socket
+import os
 def _log(what):
     with open(os.environ["EE04_DIALS"], "a", encoding="utf-8") as f:
         f.write(what + "\\n")
-def _no_connect(self, *a, **kw):
-    _log(f"connect {a}")
-    raise ConnectionRefusedError("ee04 proof: no socket may be dialled")
-socket.socket.connect = _no_connect
 import cairn.tools.bus_client as _bc
 def _no_reach(*a, **kw):
     _log(f"reach {a}")

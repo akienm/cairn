@@ -74,10 +74,12 @@ def _tooth(name, fn):
         fn()
     except Exception as exc:  # noqa: BLE001 — a proof reports, never hides
         FAIL += 1
-        print(f"  RED   {name}: {type(exc).__name__}: {exc}")
+        # The detail rides its own line: a hollow reading takes the whole PASS/FAIL line as the name.
+        print(f"  FAIL  {name}")
+        print(f"        {type(exc).__name__}: {exc}"[:400])
     else:
         PASS += 1
-        print(f"  green {name}")
+        print(f"  PASS  {name}")
 
 
 class _Scratch:

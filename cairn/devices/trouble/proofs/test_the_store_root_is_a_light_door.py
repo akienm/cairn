@@ -19,6 +19,13 @@ hollow reading (no store.py) reds the tooth instead of crashing the reader:
   (4) the trouble charter's public_interface names cairn.devices.trouble.store.
 Hollow: before the build, store.py is absent and 1-4 red.
 
+Since ticket ee04bb869795 (2026-10-18) the door is the tool trouble publishes,
+tools/store/store.py (moved there by git mv), and it reads the store as well as naming it:
+clears() imports cairn.tools.system_word and cairn.tools.artifact inside the function.
+Measured that day, importing both loads only cairn.tools.{artifact,cgroup,system_word} —
+no socket, no bus_client — so they join the allowed set and the clause still holds.
+Clause (4) reads the tool's charter, which is where the door is declared now.
+
     bin/cairn test cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py
 """
 
@@ -34,8 +41,8 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 _COMP = _REPO / "cairn" / "devices" / "trouble"
-_STORE = _COMP / "store.py"
-_ALLOWED = {"cairn.tools.base.address"}
+_STORE = _COMP / "tools" / "store" / "store.py"
+_ALLOWED = {"cairn.tools.base.address", "cairn.tools.system_word", "cairn.tools.artifact"}
 
 PROVES = {"03ea6f93df03": {
     "1": "test_the_store_imports_only_the_address_door",
@@ -68,7 +75,7 @@ def test_the_store_imports_only_the_address_door() -> None:
 
 
 def test_the_root_is_the_log_path() -> None:
-    from cairn.devices.trouble.store import store_root
+    from cairn.devices.trouble.tools.store.store import store_root
     from cairn.tools.base.address import log_path
     live = store_root() == log_path("cairn", 0) / "troubletickets"
     roots = {"instance": Path("/nonexistent-trouble-store/.cairn")}
@@ -80,14 +87,16 @@ def test_the_root_is_the_log_path() -> None:
 
 
 def test_the_device_reexports_the_one_root() -> None:
-    from cairn.devices.trouble import store, trouble
+    from cairn.devices.trouble import trouble
+    from cairn.devices.trouble.tools.store import store
     check("test_the_device_reexports_the_one_root", trouble.store_root is store.store_root)
 
 
 def test_the_charter_declares_the_door() -> None:
-    charter = json.loads((_COMP / "intention+why.json").read_text(encoding="utf-8"))
+    charter = json.loads((_STORE.parent / "intention+why.json").read_text(encoding="utf-8"))
     pi = charter.get("public_interface") or []
-    check("test_the_charter_declares_the_door", "cairn.devices.trouble.store" in pi, repr(pi))
+    check("test_the_charter_declares_the_door",
+          "cairn.devices.trouble.tools.store.store" in pi, repr(pi))
 
 
 def main() -> int:

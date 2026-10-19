@@ -3,17 +3,19 @@ operator's measured hand.
 
 Measured 2026-10-12: Akien ran his clear script from his own terminal and all 9
 who-writes-what clears landed with by 'akien' and NO 'hand', so every one stayed OPEN.
-`cairn trouble clear` asks over the bus (verb 'clear'), and TroubleDevice._handle_clear
+`cairn trouble clear` asked over the bus (verb 'clear'), and TroubleDevice._handle_clear
 called clear() with no hand; c2172127d7a4 measured the hand only on the emission path.
+Since ticket ee04bb869795 (2026-10-18) the CLI asks nothing over the bus: it emits
+clear_trouble, which measures the hand in the CLI's own process, and folds it there.
 
-1. _handle_clear on an envelope whose body carries hand {'class': 'akien'} closes an open
-   trouble notified ['cc'] (standing CLEARED), and its cleared_by entry carries that hand;
-2. the CLI clear branch (cairn/devices/trouble/0/bin/trouble) sends a body whose 'hand' is
-   the dict artifact.caller() measures in the CLI's own process — read by running the
-   branch's Python against a fake bus and reading the body it hands to request().
+1. clear() handed hand {'class': 'akien'} closes an open trouble notified ['cc'] (standing
+   CLEARED), and its cleared_by entry carries that hand;
+2. the CLI clear (cairn/devices/trouble/0/bin/trouble), run over a scratch HOME, lands a
+   cleared_by entry whose hand class is the one artifact.caller() measures in this process
+   tree — read off the ticket file the clear moved into cleared/.
 
-Scratch store. The device and the CLI's Python are reached at call time, so a reverted
-build reds a tooth rather than crashing the import.
+Scratch stores. The device and the CLI are reached at call time, so a reverted build reds a
+tooth rather than crashing the import.
 
 Run bare:  PYTHONPATH=. python3 cairn/devices/trouble/proofs/test_a_cli_clear_carries_the_hand.py
 """
@@ -21,7 +23,6 @@ from __future__ import annotations
 
 import json
 import sys
-import types
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[4]
@@ -49,19 +50,6 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
-def _clear_branch_source() -> str:
-    """The Python the CLI's ``clear)`` branch hands to ``python3 -c``, as python3 receives it.
-
-    The branch is a bash double-quoted string: bash turns ``\\"`` into ``"`` and expands
-    ``$REPO_ROOT``. Those are the only two expansions the branch uses, so they are the only
-    two applied here."""
-    text = CLI.read_text(encoding="utf-8")
-    start = text.index("  clear)\n")
-    body = text[text.index('exec python3 -c "', start) + len('exec python3 -c "'):]
-    body = body[:body.index('\n" "$@"')]
-    return body.replace('\\"', '"').replace("$REPO_ROOT", str(REPO))
-
-
 def tooth_1(store: Path) -> None:
     name = PROVES["63e6eb836769"]["1"]
     try:
@@ -70,10 +58,8 @@ def tooth_1(store: Path) -> None:
         dev.set_diagnostic_receiver(None)
         dev.raise_trouble("a-cli-clear-proof-trouble", why="a proof's trouble", detail={"n": 1},
                           recipients=["cc"])
-        reply = dev.declared_verbs()["clear"]({
-            "sender": "cli",
-            "body": {"identity": "a-cli-clear-proof-trouble", "by": "akien",
-                     "what_changed": "the proof cleared it", "hand": AKIEN}})
+        reply = dev.clear("a-cli-clear-proof-trouble", by="akien",
+                          what_changed="the proof cleared it", hand=AKIEN)
         t = dev._read("a-cli-clear-proof-trouble") or {}
         last = (t.get("cleared_by") or [{}])[-1]
         check(name, t.get("standing") == CLEARED and last.get("hand") == AKIEN,
@@ -85,38 +71,48 @@ def tooth_1(store: Path) -> None:
 
 def tooth_2() -> None:
     name = PROVES["63e6eb836769"]["2"]
-    sent: dict = {}
-
-    class _FakeBus:
-        def request(self, **kw):
-            sent.update(kw)
-            return {"body": {"outcome": "cleared", "standing": "CLEARED"}}
-
-    fake = types.ModuleType("cairn.tools.bus_client")
-    fake.reach = lambda device: _FakeBus()
-    saved_mod, saved_argv = sys.modules.get("cairn.tools.bus_client"), sys.argv
     try:
+        import os
+        import subprocess
+        import tempfile
         from cairn.tools.artifact import artifact
+        from cairn.tools.base.address import log_path
         measured = artifact.caller()
-        src = _clear_branch_source()
-        sys.modules["cairn.tools.bus_client"] = fake
-        sys.argv = ["-c", "a-cli-clear-proof-trouble", "--by", "akien",
-                    "--what-changed", "the proof cleared it"]
-        exec(compile(src, str(CLI), "exec"), {"__name__": "__main__"})
-        hand = (sent.get("body") or {}).get("hand")
-        check(name, isinstance(hand, dict) and hand.get("class") == measured.get("class")
-              and sent.get("verb") == "clear",
-              json.dumps({"verb": sent.get("verb"), "hand": hand, "measured": measured.get("class")}))
-    except SystemExit as exc:
-        check(name, False, f"the clear branch exited {exc.code}")
+        with tempfile.TemporaryDirectory(prefix="cairn-proof-cli-hand-") as d:
+            home = Path(d) / "home"
+            roots = {"repo": REPO, "commons": REPO.parent / "CairnCommons",
+                     "instance": home / ".cairn"}
+            store = log_path("cairn", 0, roots) / "troubletickets"
+            store.mkdir(parents=True)
+            (store / "a-cli-clear-proof-trouble.json").write_text(json.dumps({
+                "id": "a-cli-clear-proof-trouble", "standing": "OPEN", "why": "a proof's trouble",
+                "count": 1, "first_seen": "2026-10-18T00:00:00+00:00",
+                "last_seen": "2026-10-18T00:00:00+00:00", "occurrences": [], "notified": ["cc"],
+                "cleared_by": [], "recurred_after_clear": None, "prior_attempts": 0}),
+                encoding="utf-8")
+            # THE CALLER'S ENVIRONMENT, HOME and PYTHONPATH replaced: the CLI's TroubleShim lazy-inits the
+            # ground loop, and a stripped env left systemd-run --user without its manager, so the start
+            # fell through to a setsid loop under the scratch HOME that outlived the run (measured
+            # 2026-10-18, three of them). Inherited, the held unit name refuses the start, and a loop a
+            # run does start carries CAIRN_TESTER_TEST_ID, which the tester stops.
+            out = subprocess.run(
+                ["bash", str(CLI), "clear", "a-cli-clear-proof-trouble", "--by", "akien",
+                 "--what-changed", "the proof cleared it"],
+                capture_output=True, text=True, timeout=120,
+                env={**os.environ, "HOME": str(home), "PYTHONPATH": str(REPO)})
+            # Wherever the owner's clear left it: cleared/ when the hand closes it, the top when
+            # it is recorded and still awaiting another recipient.
+            found = [q for q in (store / "cleared" / "a-cli-clear-proof-trouble.json",
+                                 store / "a-cli-clear-proof-trouble.json") if q.is_file()]
+            last = ((json.loads(found[0].read_text(encoding="utf-8")).get("cleared_by") or [{}])[-1]
+                    if found else {})
+        hand = last.get("hand")
+        check(name, out.returncode == 0 and isinstance(hand, dict)
+              and hand.get("class") == measured.get("class") and last.get("by") == "akien",
+              json.dumps({"rc": out.returncode, "hand": hand, "measured": measured.get("class"),
+                          "out": (out.stdout + out.stderr)[-200:]}))
     except Exception as exc:  # noqa: BLE001
         check(name, False, f"{type(exc).__name__}: {exc}")
-    finally:
-        sys.argv = saved_argv
-        if saved_mod is not None:
-            sys.modules["cairn.tools.bus_client"] = saved_mod
-        else:
-            sys.modules.pop("cairn.tools.bus_client", None)
 
 
 def main() -> int:

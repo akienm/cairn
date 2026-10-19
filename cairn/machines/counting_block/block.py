@@ -281,13 +281,12 @@ def _atomic(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
-def _ask_clears() -> dict:
-    """The trouble lane's clears, asked through its public verb (RULE 1)."""
-    from cairn.tools.bus_client import reach
-    return reach("trouble").request(
-        sender=COMPONENT, to="trouble", verb="clears",
-        why="counting_block learns whose hand cleared each who-writes-what trouble (0539e85f8b2d)",
-        body={"prefix": IDENTITY_PREFIX})
+def _ask_clears(roots: dict[str, Path] | None = None) -> dict:
+    """The trouble store's clears under this block's prefix, read as files through the tool
+    trouble publishes (ticket ee04bb869795) — they were asked over the bus, and 372 replies
+    stood as bus rows. Returned in the reply shape pulse() has always read."""
+    from cairn.devices.trouble.tools.store import store
+    return {"body": {"clears": store.clears(IDENTITY_PREFIX, roots)}}
 
 
 def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None = None,
@@ -320,7 +319,7 @@ def pulse(roots: dict[str, Path] | None = None, raiser=None, where: Path | None 
     rather than reading a lane it could not reach as a lane with nothing cleared (Law 7)."""
     where = table_dir() if where is None else Path(where)
     try:
-        clears = list(((ask or _ask_clears)() or {}).get("body", {}).get("clears") or [])
+        clears = list(((ask or (lambda: _ask_clears(roots)))() or {}).get("body", {}).get("clears") or [])
         error = None
     except Exception as exc:  # noqa: BLE001 — the fold still runs, and says what it lacked
         clears, error = [], f"{type(exc).__name__}: {exc}"

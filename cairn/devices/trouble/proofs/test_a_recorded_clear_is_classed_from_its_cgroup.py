@@ -75,10 +75,9 @@ def _store(store: Path) -> dict[str, Path]:
 
 
 def _served(store: Path) -> dict[str, str]:
-    from cairn.devices.trouble.trouble import TroubleDevice
-    dev = TroubleDevice(root=str(store))
-    dev.set_diagnostic_receiver(None)
-    rows = dev.declared_verbs()["clears"]({"sender": "proof", "body": {"prefix": "recorded-clear-proof-"}})["clears"]
+    # The clears read is the store tool's since ticket ee04bb869795 (it was the bus verb).
+    from cairn.devices.trouble.tools.store import store as tool
+    rows = tool.clears("recorded-clear-proof-", root=store)
     return {r["id"]: r["hand_class"] for r in rows}
 
 

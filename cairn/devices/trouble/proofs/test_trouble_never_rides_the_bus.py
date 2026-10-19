@@ -288,8 +288,13 @@ def test_the_cli_clears_with_no_bus() -> None:
         dials.write_text("", encoding="utf-8")
         roots, store = _world(home / ".cairn")
         _put(store, _trouble("ee04-cli-proof"))
-        env = {"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
-               "PYTHONPATH": f"{site}:{_REPO}", "EE04_DIALS": str(dials)}
+        # THE CALLER'S ENVIRONMENT, HOME and PYTHONPATH replaced: the CLI's TroubleShim lazy-inits the
+        # ground loop, and a stripped env left systemd-run --user without its manager, so the start
+        # fell through to a setsid loop under the scratch HOME that outlived the run (measured
+        # 2026-10-18, three of them). Inherited, the held unit name refuses the start, and a loop a
+        # run does start carries CAIRN_TESTER_TEST_ID, which the tester stops.
+        env = {**os.environ, "HOME": str(home), "PYTHONPATH": f"{site}:{_REPO}",
+               "EE04_DIALS": str(dials)}
 
         def run(*args):
             return subprocess.run(["bash", str(_CLI), *args], capture_output=True, text=True,

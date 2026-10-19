@@ -2,12 +2,12 @@
   {
     "claim": "proof test_location_is_liveness.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T12:55:16",
+    "date": "2026-10-18T21:55:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_clearing_moves_the_file_into_cleared\n.\n  ok   test_live_is_the_top_level_listing\n.\n  ok   test_a_raise_on_a_cleared_trouble_brings_it_back\n.\n  ok   test_a_trouble_carries_the_development_ticket_fields\n.\n  ok   test_the_trouble_node_class_loads\n.\n  ok   test_the_default_store_is_under_the_instance_logs\n.\n  ok   test_migrate_from_moves_the_old_store_whole\n                                                                  [100%]\n7 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_clearing_moves_the_file_into_cleared\n.\n  ok   test_live_is_the_top_level_listing\n.\n  ok   test_a_raise_on_a_cleared_trouble_brings_it_back\n.\n  ok   test_a_trouble_carries_the_development_ticket_fields\n.\n  ok   test_the_trouble_node_class_loads\n.\n  ok   test_the_default_store_is_under_the_instance_logs\n.\n  ok   test_migrate_from_moves_the_old_store_whole\n                                                                  [100%]\n7 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_clearing_moves_the_file_into_cleared",
@@ -19,7 +19,7 @@
         "test_migrate_from_moves_the_old_store_whole"
       ],
       "teeth_red": [],
-      "test": "test-4f326636a954",
+      "test": "test-9cd0a222962e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,24 +37,26 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4f326636a954",
-      "source_fingerprint": "879057b43a160784c8ed16dcbf567a7e8f212895617c7768c866d13507e924bb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9cd0a222962e",
+      "source_fingerprint": "e2ff3579d1df3fa3252d67a72f0f0419abbe216bfb046107d87b640b0da92ee4",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/__init__.py",
         "cairn/devices/trouble/proofs/test_location_is_liveness.py",
-        "cairn/devices/trouble/store.py",
+        "cairn/devices/trouble/tools/__init__.py",
         "cairn/devices/trouble/trouble.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2841117-pkxkw8b2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-515933-5xabo0f2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,11 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109106220,
-          "disk_bytes": 135110656,
-          "entries": 10416,
+          "bytes": 111340277,
+          "disk_bytes": 139620352,
+          "entries": 11188,
           "builds": 1,
-          "reuses": 6
+          "reuses": 9
         }
       }
     },

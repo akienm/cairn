@@ -96,13 +96,6 @@ OPERATORS = ("akien", "cc")
 # growing without limit. A first guess against real need, like the projector's window — not a law.
 OCCURRENCE_TAIL = 10
 
-# What the bus verb `live` answers per trouble (ticket fa9a2703a9c3) — the six keys both bus
-# callers (cairn's trouble pane, web_server's troubles socket) already keep. The occurrence
-# tail and its details stay in the store; a reply grows with the number of live troubles and
-# never with their history.
-LIVE_SUMMARY_KEYS = ("id", "standing", "why", "count", "first_seen", "last_seen")
-
-LIVE = "OPEN"
 CLEARED = "CLEARED"
 
 # The development-ticket fields a trouble carries (ticket 4ddc9df3369e): same names, its own
@@ -111,12 +104,14 @@ NODE_CLASS = "trouble"
 SCHEMA_VERSION = "trouble-v1"
 WORKFLOW_OPEN = "trouble@v1: [OPEN] -> CLEARED"
 WORKFLOW_CLEARED = "trouble@v1: OPEN -> [CLEARED]"
-CLEARED_DIR = "cleared"
 
 
-# store_root lives in store.py so callers outside the component can ask for the path without
-# importing this module's fold path (and the bus client's socket behind it); re-exported here.
-from cairn.devices.trouble.store import store_root  # noqa: E402,F401
+# The store's address, its summary row and its listing live in the tool trouble publishes
+# (tools/store/, ticket ee04bb869795), so a reader outside the component reads the files
+# without importing this module's fold path — and never asks over the bus. Re-exported here.
+from cairn.devices.trouble.tools.store import store as _store  # noqa: E402
+from cairn.devices.trouble.tools.store.store import (  # noqa: E402,F401
+    CLEARED_DIR, LIVE, LIVE_SUMMARY_KEYS, store_root)
 
 _SLUG = re.compile(r"[^a-z0-9-]+")
 
@@ -174,72 +169,22 @@ class TroubleDevice(BaseDevice):
     # --- the verbs: how everyone else reaches this lane ---------------------
 
     def declared_verbs(self) -> dict:
-        """``live`` and ``clear`` — the lane's public surface on the bus (ticket 9579a6f9cec6).
+        """No verbs of the lane's own — and both absences are the design.
 
-        There is deliberately NO ``raise`` verb, and the absence is the design. Raising is
-        inherited from ``DiagnosticBase`` and needs no addressee, no bus and no running
-        recipient: it is one file in the raiser's own log home, which is what lets a
-        fault be reported by a process that cannot reach anybody. Putting a raise verb
-        here would give the same act a second path — one that fails exactly when the
-        system is unhealthy enough to be worth reporting."""
-        return {**super().declared_verbs(),
-                "live": self._handle_live,
-                "clear": self._handle_clear,
-                "clears": self._handle_clears}
+        There is deliberately NO ``raise`` verb. Raising is inherited from ``DiagnosticBase``
+        and needs no addressee, no bus and no running recipient: it is one file in the
+        raiser's own log home, which is what lets a fault be reported by a process that
+        cannot reach anybody. Putting a raise verb here would give the same act a second path
+        — one that fails exactly when the system is unhealthy enough to be worth reporting.
 
-    def _handle_live(self, envelope: dict) -> dict:
-        """The tickets still demanding attention, one summary row each. EMPTY is the normal
-        operating state.
-
-        A row is LIVE_SUMMARY_KEYS and nothing else (ticket fa9a2703a9c3). The reply is a
-        personal bus message the bus keeps, and cairn's page asks for it on every render.
-        Measured 2026-10-10 while it carried whole tickets (occurrence tail, details, notified,
-        prior attempts): ~355 KB a reply at its worst, ~4,474 replies stored, ~1.5 GB in the
-        bus. Python callers of ``live()`` still get the whole ticket."""
-        return {"troubles": [{k: t.get(k) for k in LIVE_SUMMARY_KEYS} for t in self.live()]}
-
-    def _handle_clears(self, envelope: dict) -> dict:
-        """Every clear on the record, one small row each — for the counting block, which
-        learns whose hand cleared what (ticket 1c1b18bac2eb, D4). ``body.prefix`` narrows by
-        trouble id (empty or absent: every trouble). A row is exactly {id, standing, by,
-        hand_class, at}; no occurrences ride it, so the reply stays small by construction.
-        A stored class of 'unknown' beside a stored cgroup is classed from that cgroup, so a
-        clear recorded before the classifier walked outward is learned (ticket 4f8d11706516)."""
-        prefix = str((envelope.get("body") or {}).get("prefix") or "")
-        rows = []
-        for t in self.all():
-            if not str(t.get("id", "")).startswith(prefix):
-                continue
-            for c in t.get("cleared_by") or []:
-                hand = c.get("hand") if isinstance(c.get("hand"), dict) else {}
-                hand_class = fold(hand.get("class")) if hand.get("class") else "unknown"
-                if hand_class == "unknown" and isinstance(hand.get("cgroup"), str):
-                    from cairn.tools.artifact import artifact as door
-                    hand_class = fold(door.classify(hand["cgroup"])["class"])
-                rows.append({"id": t.get("id"), "standing": t.get("standing"), "by": c.get("by"),
-                             "hand_class": hand_class, "at": c.get("at")})
-        return {"clears": rows}
-
-    def _handle_clear(self, envelope: dict) -> dict:
-        """A recipient says the change was made. Still the recipient's alone — the bus moves
-        the request, it does not become a second authority (Law 6).
-
-        A refusal comes back as a VALUE, not an exception: the shim would record a raised
-        handler as a delivery failure and the asker would be told nothing about why the
-        clear did not take. ``what_changed`` missing is the commonest such refusal, and it
-        is precisely the one the caller has to see.
-
-        The CLI's measured hand rides the body as ``hand`` and is passed to clear() as is
-        (63e6eb836769) — here caller() would read the device itself."""
-        body = envelope.get("body") or {}
-        hand = body.get("hand")
-        try:
-            return self.clear(body.get("identity") or body.get("id") or "",
-                              by=body.get("by") or envelope.get("sender") or "",
-                              what_changed=body.get("what_changed") or "",
-                              hand=hand if isinstance(hand, dict) else None)
-        except TroubleError as exc:
-            return {"outcome": "refused", "reason": str(exc)}
+        And since ticket ee04bb869795 (2026-10-18) there is no ``live``, ``clear`` or
+        ``clears`` either. Akien: "TROUBLE TICKETS ARE A FILE ARTIFACT IN THE LOGGING TREE" /
+        "THERE SHOULD BE NO ROWS FOR TROUBLE TICKETS." Every reply to those verbs stood as a
+        bus row (195 ``live`` replies, ~325 KB, and 372 ``clears`` replies, measured that
+        day). A reader reads the files through the tool trouble publishes
+        (``tools/store/``); a clear is a ``clear_trouble`` emission this lane folds, which is
+        what every other clearer already did."""
+        return super().declared_verbs()
 
     # --- the door -----------------------------------------------------------
 
@@ -468,43 +413,9 @@ class TroubleDevice(BaseDevice):
         return counts
 
     def _listing(self, folder: Path) -> list[dict]:
-        if not folder.is_dir():
-            return []
-        out = []
-        for p in sorted(folder.glob("*.json")):
-            try:
-                ticket = json.loads(p.read_text(encoding="utf-8"))
-            except json.JSONDecodeError as exc:
-                # The lane must not go dark because one file is malformed — that would be a
-                # silent failure in the very place built to end them.
-                out.append({"id": p.stem, "standing": LIVE, "count": 1,
-                            "why": f"UNREADABLE TROUBLE FILE: {exc}", "unreadable": True})
-                continue
-            if isinstance(ticket, dict) and "why" not in ticket:
-                # OFF-TEMPLATE, AND SAYING SO IS THE WHOLE POINT (2026-08-12).
-                # `the-runtime-spine-has-never-run` carries the fullest why in the store —
-                # opened_by, the_claim_under_test, verdict, method, findings, the_map — under
-                # none of those names, and the session banner rendered it as
-                # "<no why recorded>". That is a reader turning a PRESENT record into an
-                # ABSENCE claim: not collapsing an error into a coherent shape (which a
-                # presentation surface may do) but MANUFACTURING one (Law 7). The fix belongs
-                # here and not in the banner, because what a trouble's why IS belongs to this
-                # lane (Law 6) — the banner already refuses to re-derive `live()` for the
-                # same reason. Deliberately NOT a fallback key list: guessing which field is
-                # really the why would freeze today's two off-template shapes into a schema,
-                # and the shapes are the defect, not the vocabulary. The reader is told the
-                # record is off-template, what it carries, and where to read it — which is the
-                # `notes-store-template-gate-is-prose-not-physics` trouble showing its face at
-                # session open instead of hiding behind a manufactured silence.
-                ticket = dict(ticket)
-                ticket["why"] = (
-                    "OFF-TEMPLATE TROUBLE RECORD — the why is almost certainly here, under a "
-                    "name this reader does not know, so this line is the READER's limit and "
-                    "not the author's silence. It carries: %s. Read it: %s"
-                    % (", ".join(k for k in ticket if k != "why"), p))
-                ticket["off_template"] = True
-            out.append(ticket)
-        return out
+        # The reading rule (an unreadable file surfaced, an off-template record said so) lives
+        # in the tool, so the owner's reads and every other reader's cannot differ.
+        return _store.listing(folder)
 
     # --- the file layer (thin, and the only writer) -------------------------
 

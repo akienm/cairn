@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_store_root_is_a_light_door.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T13:25:30",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-18T21:55:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_store_imports_only_the_address_door  — stray []\n  PASS  test_the_root_is_the_log_path  — roots={'instance': PosixPath('/nonexistent-trouble-store/.cairn')}\n  PASS  test_the_device_reexports_the_one_root\n  PASS  test_the_charter_declares_the_door  — ['cairn.devices.trouble.trouble', 'cairn.devices.trouble.store']\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_store_imports_only_the_address_door  — stray []\n  PASS  test_the_root_is_the_log_path  — roots={'instance': PosixPath('/nonexistent-trouble-store/.cairn')}\n  PASS  test_the_device_reexports_the_one_root\n  PASS  test_the_charter_declares_the_door  — ['cairn.devices.trouble.tools.store.store']\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_store_imports_only_the_address_door",
@@ -16,7 +16,7 @@
         "test_the_charter_declares_the_door"
       ],
       "teeth_red": [],
-      "test": "test-6d89c4c3b984",
+      "test": "test-e6e57381d4a1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,32 +26,33 @@
         "tables": []
       },
       "conditions": {
-        "proof": "a3528fb77c5697bbd21db20596b17351187e13124f8f88f2a1affbe7b638e2ac",
+        "proof": "9ab7c04eac035772beabb9902b46ebffeb87aadfe31635e70ff7f3c64babadc2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6d89c4c3b984",
-      "source_fingerprint": "dd405e7a53c0d190daad2c6a5829539c1ea41e54ada1c613269811173d4d3efe",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e6e57381d4a1",
+      "source_fingerprint": "effb4838242f878df9978cb144d2c4b570077144e73853726cc1fa5634677194",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/test_the_store_root_is_a_light_door.py",
-        "cairn/devices/trouble/store.py",
+        "cairn/devices/trouble/tools/__init__.py",
         "cairn/devices/trouble/trouble.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2868960-d1eqqxdh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-515933-s1kp6m0j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,40 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109163740,
-          "disk_bytes": 135294976,
-          "entries": 10457,
+          "bytes": 111340277,
+          "disk_bytes": 139620352,
+          "entries": 11188,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "03ea6f93df03": {
-          "cairn/devices/trouble/store.py": [
-            "test_the_device_reexports_the_one_root",
-            "test_the_root_is_the_log_path",
-            "test_the_store_imports_only_the_address_door"
-          ],
-          "cairn/devices/trouble/trouble.py": [
-            "test_the_device_reexports_the_one_root"
-          ],
-          "cairn/tools/base/transitions.py": {
-            "notified": "n-abcdcabc2910"
-          },
-          "cairn/tools/operator_inbox/inbox.py": {
-            "notified": "n-b91850405966"
-          },
-          "cairn/devices/trouble/intention+why.json": [
-            "test_the_charter_declares_the_door"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "03ea6f93df03": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "cdd596d2848b2bbbf624dc4d441c680e53ea39c4",
-          "anchor_first_build": "440b4d45e24cf72264c2c768642d919793b4cb08",
-          "commit": "b3c099efcc2c8834a88943f8c198f63d44dc4b04"
+          "reuses": 10
         }
       }
     },

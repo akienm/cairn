@@ -116,27 +116,16 @@ class CairnDevice(BaseDevice):
         ]
 
     def _trouble_pane_data(self) -> list[dict]:
-        """The live troubles, asked for over the bus — trouble's store stays trouble's.
+        """The live troubles, read as files through the tool trouble publishes (ticket
+        ee04bb869795; Akien 2026-10-18: "TROUBLE TICKETS ARE A FILE ARTIFACT IN THE LOGGING
+        TREE"). It asked verb ``live`` over the bus until then, and every reply stood as a bus
+        row. Which rows are live is still trouble's: the tool reads the top of its store.
 
-        RAISES rather than returning empty when the bus is missing or the ask is refused,
-        and that is the whole point: ``BaseShim.active_page`` renders a raising handler as
-        an ABSENT pane carrying the reason, where an empty list would render as the
-        NORMAL OPERATING STATE. Those two must never look alike — ``live()`` returning
-        nothing is the system working, and a panel that showed 'no troubles' because it
-        could not reach the lane would be the silent failure the lane exists to end
-        (Law 7, and ``trouble.py``'s own leaning-safe read of ``standing``)."""
-        if self._bus is None:
-            raise RuntimeError(
-                "cairn has no bus, so the trouble lane cannot be asked — an empty panel "
-                "here would read as zero troubles, which is the normal operating state "
-                "and the opposite of what is true")
-        reply = self._bus.request(
-            sender=self._device_id, to="trouble", verb="live",
-            why="trouble pane render")
-        body = reply.get("body") or {}
-        if "troubles" not in body:
-            raise RuntimeError(
-                f"trouble answered `live` without a troubles list: {body!r}")
+        RAISES rather than returning empty when the store is absent, and that is the whole
+        point: ``BaseShim.active_page`` renders a raising handler as an ABSENT pane carrying
+        the reason, where an empty list would render as the NORMAL OPERATING STATE. Those two
+        must never look alike (Law 7)."""
+        from cairn.devices.trouble.tools.store import store
         return [
             {
                 "id": t.get("id", "?"),
@@ -146,5 +135,5 @@ class CairnDevice(BaseDevice):
                 "first_seen": t.get("first_seen", ""),
                 "last_seen": t.get("last_seen", ""),
             }
-            for t in body["troubles"]
+            for t in store.live(self._roots)
         ]

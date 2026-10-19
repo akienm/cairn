@@ -1,0 +1,31 @@
+{
+  "component": "store",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "store reader",
+  "published_by_device": true,
+  "public_interface": [
+    "cairn.devices.trouble.tools.store.store"
+  ],
+  "what": "trouble's store read as files, published as a tool nested in the device: store_root, live (the summary rows of the top of the store), clears (one row per clear, top and cleared/), listing, LIVE_SUMMARY_KEYS and CLEARED_DIR. Every reader outside the trouble component reads the store through this module and nothing else of trouble's.",
+  "why": "Akien 2026-10-18: \"TROUBLE TICKETS ARE A FILE ARTIFACT IN THE LOGGING TREE\" / \"THERE SHOULD BE NO ROWS FOR TROUBLE TICKETS.\" Measured that day: cairn's trouble pane and web_server's socket asked verb live and counting_block asked verb clears, and every reply stood as a bus row — 195 live replies (~325 KB) and 372 clears replies. The store is already files under ~/.cairn/logs/cairn/0/troubletickets/, so a reader needs no bus hop, and RULE 1 admits a reach into the device only through a tool it publishes.",
+  "entry": "GRAFTED by git mv from cairn/devices/trouble/store.py (store_root, ticket 03ea6f93df03), ticket ee04bb869795, 2026-10-18; live, clears and listing moved in from TroubleDevice (_handle_live, _handle_clears, _listing), whose bus verbs were retired in the same build.",
+  "invoke": "`from cairn.devices.trouble.tools.store import store` then `store.live(roots)`, `store.clears(prefix, roots)`, `store.store_root(roots)`. Prove: `bin/cairn test cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py`.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it reads the store trouble owns and never writes it, and it never folds pending emissions — folding is the owner's write, done by TroubleDevice in its own process. Its design history rides the trouble device's history (cairn/devices/trouble/) under ticket ee04bb869795; nothing beside this charter holds history.",
+  "proof": "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py — the tool's reads over a scratch store (an unreadable file surfaced, an absent store a raise and never []), the import of the tool reaching no bus client and no other device's code, this charter's two fields, and no encapsulation breach naming the module; and test_the_store_root_is_a_light_door.py for its imports.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 56d1aff4455e) admits a reach into trouble only through this tool, because this charter says published_by_device and names its one module. Seal: the tester seals the trouble device's proofs into its validations/.",
+  "falsifier": "Red if any reader outside trouble lands on trouble code other than cairn.devices.trouble.tools.store.store, if live() answers [] for an absent store, if the tool folds or writes the store, or if this charter stops declaring published_by_device and exactly its one module.",
+  "learns": "It does not; it reads files, deliberately dumb physics — what trouble holds is trouble's to decide.",
+  "how_it_learns": "It does not; it reads files, deliberately dumb physics — what trouble holds is trouble's to decide.",
+  "traces_to": [
+    "RULE 1 (encapsulation — a device's public interface is the bus plus any client tool it publishes)",
+    "Law 6 (trouble alone writes its store; a tool has users)",
+    "Law 7 (an absent store raises, never renders as zero troubles)"
+  ],
+  "owner": "None of its own — a tool has users (Law 6): cairn's pane, web_server, counting_block, base/transitions.py, the operator inbox and the probes that read the store. Its code is held by trouble, which publishes it; CC gates writes to that code and its proofs.",
+  "gated_by": [
+    "CC"
+  ]
+}

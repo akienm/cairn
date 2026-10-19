@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The trouble lane's operator surface — and it reaches the lane the same way every other
-# client does (ticket 9579a6f9cec6): over the bus, through `reach`, never by importing
-# TroubleDevice. A CLI that imported the device would hold the store in its own process,
-# which is the exact shape this ticket removed from cairn/device.py and the web_server.
+# The trouble lane's operator surface. It is trouble's OWN code, so it reads the store as files
+# through the tool trouble publishes (tools/store/) and folds in its own process — it never
+# asks trouble over the bus (ticket ee04bb869795; Akien 2026-10-18: "TROUBLE TICKETS ARE A
+# FILE ARTIFACT IN THE LOGGING TREE" / "THERE SHOULD BE NO ROWS FOR TROUBLE TICKETS").
 #
 # TEXT HERE, JSON FOR MACHINES (memory: inter-device-queries-via-bus-verbs). A person at a
-# terminal reads sentences; `--json` hands back the verb's own reply body untouched, so a
-# script never has to parse prose.
+# terminal reads sentences; `--json` hands back the rows untouched, so a script never has to
+# parse prose.
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
 
@@ -17,32 +17,35 @@ case "$subcmd" in
   live)
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
-from cairn.tools.bus_client import reach
+from cairn.devices.trouble.shim import TroubleShim
+from cairn.devices.trouble.tools.store import store
 
 as_json = '--json' in sys.argv[1:]
-bus = reach('trouble')
-reply = bus.request(sender='cli', to='trouble', verb='live',
-                    why='an operator asked what is still demanding attention')
-body = reply.get('body') or {}
-if 'troubles' not in body:
-    # NOT an empty list. 'the lane did not answer' and 'nothing is wrong' are the two
-    # readings a silent green confuses, and they are opposites (Law 7).
-    print(f'trouble did not answer live: {body!r}', file=sys.stderr)
+# The owner folds what is pending before the read answers, in this process (as drain does).
+TroubleShim().drain()
+try:
+    troubles = store.live()
+except FileNotFoundError as exc:
+    # NOT an empty list. 'there is no store' and 'nothing is wrong' are the two readings a
+    # silent green confuses, and they are opposites (Law 7).
+    print(f'trouble store unreadable: {exc}', file=sys.stderr)
     sys.exit(1)
-troubles = body['troubles']
 if as_json:
     print(json.dumps(troubles, indent=2))
     sys.exit(0)
 if not troubles:
     print('no live troubles.')
     sys.exit(0)
+whole = {t.get('id'): t for t in store.listing(store.store_root())}
 print(f'{len(troubles)} live trouble(s):')
 for t in troubles:
     print()
     print(f\"  [{t.get('count', '?')}x] {t.get('id', '?')}   ({t.get('standing', '?')})\")
     print(f\"        {t.get('why', '')}\")
     print(f\"        first {t.get('first_seen', '?')}  last {t.get('last_seen', '?')}\")
-    told = [r for r in t.get('notified', []) if r not in t.get('cleared_by', [])]
+    w = whole.get(t.get('id')) or {}
+    done = {c.get('by') for c in w.get('cleared_by') or [] if isinstance(c, dict)}
+    told = [r for r in w.get('notified') or [] if r not in done]
     if told:
         print(f\"        awaiting clear from: {', '.join(told)}\")
 " "$@"
@@ -50,7 +53,6 @@ for t in troubles:
   clear)
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
-from cairn.tools.bus_client import reach
 
 args = sys.argv[1:]
 identity = args[0] if args and not args[0].startswith('--') else ''
@@ -68,30 +70,50 @@ if not identity or not what_changed:
     # operator one retry instead of costing the record its meaning.
     sys.exit(1)
 
-# THE HAND IS MEASURED HERE, IN THE CLEARER'S OWN PROCESS (c2172127d7a4, 63e6eb836769): in the
-# device's process caller() would read the device, so the CLI measures and the body carries it.
-from cairn.tools.artifact import artifact
-try:
-    hand = artifact.caller()
-except Exception as exc:  # noqa: BLE001 — the clear is the record; the hand is testimony
-    hand = {'class': 'unknown', 'error': f'{type(exc).__name__}: {exc}'}
-bus = reach('trouble')
-reply = bus.request(sender='cli', to='trouble', verb='clear',
-                    why='an operator says the change was made',
-                    body={'identity': identity, 'by': by, 'what_changed': what_changed,
-                          'hand': hand})
-body = reply.get('body') or {}
+# THE CLEAR IS AN EMISSION FOLDED IN THIS PROCESS (ticket ee04bb869795). clear_trouble measures
+# the hand here, in the clearer's own process (c2172127d7a4, 63e6eb836769), and the emission
+# lands in logs/cli/0 — a home the drain reads (it skips only trouble's own). The drain is the
+# owner's code deciding the clear, so declining stays the owner's judgment (Law 6).
+import time
+from cairn.devices.trouble.shim import TroubleShim
+from cairn.devices.trouble.tools.store import store
+from cairn.tools.base.diagnostic import ModuleRaiser
+shim = TroubleShim()
+ModuleRaiser('cli').clear_trouble(identity, by=by, what_changed=what_changed)
+def mine(rows):
+    return [f for f in rows or [] if str(f.get('emission', '')).startswith('cli/')
+            and str(f.get('emission', '')).endswith('.clear_trouble.json')]
+outcome = None
+for _ in range(50):
+    report = shim.drain()
+    wanted = shim._device.identity_of(identity)
+    hits = [f for f in mine(report.get('folded')) if f.get('id') == wanted] + mine(report.get('refused'))
+    if hits:
+        outcome = hits[-1]
+        break
+    if report.get('outcome') != 'reentrant':
+        break
+    time.sleep(0.1)  # another process holds the fold lock and is folding; ask again
+if outcome is None:
+    print(f'{identity}: not folded here — the emission stands in logs/cli/0 for the next drain',
+          file=sys.stderr)
+    sys.exit(1)
+if 'error' in outcome or outcome.get('outcome') == 'declined':
+    print(f\"{identity}: {outcome.get('outcome') or 'refused'} — {outcome.get('why') or outcome.get('error', '')}\",
+          file=sys.stderr)
+    sys.exit(1)
+root = store.store_root()
+path = root / f'{wanted}.json'
+if not path.is_file():
+    path = root / store.CLEARED_DIR / f'{wanted}.json'
+body = json.loads(path.read_text(encoding='utf-8'))
 if '--json' in args:
     print(json.dumps(body, indent=2))
-elif body.get('outcome') == 'refused':
-    print(f\"refused: {body.get('reason', '')}\", file=sys.stderr)
-    sys.exit(1)
 else:
-    standing = body.get('standing', '?')
-    print(f\"{identity}: {body.get('outcome', 'cleared')} by {by} — now {standing}\")
-    still = body.get('awaiting') or [r for r in body.get('notified', [])
-                                     if r not in body.get('cleared_by', [])]
-    if still:
+    print(f\"{identity}: cleared by {by} — now {body.get('standing', '?')}\")
+    done = {c.get('by') for c in body.get('cleared_by') or [] if isinstance(c, dict)}
+    still = [r for r in body.get('notified') or [] if r not in done]
+    if still and body.get('standing') != 'CLEARED':
         print(f\"still awaiting clear from: {', '.join(still)}\")
 " "$@"
     ;;

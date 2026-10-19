@@ -97,8 +97,9 @@ def main() -> int:
 
         name = PROVES["1c1b18bac2eb"]["3"]
         try:
-            verb = dev.declared_verbs()["clears"]
-            rows = verb({"body": {"prefix": "who-writes-what-"}})["clears"]
+            # The clears read is the store tool's since ticket ee04bb869795 (it was the bus verb).
+            from cairn.devices.trouble.tools.store import store as tool
+            rows = tool.clears("who-writes-what-", root=store)
             by_id = {r["id"]: r for r in rows}
             check(name,
                   len(rows) == 2 and set(by_id) == {"who-writes-what-one", "who-writes-what-two"}

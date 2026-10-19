@@ -66,23 +66,24 @@ async def _handle_post(request: Request) -> Response:
 _ws_clients: set[WebSocket] = set()
 
 
+def _trouble_rows(roots: dict | None = None) -> list[dict]:
+    """The live troubles the socket pushes, read as files through the tool trouble publishes
+    (ticket ee04bb869795) — never asked over the bus, where every reply stood as a row. An
+    absent store raises (Law 7)."""
+    from cairn.devices.trouble.tools.store import store
+    return [{"id": t.get("id", "?"), "standing": t.get("standing", "?"),
+             "why": t.get("why", ""), "count": t.get("count", 0)}
+            for t in store.live(roots)]
+
+
 async def _handle_ws_troubles(websocket: WebSocket) -> None:
     await websocket.accept()
     _ws_clients.add(websocket)
     try:
-        # ASKED, NOT IMPORTED (ticket 9579a6f9cec6). web_server held a TroubleDevice()
-        # here and the isolation sieve was red about it every run. A failure to reach the
-        # lane falls to the handler below and CLOSES the socket — deliberately, because
-        # sending an empty list would render as the normal operating state (zero live
-        # troubles) when the truth is that we could not ask (Law 7).
-        reply = _bus.request(sender="web_server", to="trouble", verb="live",
-                             why="trouble panel websocket open")
-        troubles = reply["body"]["troubles"]
-        await websocket.send_json([
-            {"id": t.get("id", "?"), "standing": t.get("standing", "?"),
-             "why": t.get("why", ""), "count": t.get("count", 0)}
-            for t in troubles
-        ])
+        # A failure to read the store falls to the handler below and CLOSES the socket —
+        # deliberately, because sending an empty list would render as the normal operating
+        # state (zero live troubles) when the truth is that we could not look (Law 7).
+        await websocket.send_json(_trouble_rows())
         while True:
             await websocket.receive_text()
     except Exception:
@@ -111,7 +112,7 @@ def main(argv=None) -> int:
 
     # No device is special-cased; the roster lists every fitted device and loads a shim from
     # disk the first time its page or its mail asks for one (ticket efb670ff1dd8).
-    _bus, roster = connect_system(devices=["librarian", "trouble"])
+    _bus, roster = connect_system(devices=["librarian"])
     _device = WebServerDevice(roster, harbor_source=harbor_source(), port=args.port)
 
     app = _make_app()

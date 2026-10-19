@@ -1,17 +1,20 @@
-"""THE LIVE VERB ANSWERS A SUMMARY ROW PER TROUBLE, NEVER THE WHOLE STORE (ticket fa9a2703a9c3).
+"""THE LIVE READ ANSWERS A SUMMARY ROW PER TROUBLE, NEVER THE WHOLE STORE (ticket fa9a2703a9c3).
 
 Measured 2026-10-10: cairn's page asks this lane `live` over the bus on every render, the
 reply is a personal message the bus keeps (Law 7), and it carried every live trouble with its
 occurrence tail and detail — ~355 KB a reply, ~4,474 of them, ~1.5 GB in the bus. Both bus
 callers (cairn's trouble pane, the web server's troubles socket) keep six keys at most.
 
+Since ticket ee04bb869795 (2026-10-18) the read is the store tool's ``live`` and there is no
+bus verb; the contract it answers is the one this proof was written for.
+
 WHAT THIS PROVES, on a scratch store of 3 live troubles raised 50 times each with a detail:
-  (1) _handle_live({}) answers 3 rows, each with exactly the six summary keys and the store's
+  (1) the tool's live() answers 3 rows, each with exactly the six summary keys and the store's
       own values for them;
   (2) the JSON of that answer is under 4 KB, and 50 more occurrences of each trouble leave its
       size unchanged — the reply grows with the number of troubles, never with their history.
 
-Hollow: _handle_live returning self.live() reds both (extra keys; the detail-laden occurrence
+Hollow: live() returning the whole tickets reds both (extra keys; the detail-laden occurrence
 tails put the answer far over 4 KB).
 
     python3 cairn/devices/trouble/proofs/test_live_answers_a_summary.py     # exit 0 = green
@@ -48,10 +51,15 @@ def _store(tmp: Path, times: int = 50):
     return dev
 
 
+def _live(tmp: Path) -> dict:
+    from cairn.devices.trouble.tools.store import store  # at call time (hollow-safe)
+    return {"troubles": store.live(root=tmp)}
+
+
 def test_live_answers_one_summary_row_per_trouble():
     with tempfile.TemporaryDirectory() as d:
         dev = _store(Path(d))
-        rows = dev._handle_live({})["troubles"]
+        rows = _live(Path(d))["troubles"]
         held = {t["id"]: t for t in dev.live()}
         assert len(rows) == 3, len(rows)
         for r in rows:
@@ -63,13 +71,13 @@ def test_the_live_answer_does_not_grow_with_history():
     with tempfile.TemporaryDirectory() as d:
         tmp = Path(d)
         dev = _store(tmp)
-        size = len(json.dumps(dev._handle_live({})))
+        size = len(json.dumps(_live(tmp)))
         assert size < 4096, size
         for ident in IDENTS:
             for i in range(50):
                 dev.raise_trouble(ident, why=f"the proof raised {ident}",
                                   detail={**DETAIL, "n": 50 + i})
-        again = dev._handle_live({})
+        again = _live(tmp)
         # last_seen restamps at the same width; count moves 50 -> 100, which is one digit wider
         # per trouble (first measured run: 648 -> 651). So the answer's SIZE is the invariant
         # once the counts' own digits are taken out — nothing the 50 raises carried rides along.

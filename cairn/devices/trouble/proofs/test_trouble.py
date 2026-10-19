@@ -591,7 +591,10 @@ def test_no_device_reaches_this_one_by_import():
       - a TOOL (cairn/tools/...) — operator_inbox reads the store; tools may import devices,
         devices may not import each other, and that asymmetry is the isolation rule;
       - a PROOF or PROBE — an instrument reads what it measures, and an instrument that
-        had to go through the bus to observe the bus would be measuring its own transport.
+        had to go through the bus to observe the bus would be measuring its own transport;
+      - the TOOL THIS DEVICE PUBLISHES, cairn.devices.trouble.tools.store (ticket
+        ee04bb869795) — the one reach into trouble RULE 1 admits, and the only name a
+        reader may carry. A file that names any other trouble module is still named.
     Any other importer is the defect, and it is named rather than counted."""
     root = Path(__file__).resolve().parents[4] / "cairn"
     offenders = []
@@ -599,7 +602,8 @@ def test_no_device_reaches_this_one_by_import():
         rel = path.relative_to(root.parent).as_posix()
         if rel.startswith("cairn/devices/trouble/"):
             continue
-        if "cairn.devices.trouble" not in path.read_text(encoding="utf-8", errors="replace"):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if "cairn.devices.trouble" not in text.replace("cairn.devices.trouble.tools.store", ""):
             continue
         if rel.startswith("cairn/tools/") or "/proofs/" in rel or "/probes/" in rel:
             continue

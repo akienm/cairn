@@ -350,8 +350,9 @@ def test_existing_pane_urls_render_identically_through_the_asgi_app():
     scope, returns byte-for-byte what ``WebServerDevice.serve`` returns for every URL the
     surface teeth above exercise, 200s and the 404 alike; a POST reaches serve() with its body.
     And proves_green (2): a WebSocket connection is accepted and RECEIVES A SERVER PUSH — the
-    capability the stdlib listener lacked — with the trouble lane asked over the bus, never
-    imported."""
+    capability the stdlib listener lacked — with the troubles READ from trouble's store as
+    files through the tool trouble publishes, and the bus asked nothing (ticket ee04bb869795:
+    it asked verb ``live`` until 2026-10-18, and every reply stood as a bus row)."""
     listener = _listener_module()
     web, _ = _wired()
 
@@ -360,11 +361,22 @@ def test_existing_pane_urls_render_identically_through_the_asgi_app():
 
         def request(self, **kw):
             self.asked.append(kw)
-            return {"body": {"troubles": [{"id": "t-1", "standing": "live", "why": "a fixture trouble",
-                                           "count": 2}]}}
+            raise AssertionError(f"the socket asked the bus: {kw}")
 
-    saved = (listener._device, listener._bus)
+    import json as _json
+    import tempfile
+    from cairn.tools.base.address import log_path
+    scratch = tempfile.TemporaryDirectory(prefix="cairn-proof-ws-troubles-")
+    roots = {k: Path(scratch.name) for k in ("repo", "commons", "instance")}
+    store = log_path("cairn", 0, roots) / "troubletickets"
+    store.mkdir(parents=True)
+    (store / "t-1.json").write_text(_json.dumps(
+        {"id": "t-1", "standing": "live", "why": "a fixture trouble", "count": 2,
+         "occurrences": [{"detail": "rides the store, never the socket"}]}), encoding="utf-8")
+    real_rows = listener._trouble_rows
+    saved = (listener._device, listener._bus, listener._trouble_rows)
     listener._device, listener._bus = web, _Bus()
+    listener._trouble_rows = lambda: real_rows(roots)  # the real read, over the scratch roots
     try:
         app = listener._make_app()
         for path in ("/", "/device/alpha", "/device/beta", "/device/ghost", "/nowhere"):
@@ -381,14 +393,13 @@ def test_existing_pane_urls_render_identically_through_the_asgi_app():
         assert kinds[0] == "websocket.accept", f"the upgrade is accepted first: {kinds}"
         sends = [m for m in pushed if m["type"] == "websocket.send"]
         assert sends, f"the server PUSHES without being asked — that is the capability: {kinds}"
-        import json as _json
         payload = _json.loads(sends[0]["text"])
         assert payload == [{"id": "t-1", "standing": "live", "why": "a fixture trouble", "count": 2}], payload
-        assert listener._bus.asked and listener._bus.asked[0]["to"] == "trouble" \
-            and listener._bus.asked[0]["verb"] == "live", "the lane is ASKED over the bus"
+        assert listener._bus.asked == [], f"the socket asked the bus: {listener._bus.asked}"
         assert len(listener._ws_clients) == 0, "a disconnected client is dropped from the set"
     finally:
-        listener._device, listener._bus = saved
+        listener._device, listener._bus, listener._trouble_rows = saved
+        scratch.cleanup()
 
 
 def test_the_graft_brings_no_dependency_beyond_its_source():

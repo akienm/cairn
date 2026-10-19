@@ -37,7 +37,7 @@ def _check_all() -> dict:
         read_troubles, read_adjudications, read_questions,
         read_tickets, read_ideas, read_intentions,
     )
-    from cairn.devices.trouble.store import store_root
+    from cairn.devices.trouble.tools.store.store import store_root
 
     mismatches = []
 

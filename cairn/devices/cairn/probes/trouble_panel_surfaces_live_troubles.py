@@ -18,18 +18,17 @@ own it (``cairn/devices/cairn/proofs/test_trouble_panel.py``, the render teeth) 
 re-asserts a deterministic function once per heartbeat is not measuring, it is reciting —
 and it was the only reason this file reached across a device boundary.
 
-WHAT IS LEFT IS WHAT CAN ACTUALLY BREAK WHILE NOBODY IS EDITING: the route. The pane's
-handler asks the trouble device for ``live`` over the bus, so between one beat and the
-next it can start failing because the lane is down, the verb was renamed, the shim stopped
-being discovered, or the reply changed shape. None of that is visible to a proof — every
-one of them is a running-system fact — and every one of them ends with the panel dark
+WHAT IS LEFT IS WHAT CAN ACTUALLY BREAK WHILE NOBODY IS EDITING: the read. The pane's
+handler reads trouble's store as files through the tool trouble publishes (ticket
+ee04bb869795 — it asked verb ``live`` over the bus until 2026-10-18, and every reply stood as
+a bus row), so between one beat and the next it can start failing because the store moved,
+a file in it went bad, or the tool's rows changed shape. None of that is visible to a proof —
+every one of them is a running-system fact — and every one of them ends with the panel dark
 while the page still loads. That is the drift this watch exists for.
 
-THE BUS ARRIVES IN THE CONTEXT, never by import: ``CairnShim`` seeds it, because the shim
-is the one thing that knows both its device and its bus (the same routing answer
-``BaseShim`` has given since 2026-08-04). With no bus in the context the probe is UNHEALTHY
-and says so — it does not build one. A probe carries no authority (Law 6), and dialing a
-bus of its own would mean firing a ground-loop beat from inside a ground-loop beat.
+THE ROOTS ARRIVE IN THE CONTEXT when a caller has them (``context["roots"]``); absent, the
+tool reads the real instance root. A probe carries no authority (Law 6): it reads, and an
+absent store is UNHEALTHY and says so, never zero troubles.
 """
 from __future__ import annotations
 
@@ -50,22 +49,15 @@ def _check(context: dict) -> dict:
     result = {"pane_declared": False, "lane_reached": False, "healthy": False,
               "live_count": None}
     try:
-        bus = context.get("bus")
-        if bus is None:
-            raise RuntimeError(
-                "no bus in the pulse context — the pane's handler asks the trouble lane "
-                "over the bus, so without one this probe cannot tell a healthy panel from "
-                "an unreachable lane, and MUST NOT report the healthy one")
-
         from cairn.devices.cairn.device import CairnDevice
-        panes = CairnDevice(bus=bus).declared_panes()
+        panes = CairnDevice(roots=context.get("roots")).declared_panes()
         tp = [p for p in panes if p.get("kind") == "trouble"]
         result["pane_declared"] = bool(tp)
         if not tp:
             context["trouble_panel_check"] = result
             return result
 
-        # THE HANDLER RAISES WHEN THE LANE IS UNREACHABLE, and that is the whole reason this
+        # THE HANDLER RAISES WHEN THE STORE IS ABSENT, and that is the whole reason this
         # call is the measurement. An empty list here is GOOD NEWS — a healthy system with no
         # standing troubles — so a handler that returned [] on failure would make this probe
         # green at exactly the moment it should be red (Law 7).
@@ -88,7 +80,7 @@ def _carry(context: dict) -> dict:
     out = dict(_check(context))
     if not out["healthy"]:
         if out.get("error"):
-            out["finding"] = f"the trouble panel's route failed: {out['error']}"
+            out["finding"] = f"the trouble panel's read failed: {out['error']}"
         elif not out["pane_declared"]:
             out["finding"] = "the cairn device declares no trouble pane"
         else:
@@ -102,9 +94,9 @@ def _enough(context: dict) -> bool:
 
 PROBE = Probe(
     why="the trouble panel is the cairn device's first pane, and it is the surface a human "
-        "meets live troubles on. Its handler asks the trouble device for `live` over the "
-        "bus, so it can go dark between beats without a single line of code changing — a "
-        "down lane, a renamed verb, an undiscovered shim. This probe watches the route, "
+        "meets live troubles on. Its handler reads trouble's store as files through the "
+        "tool trouble publishes, so it can go dark between beats without a single line of "
+        "code changing — a moved store, a bad file, a changed row. This probe watches the read, "
         "which is the half a proof cannot see; the rendering is deterministic and is proved "
         "at cairn/devices/cairn/proofs/test_trouble_panel.py.",
     trigger=_trigger,

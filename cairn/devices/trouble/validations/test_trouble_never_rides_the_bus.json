@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_trouble_never_rides_the_bus.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-18T22:04:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  the_lane_declares_no_trouble_verbs\n        still declared: []\n  PASS  the_tool_reads_the_live_rows\n        ids=['proof-live-a', 'proof-unreadable', 'who-writes-what-proof-top'] rows=[{'id': 'proof-live-a', 'standing': 'OPEN', 'why': \"a proof's trouble (proof-live-a)\", 'count': 2, 'first_seen': '2026-10-18T00:00:00+00:00', 'last_seen': '2026-10-18T00:01:00+00:00'}, {'id': 'proof-unreadable', 'standing': 'OPEN', 'why': 'UNREADABLE TROUBLE FILE: Expecting property name enclosed in double quotes: line 1 co\n  PASS  the_tool_reads_the_clears\n        rows=[{'id': 'who-writes-what-proof-top', 'standing': 'OPEN', 'by': 'akien', 'hand_class': 'akien', 'at': '2026-10-18T01:00:00+00:00'}, {'id': 'who-writes-what-proof-cleared', 'standing': 'CLEARED', 'by': 'cc', 'hand_class': 'cc', 'at': '2026-10-18T02:00:00+00:00'}] every=3 tab=akien\n  PASS  the_tool_reaches_no_host\n        rc=0 loaded=[] err=\n  PASS  nothing_asks_trouble_over_the_bus\n        asks: []\n  PASS  the_cli_clears_with_no_bus\n        live rc=0 ids=['ee04-cli-proof'] err='' | clear rc=0 cleared=True by=['cc'] out='ee04-cli-proof: cleared by cc — now CLEARED\\n' | not-live rc=1 out='no-such-trouble: declined — not live — nothing standing under that identity to clear\\n' | dials=''\n  PASS  the_three_readers_read_with_no_bus\n        pane=True web=True counting=True errs=[]\n  PASS  the_store_tool_is_published\n        published=True pi=['cairn.devices.trouble.tools.store.store'] device_pi=['cairn.devices.trouble.trouble'] old_file=False breaches=[]\n  PASS  test_trouble_never_rides_the_bus\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "the_lane_declares_no_trouble_verbs",
+        "the_tool_reads_the_live_rows",
+        "the_tool_reads_the_clears",
+        "the_tool_reaches_no_host",
+        "nothing_asks_trouble_over_the_bus",
+        "the_cli_clears_with_no_bus",
+        "the_three_readers_read_with_no_bus",
+        "the_store_tool_is_published",
+        "test_trouble_never_rides_the_bus"
+      ],
+      "teeth_red": [],
+      "test": "test-c74e137778ef",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "261b46a930aad445e71c14c6cc2cee5d4bf0e5bdb860e2270c2af40a9ddb94c4",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c74e137778ef",
+      "source_fingerprint": "6f4f03f35d2bbdbdf1d9f901599c14f1bb3d152dba866bab08bc51415410d9a3",
+      "fingerprint_closure": [
+        "cairn/devices/trouble/__init__.py",
+        "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py",
+        "cairn/devices/trouble/tools/__init__.py",
+        "cairn/devices/trouble/trouble.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-529013-kfgv69si/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 111389349,
+          "disk_bytes": 139698176,
+          "entries": 11201,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

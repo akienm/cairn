@@ -392,6 +392,8 @@ def main() -> int:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
             check(tooth.__name__.removeprefix("test_"), False, f"raised {type(exc).__name__}: {exc}")
+    # The composite PROVES names: a hollow reading counts a tooth only from its own PASS/FAIL line.
+    print(f"  {'PASS' if not FAILURES else 'FAIL'}  test_trouble_never_rides_the_bus")
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     return 1 if FAILURES else 0
 

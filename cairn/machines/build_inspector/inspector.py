@@ -4103,15 +4103,21 @@ def check_baseline(findings: list[dict], *, baseline_path: Path | None = None) -
     return [f for f in findings if (f.get("method"), f.get("at")) not in known]
 
 
-def _finding_trouble_id(method: str, at: str) -> str:
-    raw = f"inspector-new-finding-{method}-{at}"
+def _finding_trouble_id(method: str) -> str:
+    """ONE TROUBLE PER SIEVE (ticket cd27b72ba964). The identity names the DEFECT — the sieve
+    that fired — never the component it fired at (the raise contract, diagnostic.py). Until
+    2026-10-18 it carried ``at`` too, so one sieve finding stood as one trouble per component:
+    45 ``encapsulation_holds`` troubles and 3 ``device_isolation_holds`` that day. Akien: *"A
+    trouble is ONLY EVER ONE ... They should be incrementing a counter, not adding another
+    trouble."* The components ride the detail; the count rises at trouble's fold."""
+    raw = f"inspector-new-finding-{method}"
     return _TROUBLE_SLUG.sub("-", raw.lower()).strip("-")
 
 
 _TROUBLE_SLUG = __import__("re").compile(r"[^a-z0-9-]+")
 
 
-def _finding_why(f: dict) -> str:
+def _finding_why(f: dict, *, where: str | None = None) -> str:
     """The sentence a human meets in the SessionStart banner — carrying the MEASUREMENT.
 
     THE FIX IS `expected`/`actual` (idea fc075d9df7da), and it is small on the page and
@@ -4124,7 +4130,7 @@ def _finding_why(f: dict) -> str:
     answer, once per glance, forever."""
     about = f.get("about", "")
     head = (f"build inspector finding appeared above baseline: "
-            f"{f.get('method', 'unknown')} at {f.get('at', 'unknown')}")
+            f"{f.get('method', 'unknown')} at {where or f.get('at', 'unknown')}")
     if about:
         head += f" — {about}"
     # THE READING IS IN ``values``, NOT IN ``expected``/``actual`` — measured 2026-09-07 by
@@ -4158,24 +4164,48 @@ def _raiser():
     return ModuleRaiser("build_inspector")
 
 
+_FINDINGS_CARRIED = 10   # whole findings a sieve's trouble carries; the rest are counted, never dropped silently
+
+
+def _by_sieve(findings: list[dict]) -> dict[str, list[dict]]:
+    """The findings grouped by the sieve that raised them, in first-seen order."""
+    groups: dict[str, list[dict]] = {}
+    for f in findings:
+        groups.setdefault(f.get("method", "unknown"), []).append(f)
+    return groups
+
+
+def _sieve_why(group: list[dict]) -> str:
+    """One sieve's sentence: how many components it flagged, the first few, and the first reading."""
+    ats = [f.get("at", "unknown") for f in group]
+    where = (f"{len(ats)} component(s) (" + ", ".join(ats[:3])
+             + (", ..." if len(ats) > 3 else "") + ")")
+    return _finding_why(group[0], where=where)
+
+
 def _file_troubles_for_new_findings(new_findings: list[dict]) -> int:
-    """File a trouble for each finding not in the baseline. Returns count filed."""
+    """Raise ONE trouble per sieve with findings above baseline. Returns the raises made.
+
+    A second run that finds the same sieve still firing raises the same identity, and
+    trouble's fold counts it — the count is the "still standing" signal, not a new file."""
     if not new_findings:
         return 0
     raiser = _raiser()
-    filed = 0
-    for f in new_findings:
+    groups = _by_sieve(new_findings)
+    for method, group in groups.items():
         raiser.raise_trouble(
-            _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown")),
-            why=_finding_why(f),
-            detail=f,
+            _finding_trouble_id(method),
+            why=_sieve_why(group),
+            detail={"method": method,
+                    "components": [f.get("at", "unknown") for f in group],
+                    "findings": group[:_FINDINGS_CARRIED],
+                    "findings_omitted": max(0, len(group) - _FINDINGS_CARRIED)},
         )
-        filed += 1
-    return filed
+    return len(groups)
 
 
 def _standing_finding_ids(findings: list[dict], *, baseline_path: Path | None = None) -> list[str]:
-    """The trouble identities the current findings SUSTAIN: one per finding above baseline.
+    """The trouble identities the current findings SUSTAIN: one per SIEVE above baseline.
 
     The raise side and the reconcile side read the same set, and the set is the ABOVE-BASELINE
     findings, because that is what a finding trouble IS ("appeared above baseline ... no
@@ -4183,9 +4213,12 @@ def _standing_finding_ids(findings: list[dict], *, baseline_path: Path | None = 
     finding, baselined or not, so a trouble raised before its ticket landed in the baseline
     stood forever — the inspector re-read the covered finding as still-standing on every run
     and never emitted the clear. Covering a finding by ticket is exactly the condition that
-    retires its trouble; this is where that condition is read."""
+    retires its trouble; this is where that condition is read.
+
+    Per sieve since 2026-10-18 (ticket cd27b72ba964), so every old per-component identity
+    under the prefix falls outside this set and clears at trouble's next drain."""
     return sorted({
-        _finding_trouble_id(f.get("method", "unknown"), f.get("at", "unknown"))
+        _finding_trouble_id(f.get("method", "unknown"))
         for f in check_baseline(findings, baseline_path=baseline_path)
     })
 
@@ -4230,9 +4263,10 @@ def _main(argv: list[str]) -> int:
     all_findings = report.get("findings", [])
     new = check_baseline(all_findings)
     if new:
-        count = _file_troubles_for_new_findings(new)
+        raises = _file_troubles_for_new_findings(new)
         report["unbaselined_findings"] = new
-        print(f"!! {count} finding(s) above baseline — trouble(s) filed", file=sys.stderr)
+        print(f"!! {len(new)} finding(s) above baseline in {raises} sieve(s) — trouble(s) filed",
+              file=sys.stderr)
     standing = _reconcile_cleared_findings(all_findings)
     print(f"-- reconcile emitted: {standing} finding identit(ies) still standing; trouble "
           f"clears the rest at its drain", file=sys.stderr)

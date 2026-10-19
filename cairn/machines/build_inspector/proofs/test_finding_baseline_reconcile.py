@@ -67,8 +67,8 @@ def a_covered_finding_is_below_the_baseline_and_a_bare_one_above():
 def the_standing_set_is_the_above_baseline_set():
     bp = _baseline_covering(_COVERED)
     still = _inspector._standing_finding_ids([_COVERED, _BARE], baseline_path=bp)
-    bare_id = _inspector._finding_trouble_id(_BARE["method"], _BARE["at"])
-    covered_id = _inspector._finding_trouble_id(_COVERED["method"], _COVERED["at"])
+    bare_id = _inspector._finding_trouble_id(_BARE["method"])
+    covered_id = _inspector._finding_trouble_id(_COVERED["method"])
     assert still == [bare_id], f"standing: {still!r}"
     assert covered_id not in still
 
@@ -91,7 +91,7 @@ def the_reconcile_hands_trouble_only_what_still_stands_above_baseline():
         n = mod._reconcile_cleared_findings([_COVERED, _BARE])
     finally:
         mod._raiser, mod._BASELINE_PATH = real_raiser, real_path
-    bare_id = mod._finding_trouble_id(_BARE["method"], _BARE["at"])
+    bare_id = mod._finding_trouble_id(_BARE["method"])
     assert seen.get("prefix") == "inspector-new-finding-", seen
     assert seen.get("still") == [bare_id], f"trouble was told these stand: {seen.get('still')!r}"
     assert n == 1, n

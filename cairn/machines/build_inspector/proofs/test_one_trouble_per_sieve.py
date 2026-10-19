@@ -8,17 +8,19 @@ named each trouble ``inspector-new-finding-<method>-<at>``, so one sieve finding
 trouble per component — 45 ``encapsulation_holds`` troubles and 3 ``device_isolation_holds``,
 counted in ~/.cairn/logs/cairn/0/troubletickets/cleared that day.
 
-The teeth, every one against scratch roots (the raiser and the store both live under them, so
-HOME is never written):
+The teeth read only what the inspector itself hands its raiser (RULE 1: a proof measures only its
+own component). Trouble's fold, where a raise of a standing identity becomes a rising count and a
+reconcile clears what its still-set omits, is trouble's to prove and is proven at its own address:
 
   1. ONE RAISE PER SIEVE. Three above-baseline findings of one sieve at three components plus one
      of a second sieve raise exactly twice, under identities that name the sieve alone, and the
      first raise's detail names all three components.
-  2. THE COUNT RISES. The same findings raised on a second run, folded by trouble's own drain,
-     leave ONE live file for the sieve, at count 2.
+  2. EVERY RUN RAISES THE SAME IDENTITY. The same findings on a second run raise the very
+     identities of the first, so trouble's fold counts one trouble up rather than filing another.
   3. THE STANDING SET IS PER SIEVE. ``_standing_finding_ids`` returns sieve identities only.
-  4. THE OLD FAN-OUT CLEARS. A reconcile over a store holding an old per-component trouble and the
-     new per-sieve one clears the old and keeps the new.
+  4. THE OLD FAN-OUT CLEARS. The reconcile hands trouble a still-set under the
+     ``inspector-new-finding-`` prefix that holds the sieve's identity and not the old
+     per-component one, so trouble clears the old and keeps the new.
   5. THE DETAIL STAYS BOUNDED. A sieve flagging fifteen components carries ten findings whole,
      names all fifteen components, and counts the five it left out.
 
@@ -82,40 +84,30 @@ def _tooth(name, fn):
         print(f"  PASS  {name}")
 
 
-class _Scratch:
-    """Scratch roots, the inspector's raiser pointed under them, and trouble's drain over them."""
-
-    def __enter__(self):
-        from cairn.tools.base.address import log_path
-        self._tmp = tempfile.TemporaryDirectory(prefix="cairn-proof-one-trouble-per-sieve-")
-        self.roots = {k: Path(self._tmp.name) for k in ("repo", "commons", "instance")}
-        self.store = log_path("cairn", 0, self.roots) / "troubletickets"
-        self.store.mkdir(parents=True)
-        self._mod = __import__("importlib").import_module("cairn.machines.build_inspector.inspector")
-        self._real = self._mod._raiser
-        from cairn.tools.base.diagnostic import ModuleRaiser
-        roots = self.roots
-        self._mod._raiser = lambda: ModuleRaiser("build_inspector", roots=roots)
-        return self
-
-    def drain(self):
-        from cairn.devices.trouble.shim import TroubleShim
-        TroubleShim(roots=self.roots).drain()
-
-    def live(self):
-        return sorted(p.stem for p in self.store.glob("*.json"))
-
-    def __exit__(self, *exc):
-        self._mod._raiser = self._real
-        self._tmp.cleanup()
-
-
 class _Recorder:
     def __init__(self):
         self.raised = []
 
+        self.reconciled = []
+
     def raise_trouble(self, identity, *, why, detail=None, **kw):
         self.raised.append({"identity": identity, "why": why, "detail": detail})
+
+    def reconcile_troubles(self, scope, still, **kw):
+        self.reconciled.append({"scope": scope, "still": list(still)})
+
+
+def _recorded(fn):
+    """Run ``fn(mod)`` with the inspector's raiser swapped for a recorder; return the recorder."""
+    rec = _Recorder()
+    mod = __import__("importlib").import_module("cairn.machines.build_inspector.inspector")
+    real = mod._raiser
+    mod._raiser = lambda: rec
+    try:
+        fn(mod)
+    finally:
+        mod._raiser = real
+    return rec
 
 
 def one_raise_per_sieve():
@@ -137,18 +129,13 @@ def one_raise_per_sieve():
     assert detail.get("components") == ["devices/one", "devices/two", "machines/three"], detail
 
 
-def the_count_rises():
-    with _Scratch() as s:
-        _inspector._file_troubles_for_new_findings(_FINDINGS)
-        s.drain()
-        _inspector._file_troubles_for_new_findings(_FINDINGS)
-        s.drain()
-        alpha = _inspector._finding_trouble_id(_A)
-        mine = [n for n in s.live() if n.startswith("inspector-new-finding-proof-sieve")]
-        assert mine == sorted([alpha, _inspector._finding_trouble_id(_B)]), \
-            f"live after two runs: {mine!r}"
-        ticket = json.loads((s.store / f"{alpha}.json").read_text(encoding="utf-8"))
-        assert ticket.get("count") == 2, f"count after two runs: {ticket.get('count')!r}"
+def every_run_raises_the_same_identity():
+    def two_runs(mod):
+        mod._file_troubles_for_new_findings(_FINDINGS)
+        mod._file_troubles_for_new_findings(_FINDINGS)
+    ids = [r["identity"] for r in _recorded(two_runs).raised]
+    one = [_inspector._finding_trouble_id(_A), _inspector._finding_trouble_id(_B)]
+    assert ids == one + one, f"two runs raised {ids!r}, want the same {one!r} twice"
 
 
 def the_standing_set_is_per_sieve():
@@ -161,25 +148,22 @@ def the_standing_set_is_per_sieve():
 
 
 def the_old_fan_out_clears():
-    with _Scratch() as s:
-        old = "inspector-new-finding-proof-sieve-alpha-devices-one"
-        from cairn.tools.base.diagnostic import ModuleRaiser
-        ModuleRaiser("build_inspector", roots=s.roots).raise_trouble(
-            old, why="the per-component identity this ticket retires", detail={"at": "devices/one"})
-        _inspector._file_troubles_for_new_findings(_FINDINGS[:3])
-        s.drain()
-        assert old in s.live(), f"fixture did not land: {s.live()!r}"
-        mod = __import__("importlib").import_module("cairn.machines.build_inspector.inspector")
+    old = "inspector-new-finding-proof-sieve-alpha-devices-one"
+    bp = Path(tempfile.mkdtemp(prefix="cairn-proof-one-trouble-bp-")) / "none.json"
+
+    def reconcile(mod):
         real_bp = mod._BASELINE_PATH
-        mod._BASELINE_PATH = Path(tempfile.mkdtemp(prefix="cairn-proof-one-trouble-bp-")) / "none.json"
+        mod._BASELINE_PATH = bp
         try:
             mod._reconcile_cleared_findings(_FINDINGS[:3])
         finally:
             mod._BASELINE_PATH = real_bp
-        s.drain()
-        live = s.live()
-        assert old not in live, f"the old per-component trouble still stands: {live!r}"
-        assert _inspector._finding_trouble_id(_A) in live, f"the sieve's trouble was cleared: {live!r}"
+    calls = _recorded(reconcile).reconciled
+    assert len(calls) == 1, f"{len(calls)} reconcile calls"
+    assert calls[0]["scope"] == "inspector-new-finding-", calls[0]
+    still = calls[0]["still"]
+    assert old not in still, f"the old per-component identity still stands: {still!r}"
+    assert _inspector._finding_trouble_id(_A) in still, f"the sieve's identity was dropped: {still!r}"
 
 
 def the_detail_stays_bounded():
@@ -199,7 +183,7 @@ def the_detail_stays_bounded():
     assert detail.get("findings_omitted") == 5, detail.get("findings_omitted")
 
 
-_PARTS = [one_raise_per_sieve, the_count_rises, the_standing_set_is_per_sieve,
+_PARTS = [one_raise_per_sieve, every_run_raises_the_same_identity, the_standing_set_is_per_sieve,
           the_old_fan_out_clears, the_detail_stays_bounded]
 
 

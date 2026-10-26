@@ -45,7 +45,9 @@ PROVES = {
 _TICKET = "164da559823d"
 # Exactly the heartbeat's keys: bae622881f03's four plus a808e21d646f's ``devices`` (the rack's
 # ids, its clause 6, proved in test_heartbeat.py). Exact, so a "triggers" key reads red.
-_STATE_KEYS = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed", "devices"}
+# 'spawned': ticket 81eb3e46aed9 (open-a322e5166e5d) — what the beat launched, never called.
+_STATE_KEYS = {"beats", "started", "recorded_mtimes", "current_mtimes", "changed", "devices",
+               "spawned"}
 _PULSE_MACHINERY = ("beat_probes", "pulse_sites", "Triggers", "load_pulse")
 
 
@@ -61,8 +63,8 @@ def _tracked(*pathspecs: str) -> list[str]:
 
 
 def test_no_pulse_file_and_no_beat_probes_are_tracked():
-    pulses = _tracked("*/groundloop/pulse.py")
-    assert pulses == [], f"pulse files still tracked: {pulses}"
+    # ticket 81eb3e46aed9, Akien's answer to open-a322e5166e5d: the beat launches each device's
+    # groundloop/pulse.py again, so a tracked pulse file is no longer a red; beat_probes.py is.
     beat = _tracked("cairn/tools/base/beat_probes.py")
     assert beat == [], "cairn/tools/base/beat_probes.py is still tracked"
     assert not (_REPO / "cairn/tools/base/beat_probes.py").exists(), \
@@ -118,7 +120,6 @@ def test_the_beat_calls_no_pulse_and_records_no_triggers():
     state = record.get("state") or {}
     assert state.get("beats", 0) >= 3, f"the loop did not beat 3 times: {record} {proc.stderr.read()[-400:]}"
     assert rc == 0, f"COMMAND_EXIT did not stop the loop cleanly: rc={rc}"
-    assert not marker.exists(), "a groundloop/pulse.py was called by the beat"
     assert set(state) == _STATE_KEYS, f"the record's state keys are {sorted(state)}, " \
                                       f"want exactly {sorted(_STATE_KEYS)}"
 

@@ -3,7 +3,9 @@
 Akien's outline (2026-10-17, ground_loop): the loop "launches a script in each device's
 cairn/cairn/devices/<device>/groundloop called pulse.py", and its record holds "what it
 spawned". 164da559823d (2026-10-05) had deleted the launcher; his answer to
-open-a322e5166e5d restores it as a child process the loop never waits on.
+open-a322e5166e5d restores it as a child process the loop never waits on. The record is
+the outline's (V1 line 251, V2 5.5.3.5): each device found, its pulse.py's name or NOT
+FOUND, the file's mtime, the pid it spawned.
 
 One run of the loop, in a subprocess at cadence 0.5 s, over a scratch class root holding
 four devices: alpha's pulse.py appends its pid to a marker, beta's sleeps 30 s, gamma's
@@ -34,8 +36,8 @@ PROVES = {
     "81eb3e46aed9": {
         "1": "test_alphas_pulse_runs_on_every_beat",
         "2": "test_the_beat_does_not_wait_on_a_sleeping_pulse",
-        "3": "test_the_record_lists_each_spawn_with_device_path_and_pid",
-        "4": "test_a_device_without_a_pulse_is_not_spawned",
+        "3": "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid",
+        "4": "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
         "5": "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
     },
 }
@@ -139,18 +141,23 @@ def test_the_beat_does_not_wait_on_a_sleeping_pulse(run):
         f"the beat did not pass 3 within 5 s while beta slept: {run['advance_s']}"
 
 
-def test_the_record_lists_each_spawn_with_device_path_and_pid(run):
+def test_the_record_lists_each_spawn_with_device_path_mtime_and_pid(run):
     for b, entries in _spawning(run):
         assert {"alpha", "beta", "gamma"} <= _devices(entries), \
             f"beat {b}'s 'spawned' lacks a device: {entries}"
         for e in entries:
-            assert isinstance(e, dict) and e.get("device") and e.get("path") \
-                and isinstance(e.get("pid"), int), f"beat {b}: entry lacks device+path+pid: {e}"
+            if not isinstance(e, dict) or e.get("device") == "delta":
+                continue
+            assert e.get("device") and e.get("path") and isinstance(e.get("mtime"), float) \
+                and isinstance(e.get("pid"), int), f"beat {b}: entry lacks device+path+mtime+pid: {e}"
 
 
-def test_a_device_without_a_pulse_is_not_spawned(run):
+def test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned(run):
     for b, entries in _spawning(run):
-        assert "delta" not in _devices(entries), f"beat {b} spawned delta: {entries}"
+        delta = [e for e in entries if isinstance(e, dict) and e.get("device") == "delta"]
+        assert len(delta) == 1, f"beat {b} does not list delta once: {entries}"
+        assert delta[0].get("pulse") == "NOT FOUND" and "pid" not in delta[0], \
+            f"beat {b}: delta is not NOT FOUND, or was spawned: {delta[0]}"
 
 
 def test_a_raising_pulse_does_not_stop_the_next_beats_spawns(run):

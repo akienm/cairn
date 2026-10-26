@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_beat_spawns_each_device_pulse.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-26T16:37:58",
+    "date": "2026-10-26T17:36:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_alphas_pulse_runs_on_every_beat\n.\n  ok   test_the_beat_does_not_wait_on_a_sleeping_pulse\n.\n  ok   test_the_record_lists_each_spawn_with_device_path_mtime_and_pid\n.\n  ok   test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned\n.\n  ok   test_a_raising_pulse_does_not_stop_the_next_beats_spawns\n                                                                    [100%]\n5 passed in 3.67s",
+      "stdout_tail": ".\n  ok   test_alphas_pulse_runs_on_every_beat\n.\n  ok   test_the_beat_does_not_wait_on_a_sleeping_pulse\n.\n  ok   test_the_record_lists_each_spawn_with_device_path_mtime_and_pid\n.\n  ok   test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned\n.\n  ok   test_a_raising_pulse_does_not_stop_the_next_beats_spawns\n                                                                    [100%]\n5 passed in 3.68s",
       "stderr_tail": "",
       "teeth_green": [
         "test_alphas_pulse_runs_on_every_beat",
@@ -17,14 +17,19 @@
         "test_a_raising_pulse_does_not_stop_the_next_beats_spawns"
       ],
       "teeth_red": [],
-      "test": "test-5f12c05982f3",
+      "test": "test-8d2d81487f4e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 4,
+        "tables": [
+          "bus_proc_736001_1640274652_delivery",
+          "bus_proc_736001_1640274652",
+          "bus_proc_736519_1643010884_delivery",
+          "bus_proc_736519_1643010884"
+        ]
       },
       "conditions": {
         "proof": "7ebb96c9a49a29e3452bf70d1f0229fc3d701e2d8a31bf9b928b7eff043f8be3",
@@ -44,13 +49,13 @@
       },
       "killed": [
         {
-          "pid": 735172,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-735153-ayupqe3n/class/cairn/devices/beta/groundloop/pulse.py",
+          "pid": 744535,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-744516-qzy47szc/class/cairn/devices/beta/groundloop/pulse.py",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5f12c05982f3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8d2d81487f4e",
       "source_fingerprint": "2e751902f64fb4425a51f3599f084000a2eb423d202c9a63037f9b2935282982",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
@@ -59,7 +64,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-735134-69g0360u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-744496-hv8i5fi3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,11 +73,40 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111874634,
-          "disk_bytes": 140365824,
-          "entries": 11273,
+          "bytes": 111892892,
+          "disk_bytes": 140390400,
+          "entries": 11276,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "81eb3e46aed9": {
+          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
+            "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
+            "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
+            "test_alphas_pulse_runs_on_every_beat",
+            "test_the_beat_does_not_wait_on_a_sleeping_pulse",
+            "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
+            "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
+            "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
+            "test_alphas_pulse_runs_on_every_beat",
+            "test_the_beat_does_not_wait_on_a_sleeping_pulse",
+            "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/intention+why.json": {
+            "notified": "n-7cb913536043"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "81eb3e46aed9": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "d66553f4b532c74ea53c5e7c9058214eace86740",
+          "anchor_first_build": "d66553f4b532c74ea53c5e7c9058214eace86740",
+          "commit": "e98d279e913f70b223fc5aa176dc334f2bb51f52"
         }
       }
     },

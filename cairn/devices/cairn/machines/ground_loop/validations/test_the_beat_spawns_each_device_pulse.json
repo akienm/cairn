@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_the_beat_spawns_each_device_pulse.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-26T16:37:58",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_alphas_pulse_runs_on_every_beat\n.\n  ok   test_the_beat_does_not_wait_on_a_sleeping_pulse\n.\n  ok   test_the_record_lists_each_spawn_with_device_path_mtime_and_pid\n.\n  ok   test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned\n.\n  ok   test_a_raising_pulse_does_not_stop_the_next_beats_spawns\n                                                                    [100%]\n5 passed in 3.67s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_alphas_pulse_runs_on_every_beat",
+        "test_the_beat_does_not_wait_on_a_sleeping_pulse",
+        "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid",
+        "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
+        "test_a_raising_pulse_does_not_stop_the_next_beats_spawns"
+      ],
+      "teeth_red": [],
+      "test": "test-5f12c05982f3",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7ebb96c9a49a29e3452bf70d1f0229fc3d701e2d8a31bf9b928b7eff043f8be3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "pid": 735172,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-735153-ayupqe3n/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5f12c05982f3",
+      "source_fingerprint": "2e751902f64fb4425a51f3599f084000a2eb423d202c9a63037f9b2935282982",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_spawns_each_device_pulse.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-735134-69g0360u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 111874634,
+          "disk_bytes": 140365824,
+          "entries": 11273,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

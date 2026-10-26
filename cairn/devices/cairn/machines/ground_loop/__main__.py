@@ -4,13 +4,15 @@ What it does, all of it (Akien, 2026-09-30):
 
   - claims the singleton; a second loop exits while one runs and is LIVE;
   - records the mtimes of its own files;
-  - each beat: compares them and writes one JSON (liveness.json) with the recorded and
-    current mtimes — it calls nothing (ticket 164da559823d) — and the devices found, the
-    rack's ids (``cairn.tools.rack``, ticket a808e21d646f);
+  - each beat: compares them, launches each device's groundloop/pulse.py as a detached
+    child it never waits on (ticket 81eb3e46aed9), and writes one JSON (liveness.json) with
+    the recorded and current mtimes, the devices found, the rack's ids (``cairn.tools.rack``,
+    ticket a808e21d646f), and what it spawned;
   - COMMAND_EXIT stops it; a changed own file re-execs it in place unless
     COMMAND_DO_NOT_RESTART is set.
 
-No bus, no probes, no shims, no web server, no import checks, no pulse calls. Each of those
+No bus, no probes, no shims, no web server, no import checks. A pulse.py is launched, never
+called in-process (ticket 164da559823d retired the in-process calls). Each of those
 belongs to something else: mail and probes to the device, fired by their event (a commit
 fires the post-commit hook's subscribers, ticket 5a4ec289bf15), the web server to its own
 shim.
@@ -40,7 +42,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
-from cairn.devices.cairn.machines.ground_loop.heartbeat import changed, mtimes, own_files
+from cairn.devices.cairn.machines.ground_loop.heartbeat import changed, mtimes, own_files, spawn_pulses
 from cairn.tools.liveness.liveness import CADENCE_S, read_liveness, write_liveness
 from cairn.tools.rack.rack import rack_ids
 
@@ -97,8 +99,9 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
     recorded = mtimes(own_files(watch))
     state = {"beats": 0, "started": started, "recorded_mtimes": recorded,
              "current_mtimes": recorded, "changed": [],
-             "devices": rack_ids(class_root)}
+             "devices": rack_ids(class_root), "spawned": []}
     write_liveness(_now(), state, os.getpid(), home)
+    held: list = []
 
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
@@ -107,9 +110,10 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
         now = _now()
         current = mtimes(own_files(watch))
         diff = changed(recorded, current)
+        spawned, held = spawn_pulses(class_root, held)
         state = {"beats": state["beats"] + 1, "started": started,
                  "recorded_mtimes": recorded, "current_mtimes": current,
-                 "changed": diff, "devices": rack_ids(class_root)}
+                 "changed": diff, "devices": rack_ids(class_root), "spawned": spawned}
         write_liveness(_now(), state, os.getpid(), home)
         if (home / COMMAND_EXIT).exists():
             break

@@ -94,6 +94,13 @@ fi
 # A floor that cannot be laid is refused loud, with the check named, exit 3 — the resolver
 # is never reached on a floor that is not there (Law 7; gates are physics).
 CAIRN_VENV="${CAIRN_VENV:-$HOME/.cairn/venv}"
+# Windows (Git Bash/MSYS): the venv keeps its interpreter in Scripts/, and there is no unix
+# socket or systemd to ask about a database. This host has NO database by decision (Akien,
+# 2026-10-26), so the db check is skipped here by name; a device that needs one says so itself.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) CAIRN_WINDOWS=1; CAIRN_VENV_BIN="Scripts"; CAIRN_VENV_PY="python.exe" ;;
+  *)                    CAIRN_WINDOWS=0; CAIRN_VENV_BIN="bin";     CAIRN_VENV_PY="python3" ;;
+esac
 CAIRN_PG_SOCKET_DIR="${CAIRN_PG_SOCKET_DIR:-/var/run/postgresql}"
 
 _floor_refuse() {  # <check> <what was probed, what came back, the one remedy>
@@ -102,7 +109,10 @@ _floor_refuse() {  # <check> <what was probed, what came back, the one remedy>
 }
 
 _floor_venv() {
-  [[ -x "$CAIRN_VENV/bin/python3" ]] && return 0
+  # Windows: no venv by decision, same as the db (see above). superclaude's own preflight
+  # is the thing that builds one when a session needs it, and it can never abort the launch.
+  [[ "$CAIRN_WINDOWS" -eq 1 && ! -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && return 0
+  [[ -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && return 0
   # shellcheck source=/dev/null
   source "$HERE/../launchers/bootstrap.sh" 2>/dev/null || _floor_refuse venv \
     "$CAIRN_VENV/bin/python3 is absent and $HERE/../launchers/bootstrap.sh (the venv's one recipe) did not load"
@@ -114,6 +124,7 @@ _floor_venv() {
 }
 
 _floor_db() {
+  [[ "$CAIRN_WINDOWS" -eq 1 ]] && return 0
   local sock="$CAIRN_PG_SOCKET_DIR/.s.PGSQL.5432"
   [[ -S "$sock" ]] && return 0
   # The socket file is a cheap read that can lie both ways (absent while a server binds a
@@ -149,7 +160,7 @@ _floor_instance() {
 
 _floor() {
   _floor_venv
-  export PATH="$CAIRN_VENV/bin:$PATH"   # the launcher's python3 IS the floor, not whatever came first
+  export PATH="$CAIRN_VENV/$CAIRN_VENV_BIN:$PATH"   # the launcher's python3 IS the floor, not whatever came first
   _floor_db
   _floor_instance
 }

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_certification_fires_the_gates_probes.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-27T14:38:21",
+    "date": "2026-10-27T14:38:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,7 +21,7 @@
         "tooth_emit_fires_after_the_journal"
       ],
       "teeth_red": [],
-      "test": "test-644db377619e",
+      "test": "test-21f0854e9140",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -48,7 +48,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-644db377619e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-21f0854e9140",
       "source_fingerprint": "ae776f7d305bf241c7eec8d214439d617883fc20e38d388e8298d7854dcc0f5d",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -63,23 +63,43 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-963165-xwi_90vf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-963795-gjlxr0gw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/charter/0/20261027.203820.201019.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.203820.207155.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261027.203838.788043.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.203838.794319.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112155391,
-          "disk_bytes": 140812288,
-          "entries": 11350,
+          "bytes": 112156842,
+          "disk_bytes": 140816384,
+          "entries": 11351,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "32f500e517d7": {
+          "cairn/tools/base/gate_probes.py": [
+            "tooth_a_certified_probe_posts_one_personal_envelope",
+            "tooth_a_test_run_marks_the_envelope",
+            "tooth_an_unreachable_bus_never_gates_the_crossing"
+          ],
+          "cairn/tools/base/transitions.py": [
+            "tooth_an_unreachable_bus_never_gates_the_crossing"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "32f500e517d7": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "869053282a0c9efccd4ea3063229b25aed6a4fe4",
+          "anchor_first_build": "4cb79062c7f7c4d56f848528d8677f717f4b5303",
+          "commit": "e52c486c0a680d9170a47fc3b7f6ab36e9d5f8da"
         }
       }
     },

@@ -2302,9 +2302,12 @@ def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> lis
 
 
 def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) -> list[dict]:
-    """Green (empty findings) iff an outline check has READ the ticket: the latest
-    ``outline_checks/<ticket>-*.json`` record with ``ran: true`` stands, through
-    ``outline_check.standing`` (the machine's public mouth, RULE 1).
+    """Green (empty findings) iff an outline check has READ the ticket: some
+    ``<commons>/outline_checks/<ticket>-*.json`` record carries ``ran: true``. The sieve reads
+    the RECORDS, never the outline_check machine's code — it sits inside the codemother
+    device, and a machine reaching into a device is the breach RULE 1 forbids
+    (``encapsulation_holds``); buildme_rides_the_chart reads codemother's berths the same way
+    (D9).
 
     The sixth entry lane (ticket c66b25d122e6, CairnComponentOutline.txt 10.3.5.1, Akien
     2026-10-26: *"the reason we did all this was so you'll know if somebody files a ticket
@@ -2317,18 +2320,21 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
     world this reads.
     """
     from cairn.machines.rehearsal import rehearsal as R
-    from cairn.devices.codemother.machines.outline_check import outline_check as OC
 
     if R.ticket_file(ticket, root) is None:
         return []
-    st = OC.standing(ticket, root)
-    if st["ok"]:
-        return []
+    for path in sorted((R.commons(root) / "outline_checks").glob(f"{ticket}-*.json")):
+        try:
+            if json.loads(path.read_text(encoding="utf-8")).get("ran") is True:
+                return []
+        except (OSError, ValueError):
+            continue   # an unreadable record is not a run that read
     return [_finding(
         "buildme_rides_the_outline_check", ticket,
         "an outline check has read the ticket",
         expected=True, actual=False,
-        lack=st["lack"], record=st.get("record"),
+        lack=f"no outline check has run over {ticket}: cairn outlinecheck {ticket}",
+        record=None,
         check_with=f"cairn outlinecheck {ticket}",
     )]
 

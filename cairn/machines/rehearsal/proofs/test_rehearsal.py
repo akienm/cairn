@@ -373,7 +373,7 @@ def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
         finally:
             transitions._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        assert len(names) == 5 and names[-1] == "the_ticket_rehearses_clean", names
+        assert len(names) == 6 and names[4] == "the_ticket_rehearses_clean", names
         src = (REPO / "cairn/tools/base/transitions.py").read_text()
         assert src.count('_sieve_lane("the_ticket_rehearses_clean"') == 1
     finally:

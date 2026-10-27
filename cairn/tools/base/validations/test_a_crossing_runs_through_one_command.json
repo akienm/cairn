@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_crossing_runs_through_one_command.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-18T21:55:48",
+    "date": "2026-10-27T10:18:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: tried /tmp/cross-command-fixture-scratch.4026531836-516388-yzc7j0bd/cairn/nowhere/intention+why.json, /tmp/cross-command-fixture-scratch.4026531836-516388-yzc7j0bd/CairnCommons/nowhere/intention+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: tried /tmp/cross-command-fixture-scratch.4026531836-878491-sj4rljea/cairn/nowhere/intention+why.json, /tmp/cross-command-fixture-scratch.4026531836-878491-sj4rljea/CairnCommons/nowhere/intention+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
@@ -17,7 +17,7 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-1fa856cab5b2",
+      "test": "test-c833befee840",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1fa856cab5b2",
-      "source_fingerprint": "6b8b34953350581926e47ebad13937525d9150444af40d101edcfe26c5b58f4b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c833befee840",
+      "source_fingerprint": "4ffbe1fa690e28efa8c5c842b5329bfb6c348ded10b75db387e29b63836dee6a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -58,24 +58,24 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-515933-ffyt364l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-865706-jl4srduh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261019.035547.956224.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261019.035547.964322.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261027.161804.827142.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.161804.836062.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 111341369,
-          "disk_bytes": 139628544,
-          "entries": 11192,
+          "bytes": 112039297,
+          "disk_bytes": 140627968,
+          "entries": 11310,
           "builds": 1,
-          "reuses": 20
+          "reuses": 25
         }
       }
     },

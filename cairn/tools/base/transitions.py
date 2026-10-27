@@ -1597,6 +1597,7 @@ def inspect_entry(ticket: str) -> list[dict]:
     from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as _sorted
     from cairn.machines.build_inspector.inspector import buildme_has_no_open_questions as _answered
     from cairn.machines.build_inspector.inspector import buildme_rides_the_rehearsal as _rehearsed
+    from cairn.machines.build_inspector.inspector import buildme_rides_the_outline_check as _outlined
 
     code = "transitions.py::inspect_entry"
     return [
@@ -1615,6 +1616,11 @@ def inspect_entry(ticket: str) -> list[dict]:
         # rehearsed the ticket clean over its live bytes — a clean record it points at, whose
         # hash matches — so what the ticket leaves unsaid is found before a builder is spent.
         _sieve_lane("the_ticket_rehearses_clean", _rehearsed(ticket),
+                    code=code, ticket=ticket),
+        # The sixth lane joined 2026-10-26 (ticket c66b25d122e6, outline 10.3.5.1): the
+        # cheapest reader has read the ticket beside the component outline, so a conflict with
+        # Akien's picture is a question before it is code.
+        _sieve_lane("the_ticket_was_checked_against_the_outline", _outlined(ticket),
                     code=code, ticket=ticket),
     ]
 

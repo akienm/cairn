@@ -2300,6 +2300,38 @@ def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> lis
         rehearse_with=f"cairn rehearse {ticket}",
     )]
 
+
+def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff an outline check has READ the ticket: the latest
+    ``outline_checks/<ticket>-*.json`` record with ``ran: true`` stands, through
+    ``outline_check.standing`` (the machine's public mouth, RULE 1).
+
+    The sixth entry lane (ticket c66b25d122e6, CairnComponentOutline.txt 10.3.5.1, Akien
+    2026-10-26: *"the reason we did all this was so you'll know if somebody files a ticket
+    without one of us investing the cognition to go look."*). The check's questions hold the
+    crossing through the fourth lane; this lane holds it until the check has run at all, so a
+    ticket cast without one cannot reach a builder unread. A ran:false record is a read that
+    failed the schema and does not count. Red returns ONE finding naming the lack and the
+    command that clears it; a ticket not on file returns [] (the chokepoint's own refusal
+    covers that). Rides the door's roots, so the scratch world a proof hands the door is the
+    world this reads.
+    """
+    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.outline_check import outline_check as OC
+
+    if R.ticket_file(ticket, root) is None:
+        return []
+    st = OC.standing(ticket, root)
+    if st["ok"]:
+        return []
+    return [_finding(
+        "buildme_rides_the_outline_check", ticket,
+        "an outline check has read the ticket",
+        expected=True, actual=False,
+        lack=st["lack"], record=st.get("record"),
+        check_with=f"cairn outlinecheck {ticket}",
+    )]
+
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.

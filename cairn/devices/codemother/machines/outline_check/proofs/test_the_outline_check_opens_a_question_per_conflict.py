@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -58,6 +60,8 @@ PROVES = {
         "6": "test_the_record_is_journaled_under_outline_checks_with_both_hashes",
         "7": "test_a_reader_failing_the_schema_twice_writes_ran_false_opens_nothing_and_the_cli_returns_2",
         "8": "test_standing_reads_only_a_run_that_read",
+        "cli": "test_the_machine_is_a_package_and_answers_help_through_both_mouths",
+        "charter": "test_the_charter_names_its_owner_and_both_public_mouths",
     },
 }
 TID = "0badc0ffee02"
@@ -242,9 +246,36 @@ def test_standing_reads_only_a_run_that_read():
         assert s["ok"] is True and s["record"] == out["path"], s
 
 
+REPO = Path(__file__).resolve().parents[6]
+MACHINE = REPO / "cairn" / "devices" / "codemother" / "machines" / "outline_check"
+MODULE = "cairn.devices.codemother.machines.outline_check"
+
+
+def test_the_machine_is_a_package_and_answers_help_through_both_mouths():
+    """The build's non-code writes: the package init, the ``-m`` entry and the bin verb.
+    All three read hollow on the first reading (2026-10-27, FIXME 1)."""
+    assert (MACHINE / "__init__.py").is_file(), "the machine is not a package"
+    verb = REPO / "bin" / "cmd" / "outlinecheck"
+    assert verb.is_file() and os.access(verb, os.X_OK), "bin/cmd/outlinecheck is missing or not executable"
+    assert MODULE in verb.read_text(encoding="utf-8"), "bin/cmd/outlinecheck never names the module"
+    for cli in ([str(REPO / "bin" / "cairn"), "outlinecheck", "--help"],
+                [sys.executable, "-m", MODULE, "--help"]):
+        r = subprocess.run(cli, capture_output=True, text=True, cwd=REPO, timeout=120,
+                           env={**os.environ, "PYTHONPATH": str(REPO)})
+        assert r.returncode == 0 and "ticket" in r.stdout, (cli, r.returncode, r.stdout[-200:], r.stderr[-300:])
+
+
+def test_the_charter_names_its_owner_and_both_public_mouths():
+    c = json.loads((MACHINE / "intention+why.json").read_text(encoding="utf-8"))
+    assert c["owner"] == "codemother" and c["component"] == "outline_check", c.get("owner")
+    assert c["ticket"] == "6541ccd1594c", c.get("ticket")
+    pi = " ".join(c["public_interface"])
+    assert f"{MODULE}.outline_check" in pi and "cairn outlinecheck" in pi, pi
+
+
 def main() -> int:
     teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
-    assert len(teeth) >= 8, len(teeth)
+    assert len(teeth) >= 10, len(teeth)
     failed = []
     for tooth in teeth:
         try:

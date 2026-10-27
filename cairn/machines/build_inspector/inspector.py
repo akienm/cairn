@@ -26,6 +26,8 @@ Exit 0 = clean, 1 = findings — gate-able by anything that can read an exit cod
 
 from __future__ import annotations
 
+import ast
+import builtins
 import json
 import os
 import re
@@ -89,6 +91,7 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # same shape as sole_path_holds. It reaches ast, pathlib and import_sieve's walk, all of
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
+from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 339a45cee6a1: the sieve's own class carries the mixin it demands)
 from cairn.tools.base.transitions import MalformedWorkflow, is_terminal, parse_workflow  # noqa: E402  (ticket e85878726213: terminal is the system's word, not the inspector's)
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
@@ -3837,6 +3840,212 @@ def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
 _CENSUS_DIRS: dict[str, set[str]] = {}
 
 
+# The one class every class with code must reach, and the one root that decides per subclass —
+# matched by QUALIFIED NAME, so the sieve never has to read the target to know it.
+_MIXIN = ("cairn.tools.base.diagnostic", "DiagnosticBase")
+_PROBE_ROOT = ("cairn.tools.base.probe", "Probe")
+_OUTSIDE, _REACHES, _NO_ROUTE = "outside", "reaches", "no route"
+
+
+class _Modules(DiagnosticBase):
+    """One reading of the repo's modules for one sieve call: a module name resolves to its file
+    under ``repo_root`` (``a.b.c`` -> ``a/b/c.py`` or ``a/b/c/__init__.py``), and each file is
+    parsed once into the names its own text binds — the classes it defines and what its
+    imports alias. Nothing it judges is ever imported (D7: a deterministic AST read)."""
+
+    def __init__(self, repo_root: Path):
+        super().__init__()
+        self.repo_root = repo_root
+        self._tables: dict[str, dict | None] = {}
+
+    def file_of(self, module: str) -> Path | None:
+        base = self.repo_root.joinpath(*module.split("."))
+        for cand in (base.with_suffix(".py"), base / "__init__.py"):
+            if cand.is_file():
+                return cand
+        return None
+
+    def table(self, module: str) -> dict | None:
+        if module not in self._tables:
+            path = self.file_of(module)
+            self._tables[module] = None if path is None else self._read(module, path)
+        return self._tables[module]
+
+    def _read(self, module: str, path: Path) -> dict | None:
+        try:
+            tree = ast.parse(path.read_text())
+        except (OSError, SyntaxError, UnicodeDecodeError, ValueError):
+            return None
+        package = module.split(".") if path.name == "__init__.py" else module.split(".")[:-1]
+        classes: dict[str, ast.ClassDef] = {}
+        aliases: dict[str, tuple] = {}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                classes.setdefault(node.name, node)
+            elif isinstance(node, ast.Import):
+                for a in node.names:
+                    if a.asname:
+                        aliases[a.asname] = ("module", a.name)
+                    else:
+                        head = a.name.split(".")[0]
+                        aliases.setdefault(head, ("module", head))
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    keep = package[:len(package) - (node.level - 1)] if node.level > 1 else package
+                    src = ".".join(keep + ([node.module] if node.module else []))
+                else:
+                    src = node.module or ""
+                for a in node.names:
+                    if a.name != "*":
+                        aliases[a.asname or a.name] = ("symbol", src, a.name)
+        top = {n.name: n for n in tree.body if isinstance(n, ast.ClassDef)}
+        return {"tree": tree, "classes": {**classes, **top}, "aliases": aliases}
+
+
+def _reach_class(mods: _Modules, module: str, name: str, seen: set) -> tuple[str, str | None]:
+    """Does class ``module.name`` reach the mixin? -> (verdict, the first unresolvable base)."""
+    if (module, name) == _MIXIN:
+        return _REACHES, None
+    if (module, name) in seen:
+        return _NO_ROUTE, None                     # a cycle routes nowhere
+    seen.add((module, name))
+    table = mods.table(module)
+    if table is None:
+        return _OUTSIDE, None
+    node = table["classes"].get(name)
+    if node is None:
+        alias = table["aliases"].get(name)
+        if alias and alias[0] == "symbol":
+            return _reach_symbol(mods, alias[1], alias[2], seen)
+        return _NO_ROUTE, name
+    return _reach_bases(mods, module, node, seen)
+
+
+def _reach_bases(mods: _Modules, module: str, node: ast.ClassDef, seen: set):
+    unresolved = None
+    for base in node.bases:
+        verdict, bad = _reach_expr(mods, module, base, seen)
+        if verdict == _REACHES:
+            return _REACHES, None
+        unresolved = unresolved or bad
+    return _NO_ROUTE, unresolved
+
+
+def _reach_symbol(mods: _Modules, src: str, name: str, seen: set):
+    """``from src import name`` used as a base: the class in ``src``, or a submodule of it."""
+    if (src, name) == _MIXIN:
+        return _REACHES, None
+    if mods.file_of(src) is None:
+        return _OUTSIDE, None                      # stdlib, third-party, or not on disk here
+    return _reach_class(mods, src, name, seen)
+
+
+def _reach_expr(mods: _Modules, module: str, expr: ast.expr, seen: set):
+    if isinstance(expr, ast.Subscript):            # Generic[T], Mapping[str, X]
+        return _reach_expr(mods, module, expr.value, seen)
+    if isinstance(expr, ast.Call):                 # type(Path()) — built at runtime, outside
+        return _OUTSIDE, None
+    parts = []
+    while isinstance(expr, ast.Attribute):
+        parts.insert(0, expr.attr)
+        expr = expr.value
+    if not isinstance(expr, ast.Name):
+        return _NO_ROUTE, ast.unparse(expr)
+    head, written = expr.id, ".".join([expr.id] + parts)
+    table = mods.table(module) or {"classes": {}, "aliases": {}}
+    if not parts and head in table["classes"]:
+        return _reach_class(mods, module, head, seen)
+    alias = table["aliases"].get(head)
+    if alias is None:
+        if not parts and hasattr(builtins, head):
+            return _OUTSIDE, None                  # Exception, dict, object
+        return _NO_ROUTE, written
+    if alias[0] == "symbol":
+        if not parts:
+            return _reach_symbol(mods, alias[1], alias[2], seen)
+        dotted = f"{alias[1]}.{alias[2]}" if alias[1] else alias[2]
+    else:
+        dotted = alias[1]
+    # ``mod.sub.Class``: the longest prefix that is a module on disk holds the class.
+    chain = dotted.split(".") + parts
+    for cut in range(len(chain) - 1, 0, -1):
+        mod_name = ".".join(chain[:cut])
+        if (mod_name, chain[cut]) == _MIXIN and cut == len(chain) - 1:
+            return _REACHES, None
+        if mods.file_of(mod_name) is not None:
+            if cut != len(chain) - 1:
+                return _NO_ROUTE, written          # an attribute of a class: not a class we know
+            return _reach_class(mods, mod_name, chain[cut], seen)
+    if mods.file_of(chain[0]) is None and not (mods.repo_root / chain[0]).is_dir():
+        return _OUTSIDE, None                      # the package is not in this repo
+    return _NO_ROUTE, written
+
+
+def every_class_reaches_the_diagnostic_mixin(row: dict, comp_dir: Path) -> list[dict]:
+    """Every class whose own body defines a function reaches DiagnosticBase through its bases.
+
+    Provenance: 2026-10-27, ticket 339a45cee6a1. Akien, that day (open-4141d959b634): "any class
+    with code it in should be able to run a diagnostic report when we need it" — "everybody must
+    inherit it. that's why it's a mixin." The diagnostic surface is a microscope used when we are
+    stuck, so it has to sit in the lowest class everything inherits from; until this sieve only
+    devices and shims carried it by construction (census that day: 94 classes with a method body
+    in cairn/, 31 reaching the mixin). The inspector's own classes are in scope: it may write its
+    own logs, it may not decide from them (open-d32047bb1759). The Probe ROOT is exempt and each
+    subclass is judged: "determination isn't made at the rootmost level, but as each subclass
+    needs" (open-d7983cf68dd2).
+
+    REACH IS READ FROM THE MODULE'S OWN IMPORTS, never by importing it: a base resolves through
+    the names its file binds, recursively across repo modules with cycle protection. A base from
+    outside the repo (stdlib, third-party, a runtime call) does not reach, and the class is judged
+    by its other bases. A base that resolves to nothing is reported by name, never passed (Law 7).
+
+    THE EXEMPTIONS ARE A RULE OF THREE MEMBERS, not a list that grows: the mixin itself, the Probe
+    root, and anything under ``proofs/`` (fixtures measure the system rather than run in it — the
+    address_rule precedent). Attribution is by deepest owner, as in
+    ``address_is_resolved_never_spelled``: a nested component's class is that component's row.
+    """
+    pkg_root = comp_dir
+    for _ in Path(row["dir"]).parts:
+        pkg_root = pkg_root.parent
+    repo_root = pkg_root.parent
+    mods = _Modules(repo_root)
+    here = comp_dir.resolve()
+    owners: dict[str, Path | None] = {}
+    findings = []
+    for path_s in import_sieve.walk_py(str(comp_dir)):
+        path = Path(path_s)
+        if "proofs" in path.relative_to(comp_dir).parts:
+            continue
+        parent = str(path.parent)
+        if parent not in owners:
+            owners[parent] = address.component_of(path, pkg_root=pkg_root)
+        owner = owners[parent]
+        if owner is not None and owner.resolve() != here:
+            continue                    # a nested component's file is that component's row
+        rel = path.resolve().relative_to(repo_root.resolve()).as_posix()
+        module = import_sieve.module_name(rel)
+        table = mods.table(module)
+        if table is None:
+            continue
+        for node in ast.walk(table["tree"]):
+            if not isinstance(node, ast.ClassDef):
+                continue
+            if not any(isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) for b in node.body):
+                continue
+            if (module, node.name) in (_MIXIN, _PROBE_ROOT):
+                continue
+            verdict, bad = _reach_bases(mods, module, node, set())
+            if verdict == _REACHES:
+                continue
+            findings.append(_finding(
+                "every_class_reaches_the_diagnostic_mixin", row["component"],
+                f"{rel}:{node.lineno} class {node.name} has code and does not reach DiagnosticBase",
+                expected=True, actual=False, file=rel, line=node.lineno, cls=node.name,
+                reason=f"unresolvable base: {bad}" if bad else _NO_ROUTE,
+            ))
+    return findings
+
+
 def green_seal_names_a_tooth(row: dict, comp_dir: Path) -> list[dict]:
     """A STANDING green seal whose evidence names no green tooth.
 
@@ -3965,6 +4174,7 @@ SIEVES = {
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
     "encapsulation_holds": encapsulation_holds,
+    "every_class_reaches_the_diagnostic_mixin": every_class_reaches_the_diagnostic_mixin,
     "working_tree_clean": working_tree_clean,
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,

@@ -2,23 +2,22 @@
   {
     "claim": "proof test_inspector_nexus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-27T10:36:34",
+    "date": "2026-10-27T16:29:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry\n  PASS  test_the_fire_path_never_reaches_the_tree\ngreen — build_inspector/nexus: the corpus is born the inspector's, undated failures are turned away, the founding questions are seeded-but-unbuilt, counsel keeps its labeled floor, a proposal cannot touch the registry, and the verdict path cannot reach the tree — the graft is additive, by construction",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 267, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 253, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 189, in test_the_fire_path_never_reaches_the_tree\n    assert caught == [], (\n           ^^^^^^^^^^^^\nAssertionError: the verdict path can reach a door it may not: [\"cairn/tools/bus_client/remote.py imports ['socket'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.base.transitions -> cairn.tools.base.gate_probes -> cairn.tools.bus_client.remote; nothing on that path may reach it\"] — a verdict that can consult a tree, a database or a host returns an opinion wearing a measurement's clothes",
       "teeth_green": [
         "test_the_corpus_table_is_born_owned_by_the_inspector",
         "test_an_undated_failure_may_not_take_residence",
         "test_the_founding_questions_are_seeded_but_unbuilt",
         "test_counsel_walks_with_its_floor_visible",
-        "test_a_proposal_never_touches_the_registry",
-        "test_the_fire_path_never_reaches_the_tree"
+        "test_a_proposal_never_touches_the_registry"
       ],
       "teeth_red": [],
-      "test": "test-3bcfcffd5851",
+      "test": "test-e7f1dcd48137",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3bcfcffd5851",
-      "source_fingerprint": "df4184b748852a927b6589bb77f500afa05c094982d1661967e1d7e73fb92c2b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e7f1dcd48137",
+      "source_fingerprint": "9645928eff7e79723651e7939aebbad559b3f5da066f96aa98ee94bcba1b7099",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -54,7 +53,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-889602-s7_hnl4v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1021558-gxzzqp5s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,12 +62,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112058896,
-          "disk_bytes": 140652544,
-          "entries": 11310,
+          "bytes": 112237824,
+          "disk_bytes": 140943360,
+          "entries": 11367,
           "builds": 1,
           "reuses": 14
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "e24b06c47fa8d35600d1f1fee88d676032a834d6a5baa796dacf2011d16828c1",
+        "opened": "2026-10-27T16:29:59",
+        "last_red": "2026-10-27T16:29:59",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

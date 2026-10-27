@@ -2,7 +2,7 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-27T10:30:53",
+    "date": "2026-10-27T16:23:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,7 +22,7 @@
         "the_build_inspector_reaches_no_device"
       ],
       "teeth_red": [],
-      "test": "test-8011df77cb24",
+      "test": "test-b562bc9fdde8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -48,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8011df77cb24",
-      "source_fingerprint": "1aabc670175535a56ece362ae1d410cb0c8a0be78b991f6ec79d41905c334821",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b562bc9fdde8",
+      "source_fingerprint": "774e671f3ad5b514b06813c1a0d3b75a023fe1b0da166212ce70a892520bca86",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -57,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-889602-pgqcchec/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1021558-5i5ey5_j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,24 +66,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112058896,
-          "disk_bytes": 140652544,
-          "entries": 11310,
+          "bytes": 112237824,
+          "disk_bytes": 140943360,
+          "entries": 11367,
           "builds": 1,
           "reuses": 8
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8",
-        "opened": "2026-10-27T10:11:25",
-        "last_red": "2026-10-27T10:11:25",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null,
-        "closed_at": "2026-10-27T10:30:53",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

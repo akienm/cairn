@@ -119,6 +119,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -2353,12 +2354,18 @@ def emit(
         }
         record["fingerprint"] = _crossing_fingerprint(record)
         projector.append_entry(history_path, state_path, record)
-        # No bus post to harbor_master here (removed, ticket 48519f4789b1 decision 14). It
-        # posted through a private BusDevice whose ring nothing flushed: measured 2026-10-02,
-        # 563 crossing notices reached the bus table up to 2026-09-02 and none since, while
-        # the harbor's own scan from disk kept its register current. Posting through the one
-        # bus process instead would put a socket on the inspector's verdict path (the
-        # inspector imports this module). The journal written above IS the crossing's record.
+        # The certification is heard here, after the journal (ticket 32f500e517d7): the gate
+        # entered fires its probes as personal bus envelopes. This answers both whys of
+        # 48519f4789b1 D14, which removed the old harbor_master post: the post goes through
+        # the one bus process (RemoteBus), never a private ring nothing flushes; and it comes
+        # after the record of truth, inside a catch-all, for class-space crossings only, so a
+        # dead socket cannot touch a verdict and no proof's temp crossing reaches the bus.
+        try:
+            from cairn.tools.base import gate_probes
+            gate_probes.fire_crossing(record, history_path, journal_extra.get("ticket"))
+        except Exception as exc:  # noqa: BLE001 — the post never gates (D5)
+            print(f"emit: certification notice for {journal_extra.get('ticket')} failed: "
+                  f"{type(exc).__name__}: {exc}", file=sys.stderr)
     _stamp_sail(journal_extra.get("ticket"), new_str)
     return new_str
 

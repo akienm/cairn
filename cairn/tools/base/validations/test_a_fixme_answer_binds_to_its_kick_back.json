@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_fixme_answer_binds_to_its_kick_back.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-27T10:18:13",
+    "date": "2026-10-27T13:56:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one\n.\n  ok   test_an_answer_written_after_the_latest_kick_back_admits_it\n.\n  ok   test_no_kick_back_record_is_a_red\n.\n  ok   test_the_two_clocks_compare\n                                                                     [100%]\n4 passed in 2.06s",
+      "stdout_tail": ".\n  ok   test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one\n.\n  ok   test_an_answer_written_after_the_latest_kick_back_admits_it\n.\n  ok   test_no_kick_back_record_is_a_red\n.\n  ok   test_the_two_clocks_compare\n                                                                     [100%]\n4 passed in 1.77s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one",
@@ -16,7 +16,7 @@
         "test_the_two_clocks_compare"
       ],
       "teeth_red": [],
-      "test": "test-4223c285f6f2",
+      "test": "test-2ce60dbc0b35",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,41 +42,42 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4223c285f6f2",
-      "source_fingerprint": "e02474c7f11fcabc235174081f43402a0fd4414dbadc138f19968bf95adb3288",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ce60dbc0b35",
+      "source_fingerprint": "e3cc184563c5f11c4e093be28bf4cb2e7cc19fb7c7db9dda2ea76949d250ecf3",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/gate_probes.py",
         "cairn/tools/base/proofs/test_a_fixme_answer_binds_to_its_kick_back.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/transitions.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-865706-y6no_t15/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-944944-w1cr2ldc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261027.161810.022820.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.161811.030397.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.161811.040802.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.161812.050620.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.161812.056695.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261027.195619.324048.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.195620.030093.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.195620.033627.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.195621.041814.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.195621.058693.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112040887,
-          "disk_bytes": 140640256,
-          "entries": 11313,
+          "bytes": 112143870,
+          "disk_bytes": 140771328,
+          "entries": 11328,
           "builds": 1,
-          "reuses": 27
+          "reuses": 5
         }
       }
     },

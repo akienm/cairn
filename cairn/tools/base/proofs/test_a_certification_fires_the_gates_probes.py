@@ -47,6 +47,11 @@ PROVES = {"32f500e517d7": {
 PASS = 0
 FAIL = 0
 
+# A hollow worktree has no CairnCommons beside it, so emit reads the node classes where hollow
+# itself resolves the commons: the sibling checkout if there is one, else the home checkout.
+_COMMONS = _REPO_ROOT.parent / "CairnCommons"
+_NODE_CLASSES = (_COMMONS if _COMMONS.is_dir() else Path.home() / "dev/src/CairnCommons") / "node_classes"
+
 _CODE_SEAM = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
 _CROSSING = dict(ticket="aaaaaaaaaaaa", component="cairn/tools/example", from_="BUILDME",
                  to="PROVEME", direction="forward", fingerprint="f" * 64)
@@ -126,7 +131,8 @@ def tooth_an_unreachable_bus_never_gates_the_crossing():
     gate_probes.fire_crossing = boom
     try:
         with contextlib.redirect_stderr(io.StringIO()) as e2:
-            new = transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+            new = transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state,
+                                  node_class_root=_NODE_CLASSES)
     finally:
         gate_probes.fire_crossing = real
     assert "[PROVEME" in new, f"emit's return changed under a failing firing: {new!r}"
@@ -230,7 +236,8 @@ def tooth_emit_fires_after_the_journal():
     real = gate_probes.fire_crossing
     gate_probes.fire_crossing = spy
     try:
-        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state)
+        transitions.emit(_CODE_SEAM, "PROVEME", history_path=hist, state_path=state,
+                                  node_class_root=_NODE_CLASSES)
     finally:
         gate_probes.fire_crossing = real
     assert len(seen) == 1, f"emit must call the firing once per journaled crossing; saw {seen}"

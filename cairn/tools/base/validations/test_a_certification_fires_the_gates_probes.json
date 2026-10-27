@@ -1,0 +1,89 @@
+[
+  {
+    "claim": "proof test_a_certification_fires_the_gates_probes.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-27T13:59:50",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  GREEN tooth_a_certified_probe_posts_one_personal_envelope\n  GREEN tooth_an_unreachable_bus_never_gates_the_crossing\n  GREEN tooth_a_test_run_marks_the_envelope\n  GREEN tooth_a_missing_or_empty_folder_posts_nothing\n  GREEN tooth_a_malformed_probe_is_skipped_loudly\n  GREEN tooth_seed_writes_six_and_is_idempotent\n  GREEN tooth_clear_removes_only_the_named_device\n  GREEN tooth_a_crossing_outside_class_space_fires_nothing\n  GREEN tooth_emit_fires_after_the_journal\n\n9 passed, 0 failed out of 9",
+      "stderr_tail": "",
+      "teeth_green": [
+        "tooth_a_certified_probe_posts_one_personal_envelope",
+        "tooth_an_unreachable_bus_never_gates_the_crossing",
+        "tooth_a_test_run_marks_the_envelope",
+        "tooth_a_missing_or_empty_folder_posts_nothing",
+        "tooth_a_malformed_probe_is_skipped_loudly",
+        "tooth_seed_writes_six_and_is_idempotent",
+        "tooth_clear_removes_only_the_named_device",
+        "tooth_a_crossing_outside_class_space_fires_nothing",
+        "tooth_emit_fires_after_the_journal"
+      ],
+      "teeth_red": [],
+      "test": "test-5d02e4ae5483",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "87f0a6a1d10c671e5416fa07409f505cc9aae042d18314c4a7fb4c30e9474c6a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5d02e4ae5483",
+      "source_fingerprint": "9673d4c5a601efc0d928a66338bf8adbdb8f3050910cd32b7269b49dd16cbab1",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/gate_probes.py",
+        "cairn/tools/base/proofs/test_a_certification_fires_the_gates_probes.py",
+        "cairn/tools/base/testing_mark.py",
+        "cairn/tools/base/transitions.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-954850-z42e0odw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/charter/0/20261027.195950.069417.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261027.195950.075484.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 112146462,
+          "disk_bytes": 140763136,
+          "entries": 11325,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

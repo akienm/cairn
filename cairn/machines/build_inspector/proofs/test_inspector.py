@@ -46,6 +46,7 @@ tooth = _Teeth()
 PROVES = {
     "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
     "68f1fc073512": {"b": "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket"},
+    "339a45cee6a1": {"all": "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)"},
 }
 
 # The whole inspector runs over the live corpus here, well past the hollow reading's 120s
@@ -142,6 +143,13 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
 def main() -> None:
     tmp = scratch_dir("inspector-proof-")
     root = tmp / "cairn"
+    # The fixture components' ``from base import BaseDevice`` lands here, beside the census root
+    # rather than inside it, and BaseDevice reaches the mixin the way the real one does (ticket
+    # 339a45cee6a1: a class with code that does not reach DiagnosticBase is a finding).
+    _BASE_DEVICE = ("from cairn.tools.base.diagnostic import DiagnosticBase\n\n\n"
+                    "class BaseDevice(DiagnosticBase):\n    pass\n")
+    tmp.mkdir(parents=True, exist_ok=True)
+    (tmp / "base.py").write_text(_BASE_DEVICE)
 
     # A healthy component and one broken per sieve.
     _component(root, "healthy")
@@ -156,6 +164,21 @@ def main() -> None:
     r = inspect(root=root, component="healthy")
     assert r["clean"] and r["findings"] == [], r["findings"]
     assert inspect(root=root, component="plain_lib")["clean"]
+
+    # 1b — the healthy fixture is clean under the mixin sieve BECAUSE its base reaches the
+    #      mixin: take the mixin off the base and the same class reds, by name and line.
+    tooth("1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)")
+    mixin = SIEVES.get("every_class_reaches_the_diagnostic_mixin")
+    assert mixin is not None, "every_class_reaches_the_diagnostic_mixin is not in SIEVES"
+    row = {"dir": "healthy", "component": "healthy"}
+    assert mixin(row, root / "healthy") == [], mixin(row, root / "healthy")
+    (tmp / "base.py").write_text("class BaseDevice:\n    pass\n")
+    try:
+        got = mixin(row, root / "healthy")
+    finally:
+        (tmp / "base.py").write_text(_BASE_DEVICE)
+    assert [(f["values"]["cls"], f["values"]["line"], f["values"]["reason"]) for f in got] == \
+        [("D", 4, "no route")], got
 
     # 2 — each seeded failure fires exactly its sieve, nothing else.
     tooth('2 — each seeded failure fires exactly its sieve, nothing else')

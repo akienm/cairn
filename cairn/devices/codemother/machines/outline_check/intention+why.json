@@ -1,0 +1,37 @@
+{
+  "component": "outline_check",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "CodeMother's outline check. It reads one ticket beside CairnCommons/CairnComponentOutline.txt as the outline stands, in one cheap schema-shaped read. It resolves the lines the read names against the parsed file. It opens one question on the ticket for each line the ticket contradicts and for each open [Q#n] in a section the ticket touches, never the same one twice, and writes one record per run under CairnCommons/outline_checks/.",
+  "why": "Outline 10.3.5.1. Akien, 2026-10-26: \"so you'll know if somebody files a ticket without one of us investing the cognition to go look.\" The outline is the picture in his head, written down; a ticket that contradicts it, or that works inside a section whose question is still open, should not reach a build unnoticed.",
+  "invoke": "`cairn outlinecheck <ticket>` (bin/cmd/outlinecheck -> python3 -m cairn.devices.codemother.machines.outline_check). It exits 0 when nothing stands, 1 when a question was opened or is still open, and 2 when the read failed. `standing(ticket)` reads the records and never runs a check; ticket c66b25d122e6 composes it into the BUILDME entry gate and into /sorted.",
+  "node_class": "code-seam",
+  "gates": "proof gate: proofs/ under the tester, with the reader stubbed so no proof tooth calls the live reader. Records of truth go through the artifact door under its own verb, outline_check; questions go through the question door with source outline_check.",
+  "falsifier": "Proof cairn/devices/codemother/machines/outline_check/proofs/test_the_outline_check_opens_a_question_per_conflict.py, scratch commons, stub reader: (1) parse joins continuation lines onto their numbered entry and open_questions finds both '[Q#7: ...]' and bare '[Q#8]', and not the digitless '[Q#n: ...]'; (2) a reader conflict on '2.1' opens exactly one question, source outline_check, whose text quotes 2.1's text from the outline file, not words the reader supplied; (3) running the check again opens no new question and lists the first in questions_already_open; (4) a touched '2.1' with Q#7 on line 2.1.2 opens one question naming Q#7, and a Q#9 on line 2.2 opens none; (5) a reader citing '9.9', absent from the outline, opens nothing and the record lists '9.9' under unresolved; (6) the record lands under <commons>/outline_checks/ with a journal entry of verb outline_check and carries the outline's and ticket's sha256; (7) a reader returning a dict that fails the schema twice writes a ran:false record, opens no question, and the CLI's run function returns 2. (8) standing() reads not-ok with no record and with only a ran:false record, and ok after a run that read. Live: `cairn outlinecheck 81eb3e46aed9` writes a record. Horizon: this ticket's build.",
+  "horizon": "re-read when the outline's numbering scheme changes (D3's entry regex, D8's two-component section) or when a second consumer of standing() appears.",
+  "how_it_learns": "It does not learn yet. Each record keeps the read and what it opened, and Akien's answers on its questions are the measure of whether the read named real conflicts.",
+  "traces_to": [
+    "Law 1 (the outline answers once; a ticket is checked against it, not re-derived)",
+    "Law 3 (each run is a record that can be wrong)",
+    "Law 9 (the outline is the translation of the spec a ticket answers to)",
+    "RULE 1 (composes rehearsal, the artifact door and the question door through their public interfaces)"
+  ],
+  "owner": "codemother",
+  "proof": "proofs/test_the_outline_check_opens_a_question_per_conflict.py, sealed by the tester; validations/ beside.",
+  "learns": "No; see how_it_learns.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-words"
+  },
+  "gated_by": [
+    "CC",
+    "codemother"
+  ],
+  "public_interface": [
+    "cairn.devices.codemother.machines.outline_check.outline_check",
+    "cairn outlinecheck <ticket>"
+  ],
+  "ticket": "6541ccd1594c"
+}

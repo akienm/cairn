@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": ["touches", "conflicts"],
+  "additionalProperties": false,
+  "properties": {
+    "touches": {"type": "array", "items": {"type": "string"}},
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["number", "ticket_says", "why"],
+        "additionalProperties": false,
+        "properties": {
+          "number": {"type": "string"},
+          "ticket_says": {"type": "string"},
+          "why": {"type": "string"}
+        }
+      }
+    }
+  }
+}

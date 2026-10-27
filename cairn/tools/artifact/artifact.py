@@ -65,7 +65,10 @@ VERBS = ("genesis", "cast", "append", "compile", "seal", "raise", "clear", "ruli
          "idea", "charter", "phase", "hand-edit", "rename", "remove", "bulk", "write",
          # ``rehearse`` joined 2026-09-15 (ticket cf80bdb57205): a rehearsal record — the cheapest
          # reader's converged build tree over a ticket, under CairnCommons/rehearsals/.
-         "rehearse")
+         "rehearse",
+         # ``outline_check`` joined 2026-10-26 (ticket 6541ccd1594c): one read of a ticket beside
+         # the component outline, under CairnCommons/outline_checks/.
+         "outline_check")
 
 # Caller classes, and the cgroup leaf that MEASURES each. ``akien`` is a desktop-app scope
 # (Konsole, Kate, ...) or a logind session scope (a tty or ssh login): a hand at a terminal.

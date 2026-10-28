@@ -91,7 +91,7 @@ def load(gate: str, roots: dict | None = None) -> tuple[list[tuple[str, dict]], 
 
 
 def fire(*, ticket: str, component: str, from_: str, to: str, direction: str, fingerprint: str,
-         roots: dict | None = None, bus=None) -> int:
+         certificate: str | None = None, roots: dict | None = None, bus=None) -> int:
     """Post one envelope per certified probe at the gate ``to`` enters. Returns the count posted.
     Never raises: a failure is one stderr line naming the ticket."""
     try:
@@ -109,6 +109,8 @@ def fire(*, ticket: str, component: str, from_: str, to: str, direction: str, fi
             bus = RemoteBus()
         crossing = {"ticket": ticket, "component": component, "from": from_, "to": to,
                     "direction": direction, "fingerprint": fingerprint}
+        if certificate is not None:
+            crossing["certificate"] = certificate
         test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
         posted = 0
         for stem, probe in probes:
@@ -140,7 +142,8 @@ def fire_crossing(record: dict, history_path: str | None, ticket, *, roots: dict
         return 0
     return fire(ticket=str(ticket), component=str(component), from_=record.get("from"),
                 to=record.get("to"), direction=record.get("direction"),
-                fingerprint=record.get("fingerprint"), roots=roots, bus=bus)
+                fingerprint=record.get("fingerprint"), certificate=record.get("certificate"),
+                roots=roots, bus=bus)
 
 
 def seed(device: str, roots: dict | None = None) -> list[Path]:

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_only_the_gate_writes_a_certificate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-28T13:43:45",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T17:15:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_certify_writes_what_verify_accepts  — faults []; under certificates/ True; body shape True; red raised True; red wrote nothing True\n  PASS  test_the_pretooluse_gate_refuses_a_certificate  — allowed: []\n  PASS  test_the_door_holds_certificates_to_the_certify_verb  — cast refused True; certify on a ticket refused True\n  PASS  test_only_transitiongate_certify_writes_and_only_once  — forged refused True; rewrite refused True\n  PASS  test_a_certificate_around_the_door_fails_both_checks  — verify around ['certificates/abcdef012345-BUILDME-around.cert.json: never journaled — written around the door']; verify edited [\"abcdef012345-PROVEME-20261028T194345Z-761f.cert.json: body_sha256 '59dc8bc1caf19809d60ed248bf7c84bc23e5c05869308b11ef95ecf237178f62' does not match its body (86fb06f48d773e04f3ac341957f6fb55797b3810ab649b7349db1e44722eb9c2)\", 'certificates/abcdef012345-PROVEME-20261028T194345Z-761f.cert.json: its bytes are not the ones certify wrote (journal sha_after b4db532ea3b9) — changed around the door']; check_staged names around True, edited True\n  PASS  test_every_hash_is_recomputed  — no hash fault named after changing: []\n\nGREEN",
+      "stdout_tail": "  PASS  test_certify_writes_what_verify_accepts  — faults []; under certificates/ True; body shape True; red raised True; red wrote nothing True\n  PASS  test_the_pretooluse_gate_refuses_a_certificate  — allowed: []\n  PASS  test_the_door_holds_certificates_to_the_certify_verb  — cast refused True; certify on a ticket refused True\n  PASS  test_only_transitiongate_certify_writes_and_only_once  — forged refused True; rewrite refused True\n  PASS  test_a_certificate_around_the_door_fails_both_checks  — verify around ['certificates/abcdef012345-BUILDME-around.cert.json: never journaled — written around the door']; verify edited [\"abcdef012345-PROVEME-20261028T231526Z-84f8.cert.json: body_sha256 'c1bda8957bf5d3bd633f9455210ebdfa0d216e51a39f1fe2739a16c0ddfc5164' does not match its body (540d74e775b2faadd74769ed4c16b6d89b4c7313bd75ba09e3fa009605a47567)\", 'certificates/abcdef012345-PROVEME-20261028T231526Z-84f8.cert.json: its bytes are not the ones certify wrote (journal sha_after fd2218962aec) — changed around the door']; check_staged names around True, edited True\n  PASS  test_every_hash_is_recomputed  — no hash fault named after changing: []\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_certify_writes_what_verify_accepts",
@@ -18,7 +18,7 @@
         "test_every_hash_is_recomputed"
       ],
       "teeth_red": [],
-      "test": "test-16b6a97a7a2d",
+      "test": "test-a6c9d59e72f6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16b6a97a7a2d",
-      "source_fingerprint": "b500e77d60a9d4f353abb235cd2d21d6006296f57aa8eb76cdfe216fde859b0b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a6c9d59e72f6",
+      "source_fingerprint": "934770cc47f369eb68a8c422952b9a134b2c55356c2314c2469985d70456c26a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -55,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1472788-z417jmqf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1569904-hosqn9tc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,44 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112611680,
-          "disk_bytes": 141524992,
-          "entries": 11462,
+          "bytes": 112861100,
+          "disk_bytes": 142102528,
+          "entries": 11569,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "5dc4d8a0b4d2": {
-          "cairn/tools/artifact/jurisdiction.json": [
-            "test_a_certificate_around_the_door_fails_both_checks",
-            "test_certify_writes_what_verify_accepts",
-            "test_every_hash_is_recomputed",
-            "test_only_transitiongate_certify_writes_and_only_once",
-            "test_the_door_holds_certificates_to_the_certify_verb",
-            "test_the_pretooluse_gate_refuses_a_certificate"
-          ],
-          "cairn/tools/artifact/artifact.py": [
-            "test_a_certificate_around_the_door_fails_both_checks",
-            "test_certify_writes_what_verify_accepts",
-            "test_every_hash_is_recomputed",
-            "test_only_transitiongate_certify_writes_and_only_once",
-            "test_the_door_holds_certificates_to_the_certify_verb"
-          ],
-          "cairn/tools/base/gate_class.py": [
-            "test_a_certificate_around_the_door_fails_both_checks",
-            "test_certify_writes_what_verify_accepts",
-            "test_every_hash_is_recomputed",
-            "test_only_transitiongate_certify_writes_and_only_once"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5dc4d8a0b4d2": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "c2ce43de2a9fdfee13f439a0a9d1b1297aacc16b",
-          "anchor_first_build": "6122679220879a4a8de4645ffd1dee42a6423f46",
-          "commit": "23c928b1cc5400fdc504952019e42c1a19d4104e"
+          "reuses": 23
         }
       }
     },

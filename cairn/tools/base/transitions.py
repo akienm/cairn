@@ -707,6 +707,17 @@ class FixmeGateRed(IllegalTransition):
         self.findings = findings or []
 
 
+class CertificateRed(IllegalTransition):
+    """The forward crossing into a gate is refused: the certificate the gate wrote for it
+    could not be written or does not verify, so nothing was journaled. A record of truth may
+    not claim a certificate it lacks (Law 7), so unlike the gate's probes this one gates
+    (ticket 7c41e2b09d5a)."""
+
+    def __init__(self, message: str, findings: list[dict] | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
 # ---------------------------------------------------------------------------
 # THE GATE REGISTRY — five named, instantiated gates at the block-general level.
 #
@@ -1558,6 +1569,8 @@ def emit(
                 proved += _rec
         if target == "PROVED" and target_idx > wf.cursor and _exempt is None:
             enqueued = _enqueue_verdict(journal_extra.get("ticket"))
+        cert_rel = _certify_crossing(target, target_idx > wf.cursor, journal_extra.get("ticket"),
+                                     history_path, proved)
         record = {
             "from": wf.here,
             "to": target,
@@ -1622,6 +1635,9 @@ def emit(
             # from the list rather than counted beside it, so the two cannot disagree.
             "proved": proved,
             "checks_proved": len(proved),
+            # THE CERTIFICATE THE CROSSING STANDS ON (ticket 7c41e2b09d5a): the gate entered
+            # certified the list above before this record existed, and the record names it.
+            **({"certificate": cert_rel} if cert_rel else {}),
             **journal_extra,
         }
         record["fingerprint"] = _crossing_fingerprint(record)
@@ -1640,6 +1656,34 @@ def emit(
                   f"{type(exc).__name__}: {exc}", file=sys.stderr)
     _stamp_sail(journal_extra.get("ticket"), new_str)
     return new_str
+
+
+def _certify_crossing(target: str, forward: bool, ticket: object, history_path: str | None,
+                      proved: list[dict]) -> str | None:
+    """The gate the crossing enters certifies what its seats measured (ticket 7c41e2b09d5a).
+
+    Fires for a forward crossing that names a ticket, enters a gate (gate_probes.gate_for) and
+    is journaled under the door's cairn root; returns the certificate's commons-relative path,
+    or None when it does not fire. A certificate that cannot be written or does not verify
+    refuses the crossing (CertificateRed) before anything is journaled."""
+    if not (forward and ticket and history_path):
+        return None
+    from cairn.tools.artifact import artifact as door
+    from cairn.tools.base import gate_probes
+    from cairn.tools.base.gate_class import TransitionGate, verify_certificate
+    gate_name = gate_probes.gate_for(target)
+    if gate_name is None:
+        return None
+    try:
+        Path(history_path).resolve().relative_to(Path(door.roots()["cairn"]).resolve())
+    except ValueError:
+        return None
+    path = TransitionGate(gate_name, exception_class=CertificateRed).certify(
+        proved, ticket=str(ticket), target=target)
+    faults = verify_certificate(path)
+    if faults:
+        raise CertificateRed("certificate %s does not verify: %s" % (path, "; ".join(faults)), [])
+    return Path(path).resolve().relative_to(Path(door.roots()["CairnCommons"]).resolve()).as_posix()
 
 
 def _stamp_sail(ticket: object, new_str: str) -> None:

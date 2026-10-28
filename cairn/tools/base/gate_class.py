@@ -23,11 +23,38 @@ import inspect
 import json
 import os
 import shutil
+import sys
 import time
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.gate import gate
+
+# Where the live commons stands, beside this repo — the patch point a proof rebinds to point
+# the guard at its own world (ticket 7c41e2b09d5a D4). Read at call time.
+_LIVE_COMMONS = Path(__file__).resolve().parents[3].parent / "CairnCommons"
+_TRANSITIONS = Path(__file__).resolve().parent / "transitions.py"
+
+
+class CertifyRefused(Exception):
+    """certify was asked to write a live certificate from outside the crossing.
+
+    Akien, 2026-10-27: *"only a gate can write a certificate. how we get there is less
+    important to me than that you bump your nose if you try"*. The door pins the writer to
+    TransitionGate.certify; this pins certify's caller to transitions.emit, so a hand (an LLM
+    calling certify itself) cannot mint a live certificate of findings no crossing measured
+    (ticket 7c41e2b09d5a)."""
+
+
+def _under_emit() -> bool:
+    """True when transitions.emit is on the call stack."""
+    f = sys._getframe(1)
+    while f is not None:
+        code = f.f_code
+        if code.co_qualname == "emit" and Path(code.co_filename).resolve() == _TRANSITIONS:
+            return True
+        f = f.f_back
+    return False
 
 
 class TransitionGate(DiagnosticBase):
@@ -67,8 +94,17 @@ class TransitionGate(DiagnosticBase):
         Only a gate can write a certificate (Akien, 2026-10-27: *"only a gate can write a
         certificate. how we get there is less important to me than that you bump your nose
         if you try"*). The door's jurisdiction names this method as the certificates'
-        writer, so a write from anywhere else is refused there, not here (5dc4d8a0b4d2)."""
+        writer, so a write from anywhere else is refused there, not here (5dc4d8a0b4d2).
+        Against the live commons, certify itself refuses unless transitions.emit is on the
+        stack, so the findings a live certificate holds are always the ones a crossing's
+        seats measured (CertifyRefused, ticket 7c41e2b09d5a)."""
         from cairn.tools.artifact import artifact as door
+        commons = Path(door.roots()["CairnCommons"]).resolve()
+        if commons == Path(_LIVE_COMMONS).resolve() and not _under_emit():
+            caller = sys._getframe(1).f_code
+            raise CertifyRefused(
+                "certify writes a live certificate only inside transitions.emit; called from "
+                "%s:%s" % (caller.co_filename, caller.co_qualname))
         self.run(record)
         certified_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         root = door.roots()["CairnCommons"]

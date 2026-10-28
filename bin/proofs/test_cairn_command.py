@@ -23,6 +23,7 @@ touches the real bin/cmd/. Self-cleaning.
 from __future__ import annotations
 
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -30,6 +31,8 @@ import tempfile
 from pathlib import Path
 
 _DISPATCHER = Path(__file__).resolve().parents[1] / "cairn"     # bin/proofs -> bin -> bin/cairn
+# Windows cannot exec a shebang script (WinError 193): PATH's bash runs it there, never System32's WSL bash.
+_DISPATCH = [shutil.which("bash") or "bash", _DISPATCHER.as_posix()] if os.name == "nt" else [str(_DISPATCHER)]
 
 
 def _stub(cmd_dir: str, name: str, body: str) -> None:
@@ -41,7 +44,7 @@ def _stub(cmd_dir: str, name: str, body: str) -> None:
 
 def _run(cmd_dir: str, *args: str) -> subprocess.CompletedProcess:
     env = {**os.environ, "CAIRN_CMD_DIR": cmd_dir}
-    return subprocess.run([str(_DISPATCHER), *args], capture_output=True, text=True, env=env)
+    return subprocess.run([*_DISPATCH, *args], capture_output=True, text=True, env=env)
 
 
 def test_args_reach_the_subcommand_verbatim():
@@ -83,11 +86,11 @@ def test_recordverdict_registration_is_wired_end_to_end():
         os.makedirs(traces)
         env = {**os.environ, "CAIRN_LB_TRACE_ROOT": traces, "CAIRN_ROOTS_PARENT": tmp}
         env.pop("CAIRN_CMD_DIR", None)                       # the real verb directory
-        r = subprocess.run([str(_DISPATCHER), "recordverdict"],
+        r = subprocess.run([*_DISPATCH, "recordverdict"],
                            capture_output=True, text=True, env=env)
         assert r.returncode == 0 and "nothing stands at the gate" in r.stdout, (
             f"bare against an empty berth: rc={r.returncode} out={r.stdout!r} err={r.stderr!r}")
-        r = subprocess.run([str(_DISPATCHER), "recordverdict", "Approved - but nothing pends"],
+        r = subprocess.run([*_DISPATCH, "recordverdict", "Approved - but nothing pends"],
                            capture_output=True, text=True, env=env)
         assert r.returncode == 2 and "nothing stands at the gate" in r.stderr, (
             "a verdict with no finding to judge is refused, and the exit code survives "

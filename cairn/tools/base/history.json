@@ -70871,5 +70871,88 @@
     "fingerprint": "3db629b9972167a6773dca43829024dc8e240240adeb62ac96bf5b4a154c86d4",
     "at": "2026-10-28T17:16:51",
     "seq": 296
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "7c41e2b09d5a",
+    "actor": "cc",
+    "missing": [
+      "[gate_red] harbor clearance into PROVED refused with CertificateRed: 1 of 53 checks did not match — [demo_gate_binding_check] expected 'ticket carries demo flag, or does not', actual \"ticket '7c41e2b09d5a' has no demo flag — gate does not fire\". inspector.crossing_demo's no-flag row can never pass gate.passed, so certifying the proved list refuses every PROVED crossing on a ticket without a demo flag (57 of the 58 PROVED records in cairn/tools/base/history.json carry that row; it is the only non-passing identity among them)"
+    ],
+    "why": "PROVED refused: the demo seat's no-flag row is a failing row, and the certificate step now refuses it",
+    "fingerprint": "3d4a6ec7566a0cd66eb7d890a3d893d2a904db2b99a7f792adb989d151f9308c",
+    "at": "2026-10-28T17:24:42",
+    "seq": 297
   }
 ]

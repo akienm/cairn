@@ -18,7 +18,10 @@ reading reds the tooth instead of crashing the reader:
   (3) TransitionGate.certify called directly, with gate_class._LIVE_COMMONS pointed at this
       world's commons, refuses (CertifyRefused) and writes nothing; under emit it writes;
   (4) gate_probes.fire puts the certificate in the envelope body when it is given one, and
-      leaves the key out when it is not.
+      leaves the key out when it is not;
+  (5) a ticket with no demo flag can cross into PROVED on a certificate: every row the demo
+      seat adds to the proved list passes the gate's own compare (FIXME 1, after the harbor
+      refused this ticket's PROVED on demo_gate_binding_check).
 
     bin/cairn test cairn/tools/base/proofs/test_the_crossing_stands_on_a_certificate.py
 """
@@ -46,6 +49,7 @@ PROVES = {"7c41e2b09d5a": {
     "2": "test_no_gate_no_ticket_no_class_space_no_certificate",
     "3": "test_certify_outside_emit_bumps_its_nose",
     "4": "test_the_probe_carries_the_certificate",
+    "5": "test_a_proved_crossing_without_demo_can_be_certified",
 }}
 
 FAILURES: list[str] = []
@@ -195,11 +199,37 @@ def test_the_probe_carries_the_certificate(w: dict) -> None:
           f"{'certificate' in body(without)}")
 
 
+def test_a_proved_crossing_without_demo_can_be_certified(w: dict) -> None:
+    from cairn.tools.base import ticket_file as TF
+    from cairn.tools.base import transitions as T
+    from cairn.tools.base.gate_class import TransitionGate
+    from cairn.tools.gate import gate
+    folder = w["commons"] / "tickets"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / f"{_TICKET}-demo-less.json").write_text(json.dumps({"id": _TICKET}))
+    saved = TF._TICKETS
+    TF._TICKETS = folder
+    try:
+        _note, rows = T._require_demo(_TICKET, {})
+    finally:
+        TF._TICKETS = saved
+    failing = [r.get("identity") for r in rows if not gate.passed(r)]
+    refused = None
+    try:
+        TransitionGate("demo", exception_class=T.CertificateRed).run(rows)
+    except Exception as exc:  # noqa: BLE001 — which exception is the tooth's question
+        refused = type(exc).__name__
+    check("test_a_proved_crossing_without_demo_can_be_certified",
+          bool(rows) and not failing and refused is None,
+          f"rows {[r.get('identity') for r in rows]}; failing {failing}; gate raised {refused}")
+
+
 def main() -> int:
     teeth = (test_a_gated_crossing_names_a_certificate_that_verifies,
              test_no_gate_no_ticket_no_class_space_no_certificate,
              test_certify_outside_emit_bumps_its_nose,
-             test_the_probe_carries_the_certificate)
+             test_the_probe_carries_the_certificate,
+             test_a_proved_crossing_without_demo_can_be_certified)
     with tempfile.TemporaryDirectory(prefix="cairn-crossing-certificate-proof-") as d:
         w = None
         try:

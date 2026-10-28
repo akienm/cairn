@@ -2721,9 +2721,9 @@ def crossing_demo(ticket: str) -> list[dict]:
     ticket_data = _json.loads(ticket_file.read_text())
     if not ticket_data.get("demo"):
         return [_check("demo_gate_binding_check",
-                             expected="ticket carries demo flag, or does not",
-                             actual=f"ticket {ticket!r} has no demo flag — gate does not fire",
-                             code=code, ticket=ticket)]
+                             expected=False, actual=bool(ticket_data.get("demo")),
+                             code=code, ticket=ticket,
+                             note="no demo flag — the demo gate does not fire")]
 
     from cairn.tools.validation_store.validation_store import (
         read_validations, validations_path_for_artifact)

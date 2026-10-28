@@ -2,7 +2,7 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T15:41:32",
+    "date": "2026-10-28T17:49:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -23,7 +23,7 @@
       "teeth_red": [
         "the_build_inspector_reaches_no_device: AssertionError: [{'about': 'cairn/machines/build_inspector/inspector.py:2433 imports cairn.tools.system_word.system_word — undeclared: cairn/tools/system_word', 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'encapsulation_holds', 'component': 'build_inspector', 'values': {'file': 'cairn/machines/build_inspector/inspector.py', 'source': 'cairn/machines/build_inspector', 'target': 'cairn/tools/system_word', 'reason': 'undeclared'}}]"
       ],
-      "test": "test-4bb9c534475f",
+      "test": "test-094fa23c45c8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -49,8 +49,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4bb9c534475f",
-      "source_fingerprint": "d392dbf27e8ac33891a3ed6de57bdd5825dd42d0fb314b34dbf64712e95b07ef",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-094fa23c45c8",
+      "source_fingerprint": "56bf8c396462e6eb9c49565753c241fd4808884361eae8fde1d7449e3079f6c8",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -58,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1521406-iay1c3xn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1590554-66kksbi5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,9 +67,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112779546,
-          "disk_bytes": 141905920,
-          "entries": 11533,
+          "bytes": 112879317,
+          "disk_bytes": 142147584,
+          "entries": 11578,
           "builds": 1,
           "reuses": 9
         }
@@ -77,8 +77,8 @@
       "reseal_ladder": {
         "proof_sha256": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8",
         "opened": "2026-10-28T15:41:32",
-        "last_red": "2026-10-28T15:41:32",
-        "passes": 1,
+        "last_red": "2026-10-28T17:49:54",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-build-inspector",
         "ruling": null

@@ -31,6 +31,7 @@ the instance slot, read off the same dry run:
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -61,7 +62,7 @@ def _dry_run(*args: str, inherit: str | None = None) -> str:
     env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO)})
     if inherit is not None:
         env["CAIRN_USER"] = inherit
-    r = subprocess.run(["bash", str(_LAUNCHER), "--dry-run", "--no-preflight", *args],
+    r = subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), "--dry-run", "--no-preflight", *args],
                        capture_output=True, text=True, env=env, timeout=60)
     return r.stdout
 

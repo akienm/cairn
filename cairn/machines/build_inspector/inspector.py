@@ -2430,7 +2430,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
 # one patch point still holds. Imports that a proof patches stay lazy inside the bodies.
 from datetime import datetime  # noqa: E402
 from cairn.tools.base import ticket_file as _tf  # noqa: E402
-from cairn.tools.system_word.system_word import canon  # noqa: E402
+from cairn.tools.system_word import canon  # noqa: E402
 
 
 def _check(identity: str, *, expected, actual, code: str = "", **values) -> dict:

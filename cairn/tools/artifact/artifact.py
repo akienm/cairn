@@ -72,7 +72,10 @@ VERBS = ("genesis", "cast", "append", "compile", "seal", "raise", "clear", "ruli
          "rehearse",
          # ``outline_check`` joined 2026-10-26 (ticket 6541ccd1594c): one read of a ticket beside
          # the component outline, under CairnCommons/outline_checks/.
-         "outline_check")
+         "outline_check",
+         # ``certify`` joined 2026-10-28 (ticket 5dc4d8a0b4d2): a certificate, under
+         # CairnCommons/certificates/, which only TransitionGate.certify writes.
+         "certify")
 
 # Caller classes, and the cgroup leaf that MEASURES each. ``akien`` is a desktop-app scope
 # (Konsole, Kate, ...) or a logind session scope (a tty or ssh login): a hand at a terminal.
@@ -514,6 +517,36 @@ def _refuse_dropped_entries(p: Path, blob: bytes) -> None:
                       "(a742af217819)")
 
 
+def _refuse_by_rule(name: str, rel: Path, p: Path, verb: str, exists: bool) -> None:
+    """A record set may name the verbs it takes, the one writer it takes them from, and that
+    each member is written once (5dc4d8a0b4d2). The writer is the frame two above this one —
+    the caller of ``write``/``remove`` — read as ``<repo path>:<qualname>``, so a write from
+    anywhere else bumps its nose here. A ``certify`` onto a set that does not take it is
+    refused too: the verb is a claim about who wrote the record."""
+    rule = next((r for r in jurisdiction()["roots"].get(name, {}).get("records", [])
+                 if _rule_matches(r, rel)), None) or {}
+    verbs = rule.get("verbs")
+    if verbs is not None and verb not in verbs:
+        raise Refused(f"{p}: this record set takes only verb(s) {verbs}, not {verb!r}; "
+                      "nothing written (5dc4d8a0b4d2)")
+    if verb == "certify" and not (verbs and "certify" in verbs):
+        raise Refused(f"{p}: verb 'certify' writes only a record set that names it; this one "
+                      "does not; nothing written (5dc4d8a0b4d2)")
+    if "writer" in rule:
+        frame = sys._getframe(2)
+        try:
+            where = Path(frame.f_code.co_filename).resolve().relative_to(_REPO).as_posix()
+        except ValueError:
+            where = frame.f_code.co_filename
+        who = f"{where}:{frame.f_code.co_qualname}"
+        if who != rule["writer"]:
+            raise Refused(f"{p}: only {rule['writer']} writes this record set; the caller is "
+                          f"{who}; nothing written (5dc4d8a0b4d2)")
+    if rule.get("write_once") and exists:
+        raise Refused(f"{p}: a member of this record set is written once and it already "
+                      "stands; nothing written (5dc4d8a0b4d2)")
+
+
 def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
           count: int = 1, mode: int | None = None) -> dict:
     """Write ``content`` to ``path``; journal it when ``path`` is a record of truth.
@@ -529,6 +562,7 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         _atomic_write(p, blob, mode)
         return {"path": str(p), "journaled": False, "root": None, "entry": None}
     name, root, rel = hit
+    _refuse_by_rule(name, rel, p, verb, p.exists())
     if p.suffix == ".json":
         _refuse_non_canonical(p, blob)
         if p.name == "history.json":
@@ -564,6 +598,7 @@ def remove(path: str | os.PathLike, *, why: str) -> dict:
         p.unlink(missing_ok=True)
         return {"path": str(p), "journaled": False}
     name, root, rel = hit
+    _refuse_by_rule(name, rel, p, "remove", p.exists())
     before = p.read_bytes() if p.exists() else None
     if before is None:
         raise Refused(f"{p} does not exist — nothing to remove")

@@ -18,6 +18,8 @@ HERE.
 
 from __future__ import annotations
 
+import hashlib
+import inspect
 import json
 import os
 import shutil
@@ -58,6 +60,39 @@ class TransitionGate(DiagnosticBase):
             msg = red_fn(record, bad) if red_fn else self._default_red(bad, record)
             raise self.exception_class(msg, self._extract_findings(bad))
         return (note or self._default_note(record), record)
+
+    def certify(self, record: list[dict], *, ticket: str, target: str) -> Path:
+        """Verdict the record, then write a certificate of it — the only writer there is.
+
+        Only a gate can write a certificate (Akien, 2026-10-27: *"only a gate can write a
+        certificate. how we get there is less important to me than that you bump your nose
+        if you try"*). The door's jurisdiction names this method as the certificates'
+        writer, so a write from anywhere else is refused there, not here (5dc4d8a0b4d2)."""
+        from cairn.tools.artifact import artifact as door
+        self.run(record)
+        certified_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        root = door.roots()["CairnCommons"]
+        repo = Path(__file__).resolve().parents[3]
+        gate_code = []
+        for cls in type(self).__mro__:
+            if cls is object:
+                continue
+            src = Path(inspect.getsourcefile(cls)).resolve()
+            try:
+                rel = src.relative_to(repo).as_posix()
+            except ValueError:
+                rel = str(src)
+            gate_code.append({"path": rel, "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+        body = {"kind": "certificate", "gate": self.name, "ticket": ticket, "target": target,
+                "certified_at": certified_at, "gate_code": gate_code, "findings": record,
+                "findings_sha256": hashlib.sha256(_canon(record)).hexdigest()}
+        body["body_sha256"] = hashlib.sha256(_canon(body)).hexdigest()
+        stamp = certified_at.replace(":", "").replace("-", "")
+        path = root / "certificates" / ("%s-%s-%s-%s.cert.json" % (
+            ticket, target, stamp, os.urandom(2).hex()))
+        door.write(str(path), json.dumps(body, indent=2, ensure_ascii=False) + "\n",
+                   verb="certify", why="%s certifies %s -> %s" % (self.name, ticket, target))
+        return path
 
     @property
     def _feedback_dir(self) -> Path | None:
@@ -173,3 +208,65 @@ class TransitionGate(DiagnosticBase):
                 "component": entry["identity"],
             }])
         return out
+
+
+def _canon(x) -> bytes:
+    return json.dumps(x, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+_CERT_KEYS = ("kind", "gate", "ticket", "target", "certified_at", "gate_code", "findings",
+              "findings_sha256", "body_sha256")
+
+
+def verify_certificate(path) -> list[str]:
+    """Every fault in one certificate, none swallowed; empty means it stands.
+
+    Recomputes both hashes, re-judges every finding, and asks the door whether the file is a
+    record whose journal says TransitionGate.certify wrote these exact bytes. A certificate
+    copied in around the door or edited after certify fails here (5dc4d8a0b4d2). gate_code
+    is carried as evidence and not compared against today's files: the gate may change after
+    it certified, and that does not unmake what it certified then."""
+    from cairn.tools.artifact import artifact as door
+    p = Path(path).resolve()
+    try:
+        blob = p.read_bytes()
+        body = json.loads(blob.decode("utf-8"))
+    except (OSError, ValueError) as exc:
+        return ["%s: does not parse as a certificate (%s: %s)" % (p, type(exc).__name__, exc)]
+    if not isinstance(body, dict):
+        return ["%s: a certificate is a JSON object, not a %s" % (p, type(body).__name__)]
+    faults = ["%s: missing key %r" % (p.name, k) for k in _CERT_KEYS if k not in body]
+    if "body_sha256" in body:
+        want = hashlib.sha256(_canon({k: v for k, v in body.items()
+                                      if k != "body_sha256"})).hexdigest()
+        if body["body_sha256"] != want:
+            faults.append("%s: body_sha256 %r does not match its body (%s)" % (
+                p.name, body["body_sha256"], want))
+    if "findings" in body:
+        want = hashlib.sha256(_canon(body["findings"])).hexdigest()
+        if body.get("findings_sha256") != want:
+            faults.append("%s: findings_sha256 %r does not match its findings (%s)" % (
+                p.name, body.get("findings_sha256"), want))
+        try:
+            bad = [e.get("identity") for e in body["findings"] if not gate.passed(e)]
+        except (TypeError, KeyError, AttributeError) as exc:
+            bad = ["unreadable finding (%s)" % exc]
+        if bad:
+            faults.append("%s: certifies finding(s) that did not pass: %s" % (p.name, bad))
+    hit = door.locate(p)
+    if hit is None:
+        faults.append("%s: not a certificate record — the door's jurisdiction does not name "
+                      "this path" % p)
+        return faults
+    _, root, rel = hit
+    last = next((e for e in reversed(door.read_journal(root))
+                 if e.get("path") == rel.as_posix()), None)
+    if last is None:
+        faults.append("%s: never journaled — written around the door" % rel)
+    elif last.get("verb") != "certify":
+        faults.append("%s: the journal's last entry is verb %r, not certify" % (
+            rel, last.get("verb")))
+    elif last.get("sha_after") != hashlib.sha256(blob).hexdigest():
+        faults.append("%s: its bytes are not the ones certify wrote (journal sha_after %s) — "
+                      "changed around the door" % (rel, str(last.get("sha_after"))[:12]))
+    return faults

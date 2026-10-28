@@ -25,10 +25,14 @@ threshold still HOLDS ITS LOCK, so no second loop starts beside it.
 
 from __future__ import annotations
 
-import fcntl
 import os
 from dataclasses import dataclass
 from pathlib import Path
+
+if os.name == "nt":       # no fcntl on Windows: a 1-byte msvcrt lock plays flock (held by the fd, dies with the process)
+    import msvcrt
+else:
+    import fcntl
 
 LOCK_NAME = "run.lock"
 
@@ -64,7 +68,10 @@ def claim_singleton(home: Path) -> SingletonClaim:
     path = home / LOCK_NAME
     fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
     try:
-        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if os.name == "nt":
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         os.close(fd)
         raise ClaimRefused(

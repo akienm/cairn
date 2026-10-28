@@ -43,6 +43,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import transitions, watchme_spec
+from cairn.tools.base import ticket_file
 from cairn.tools.charter import projector
 
 _CD = transitions.load_class_def("code-seam")
@@ -87,12 +88,12 @@ class _Corpus:
         d = Path(self._td.name)
         for name, body in self._tickets.items():
             (d / f"{name}.json").write_text(json.dumps(body), encoding="utf-8")
-        self._saved = transitions._TICKETS
-        transitions._TICKETS = d
+        self._saved = ticket_file._TICKETS
+        ticket_file._TICKETS = d
         return d
 
     def __exit__(self, *a):
-        transitions._TICKETS = self._saved
+        ticket_file._TICKETS = self._saved
         self._td.cleanup()
         return False
 

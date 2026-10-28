@@ -92,7 +92,7 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
 from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 339a45cee6a1: the sieve's own class carries the mixin it demands)
-from cairn.tools.base.transitions import MalformedWorkflow, is_terminal, parse_workflow  # noqa: E402  (ticket e85878726213: terminal is the system's word, not the inspector's)
+from cairn.tools.base.workflow_grammar import MalformedWorkflow, is_terminal, parse_workflow  # noqa: E402  (ticket e85878726213: terminal is the system's word, not the inspector's)
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
 
@@ -236,7 +236,7 @@ def crossing_fingerprints_verified(row: dict, comp_dir: Path) -> list[dict]:
     record of truth for gate passage (Law 7); a fingerprint makes it self-verifying.
     Records without a fingerprint field (pre-existing, before the change) are skipped.
     """
-    from cairn.tools.base.transitions import verify_crossing_fingerprint
+    from cairn.tools.base.workflow_grammar import verify_crossing_fingerprint
 
     h = comp_dir / "history.json"
     if not h.exists():

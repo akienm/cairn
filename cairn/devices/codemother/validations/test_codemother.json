@@ -2,7 +2,7 @@
   {
     "claim": "proof test_codemother.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-12T21:22:58",
+    "date": "2026-10-27T20:57:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,8 +21,8 @@
         "vocabulary catalog loads with 14 entries, all have name+why",
         "all 14 vocabulary entries validate against the type schema",
         "all vocabulary entries are project-agnostic",
-        "mine found 321 observations, derived 5 types: ['charter-pattern', 'proof-pattern', 'validation-pattern', 'history-pattern', 'state-pattern']",
-        "ingested 81 negative types from memory files, all have whys",
+        "mine found 327 observations, derived 5 types: ['charter-pattern', 'proof-pattern', 'validation-pattern', 'history-pattern', 'state-pattern']",
+        "ingested 93 negative types from memory files, all have whys",
         "3 incidents with same why compiled to 1 constraint with count=3",
         "constraint proof lifecycle — create, catch x2, retire, save, load",
         "challenge caught violation, clean change passed — 1 violation(s), clean=True",
@@ -45,20 +45,30 @@
         "test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME"
       ],
       "teeth_red": [],
-      "test": "test-ef07a79f4f69",
+      "test": "test-c8f5f1b64060",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
+        "dropped": 12,
         "tables": [
-          "bus_proc_2237999_2120319824_delivery",
-          "bus_proc_2237999_2120319824"
+          "bus_proc_1102339_2034058507_delivery",
+          "bus_proc_1102339_2034058507",
+          "bus_proc_1114843_2045272715_delivery",
+          "bus_proc_1114843_2045272715",
+          "bus_proc_1115115_2046032134_delivery",
+          "bus_proc_1115115_2046032134",
+          "bus_proc_1123772_2048092836_delivery",
+          "bus_proc_1123772_2048092836",
+          "bus_proc_1124723_2049449951_delivery",
+          "bus_proc_1124723_2049449951",
+          "bus_proc_1126511_2055058767_delivery",
+          "bus_proc_1126511_2055058767"
         ]
       },
       "conditions": {
-        "proof": "7e01750fefc635106307d9226a831ca90b05f671ef473fcdedc9f45b08aaddde",
+        "proof": "8d418103dde1054a8f1c649d43a72bc63c987159efbcf1f2dda151381eabd80a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -66,20 +76,22 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 2238283,
+          "pid": 1127010,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef07a79f4f69",
-      "source_fingerprint": "400732acd134b8e68116d5fe41e7c0c93b940f10a590e9752516f4da473ee9c8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c8f5f1b64060",
+      "source_fingerprint": "26fec3100396f025ad27bdb46cbfdc9820874adfa5d83ed5bcab40b1d3cee649",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/challenge.py",
@@ -99,7 +111,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2237976-e5r0x4fe/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1126990-ria8ffn9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 248,
@@ -111,52 +123,51 @@
             "devices/learning_block/0/traces/harbor_master:clearance.jsonl",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261013.032117.697850.BusDevice.post.json",
-            "logs/bus/0/20261013.032117.715144.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.032117.728751.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.032117.744806.BusDevice.post.json",
-            "logs/bus/0/20261013.032119.710149.BusDevice.post.json",
-            "logs/bus/0/20261013.032119.711093.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032119.713919.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032119.771927.BusDevice.post.json",
-            "logs/bus/0/20261013.032119.818169.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.032120.065646.BusDevice.post.json",
-            "logs/bus/0/20261013.032120.071917.BusDevice.post.json",
-            "logs/bus/0/20261013.032120.075423.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.619237.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.619489.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032138.620535.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032138.622407.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.623424.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032138.624372.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032138.672817.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.739924.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261013.032138.989199.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.995653.BusDevice.post.json",
-            "logs/bus/0/20261013.032138.996032.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.010907.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.011178.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032139.012185.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032139.014073.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.014756.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032139.015694.BusDevice.delivered.json",
-            "logs/bus/0/20261013.032139.309207.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.319104.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.322983.BusDevice.post.json",
-            "logs/bus/0/20261013.032139.323714.BusDevice.delivered.json"
+            "logs/bus/0/20261028.025616.838995.BusDevice.post.json",
+            "logs/bus/0/20261028.025616.854784.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.025616.871194.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.025616.887118.BusDevice.post.json",
+            "logs/bus/0/20261028.025618.869898.BusDevice.post.json",
+            "logs/bus/0/20261028.025618.870876.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025618.874157.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025618.932901.BusDevice.post.json",
+            "logs/bus/0/20261028.025618.976574.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.025619.273700.BusDevice.post.json",
+            "logs/bus/0/20261028.025619.280112.BusDevice.post.json",
+            "logs/bus/0/20261028.025619.281700.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.579457.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.579694.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025624.580666.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025624.582440.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.583393.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025624.584266.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025624.627768.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.677451.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.025624.977077.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.983439.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.983825.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.999638.BusDevice.post.json",
+            "logs/bus/0/20261028.025624.999907.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025625.001372.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025625.003657.BusDevice.post.json",
+            "logs/bus/0/20261028.025625.004376.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025625.005408.BusDevice.delivered.json",
+            "logs/bus/0/20261028.025625.334089.BusDevice.post.json",
+            "logs/bus/0/20261028.025625.344087.BusDevice.post.json",
+            "logs/bus/0/20261028.025625.348167.BusDevice.post.json",
+            "logs/bus/0/20261028.025625.348863.BusDevice.delivered.json"
           ],
           "elided": 208
         },
         "scratch": {
           "measured": true,
-          "bytes": 108176763,
-          "disk_bytes": 134164480,
-          "entries": 10386,
+          "bytes": 112478635,
+          "disk_bytes": 142098432,
+          "entries": 11657,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

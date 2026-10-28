@@ -38,6 +38,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.base import transitions  # noqa: E402
+from cairn.tools.base import ticket_file  # noqa: E402
 
 PROVES = {
     "72d2f79daf0a": {
@@ -88,12 +89,12 @@ class _Corpus:
     def __enter__(self):
         d = scratch_dir("fixme_fixture_tickets_")
         (d / f"{_NAME}.json").write_text(json.dumps(self._body), encoding="utf-8")
-        self._saved = transitions._TICKETS
-        transitions._TICKETS = d
+        self._saved = ticket_file._TICKETS
+        ticket_file._TICKETS = d
         return d
 
     def __exit__(self, *a):
-        transitions._TICKETS = self._saved
+        ticket_file._TICKETS = self._saved
         return False
 
 

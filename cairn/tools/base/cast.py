@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         if len(argv) > 1:
             root = Path(argv[1])
         else:
-            from cairn.tools.base.transitions import _TICKETS
+            from cairn.tools.base.ticket_file import _TICKETS
             root = _TICKETS.parent
         print(json.dumps(sweep_casts(root), indent=2, ensure_ascii=False))
         return 0

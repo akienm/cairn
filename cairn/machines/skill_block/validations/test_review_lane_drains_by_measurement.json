@@ -2,12 +2,12 @@
   {
     "claim": "proof test_review_lane_drains_by_measurement.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-06T11:45:36",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-27T21:07:27",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_map_reads_the_cursor_state_for_each_named_berth",
@@ -28,10 +28,10 @@
         "test_reverting_the_predicate_reds_this_proof"
       ],
       "teeth_red": [],
-      "test": "test-91d29ba9230d",
+      "test": "test-be9f0b4079b3",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -41,19 +41,21 @@
         "proof": "00e0c3b1d7a88e3ec565caee59a8b1f95dd364538c7c455664e73ab011dae8bc",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-91d29ba9230d",
-      "source_fingerprint": "9cb4204d142ec522e96e897b01b2df29d08854573930078c5eae6a5d42363f50",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-be9f0b4079b3",
+      "source_fingerprint": "6c077d46cb782e9fbf9b142a6393b3863205ce8642d071c910164c6e0bccfbd1",
       "fingerprint_closure": [
         "cairn/machines/skill_block/__init__.py",
         "cairn/machines/skill_block/proofs/test_review_lane_drains_by_measurement.py",
@@ -61,7 +63,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3951581-2j70f2rc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1126990-2hbxu_3_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,13 +72,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102557452,
-          "disk_bytes": 123416576,
-          "entries": 8563,
+          "bytes": 112390363,
+          "disk_bytes": 141148160,
+          "entries": 11392,
           "builds": 1,
-          "reuses": 30
+          "reuses": 24
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

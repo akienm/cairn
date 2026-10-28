@@ -2,19 +2,19 @@
   {
     "claim": "proof test_a_proved_ticket_can_be_superseded.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-27T13:56:24",
+    "date": "2026-10-27T21:07:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_ticket_crosses_to_superseded\n.\n  ok   test_a_proved_ticket_still_cannot_be_dropped\n                                                                       [100%]\n2 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_proved_ticket_crosses_to_superseded\n.\n  ok   test_a_proved_ticket_still_cannot_be_dropped\n                                                                       [100%]\n2 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proved_ticket_crosses_to_superseded",
         "test_a_proved_ticket_still_cannot_be_dropped"
       ],
       "teeth_red": [],
-      "test": "test-0f36e20e060d",
+      "test": "test-68953cacff59",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,8 +40,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0f36e20e060d",
-      "source_fingerprint": "0e957d3f990377f085e8b68b8f9faf55f2daf06451a14a0a17335fe8c5e77699",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-68953cacff59",
+      "source_fingerprint": "11ca259f1cbb1335ae3ec0f454463153e91c0954ff973287de21e495741447c8",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -49,26 +49,28 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/proofs/test_a_proved_ticket_can_be_superseded.py",
-        "cairn/tools/base/transitions.py"
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-944944-jeafvk2i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1126990-c8l8gxnu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/charter/0/20261027.195623.671116.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261028.030753.692411.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112141827,
-          "disk_bytes": 140754944,
-          "entries": 11324,
+          "bytes": 112391004,
+          "disk_bytes": 141152256,
+          "entries": 11395,
           "builds": 1,
-          "reuses": 6
+          "reuses": 34
         }
       }
     },

@@ -18,7 +18,7 @@ beside it, so transitions' default node-class root points at nothing there (meas
 4. an owning_intention 'nowhere/intention+why.json' raises naming no charter, bytes identical.
 Each refusal is asserted by its own text (D9), so none can pass on a node-class lookup refusal.
 Each tooth is driven once more through main() over a fresh world for its exit code (0 on
-tooth 1, 1 on teeth 2-4); main() reads transitions._TICKETS, transitions._REPO_ROOT and transitions._NODE_CLASSES,
+tooth 1, 1 on teeth 2-4); main() reads ticket_file._TICKETS, transitions._REPO_ROOT and transitions._NODE_CLASSES,
 which the proof points at the fresh world and restores in ``finally``.
 
 THE SUBJECT IS BOUND AT CALL TIME. ``_cross()`` imports the build when a tooth asks, so a
@@ -124,15 +124,16 @@ class World:
     def main_rc(self, A, target: str) -> int:
         """main(argv) with transitions' store, repo and node classes pointed here, restored after."""
         from cairn.tools.base import transitions as T
-        saved = (T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES)
+        from cairn.tools.base import ticket_file as TF
+        saved = (TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES)
         out = io.StringIO()
         with self.door(A):
-            T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = self.tickets, self.repo, self.node_classes
+            TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = self.tickets, self.repo, self.node_classes
             try:
                 with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
                     return _cross().main([TID, target, "--actor", "proof", "--why", "proof"])
             finally:
-                T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = saved
+                TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = saved
 
 
 # --------------------------------------------------------------------------- the teeth

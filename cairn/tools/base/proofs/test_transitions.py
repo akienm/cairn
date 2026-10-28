@@ -33,6 +33,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import transitions
+from cairn.tools.base import ticket_file as _ticket_file
 from cairn.tools.charter import projector
 
 _CODE_SEAM = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
@@ -367,8 +368,8 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -383,15 +384,15 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
                 raise AssertionError("a chartless BUILDME crossed — the entry gate is not wired")
             assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -403,7 +404,7 @@ def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
                 f"the crossing's evidence must say the entry gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
@@ -417,8 +418,8 @@ def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
     crosses ungated, exactly as before this stone (bounds: back-edges are OUT)."""
     with tempfile.TemporaryDirectory() as d:
         tickets, _ = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = transitions._TICKETS
-        transitions._TICKETS = tickets
+        saved = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tickets
         try:
             base = Path(d)
             # unnamed: refuses, routes to /sorted, nothing journaled
@@ -452,7 +453,7 @@ def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
             assert rec["entry_gate"] == "not_applicable", \
                 "a kick-back into BUILDME is never gated — the field must say not_applicable"
         finally:
-            transitions._TICKETS = saved
+            _ticket_file._TICKETS = saved
 
 
 def test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean():
@@ -492,8 +493,8 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -508,7 +509,7 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
                 raise AssertionError("a chartless skill-class BUILDME crossed — the entry gate is not wired for class skill")
             assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict():
@@ -518,8 +519,8 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -531,7 +532,7 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
                 f"the crossing's evidence must say the entry gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
@@ -632,8 +633,8 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=None)  # claimed, never answered
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -672,15 +673,15 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
             else:
                 raise AssertionError("a FAILED criterion crossed into PROVED")
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
@@ -693,7 +694,7 @@ def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
                 f"the crossing's evidence must say the exit gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean():
@@ -709,8 +710,8 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             base = Path(d)
@@ -753,7 +754,7 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
                 "a cast-but-unclaimed crossing is gated-and-clean, on the record — untouched by this stone"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
@@ -807,9 +808,9 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
     import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=_ANSWERED)
-        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
@@ -827,7 +828,7 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
             assert rec["deposit_enqueued"] == artifact, \
                 f"the crossing must name the deposit it filed: {rec}"
         finally:
-            (transitions._TICKETS, _insp._CHART_BERTHS,
+            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
              _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
 
 
@@ -844,9 +845,9 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
     with tempfile.TemporaryDirectory() as d:
         # (1) refusal: claimed, unanswered
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=None)
-        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
@@ -864,14 +865,14 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
             assert rec["direction"] == "back" and "deposit_enqueued" not in rec
             assert not ledger.exists(), "a back-edge must enqueue nothing"
         finally:
-            (transitions._TICKETS, _insp._CHART_BERTHS,
+            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
              _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
     with tempfile.TemporaryDirectory() as d:
         # (2) unclaimed: cast ticket, NO claiming chart — gated-and-clean, no artifact
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), claim=False)
-        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
                  _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
@@ -885,7 +886,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
                 "a clean note is not an artifact — an unclaimed crossing files nothing"
             assert not ledger.exists(), "an unclaimed gated-and-clean crossing enqueues nothing"
         finally:
-            (transitions._TICKETS, _insp._CHART_BERTHS,
+            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
              _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
 
 
@@ -1400,28 +1401,28 @@ def _healthy_records():
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         import cairn.machines.build_inspector.inspector as _insp
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             out.append(("inspect_named_ticket", transitions.inspect_named_ticket(
                 "BUILDME", "widget", history_path=str(Path(d) / "history.json"))))
             out.append(("inspect_entry", transitions.inspect_entry("widget")))
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
     with tempfile.TemporaryDirectory() as d:
         # A HEALTHY subject at the EXIT door is a claim that was ANSWERED — an unanswered one
         # is a well-formed refusal, not a well subject, and running the tooth against it would
         # have measured the fixture instead of the lane.
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
         import cairn.machines.build_inspector.inspector as _insp
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             out.append(("inspect_exit", transitions.inspect_exit("widget")))
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
     with tempfile.TemporaryDirectory() as d:
         comp = _component(Path(d), "healthy")
         out.append(("inspect_build",
@@ -1512,8 +1513,8 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             record = transitions.inspect_entry("widget")
@@ -1529,7 +1530,7 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                              history_path=hist, state_path=state, ticket="widget")
             rec = projector.read_history(hist)[0]
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
     named = [e["identity"] for e in rec["proved"]]
     for sieve in ("a_berthed_chart_chain_claims_the_ticket",
                   "the_ticket_names_its_intent_firing",
@@ -1553,8 +1554,8 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
+        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         _insp._crossing_roots = _built_before_the_verdict(tickets)
         try:
             record = transitions.inspect_entry("widget")
@@ -1565,7 +1566,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
             else:
                 raise AssertionError("a chartless ticket passed the entry gate")
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
     assert raised == transitions._findings_of(record), \
         "the refusal's findings and the record's mismatches must be ONE derivation"
     assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised
@@ -1618,7 +1619,7 @@ def test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval():
         # Now test the _require_demo against a ticket that DOES exist with demo: true
         # by writing to the real tickets path temporarily
         import shutil
-        real_tickets = transitions._TICKETS
+        real_tickets = _ticket_file._TICKETS
         real_path = real_tickets / "test-demo-ticket.json"
         try:
             real_path.write_text(json.dumps({"id": "test-demo-ticket", "demo": True}))
@@ -1634,7 +1635,7 @@ def test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval():
 def test_demo_gate_does_not_fire_on_a_ticket_without_the_flag():
     """A ticket with no ``demo`` field crosses PROVED freely — this gate seat does not
     fire, the other seats still do their jobs."""
-    real_tickets = transitions._TICKETS
+    real_tickets = _ticket_file._TICKETS
     real_path = real_tickets / "test-no-demo-ticket.json"
     try:
         real_path.write_text(json.dumps({"id": "test-no-demo-ticket"}))
@@ -1648,7 +1649,7 @@ def test_demo_gate_passes_with_a_green_quorum_seal():
     """A ticket with ``demo: true`` AND a green DEMO validation crosses PROVED cleanly.
     The gate returns a note naming the seal date — the record of truth carries the evidence."""
     import os
-    real_tickets = transitions._TICKETS
+    real_tickets = _ticket_file._TICKETS
     real_path = real_tickets / "test-demo-sealed-ticket.json"
     val_dir = real_tickets / "validations"
     val_path = val_dir / "test-demo-sealed-ticket.json"
@@ -1824,14 +1825,19 @@ def test_a_word_outside_the_five_is_still_refused_loudly() -> None:
 def test_state_re_was_not_widened() -> None:
     """_STATE_RE captures wider than the vocabulary ON PURPOSE, so an illegal phase fails at
     the validator instead of silently failing to match and truncating the walk. Growing the
-    vocabulary must not touch it. Measured against git, not read by eye."""
+    vocabulary must not touch it. Measured against git, not read by eye. The regex moved
+    verbatim to workflow_grammar.py (632edb992aa3), so both files are diffed: a line removed
+    from one and added to the other unchanged is a move, and anything else is an edit."""
     import subprocess
     out = subprocess.run(
-        ["git", "diff", "HEAD", "-U0", "--", "cairn/tools/base/transitions.py"],
+        ["git", "diff", "HEAD", "-U0", "--", "cairn/tools/base/transitions.py",
+         "cairn/tools/base/workflow_grammar.py"],
         cwd=str(_REPO_ROOT), capture_output=True, text=True).stdout
-    touched = [ln for ln in out.splitlines()
-               if ln[:1] in "+-" and ln[1:2] not in "+-" and "_STATE_RE = " in ln]
-    assert not touched, f"_STATE_RE was edited: {touched}"
+    removed = sorted(ln[1:] for ln in out.splitlines()
+                     if ln[:1] == "-" and ln[1:2] != "-" and "_STATE_RE = " in ln)
+    added = sorted(ln[1:] for ln in out.splitlines()
+                   if ln[:1] == "+" and ln[1:2] != "+" and "_STATE_RE = " in ln)
+    assert removed == added, f"_STATE_RE was edited: -{removed} +{added}"
 
 
 def test_release_lack_names_its_three_lacks_apart() -> None:
@@ -1857,7 +1863,7 @@ def _a_non_terminal_ticket_id() -> str:
     live data asserts INVARIANTS, never snapshots — the invariant is 'a queued release
     naming an unfinished ticket is no lack', and which ticket is unfinished is the world's
     business, not the proof's."""
-    for path in sorted(transitions._TICKETS.glob("*.json")):
+    for path in sorted(_ticket_file._TICKETS.glob("*.json")):
         if path.name.startswith("_"):
             continue
         try:
@@ -1883,7 +1889,7 @@ def test_queued_self_clears_against_the_LIVE_corpus() -> None:
     """Driven against a real terminal ticket read out of CairnCommons/tickets, never a
     fixture: the self-clearing claim is about the world, so the world is what answers it."""
     terminal = None
-    for path in sorted(transitions._TICKETS.glob("*.json")):
+    for path in sorted(_ticket_file._TICKETS.glob("*.json")):
         if path.name.startswith("_"):
             continue
         try:
@@ -2074,15 +2080,15 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
         ticket_file = _sandbox_ticket(tmp, shape)
         before_raw = ticket_file.read_bytes()
         before = json.loads(before_raw.decode("utf-8"))
-        real_root = transitions._TICKETS
-        transitions._TICKETS = tmp
+        real_root = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tmp
         try:
             s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
             out = transitions.set_phase(
                 s, "hold", release="CLAUDE.md", actor="proof",
                 ticket=ticket_file.stem)
         finally:
-            transitions._TICKETS = real_root
+            _ticket_file._TICKETS = real_root
         after_raw = ticket_file.read_bytes()
         after = json.loads(after_raw.decode("utf-8"))
 
@@ -2126,8 +2132,8 @@ def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
     with tempfile.TemporaryDirectory() as d:
         tmp = Path(d)
         ticket_file = _sandbox_ticket(tmp)
-        real_root = transitions._TICKETS
-        transitions._TICKETS = tmp
+        real_root = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tmp
         try:
             out = transitions.set_phase(live, "hold", release="CLAUDE.md", actor="proof",
                                         ticket=ticket_file.stem)
@@ -2147,7 +2153,7 @@ def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
             phase = transitions.parse_workflow(doc["workflow_and_state"]).phase
             assert transitions.release_lack(phase, doc.get("release")) is None
         finally:
-            transitions._TICKETS = real_root
+            _ticket_file._TICKETS = real_root
 
 
 def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> None:
@@ -2164,8 +2170,8 @@ def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> 
         ticket_file = _sandbox_ticket(tmp)
         digest = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
         tid = ticket_file.stem
-        real_root = transitions._TICKETS
-        transitions._TICKETS = tmp
+        real_root = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tmp
         try:
             cases = [
                 ("a terminal cursor", lambda: transitions.set_phase(
@@ -2191,7 +2197,7 @@ def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> 
                 now = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
                 assert now == digest, f"{name} refused but the ticket changed on disk"
         finally:
-            transitions._TICKETS = real_root
+            _ticket_file._TICKETS = real_root
 
 
 def test_ticket_and_projector_records_are_one_body() -> None:
@@ -2205,15 +2211,15 @@ def test_ticket_and_projector_records_are_one_body() -> None:
         tmp = Path(d)
         ticket_file = _sandbox_ticket(tmp)
         h, st = tmp / "history.json", tmp / "state.json"
-        real_root = transitions._TICKETS
-        transitions._TICKETS = tmp
+        real_root = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tmp
         try:
             s = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
             transitions.set_phase(s, "hold", release="CLAUDE.md", actor="proof",
                                   ticket=ticket_file.stem,
                                   history_path=str(h), state_path=str(st))
         finally:
-            transitions._TICKETS = real_root
+            _ticket_file._TICKETS = real_root
         from cairn.tools.base.ticket_log import read_log
         at_ticket = read_log(ticket_file, "phase_write")[-1]["record"]
         at_component = json.loads(h.read_text())[-1]
@@ -2249,8 +2255,8 @@ def test_ticket_write_door_refuses_a_shape_it_cannot_reproduce() -> None:
                  "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"},
             indent=4) + "\n", encoding="utf-8")
         digest = _hashlib.sha256(odd.read_bytes()).hexdigest()
-        real_root = transitions._TICKETS
-        transitions._TICKETS = tmp
+        real_root = _ticket_file._TICKETS
+        _ticket_file._TICKETS = tmp
         try:
             transitions.set_phase(
                 "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
@@ -2260,7 +2266,7 @@ def test_ticket_write_door_refuses_a_shape_it_cannot_reproduce() -> None:
         else:
             raise AssertionError("a ticket in an unreproducible shape was rewritten")
         finally:
-            transitions._TICKETS = real_root
+            _ticket_file._TICKETS = real_root
         assert _hashlib.sha256(odd.read_bytes()).hexdigest() == digest
 
 

@@ -28,6 +28,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import transitions
+from cairn.tools.base import ticket_file
 from cairn.tools.charter import projector
 
 _AT_BUILDME = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
@@ -73,8 +74,8 @@ def test_leg_a_complete_ticket_passes_at_leaving_buildme():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=("widget",))
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
+        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -89,7 +90,7 @@ def test_leg_a_complete_ticket_passes_at_leaving_buildme():
             assert rec["entry_gate"].startswith("clean"), \
                 f"the entry gate must pass for a complete ticket: {rec['entry_gate']}"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
@@ -100,8 +101,8 @@ def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
+        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -120,7 +121,7 @@ def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
             assert not Path(hist).exists(), \
                 "a REFUSED crossing must write no record of truth"
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 def test_leg_c_unticketed_crossing_records_not_checked():
@@ -169,8 +170,8 @@ def test_into_buildme_still_refuses_chartless():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
-        saved = transitions._TICKETS, _insp._CHART_BERTHS
-        transitions._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
+        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
         try:
             hist = str(base / "history.json")
             state = str(base / "state.json")
@@ -183,7 +184,7 @@ def test_into_buildme_still_refuses_chartless():
                 raise AssertionError("crossing INTO BUILDME with no chart should still refuse")
             assert not Path(hist).exists()
         finally:
-            transitions._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
 
 
 TEETH = [

@@ -638,6 +638,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
     import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
     import cairn.devices.codemother.shim as _shim
     import cairn.tools.base.transitions as _transitions
+    from cairn.tools.base import ticket_file as _ticket_file
 
     root = comp.parent
     # ``hollow`` (ticket b984567d8c05): "covered" lands a reading whose file redded a tooth;
@@ -722,7 +723,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
 
     real = _clearance.boat_owner_of
     real_load_class_def = _transitions.load_class_def
-    saved_tickets = _transitions._TICKETS
+    saved_tickets = _ticket_file._TICKETS
     real_gate_roots = _clearance._crossing_roots
     real_shim_roots = _shim._crossing_roots
 
@@ -760,7 +761,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
 
     _clearance.boat_owner_of = _fixture_owner_of
     _transitions.load_class_def = _portable_load_class_def
-    _transitions._TICKETS = tickets
+    _ticket_file._TICKETS = tickets
     # THE FIFTH AND SIXTH CORPUS READS — where each side derives the boat's CROSSINGS from.
     # Two, not one, because the two readers ask different questions of the same journals:
     # codemother's sealed path asks "which boat names this proof", the harbor's coverage rung
@@ -773,7 +774,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
     finally:
         _clearance.boat_owner_of = real
         _transitions.load_class_def = real_load_class_def
-        _transitions._TICKETS = saved_tickets
+        _ticket_file._TICKETS = saved_tickets
         _clearance._crossing_roots = real_gate_roots
         _shim._crossing_roots = real_shim_roots
 
@@ -887,6 +888,7 @@ def _the_real_corpus_is_reachable():
     """
     import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
     import cairn.tools.base.transitions as _transitions
+    from cairn.tools.base import ticket_file as _ticket_file
 
     commons, tree = _commons_root(), _main_tree()
     real_owner, real_load = _clearance.boat_owner_of, _transitions.load_class_def

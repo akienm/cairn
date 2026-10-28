@@ -140,12 +140,13 @@ def test_a_second_split_is_a_no_op(L, t: Path) -> None:
 def test_set_phase_appends_its_record_to_the_log(L, T, t: Path) -> None:
     plan = t / "cafe00beef00-phase.json"
     _write(plan, {"id": "cafe00beef00", "title": "phase", "workflow_and_state": CURSOR})
-    saved = T._TICKETS
-    T._TICKETS = t
+    from cairn.tools.base import ticket_file as TF
+    saved = TF._TICKETS
+    TF._TICKETS = t
     try:
         new = T.set_phase(CURSOR, "hold", release="CLAUDE.md", actor="proof", ticket="cafe00beef00")
     finally:
-        T._TICKETS = saved
+        TF._TICKETS = saved
     doc = json.loads(plan.read_text(encoding="utf-8"))
     pw = L.read_log(plan, "phase_write")
     ok = (len(pw) == 1 and pw[0]["record"]["workflow"] == doc["workflow_and_state"] == new

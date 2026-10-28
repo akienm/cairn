@@ -410,8 +410,8 @@ def drop_stored_chart_chain(tickets_dir: str | None = None, *, apply: bool = Fal
     it to reproduce the old bytes from new content, which no pair can do: it refuses,
     correctly, and the migration dies on its first file with nothing written.
     """
-    from cairn.tools.base.transitions import _write_ticket
-    from cairn.tools.base.transitions import _ticket_shape as _shape_of
+    from cairn.tools.base.ticket_file import write_ticket as _write_ticket
+    from cairn.tools.base.ticket_file import ticket_shape as _shape_of
 
     root = Path(tickets_dir or _default_tickets_dir())
     report: dict = {"applied": bool(apply), "removed": [], "prose_moved": [], "empty": [],

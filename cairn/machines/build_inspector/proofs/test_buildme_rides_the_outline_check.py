@@ -73,6 +73,7 @@ class _World:
 
 def test_1_the_entry_gate_lists_six_lanes_and_the_sixth_is_the_outline_check():
     from cairn.tools.base import transitions
+    from cairn.tools.base import ticket_file
     import cairn.machines.build_inspector.inspector as I
     w = _World()
     try:
@@ -81,12 +82,12 @@ def test_1_the_entry_gate_lists_six_lanes_and_the_sixth_is_the_outline_check():
         (tickets / "widget.json").write_text("{}")
         berths = w.dir / "gate-berths"
         (berths / "0" / "packets").mkdir(parents=True)
-        saved = transitions._TICKETS, I._CHART_BERTHS
-        transitions._TICKETS, I._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS, I._CHART_BERTHS
+        ticket_file._TICKETS, I._CHART_BERTHS = tickets, berths
         try:
             record = transitions.inspect_entry("widget")
         finally:
-            transitions._TICKETS, I._CHART_BERTHS = saved
+            ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
         assert len(names) == 6 and names[-1] == LANE, names
     finally:

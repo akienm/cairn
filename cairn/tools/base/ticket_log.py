@@ -53,7 +53,7 @@ def _plan(ticket: str | Path) -> Path:
     p = Path(ticket)
     if p.suffix == ".json" and p.is_file():
         return p
-    from cairn.tools.base.transitions import _find_ticket  # at call time: transitions imports us
+    from cairn.tools.base.ticket_file import find_ticket as _find_ticket  # at call time
     found = _find_ticket(str(ticket))
     if found is None:
         raise ValueError(f"ticket {ticket!r} resolves to no plan file")

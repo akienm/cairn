@@ -343,7 +343,7 @@ def drop_stored_crossings(roots: dict[str, Path] | None = None, *, apply: bool =
     record of truth must not be half-written, and because re-implementing the writer here is
     how two spellings of one file appear in ``git status``.
     """
-    from cairn.tools.base.transitions import _write_ticket
+    from cairn.tools.base.ticket_file import write_ticket as _write_ticket
 
     r = _roots(roots)
     tickets = Path(r["commons"]) / "tickets"
@@ -365,7 +365,7 @@ def drop_stored_crossings(roots: dict[str, Path] | None = None, *, apply: bool =
         # from the doc AS IT STANDS ON DISK. Handing it the edited doc asks it to reproduce
         # the old bytes from the new content, which no pair can do — it refuses, correctly,
         # and the migration dies on its first file with nothing written.
-        from cairn.tools.base.transitions import _ticket_shape as _shape_of
+        from cairn.tools.base.ticket_file import ticket_shape as _shape_of
         ensure_ascii, newline = _shape_of(raw, doc)
         value = doc["crossings"]
         tid = str(doc.get("id") or path.stem.split("-")[0])

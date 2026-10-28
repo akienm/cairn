@@ -102,9 +102,10 @@ class World:
     def cross(self, A, target: str):
         """cross() over this world; emit's own gates read transitions' store, so it points here too."""
         from cairn.tools.base import transitions as T
-        saved = (T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES)
+        from cairn.tools.base import ticket_file as TF
+        saved = (TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES)
         A.set_diagnostic_roots({"CairnCommons": self.commons, "cairn": self.repo})
-        T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = self.tickets, self.repo, self.node_classes
+        TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = self.tickets, self.repo, self.node_classes
         try:
             return _cross().cross(TID, target, actor="proof", why=f"proof: {target}",
                                   tickets_dir=self.tickets, repo_root=self.repo,
@@ -114,7 +115,7 @@ class World:
         except Exception as exc:  # noqa: BLE001 — a refusal is the measured outcome
             return None, exc
         finally:
-            T._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = saved
+            TF._TICKETS, T._REPO_ROOT, T._NODE_CLASSES = saved
             A.set_diagnostic_roots(None)
 
 

@@ -358,6 +358,7 @@ def test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_
 
 def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
     from cairn.tools.base import transitions
+    from cairn.tools.base import ticket_file
     import cairn.machines.build_inspector.inspector as I
     w = World()
     try:
@@ -366,12 +367,12 @@ def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
         (tickets / "widget.json").write_text("{}")
         berths = w.dir / "gate-berths"
         (berths / "0" / "packets").mkdir(parents=True)
-        saved = transitions._TICKETS, I._CHART_BERTHS
-        transitions._TICKETS, I._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS, I._CHART_BERTHS
+        ticket_file._TICKETS, I._CHART_BERTHS = tickets, berths
         try:
             record = transitions.inspect_entry("widget")
         finally:
-            transitions._TICKETS, I._CHART_BERTHS = saved
+            ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
         assert len(names) == 6 and names[4] == "the_ticket_rehearses_clean", names
         src = (REPO / "cairn/tools/base/transitions.py").read_text()

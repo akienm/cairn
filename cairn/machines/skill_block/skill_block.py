@@ -465,7 +465,7 @@ def berth_ticket_cursors(*, tickets: Path | None = None,
     idea that bore it). One idea bears several tickets, so a berth may collect several
     cursors; ``drains_by_measurement`` decides what the list means. A ticket whose cursor
     does not parse contributes nothing for its berths (it is UNPARSED, not terminal)."""
-    from cairn.tools.base.transitions import MalformedWorkflow, parse_workflow
+    from cairn.tools.base.workflow_grammar import MalformedWorkflow, parse_workflow
     tdir = tickets_root(tickets)
     idir = ideas_root(ideas)
     out: dict[str, list[str]] = {}
@@ -493,7 +493,7 @@ def drains_by_measurement(cursors: list[str]) -> bool:
     """The ANY-terminal rule (Akien's answer on open-d0a5003c404a, 2026-09-15): a berth
     drains when AT LEAST ONE ticket naming it rests at a terminal cursor. An empty list —
     no ticket names the berth, or every ticket naming it was unreadable — keeps it."""
-    from cairn.tools.base.transitions import is_terminal
+    from cairn.tools.base.workflow_grammar import is_terminal
     return any(is_terminal(c) for c in cursors)
 
 

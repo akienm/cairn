@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_certification_fires_the_gates_probes.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-27T14:59:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-27T21:07:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -21,37 +21,14 @@
         "tooth_emit_fires_after_the_journal"
       ],
       "teeth_red": [],
-      "test": "test-8a9496b92fb3",
+      "test": "test-cc7db6de8c5c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 22,
-        "tables": [
-          "bus_proc_964087_1439282876_delivery",
-          "bus_proc_964087_1439282876",
-          "bus_proc_964286_1440032713_delivery",
-          "bus_proc_964286_1440032713",
-          "bus_proc_972719_1442019441_delivery",
-          "bus_proc_972719_1442019441",
-          "bus_proc_973497_1443355843_delivery",
-          "bus_proc_973497_1443355843",
-          "bus_proc_974142_1445162889_delivery",
-          "bus_proc_974142_1445162889",
-          "bus_proc_974450_1445531055_delivery",
-          "bus_proc_974450_1445531055",
-          "bus_proc_983085_1448161177_delivery",
-          "bus_proc_983085_1448161177",
-          "bus_proc_984381_1450114955_delivery",
-          "bus_proc_984381_1450114955",
-          "bus_proc_985096_1451546721_delivery",
-          "bus_proc_985096_1451546721",
-          "bus_proc_985332_1452394133_delivery",
-          "bus_proc_985332_1452394133",
-          "bus_proc_993830_1454584750_delivery",
-          "bus_proc_993830_1454584750"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "8ea4e34f95621a82d9d7712cdebcf4c95176a4d41bbe8e7a4b93ee119d2c46e3",
@@ -65,14 +42,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a9496b92fb3",
-      "source_fingerprint": "ae776f7d305bf241c7eec8d214439d617883fc20e38d388e8298d7854dcc0f5d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cc7db6de8c5c",
+      "source_fingerprint": "8f5a18d825fc6fcd1c5dec9e904b1b1c35b5aa2bea39ff2ad486532af29f5830",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -82,47 +58,29 @@
         "cairn/tools/base/gate_probes.py",
         "cairn/tools/base/proofs/test_a_certification_fires_the_gates_probes.py",
         "cairn/tools/base/testing_mark.py",
-        "cairn/tools/base/transitions.py"
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-996012-c46f6v_2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1126990-qf9kt57g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/charter/0/20261027.205904.906188.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261027.205904.911546.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261028.030738.700691.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.030738.706489.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112168217,
-          "disk_bytes": 140836864,
-          "entries": 11354,
+          "bytes": 112391545,
+          "disk_bytes": 141156352,
+          "entries": 11396,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "32f500e517d7": {
-          "cairn/tools/base/gate_probes.py": [
-            "tooth_a_certified_probe_posts_one_personal_envelope",
-            "tooth_a_test_run_marks_the_envelope",
-            "tooth_an_unreachable_bus_never_gates_the_crossing"
-          ],
-          "cairn/tools/base/transitions.py": [
-            "tooth_an_unreachable_bus_never_gates_the_crossing"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "32f500e517d7": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "869053282a0c9efccd4ea3063229b25aed6a4fe4",
-          "anchor_first_build": "4cb79062c7f7c4d56f848528d8677f717f4b5303",
-          "commit": "e52c486c0a680d9170a47fc3b7f6ab36e9d5f8da"
+          "reuses": 29
         }
       }
     },

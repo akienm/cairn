@@ -36,6 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.base import settled as S  # noqa: E402
+from cairn.tools.base import ticket_file as TF  # noqa: E402
 from cairn.tools.base import transitions as T  # noqa: E402
 from cairn.tools.base.probes import the_vocabulary_is_written_not_just_legal as W  # noqa: E402
 
@@ -54,7 +55,7 @@ def _a_non_terminal_ticket_id() -> str:
     by sitting in a constant instead of an assertion. Which ticket is unfinished is the world's
     business; that SOME ticket is unfinished is what these teeth actually need, and if the day
     ever comes when none is, that is a real finding and this raises rather than guesses."""
-    for path in sorted(T._TICKETS.glob("*.json")):
+    for path in sorted(TF._TICKETS.glob("*.json")):
         if path.name.startswith("_"):
             continue
         try:
@@ -164,9 +165,10 @@ def test_a_queued_goes_STALE_at_rest_when_its_dependency_reaches_a_terminal():
     """The self-clearing clause, measured against the LIVE corpus rather than a fixture: the
     door refuses a stale queued when it is WRITTEN, and nothing re-checks one already on
     disk. This is what looks."""
+    from cairn.tools.base import ticket_file
     from cairn.tools.base import transitions
     terminal = None
-    for path in sorted(transitions._TICKETS.glob("*.json")):
+    for path in sorted(ticket_file._TICKETS.glob("*.json")):
         try:
             doc = json.loads(path.read_text(encoding="utf-8"))
             if transitions.is_terminal(transitions.parse_workflow(

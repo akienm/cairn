@@ -2,12 +2,12 @@
   {
     "claim": "proof test_packet_index.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-10T11:06:29",
+    "date": "2026-10-27T21:11:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.25s",
+      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.38s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_index_answers_exactly_what_a_full_scan_answers",
@@ -19,7 +19,7 @@
         "test_a_packet_naming_NO_ticket_indexes_under_nothing"
       ],
       "teeth_red": [],
-      "test": "test-b01846908ad9",
+      "test": "test-40ab6c42c16c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,14 +37,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b01846908ad9",
-      "source_fingerprint": "8a2144401cebbe92bf593939e6b68cfa6bf32f69578bdf1a60b16dc99ed886fe",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-40ab6c42c16c",
+      "source_fingerprint": "f6474079340c629fb5f674c5d2be26428e997f713ca7cdfa7cafbaccb2875065",
       "fingerprint_closure": [
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
@@ -53,7 +55,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-940664-ghtgm1mc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1126990-lyyza2hl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +64,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 105715832,
-          "disk_bytes": 128675840,
-          "entries": 9343,
+          "bytes": 112390363,
+          "disk_bytes": 141148160,
+          "entries": 11392,
           "builds": 1,
-          "reuses": 2
+          "reuses": 65
         }
       }
     },

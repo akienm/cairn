@@ -128,47 +128,22 @@ from cairn.tools.base.gate_class import TransitionGate
 from cairn.tools.charter import projector
 from cairn.tools.gate import gate
 from cairn.tools.system_word import canon
+from cairn.tools.base import ticket_file as _tf
+from cairn.tools.base.ticket_file import (
+    find_ticket as _find_ticket,
+    ticket_shape as _ticket_shape,
+    write_ticket as _write_ticket,
+    _TICKET_SHAPES,
+)
+from cairn.tools.base.workflow_grammar import (
+    _HEADER_RE, _STATE_RE, _PHASES, _WRITABLE_PHASES, _RELEASE_PHASES,
+    MalformedWorkflow, IllegalTransition, TERMINAL_STATES, is_terminal, is_summons,
+    Workflow, parse_workflow,
+    _FINGERPRINT_EXCLUDE, _crossing_fingerprint, verify_crossing_fingerprint,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _NODE_CLASSES = _REPO_ROOT.parent / "CairnCommons" / "node_classes"
-
-_HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
-# A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)"
-# — and, on the cursor only, its PICKUP PHASE after a colon — "[BUILDME:waiting]" (ruled
-# 2026-08-07, the-ticket-is-the-source-period). The capture is deliberately wider than the
-# legal vocabulary so "[BUILDME:Waiting]" is refused loudly instead of silently truncating
-# the walk. Prose after the token is ignored (see the walk in parse_workflow).
-_STATE_RE = re.compile(r"^\[?([A-Z][A-Z_]*)(?:\(([^)]*)\))?(?::([A-Za-z-]+))?\]?")
-# The pickup lifecycle every summons inherits, stated once. Terminals and rests take no
-# phase — a state that summons nobody has no pickup to show. A bare cursor (no colon) is the
-# whole legacy corpus and parses as phase=None forever; there is no v3.
-#
-# NARROWED 2026-09-08 (ruling 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase). The axis
-# was WHO HOLDS IT, which assumed a fleet of many; the fleet is one, so "nobody has picked it
-# up" and "CC has not got to it yet" were the same sentence and the slot said nothing. The
-# axis is now WHY IT IS NOT MOVING — and with it, who acts next.
-_PHASES = ("waiting", "in-process", "queued", "hold", "blocked")
-# Which of the five a hand may WRITE onto a cursor. in-process is the one exclusion and it is
-# the point of the narrowing: it is runtime state, true only while a process runs, and the
-# ticket is git-tracked and SHARED — a committed ":in-process" claims a hand that is gone the
-# moment the session ends and is false on every machine that pulls it. It is DERIVED instead
-# (see cairn/tools/base/sail_record.py). Parsing it stays legal so a derived read can render
-# it and so no legacy string breaks; writing it is refused.
-_WRITABLE_PHASES = ("waiting", "queued", "hold", "blocked")
-# Which written phases must name what would RELEASE them. Akien, 2026-09-08: "nothing passes
-# a gate with prose. an inspector will not allow it. not only has to have a field, but valid
-# data to the limits of detection of deterministic code." waiting is the default and needs no
-# release; in-process is derived and has nothing to release.
-_RELEASE_PHASES = ("queued", "hold", "blocked")
-
-
-class MalformedWorkflow(ValueError):
-    """The workflow string does not parse, or does not conform to its claimed class@version."""
-
-
-class IllegalTransition(ValueError):
-    """The requested transition is refused by the rules — loud, never silent (Law 7)."""
-
 
 class EntryGateRed(IllegalTransition):
     """The forward crossing into BUILDME is refused: the crossing names a cast ticket
@@ -381,7 +356,7 @@ def inspect_emission(obj: str | None, ticket: object) -> list[dict]:
                         "no ticket named on the crossing" if not isinstance(ticket, str)
                         else "named %r, and no ticket is cast at that address" % ticket),
                     code=code, ticket=ticket, watch_object=obj,
-                    looked_at=str(ticket_file or _TICKETS / (str(ticket) + ".json")))]
+                    looked_at=str(ticket_file or _tf._TICKETS / (str(ticket) + ".json")))]
     if not cast:
         return record
 
@@ -529,115 +504,11 @@ def emit_migrated(workflow_str: str, target: str, *, watch: str | None = None, *
     return emit(migrated, target, migrated_from=workflow_str, **kw)
 
 
-TERMINAL_STATES: frozenset[str] = frozenset({
-    "PROVED", "SUPERSEDED", "RETIRED", "DROPPED", "KILLED", "ABSORBED",
-})
-
-
-def is_terminal(state: str) -> bool:
-    """A terminal state is one where no further work is expected — PROVED (the successful
-    rest) plus every disposition exit the corpus has used."""
-    return state in TERMINAL_STATES
-
-
-def is_summons(state: str) -> bool:
-    """The grammar: a state that ends in ``-ME`` is a SUMMONS (demands a peer); else a rest."""
-    return state.endswith("ME")
-
-
 def is_disposition(state: str, class_def: dict) -> bool:
     """A DISPOSITION is a terminal exit declared at the class level — DROPPED, SUPERSEDED,
     RETIRED. Not grammar-derived (no suffix rule); class-declared because the vocabulary is
     a fact about which exits a class offers, not a rule the token's shape can compute."""
     return state in class_def.get("dispositions", [])
-
-
-@dataclass(frozen=True)
-class Workflow:
-    node_class: str
-    version: str
-    path: tuple[str, ...]
-    cursor: int          # index into ``path`` of the bracketed state
-    # THE OBJECT EACH POSITION CARRIES, parallel to ``path`` — None where a state names none.
-    # A FREE SUMMONS (see ``_conform``) is refused without one: a watch without an object is
-    # inert (Akien 2026-07-30) — a bare token cannot state what is being watched, so nothing
-    # can check it. Parallel rather than a dict because a free summons may repeat, and two
-    # occurrences of WATCHME watching different things are two different obligations.
-    objects: tuple[str | None, ...] = ()
-    # THE CURSOR'S PICKUP PHASE (ruled 2026-08-07: "the ticket is THE SOURCE PERIOD").
-    # Only the cursor carries one — a state the boat is not standing at has no pickup in
-    # flight — so this is a scalar, not a tuple parallel to ``path``. None is the legacy
-    # grammar (every pre-ruling history) AND a rest/terminal cursor; "waiting" is a summons
-    # arrived with no pickup yet; "in-process" is a summons somebody journaled a pickup on.
-    phase: str | None = None
-
-    @property
-    def here(self) -> str:
-        return self.path[self.cursor]
-
-    @property
-    def here_object(self) -> str | None:
-        return self.objects[self.cursor] if self.cursor < len(self.objects) else None
-
-
-def parse_workflow(s: str) -> Workflow:
-    """Parse ``class@version: S -> S -> [CURSOR] -> S ...`` — trailing prose after the last
-    state is tolerated (real tickets carry a parenthetical note after the workflow)."""
-    header, sep, rest = s.partition(":")
-    m = _HEADER_RE.match(header)
-    if not sep or not m:
-        raise MalformedWorkflow(f"no 'class@version:' header in {s!r}")
-    node_class, version = m.group(1), m.group(2)
-    path: list[str] = []
-    objects: list[str | None] = []
-    cursor: int | None = None
-    phase: str | None = None
-    for seg in rest.split("->"):
-        seg = seg.strip()
-        sm = _STATE_RE.match(seg)
-        if not sm:
-            break                      # trailing prose (e.g. "(cursor at ...)") — the path is done
-        if seg.startswith("["):
-            cursor = len(path)
-        path.append(sm.group(1))
-        obj = sm.group(2)
-        objects.append(obj.strip() if obj and obj.strip() else None)
-        # THE PICKUP PHASE (ruled 2026-08-07). Three refusals make the rule physics at parse:
-        # a phase anywhere but the cursor is fiction (only the standing state has a pickup in
-        # flight); a phase on a rest or terminal is fiction (a state that summons nobody has
-        # no pickup); a word outside the vocabulary is not a phase. A bare token is the whole
-        # legacy corpus and stays legal forever — phase simply stays None.
-        ph = sm.group(3)
-        if ph is not None:
-            if not seg.startswith("["):
-                raise MalformedWorkflow(
-                    f"phase {ph!r} on non-cursor state {sm.group(1)!r} in {s!r} — only the "
-                    "cursor segment carries a pickup phase (the boat stands at one state)")
-            if ph not in _PHASES:
-                raise MalformedWorkflow(
-                    f"unknown phase {ph!r} on {sm.group(1)!r} in {s!r} — the pickup "
-                    f"vocabulary is {_PHASES}")
-            if not is_summons(sm.group(1)):
-                raise MalformedWorkflow(
-                    f"phase {ph!r} on {sm.group(1)!r} in {s!r} — a rest or terminal summons "
-                    "nobody, so it has no pickup to phase")
-            phase = ph
-        # STOP AT THE FIRST STATE THAT CARRIES PROSE. A real ticket's note follows the LAST state
-        # in the same segment ("PROVED   (cursor at BUILDME: ...)"), so the token is taken and the
-        # walk ends here. Without this the split kept marching through the note, and any ARROW
-        # inside the prose fed phantom states onto the path — a SILENT WRONG ANSWER, not a refusal:
-        # state-machine-physics.json's note names the concept-piece path, and its 6-state workflow
-        # parsed as 9 (THINKME TICKETME BUILDME PROVEME LEARNME PROVED + BUILDME REVIEWME PROVED).
-        # It surfaced only by luck, because _conform compared paths; `here`, `legal_targets` and
-        # every reader of `path` were being handed fiction. Measured 2026-07-26 while binding
-        # stage-needs to the stage vocabulary (tickets/stage-needs.json child a).
-        if sm.end() < len(seg):
-            break
-    if not path:
-        raise MalformedWorkflow(f"no states in {s!r}")
-    if cursor is None:
-        raise MalformedWorkflow(f"no bracketed cursor in {s!r}")
-    return Workflow(node_class, version, tuple(path), cursor, tuple(objects), phase)
 
 
 def load_class_def(node_class: str, *, root: Path | str = _NODE_CLASSES) -> dict:
@@ -864,23 +735,6 @@ def validate_transition(wf: Workflow, target: str, *, class_def: dict) -> list[d
     return record
 
 
-_TICKETS = _REPO_ROOT.parent / "CairnCommons" / "tickets"
-
-
-def _find_ticket(name: str) -> Path | None:
-    """Resolve a ticket by slug or hex id to its file path, handling hex-slug filenames."""
-    exact = _TICKETS / f"{name}.json"
-    if exact.is_file():
-        return exact
-    hits = list(_TICKETS.glob(f"*-{name}.json"))
-    if len(hits) == 1:
-        return hits[0]
-    hits = list(_TICKETS.glob(f"{name}-*.json"))
-    if len(hits) == 1:
-        return hits[0]
-    return None
-
-
 # THE EXEMPT ROSTER (ticket a-voyage-names-its-ticket, 2026-07-29): call-site
 # component names allowed to cross forward into BUILDME/PROVED with NO ticket
 # named at all. Structure ahead of any real entry — a future exemption is a
@@ -949,7 +803,7 @@ def inspect_named_ticket(target: str, ticket: object, *, history_path: str) -> l
                         expected=named,
                         actual=named if cast else f"named ticket {ticket!r} is not cast",
                         code=code, target=target, ticket=ticket,
-                        looked_at=str(ticket_file or _TICKETS / (str(ticket) + ".json"))))
+                        looked_at=str(ticket_file or _tf._TICKETS / (str(ticket) + ".json"))))
     return record
 
 
@@ -989,7 +843,7 @@ def _require_named_ticket(target: str, ticket: object, *,
                 _findings_of(record))
         raise TicketRequiredRed(
             f"{target} crossing refused: named ticket {ticket!r} is not cast — no file matching "
-            f"{ticket!r} in {_TICKETS}. A named-but-uncast ticket is an error to "
+            f"{ticket!r} in {_tf._TICKETS}. A named-but-uncast ticket is an error to "
             "fix, never an exemption (naming one is a claim to be judged, not waived by "
             "coincidence of address). Cast it via /sorted, or correct the name, then cross "
             "again. Nothing was journaled.",
@@ -1204,7 +1058,7 @@ def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[di
     if ticket_file is None:
         return (None, [_lane("demo_gate_ticket_readable",
                              expected=f"ticket {ticket!r} exists on disk",
-                             actual=f"ticket file not found matching {ticket!r} in {_TICKETS}",
+                             actual=f"ticket file not found matching {ticket!r} in {_tf._TICKETS}",
                              code=code, ticket=ticket)])
 
     ticket_data = _json.loads(ticket_file.read_text())
@@ -1701,7 +1555,7 @@ def _repo_toplevel(root: Path) -> Path | None:
 
 def _durability_roots(ticket: str, history_path: str | None) -> list[Path]:
     """The directories THIS crossing's records live in: the history file's directory and
-    the ticket file's directory (``_TICKETS`` when the ticket resolves to no file). On a
+    the ticket file's directory (``_tf._TICKETS`` when the ticket resolves to no file). On a
     real crossing that is cairn and CairnCommons; in a proof's fixture world it is whatever
     the proof built, which is the point — the lane reads the repos of the records in front
     of it, never the live checkouts by name."""
@@ -1709,7 +1563,7 @@ def _durability_roots(ticket: str, history_path: str | None) -> list[Path]:
     if history_path:
         roots.append(Path(history_path).resolve().parent)
     tk = _find_ticket(str(ticket)) if ticket else None
-    roots.append((tk.parent if tk is not None else _TICKETS).resolve())
+    roots.append((tk.parent if tk is not None else _tf._TICKETS).resolve())
     return roots
 
 
@@ -2397,22 +2251,6 @@ def _stamp_sail(ticket: object, new_str: str) -> None:
         return
 
 
-_FINGERPRINT_EXCLUDE = frozenset({"fingerprint", "at", "seq"})
-
-
-def _crossing_fingerprint(record: dict) -> str:
-    body = {k: v for k, v in record.items() if k not in _FINGERPRINT_EXCLUDE}
-    canonical = json.dumps(body, sort_keys=True, separators=(",", ": "), ensure_ascii=False)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-
-def verify_crossing_fingerprint(record: dict) -> bool:
-    fp = record.get("fingerprint")
-    if fp is None:
-        return False
-    return _crossing_fingerprint(record) == fp
-
-
 def pickup(
     workflow_str: str,
     *,
@@ -2585,7 +2423,7 @@ def release_lack(phase: str | None, release: object) -> str | None:
         kind, addr = resolve_release(ref, as_ticket=True)
         if kind is None:
             return (f"phase 'queued' names release {ref!r}, which does not resolve to a "
-                    f"ticket in {_TICKETS} — queued means another TICKET must finish first, "
+                    f"ticket in {_tf._TICKETS} — queued means another TICKET must finish first, "
                     f"and self-clearing is only computable against something that has a "
                     f"workflow cursor to reach a terminal")
         standing = _ticket_standing(addr)
@@ -2616,54 +2454,6 @@ def release_lack(phase: str | None, release: object) -> str | None:
 # wrong address among several, the only address that existed. Law 5 wants the act and the
 # record of the act at ONE address, and for a ticket that address is the ticket.
 #
-# WHY THE SHAPE IS DETECTED RATHER THAN IMPOSED, AND IT IS A MEASUREMENT. The chart's
-# constrain packet asserted the corpus was written ``indent=2, ensure_ascii=False`` with a
-# trailing newline; a full-corpus round-trip falsified that on the first run. Over all 260
-# files: 208 are ``indent=2`` ASCII-escaped with a trailing newline, 44 are ``indent=2``
-# non-escaped with one, and 8 are ``indent=2`` non-escaped WITHOUT one. Zero fit nothing.
-# A writer that picked any single shape would silently reformat between 52 and 252 files —
-# turning a three-line phase write into a whole-file diff on a corpus whose entire value at
-# the working surface is that a human can read the change. So the door reproduces the file's
-# OWN bytes first and reuses whatever settings did it.
-_TICKET_SHAPES: tuple[tuple[bool, bool], ...] = (
-    (True, True), (False, True), (True, False), (False, False),
-)
-
-
-def _ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
-    """The ``(ensure_ascii, trailing_newline)`` pair that reproduces ``raw`` from ``doc``.
-
-    RAISES when no pair does. That is deliberate and it is Law 7 at a record of truth: the
-    alternative is writing the file in a shape it was not in, which is a whole-file diff
-    nobody asked for and a working surface a reader can no longer skim. All 260 live tickets
-    fit one of the four pairs as measured on 2026-09-08, so this raise fires only on a file
-    genuinely outside the corpus's shape — and a lack is reported as a lack."""
-    for ensure_ascii, newline in _TICKET_SHAPES:
-        body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
-        if (body + "\n" if newline else body).encode("utf-8") == raw:
-            return ensure_ascii, newline
-    raise IllegalTransition(
-        "the ticket's serialisation cannot be reproduced: no combination of ensure_ascii and "
-        "trailing-newline round-trips its current bytes at indent=2, so writing it would "
-        "REFORMAT the whole file to add one record. Refusing — a phase write must show in a "
-        "git diff as the lines it changed. Nothing was written.")
-
-
-def _write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
-                  why: str = "phase") -> None:
-    """Write ``doc`` back to ``path`` in the shape ``_ticket_shape`` measured, atomically,
-    THROUGH THE ARTIFACT DOOR (ticket 30531f6e1c5d).
-
-    Atomic because the file is git-tracked: a partial write here is not a lost convenience
-    (as it would be for the instance-space sail record) but a corrupted record of truth
-    sitting in ``git status``. The door does temp-then-replace in the same directory, and
-    journals the crossing with WHO made it from the caller's cgroup — which is exactly the
-    fact ticket 481221f45884's hand-moved cursor (commit 42e3db0) had no record of."""
-    from cairn.tools.artifact import artifact as door
-    body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
-    door.write(path, body + "\n" if newline else body, verb="phase", why=why)
-
-
 def set_phase(
     workflow_str: str,
     phase: str,
@@ -2743,7 +2533,7 @@ def set_phase(
         ticket_file = _find_ticket(ticket)
         if ticket_file is None:
             raise IllegalTransition(
-                f"set_phase refused: ticket {ticket!r} resolves to no file under {_TICKETS} — "
+                f"set_phase refused: ticket {ticket!r} resolves to no file under {_tf._TICKETS} — "
                 "not as a bare id, not as a slug, not as a hex-slug filename, or it matches "
                 "more than one and the resolver will not guess. Nothing was journaled.")
         raw = ticket_file.read_bytes()
@@ -2946,7 +2736,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     """Cast ``doc`` into the store as ``<tickets_dir>/<id>-<slug>.json``, or refuse it
     with every lack named. Returns the path written.
 
-    ``tickets_dir`` defaults to the live store (``_TICKETS``); a proof hands it a scratch
+    ``tickets_dir`` defaults to the live store (``_tf._TICKETS``); a proof hands it a scratch
     one — the artifact door then journals under whichever root ``set_diagnostic_roots``
     says that directory belongs to.
 
@@ -2957,7 +2747,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     carries none (ticket 0dbc830e58d2)."""
     if not isinstance(doc, dict):
         raise CastRefused(["the cast is not a JSON object"])
-    tickets_dir = _TICKETS if tickets_dir is None else Path(tickets_dir)
+    tickets_dir = _tf._TICKETS if tickets_dir is None else Path(tickets_dir)
     lacks: list[str] = []
 
     # (a) the required set — absent, None or a blank string is a lack (extras: see (e))

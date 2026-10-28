@@ -40,6 +40,7 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
+from cairn.tools.base import ticket_file  # noqa: E402
 from cairn.tools.base import transitions  # noqa: E402
 from cairn.tools.charter import projector  # noqa: E402
 
@@ -184,12 +185,12 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         witness = _cleared(comp)
 
         roots = _built_before_the_verdict(base)
-        saved = (transitions._TICKETS, _insp._CHART_BERTHS,
+        saved = (ticket_file._TICKETS, _insp._CHART_BERTHS,
                  transitions._stamp_sail, transitions._ledger_durability_refusal,
                  _insp._crossing_roots)
         _insp._crossing_roots = lambda: roots
         ledgered: list[dict] = []
-        transitions._TICKETS, _insp._CHART_BERTHS = commons / "tickets", berths
+        ticket_file._TICKETS, _insp._CHART_BERTHS = commons / "tickets", berths
         transitions._stamp_sail = lambda _t, _s: None
         transitions._ledger_durability_refusal = lambda entry: ledgered.append(entry)
         try:
@@ -256,7 +257,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             assert r_code["upstream"] is None and r_code["ahead_of_upstream"] is None, r_code
             assert len(ledgered) == 1, f"no landed crossing ledgers: {ledgered}"
         finally:
-            (transitions._TICKETS, _insp._CHART_BERTHS,
+            (ticket_file._TICKETS, _insp._CHART_BERTHS,
              transitions._stamp_sail, transitions._ledger_durability_refusal,
              _insp._crossing_roots) = saved
 

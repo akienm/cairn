@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.artifact.artifact import write
-from cairn.tools.base import transitions
+from cairn.tools.base import ticket_file, transitions
 
 
 CHARTER_NAMES = ("intention+why.json", "_charter+why.json")
@@ -53,7 +53,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
           tickets_dir: Path | None = None, repo_root: Path | None = None,
           node_class_root: Path | None = None, commons_root: Path | None = None) -> str:
     """Cross ``ticket_id``'s cursor to ``target``; return the new workflow string."""
-    tickets_dir = Path(tickets_dir if tickets_dir is not None else transitions._TICKETS)
+    tickets_dir = Path(tickets_dir if tickets_dir is not None else ticket_file._TICKETS)
     repo_root = Path(repo_root if repo_root is not None else transitions._REPO_ROOT)
     node_class_root = Path(node_class_root if node_class_root is not None
                            else transitions._NODE_CLASSES)

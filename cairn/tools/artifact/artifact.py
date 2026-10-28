@@ -42,7 +42,6 @@ ticket's owed_physics, named and not paid here.
 
 from __future__ import annotations
 
-import fcntl
 import fnmatch
 import hashlib
 import json
@@ -54,6 +53,11 @@ import traceback
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+if os.name == "nt":       # no fcntl on Windows: a 1-byte msvcrt lock plays flock (dies with the process too)
+    import msvcrt
+else:
+    import fcntl
 
 from cairn.tools.cgroup.cgroup import cgroup_of
 
@@ -314,7 +318,11 @@ def _append(root: Path, entry: dict) -> dict:
     jp = journal_path(root)
     jp.parent.mkdir(parents=True, exist_ok=True)
     with open(jp, "a+", encoding="utf-8") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        if os.name == "nt":
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)   # retries ~10 s, then raises OSError: loud
+        else:
+            fcntl.flock(fh, fcntl.LOCK_EX)
         fh.seek(0)
         tail = None
         for line in fh:
@@ -326,6 +334,9 @@ def _append(root: Path, entry: dict) -> dict:
         fh.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
         fh.flush()
         os.fsync(fh.fileno())
+        if os.name == "nt":
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
     return entry
 
 

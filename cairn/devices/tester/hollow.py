@@ -92,6 +92,7 @@ did not make the first time a run dies between the two acts, and his tree is his
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from datetime import datetime
@@ -106,7 +107,8 @@ from cairn.tools.chain.chain import chain_for_ticket
 from cairn.machines.build_inspector.inspector import resolves_to  # the one successor order (public_interface)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
+COMMONS = (REPO_ROOT.parent / "CairnCommons" if os.name == "nt"      # the sibling clone; Linux keeps ~/dev/src
+           else Path.home() / "dev" / "src" / "CairnCommons")
 
 SKIP_INSTRUMENT = "under proofs/ — reverting the instrument makes the reading meaningless"
 SKIP_OUTSIDE = "not a path in this repo — nothing to revert in a worktree of it"

@@ -67589,5 +67589,89 @@
     "fingerprint": "abd4ec7d040cc656daddc9cdc71f7fc63298a1a5ffdfdba5a8102337414e9d5b",
     "at": "2026-10-28T14:44:02",
     "seq": 284
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "transitions.inspect_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "632edb992aa3",
+    "actor": "cc",
+    "missing": [
+      "[hollow_file] hollow reading (journal anchor ea913b9d): reverting inspector.py, skill_block.py or chain.py reds no tooth that declares PROVES for this ticket — the edges D5 repointed are measured only by test_inspector_nexus.py, which declares none, so clause (4) covers two of the five edges",
+      "[hollow_file] hollow reading: reverting cast.py, cross.py, proofs/test_phase_write_rate.py or proofs/test_the_ticket_log_door.py reds nothing — D10 made ticket_file._TICKETS the one patch point and no tooth measures it"
+    ],
+    "why": "hollow 7 of 16 before PROVED: the proof's teeth do not reach every file the build changed",
+    "fingerprint": "5b36ba4265bf74d123351e52cad1d6c44031441bbabe26324b6982082c0eceb5",
+    "at": "2026-10-28T14:53:51",
+    "seq": 285
   }
 ]

@@ -21,11 +21,16 @@ the hollow reading (neither module present) reds the tooth instead of crashing t
       nor anything under bus_client/;
   (3) transitions' old names ARE the new modules' objects (one definition, re-exported —
       which is also what keeps ``except transitions.IllegalTransition`` catching);
-  (4) crossings.py and ticket_log.py, the two base-side edges, import nothing from
-      cairn.tools.base.transitions;
-  (5) the base charter's public_interface names both modules.
-The inspector-side edges are measured where they belong, by
-cairn/machines/build_inspector/proofs/test_inspector_nexus.py's fire-path tooth.
+  (4) the five edges D5 repointed — inspector.py, skill_block.py, chain.py, crossings.py and
+      ticket_log.py — import nothing from cairn.tools.base.transitions;
+  (5) the base charter's public_interface names both modules;
+  (6) ticket_file._TICKETS is the one patch point (D10): transitions carries no _TICKETS, and
+      no Python file in cairn/, bin/ or skills/ reads, assigns or imports _TICKETS from
+      transitions.
+Measured 2026-10-28 (FIXME 1-2): the hollow reading found seven built files no tooth reached.
+Clause 4 had named only the two base-side edges and left the other three to
+cairn/machines/build_inspector/proofs/test_inspector_nexus.py, which declares no PROVES for this
+ticket, so hollow could not count it; and nothing measured D10's patch-point move at all.
 
     bin/cairn test cairn/tools/base/proofs/test_light_modules_keep_the_crossing_off_the_inspector_path.py
 """
@@ -44,6 +49,10 @@ if str(_REPO) not in sys.path:
 _BASE = _REPO / "cairn" / "tools" / "base"
 _GRAMMAR = _BASE / "workflow_grammar.py"
 _TICKET_FILE = _BASE / "ticket_file.py"
+_EDGES = ("cairn/machines/build_inspector/inspector.py", "cairn/machines/skill_block/skill_block.py",
+          "cairn/tools/chain/chain.py", "cairn/tools/base/crossings.py",
+          "cairn/tools/base/ticket_log.py")
+_TRANSITIONS = "cairn.tools.base.transitions"
 
 PROVES = {"632edb992aa3": {
     "1": "test_the_grammar_loads_nothing_that_posts",
@@ -51,6 +60,7 @@ PROVES = {"632edb992aa3": {
     "3": "test_transitions_reexports_the_one_definition",
     "4": "test_the_base_edges_no_longer_import_transitions",
     "5": "test_the_charter_declares_both_modules",
+    "6": "test_ticket_file_holds_the_one_patch_point",
 }}
 
 FAILURES: list[str] = []
@@ -133,10 +143,10 @@ def test_the_base_edges_no_longer_import_transitions() -> None:
         check("test_the_base_edges_no_longer_import_transitions", False,
               "workflow_grammar.py / ticket_file.py absent — the edges have nowhere to point")
         return
-    hits = {f: sorted(n for n in _imports(_BASE / f)
+    hits = {f: sorted(n for n in _imports(_REPO / f)
                       if n.startswith("cairn.tools.base.transitions")
                       or n == "cairn.tools.base.transitions")
-            for f in ("crossings.py", "ticket_log.py")}
+            for f in _EDGES}
     hits = {f: h for f, h in hits.items() if h}
     check("test_the_base_edges_no_longer_import_transitions", not hits, repr(hits))
 
@@ -151,12 +161,51 @@ def test_the_charter_declares_both_modules() -> None:
     check("test_the_charter_declares_both_modules", not missing, f"missing {missing}")
 
 
+def _reads_transitions_tickets(path: Path) -> list[str]:
+    """Every place one file reaches _TICKETS through transitions: an import of it, or an
+    attribute read or assignment on any name the file binds to the transitions module."""
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (SyntaxError, UnicodeDecodeError, OSError):
+        return []
+    aliases: set[str] = set()
+    hits: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            if node.module == _TRANSITIONS:
+                hits += [f"{path.name}:{node.lineno} imports _TICKETS"
+                         for a in node.names if a.name == "_TICKETS"]
+            elif node.module == "cairn.tools.base":
+                aliases |= {a.asname or a.name for a in node.names if a.name == "transitions"}
+        elif isinstance(node, ast.Import):
+            aliases |= {a.asname for a in node.names if a.name == _TRANSITIONS and a.asname}
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Attribute) and node.attr == "_TICKETS"
+                and isinstance(node.value, ast.Name) and node.value.id in aliases):
+            hits.append(f"{path.name}:{node.lineno} {node.value.id}._TICKETS")
+    return hits
+
+
+def test_ticket_file_holds_the_one_patch_point() -> None:
+    from cairn.tools.base import ticket_file, transitions
+    own = "_TICKETS" in vars(transitions)
+    hits: list[str] = []
+    for top in ("cairn", "bin", "skills"):
+        for path in sorted((_REPO / top).rglob("*.py")):
+            if path.resolve() != Path(__file__).resolve():
+                hits += _reads_transitions_tickets(path)
+    check("test_ticket_file_holds_the_one_patch_point",
+          not own and not hits and hasattr(ticket_file, "_TICKETS"),
+          f"transitions carries its own _TICKETS: {own}; reached through transitions: {hits}")
+
+
 def main() -> int:
     for tooth in (test_the_grammar_loads_nothing_that_posts,
                   test_the_ticket_file_never_reaches_the_crossing,
                   test_transitions_reexports_the_one_definition,
                   test_the_base_edges_no_longer_import_transitions,
-                  test_the_charter_declares_both_modules):
+                  test_the_charter_declares_both_modules,
+                  test_ticket_file_holds_the_one_patch_point):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly

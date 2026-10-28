@@ -54,6 +54,14 @@ WORLD_READERS = {"open", "read_text", "read_bytes", "loads", "load", "is_file", 
                  "_latest_kick_back", "_when", "_named_on", "_dead_names", "_repo_toplevel",
                  "_durability_roots"}
 
+# The node-class table is live SPEC, borrowed by path from the commons beside the repo, else
+# $HOME's — hollow.py's own resolution order. `cairn test --hollow` runs from a worktree with no
+# CairnCommons beside it, where transitions' repo-relative _NODE_CLASSES points at nothing
+# (measured 2026-10-28: tooth 3 red AT HEAD there, "unknown node-class 'code-seam'").
+_NODE_CLASSES = next((c / "node_classes" for c in (_REPO.parent / "CairnCommons",
+                                                   Path.home() / "dev" / "src" / "CairnCommons")
+                      if (c / "node_classes" / "code-seam.json").is_file()), None)
+
 GRAMMAR = ("is_disposition", "_registered_workflow", "_conform", "canon_target",
            "resolve_target", "_REST_DISPOSITIONS", "legal_targets")
 
@@ -144,7 +152,7 @@ def test_the_record_is_what_the_inspector_found() -> None:
     except Exception as exc:  # noqa: BLE001 — a hollow build reds here, it does not crash
         check("test_the_record_is_what_the_inspector_found", False, f"{type(exc).__name__}: {exc}")
         return
-    cd = T.load_class_def("code-seam")
+    cd = T.load_class_def("code-seam", root=_NODE_CLASSES or T._NODE_CLASSES)
     at_build = T.parse_workflow("code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED")
     nobody = "000000000000"
     with tempfile.TemporaryDirectory() as tmp:

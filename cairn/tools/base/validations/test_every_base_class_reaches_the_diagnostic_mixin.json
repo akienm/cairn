@@ -1,0 +1,130 @@
+[
+  {
+    "claim": "proof test_every_base_class_reaches_the_diagnostic_mixin.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-28T10:57:23",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_reads_base_green  — 0 finding(s): \n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  PASS  test_base_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_sieve_reads_base_green",
+        "test_diagnostic_loads_only_the_standard_library",
+        "test_every_touched_module_imports_fresh",
+        "test_the_exceptions_keep_their_shape",
+        "test_the_workflow_stays_frozen_and_can_emit",
+        "test_the_shim_orders_core_values_first",
+        "test_base_holds_every_clause_of_the_falsifier"
+      ],
+      "teeth_red": [],
+      "test": "test-27f5a5b446ef",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-27f5a5b446ef",
+      "source_fingerprint": "2cf9b08bfc435f3fe53bbe4c0ab69a8b09e8aa70295b29c9a3d1b6ec81119b26",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_every_base_class_reaches_the_diagnostic_mixin.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py",
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1348778-kqf73r0h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 112543869,
+          "disk_bytes": 141410304,
+          "entries": 11433,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "e8b58520aeb9": {
+          "cairn/tools/base/diagnostic.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/address.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/breadcrumb_log.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/core_values.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/external.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/gate_class.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/probe.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/workflow_grammar.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ],
+          "cairn/tools/base/shim.py": [
+            "test_base_holds_every_clause_of_the_falsifier"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "e8b58520aeb9": {
+          "anchor_rule": "journal",
+          "anchor_journal": "a7e3bb70de41b79960f78320a63f995645da25e9",
+          "anchor_first_build": "3c7db11a36885ace2ce2c3374aa8fde61497e750",
+          "commit": "a7e3bb70de41b79960f78320a63f995645da25e9"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

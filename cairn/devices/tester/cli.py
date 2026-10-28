@@ -421,6 +421,9 @@ def drive_a_failed_run(scratch) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    if os.name == "nt":       # the report prints box-drawing rules; a cp1252 console cannot encode them
+        for stream in (sys.stdout, sys.stderr):
+            stream.reconfigure(encoding="utf-8")
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     if raw_argv[:1] == ["--drive-a-failed-run"] and len(raw_argv) == 2:
         return drive_a_failed_run(raw_argv[1])

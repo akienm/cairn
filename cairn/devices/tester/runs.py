@@ -143,6 +143,8 @@ def kill_what_it_started(test: str) -> list[dict]:
     it, SIGKILL what outlives the grace. Returns what was found, each with the signal that ended
     it (or the error that stopped us)."""
     units = stop_its_units(test)
+    if os.name == "nt":       # no /proc to read other processes' environ from: say so (Law 7)
+        return units + [{"pid": None, "signal": "none: process environments cannot be enumerated on Windows"}]
     found = _carrying(test)
     for p in found:
         try:

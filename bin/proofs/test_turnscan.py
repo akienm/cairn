@@ -77,7 +77,7 @@ def scan(message: str, **extra) -> tuple[dict | None, subprocess.CompletedProces
 def make_transcript(content_blocks: list[dict]) -> str:
     """Write a fixture JSONL transcript and return the path.  Caller must unlink."""
     f = tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False,
-                                    dir=os.environ.get("TMPDIR", "/tmp"))
+                                    dir=os.environ.get("TMPDIR", None if os.name == "nt" else "/tmp"))
     entry = {"type": "assistant", "message": {
         "role": "assistant", "stop_reason": "end_turn", "content": content_blocks}}
     f.write(json.dumps(entry) + "\n")

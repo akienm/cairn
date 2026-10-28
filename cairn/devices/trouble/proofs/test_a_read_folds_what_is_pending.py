@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import multiprocessing
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -115,7 +116,7 @@ def test_3(tmp: Path) -> None:
         r = _raiser(world)
         for i in range(20):
             r.raise_trouble(f"a-raced-raise-{i:02d}", why="twenty pending before two readers", detail={"i": i})
-        ctx = multiprocessing.get_context("fork")
+        ctx = multiprocessing.get_context("spawn" if os.name == "nt" else "fork")
         barrier = ctx.Barrier(2)
         procs = [ctx.Process(target=_read_in_child, args=(str(store), str(world), barrier)) for _ in range(2)]
         for p in procs:

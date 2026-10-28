@@ -66,6 +66,24 @@ def _status() -> int:
     return 0
 
 
+def _pid_alive(pid: int) -> bool:
+    if os.name == "nt":       # signal 0 is CTRL_C_EVENT there: os.kill would interrupt the process
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return k32.GetLastError() == 5  # ERROR_ACCESS_DENIED: it exists, we may not look
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
 def _stop() -> int:
     home = _home()
     flags_dir = home / "flags"
@@ -127,9 +145,7 @@ def _restart() -> int:
         print("ground_loop: waiting for old process to exit...")
         for _ in range(10):
             time.sleep(1)
-            try:
-                os.kill(old_pid, 0)
-            except OSError:
+            if not _pid_alive(old_pid):
                 break
         else:
             print(f"ground_loop: pid {old_pid} still alive after 10s, sending SIGTERM",

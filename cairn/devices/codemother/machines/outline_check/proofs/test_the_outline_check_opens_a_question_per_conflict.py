@@ -258,7 +258,8 @@ def test_the_machine_is_a_package_and_answers_help_through_both_mouths():
     verb = REPO / "bin" / "cmd" / "outlinecheck"
     assert verb.is_file() and os.access(verb, os.X_OK), "bin/cmd/outlinecheck is missing or not executable"
     assert MODULE in verb.read_text(encoding="utf-8"), "bin/cmd/outlinecheck never names the module"
-    for cli in ([str(REPO / "bin" / "cairn"), "outlinecheck", "--help"],
+    bash = [shutil.which("bash") or "bash"] if os.name == "nt" else []   # a shebang script cannot be exec'd on Windows
+    for cli in (bash + [(REPO / "bin" / "cairn").as_posix() if bash else str(REPO / "bin" / "cairn"), "outlinecheck", "--help"],
                 [sys.executable, "-m", MODULE, "--help"]):
         r = subprocess.run(cli, capture_output=True, text=True, cwd=REPO, timeout=120,
                            env={**os.environ, "PYTHONPATH": str(REPO)})

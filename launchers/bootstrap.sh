@@ -96,6 +96,9 @@ cairn_venv_dir() {
 cairn_python() {
   local vpy
   vpy="$(cairn_venv_dir)/bin/python3"
+  if [[ -x "$vpy" ]]; then echo "$vpy"; return; fi
+  # Windows (Git Bash): the venv keeps its interpreter in Scripts/ (bin/cairn knows the same).
+  vpy="$(cairn_venv_dir)/Scripts/python.exe"
   if [[ -x "$vpy" ]]; then echo "$vpy"; else echo "python3"; fi
 }
 

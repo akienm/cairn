@@ -70,11 +70,16 @@ its sibling, instance from the home directory. That is house style with a proof 
 configured"). The ``roots`` parameter is the ONE seam at which they can be pointed elsewhere,
 which is what makes the packaged-app claim testable at all — and what lets a proof run against
 a temp directory instead of polluting the live tree it will be read against.
+
+AmbiguousComponent inherits DiagnosticBase, which imports this module only inside the methods
+that use it, so the import here is one-way at load time (ticket e8b58520aeb9).
 """
 
 from __future__ import annotations
 
 from pathlib import Path
+
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 # THE THREE ROOTS. Lowered here from cairn/machines/skill_block/counters.py on 2026-08-12 — the table
 # was already injectable and already carried the why; what it lacked was an address the rest of
@@ -347,7 +352,7 @@ def component_dirs(pkg_root: Path | str | None = None) -> tuple[list[Path], list
     return components, unreadable
 
 
-class AmbiguousComponent(LookupError):
+class AmbiguousComponent(DiagnosticBase, LookupError):
     """A bare name that two rungs both answer to. Carries every home it found.
 
     THE NAME IS NOT THE ADDRESS ANY MORE, and this is what says so out loud. The

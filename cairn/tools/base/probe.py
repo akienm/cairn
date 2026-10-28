@@ -34,6 +34,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path, PurePath
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 # Where a staged ticket berths. The three roots are Cairn's physics (CLAUDE.md), so this is
 # derived from where THIS file sits rather than configured: cairn/tools/base/probe.py ->
 # ~/dev/src/cairn -> its sibling ~/dev/src/CairnCommons. An override rides `owning_ticket`'s
@@ -161,7 +163,7 @@ def by_text(template: str, *, as_: str = "text") -> Callable[[dict], dict]:
     ``by_text("ticket detected at {gate} as {ticket}")``. A key the context lacks renders as
     ``{missing:key}`` rather than raising — a poke must not be lost to a typo, and a visible
     hole in the text is the loud version (Law 7)."""
-    class _Loud(dict):
+    class _Loud(DiagnosticBase, dict):
         def __missing__(self, k):
             return "{missing:" + k + "}"
 

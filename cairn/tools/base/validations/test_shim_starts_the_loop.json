@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-14T01:45:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T10:56:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\n  PASS  test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['none', 'unit'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
+      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\n  PASS  test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
       "stderr_tail": "",
       "teeth_green": [
         "test_check_lives_in_the_base_only",
@@ -17,7 +17,7 @@
         "test_two_shims_one_loop"
       ],
       "teeth_red": [],
-      "test": "test-a0250cc6d4f5",
+      "test": "test-027ed71dac1f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,29 +31,29 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a0250cc6d4f5",
-      "source_fingerprint": "1765f53c5feb544ee3e5891a58737db33d4f1d96af00b37db3cf5f0dfe74f6d0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-027ed71dac1f",
+      "source_fingerprint": "81d28ca470231818cc8ecd8eb0857df98bfd1bf71be27b77b2b7bf3b84e6aade",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
+        "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3203601-a24tjgtf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1337430-0s76bbo6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,29 +62,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 109649155,
-          "disk_bytes": 136515584,
-          "entries": 10687,
+          "bytes": 112542401,
+          "disk_bytes": 141406208,
+          "entries": 11432,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "d6eb399ab6ad": {
-          "cairn/tools/base/shim.py": [
-            "test_check_lives_in_the_base_only",
-            "test_dead_to_live_one_shim",
-            "test_live_record_spawns_nothing",
-            "test_two_shims_one_loop"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "d6eb399ab6ad": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "bfdc4440921bc3dd363b8e843aec422849fe9fba",
-          "anchor_first_build": "8c0e23301208ceb73d6e9cd83a3d911cd3cb239d",
-          "commit": "00ad335e183bbd8e32a2a4c50bcfa41fcc22f128"
+          "reuses": 55
         }
       }
     },

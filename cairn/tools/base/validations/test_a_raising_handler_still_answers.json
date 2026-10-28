@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_raising_handler_still_answers.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-14T09:06:46",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T10:52:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_raising_handler_answers_its_asker_with_a_correlated_bounce\n.\n  ok   test_the_batch_still_records_the_raise_in_refused\n.\n  ok   test_the_bounce_names_a_trouble_for_the_device_and_verb\n.\n  ok   test_a_bounce_reaching_the_raising_verb_posts_nothing\n.\n  ok   test_the_existing_bounce_proof_stays_green\n                                                                    [100%]\n5 passed in 0.60s",
+      "stdout_tail": ".\n  ok   test_a_raising_handler_answers_its_asker_with_a_correlated_bounce\n.\n  ok   test_the_batch_still_records_the_raise_in_refused\n.\n  ok   test_the_bounce_names_a_trouble_for_the_device_and_verb\n.\n  ok   test_a_bounce_reaching_the_raising_verb_posts_nothing\n.\n  ok   test_the_existing_bounce_proof_stays_green\n                                                                    [100%]\n5 passed in 0.61s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_raising_handler_answers_its_asker_with_a_correlated_bounce",
@@ -17,7 +17,7 @@
         "test_the_existing_bounce_proof_stays_green"
       ],
       "teeth_red": [],
-      "test": "test-13013499b006",
+      "test": "test-0383ed36cd56",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,31 +31,29 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 3368542,
+          "pid": 1337804,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-13013499b006",
-      "source_fingerprint": "b4d89e26f95acd1de13d99958861f8839ce950081a972ad3bc0ac06f8e84d9f3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0383ed36cd56",
+      "source_fingerprint": "31d09bb1aae8e0e230a7df8b6d121c1597be8c699ed85065657e6451c567fbf5",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
@@ -66,49 +64,34 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3368510-yo6vd1jt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1337430-4ixixj9k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 12,
+          "count": 13,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/one_verb_device_60cc/0/last_known.json",
             "devices/raising_device_41f5/0/last_known.json",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261014.150645.417796.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261014.150645.437348.BusDevice.post.json",
-            "logs/bus/0/20261014.150645.447925.BusDevice.post.json",
-            "logs/bus/0/20261014.150645.448153.BusDevice.post.json",
-            "logs/bus/0/20261014.150645.449376.BusDevice.delivered.json",
-            "logs/bus/0/20261014.150645.449490.BusDevice.delivered.json",
-            "logs/tester/0/20261014.150645.449208.TesterShim.bounce_sent.json"
+            "logs/bus/0/20261028.165221.413100.BusDevice.post.json",
+            "logs/bus/0/20261028.165221.429232.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.165221.448210.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261028.165221.465141.BusDevice.post.json",
+            "logs/bus/0/20261028.165221.465393.BusDevice.post.json",
+            "logs/bus/0/20261028.165221.466629.BusDevice.delivered.json",
+            "logs/bus/0/20261028.165221.466744.BusDevice.delivered.json",
+            "logs/tester/0/20261028.165221.466457.TesterShim.bounce_sent.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 110151454,
-          "disk_bytes": 137515008,
-          "entries": 10862,
+          "bytes": 112545349,
+          "disk_bytes": 141447168,
+          "entries": 11449,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "41f57726a609": {
-          "cairn/tools/base/shim.py": [
-            "test_a_raising_handler_answers_its_asker_with_a_correlated_bounce",
-            "test_the_bounce_names_a_trouble_for_the_device_and_verb"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "41f57726a609": {
-          "anchor_rule": "journal",
-          "anchor_journal": "a10b20dc974cb92ea1ecdd96816e589f24392e5f",
-          "anchor_first_build": "0679722045892a0221b3c4bda6a92c4375df5423",
-          "commit": "a10b20dc974cb92ea1ecdd96816e589f24392e5f"
+          "reuses": 12
         }
       }
     },

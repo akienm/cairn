@@ -14,6 +14,8 @@ import json
 import re
 from dataclasses import dataclass
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
 # A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)"
 # — and, on the cursor only, its PICKUP PHASE after a colon — "[BUILDME:waiting]" (ruled
@@ -48,7 +50,7 @@ class MalformedWorkflow(ValueError):
     """The workflow string does not parse, or does not conform to its claimed class@version."""
 
 
-class IllegalTransition(ValueError):
+class IllegalTransition(DiagnosticBase, ValueError):
     """The requested transition is refused by the rules — loud, never silent (Law 7)."""
 
 
@@ -69,7 +71,7 @@ def is_summons(state: str) -> bool:
 
 
 @dataclass(frozen=True)
-class Workflow:
+class Workflow(DiagnosticBase):
     node_class: str
     version: str
     path: tuple[str, ...]

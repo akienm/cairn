@@ -24,10 +24,11 @@ import shutil
 import time
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.gate import gate
 
 
-class TransitionGate:
+class TransitionGate(DiagnosticBase):
     """A named, instantiated gate at the block-general level.
 
     Config: name (identity), exception_class (what to raise on red).

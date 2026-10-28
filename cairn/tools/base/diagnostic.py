@@ -95,10 +95,12 @@ same way the heartbeat's ``beat`` takes ``now``.
 
 from __future__ import annotations
 
+import copyreg
 from datetime import datetime, timezone
 
-from cairn.tools.base.address import component_of_module
-from cairn.tools.base.breadcrumb_log import BreadcrumbLog
+# address and breadcrumb_log are imported where they are used, never here: they inherit this
+# mixin, so a module-level import of either would be a cycle, and this file stays stdlib-only so
+# every class that gains the mixin stays as light as it was (ticket e8b58520aeb9, D1).
 
 
 class _NotWired:
@@ -112,6 +114,10 @@ class _NotWired:
 
 
 NOT_WIRED = _NotWired()
+# Unpickles to the one sentinel, so ``is NOT_WIRED`` survives a round-trip. Registered here rather
+# than as a ``__reduce__`` so the sentinel stays a class with no code: it cannot inherit the mixin
+# it is the default of (ticket e8b58520aeb9, D4 as D10 amends it).
+copyreg.pickle(_NotWired, lambda _: "NOT_WIRED")
 
 
 class TroubleRaiseRefused(Exception):
@@ -160,6 +166,7 @@ class DiagnosticBase:
         ``BusDevice`` emitting into ``bus``'s trail. Both are wanted: one says what kind of
         thing spoke, the other says whose logs it belongs in, and a device with two classes in
         it would make the difference visible."""
+        from cairn.tools.base.address import component_of_module
         return component_of_module(type(self).__module__)
 
     @property
@@ -208,6 +215,7 @@ class DiagnosticBase:
         device = self.diagnostic_device
         if device is None:
             return None
+        from cairn.tools.base.breadcrumb_log import BreadcrumbLog
         return BreadcrumbLog(device, self.diagnostic_instance,
                              roots=getattr(self, "_diagnostic_roots", None)).path
 
@@ -229,6 +237,7 @@ class DiagnosticBase:
         device = self.diagnostic_device
         if device is None:
             return []
+        from cairn.tools.base.breadcrumb_log import BreadcrumbLog
         return BreadcrumbLog(device, self.diagnostic_instance,
                              roots=getattr(self, "_diagnostic_roots", None)).records()
 
@@ -264,6 +273,7 @@ class DiagnosticBase:
             device = self.diagnostic_device
             if device is None:
                 return None
+            from cairn.tools.base.breadcrumb_log import BreadcrumbLog
             default = BreadcrumbLog(device, self.diagnostic_instance,
                                     roots=getattr(self, "_diagnostic_roots", None))
             self.__dict__["_default_diagnostic_receiver"] = default

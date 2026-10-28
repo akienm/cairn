@@ -1,20 +1,20 @@
 [
   {
     "claim": "proof test_a_clear_carries_the_clearers_hand.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-11T15:57:50",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T10:51:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  the_clear_carries_the_measured_hand\n        want class 'cc'; hand={\"ancestry\": [\"1534951:superclaude-873859.scope\", \"1534950:superclaude-873859.scope\", \"1534930:superclaude-873859.scope\", \"1534794:superclaude-873859.scope\", \"873947:superclaude-873859.scope\", \"873859:tab(78483).scope\", \"78483:tab(78483).scope\", \"78471:main.scope\", \"1597:init.s\n  PASS  a_failed_measure_still_clears\n        landed=1; hand={\"class\": \"unknown\", \"error\": \"OSError: no /proc here\"}\n\nGREEN",
+      "stdout_tail": "  PASS  the_clear_carries_the_measured_hand\n        want class 'cc'; hand={\"ancestry\": [\"1337545:superclaude-126593.scope\", \"1337544:superclaude-126593.scope\", \"1337430:superclaude-126593.scope\", \"1337413:superclaude-126593.scope\", \"1337406:superclaude-126593.scope\", \"1337388:superclaude-126593.scope\", \"126681:superclaude-126593.scope\", \"126593:tab(4\n  PASS  a_failed_measure_still_clears\n        landed=1; hand={\"class\": \"unknown\", \"error\": \"OSError: no /proc here\"}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "the_clear_carries_the_measured_hand",
         "a_failed_measure_still_clears"
       ],
       "teeth_red": [],
-      "test": "test-dd89abe4e9e4",
+      "test": "test-e5a445b1c901",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,15 +32,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dd89abe4e9e4",
-      "source_fingerprint": "967227168b63a4797375b83a7d697a46b49cd2b3c289da6c06493a09cfc11667",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e5a445b1c901",
+      "source_fingerprint": "1cb1ff84ad302be74771739cc4da22640692c84bf5f4f042bb57b65c31279abb",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -50,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1534930-z4aaaa_v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1337430-1390fesx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,27 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107086730,
-          "disk_bytes": 130744320,
-          "entries": 9624,
+          "bytes": 112542401,
+          "disk_bytes": 141406208,
+          "entries": 11432,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "c2172127d7a4": {
-          "cairn/tools/base/diagnostic.py": [
-            "a_failed_measure_still_clears",
-            "the_clear_carries_the_measured_hand"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "c2172127d7a4": {
-          "anchor_rule": "journal",
-          "anchor_journal": "60329a88c273eb40fc43171ad8e50fe30d12e1a8",
-          "anchor_first_build": "068dc544ca09d59851257c5c868126b60d6d9097",
-          "commit": "60329a88c273eb40fc43171ad8e50fe30d12e1a8"
+          "reuses": 4
         }
       }
     },

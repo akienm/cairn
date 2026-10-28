@@ -2,30 +2,30 @@
   {
     "claim": "proof test_device_logs_unwired.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-14T09:05:42",
+    "date": "2026-10-28T10:54:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  HeartbeatPage derives 'ground_loop' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop\n  PASS  HeartbeatPage must carry the emit surface structurally\n  PASS  a silenced device holds; got held\n  PASS  and the record is retrievable, not dropped\n  PASS  the same class NOT silenced must write — else the sentinel proves nothing\n  PASS  and it lands under its own derived name\n  PASS  the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale\n  PASS  an overridden receiver receives\n  PASS  and the default trail is NOT also written — an override replaces, it does not tee\n  PASS  the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmp55ndpyqu/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect\n  PASS  and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-10-14T15:05:41.521771+00:00', 'us': '521771', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-10-14T15:05:41.521925+00:00', 'us': '521925', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522018+00:00', 'us': '522018', 'values': {}}]\n  PASS  EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522623+00:00', 'us': '522623', 'values': {}}]\n  PASS  and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522623+00:00', 'us': '522623', 'values': {}}\n  PASS  the address itself must sit inside the moved world: /tmp/tmplspju68e/logs/bus/0\n  PASS  one emission, one file\n  PASS  two emissions, two files\n  PASS  an already-written emission file is never rewritten\n  PASS  THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []\n\nGREEN — 38 assertions",
+      "stdout_tail": "  PASS  HeartbeatPage derives 'ground_loop' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop\n  PASS  HeartbeatPage must carry the emit surface structurally\n  PASS  a silenced device holds; got held\n  PASS  and the record is retrievable, not dropped\n  PASS  the same class NOT silenced must write — else the sentinel proves nothing\n  PASS  and it lands under its own derived name\n  PASS  the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale\n  PASS  an overridden receiver receives\n  PASS  and the default trail is NOT also written — an override replaces, it does not tee\n  PASS  the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpv5xze40p/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect\n  PASS  and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504231+00:00', 'us': '504231', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504370+00:00', 'us': '504370', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504454+00:00', 'us': '504454', 'values': {}}]\n  PASS  EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504963+00:00', 'us': '504963', 'values': {}}]\n  PASS  and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504963+00:00', 'us': '504963', 'values': {}}\n  PASS  the address itself must sit inside the moved world: /tmp/tmpjhjschbq/logs/bus/0\n  PASS  one emission, one file\n  PASS  two emissions, two files\n  PASS  an already-written emission file is never rewritten\n  PASS  THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []\n\nGREEN — 38 assertions",
       "stderr_tail": "",
       "teeth_green": [
         "no rung, no address",
         "and no records — never a guess at somebody else's trail: []",
         "a class defined outside the rungs must not be given a component name",
         "the child process must emit cleanly; stderr:",
-        "an unwired device's trail directory must exist at /tmp/tmpncuf0qt4/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
+        "an unwired device's trail directory must exist at /tmp/tmp9spbi7h6/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
         "exactly one emission file, got 1",
         "the record read back must be the one the dead process wrote, byte for byte",
-        "the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-10-14T15:05:40.795940+00:00', 'us': '795940', 'values': {'pid': 'child'}}",
+        "the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-10-28T16:54:33.797843+00:00', 'us': '797843', 'values': {'pid': 'child'}}",
         "a device that never emitted has no records",
         "and reading them created nothing: []",
         "the name resolves without touching disk",
         "neither the device nor the log may create anything before the first write",
         "the component walk hit unreadable entries: []",
-        "the census must actually see the tree — HollowScan's lesson; found 70",
+        "the census must actually see the tree — HollowScan's lesson; found 72",
         "the string derivation and the tree walk must name every component identically; 0 disagree: []",
-        "(population: 70 components, both derivations agreeing)",
+        "(population: 72 components, both derivations agreeing)",
         "log_path resolves instance/logs/<device>/<instance>; got /nowhere-this-proof-never-touches-disk/logs/some_device/3",
         "the instance segment is never optional — a singleton is 0, not an omission",
         "BusDevice derives 'bus' but its file lives in /home/akien/dev/src/cairn/cairn/devices/cairn/machines/bus",
@@ -39,18 +39,18 @@
         "the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale",
         "an overridden receiver receives",
         "and the default trail is NOT also written — an override replaces, it does not tee",
-        "the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmp55ndpyqu/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect",
-        "and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-10-14T15:05:41.521771+00:00', 'us': '521771', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-10-14T15:05:41.521925+00:00', 'us': '521925', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522018+00:00', 'us': '522018', 'values': {}}]",
-        "EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522623+00:00', 'us': '522623', 'values': {}}]",
-        "and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-14T15:05:41.522623+00:00', 'us': '522623', 'values': {}}",
-        "the address itself must sit inside the moved world: /tmp/tmplspju68e/logs/bus/0",
+        "the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpv5xze40p/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect",
+        "and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504231+00:00', 'us': '504231', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504370+00:00', 'us': '504370', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504454+00:00', 'us': '504454', 'values': {}}]",
+        "EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504963+00:00', 'us': '504963', 'values': {}}]",
+        "and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-10-28T16:54:34.504963+00:00', 'us': '504963', 'values': {}}",
+        "the address itself must sit inside the moved world: /tmp/tmpjhjschbq/logs/bus/0",
         "one emission, one file",
         "two emissions, two files",
         "an already-written emission file is never rewritten",
         "THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []"
       ],
       "teeth_red": [],
-      "test": "test-2240492e345c",
+      "test": "test-e3f11937f9e8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -76,8 +76,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2240492e345c",
-      "source_fingerprint": "3842c1579b222e0ceb0147d53decd424834d2078f5abc990bc4b577fa2c76e66",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e3f11937f9e8",
+      "source_fingerprint": "797d194a23a01c2de7ddb9d720bb04b0854bc27c03f82073670da9f8fe26fdd4",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -92,7 +92,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3367148-w_4zegoj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1337430-f7gvaq61/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -101,11 +101,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 110148214,
-          "disk_bytes": 137478144,
-          "entries": 10846,
+          "bytes": 112542401,
+          "disk_bytes": 141406208,
+          "entries": 11432,
           "builds": 1,
-          "reuses": 8
+          "reuses": 27
         }
       }
     },

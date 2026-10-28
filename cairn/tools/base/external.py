@@ -14,11 +14,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 if TYPE_CHECKING:
     from cairn.devices.cairn.machines.bus.bus import BusDevice
 
 
-class ExternalParticipant:
+class ExternalParticipant(DiagnosticBase):
     """A bus participant with no poke path. Posts, reads, and announces — never poked."""
 
     def __init__(self, device_id: str, bus: "BusDevice",

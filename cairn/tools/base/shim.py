@@ -203,7 +203,7 @@ def ensure_ground_loop(now: datetime, *, home: Path | None = None, log: Path | N
 
 
 
-class BaseShim(DiagnosticBase, CoreValuesMixin, ABC):
+class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
     """Abstract base for every Cairn device shim.
 
     Composes ``CoreValuesMixin`` (CP1-CP6, Law 2). Pins ``device_id`` (one shim per device).

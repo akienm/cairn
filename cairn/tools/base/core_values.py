@@ -25,6 +25,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 @dataclass(frozen=True)
 class CoreValue:
@@ -72,7 +74,7 @@ CORE_VALUES: tuple[CoreValue, ...] = (
 )
 
 
-class CoreValuesMixin:
+class CoreValuesMixin(DiagnosticBase):
     """Binds the canonical core values onto any class that composes it.
 
     Composed by ``BaseDevice`` and ``BaseShim`` so every device and every shim

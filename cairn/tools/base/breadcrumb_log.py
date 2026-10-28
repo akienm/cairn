@@ -110,6 +110,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 RECORD_NAME = "diagnostics.jsonl"
 
@@ -135,7 +136,7 @@ class LogUnreadable(Exception):
     read, and the line it drops is the one most likely to matter (Law 7)."""
 
 
-class BreadcrumbLog:
+class BreadcrumbLog(DiagnosticBase):
     """A ``DiagnosticBase`` receiver whose home is that device instance's berth in the logs tree.
 
     Answers the two contracts the in-memory ``Mailbox`` answers, so it drops into the same

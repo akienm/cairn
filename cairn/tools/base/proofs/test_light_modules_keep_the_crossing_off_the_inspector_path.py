@@ -13,7 +13,10 @@ Akien's answer to open-495f7be4789b: the inspector stops reaching emit.
 
 Teeth, one per falsifier clause (PROVES below), each binding the new modules at call time so
 the hollow reading (neither module present) reds the tooth instead of crashing the reader:
-  (1) workflow_grammar.py imports only the standard library, at any depth in the file;
+  (1) workflow_grammar.py loads nothing that posts: its top-level imports are the standard
+      library and DiagnosticBase, and diagnostic.py's own top-level imports are the standard
+      library only (Akien 2026-10-27, open-d32047bb1759: "it can write it's own logs, it just
+      can't make decisions based on what it's written");
   (2) ticket_file.py's import closure reaches neither transitions.py, nor gate_probes.py,
       nor anything under bus_client/;
   (3) transitions' old names ARE the new modules' objects (one definition, re-exported —
@@ -43,7 +46,7 @@ _GRAMMAR = _BASE / "workflow_grammar.py"
 _TICKET_FILE = _BASE / "ticket_file.py"
 
 PROVES = {"632edb992aa3": {
-    "1": "test_the_grammar_imports_only_the_standard_library",
+    "1": "test_the_grammar_loads_nothing_that_posts",
     "2": "test_the_ticket_file_never_reaches_the_crossing",
     "3": "test_transitions_reexports_the_one_definition",
     "4": "test_the_base_edges_no_longer_import_transitions",
@@ -71,12 +74,31 @@ def _imports(path: Path) -> set[str]:
     return names
 
 
-def test_the_grammar_imports_only_the_standard_library() -> None:
-    names = _imports(_GRAMMAR)
-    stray = sorted(n for n in names
-                   if n.split(".")[0] not in sys.stdlib_module_names and n.split(".")[0] != "__future__")
-    check("test_the_grammar_imports_only_the_standard_library", not stray and bool(names),
-          f"stray {stray}")
+def _top_level_imports(path: Path) -> set[str]:
+    names: set[str] = set()
+    for node in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.Import):
+            names.update(a.name for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            mod = "." * node.level + (node.module or "")
+            names.add(mod)
+            names.update(f"{mod}.{a.name}" for a in node.names)
+    return names
+
+
+def _stdlib(name: str) -> bool:
+    return name.split(".")[0] in sys.stdlib_module_names or name.split(".")[0] == "__future__"
+
+
+def test_the_grammar_loads_nothing_that_posts() -> None:
+    """Akien 2026-10-27, open-d32047bb1759: the grammar may carry the mixin and write its own
+    logs; what it may not load is anything that posts or decides."""
+    mixin = {"cairn.tools.base.diagnostic", "cairn.tools.base.diagnostic.DiagnosticBase"}
+    names = _top_level_imports(_GRAMMAR)
+    stray = sorted(n for n in names if not _stdlib(n) and n not in mixin)
+    under = sorted(n for n in _top_level_imports(_BASE / "diagnostic.py") if not _stdlib(n))
+    check("test_the_grammar_loads_nothing_that_posts", not stray and not under and bool(names),
+          f"grammar stray {stray}; diagnostic stray {under}")
 
 
 def test_the_ticket_file_never_reaches_the_crossing() -> None:
@@ -130,7 +152,7 @@ def test_the_charter_declares_both_modules() -> None:
 
 
 def main() -> int:
-    for tooth in (test_the_grammar_imports_only_the_standard_library,
+    for tooth in (test_the_grammar_loads_nothing_that_posts,
                   test_the_ticket_file_never_reaches_the_crossing,
                   test_transitions_reexports_the_one_definition,
                   test_the_base_edges_no_longer_import_transitions,

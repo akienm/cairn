@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_every_class_reaches_the_diagnostic_mixin.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-27T22:43:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T13:05:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green a_class_with_a_def_and_no_bases_is_red\n  green a_direct_subclass_of_the_mixin_is_green\n  green a_chain_through_another_module_is_green\n  green a_method_less_class_is_not_judged\n  green the_probe_root_is_exempt_and_its_subclasses_are_judged\n  green an_unresolvable_base_is_red_with_its_reason\n  green a_class_under_proofs_is_not_judged\n  green an_outside_base_does_not_reach_but_the_mixin_beside_it_does\n        live: 62 classes with code do not reach DiagnosticBase\n  green the_live_findings_equal_an_independent_census\n  green the_sieve_is_registered\n        live: 62 classes with code do not reach DiagnosticBase\n  green the_sieve_holds_every_clause_of_the_falsifier\n11 passed, 0 failed out of 11",
+      "stdout_tail": "  green a_class_with_a_def_and_no_bases_is_red\n  green a_direct_subclass_of_the_mixin_is_green\n  green a_chain_through_another_module_is_green\n  green a_method_less_class_is_not_judged\n  green the_probe_root_is_exempt_and_its_subclasses_are_judged\n  green an_unresolvable_base_is_red_with_its_reason\n  green a_class_under_proofs_is_not_judged\n  green an_outside_base_does_not_reach_but_the_mixin_beside_it_does\n        live: 44 classes with code do not reach DiagnosticBase\n  green the_live_findings_equal_an_independent_census\n  green the_sieve_is_registered\n  green the_gates_root_reads_the_same_as_the_packages\n        live: 44 classes with code do not reach DiagnosticBase\n  green the_sieve_holds_every_clause_of_the_falsifier\n12 passed, 0 failed out of 12",
       "stderr_tail": "",
       "teeth_green": [
         "a_class_with_a_def_and_no_bases_is_red",
@@ -20,10 +20,11 @@
         "an_outside_base_does_not_reach_but_the_mixin_beside_it_does",
         "the_live_findings_equal_an_independent_census",
         "the_sieve_is_registered",
+        "the_gates_root_reads_the_same_as_the_packages",
         "the_sieve_holds_every_clause_of_the_falsifier"
       ],
       "teeth_red": [],
-      "test": "test-793b01cc6ad5",
+      "test": "test-199b4c7d19ef",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +34,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "0cacdeb7c6fbcb46e718e24df5ba6390ddc8f96bc60d873dc21befb50bd0f3d8",
+        "proof": "96d9230e67b700bd9b072a1185243d8c309049448fc64f5d92d2492b123c2762",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,15 +45,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-793b01cc6ad5",
-      "source_fingerprint": "a7bdb38fe94ad8b4dfcb8a55278349ff161858ce3af09b34cb1aa05aebebdd51",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-199b4c7d19ef",
+      "source_fingerprint": "2121b6244472504e81280a6d423aa279209dd37d68070213c04a3d47de7116a2",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -60,35 +59,20 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1424580-6xuoi705/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-793b01cc6ad5/stderr.txt",
-            "logs/tester/0/runs/test-793b01cc6ad5/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "339a45cee6a1": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)",
-            "the_sieve_holds_every_clause_of_the_falsifier"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "339a45cee6a1": {
-          "anchor_rule": "journal",
-          "anchor_journal": "618fd6f85c5f5245ad0b4d346a577605fa8b6a02",
-          "anchor_first_build": "7dfc3990c5b202a835cd1adb06e0147086e5f6a8",
-          "commit": "618fd6f85c5f5245ad0b4d346a577605fa8b6a02"
+          "measured": true,
+          "bytes": 112597982,
+          "disk_bytes": 141504512,
+          "entries": 11457,
+          "builds": 1,
+          "reuses": 10
         }
       }
     },

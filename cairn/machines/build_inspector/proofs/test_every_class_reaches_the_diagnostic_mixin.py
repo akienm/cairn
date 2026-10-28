@@ -219,6 +219,27 @@ def the_sieve_is_registered():
     assert _inspector.SIEVES.get(SIEVE) is _inspector.every_class_reaches_the_diagnostic_mixin
 
 
+def the_gates_root_reads_the_same_as_the_packages():
+    """The PROVEME gate inspects with root = the component's PARENT (transitions.py
+    ``_inspect(root=comp_dir.parent, ...)``), so its row["dir"] is one part ("base"), not
+    "tools/base". Measured 2026-10-28: the sieve took cairn/tools as the package root, every
+    module lost its ``cairn.`` prefix, and even DiagnosticBase itself read "no route" — 14
+    false reds that bounced e8b58520aeb9 at PROVED. The row is the census's, not the sieve's."""
+    # Inside base, a class's module name is derived from the root, so this is where it showed:
+    # the mixin itself and a same-module subclass, beside one class that really is red.
+    files = {"cairn/tools/base/diagnostic.py":
+             "class DiagnosticBase:\n    def emit(self, gate):\n        return gate\n\n\n"
+             "class Good(DiagnosticBase):\n    def go(self):\n        return 1\n\n\n"
+             "class Bad:\n    def go(self):\n        return 1\n"}
+    package = _red(_judge("tools/base", files))  # writes the fixture tree; the package's reading
+    root = Path(_TMP[-1])
+    gate_row = {"dir": "base", "component": "base"}  # relative to cairn/tools, as the gate sees it
+    gate = _red(_inspector.every_class_reaches_the_diagnostic_mixin(gate_row,
+                                                                     root / "cairn/tools/base"))
+    assert package == [("Bad", "no route")], package
+    assert gate == package, gate
+
+
 NARROW = [
     a_class_with_a_def_and_no_bases_is_red,
     a_direct_subclass_of_the_mixin_is_green,
@@ -230,6 +251,7 @@ NARROW = [
     an_outside_base_does_not_reach_but_the_mixin_beside_it_does,
     the_live_findings_equal_an_independent_census,
     the_sieve_is_registered,
+    the_gates_root_reads_the_same_as_the_packages,
 ]
 
 

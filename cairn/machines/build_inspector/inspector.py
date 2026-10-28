@@ -4007,6 +4007,16 @@ def every_class_reaches_the_diagnostic_mixin(row: dict, comp_dir: Path) -> list[
     pkg_root = comp_dir
     for _ in Path(row["dir"]).parts:
         pkg_root = pkg_root.parent
+    # The package root is the ancestor that HOLDS THE MIXIN, not whatever the row was relative
+    # to: the PROVEME gate inspects with root = the component's parent, so row["dir"] there is
+    # "base", and counting its parts named cairn/tools the package — every module lost its
+    # ``cairn.`` prefix and DiagnosticBase itself read "no route" (measured 2026-10-28,
+    # e8b58520aeb9 bounced at PROVED). The row's count stays the fallback for a tree without one.
+    mixin_rel = Path(*_MIXIN[0].split(".")[1:]).with_suffix(".py")
+    for cand in (comp_dir, *comp_dir.parents):
+        if (cand / mixin_rel).is_file() and cand.name == _MIXIN[0].split(".")[0]:
+            pkg_root = cand
+            break
     repo_root = pkg_root.parent
     mods = _Modules(repo_root)
     here = comp_dir.resolve()

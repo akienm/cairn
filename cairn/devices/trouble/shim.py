@@ -64,7 +64,6 @@ device has done, which is instance-space, never git (the roots table).
 from __future__ import annotations
 
 import contextlib
-import fcntl
 import json
 import os
 import threading
@@ -72,6 +71,10 @@ from pathlib import Path
 
 from cairn.tools.base.address import LOGS, instance_path, resolve
 from cairn.tools.base.shim import BaseShim
+if os.name == "nt":       # no fcntl on Windows: a 1-byte msvcrt lock at offset 0 plays flock
+    import msvcrt
+else:
+    import fcntl
 
 WATERMARK_NAME = "drained.json"
 
@@ -379,10 +382,18 @@ def _fold_lock(lock: Path):
         return
     lock.parent.mkdir(parents=True, exist_ok=True)
     with open(lock, "a") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        if os.name == "nt":
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)   # retries ~10 s then raises OSError: loud
+        else:
+            fcntl.flock(fh, fcntl.LOCK_EX)
         held.add(str(lock))
         try:
             yield True
         finally:
             held.discard(str(lock))
-            fcntl.flock(fh, fcntl.LOCK_UN)
+            if os.name == "nt":
+                fh.seek(0)
+                msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(fh, fcntl.LOCK_UN)

@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_every_class_reaches_the_diagnostic_mixin.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-27T22:18:23",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_class_with_a_def_and_no_bases_is_red\n  green a_direct_subclass_of_the_mixin_is_green\n  green a_chain_through_another_module_is_green\n  green a_method_less_class_is_not_judged\n  green the_probe_root_is_exempt_and_its_subclasses_are_judged\n  green an_unresolvable_base_is_red_with_its_reason\n  green a_class_under_proofs_is_not_judged\n  green an_outside_base_does_not_reach_but_the_mixin_beside_it_does\n        live: 62 classes with code do not reach DiagnosticBase\n  green the_live_findings_equal_an_independent_census\n  green the_sieve_is_registered\n        live: 62 classes with code do not reach DiagnosticBase\n  green the_sieve_holds_every_clause_of_the_falsifier\n11 passed, 0 failed out of 11",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_class_with_a_def_and_no_bases_is_red",
+        "a_direct_subclass_of_the_mixin_is_green",
+        "a_chain_through_another_module_is_green",
+        "a_method_less_class_is_not_judged",
+        "the_probe_root_is_exempt_and_its_subclasses_are_judged",
+        "an_unresolvable_base_is_red_with_its_reason",
+        "a_class_under_proofs_is_not_judged",
+        "an_outside_base_does_not_reach_but_the_mixin_beside_it_does",
+        "the_live_findings_equal_an_independent_census",
+        "the_sieve_is_registered",
+        "the_sieve_holds_every_clause_of_the_falsifier"
+      ],
+      "teeth_red": [],
+      "test": "test-366fc26cb5f4",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 2,
+        "tables": [
+          "bus_proc_1196364_2207429346_delivery",
+          "bus_proc_1196364_2207429346"
+        ]
+      },
+      "conditions": {
+        "proof": "0cacdeb7c6fbcb46e718e24df5ba6390ddc8f96bc60d873dc21befb50bd0f3d8",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-366fc26cb5f4",
+      "source_fingerprint": "a7bdb38fe94ad8b4dfcb8a55278349ff161858ce3af09b34cb1aa05aebebdd51",
+      "fingerprint_closure": [
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_every_class_reaches_the_diagnostic_mixin.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-366fc26cb5f4/stderr.txt",
+            "logs/tester/0/runs/test-366fc26cb5f4/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

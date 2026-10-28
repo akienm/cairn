@@ -19,6 +19,12 @@ Teeth, one per falsifier clause (PROVES below):
   (3) a parent environment carrying CAIRN_USER=zzz still yields cc0.
 Hollow: today's superclaude reds 1-3.
 
+And --name (Akien, 2026-10-28: *"cairn\\bin\\cairn superclaude --name builder"*), a word in
+the instance slot, read off the same dry run:
+  (4) --name builder and --name=builder both carry CAIRN_USER=ccbuilder and launch
+      claude as <host>_cc_builder, remote control under the same name;
+  (5) claude sees exactly one --name — the launcher's, never the operator's forwarded raw.
+
     bin/cairn test launchers/proofs/test_superclaude_sets_cairn_user.py
 """
 
@@ -36,6 +42,9 @@ PROVES = {"8c899e9ea338": {
     "1": "test_a_default_launch_is_cc0",
     "2": "test_an_instance_names_its_cc",
     "3": "test_an_inherited_value_is_overwritten",
+}, "superclaude-name": {
+    "4": "test_a_name_fills_the_instance_slot",
+    "5": "test_claude_gets_one_name",
 }}
 
 FAILURES: list[str] = []
@@ -47,15 +56,19 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
-def _cairn_user(*args: str, inherit: str | None = None) -> str | None:
-    """The CAIRN_USER a dry run reports, or None when the line is absent."""
+def _dry_run(*args: str, inherit: str | None = None) -> str:
     env = {k: v for k, v in os.environ.items() if k != "CAIRN_USER"}
     env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO)})
     if inherit is not None:
         env["CAIRN_USER"] = inherit
     r = subprocess.run(["bash", str(_LAUNCHER), "--dry-run", "--no-preflight", *args],
                        capture_output=True, text=True, env=env, timeout=60)
-    for line in r.stdout.splitlines():
+    return r.stdout
+
+
+def _cairn_user(*args: str, inherit: str | None = None) -> str | None:
+    """The CAIRN_USER a dry run reports, or None when the line is absent."""
+    for line in _dry_run(*args, inherit=inherit).splitlines():
         if line.startswith("# CAIRN_USER="):
             return line.split("=", 1)[1]
     return None
@@ -76,9 +89,39 @@ def test_an_inherited_value_is_overwritten() -> None:
     check("test_an_inherited_value_is_overwritten", got == "cc0", repr(got))
 
 
+def _exec_argv(*args: str) -> list[str]:
+    """The claude argv a dry run prints, after ``exec <bin>``."""
+    import shlex
+    for line in _dry_run(*args).splitlines():
+        if line.startswith("exec "):
+            return shlex.split(line)[2:]
+    return []
+
+
+def test_a_name_fills_the_instance_slot() -> None:
+    import socket
+    host = socket.gethostname().split(".")[0].lower()
+    want = f"{host}_cc_builder"
+    for form in (("--name", "builder"), ("--name=builder",)):
+        argv = _exec_argv(*form)
+        named = argv[argv.index("--name") + 1] if "--name" in argv else None
+        remote = argv[argv.index("--remote-control") + 1] if "--remote-control" in argv else None
+        user = _cairn_user(*form)
+        check("test_a_name_fills_the_instance_slot",
+              (named, remote, user) == (want, want, "ccbuilder"),
+              f"{' '.join(form)}: name={named!r} remote={remote!r} CAIRN_USER={user!r}")
+
+
+def test_claude_gets_one_name() -> None:
+    argv = _exec_argv("--name", "builder")
+    check("test_claude_gets_one_name", argv.count("--name") == 1 and "builder" not in argv,
+          repr(argv))
+
+
 def main() -> int:
     for tooth in (test_a_default_launch_is_cc0, test_an_instance_names_its_cc,
-                  test_an_inherited_value_is_overwritten):
+                  test_an_inherited_value_is_overwritten, test_a_name_fills_the_instance_slot,
+                  test_claude_gets_one_name):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly

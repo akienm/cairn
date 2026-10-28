@@ -2,55 +2,68 @@
   {
     "claim": "proof test_superclaude_sets_cairn_user.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-13T11:46:37",
+    "date": "2026-10-28T11:51:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n  PASS  test_a_name_fills_the_instance_slot  — --name builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_a_name_fills_the_instance_slot  — --name=builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_claude_gets_one_name  — ['--name', 'akiendelllinux_cc_builder', '--remote-control', 'akiendelllinux_cc_builder', '--dangerously-skip-permissions']\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_default_launch_is_cc0",
         "test_an_instance_names_its_cc",
-        "test_an_inherited_value_is_overwritten"
+        "test_an_inherited_value_is_overwritten",
+        "test_a_name_fills_the_instance_slot",
+        "test_claude_gets_one_name"
       ],
       "teeth_red": [],
-      "test": "test-af25ab3caa2e",
+      "test": "test-2424cb19a3c6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 8,
+        "tables": [
+          "bus_proc_1349571_1058511755_delivery",
+          "bus_proc_1349571_1058511755",
+          "bus_proc_1349798_1059267174_delivery",
+          "bus_proc_1349798_1059267174",
+          "bus_proc_1358328_1101264578_delivery",
+          "bus_proc_1358328_1101264578",
+          "bus_proc_1359207_1103026278_delivery",
+          "bus_proc_1359207_1103026278"
+        ]
       },
       "conditions": {
-        "proof": "872657766afc8d450182697a793f3b849aec99a9eeed38156e5b895e999d30ba",
+        "proof": "e90e61c1c71fb235219b4423956379848bdce6332e1f238fc6e6425c77182275",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-af25ab3caa2e",
-      "source_fingerprint": "349a56ad7034ca679fc2f48314f194a78641bc4c7cefe209fd3859ae3a15a207",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2424cb19a3c6",
+      "source_fingerprint": "16bec7b838d8d1a3c773acb62e5c017d83abf933c91e2b1701a941fade42b68f",
       "fingerprint_closure": [
         "launchers/proofs/test_superclaude_sets_cairn_user.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2790712-xflbr43s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1369972-nqbk75h2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 11,
           "paths": [
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
@@ -59,34 +72,20 @@
             "launchers/superclaude/2/flags/COMMAND_DO_NOT_RESTART.flag",
             "launchers/superclaude/2/flags/COMMAND_RESTART.flag",
             "launchers/superclaude/2/flags/COMMAND_RESTART_FRESH.flag",
+            "launchers/superclaude/builder/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/builder/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/builder/flags/COMMAND_RESTART_FRESH.flag",
             "logs/boot"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 108987188,
-          "disk_bytes": 134860800,
-          "entries": 10379,
+          "bytes": 112565666,
+          "disk_bytes": 141443072,
+          "entries": 11448,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "8c899e9ea338": {
-          "launchers/superclaude": [
-            "test_a_default_launch_is_cc0",
-            "test_an_inherited_value_is_overwritten",
-            "test_an_instance_names_its_cc"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "8c899e9ea338": {
-          "anchor_rule": "journal",
-          "anchor_journal": "7893f8bed3d8a3b1a3f264446570e6c8b6ef9be9",
-          "anchor_first_build": "998807cae9005e976968ee61b60c848578f89d7d",
-          "commit": "7893f8bed3d8a3b1a3f264446570e6c8b6ef9be9"
         }
       }
     },

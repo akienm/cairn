@@ -1472,7 +1472,8 @@ def test_every_journaled_crossing_carries_the_record_of_what_it_proved():
         "the_crossing_is_a_legal_edge"], proved
     for e in proved:
         assert e["expected"] == e["actual"], e
-        assert e["source"].startswith("transitions."), e
+        # the rules rung is measured by the inspector since 66ee1ffc1ec7; the gate only compares
+        assert e["source"] == "build_inspector.inspector.crossing_rules", e
         assert e["location"] == "cairn/tools/base/transitions.py", e
 
 

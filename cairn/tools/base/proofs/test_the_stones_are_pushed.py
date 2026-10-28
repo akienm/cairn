@@ -261,19 +261,20 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
              transitions._stamp_sail, transitions._ledger_durability_refusal,
              _insp._crossing_roots) = saved
 
-    # (e) composition: the lane imports repo_truth from orient and shells no git of its own
-    tree = ast.parse(Path(transitions.__file__).read_text())
+    # (e) composition: the lane's measurement imports repo_truth from orient and shells no git
+    #     of its own — since 66ee1ffc1ec7 that measurement is the inspector's crossing_durability
+    tree = ast.parse(Path(_insp.__file__).read_text())
     fn = next((n for n in ast.walk(tree)
-               if isinstance(n, ast.FunctionDef) and n.name == "inspect_durability"), None)
-    assert fn is not None, "no FunctionDef inspect_durability in transitions.py"
+               if isinstance(n, ast.FunctionDef) and n.name == "crossing_durability"), None)
+    assert fn is not None, "no FunctionDef crossing_durability in build_inspector/inspector.py"
     imports = [n for n in ast.walk(fn) if isinstance(n, ast.ImportFrom)
                and n.module == "cairn.tools.orient.orient"
                and any(a.name == "repo_truth" for a in n.names)]
-    assert imports, "inspect_durability must import repo_truth from cairn.tools.orient.orient"
+    assert imports, "crossing_durability must import repo_truth from cairn.tools.orient.orient"
     shelled = [n for n in ast.walk(fn)
                if (isinstance(n, ast.Name) and n.id == "subprocess")
                or (isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "subprocess")]
-    assert not shelled, "inspect_durability composes repo_truth — it shells no git of its own"
+    assert not shelled, "crossing_durability composes repo_truth — it shells no git of its own"
 
     # (f) the watch is armed with what it watches: the WATCHME probe berths beside the lane,
     #     declares a frozen PROBE carrying carry AND enough, names THIS lane, and reads no

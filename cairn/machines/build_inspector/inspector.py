@@ -92,7 +92,10 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
 from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 339a45cee6a1: the sieve's own class carries the mixin it demands)
-from cairn.tools.base.workflow_grammar import MalformedWorkflow, is_terminal, parse_workflow  # noqa: E402  (ticket e85878726213: terminal is the system's word, not the inspector's)
+# (ticket e85878726213: terminal is the system's word, not the inspector's; ticket 66ee1ffc1ec7:
+# the crossing's rules lanes measure legality here)
+from cairn.tools.base.workflow_grammar import (MalformedWorkflow, is_terminal, legal_targets,  # noqa: E402
+                                               parse_workflow, resolve_target)
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
 
 
@@ -2415,6 +2418,573 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
         artifact=str(path),
         validate_ref=artifact["validate_ref"])
         for item in stale + unanswered(artifact)]
+
+
+# ── THE CROSSING'S CHECKS (ticket 66ee1ffc1ec7) ──────────────────────────────────────────
+# Akien 2026-10-27, outline 19.14.1: "the inspector does all the checks." Each crossing_*
+# function is one transitions lane's measurement, moved here verbatim: it reads the world
+# (tickets, journals, validations, repos) and returns ``{identity, expected, actual,
+# values}`` per check. transitions wraps each into its record entry, compares, and kicks
+# back; it reads nothing itself. Rosters stay in transitions (its policy) and arrive as
+# ``roster=``; the ticket store is ``ticket_file._TICKETS``, read at call time so a proof's
+# one patch point still holds. Imports that a proof patches stay lazy inside the bodies.
+from datetime import datetime  # noqa: E402
+from cairn.tools.base import ticket_file as _tf  # noqa: E402
+from cairn.tools.system_word.system_word import canon  # noqa: E402
+
+
+def _check(identity: str, *, expected, actual, code: str = "", **values) -> dict:
+    """One measured check, in the shape transitions turns into a record entry. ``code`` is
+    accepted and dropped: the lane's code is the gate's address, stamped where it compares."""
+    out = {"identity": identity, "expected": expected, "actual": actual}
+    if values:
+        out["values"] = values
+    return out
+
+
+def _latest_kick_back(ticket: object, history_path: str | None) -> dict | None:
+    """The last crossing into FIXME journaled for ``ticket`` in ``history_path``, or None."""
+    if not history_path or not os.path.exists(history_path):
+        return None
+    hits = [e for e in projector.read_history(history_path)
+            if str(e.get("ticket")) == str(ticket)
+            and canon(str(e.get("to", "")), ["FIXME"]) == "FIXME"]
+    return hits[-1] if hits else None
+
+
+def _when(stamp: object) -> datetime | None:
+    """An ISO stamp as an aware datetime (a naive one is local time), or None if unreadable."""
+    try:
+        at = datetime.fromisoformat(str(stamp))
+    except (ValueError, TypeError):
+        return None
+    return at.astimezone() if at.tzinfo is None else at
+
+
+def _named_on(journal_extra: dict) -> list[str]:
+    """This crossing's own ``proven_by``, read one-or-many the way crossings._named reads it:
+    a str is one, a list is many, None/'' is none."""
+    raw = journal_extra.get("proven_by")
+    if not raw:
+        return []
+    if isinstance(raw, str):
+        return [raw]
+    return [str(one) for one in raw if one]
+
+
+def _dead_names(named: list[str], since: list[str]) -> list[dict]:
+    """Every proof name that resolves to no file, read the way ``proof_coverage.lacks`` reads
+    it at PROVED (absolute as is, else the cairn root / name) — copied, not imported (RULE 1).
+    A name on both lists reads 'this crossing'."""
+    dead, seen = [], set()
+    for names, origin in ((named, "this crossing"), (since, "since BUILDME")):
+        for name in names:
+            if name in seen:
+                continue
+            seen.add(name)
+            p = Path(name) if Path(name).is_absolute() else _REPO_ROOT / name
+            if not p.is_file():
+                dead.append({"name": name, "from": origin})
+    return dead
+
+
+def _repo_toplevel(root: Path) -> Path | None:
+    """The first directory at or above ``root`` carrying a ``.git`` — a pure filesystem
+    walk, no git shelled. ``None`` when nothing above it is a repo (a proof's tempdir)."""
+    for p in (root, *root.parents):
+        if (p / ".git").exists():
+            return p
+    return None
+
+
+def _durability_roots(ticket: str, history_path: str | None) -> list[Path]:
+    """The directories THIS crossing's records live in: the history file's directory and
+    the ticket file's directory (``_tf._TICKETS`` when the ticket resolves to no file). On a
+    real crossing that is cairn and CairnCommons; in a proof's fixture world it is whatever
+    the proof built, which is the point — the lane reads the repos of the records in front
+    of it, never the live checkouts by name."""
+    roots: list[Path] = []
+    if history_path:
+        roots.append(Path(history_path).resolve().parent)
+    tk = _tf.find_ticket(str(ticket)) if ticket else None
+    roots.append((tk.parent if tk is not None else _tf._TICKETS).resolve())
+    return roots
+
+
+def crossing_emission(obj: str | None, ticket: object) -> list[dict]:
+    """THE EMISSION GATE'S PROOF RECORD — three lanes, eligibility-nested.
+
+    A ticketless crossing cannot be asked whether its spec is present, and an absent spec
+    cannot be asked whether its probe is armed: each lane's input is the lane above it, so a
+    refusal upstream leaves the ones below ABSENT rather than green. One fault, one failing
+    entry — which is why this returns early instead of evaluating all three defensively.
+    """
+    from cairn.tools.base import watchme_spec
+
+    code = "transitions.py::inspect_emission"
+    ticket_file = _tf.find_ticket(ticket) if isinstance(ticket, str) else None
+    cast = ticket_file is not None
+    named = f"a cast ticket for the WATCHME({obj}) crossing"
+    record = [_check("the_crossing_names_a_cast_ticket",
+                    expected=named,
+                    actual=named if cast else (
+                        "no ticket named on the crossing" if not isinstance(ticket, str)
+                        else "named %r, and no ticket is cast at that address" % ticket),
+                    code=code, ticket=ticket, watch_object=obj,
+                    looked_at=str(ticket_file or _tf._TICKETS / (str(ticket) + ".json")))]
+    if not cast:
+        return record
+
+    data = json.loads(ticket_file.read_text(encoding="utf-8"))
+    spec = watchme_spec.spec_for(data, obj)
+    carried = f"ticket {ticket!r} carries a watchme spec for {obj!r}"
+    record.append(_check("the_ticket_carries_a_spec_for_this_watch",
+                        expected=carried,
+                        actual=carried if spec is not None else
+                        f"ticket {ticket!r} carries no watchme spec for {obj!r}",
+                        code=code, ticket=ticket, watch_object=obj,
+                        findings=[] if spec is not None else [{
+                            "sieve": "watchme_spec",
+                            "finding": watchme_spec.watchme_spec_error(data),
+                            "why_it_matters": "optional to carry, MANDATORY to satisfy once "
+                                              "carried — the string says this node has this watch",
+                            "evidence": {"ticket": ticket, "object": obj}}]))
+    if spec is None:
+        return record
+
+    err = watchme_spec.armed_error(spec)
+    armed = "the probe the spec promised is berthed and armed"
+    record.append(_check("the_promised_probe_is_berthed_and_armed",
+                        expected=armed,
+                        actual=armed if not err else err,
+                        code=code, ticket=ticket, watch_object=obj,
+                        berth=spec.get("probe"),
+                        findings=[] if not err else [{
+                            "sieve": "armed",
+                            "finding": err,
+                            "why_it_matters": "a watch that cannot be fired gathered nothing; "
+                                              "EMISSION, not accumulation",
+                            "evidence": {"berth": spec.get("probe"), "ticket": ticket}}]))
+    return record
+
+
+def crossing_rules(wf, target: str, class_def: dict) -> list[dict]:
+    """THE RULES RUNG'S PROOF RECORD — three lanes, eligibility-nested, ALWAYS RUN.
+
+    This is the one inspector at this door that fires on EVERY crossing, gated or not, so
+    every journaled record carries at least these three lanes: NO EMPTY ANYWHERE. It is also
+    the reason the five guarded gates below may return early — the always-running rung above
+    them has already closed the gate on a crossing that is not even a legal edge.
+
+    The nesting is not defensive style, it is the rule: ``resolve_target`` is meaningless for
+    a target outside the vocabulary, and every out-of-path target is also outside
+    ``legal_targets``, so evaluating all three flat would multiply ONE fault into three
+    failing entries in three vocabularies — the shape a proof record exists to prevent.
+    """
+    code = "transitions.py::inspect_rules"
+    dispositions = set(class_def.get("dispositions", []))
+    known = target in wf.path or target in dispositions
+    vocab = f"{target!r} in the {wf.node_class}@{wf.version} vocabulary"
+    record = [_check("the_target_is_in_the_vocabulary",
+                    expected=vocab,
+                    actual=vocab if known else
+                    f"{target!r} is not in the {wf.node_class}@{wf.version} vocabulary",
+                    code=code, target=target, vocabulary=list(wf.path),
+                    dispositions=sorted(dispositions))]
+    if not known:
+        return record
+
+    # A NO-OP IS A POSITION, NOT A NAME. Once a free summons may repeat, a node standing at
+    # one WATCHME and moving to the NEXT one is a real crossing that happens to share a name;
+    # refusing it on the name would make a two-watch node un-crossable at its first watch.
+    idx = resolve_target(wf, target)
+    moves = idx != wf.cursor
+    crossing = f"{wf.here} -> {target} moves the cursor off position {wf.cursor}"
+    record.append(_check("the_crossing_moves_the_cursor",
+                        expected=crossing,
+                        actual=crossing if moves else
+                        f"{target!r} -> {target!r} is a no-op at position {wf.cursor}, "
+                        "not a transition",
+                        code=code, target=target, cursor=wf.cursor, resolved=idx))
+    if not moves:
+        return record
+
+    legal = legal_targets(wf, class_def=class_def)
+    edge = f"{wf.here} -> {target}"
+    record.append(_check("the_crossing_is_a_legal_edge",
+                        expected=edge,
+                        actual=edge if target in legal else
+                        f"{edge} is illegal for {wf.node_class}@{wf.version}",
+                        code=code, target=target, legal_from_here=sorted(legal),
+                        direction="back" if idx < wf.cursor else "forward"))
+    return record
+
+
+def crossing_named_ticket(target: str, ticket: object, *, history_path: str,
+                          roster: frozenset[str]) -> list[dict]:
+    """THE TICKET PRECONDITION'S PROOF RECORD — two lanes, eligibility-nested.
+
+    A crossing that named no ticket has nothing for the second lane to weigh, so the
+    cast-check is ABSENT there rather than green. The roster is read INSIDE the first lane's
+    actual rather than as a lane of its own: exempt and named are two ways of SATISFYING one
+    rule, not two rules, and splitting them would make an exempt crossing carry a failing
+    lane it can never satisfy.
+    """
+    code = "transitions.py::inspect_named_ticket"
+    comp = Path(history_path).resolve().parent.name
+    exempt = ticket is None and comp in roster
+    shown = f"a ticket named on the {target} crossing, or {comp!r} on _EXEMPT_ROSTER"
+    record = [_check("the_crossing_shows_its_ticket_or_its_exemption",
+                    expected=shown,
+                    actual=shown if (ticket is not None or exempt) else
+                    f"no ticket is named on the {target} crossing and {comp!r} is not on "
+                    "_EXEMPT_ROSTER",
+                    code=code, target=target, ticket=ticket, component=comp,
+                    exempt=exempt, roster=sorted(roster))]
+    if ticket is None:
+        return record
+
+    ticket_file = _tf.find_ticket(ticket) if isinstance(ticket, str) else None
+    cast = ticket_file is not None
+    named = f"named ticket {ticket!r} is cast"
+    record.append(_check("the_named_ticket_is_cast",
+                        expected=named,
+                        actual=named if cast else f"named ticket {ticket!r} is not cast",
+                        code=code, target=target, ticket=ticket,
+                        looked_at=str(ticket_file or _tf._TICKETS / (str(ticket) + ".json"))))
+    return record
+
+
+def crossing_fixme(ticket: object, history_path: str | None = None) -> list[dict]:
+    """THE FIXME GATE'S PROOF RECORD — one lane: every ``fixme`` entry 1..N on the ticket has
+    a decision whose step is ``FIXME <n>`` and whose text is non-empty.
+
+    A missing ticket, an unnamed one, or an absent/empty ``fixme`` list is a RED, never a
+    pass: a ticket standing at FIXME with nothing listed cannot say what it is waiting on,
+    and 'cannot know' must never render as 'clean' (Law 3).
+
+    An answer counts only when its ``at`` is at or after the ticket's latest crossing into
+    FIXME recorded in ``history_path`` (ticket 3d31d968a1a0 — an earlier kick-back's
+    ``FIXME 1`` satisfied a later one's, measured on 56d1aff4455e). No such crossing, or no
+    ``history_path``, is a RED, never a fallback to counting every decision (Law 3)."""
+    expected = "every fixme entry 1..N has a decision with step FIXME <n> and non-empty text"
+    code = "transitions.py::inspect_fixme"
+    unanswered: list[int] = []
+    path = _tf.find_ticket(ticket) if isinstance(ticket, str) and ticket.strip() else None
+    if path is None:
+        actual = f"no ticket file resolves for {ticket!r} — the FIXME list cannot be read"
+    else:
+        body = json.loads(path.read_text(encoding="utf-8"))
+        fixme = body.get("fixme")
+        if not isinstance(fixme, list) or not fixme:
+            actual = f"ticket {ticket!r} stands at FIXME with no fixme list — nothing says what it lacks"
+        else:
+            kick = _latest_kick_back(ticket, history_path)
+            since = _when(kick.get("at")) if kick else None
+            if since is None:
+                unanswered = list(range(1, len(fixme) + 1))
+                actual = (f"ticket {ticket!r} stands at FIXME but no crossing into FIXME for it is "
+                          f"recorded in {history_path!r} — which kick-back its answers answer "
+                          "cannot be read")
+            else:
+                answered = set()
+                for d in body.get("decisions") or []:
+                    if not (isinstance(d, dict) and str(d.get("text", "")).strip()):
+                        continue
+                    w = _when(d.get("at"))
+                    if w is not None and w >= since:
+                        answered.add(str(d.get("step", "")).strip())
+                unanswered = [n for n in range(1, len(fixme) + 1) if f"FIXME {n}" not in answered]
+                actual = (expected if not unanswered else
+                          f"fixme entries {unanswered} on {ticket!r} have no FIXME <n> decision "
+                          f"(answers counted from kick-back seq {kick.get('seq')} at {kick.get('at')})")
+    return [_check("every_fixme_entry_is_answered", expected=expected, actual=actual,
+                  code=code, ticket=ticket, unanswered=unanswered)]
+
+
+def crossing_demo(ticket: str) -> list[dict]:
+    """The seventh gate: a ticket flagged ``"demo": true`` crossing forward into PROVED
+    must carry a DEMO validation — a quorum seal with Akien's watched-and-approved
+    signature. Returns ``(note, record)`` or ``(None, record)`` when the ticket has no
+    demo flag. Raises ``DemoGateRed`` before anything is written.
+    """
+    import json as _json
+
+    code = "transitions.py::_require_demo"
+    ticket_file = _tf.find_ticket(ticket)
+    if ticket_file is None:
+        return [_check("demo_gate_ticket_readable",
+                             expected=f"ticket {ticket!r} exists on disk",
+                             actual=f"ticket file not found matching {ticket!r} in {_tf._TICKETS}",
+                             code=code, ticket=ticket)]
+
+    ticket_data = _json.loads(ticket_file.read_text())
+    if not ticket_data.get("demo"):
+        return [_check("demo_gate_binding_check",
+                             expected="ticket carries demo flag, or does not",
+                             actual=f"ticket {ticket!r} has no demo flag — gate does not fire",
+                             code=code, ticket=ticket)]
+
+    from cairn.tools.validation_store.validation_store import (
+        read_validations, validations_path_for_artifact)
+
+    val_path = validations_path_for_artifact(str(ticket_file))
+    vals = read_validations(path=val_path)
+    demo_vals = [v for v in vals if "demo" in v.get("method", "").lower()
+                 or "demo" in v.get("claim", "").lower()]
+    green_demos = [v for v in demo_vals if v.get("verdict") == "green"]
+
+    record = [_check("demo_gate_flag_bound",
+                     expected=f"ticket {ticket!r} carries demo: true",
+                     actual=f"ticket {ticket!r} carries demo: true — gate fires",
+                     code=code, ticket=ticket),
+              _check("demo_validation_exists",
+                     expected="a green DEMO validation (quorum seal) exists for this ticket",
+                     actual=(f"{len(green_demos)} green DEMO validation(s) found"
+                             if green_demos else
+                             "no green DEMO validation found — Akien has not watched and approved"),
+                     code=code, ticket=ticket, val_path=val_path,
+                     demo_validations_found=len(demo_vals),
+                     green_demo_validations=len(green_demos),
+                     last_date=green_demos[-1].get("date", "?") if green_demos else None,
+                     last_method=green_demos[-1].get("method", "?") if green_demos else None)]
+
+    return record
+
+
+def crossing_clearance(target: str, journal_extra: dict, *, history_path: str,
+                       roster: frozenset[str]) -> list[dict]:
+    """THE CLEARANCE GATE'S PROOF RECORD — four lanes, eligibility-nested.
+
+    Lane 1 is the fork AND the guard: a crossing carries a clearance witness or it stands on
+    the roster, and the three witness lanes below apply only to the first branch. An exempt
+    crossing has no witness to weigh, so its record is one lane long and SAYS SO — which is
+    the difference between an exemption that is on the record and one that is silent.
+
+    THE WITNESS IS RE-READ AGAINST THE WORLD, never trusted as a field: completeness, then
+    the proof's standing in proven-space, then the seal DATE it actually carries. Each is the
+    input to the next, so a missing ``proven_by`` leaves the standing lane ABSENT rather than
+    failing it in a second vocabulary about the same one fault.
+    """
+    code = "transitions.py::inspect_clearance"
+    comp = Path(history_path).resolve().parent.name
+    who = journal_extra.get("cleared_by")
+    exempt = not who and comp in roster
+    shown = (f"the {target} crossing into a rest carries the harbor's clearance witness, "
+             f"or {comp!r} is on _CLEARANCE_EXEMPT_ROSTER")
+    record = [_check("the_crossing_shows_clearance_or_its_exemption",
+                    expected=shown,
+                    actual=shown if (who or exempt) else
+                    f"the {target} crossing into a rest carries no evidence that the "
+                    f"authority rung ran, and {comp!r} is not on _CLEARANCE_EXEMPT_ROSTER",
+                    code=code, target=target, component=comp, cleared_by=who,
+                    exempt=exempt, roster=sorted(roster))]
+    if not who:
+        return record
+
+    missing = [k for k in ("proven_by", "proven_seal_date") if not journal_extra.get(k)]
+    whole = "the witness carries every field the harbor's gate stamps"
+    record.append(_check("the_witness_is_whole",
+                        expected=whole,
+                        actual=whole if not missing else
+                        f"the witness is INCOMPLETE — missing {missing}",
+                        code=code, target=target, cleared_by=who, missing=missing,
+                        demanded=["proven_by", "proven_seal_date"]))
+    if missing:
+        return record
+
+    from cairn.tools.validation_store.validation_store import standing  # lazy: keep import dependency-light
+    # ONE-OR-MANY, THE SAME WAY THE HARBOR'S OWN RUNG READS IT (2026-09-09, trouble
+    # clearance-gate-checks-one-proof-while-the-record-names-many). ``proven_by`` on a
+    # crossing has read as one path OR a list since 2026-09-07, because A SEAM HAS ENDS IN
+    # MORE THAN ONE COMPONENT and its clauses are proved by teeth in each. clearance.py's
+    # proven-space rung was taught this on 2026-09-09; THIS LANE WAS NOT, and it is the
+    # second half of the same trouble — the harbor cleared a two-ended seam and then handed
+    # the list to ``standing()`` here, where it is a ``TypeError`` at the chokepoint. Measured
+    # by ticket 1accdc1781aa, whose five clauses live in three files: its own first live
+    # crossing raised ``expected str, bytes or os.PathLike object, not list``.
+    #
+    # EVERY NAMED END MUST STAND, and the first failure is the one the refusal names: a seam
+    # is not proven because one of its ends is, and reading only ``[0]`` would make the
+    # record's claim longer than what this lane checked — which is the exact shape of the
+    # trouble, not a smaller version of it.
+    _named = journal_extra["proven_by"]
+    named = ([_named] if isinstance(_named, str)
+             else [str(one) for one in (_named or []) if one])
+    readings = [(one, standing(one)) for one in named]
+    failed = [(one, read) for one, read in readings if not read["proven"]]
+    # THE FIRST END IS THE ONE THE SEAL DATE IS ABOUT, because that is what the harbor
+    # stamps (clearance.py keeps the first standing reading as ``proven``). The lane below
+    # weighs the witness against the seal it names, so it has to name the same one.
+    first = named[0]
+    shown = first if len(named) == 1 else f"every one of {len(named)} proofs ({', '.join(named)})"
+    stands = f"{shown} stands in proven-space"
+    record.append(_check("the_named_proof_stands_in_proven_space",
+                        expected=stands,
+                        actual=stands if not failed else
+                        f"{failed[0][0]} is NOT in proven-space: {failed[0][1]['why']}"
+                        + (f" — and this crossing names {len(named)} proofs; a seam is not "
+                           "proven because one of its ends is."
+                           if len(named) > 1 else ""),
+                        code=code, target=target,
+                        proof=failed[0][0] if failed else shown, named=named,
+                        why=failed[0][1]["why"] if failed else ""))
+    if failed:
+        return record
+
+    actual_seal = readings[0][1]["seal"]["date"]
+    dated = f"the witness dates {first}'s seal at {actual_seal!r}"
+    record.append(_check("the_witness_agrees_with_the_seal_it_names",
+                        expected=dated,
+                        actual=dated if journal_extra["proven_seal_date"] == actual_seal else
+                        f"the witness dates {first}'s seal at "
+                        f"{journal_extra['proven_seal_date']!r}",
+                        code=code, target=target, proof=first, named=named,
+                        seal=actual_seal, claimed=journal_extra["proven_seal_date"]))
+    return record
+
+
+def crossing_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
+    """THE PROOF-NAMED SEAT'S RECORD — one lane, at the forward crossing into PROVEME.
+
+    The predicate is the UNION of every proof named since the latest forward BUILDME crossing
+    (``crossings.proven_by_since_buildme`` — the one rule hollow, proof_coverage and the shim
+    already read) and the proof this crossing itself names. Empty means the build has no
+    proof behind it yet, and PROVEME is the last crossing where one can still be supplied
+    without a back-edge (ticket 7203db7f151e). Both sides read the same sentence when the
+    lane passes; the names ride in ``values``.
+
+    The names must also RESOLVE to files, read the way PROVED reads them (ticket c01503edd010):
+    41202d4c8d3b crossed here on a bare name with "clean — proof named", and PROVED, which
+    would refuse it as [proof_on_disk], was the first place left to catch it. The dead names
+    ride in ``values['dead']`` (an empty list when clean).
+    """
+    from cairn.tools.base import crossings  # lazy: crossings reads the journals of both roots
+    code = "transitions.py::inspect_proof_named"
+    since = crossings.proven_by_since_buildme(ticket)
+    named = _named_on(journal_extra)
+    union = list(since)
+    for one in named:
+        if one not in union:
+            union.append(one)
+    dead = _dead_names(named, list(since))
+    shown = (f"the PROVEME crossing of ticket {ticket!r} names a proof — on this crossing "
+             f"(proven_by) or on one since its latest forward BUILDME")
+    if not union:
+        actual = (f"the PROVEME crossing of ticket {ticket!r} names NO proof: this crossing "
+                  f"carries no proven_by and no crossing since its latest forward BUILDME "
+                  f"names one — PROVED would refuse it as [proof_named], and by then the "
+                  f"only repair is a back-edge")
+    elif dead:
+        actual = (f"the PROVEME crossing of ticket {ticket!r} names {len(dead)} proof(s) that "
+                  f"resolve to no file: "
+                  + "; ".join(f"{d['name']!r} ({d['from']})" for d in dead)
+                  + " — a name is read repo-relative under the cairn root, or absolute, as "
+                    "proof_coverage reads it at PROVED, which would refuse it as [proof_on_disk]")
+    else:
+        actual = shown
+    return [_check("the_proveme_crossing_names_its_proof",
+                  expected=shown, actual=actual,
+                  code=code, ticket=ticket, named=named, since_buildme=list(since), dead=dead)]
+
+
+def crossing_durability(ticket: str, *, history_path: str | None = None) -> list[dict]:
+    """THE DURABILITY LANE (ticket c2460ae6c3d1, 2026-09-17): ``the_stones_are_pushed``.
+
+    A PROVED crossing closes over stones, and a stone that exists only on this laptop is a
+    green nobody else can pull — which under Law 8 is a green nobody can lean on. The lane
+    measures every repo the crossing's own records live in (``_durability_roots``) with
+    ``cairn.tools.orient.orient.repo_truth`` — composed by import, the one instrument for
+    repo state, never a second ``git`` shelled here — and FAILS only when a measured repo is
+    ahead of its upstream. Working-tree dirt is journaled on every reading and never refused
+    (dirt is work in flight; unpushed commits are stones nobody else holds). A repo with no
+    upstream, a root with no ``.git`` above it, and a ``ScanRefused`` are journaled as
+    unmeasured, never refused: the lane reads what is in front of it and says so.
+    """
+    from cairn.tools.orient.orient import ScanRefused, repo_truth
+
+    readings: list[dict] = []
+    seen: set[str] = set()
+    for root in _durability_roots(ticket, history_path):
+        top = _repo_toplevel(root)
+        if top is None:
+            readings.append({"root": str(root), "toplevel": None, "measured": False,
+                             "why": f"no .git above {root}"})
+            continue
+        if str(top) in seen:
+            continue
+        seen.add(str(top))
+        try:
+            rows = repo_truth(repos=[top])["measured"]["repos"]
+        except ScanRefused as exc:
+            readings.append({"root": str(root), "toplevel": str(top), "measured": False,
+                             "why": str(exc)})
+            continue
+        readings.append({**rows[0], "root": str(root), "toplevel": str(top), "measured": True})
+    expected = ("every repo this crossing's records live in has 0 commits ahead of its "
+                "upstream (cairn.tools.orient.orient.repo_truth)")
+    ahead = [r for r in readings if r.get("measured")
+             and r.get("ahead_of_upstream") is not None and r["ahead_of_upstream"] > 0]
+    actual = expected if not ahead else "; ".join(
+        f"{r['repo']} is {r['ahead_of_upstream']} commit(s) ahead of {r['upstream']} — "
+        f"git -C {r['toplevel']} push" for r in ahead)
+    return [_check("the_stones_are_pushed", expected=expected, actual=actual,
+                  code="transitions.py::inspect_durability", ticket=ticket, repos=readings)]
+
+
+def crossing_quorum(validation_path: object, class_def: dict) -> list[dict]:
+    """THE BUILD GATE'S SEAT FOR A HUMAN-PROVED NODE. Born 2026-09-05, the day four
+    concept-pieces stood at PROVEME:waiting and the first one to try the crossing was
+    refused because the census cannot measure prose ('no component directories under
+    CairnCommons — wrong root?'). The refusal was honest — a gate that inspects nothing
+    passes everything — but it was the WRONG INSTRUMENT: a concept-piece's build is its
+    quorum VALIDATION (the class's prove_gate), and the record that proves it is the one
+    ``quorum.seal`` appended, read off disk. So this seat asks the census's question in the
+    class's own currency: is there a green quorum seal, is it a quorum seal, and where.
+
+    The caller names the validation (``emit(..., validation=<path>)``) the same way it
+    names its ticket; the gate reads the file and trusts nothing about it it did not read.
+    A hand that types a path to a red seal, a code seal, or no file at all is refused with
+    the lane naming which."""
+    from cairn.tools.validation_store.validation_store import read_validations
+
+    code = "transitions.py::inspect_quorum"
+    expected = "a green VALIDATION sealed through the quorum signature gate names this crossing"
+    want = str(class_def.get("prove_gate", "")).split("—")[0].strip().lower()
+
+    def _lane_for(actual: str, **values) -> list[dict]:
+        return [_check("the_quorum_sealed_the_piece", expected=expected, actual=actual,
+                      code=code, **values)]
+
+    if not validation_path or not isinstance(validation_path, str):
+        record = _lane_for("the crossing names no validation (emit(..., validation=<path>))")
+    elif not Path(validation_path).is_file():
+        record = _lane_for(f"no VALIDATION on disk at {validation_path}", path=validation_path)
+    else:
+        try:
+            last = read_validations(path=validation_path)[-1]
+        except Exception as e:  # noqa: BLE001 — an unreadable seal is a red, not a crash
+            last = None
+            record = _lane_for(f"{validation_path} is not a readable VALIDATION: {e}",
+                               path=validation_path)
+        if last is not None:
+            method = str(last.get("method", "")).lower()
+            verdict = last.get("verdict")
+            if not method.startswith(want):
+                record = _lane_for(
+                    f"the seal at {validation_path} is not a {want} (method: "
+                    f"{last.get('method')!r})", path=validation_path, verdict=verdict)
+            elif verdict != "green":
+                record = _lane_for(
+                    f"the quorum seal at {validation_path} is {verdict!r}, rejected by "
+                    f"{(last.get('evidence') or {}).get('rejected_by')}",
+                    path=validation_path, verdict=verdict)
+            else:
+                record = _lane_for(expected, path=validation_path, verdict=verdict,
+                                   caller=last.get("caller"), notary=(last.get("evidence")
+                                                                       or {}).get("notary"),
+                                   delegation=(last.get("evidence") or {}).get("delegation"))
+    return record
 
 
 def build_started(ticket: str, *, roots=None, root=CAIRN_ROOT, tickets_dir=None):

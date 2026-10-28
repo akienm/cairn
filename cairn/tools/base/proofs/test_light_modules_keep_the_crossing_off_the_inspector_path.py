@@ -102,13 +102,17 @@ def _stdlib(name: str) -> bool:
 
 def test_the_grammar_loads_nothing_that_posts() -> None:
     """Akien 2026-10-27, open-d32047bb1759: the grammar may carry the mixin and write its own
-    logs; what it may not load is anything that posts or decides."""
-    mixin = {"cairn.tools.base.diagnostic", "cairn.tools.base.diagnostic.DiagnosticBase"}
+    logs; what it may not load is anything that posts or decides. Ticket 66ee1ffc1ec7 moved
+    the rules grammar here, which folds case through system_word — a stdlib-only module."""
+    mixin = {"cairn.tools.base.diagnostic", "cairn.tools.base.diagnostic.DiagnosticBase",
+             "cairn.tools.system_word.system_word", "cairn.tools.system_word.system_word.canon"}
     names = _top_level_imports(_GRAMMAR)
     stray = sorted(n for n in names if not _stdlib(n) and n not in mixin)
-    under = sorted(n for n in _top_level_imports(_BASE / "diagnostic.py") if not _stdlib(n))
+    under = sorted(n for f in (_BASE / "diagnostic.py",
+                               _REPO / "cairn" / "tools" / "system_word" / "system_word.py")
+                   for n in _top_level_imports(f) if not _stdlib(n))
     check("test_the_grammar_loads_nothing_that_posts", not stray and not under and bool(names),
-          f"grammar stray {stray}; diagnostic stray {under}")
+          f"grammar stray {stray}; diagnostic/system_word stray {under}")
 
 
 def test_the_ticket_file_never_reaches_the_crossing() -> None:

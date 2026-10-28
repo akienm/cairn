@@ -86,14 +86,14 @@ def workflow_objects(workflow_str: str) -> list[str | None]:
     """The objects of every WATCHME the string carries, in order. Parses through the
     chokepoint's own parser so this module cannot develop a second opinion about what a
     workflow string says (Law 1 — one implementation of a settled question)."""
-    from cairn.tools.base.transitions import parse_workflow
+    from cairn.tools.base.workflow_grammar import parse_workflow
     wf = parse_workflow(workflow_str)
     return [wf.objects[i] if i < len(wf.objects) else None
             for i, s in enumerate(wf.path) if s == "WATCHME"]
 
 
 def _version_of(workflow_str: str) -> str:
-    from cairn.tools.base.transitions import parse_workflow
+    from cairn.tools.base.workflow_grammar import parse_workflow
     return parse_workflow(workflow_str).version
 
 
@@ -328,7 +328,7 @@ def stands_watch(ticket: dict, spec: dict, *, root: Path | str = _REPO_ROOT) -> 
     What a WATCHME spec means is this module's question, so readers ask here rather than
     re-deciding it (Law 1). harbor_master's rest check is a different question — which ticket
     a finding may move — and does not read this."""
-    from cairn.tools.base.transitions import parse_workflow
+    from cairn.tools.base.workflow_grammar import parse_workflow
 
     try:
         here = parse_workflow(ticket["workflow_and_state"]).here

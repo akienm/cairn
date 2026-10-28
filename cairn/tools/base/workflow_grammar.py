@@ -15,6 +15,7 @@ import re
 from dataclasses import dataclass
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.system_word.system_word import canon
 
 _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
 # A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)"
@@ -172,3 +173,154 @@ def verify_crossing_fingerprint(record: dict) -> bool:
     if fp is None:
         return False
     return _crossing_fingerprint(record) == fp
+
+
+# ── THE RULES GRAMMAR (ticket 66ee1ffc1ec7) ───────────────────────────────────────────────
+# Moved from transitions so the inspector measures a crossing's legality without importing
+# the crossing; transitions imports these back under the same names.
+
+def is_disposition(state: str, class_def: dict) -> bool:
+    """A DISPOSITION is a terminal exit declared at the class level — DROPPED, SUPERSEDED,
+    RETIRED. Not grammar-derived (no suffix rule); class-declared because the vocabulary is
+    a fact about which exits a class offers, not a rule the token's shape can compute."""
+    return state in class_def.get("dispositions", [])
+
+
+def _registered_workflow(class_def: dict, version: str) -> dict:
+    wvs = class_def.get("workflow_versions", {})
+    if version not in wvs:
+        raise IllegalTransition(
+            f"unknown workflow version {version!r} for class {class_def.get('class')!r} "
+            f"(known: {sorted(wvs)}) — a string cannot claim a version the class does not define")
+    return wvs[version]
+
+
+def _conform(wf: Workflow, class_def: dict) -> dict:
+    """The node's path must match the registered path for the version it claims — else it is a
+    drifted string, refused (validate against a KNOWN versioned definition).
+
+    A FREE SUMMONS (``free_summons``, ticket ``watchme-emits-a-probe`` 2026-07-30) is the ONE
+    exception, and it is a class-declared fact the grammar cannot derive — the same category
+    as ``skippable_summons``, not a second mechanism. It may appear ZERO OR MORE TIMES AT ANY
+    POSITION, so it is lifted out before the backbone is compared: what remains must still
+    match the registered path exactly, which is what keeps "a drifted string is refused" true
+    while ``WATCHME`` roams. Skippable is about the FORK a node takes at runtime; free is
+    about the SHAPE the ticket authored. A state can be neither, either, or both.
+
+    AND A FREE SUMMONS MUST NAME ITS OBJECT. A watch without an object is inert — a bare
+    ``WATCHME`` cannot say what is being watched, so nothing downstream can check it, and a
+    blank field is exactly the shape ``intention+why.json`` exists to refuse. This is caught
+    HERE rather than in ``parse_workflow`` because the parser does not know the class, and
+    therefore cannot know which of its states are free — the grammar stays classless on
+    purpose (hardcoding ``WATCHME`` into the parser would be the reification the whole
+    -ME grammar avoids)."""
+    reg = _registered_workflow(class_def, wf.version)
+    free = set(reg.get("free_summons", []))
+    if free:
+        for i, state in enumerate(wf.path):
+            if state in free and not (wf.objects[i] if i < len(wf.objects) else None):
+                raise MalformedWorkflow(
+                    f"{wf.node_class}@{wf.version} carries a bare {state!r} at position {i} — a "
+                    f"free summons must NAME ITS OBJECT ({state}(what-it-watches)); a watch "
+                    f"without an object is inert, and a blank object cannot be checked")
+    # A REPAIR SUMMONS (ticket 72d2f79daf0a) is lifted out beside the free ones, but it is
+    # not free: it may occur at most once, and only directly before the backbone state it is
+    # anchored to — FIXME sits before BUILDME because design is repaired before building.
+    repair = reg.get("repair_summons", {})
+    for state, anchor in repair.items():
+        hits = [i for i, s in enumerate(wf.path) if s == state]
+        if len(hits) > 1:
+            raise MalformedWorkflow(
+                f"{wf.node_class}@{wf.version} carries {state!r} {len(hits)} times — a repair "
+                f"summons occurs at most once")
+        if hits and (hits[0] + 1 >= len(wf.path) or wf.path[hits[0] + 1] != anchor):
+            raise MalformedWorkflow(
+                f"{wf.node_class}@{wf.version} carries {state!r} not directly before {anchor!r} "
+                f"— a repair summons sits immediately before its anchor")
+    dispositions = set(class_def.get("dispositions", []))
+    backbone = [s for s in wf.path if s not in free and s not in dispositions and s not in repair]
+    if backbone != list(reg["path"]):
+        raise MalformedWorkflow(
+            f"{wf.node_class}@{wf.version} string path {list(wf.path)} does not conform to the "
+            f"registered path {reg['path']} — a drifted workflow is not a valid instance"
+            + (f" (free summonses {sorted(free)} lifted out first; backbone read as {backbone})"
+               if free else ""))
+    return reg
+
+
+def canon_target(wf: Workflow, target: str, class_def: dict | None = None) -> str:
+    """The SYSTEM's spelling of a stage target he may have typed in any case (ruled
+    2026-09-07: a stage token is a system word). Resolved against the workflow's own path
+    first, then the class's dispositions; a token naming neither rides through unchanged so
+    the refusal downstream names what he typed. This is a COMPARE, not a rewrite: the string
+    on disk always carries the path's spelling, never his."""
+    hit = canon(target, wf.path)
+    if hit is None and class_def is not None:
+        hit = canon(target, class_def.get("dispositions", []))
+    return target if hit is None else hit
+
+
+def resolve_target(wf: Workflow, target: str) -> int:
+    """Which POSITION does naming ``target`` mean? For a state occurring once — every state
+    before free summonses existed — this is just ``path.index``. A free summons may repeat,
+    so a name can be ambiguous, and a silently-wrong index would move the cursor to the wrong
+    obligation (the failure class the parse-walk fix of 2026-07-26 already paid for once).
+
+    THE RULE: the NEAREST occurrence, FORWARD FIRST. A transition names progress by default,
+    so an occurrence after the cursor wins over one before it; among several on the same side,
+    the closest wins. Deliberately not "refuse the ambiguous": a node carrying two watches
+    would then be un-crossable, which is worse than a stated, provable rule."""
+    target = canon_target(wf, target)
+    after = [i for i, s in enumerate(wf.path) if s == target and i > wf.cursor]
+    if after:
+        return after[0]
+    before = [i for i, s in enumerate(wf.path) if s == target and i < wf.cursor]
+    if before:
+        return before[-1]
+    try:
+        return wf.path.index(target)
+    except ValueError:
+        return len(wf.path)
+
+
+# The dispositions a rest (a state not ending -ME) may take: a later proved ticket replaces a
+# proved one. DROPPED and RETIRED stay alternatives to completing, so a rest never takes them
+# (ticket c63d2e99039e; Akien chose option a at open-bb5a0ceb8991).
+_REST_DISPOSITIONS = ("SUPERSEDED",)
+
+
+def legal_targets(wf: Workflow, *, class_def: dict) -> set[str]:
+    """The set of states the cursor may legally move to from where it rests now.
+
+    Forward: the next state, plus any reachable by skipping ONLY declared-skippable summonses
+    (the leaf fork). Back: any earlier summons (a kick-back). Derived from the grammar + the
+    class's ``skippable_summons``; nothing here is stored that the grammar can compute.
+    """
+    reg = _conform(wf, class_def)
+    dispositions = set(class_def.get("dispositions", []))
+    if wf.here in dispositions:
+        return set()
+    skippable = set(reg.get("skippable_summons", []))
+    path, i = wf.path, wf.cursor
+    targets: set[str] = set()
+    # forward — advance, skipping only skippable summonses on the way
+    j = i + 1
+    while j < len(path):
+        if path[j] in dispositions:
+            j += 1
+            continue
+        targets.add(path[j])
+        if path[j] in skippable and is_summons(path[j]):
+            j += 1
+            continue
+        break
+    # back-edges — re-enter any earlier summons (kick-back)
+    for k in range(i):
+        if is_summons(path[k]):
+            targets.add(path[k])
+    # dispositions — reachable from any summons as terminal exits; SUPERSEDED also from a rest
+    if is_summons(wf.here):
+        targets.update(dispositions)
+    elif wf.here not in dispositions:
+        targets.update(dispositions & set(_REST_DISPOSITIONS))
+    return targets

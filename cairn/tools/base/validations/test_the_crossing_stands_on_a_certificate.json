@@ -1,0 +1,118 @@
+[
+  {
+    "claim": "proof test_the_crossing_stands_on_a_certificate.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-28T17:17:13",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261028T231712Z-152d.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261028T231712Z-67a7.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_gated_crossing_names_a_certificate_that_verifies",
+        "test_no_gate_no_ticket_no_class_space_no_certificate",
+        "test_certify_outside_emit_bumps_its_nose",
+        "test_the_probe_carries_the_certificate"
+      ],
+      "teeth_red": [],
+      "test": "test-88a5d3175e99",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f3db71669ca6e0769238664595bab9e32f7b9acab446c48ee05ed00f0a12680e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-88a5d3175e99",
+      "source_fingerprint": "424cffe9b7d53aba0b5b84b959912971ec94174664d2cb63158b02ff7fd43625",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/address_rule.py",
+        "cairn/tools/base/breadcrumb_log.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/gate_probes.py",
+        "cairn/tools/base/nest.py",
+        "cairn/tools/base/proofs/test_the_crossing_stands_on_a_certificate.py",
+        "cairn/tools/base/sail_record.py",
+        "cairn/tools/base/settled.py",
+        "cairn/tools/base/testing_mark.py",
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1581001-3nvxi7sv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 7,
+          "paths": [
+            "devices/cairn/0/machines/sail/sail.json",
+            "logs/charter/0/20261028.231712.684538.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.231712.690979.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.231712.696297.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.231712.697425.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.231712.705734.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261028.231712.714223.charter_projector_append_entry.append_entry.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 112868990,
+          "disk_bytes": 142135296,
+          "entries": 11579,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "7c41e2b09d5a": {
+          "cairn/tools/base/gate_class.py": [
+            "test_certify_outside_emit_bumps_its_nose"
+          ],
+          "cairn/tools/base/transitions.py": [
+            "test_a_gated_crossing_names_a_certificate_that_verifies",
+            "test_certify_outside_emit_bumps_its_nose",
+            "test_no_gate_no_ticket_no_class_space_no_certificate"
+          ],
+          "cairn/tools/base/gate_probes.py": [
+            "test_the_probe_carries_the_certificate"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "7c41e2b09d5a": {
+          "anchor_rule": "journal",
+          "anchor_journal": "d6d0ef963d552734019093433b9341e6fcfcdd53",
+          "anchor_first_build": "d73371a23e17569684e23737ed73d6fd67b738a4",
+          "commit": "d6d0ef963d552734019093433b9341e6fcfcdd53"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

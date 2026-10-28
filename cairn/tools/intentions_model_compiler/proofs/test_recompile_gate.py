@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -56,7 +57,7 @@ def _run(commons: str, code: str, out: str, logdir: str) -> subprocess.Completed
     env = {**os.environ, "CAIRN_LB_TRACE_ROOT": str(scratch_dir("rg-proof-traces-")),
            "CAIRN_COMMONS_ROOT": commons, "CAIRN_CODE_ROOT": code,
            "CAIRN_LAB_OUT": out, "CAIRN_LOG_DIR": logdir}
-    return subprocess.run(["bash", str(_GATE)], capture_output=True, text=True, env=env)
+    return subprocess.run([shutil.which("bash") or "bash", _GATE.as_posix()], capture_output=True, text=True, env=env)
 
 
 def test_the_gate_pokes_the_door():

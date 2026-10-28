@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_killed_runs_scratch_is_swept_by_the_next.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-12T14:28:59",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-28T12:43:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_killed_runs_scratch_dir_is_gone_after_the_next_call\n.\n  ok   test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call\n.\n  ok   test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call\n.\n  ok   test_an_entry_from_another_pid_namespace_survives_the_next_call\n                                                                     [100%]\n4 passed in 0.32s",
+      "stdout_tail": ".\n  ok   test_a_killed_runs_scratch_dir_is_gone_after_the_next_call\n.\n  ok   test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call\n.\n  ok   test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call\n.\n  ok   test_an_entry_from_another_pid_namespace_survives_the_next_call\n                                                                     [100%]\n4 passed in 0.34s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_killed_runs_scratch_dir_is_gone_after_the_next_call",
@@ -16,7 +16,7 @@
         "test_an_entry_from_another_pid_namespace_survives_the_next_call"
       ],
       "teeth_red": [],
-      "test": "test-1bf47ab166ae",
+      "test": "test-0dec2f0417c4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,19 +30,20 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1bf47ab166ae",
-      "source_fingerprint": "c37e11ea93e069581836cd77cc5688764831c9d3974cf233e673417c6d95a5a5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0dec2f0417c4",
+      "source_fingerprint": "c6b2e1212af40cd5229d6818e5f147d20a701f1629c8c3f5c1f8efa08f23e794",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_a_killed_runs_scratch_is_swept_by_the_next.py",
@@ -50,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2036294-azp_ku41/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1398195-hinpdrkm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,28 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107857199,
-          "disk_bytes": 132534272,
-          "entries": 9970,
+          "bytes": 112584594,
+          "disk_bytes": 141479936,
+          "entries": 11455,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched",
-      "hollow": {
-        "4784351e4838": {
-          "cairn/tools/scratch/scratch.py": [
-            "test_a_killed_runs_scratch_dir_is_gone_after_the_next_call",
-            "test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "4784351e4838": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5cf751a0f784d5c62094a10f0216c116c4045a8d",
-          "anchor_first_build": "f7cd3b3373a55935144a2821a10e4a55be23dbc2",
-          "commit": "5cf751a0f784d5c62094a10f0216c116c4045a8d"
+          "reuses": 42
         }
       }
     },

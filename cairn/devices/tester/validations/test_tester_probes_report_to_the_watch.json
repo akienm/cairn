@@ -2,20 +2,20 @@
   {
     "claim": "proof test_tester_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-09T09:15:11",
+    "date": "2026-10-28T12:24:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_every_standing_tester_probe_posts_watch\n  PASS  test_every_standing_tester_spec_names_the_receiver\n  PASS  test_tester_probes_report_to_the_watch\ngreen — every standing tester probe reports {ticket, holds, finding} to the watch verb",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_every_standing_tester_probe_posts_watch: AssertionError: 357c402172ca: cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py posts verb ''\n  FAIL  test_every_standing_tester_spec_names_the_receiver: AssertionError: 357c402172ca: receiver is None\n  FAIL  test_tester_probes_report_to_the_watch: AssertionError: 357c402172ca: cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py posts verb ''\nRED — 3 tooth/teeth bit",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_every_standing_tester_probe_posts_watch",
         "test_every_standing_tester_spec_names_the_receiver",
         "test_tester_probes_report_to_the_watch"
       ],
-      "teeth_red": [],
-      "test": "test-bb9d9a5f49f2",
+      "test": "test-c54657b3d7a2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,28 +33,27 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb9d9a5f49f2",
-      "source_fingerprint": "6d27600f47656f779a4bcd6ec3a35c17a9c6fbdc4dcccac8f30433d64eca885a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c54657b3d7a2",
+      "source_fingerprint": "81f40d8c89996b58d39b7063b41f00b9aa4a13a9ad30d888bc08417f10c26bb8",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/probes/__init__.py",
-        "cairn/devices/tester/probes/a_proof_cannot_seed_the_tree_it_reads.py",
+        "cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py",
         "cairn/devices/tester/probes/an_open_reading_is_not_silently_converted.py",
-        "cairn/devices/tester/probes/proven_space_stays_populated.py",
-        "cairn/devices/tester/probes/seal_measurements_are_not_dropped.py",
-        "cairn/devices/tester/probes/the_collapse_holds_in_live_traffic.py",
         "cairn/devices/tester/proofs/test_tester_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-736698-bgnbcd_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1398195-gx06tun3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,14 +62,22 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 105353086,
-          "disk_bytes": 128147456,
-          "entries": 9281,
+          "bytes": 112584594,
+          "disk_bytes": 141479936,
+          "entries": 11455,
           "builds": 1,
-          "reuses": 24
+          "reuses": 26
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "reseal_ladder": {
+        "proof_sha256": "d4c9f0384efdbda8e5c7bdc9dcc057dc8999fe6cc5eb621b127b0951639d498d",
+        "opened": "2026-10-28T12:24:30",
+        "last_red": "2026-10-28T12:24:30",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester",
+        "ruling": null
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

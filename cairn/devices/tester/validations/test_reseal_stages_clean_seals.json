@@ -2,12 +2,12 @@
   {
     "claim": "proof test_reseal_stages_clean_seals.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-18T16:35:13",
+    "date": "2026-10-28T12:22:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_seal_over_a_clean_closure_is_staged_with_the_journal\n.\n  ok   test_a_seal_over_an_unstaged_change_is_held_out_of_the_commit\n.\n  ok   test_an_untracked_file_in_the_closure_holds_the_seal\n.\n  ok   test_a_red_seal_over_a_clean_closure_is_staged_too\n.\n  ok   test_only_an_outcome_that_wrote_a_seal_is_staged\n.\n  ok   test_the_hook_passes_stage_and_rechecks_the_artifact_door\n.\n  ok   test_the_reseal_stage_flag_hands_its_results_to_the_stager\n.\n  ok   test_a_commit_that_reseals_stages_what_it_rewrote\n                                                                 [100%]\n8 passed in 0.19s",
+      "stdout_tail": ".\n  ok   test_a_seal_over_a_clean_closure_is_staged_with_the_journal\n.\n  ok   test_a_seal_over_an_unstaged_change_is_held_out_of_the_commit\n.\n  ok   test_an_untracked_file_in_the_closure_holds_the_seal\n.\n  ok   test_a_red_seal_over_a_clean_closure_is_staged_too\n.\n  ok   test_only_an_outcome_that_wrote_a_seal_is_staged\n.\n  ok   test_the_hook_passes_stage_and_rechecks_the_artifact_door\n.\n  ok   test_the_reseal_stage_flag_hands_its_results_to_the_stager\n.\n  ok   test_a_commit_that_reseals_stages_what_it_rewrote\n                                                                 [100%]\n8 passed in 0.26s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_seal_over_a_clean_closure_is_staged_with_the_journal",
@@ -20,7 +20,7 @@
         "test_a_commit_that_reseals_stages_what_it_rewrote"
       ],
       "teeth_red": [],
-      "test": "test-1f0b78fdbc4e",
+      "test": "test-849bc6e7871c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -46,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1f0b78fdbc4e",
-      "source_fingerprint": "8e88668921ad8ebed6a95751a733ce65345631c89fa030ce4ffbbd944eba852b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-849bc6e7871c",
+      "source_fingerprint": "1dbe4bcb56756bd85be19b402b0c006c592e9635a8a8f1baa60a0d2c547f8ed9",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -61,7 +61,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-445376-ydz_a_5l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1398195-rdi9flfz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,11 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111216341,
-          "disk_bytes": 139452416,
-          "entries": 11169,
+          "bytes": 112584594,
+          "disk_bytes": 141479936,
+          "entries": 11455,
           "builds": 1,
-          "reuses": 23
+          "reuses": 22
         }
       }
     },

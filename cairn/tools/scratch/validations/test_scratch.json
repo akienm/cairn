@@ -2,25 +2,26 @@
   {
     "claim": "proof test_scratch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T03:07:47",
+    "date": "2026-10-28T12:43:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  FAIL  test_no_proof_in_this_repo_calls_mkdtemp_bare: AssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.tools.scratch.scratch.scratch_dir:\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\nred — scratch: 1 of 8 teeth failed",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
         "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
         "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
         "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare",
         "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
         "test_a_with_block_holds_the_scratch",
         "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
-      "teeth_red": [],
-      "test": "test-2354459bc14c",
+      "teeth_red": [
+        "test_no_proof_in_this_repo_calls_mkdtemp_bare"
+      ],
+      "test": "test-0ae60b2da3d8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +39,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2354459bc14c",
-      "source_fingerprint": "bcc8ba1fd2744f8d661327eda2bd4d8a73f9dfda3ec67707bcf20dc49dd4da17",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0ae60b2da3d8",
+      "source_fingerprint": "13f6d8e025ba2799ad1b79360f21e78ac49db25086cee02433659eb613a8fc92",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch.py",
@@ -53,7 +56,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2488077-xffj1m06/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1398195-wxekx8f7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,28 +65,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108626648,
-          "disk_bytes": 134049792,
-          "entries": 10222,
+          "bytes": 112584594,
+          "disk_bytes": 141479936,
+          "entries": 11455,
           "builds": 1,
-          "reuses": 0
+          "reuses": 43
         }
       },
-      "hollow": {
-        "e038544a9b60": {
-          "cairn/tools/scratch/scratch.py": [
-            "test_a_with_block_holds_the_scratch",
-            "test_every_with_scratch_dir_site_in_the_repo_enters"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e038544a9b60": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "a66799fda94170cdb66a942a1fb9728557fac697",
-          "anchor_first_build": "5476b111e5327f80765cba1761693ff48b4b8715",
-          "commit": "bd2be8beb27a62ddb9e50c99ef4caa4aba0c0a9a"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "3a255ea0277e2ec8f211b7788bf0ce8413faf1d615ba2d5c73cf460b933794b8",
+        "opened": "2026-10-28T12:43:36",
+        "last_red": "2026-10-28T12:43:36",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-scratch",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

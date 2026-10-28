@@ -64,7 +64,9 @@ from pathlib import Path
 # THE MARK (ticket 4784351e4838): ``<prefix>scratch.<pid-namespace inode>-<pid>-<mkdtemp suffix>``.
 # The name is the record — a tool holds no state of its own (Law 6).
 _MARK = "scratch."
-_NS = os.stat("/proc/self/ns/pid").st_ino
+# A host with no pid namespaces (Windows) is one namespace: 0. Measured 2026-10-28 on akiendell,
+# where reading /proc at import took the whole tester down before a tooth ran.
+_NS = os.stat("/proc/self/ns/pid").st_ino if os.path.exists("/proc/self/ns/pid") else 0
 _OWNED = re.compile(r"scratch\.(\d+)-(\d+)-[a-z0-9_]{8}$")
 _swept = False
 
@@ -203,7 +205,18 @@ def bare_temp_reach(root: str | Path) -> list[str]:
 
 def _owner_alive(pid: int) -> bool:
     """Is ``pid`` alive as read from this namespace — copied from isolation._pid_alive, not
-    imported (RULE 1)."""
+    imported (RULE 1). Never ``os.kill`` on Windows: there signal 0 is CTRL_C_EVENT, and the
+    probe would interrupt the very process it asks about."""
+    if os.name == "nt":
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return k32.GetLastError() == 5  # ERROR_ACCESS_DENIED: it exists, we may not look
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
     try:
         os.kill(pid, 0)
     except ProcessLookupError:

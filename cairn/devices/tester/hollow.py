@@ -626,14 +626,14 @@ def _commons_rel(f: str, commons: Path) -> str | None:
     p = Path(f)
     if p.is_absolute():
         try:
-            return str(p.resolve().relative_to(Path(commons).resolve()))
+            return p.resolve().relative_to(Path(commons).resolve()).as_posix()
         except ValueError:
             return None
     parts = p.parts
     if parts[:1] == (COMMONS_NAME,) and len(parts) > 1:
-        return str(Path(*parts[1:]))
+        return Path(*parts[1:]).as_posix()
     if parts[:2] == ("..", COMMONS_NAME) and len(parts) > 2:
-        return str(Path(*parts[2:]))
+        return Path(*parts[2:]).as_posix()
     return None
 
 

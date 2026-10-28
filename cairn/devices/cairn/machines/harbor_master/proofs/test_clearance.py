@@ -81,6 +81,7 @@ PROVES = {
 }
 
 from cairn.tools.base.transitions import IllegalTransition
+from cairn.tools.base import ticket_file as _tfile  # 632edb992aa3: the _TICKETS patch point
 from cairn.tools.charter import projector
 from cairn.devices.cairn.machines.harbor_master.clearance import (
     GRANT_TTL_SECONDS,
@@ -226,12 +227,12 @@ def _correct_the_corpus_roots_if_this_is_a_worktree() -> None:
     _c.boat_owner_of = _rooted_owner_of
     _t.load_class_def = _rooted_load
     # AND THE CHOKEPOINT'S OWN CAST-TICKET ROOT, which is a THIRD spelling of the same
-    # sibling expression (``transitions._TICKETS``). This one is read at call time rather
+    # sibling expression (``ticket_file._TICKETS``). This one is read at call time rather
     # than bound as a default, so the constant IS the seam — no wrapper needed. Found the
     # way the other two were: the crossing got past the owner rung and then refused
     # "named ticket 'an-intention-declares-its-gated-hands' is not cast — no file ... in
     # /tmp/CairnCommons/tickets". Three readers, three spellings, one wrong assumption.
-    _t._TICKETS = commons / "tickets"
+    _tfile._TICKETS = commons / "tickets"
     # AND THIS MODULE'S OWN BINDING, which is a SEPARATE NAME and was the half that bit.
     # ``from ...clearance import boat_owner_of`` at the top copied the function object into
     # these globals, so patching the clearance module alone leaves ``_OWNER =
@@ -873,7 +874,7 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
     with ``TicketRequiredRed``, which is exactly the state the corpus was in: every
     gated crossing routed around the harbor because going through it could not work."""
     # THE FIXTURE TICKETS DIR IS GONE, and its removal is part of the same settlement:
-    # this test used to fabricate a ``widget.json`` and monkeypatch ``_t._TICKETS`` at it,
+    # this test used to fabricate a ``widget.json`` and monkeypatch ``_tfile._TICKETS`` at it,
     # which was safe only while nothing read the ticket's CONTENTS. The gate does now, so
     # the boat is real and the two halves of the crossing name the same voyage — which is
     # what the binding tooth below refuses to let drift apart.
@@ -914,9 +915,9 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         # about clearance. Cast into the fixture registry, as ``_cross_to_proved`` does.
         _cast(_OTHER_BOAT)
         _saved = _insp._CHART_BERTHS
-        _saved_tickets = _t._TICKETS
+        _saved_tickets = _tfile._TICKETS
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
-        _t._TICKETS = _FIXTURE_TICKETS
+        _tfile._TICKETS = _FIXTURE_TICKETS
         try:
             # AND THE CROSSING RECORD IS STOOD UP TOO (2026-09-10). The coverage rung used to
             # read this boat's proofs off the substituted ticket dict; since the crossings
@@ -947,7 +948,7 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
                 f"the crossed ticket resolved under the live commons {live}: {crossed}")
         finally:
             _insp._CHART_BERTHS = _saved
-            _t._TICKETS = _saved_tickets
+            _tfile._TICKETS = _saved_tickets
 
 
 def test_a_caller_may_not_hand_this_gate_its_own_witness():
@@ -1648,9 +1649,9 @@ def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
                 "[LEARNME] -> PROVED")
     _cast(boat)
     _saved = _insp._CHART_BERTHS
-    _saved_tickets = _t._TICKETS
+    _saved_tickets = _tfile._TICKETS
     _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
-    _t._TICKETS = _FIXTURE_TICKETS
+    _tfile._TICKETS = _FIXTURE_TICKETS
     try:
         with _owner_is(owner), _fixture_journals():
             clear(at_learn, "PROVED", actor=_OWNER, boat_id=boat, proven_by=proven_by,
@@ -1659,7 +1660,7 @@ def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
         return exc
     finally:
         _insp._CHART_BERTHS = _saved
-        _t._TICKETS = _saved_tickets
+        _tfile._TICKETS = _saved_tickets
     return None
 
 
@@ -1921,12 +1922,12 @@ def _refuse_at_proved(tid: str):
     ticket_path = _fixme_world_ticket(tid)
     _cast(tid)
     _CountingModuleRaiser.raised = []
-    saved = (_insp._CHART_BERTHS, _t._TICKETS, _diagnostic.ModuleRaiser)
+    saved = (_insp._CHART_BERTHS, _tfile._TICKETS, _diagnostic.ModuleRaiser)
     exc = None
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
-        _t._TICKETS = _FIXTURE_TICKETS
+        _tfile._TICKETS = _FIXTURE_TICKETS
         _diagnostic.ModuleRaiser = _CountingModuleRaiser
         try:
             with _owner_is(_covered_owner(tid, proof)), _fixture_journals():
@@ -1935,7 +1936,7 @@ def _refuse_at_proved(tid: str):
         except Exception as e:  # noqa: BLE001 — the refusal IS the measurement here
             exc = e
         finally:
-            _insp._CHART_BERTHS, _t._TICKETS, _diagnostic.ModuleRaiser = saved
+            _insp._CHART_BERTHS, _tfile._TICKETS, _diagnostic.ModuleRaiser = saved
         journal = projector.read_history(hp) if Path(hp).exists() else []
     return exc, ticket_path, journal, list(_CountingModuleRaiser.raised)
 
@@ -1988,8 +1989,8 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
     exc, ticket_path, _, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
     doc = json.loads(ticket_path.read_text(encoding="utf-8"))
-    saved = _t._TICKETS
-    _t._TICKETS = ticket_path.parent
+    saved = _tfile._TICKETS
+    _tfile._TICKETS = ticket_path.parent
     try:
         # a JOURNALED crossing: the gates run only when the crossing has a record to write
         # to, so an unjournaled emit would walk past the FIXME seat without asking it
@@ -2004,7 +2005,7 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
             else:
                 raise AssertionError("the boat left FIXME with every lack unanswered")
     finally:
-        _t._TICKETS = saved
+        _tfile._TICKETS = saved
 
 
 def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past():

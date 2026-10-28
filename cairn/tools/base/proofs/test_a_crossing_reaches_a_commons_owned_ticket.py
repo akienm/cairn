@@ -161,7 +161,7 @@ def _tree_bytes(d: Path) -> dict:
 
 
 def test_the_live_commons_owner_resolves_without_writing(A) -> None:
-    # the home checkout when no commons sits beside this tree (hollow's worktree), never transitions._TICKETS
+    # the home checkout when no commons sits beside this tree (hollow's worktree), never ticket_file._TICKETS
     live = _LIVE_COMMONS
     hits = [p for p in (live / "tickets").glob("6bc43453ca64-*.json") if not p.name.endswith(".log.jsonl")]
     owning = json.loads(hits[0].read_text(encoding="utf-8"))["owning_intention"] if hits else ""

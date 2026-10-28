@@ -1,0 +1,78 @@
+[
+  {
+    "claim": "proof test_only_the_gate_writes_a_certificate.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-28T13:43:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_certify_writes_what_verify_accepts  — faults []; under certificates/ True; body shape True; red raised True; red wrote nothing True\n  PASS  test_the_pretooluse_gate_refuses_a_certificate  — allowed: []\n  PASS  test_the_door_holds_certificates_to_the_certify_verb  — cast refused True; certify on a ticket refused True\n  PASS  test_only_transitiongate_certify_writes_and_only_once  — forged refused True; rewrite refused True\n  PASS  test_a_certificate_around_the_door_fails_both_checks  — verify around ['certificates/abcdef012345-BUILDME-around.cert.json: never journaled — written around the door']; verify edited [\"abcdef012345-PROVEME-20261028T194345Z-761f.cert.json: body_sha256 '59dc8bc1caf19809d60ed248bf7c84bc23e5c05869308b11ef95ecf237178f62' does not match its body (86fb06f48d773e04f3ac341957f6fb55797b3810ab649b7349db1e44722eb9c2)\", 'certificates/abcdef012345-PROVEME-20261028T194345Z-761f.cert.json: its bytes are not the ones certify wrote (journal sha_after b4db532ea3b9) — changed around the door']; check_staged names around True, edited True\n  PASS  test_every_hash_is_recomputed  — no hash fault named after changing: []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_certify_writes_what_verify_accepts",
+        "test_the_pretooluse_gate_refuses_a_certificate",
+        "test_the_door_holds_certificates_to_the_certify_verb",
+        "test_only_transitiongate_certify_writes_and_only_once",
+        "test_a_certificate_around_the_door_fails_both_checks",
+        "test_every_hash_is_recomputed"
+      ],
+      "teeth_red": [],
+      "test": "test-16b6a97a7a2d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "180a5a9e72ca4c45854f27c796efbab118a97e1b262d6c9ad38c2abec87ecc3f",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16b6a97a7a2d",
+      "source_fingerprint": "b500e77d60a9d4f353abb235cd2d21d6006296f57aa8eb76cdfe216fde859b0b",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_only_the_gate_writes_a_certificate.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1472788-z417jmqf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 112611680,
+          "disk_bytes": 141524992,
+          "entries": 11462,
+          "builds": 1,
+          "reuses": 2
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

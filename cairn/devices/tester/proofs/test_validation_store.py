@@ -545,7 +545,7 @@ def test_EVERY_VALIDATIONS_FILE_IN_THE_CORPUS_HOLDS_EXACTLY_ONE_RECORD():
                 continue
             seen += 1
             if len(trail) > 1:
-                bad.append(f"{path.relative_to(root)}: {len(trail)} records")
+                bad.append(f"{path.relative_to(root).as_posix()}: {len(trail)} records")
         return bad, seen
 
     # (1) A KNOWN-BAD FIXTURE CORPUS — the check must find the planted one and name it.
@@ -864,7 +864,7 @@ def test_the_RUNNER_actually_REPORTS_a_closure_end_to_end():
     closure = record["evidence"].get("fingerprint_closure")
     assert isinstance(closure, list) and closure, (
         f"no closure came back from a real run: {record['evidence'].get('fingerprint_closure_absent')}")
-    mine = os.path.relpath(str(_GREEN_FIXTURE), str(_REPO_ROOT))
+    mine = os.path.relpath(str(_GREEN_FIXTURE), str(_REPO_ROOT)).replace(os.sep, "/")
     assert mine in closure, f"the closure does not name the proof it is about: {closure}"
     assert all(not c.startswith("..") and c.endswith(".py") for c in closure), closure
     assert record["evidence"]["source_fingerprint"] == vs.source_fingerprint(

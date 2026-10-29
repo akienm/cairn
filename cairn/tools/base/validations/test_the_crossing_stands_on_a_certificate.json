@@ -1,40 +1,30 @@
 [
   {
     "claim": "proof test_the_crossing_stands_on_a_certificate.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-28T17:26:26",
+    "caller": "cairn test",
+    "date": "2026-10-28T18:09:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261028T232625Z-e986.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261028T232625Z-0c6f.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  FAIL  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing ['demo_gate_binding_check']; gate raised CertificateRed\n\nRED — 1 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261029T000954Z-4e4c.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261029T000954Z-05e9.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_gated_crossing_names_a_certificate_that_verifies",
         "test_no_gate_no_ticket_no_class_space_no_certificate",
         "test_certify_outside_emit_bumps_its_nose",
-        "test_the_probe_carries_the_certificate"
-      ],
-      "teeth_red": [
+        "test_the_probe_carries_the_certificate",
         "test_a_proved_crossing_without_demo_can_be_certified"
       ],
-      "test": "test-092b45c50465",
+      "teeth_red": [],
+      "test": "test-c616cd090764",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 8,
-        "tables": [
-          "bus_proc_1582309_1719054122_delivery",
-          "bus_proc_1582309_1719054122",
-          "bus_proc_1582703_1720023113_delivery",
-          "bus_proc_1582703_1720023113",
-          "bus_proc_1583538_1721255541_delivery",
-          "bus_proc_1583538_1721255541",
-          "bus_proc_1583947_1722252980_delivery",
-          "bus_proc_1583947_1722252980"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "bcb09ba2d1d341c1ee7704ed4397df791fdd89ba99007f6d31b47d8459a7a6ae",
@@ -48,12 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-092b45c50465",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c616cd090764",
       "source_fingerprint": "7ef4d0e09d3779103dd6d5cddcebbd90c74afead3d94b96fb2e2d3e8548fb09e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -74,38 +65,71 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1585196-fxjttlhz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1617165-cpu50ada/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261028.232625.961596.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261028.232625.967635.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261028.232625.972726.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261028.232625.973769.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261028.232625.981825.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261028.232625.990370.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261029.000954.110577.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261029.000954.117568.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261029.000954.123146.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261029.000954.124357.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261029.000954.133795.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261029.000954.143486.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112877604,
-          "disk_bytes": 142155776,
-          "entries": 11583,
+          "bytes": 112888607,
+          "disk_bytes": 142184448,
+          "entries": 11589,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "bcb09ba2d1d341c1ee7704ed4397df791fdd89ba99007f6d31b47d8459a7a6ae",
         "opened": "2026-10-28T17:26:26",
         "last_red": "2026-10-28T17:26:26",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-28T18:09:55",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "bcb09ba2d1d341c1ee7704ed4397df791fdd89ba99007f6d31b47d8459a7a6ae"
+      },
+      "conditions_moved": {
+        "notified": "n-0f667ae807fe",
+        "changed": [
+          "env"
+        ]
+      },
+      "hollow": {
+        "7c41e2b09d5a": {
+          "cairn/tools/base/gate_class.py": [
+            "test_certify_outside_emit_bumps_its_nose"
+          ],
+          "cairn/tools/base/transitions.py": [
+            "test_a_gated_crossing_names_a_certificate_that_verifies",
+            "test_a_proved_crossing_without_demo_can_be_certified",
+            "test_certify_outside_emit_bumps_its_nose",
+            "test_no_gate_no_ticket_no_class_space_no_certificate"
+          ],
+          "cairn/tools/base/gate_probes.py": [
+            "test_the_probe_carries_the_certificate"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "7c41e2b09d5a": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "77023c9d8a4d84b5bf0573faf1bc21a08ddfb0db",
+          "anchor_first_build": "d73371a23e17569684e23737ed73d6fd67b738a4",
+          "commit": "0eb40cef26ef9e42586fc9572337fe1e8fa23ce9"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

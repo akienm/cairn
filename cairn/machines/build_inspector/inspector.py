@@ -3248,7 +3248,7 @@ def charter_asserts_file_present(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     text = charter.get("state_and_history", "")
@@ -4049,7 +4049,7 @@ def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     decl = charter.get("durable_state")
@@ -4077,7 +4077,7 @@ def learning_declared(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     learns = charter.get("learns")
@@ -4103,7 +4103,7 @@ def claim_provenance(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     cp = charter.get("claim_provenance")
@@ -4251,7 +4251,7 @@ def runtime_role_declared(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     role = charter.get("runtime_role")
@@ -4277,7 +4277,7 @@ def gated_by_declared(row: dict, comp_dir: Path) -> list[dict]:
     if not charter_path.is_file():
         return []
     try:
-        charter = json.loads(charter_path.read_text())
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
     gb = charter.get("gated_by")

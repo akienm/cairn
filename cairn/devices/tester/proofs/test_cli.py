@@ -22,6 +22,8 @@ Deliberately dependency-light: subprocess + tempfile + pathlib. Runs bare.
 
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -56,6 +58,11 @@ RED_FIXTURE = (
 _failures: list[str] = []
 
 
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
+
+
 def _fixture_dir(tmp: Path, **proofs: str) -> Path:
     """Build <tmp>/proofs/test_*.py. The directory name matters: discovery globs
     '**/proofs/test_*.py', so a fixture outside a proofs/ dir would never be found and the
@@ -68,7 +75,7 @@ def _fixture_dir(tmp: Path, **proofs: str) -> Path:
 
 
 def _run(*args: str) -> subprocess.CompletedProcess:
-    return subprocess.run([str(CAIRN), "test", *args], capture_output=True, text=True, timeout=300)
+    return subprocess.run([*_exe(CAIRN), "test", *args], capture_output=True, text=True, timeout=300)
 
 
 def check(name: str, fn) -> None:
@@ -153,7 +160,7 @@ def test_a_typod_path_is_loud_and_never_a_green_over_nothing() -> None:
 def test_the_verb_is_registered_with_the_dispatcher() -> None:
     """The whole point was that `cairn test` is the ADDRESS. The dispatcher lists legacy verbs
     on an unknown-device error, not on no-args (which launches the librarian now)."""
-    r = subprocess.run([str(CAIRN), "no-such-device-9f3a"], capture_output=True, text=True, timeout=60)
+    r = subprocess.run([*_exe(CAIRN), "no-such-device-9f3a"], capture_output=True, text=True, timeout=60)
     listed = r.stdout + r.stderr
     assert "test" in listed.split(), f"`cairn` does not list `test` among its verbs — {listed!r}"
 
@@ -163,7 +170,7 @@ def test_it_runs_from_a_cwd_that_is_not_the_repo() -> None:
     the repo root, because that is the only place `import cairn` resolved."""
     with tempfile.TemporaryDirectory() as t:
         d = _fixture_dir(Path(t), ok=GREEN_FIXTURE)
-        r = subprocess.run([str(CAIRN), "test", str(d / "test_ok.py")],
+        r = subprocess.run([*_exe(CAIRN), "test", str(d / "test_ok.py")],
                            capture_output=True, text=True, cwd="/", timeout=300)
         assert r.returncode == 0, f"running from / failed: {r.stdout}{r.stderr}"
 

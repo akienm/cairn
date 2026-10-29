@@ -3639,7 +3639,7 @@ def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
         rel = fpath.relative_to(repo_root)
         try:
             proc = subprocess.run(
-                ["git", "-C", str(repo_root), "show", f"HEAD:{rel}"],
+                ["git", "-C", str(repo_root), "show", f"HEAD:{rel.as_posix()}"],
                 capture_output=True, text=True, timeout=30,
             )
         except (OSError, subprocess.TimeoutExpired):

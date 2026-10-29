@@ -87,6 +87,26 @@ def test_an_absent_path_stays_a_gap_with_the_absence_measured():
         shutil.rmtree(root, ignore_errors=True)
 
 
+def test_a_path_spelled_from_its_root_settles_and_a_sibling_does_not():
+    base = _scratch()
+    try:
+        root = base / "Commons"
+        (root / "drafts").mkdir(parents=True)
+        (root / "drafts" / "close.md").write_text("## one\n")
+        (base / "Other" / "drafts").mkdir(parents=True)
+        (base / "Other" / "drafts" / "close.md").write_text("## one\n")
+        R = _R()
+        found = R.gaps(_looking("builds_under_assumption", [{"kind": "path", "name": "Commons/drafts/close.md"}]),
+                       IDS, R.world_looker([root]))
+        assert found == [], found
+        found = R.gaps(_looking("builds_under_assumption", [{"kind": "path", "name": "Other/drafts/close.md"}]),
+                       IDS, R.world_looker([root]))
+        g = [x for x in found if (x["kind"], x["step"]) == ("assumes", "D2")]
+        assert g and g[0].get("measured_absent") == ["Other/drafts/close.md"], found
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
+
+
 def test_a_present_module_settles_without_importing_it():
     root = _scratch()
     try:

@@ -41,6 +41,7 @@ from typing import Callable
 
 from cairn.tools.artifact import artifact as door
 from cairn.tools.base import ticket_log
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import fold
 
 HERE = Path(__file__).resolve().parent
@@ -103,7 +104,7 @@ class Refused(Exception):
     """A rehearsal that cannot proceed — named lack, nothing written."""
 
 
-class ReaderFailed(Refused):
+class ReaderFailed(DiagnosticBase, Refused):
     """The reader never returned a tree the schema accepts, ``RETRIES_PER_READ`` re-reads in.
     An instrument failure, not a gap in the ticket — and still a RUN (ticket ba4166fe51c4,
     Akien 2026-09-29: *"shouldn't a rehsersal pass be counted like a testing pass?"*):
@@ -556,7 +557,13 @@ def look(item: dict, roots) -> bool:
         expanded = os.path.expanduser(name)
         if os.path.isabs(expanded):
             return Path(expanded).exists()
-        return any((Path(root) / name).exists() for root in roots)
+        # FIXME 2: a ticket spells a path from its root ("CairnCommons/tickets/…"), so a name
+        # whose first segment IS a root's own name is read under that root — only a declared
+        # root's name, never a sibling of it.
+        parts = Path(name).parts
+        return any((Path(root) / name).exists()
+                   or (parts[:1] == (Path(root).name,) and (Path(root).parent / name).exists())
+                   for root in roots)
     if item.get("kind") == "module":
         if not _MODULE_NAME.fullmatch(name):
             return False

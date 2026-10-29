@@ -1,16 +1,17 @@
 [
   {
     "claim": "proof test_the_world_settles_what_a_builder_would_look_at.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-29T11:25:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-29T12:16:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_node_naming_nothing_is_unchanged\n  PASS  test_a_present_module_settles_without_importing_it\n  PASS  test_a_present_path_settles_the_step\n  PASS  test_a_rehearsal_over_a_present_path_is_clean_and_says_what_it_looked_at\n  PASS  test_an_absent_path_stays_a_gap_with_the_absence_measured\n  PASS  test_cannot_proceed_never_settles_by_the_world\n  PASS  test_the_prompt_teaches_looks_at\n  PASS  test_validate_and_the_schema_agree_on_looks_at\ngreen — 8 teeth: a present path or module settles its step without being imported; an absent one stays a gap naming what was measured absent; nothing named, nothing changes; cannot_proceed never settles; validate mirrors the schema; the record says what was looked at; the prompt teaches looks_at",
+      "stdout_tail": "  PASS  test_a_node_naming_nothing_is_unchanged\n  PASS  test_a_path_spelled_from_its_root_settles_and_a_sibling_does_not\n  PASS  test_a_present_module_settles_without_importing_it\n  PASS  test_a_present_path_settles_the_step\n  PASS  test_a_rehearsal_over_a_present_path_is_clean_and_says_what_it_looked_at\n  PASS  test_an_absent_path_stays_a_gap_with_the_absence_measured\n  PASS  test_cannot_proceed_never_settles_by_the_world\n  PASS  test_the_prompt_teaches_looks_at\n  PASS  test_validate_and_the_schema_agree_on_looks_at\ngreen — 9 teeth: a present path or module settles its step without being imported; an absent one stays a gap naming what was measured absent; nothing named, nothing changes; cannot_proceed never settles; validate mirrors the schema; the record says what was looked at; the prompt teaches looks_at",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_node_naming_nothing_is_unchanged",
+        "test_a_path_spelled_from_its_root_settles_and_a_sibling_does_not",
         "test_a_present_module_settles_without_importing_it",
         "test_a_present_path_settles_the_step",
         "test_a_rehearsal_over_a_present_path_is_clean_and_says_what_it_looked_at",
@@ -20,7 +21,7 @@
         "test_validate_and_the_schema_agree_on_looks_at"
       ],
       "teeth_red": [],
-      "test": "test-effd8d4491b8",
+      "test": "test-db8644c5b8dd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,7 +31,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "27ca51ce08a9cf20320d01a5d50a2e15c64860e6e394e6a0990e9d8b0cc97f8d",
+        "proof": "1f8aae4a78b92608cc1ae291fc55443e543164ca6debb8715952d8388a1c7503",
         "fixtures": "fe1dcc3cad1e3718d4ab3433482c8d216e09be1401bee2738f92c4a25504ceff",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -41,14 +42,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-effd8d4491b8",
-      "source_fingerprint": "f5551a69db95380853a292afbc6ff77dd7071ffaff6944db9a4c1710aa3a8667",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-db8644c5b8dd",
+      "source_fingerprint": "df45baa985717ec0fae6637f101805272116d729b767a419cef9faeb55df15fb",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_rehearsal.py",
@@ -57,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1757999-wzgrnm12/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1768360-756nb9u2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,38 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113051713,
-          "disk_bytes": 142487552,
-          "entries": 11643,
+          "bytes": 113066931,
+          "disk_bytes": 142516224,
+          "entries": 11648,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "7a31059daa23": {
-          "cairn/machines/rehearsal/schema.json": [
-            "test_validate_and_the_schema_agree_on_looks_at"
-          ],
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_a_node_naming_nothing_is_unchanged",
-            "test_a_present_module_settles_without_importing_it",
-            "test_a_present_path_settles_the_step",
-            "test_a_rehearsal_over_a_present_path_is_clean_and_says_what_it_looked_at",
-            "test_an_absent_path_stays_a_gap_with_the_absence_measured",
-            "test_cannot_proceed_never_settles_by_the_world",
-            "test_validate_and_the_schema_agree_on_looks_at"
-          ],
-          "cairn/machines/rehearsal/prompt.md": [
-            "test_the_prompt_teaches_looks_at"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7a31059daa23": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "17c386ee6110827366deac4ef73455807ec0db9b",
-          "anchor_first_build": "bfb29cc4974d70eef0a8ad90ef2c7beac2ecfd5c",
-          "commit": "3db1656eee5f03d90e99de8a927415edc820759d"
+          "reuses": 13
         }
       }
     },

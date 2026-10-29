@@ -224,7 +224,7 @@ def _census_of(root: Path) -> dict:
             # the tree is a LIST of eight-field records — append-only, so the LATEST record
             # is the standing verdict and the count is how many times it was sealed.
             try:
-                recs = json.loads(v.read_text())
+                recs = json.loads(v.read_text(encoding="utf-8"))
                 latest = recs[-1] if isinstance(recs, list) and recs else recs
                 verdict = latest.get("verdict") if isinstance(latest, dict) else (
                     f"UNEXPECTED SHAPE: {type(recs).__name__} of {type(latest).__name__}"
@@ -237,7 +237,7 @@ def _census_of(root: Path) -> dict:
         runtime_role = ""
         if charter_path.is_file():
             try:
-                runtime_role = json.loads(charter_path.read_text()).get("runtime_role", "")
+                runtime_role = json.loads(charter_path.read_text(encoding="utf-8")).get("runtime_role", "")
             except (json.JSONDecodeError, OSError):
                 pass
         rows.append({

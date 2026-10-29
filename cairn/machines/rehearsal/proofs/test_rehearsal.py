@@ -111,6 +111,11 @@ TICKET = {
 }
 
 
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
+
+
 def _node(step, state="builds_as_written", assumption="", would_settle="", confidence=0.9):
     return {"step": step, "state": state, "assumption": assumption,
             "would_settle": would_settle, "confidence": confidence}
@@ -524,7 +529,7 @@ def test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways(
 def test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam():
     w = World()
     try:
-        cli = [str(REPO / "bin" / "cairn"), "rehearse"]
+        cli = _exe(REPO / "bin" / "cairn") + ["rehearse"]
         r = subprocess.run(cli + ["--help"], capture_output=True, text=True, env=w.env(), timeout=120)
         assert r.returncode == 0 and "--decide" in r.stdout and "--proved" in r.stdout, r.stdout[-300:] + r.stderr[-300:]
         r = subprocess.run(cli + [TID, "--standing"], capture_output=True, text=True, env=w.env(), timeout=120)

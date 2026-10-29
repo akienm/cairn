@@ -179,7 +179,7 @@ def import_graph(repo_root: str) -> dict[str, set[str]]:
     """{path relative to repo_root: every dotted name it imports}."""
     graph: dict[str, set[str]] = {}
     for abs_path in walk_py(repo_root):
-        rel = os.path.relpath(abs_path, repo_root)
+        rel = os.path.relpath(abs_path, repo_root).replace(os.sep, "/")
         try:
             src = open(abs_path, encoding="utf-8", errors="replace").read()
         except OSError:

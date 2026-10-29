@@ -154,7 +154,10 @@ def test_decide_rewrites_the_step_it_settles_and_logs_the_old_line():
 def test_the_live_render_is_small_and_carries_no_old_heading():
     # the bound is on what rides BESIDE the plan: the plan is as long as its steps (7a31's are
     # 12,993 chars, measured 2026-10-29), and what the old render added was 45,000 more
-    text = _R().render("7a31059daa23")[0]
+    # the live commons sits beside the repo, else under $HOME (hollow's worktree has no sibling)
+    beside = Path(__file__).resolve().parents[4].parent / "CairnCommons"
+    live = beside if beside.is_dir() else Path.home() / "dev" / "src" / "CairnCommons"
+    text = _R().render("7a31059daa23", root=live)[0]
     plan = text[text.index("# THE PLAN"):text.index("# WHAT EXISTS")]
     assert len(text) - len(plan) < 5000, (len(text), len(plan))
     assert not _headings(text) & set(OLD_HEADINGS), _headings(text)

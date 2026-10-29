@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import os
 import stat
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -51,6 +52,11 @@ PROVES = {"55fc9263bf5a": {"all": "test_the_instance_is_part_of_the_address"}}
 _DISPATCHER = Path(__file__).resolve().parents[1] / "cairn"   # bin/proofs -> bin -> bin/cairn
 _LIVE_ROOT = Path.home() / ".cairn" / "devices"
 _FIXTURE_DEVICE = "fixture_instance_address"
+
+
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
 def _write_verb(path: Path, body: str) -> None:
@@ -97,7 +103,7 @@ def _run(root: Path, cmd_dir: Path, *args: str) -> subprocess.CompletedProcess:
     env = {**os.environ,
            "CAIRN_INSTANCE_ROOT": str(root),
            "CAIRN_CMD_DIR": str(cmd_dir)}
-    return subprocess.run([str(_DISPATCHER), *args], capture_output=True, text=True, env=env)
+    return subprocess.run([*_exe(_DISPATCHER), *args], capture_output=True, text=True, env=env)
 
 
 # --- the clause bodies, spelled once -----------------------------------------------------

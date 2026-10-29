@@ -381,11 +381,19 @@ def _atomic_write(path: Path, blob: bytes, mode: int | None) -> None:
         mode = (path.stat().st_mode & 0o777) if path.exists() else 0o644
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}.tmp")
+    held = path.stat().st_mode if os.name == "nt" and path.exists() else None
     try:
         tmp.write_bytes(blob)
         os.chmod(tmp, mode)
+        if held is not None:      # Windows: a read-only (0444) target cannot be replaced, Linux's can
+            os.chmod(path, 0o666)
         os.replace(tmp, path)
     except BaseException:
+        if os.name == "nt":       # ...nor can a read-only temp be unlinked; put the target's mode back
+            if tmp.exists():
+                os.chmod(tmp, 0o666)
+            if held is not None and path.exists():
+                os.chmod(path, held & 0o777)
         tmp.unlink(missing_ok=True)
         raise
 

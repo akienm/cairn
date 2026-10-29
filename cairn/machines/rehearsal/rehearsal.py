@@ -308,7 +308,10 @@ def reader_view(blob: bytes) -> str:
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
 
-_PATH_TOKEN = re.compile(r"~?/?[\w.\-]+(?:/[\w.\-]+)+/?")
+_PATH_TOKEN = re.compile(r"~?/?[\w.\-+]+(?:/[\w.\-+]+)+/?")
+# a file named without a directory ("voyage_craft.md"): measured under the directories the
+# plan's own found paths sit in, since a bare name means nothing at a root
+_BARE_FILE = re.compile(r"(?<![\w/.\-+~])[\w\-+]+\.(?:py|jsonl|json|md|sh|txt|toml|ya?ml)\b")
 _MODULE_TOKEN = re.compile(r"\b(?:cairn|skills)(?:\.[A-Za-z_]\w*)+")
 _PATH_TRAIL = ".,;:)'\"`"
 
@@ -317,7 +320,11 @@ def what_exists(texts: list[str], roots) -> list[dict]:
     """The WHAT EXISTS list (ticket c9897770efe6 D5; Akien 2026-10-29: *"we should be telling
     it what exists and what doesn't before hand"*): every path and dotted module the texts
     cite, first-seen order, no duplicates, each measured with ``look`` before the read. A path
-    is a token with a '/' whose last segment carries a '.' or that ends '/'; a module is a
+    is a token with a '/' whose last segment carries a '.' or that ends '/' (one with neither,
+    like ``bin/cairn``, rides only when it is found, since a bare word pair is not a path), or a
+    bare file name with a known extension. A relative path not found at a root is looked for
+    under every directory the plan's found paths sit in (a ticket says ``proofs/x.py`` beside
+    ``cairn/machines/m/...``); a hit rides as ``at``, the spelling from its root. A module is a
     dotted name under ``cairn.`` or ``skills.``, measured on its longest prefix of two or more
     segments that ``look`` finds, and that prefix rides as ``module`` when it is shorter than
     the name (the rest is a name inside it). Nothing is imported or run."""
@@ -326,18 +333,20 @@ def what_exists(texts: list[str], roots) -> list[dict]:
     seen: set[str] = set()
     for text in texts:
         found = [(m.start(), "path", m.group(0).rstrip(_PATH_TRAIL)) for m in _PATH_TOKEN.finditer(text)]
+        found += [(m.start(), "path", m.group(0)) for m in _BARE_FILE.finditer(text)]
         found += [(m.start(), "module", m.group(0)) for m in _MODULE_TOKEN.finditer(text)]
         for _, kind, name in sorted(found):
-            if kind == "path":
-                last = name.rstrip("/").rsplit("/", 1)[-1]
-                if not ("." in last or name.endswith("/")) or "/" not in name.rstrip("/"):
-                    continue
             if not name or name in seen:
                 continue
-            seen.add(name)
             if kind == "path":
-                out.append({"kind": "path", "name": name, "found": look({"kind": "path", "name": name}, roots)})
+                hit = look({"kind": "path", "name": name}, roots)
+                last = name.rstrip("/").rsplit("/", 1)[-1]
+                if "/" in name.rstrip("/") and not ("." in last or name.endswith("/") or hit):
+                    continue
+                seen.add(name)
+                out.append({"kind": "path", "name": name, "found": hit})
                 continue
+            seen.add(name)
             parts = name.split(".")
             hit = next((".".join(parts[:k]) for k in range(len(parts), 1, -1)
                         if look({"kind": "module", "name": ".".join(parts[:k])}, roots)), None)
@@ -345,6 +354,42 @@ def what_exists(texts: list[str], roots) -> list[dict]:
             if hit is not None and hit != name:
                 entry["module"] = hit
             out.append(entry)
+    bases: list[tuple[Path, str]] = []
+    for e in out:
+        if e["kind"] != "path" or not e["found"] or os.path.isabs(os.path.expanduser(e["name"])):
+            continue
+        for root in roots:
+            rel = Path(e["name"])
+            # the root's own name may spell the path ("CairnCommons/…"), and the repo's root
+            # and its package can share a name ("cairn/cairn/…"), so both readings are tried
+            for where in (root / rel, root.parent / rel if rel.parts[:1] == (root.name,) else None):
+                if where is None or not where.exists():
+                    continue
+                d, spell = (where, rel) if where.is_dir() else (where.parent, rel.parent)
+                if (d, str(spell)) not in bases and str(spell) not in ("", "."):
+                    bases.append((d, str(spell)))
+    grew = True
+    while grew:                             # a hit under a base is itself a base for the rest
+        grew = False
+        for e in out:
+            if e["kind"] != "path" or e["found"] or os.path.isabs(os.path.expanduser(e["name"])):
+                continue
+            for d, spell in list(bases):
+                where = d / e["name"]
+                if where.exists():
+                    e["found"], e["at"] = True, f"{spell}/{e['name']}"
+                    up = (where, e["at"]) if where.is_dir() else (where.parent, e["at"].rsplit("/", 1)[0])
+                    if up not in bases:
+                        bases.append(up)
+                    grew = True
+                    break
+                # an absent file still names its directory, and a bare name may sit there
+                parent = Path(e["name"]).parent
+                if str(parent) not in ("", ".") and (d / parent).is_dir():
+                    up = (d / parent, f"{spell}/{parent}")
+                    if up not in bases:
+                        bases.append(up)
+                        grew = True
     return out
 
 
@@ -357,7 +402,8 @@ def _what_exists_lines(entries: list[dict]) -> str:
             lines.append(f"present module {e['module']} (cited as {e['name']}; the rest is a name "
                          f"inside it, not measured)")
         else:
-            lines.append(f"{'present' if e['found'] else 'absent'} {e['kind']} {e['name']}")
+            at = f" (at {e['at']})" if e.get("at") else ""
+            lines.append(f"{'present' if e['found'] else 'absent'} {e['kind']} {e['name']}{at}")
     return "\n".join(lines)
 
 

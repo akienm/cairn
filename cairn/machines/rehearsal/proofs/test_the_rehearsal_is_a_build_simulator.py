@@ -92,7 +92,36 @@ def test_what_exists_measures_paths_and_modules_without_importing():
         fn = got[f"cairn.{BOOM}.mod.fn"]
         assert fn["kind"] == "module" and fn["found"] is True and fn["module"] == f"cairn.{BOOM}.mod", fn
         assert f"cairn.{BOOM}" not in sys.modules, "what_exists imported the module it measured"
-        assert len(got) == 5 and all(set(e) <= {"kind", "name", "found", "module"} for e in got.values()), got
+        assert len(got) == 5 and all(set(e) <= {"kind", "name", "found", "module", "at"} for e in got.values()), got
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
+
+
+
+def test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one():
+    # measured 2026-10-29, c989's own pass 1: a '+' fell out of the path pattern, and
+    # 'proofs/x.py' / 'x.py' read absent beside a cited cairn/machines/<m>/ path
+    base = scratch_dir("rehearsal-what-exists-beside-")
+    try:
+        repo = base / "repo"
+        comp = repo / "cairn" / "machines" / "widget"
+        (comp / "proofs" / "fixtures").mkdir(parents=True)
+        (comp / "a+b.json").write_text("{}\n")
+        (comp / "proofs" / "test_w.py").write_text("")
+        (comp / "proofs" / "fixtures" / "pass9.json").write_text("{}\n")
+        (repo / "bin").mkdir()
+        (repo / "bin" / "tool").write_text("")
+        texts = ["rewrite cairn/machines/widget/a+b.json; edit proofs/test_w.py and "
+                 "proofs/fixtures/pass1.json, then pass9.json and gone.md; run bin/tool, not and/or"]
+        got = {e["name"]: e for e in _R().what_exists(texts, [repo, base / "CairnCommons"])}
+        assert got["cairn/machines/widget/a+b.json"]["found"] is True, got
+        assert got["proofs/test_w.py"]["at"] == "cairn/machines/widget/proofs/test_w.py", got
+        assert got["pass9.json"]["at"] == "cairn/machines/widget/proofs/fixtures/pass9.json", got
+        assert got["proofs/fixtures/pass1.json"]["found"] is False, got
+        assert "at" not in got["proofs/fixtures/pass1.json"], got
+        assert got["gone.md"]["found"] is False, got
+        assert got["bin/tool"]["found"] is True and "and/or" not in got, got
+        assert "deletes or removes something WHAT EXISTS lists as absent" in _R().prompt()
     finally:
         shutil.rmtree(base, ignore_errors=True)
 

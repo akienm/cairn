@@ -36,6 +36,8 @@ builder would take them. For each node:
 - **Judge each step against the WHOLE plan, not alone.** A builder reads every step before
   building any. If what a step needs is said in another step, earlier or later, the step
   builds. When a later step sharpens an earlier one, the later one governs.
+- A step that deletes or removes something WHAT EXISTS lists as absent has nothing left to
+  do: it builds. The state the step asks for already holds.
 - Judge build steps only. Whether the plan fits any process is not your question.
 - Stay inside THE PLAN and WHAT EXISTS. Use nothing you believe about the world beyond them.
 - One step per node. Do not merge steps to shorten the list, and do not split one to

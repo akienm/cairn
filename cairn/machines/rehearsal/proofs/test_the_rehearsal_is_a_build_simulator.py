@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from cairn.machines.rehearsal.proofs.test_rehearsal import World, TID  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-PROVES = {"c9897770efe6": {"all": "the_rehearsal_is_a_build_simulator"}}
+PROVES = {"c9897770efe6": {"all": "test_the_rehearsal_is_a_build_simulator"}}
 
 OLD_HEADINGS = ("# VOYAGE CRAFT", "# ALREADY LANDED", "# CHART", "# CHARTER")
 WIRING = "where the widget is wired"
@@ -162,6 +162,15 @@ def test_the_live_render_is_small_and_carries_no_old_heading():
     assert len(text) - len(plan) < 5000, (len(text), len(plan))
     assert not _headings(text) & set(OLD_HEADINGS), _headings(text)
     assert "# WHAT EXISTS" in _headings(text)
+
+
+
+def test_the_rehearsal_is_a_build_simulator():
+    # the falsifier carries no numbered clauses, so its one declared tooth walks the narrow
+    # teeth end to end; each still prints on its own, so a red names which half fell
+    for name, fn in list(globals().items()):
+        if name.startswith("test_") and name != "test_the_rehearsal_is_a_build_simulator" and callable(fn):
+            fn()
 
 
 def main() -> int:

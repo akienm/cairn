@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_only_the_gate_writes_a_certificate.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-29T10:42:47",
+    "caller": "cairn test",
+    "date": "2026-10-29T11:11:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_certify_writes_what_verify_accepts  — faults []; under certificates/ True; body shape True; red raised True; red wrote nothing True\n  PASS  test_the_pretooluse_gate_refuses_a_certificate  — allowed: []\n  PASS  test_the_door_holds_certificates_to_the_certify_verb  — cast refused True; certify on a ticket refused True\n  PASS  test_only_transitiongate_certify_writes_and_only_once  — forged refused True; rewrite refused True\n  PASS  test_a_certificate_around_the_door_fails_both_checks  — verify around ['certificates/abcdef012345-BUILDME-around.cert.json: never journaled — written around the door']; verify edited [\"abcdef012345-PROVEME-20261029T164247Z-bf55.cert.json: body_sha256 '07f4dcd4cc5b6a74cc41fe19f860ee3cad8286f2aa067b8e457c9b44561719ab' does not match its body (634094d354e4242955053e07b7c60807573e55f1810ea5d8535b4bc2d3225ab3)\", 'certificates/abcdef012345-PROVEME-20261029T164247Z-bf55.cert.json: its bytes are not the ones certify wrote (journal sha_after 6f3a33e12b49) — changed around the door']; check_staged names around True, edited True\n  PASS  test_every_hash_is_recomputed  — no hash fault named after changing: []\n\nGREEN",
+      "stdout_tail": "  PASS  test_certify_writes_what_verify_accepts  — faults []; under certificates/ True; body shape True; red raised True; red wrote nothing True\n  PASS  test_the_pretooluse_gate_refuses_a_certificate  — allowed: []\n  PASS  test_the_door_holds_certificates_to_the_certify_verb  — cast refused True; certify on a ticket refused True\n  PASS  test_only_transitiongate_certify_writes_and_only_once  — forged refused True; rewrite refused True\n  PASS  test_a_certificate_around_the_door_fails_both_checks  — verify around ['certificates/abcdef012345-BUILDME-around.cert.json: never journaled — written around the door']; verify edited [\"abcdef012345-PROVEME-20261029T171108Z-ed3e.cert.json: body_sha256 '2c03144c33259284bd524a1ed3b9168e3713527ef03688421ac46717e34cf36f' does not match its body (22dc09306cc3d4360f98ef1ebbfc9399199270581f6affce9fb6a3918a1f0424)\", 'certificates/abcdef012345-PROVEME-20261029T171108Z-ed3e.cert.json: its bytes are not the ones certify wrote (journal sha_after da1cc5d23317) — changed around the door']; check_staged names around True, edited True\n  PASS  test_every_hash_is_recomputed  — no hash fault named after changing: []\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_certify_writes_what_verify_accepts",
@@ -18,7 +18,7 @@
         "test_every_hash_is_recomputed"
       ],
       "teeth_red": [],
-      "test": "test-bba0ce2566e9",
+      "test": "test-3f3de143ac5f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bba0ce2566e9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3f3de143ac5f",
       "source_fingerprint": "b73fef0a0e2561e2eebfb545ab2fa592f08f3eb24a4e0742a88d587d83ed277c",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -54,7 +55,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1744373-xm3q6nto/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1751949-l5e4q_ef/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,11 +64,26 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112983103,
-          "disk_bytes": 142336000,
-          "entries": 11615,
+          "bytes": 113000238,
+          "disk_bytes": 142376960,
+          "entries": 11623,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "e41a94da3fd0": {
+          "CairnCommons/tickets/e41a94da3fd0-the-inspector-finds-the-gate-certifies.json": {
+            "notified": "n-f2bb692445a5"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "e41a94da3fd0": {
+          "anchor_rule": "journal",
+          "anchor_journal": "79d85f6d8c71247c3981d02abc5e5d1cefb43e28",
+          "anchor_first_build": null,
+          "commit": "79d85f6d8c71247c3981d02abc5e5d1cefb43e28"
         }
       }
     },

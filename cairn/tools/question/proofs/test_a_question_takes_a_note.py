@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -38,6 +39,11 @@ PROVES = {
         "2": "test_a_note_on_an_answered_question_or_without_text_or_by_is_refused",
     },
 }
+
+
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -79,7 +85,7 @@ def teeth(tmp: Path) -> None:
              and all(n.get("at") for n in notes) and not back.get("resolved"))
     shown = Q.render([back])
     rendered = "measured: the first note" in shown and "measured: the second note" in shown
-    cli = [str(REPO / "bin" / "cairn"), "question"]
+    cli = _exe(REPO / "bin" / "cairn") + ["question"]
     r = subprocess.run(cli + ["note", qid, "measured: a cli note", "--by", "cc"],
                        capture_output=True, text=True, env=_env(qdir), timeout=120)
     s = subprocess.run(cli + ["show", qid], capture_output=True, text=True, env=_env(qdir), timeout=120)

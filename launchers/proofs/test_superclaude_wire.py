@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -33,7 +34,7 @@ def _launch(*args: str, troot: str) -> subprocess.CompletedProcess:
            "PYTHONPATH": str(_REPO),
            "CLAUDE_BIN": "true",                  # exec lands on /bin/true, not claude
            "CAIRN_BOOT_LOG": os.path.join(troot, "bootlog")}
-    return subprocess.run(["bash", str(_LAUNCHER), *args],
+    return subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), *args],
                           capture_output=True, text=True, env=env, timeout=120)
 
 

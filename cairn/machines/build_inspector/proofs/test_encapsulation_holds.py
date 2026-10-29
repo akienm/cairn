@@ -224,7 +224,7 @@ def the_live_into_device_findings_equal_an_independent_census():
                      if "/".join(parts[:i]) in comps), None)
 
     def rel(p):
-        return Path(p).relative_to(root).as_posix() if os.path.isabs(str(p)) else str(p)
+        return Path(p).relative_to(root).as_posix() if os.path.isabs(str(p)) else str(p).replace(os.sep, "/")
 
     census = set()
     for site in import_sites(root):

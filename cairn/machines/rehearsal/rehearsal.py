@@ -327,7 +327,8 @@ def what_exists(texts: list[str], roots) -> list[dict]:
     ``cairn/machines/m/...``); a hit rides as ``at``, the spelling from its root. A module is a
     dotted name under ``cairn.`` or ``skills.``, measured on its longest prefix of two or more
     segments that ``look`` finds, and that prefix rides as ``module`` when it is shorter than
-    the name (the rest is a name inside it). Nothing is imported or run."""
+    the name (the rest is a name inside it). An absent file whose directory is present names
+    that directory as its own present entry, after every cited one. Nothing is imported or run."""
     roots = [Path(r) for r in roots]
     out: list[dict] = []
     seen: set[str] = set()
@@ -390,6 +391,25 @@ def what_exists(texts: list[str], roots) -> list[dict]:
                     if up not in bases:
                         bases.append(up)
                         grew = True
+    # an absent file's present directory rides as its own entry, so the reader is told the
+    # place a build creates the file in exists (ticket 5e71da822b3d)
+    names = {e["name"] for e in out}
+    for e in list(out):
+        if e["kind"] != "path" or e["found"] or os.path.isabs(os.path.expanduser(e["name"])):
+            continue
+        parent = Path(e["name"]).parent
+        if str(parent) in ("", ".") or str(parent) in names or f"{parent}/" in names:
+            continue
+        at = None
+        if not any((root / parent).is_dir() for root in roots):
+            at = next((f"{spell}/{parent}" for d, spell in bases if (d / parent).is_dir()), None)
+            if at is None:
+                continue
+        entry = {"kind": "path", "name": f"{parent}/", "found": True}
+        if at is not None:
+            entry["at"] = at
+        out.append(entry)
+        names.add(entry["name"])
     return out
 
 

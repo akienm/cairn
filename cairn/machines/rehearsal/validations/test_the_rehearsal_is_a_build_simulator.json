@@ -2,28 +2,27 @@
   {
     "claim": "proof test_the_rehearsal_is_a_build_simulator.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T17:00:14",
+    "date": "2026-10-29T17:06:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_the_prompt_opens_as_a_build_simulator\n  PASS  test_render_hands_only_the_plan_and_what_exists\n  PASS  test_what_exists_measures_paths_and_modules_without_importing\n  PASS  test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one\n  FAIL  test_what_exists_names_the_present_parent_of_an_absent_file: KeyError: 'cairn/tools/t/proofs/'\n  PASS  test_validate_and_the_schema_speak_builds_and_stopped\n  PASS  test_a_stopped_read_is_a_gap_naming_what_is_missing\n  PASS  test_decide_rewrites_the_step_it_settles_and_logs_the_old_line\n  PASS  test_the_live_render_is_small_and_carries_no_old_heading\n  FAIL  test_the_rehearsal_is_a_build_simulator: KeyError: 'cairn/tools/t/proofs/'\nred — 2 of 10 teeth: test_what_exists_names_the_present_parent_of_an_absent_file, test_the_rehearsal_is_a_build_simulator",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_prompt_opens_as_a_build_simulator\n  PASS  test_render_hands_only_the_plan_and_what_exists\n  PASS  test_what_exists_measures_paths_and_modules_without_importing\n  PASS  test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one\n  PASS  test_what_exists_names_the_present_parent_of_an_absent_file\n  PASS  test_validate_and_the_schema_speak_builds_and_stopped\n  PASS  test_a_stopped_read_is_a_gap_naming_what_is_missing\n  PASS  test_decide_rewrites_the_step_it_settles_and_logs_the_old_line\n  PASS  test_the_live_render_is_small_and_carries_no_old_heading\n  PASS  test_the_rehearsal_is_a_build_simulator\ngreen — 10 teeth: the prompt opens as a build simulator; the reader is handed only the plan and what exists; existence is measured without importing; nodes are builds|stopped with what is missing; decide rewrites the step it settles",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_prompt_opens_as_a_build_simulator",
         "test_render_hands_only_the_plan_and_what_exists",
         "test_what_exists_measures_paths_and_modules_without_importing",
         "test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one",
+        "test_what_exists_names_the_present_parent_of_an_absent_file",
         "test_validate_and_the_schema_speak_builds_and_stopped",
         "test_a_stopped_read_is_a_gap_naming_what_is_missing",
         "test_decide_rewrites_the_step_it_settles_and_logs_the_old_line",
-        "test_the_live_render_is_small_and_carries_no_old_heading"
-      ],
-      "teeth_red": [
-        "test_what_exists_names_the_present_parent_of_an_absent_file",
+        "test_the_live_render_is_small_and_carries_no_old_heading",
         "test_the_rehearsal_is_a_build_simulator"
       ],
-      "test": "test-c404dee219a4",
+      "teeth_red": [],
+      "test": "test-559d96681226",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -49,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c404dee219a4",
-      "source_fingerprint": "52ea325443836de127a8cdf7bcf7a5b6ad0dc6797f53f6f8092f694941eb0a96",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-559d96681226",
+      "source_fingerprint": "61fbef69ecaa4b02356ae6a9452b9d80de79dc7b99562e261714ad90e094383c",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_rehearsal.py",
@@ -59,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1839644-23l6qie3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1841004-f5j2e4uz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,21 +67,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113406959,
-          "disk_bytes": 143007744,
-          "entries": 11705,
+          "bytes": 113409258,
+          "disk_bytes": 143020032,
+          "entries": 11708,
           "builds": 1,
-          "reuses": 0
+          "reuses": 10
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "1740af20f2191cef1d5acb6e72c18d960d8c7d11e299330be5c70a6bcec09e66",
         "opened": "2026-10-29T17:00:14",
         "last_red": "2026-10-29T17:00:14",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-rehearsal",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-29T17:06:53",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "1740af20f2191cef1d5acb6e72c18d960d8c7d11e299330be5c70a6bcec09e66"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

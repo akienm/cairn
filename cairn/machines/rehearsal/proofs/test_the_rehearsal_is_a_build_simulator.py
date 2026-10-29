@@ -26,7 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from cairn.machines.rehearsal.proofs.test_rehearsal import World, TID  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-PROVES = {"c9897770efe6": {"all": "test_the_rehearsal_is_a_build_simulator"}}
+PROVES = {"c9897770efe6": {"all": "test_the_rehearsal_is_a_build_simulator"},
+          "5e71da822b3d": {"all": "test_what_exists_names_the_present_parent_of_an_absent_file"}}
 
 OLD_HEADINGS = ("# VOYAGE CRAFT", "# ALREADY LANDED", "# CHART", "# CHARTER")
 WIRING = "where the widget is wired"
@@ -122,6 +123,28 @@ def test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one():
         assert got["gone.md"]["found"] is False, got
         assert got["bin/tool"]["found"] is True and "and/or" not in got, got
         assert "deletes or removes something WHAT EXISTS lists as absent" in _R().prompt()
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
+
+
+def test_what_exists_names_the_present_parent_of_an_absent_file():
+    # measured 2026-10-29, 284798998ab0 pass 3: a file the build creates read absent and its
+    # present directory was never listed, so the reader stopped on the directory (5e71da822b3d)
+    base = scratch_dir("rehearsal-what-exists-parent-")
+    try:
+        repo = base / "repo"
+        (repo / "cairn" / "tools" / "t" / "proofs").mkdir(parents=True)
+        (repo / "cairn" / "tools" / "t" / "proofs" / "test_t.py").write_text("")
+        texts = ["write cairn/tools/t/proofs/new_proof.py and cairn/tools/t/proofs/other.py;",
+                 "then gone/x.py"]
+        entries = _R().what_exists(texts, [repo, base / "CairnCommons"])
+        got = {e["name"]: e for e in entries}
+        for name in ("cairn/tools/t/proofs/new_proof.py", "cairn/tools/t/proofs/other.py", "gone/x.py"):
+            assert got[name]["found"] is False, got
+        assert got["cairn/tools/t/proofs/"]["found"] is True, got
+        assert [e["name"] for e in entries].count("cairn/tools/t/proofs/") == 1, entries
+        assert "gone/" not in got and "gone" not in got, got
+        assert "present path cairn/tools/t/proofs/" in _R()._what_exists_lines(entries), entries
     finally:
         shutil.rmtree(base, ignore_errors=True)
 

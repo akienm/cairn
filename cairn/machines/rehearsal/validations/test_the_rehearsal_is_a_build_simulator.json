@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_rehearsal_is_a_build_simulator.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-29T14:00:21",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-29T17:00:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_prompt_opens_as_a_build_simulator\n  PASS  test_render_hands_only_the_plan_and_what_exists\n  PASS  test_what_exists_measures_paths_and_modules_without_importing\n  PASS  test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one\n  PASS  test_validate_and_the_schema_speak_builds_and_stopped\n  PASS  test_a_stopped_read_is_a_gap_naming_what_is_missing\n  PASS  test_decide_rewrites_the_step_it_settles_and_logs_the_old_line\n  PASS  test_the_live_render_is_small_and_carries_no_old_heading\n  PASS  test_the_rehearsal_is_a_build_simulator\ngreen — 9 teeth: the prompt opens as a build simulator; the reader is handed only the plan and what exists; existence is measured without importing; nodes are builds|stopped with what is missing; decide rewrites the step it settles",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_prompt_opens_as_a_build_simulator\n  PASS  test_render_hands_only_the_plan_and_what_exists\n  PASS  test_what_exists_measures_paths_and_modules_without_importing\n  PASS  test_what_exists_reads_a_plus_a_bare_name_and_a_path_beside_a_cited_one\n  FAIL  test_what_exists_names_the_present_parent_of_an_absent_file: KeyError: 'cairn/tools/t/proofs/'\n  PASS  test_validate_and_the_schema_speak_builds_and_stopped\n  PASS  test_a_stopped_read_is_a_gap_naming_what_is_missing\n  PASS  test_decide_rewrites_the_step_it_settles_and_logs_the_old_line\n  PASS  test_the_live_render_is_small_and_carries_no_old_heading\n  FAIL  test_the_rehearsal_is_a_build_simulator: KeyError: 'cairn/tools/t/proofs/'\nred — 2 of 10 teeth: test_what_exists_names_the_present_parent_of_an_absent_file, test_the_rehearsal_is_a_build_simulator",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_prompt_opens_as_a_build_simulator",
@@ -17,11 +17,13 @@
         "test_validate_and_the_schema_speak_builds_and_stopped",
         "test_a_stopped_read_is_a_gap_naming_what_is_missing",
         "test_decide_rewrites_the_step_it_settles_and_logs_the_old_line",
-        "test_the_live_render_is_small_and_carries_no_old_heading",
+        "test_the_live_render_is_small_and_carries_no_old_heading"
+      ],
+      "teeth_red": [
+        "test_what_exists_names_the_present_parent_of_an_absent_file",
         "test_the_rehearsal_is_a_build_simulator"
       ],
-      "teeth_red": [],
-      "test": "test-0b8f10ad4ad9",
+      "test": "test-c404dee219a4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +33,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "262302ce9efff98b6f2538ad276355e856ed5853c1062925cee69e8ae41075a4",
+        "proof": "1740af20f2191cef1d5acb6e72c18d960d8c7d11e299330be5c70a6bcec09e66",
         "fixtures": "1fba784def744e03b96168f3040818f94f4f8ce48383bf993f65aa95478e0149",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,14 +44,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0b8f10ad4ad9",
-      "source_fingerprint": "ba70d73595b0291c92e859c0e669e21ef6db9ccb29a7a63229bb71dbd4a30520",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c404dee219a4",
+      "source_fingerprint": "52ea325443836de127a8cdf7bcf7a5b6ad0dc6797f53f6f8092f694941eb0a96",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/proofs/test_rehearsal.py",
@@ -58,7 +59,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1810161-m1g80ecw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1839644-23l6qie3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,74 +68,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113233251,
-          "disk_bytes": 142774272,
-          "entries": 11680,
+          "bytes": 113406959,
+          "disk_bytes": 143007744,
+          "entries": 11705,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "c9897770efe6": {
-          "cairn/machines/rehearsal/prompt.md": [
-            "test_the_rehearsal_is_a_build_simulator"
-          ],
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_the_rehearsal_is_a_build_simulator"
-          ],
-          "cairn/machines/rehearsal/schema.json": [
-            "test_the_rehearsal_is_a_build_simulator"
-          ],
-          "cairn/machines/rehearsal/proofs/fixtures/live_fire_pass1.json": {
-            "notified": "n-c0b6d11c312f"
-          },
-          "cairn/machines/rehearsal/proofs/fixtures/live_fire_pass4.json": {
-            "notified": "n-71e3f813a766"
-          },
-          "cairn/machines/rehearsal/proofs/test_a_decision_supersedes_in_one_act.py": [
-            "cairn/machines/rehearsal/proofs/test_a_decision_supersedes_in_one_act.py::the_996668_shape_rewrites_d4_in_place"
-          ],
-          "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py": [
-            "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py::test_a_failed_pass_counts_toward_the_cap",
-            "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py::test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer",
-            "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py::test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal"
-          ],
-          "cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py": [
-            "cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py::a_doubled_id_still_gets_a_whole_re_read",
-            "cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py::a_dropped_tail_is_patched_into_one_whole_tree",
-            "cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py::the_patch_prompt_asks_for_exactly_the_missing_ids"
-          ],
-          "cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py": [
-            "cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py::the_vocabulary_omits_a_scoped_decision"
-          ],
-          "cairn/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py": [
-            "cairn/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py::retired_lines_leave_the_view_and_stay_in_the_file"
-          ],
-          "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py": [
-            "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py::every_decision_is_labeled",
-            "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py::the_answer_lands_in_its_line",
-            "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py::the_file_is_untouched",
-            "cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py::the_hash_is_of_the_file"
-          ],
-          "cairn/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py": [
-            "cairn/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py::test_a_clean_pass_appends_a_log_line_and_leaves_the_plan",
-            "cairn/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py::test_log_reaches_count_the_gaps_a_log_entry_answers"
-          ],
-          "cairn/machines/rehearsal/intention+why.json": {
-            "notified": "n-4371901079c0"
-          },
-          "CairnCommons/intentions-not-beside-code/I-the-cheapest-reader-proves-a-ticket-before-it-is-built.md": {
-            "notified": "n-efe0ac8c4397"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "c9897770efe6": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "955c988c84b7abf5286a209f0b89f89ef15b11d4",
-          "anchor_first_build": "955c988c84b7abf5286a209f0b89f89ef15b11d4",
-          "commit": "ce2e5745df503b3d17206ebc3d15ddc021589ff8"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "1740af20f2191cef1d5acb6e72c18d960d8c7d11e299330be5c70a6bcec09e66",
+        "opened": "2026-10-29T17:00:14",
+        "last_red": "2026-10-29T17:00:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-rehearsal",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

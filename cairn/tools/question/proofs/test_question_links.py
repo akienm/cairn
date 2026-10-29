@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import re
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -66,6 +67,11 @@ PROVES = {
         "charter": "test_the_charter_names_the_sieve_the_probe_and_this_proof",
     }
 }
+
+
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -285,7 +291,7 @@ def teeth_door(tmp: Path) -> None:
     # cli: --spawned is required, `none` folds, two open two, rebind and list are verbs
     print("THE CLI")
     env = _env(commons)
-    cli = [str(REPO / "bin" / "cairn"), "question"]
+    cli = _exe(REPO / "bin" / "cairn") + ["question"]
     run = lambda *a: subprocess.run(cli + list(a), capture_output=True, text=True, env=env, timeout=120)  # noqa: E731
     r_open = run("open", "--ticket", TID, "is the cli the same door?", "--why", "his shell reaches it")
     cid = next((tok for tok in r_open.stdout.split() if tok.startswith("open-")), "")

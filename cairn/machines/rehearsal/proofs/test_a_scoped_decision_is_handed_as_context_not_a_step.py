@@ -89,8 +89,7 @@ class World:
 
 
 def _node(step):
-    return {"step": step, "state": "builds_as_written", "assumption": "", "would_settle": "",
-            "confidence": 0.9}
+    return {"step": step, "state": "builds", "missing": "", "confidence": 0.9}
 
 
 def a_scoped_decision_is_context_not_a_step():

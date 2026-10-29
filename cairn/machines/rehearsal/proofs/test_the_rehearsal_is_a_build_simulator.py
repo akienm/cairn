@@ -133,7 +133,7 @@ def test_decide_rewrites_the_step_it_settles_and_logs_the_old_line():
         plan = json.loads(w.ticket.read_text())["decisions"]
         twos = [d for d in plan if d["n"] == 2]
         assert len(twos) == 1 and twos[0]["text"] == "prove the widget wired at the rack", plan
-        logged = [x["record"] for x in read_log(w.ticket, "decision_retired")]
+        logged = read_log(w.ticket, "decision_retired")
         assert [x["decision"]["text"] for x in logged] == ["prove the widget"], logged
         before = w.ticket.read_bytes()
         try:
@@ -152,8 +152,11 @@ def test_decide_rewrites_the_step_it_settles_and_logs_the_old_line():
 
 
 def test_the_live_render_is_small_and_carries_no_old_heading():
+    # the bound is on what rides BESIDE the plan: the plan is as long as its steps (7a31's are
+    # 12,993 chars, measured 2026-10-29), and what the old render added was 45,000 more
     text = _R().render("7a31059daa23")[0]
-    assert len(text) < 15000, len(text)
+    plan = text[text.index("# THE PLAN"):text.index("# WHAT EXISTS")]
+    assert len(text) - len(plan) < 5000, (len(text), len(plan))
     assert not _headings(text) & set(OLD_HEADINGS), _headings(text)
     assert "# WHAT EXISTS" in _headings(text)
 

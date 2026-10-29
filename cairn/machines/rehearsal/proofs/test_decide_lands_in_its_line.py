@@ -82,17 +82,17 @@ class World:
         self.before = self.ticket.read_bytes()
         from cairn.machines.rehearsal import rehearsal as R
         self.text, self.sha, self.path = R.render(TID, root=self.commons,
-                                                  berths_root=self.dir / "no-berths",
                                                   repo=self.dir / "no-repo")
 
     def close(self):
         shutil.rmtree(self.dir, ignore_errors=True)
 
     def decisions(self) -> dict[int, str]:
-        head = "# THE TICKET\n\n```json\n"
+        # the reader is handed THE PLAN, its steps keyed D<n> (c9897770efe6 D6)
+        head = "# THE PLAN\n\n```json\n"
         i = self.text.index(head) + len(head)
         doc = json.loads(self.text[i:self.text.index("\n```", i)])
-        return {d["n"]: d["text"] for d in doc["decisions"]}
+        return {int(d["step"][1:]): d["text"] for d in doc["steps"]}
 
 
 def every_decision_is_labeled(w):

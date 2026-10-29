@@ -79,7 +79,7 @@ class World:
         shutil.rmtree(self.dir, ignore_errors=True)
 
     def kw(self):
-        return dict(root=self.commons, berths_root=self.dir / "no-berths", repo=self.dir / "no-repo")
+        return dict(root=self.commons, repo=self.dir / "no-repo")
 
     def fail_once(self):
         """One pass with the always-failing reader. Before the build this raised; the raise is

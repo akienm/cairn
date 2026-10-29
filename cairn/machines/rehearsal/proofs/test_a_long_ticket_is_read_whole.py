@@ -50,8 +50,9 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _node(i: int) -> dict:
-    return {"step": f"D{i}", "state": "builds_as_written", "assumption": f"marker-of-D{i}",
-            "would_settle": "", "confidence": 0.9}
+    # the marker rides ``missing`` (a building step may still say something there), so the
+    # patch prompt's carried nodes can be told apart by id
+    return {"step": f"D{i}", "state": "builds", "missing": f"marker-of-D{i}", "confidence": 0.9}
 
 
 class _Scripted:

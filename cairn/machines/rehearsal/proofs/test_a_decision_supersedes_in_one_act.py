@@ -15,9 +15,11 @@ exit; none reads the live corpus or calls a reader.
 
   1. ONE ACT. decide(step='prompt.md', line='... replaces D4 ...', supersedes=[4]) leaves
      exactly one new live line, D4 retired into it on the log, and the plan written ONCE.
-  2. THE 996668 SHAPE IS REFUSED, A PLAIN D<n> STEP LANDS. (a) decide(step='D4', line=
-     '... replaces D4 ...') refuses naming --supersedes and writes nothing; (b) decide(step='D4',
-     line='D4 holds: ...') lands as a new line.
+  2. THE 996668 SHAPE REWRITES D4 IN PLACE. Since c9897770efe6 D7 a decide at a D<n> step IS a
+     replacement by construction, so the refusal that named --supersedes is gone and the shape
+     it guarded (a line landing BESIDE D4) cannot happen: decide(step='D4', line='... replaces
+     D4 ...') leaves D3 and D4 the only lines, D4 holding the new text, the old D4 whole on the
+     log as rewritten in place, the plan written once; a second decide at D4 rewrites it again.
 
     bin/cairn test cairn/machines/rehearsal/proofs/test_a_decision_supersedes_in_one_act.py
 """
@@ -33,7 +35,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 PROVES = {"c70eeeef73ac": {"1": "a_decision_supersedes_in_one_write",
-                           "2": "the_996668_shape_is_refused_and_a_plain_dn_step_lands"}}
+                           "2": "the_996668_shape_rewrites_d4_in_place"}}
 
 TID = "c70ef00dfeed"
 STEM = f"{TID}-testing-c70eeeef73ac-decision-supersedes"
@@ -115,23 +117,33 @@ def a_decision_supersedes_in_one_write():
         assert len(writes) == 1, f"the plan was written {len(writes)} times, not once: {writes}"
 
 
-def the_996668_shape_is_refused_and_a_plain_dn_step_lands():
+def the_996668_shape_rewrites_d4_in_place():
     from cairn.machines.rehearsal import rehearsal as R
+    from cairn.tools.base.ticket_log import read_log
     with World(BASE) as w:
-        before = w.ticket.read_bytes()
+        writes = []
+        real = R._write_ticket
+
+        def counting(tk, doc, *, why):
+            writes.append(why)
+            return real(tk, doc, why=why)
+
+        R._write_ticket = counting
         try:
-            R.decide(TID, "D4", NEW, by="cc", root=w.commons)
-        except R.Refused as exc:
-            assert "--supersedes" in str(exc), f"the refusal does not name --supersedes: {exc}"
-        else:
-            raise AssertionError("a line at step D4 that replaces D4 landed beside it")
-        assert w.ticket.read_bytes() == before, "a refused decide wrote the ticket"
-        entry = R.decide(TID, "D4", HOLDS, by="cc", root=w.commons)
-        assert entry["step"] == "D4" and entry["text"] == HOLDS, f"the plain D4 line did not land: {entry}"
-        assert [d["n"] for d in w.doc()["decisions"]] == [3, 4, entry["n"]], "D4 itself moved"
+            entry = R.decide(TID, "D4", NEW, by="cc", root=w.commons)
+        finally:
+            R._write_ticket = real
+        assert entry["n"] == 4 and entry["text"] == NEW, f"D4 was not rewritten in place: {entry}"
+        assert [(d["n"], d["text"]) for d in w.doc()["decisions"]] == [(3, "push both repos"), (4, NEW)], \
+            f"a line at step D4 landed beside it: {w.doc()['decisions']}"
+        logged = read_log(w.ticket, "decision_retired")
+        assert [x["decision"]["text"] for x in logged] == [OLD] and logged[0].get("rewritten_in_place"), logged
+        assert len(writes) == 1, f"the plan was written {len(writes)} times, not once: {writes}"
+        R.decide(TID, "D4", HOLDS, by="cc", root=w.commons)
+        assert [(d["n"], d["text"]) for d in w.doc()["decisions"]] == [(3, "push both repos"), (4, HOLDS)]
 
 
-TEETH = [a_decision_supersedes_in_one_write, the_996668_shape_is_refused_and_a_plain_dn_step_lands]
+TEETH = [a_decision_supersedes_in_one_write, the_996668_shape_rewrites_d4_in_place]
 
 if __name__ == "__main__":
     for fn in TEETH:

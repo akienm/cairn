@@ -48,15 +48,14 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 SCHEMA_PATH = HERE / "schema.json"
 PROMPT_PATH = HERE / "prompt.md"
-VOYAGE_CRAFT_PATH = HERE / "voyage_craft.md"
-STATES = ("builds_as_written", "builds_under_assumption", "cannot_proceed")
-LOOK_KINDS = ("path", "module")   # 7a31059daa23 D2: what a reader may name for the machine to look at
+STATES = ("builds", "stopped")     # c9897770efe6 D3: a build simulator's two answers
+LOOK_KINDS = ("path", "module")   # 7a31059daa23 D2: what what_exists measures (c9897770efe6 D5)
 READS = 3               # D1: three cold reads
 RETRIES_PER_READ = 2    # D5: a read that fails the schema is re-read; this many times, then the pass is refused
 PASS_CAP = 5            # D11
 MODEL = "claude-haiku-4-5-20251001"   # D7: the cheapest reader
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
-GAP_KINDS = ("assumes", "assumption_differs", "cannot_proceed", "step_absent", "unlisted")
+GAP_KINDS = ("stopped", "step_absent", "unlisted")
 # D6 as amended (open-d71a52522428, Akien: "i am trying to move us AWAY from free text"): a step
 # is named by the ticket decision it builds — D<n> — or, when no decision covers it, by
 # "unlisted: <text>". A decision id folds exactly, so three reads converge or they do not; an
@@ -127,15 +126,6 @@ def prompt() -> str:
     return PROMPT_PATH.read_text(encoding="utf-8")
 
 
-def voyage_craft() -> str:
-    """The standing voyage-craft note (ticket 996668eceef1): the steps every code-seam voyage
-    takes the same way, handed to the reader on every render so they are settled once. Read at
-    call time from ``VOYAGE_CRAFT_PATH``; absent, the render refuses rather than hand a reader less."""
-    if not VOYAGE_CRAFT_PATH.is_file():
-        raise Refused(f"no voyage-craft note at {VOYAGE_CRAFT_PATH}")
-    return VOYAGE_CRAFT_PATH.read_text(encoding="utf-8")
-
-
 def commons(root: Path | str | None = None) -> Path:
     """The commons the door is pointed at — a scratch world in a proof, the live one in the
     field. ``root`` overrides for a caller that has one in hand."""
@@ -194,7 +184,7 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
     """Every way ``tree`` fails schema.json, named; empty means it passes. Written by hand
     because the box has no jsonschema package and the shape is small; the schema file stays
     the contract the reader is handed and this is its mirror — a tooth in the proof holds
-    the two together over the schema's own examples. ``decision_ids`` is the ticket's own
+    the two together over its node properties and state enum. ``decision_ids`` is the ticket's own
     vocabulary: a step naming ``D<n>`` the ticket does not carry is a lack the schema's
     pattern cannot see, and so is a carried decision with no node or with two — every
     decision gets exactly one — so the machine checks both here and the read is re-read (D5)."""
@@ -213,9 +203,9 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
             lacks.append(f"{at}: not an object")
             continue
         for k in n:
-            if k not in ("step", "state", "assumption", "would_settle", "confidence", "looks_at"):
+            if k not in ("step", "state", "missing", "confidence"):
                 lacks.append(f"{at}: unknown key {k!r}")
-        for k in ("step", "state", "assumption", "would_settle", "confidence"):
+        for k in ("step", "state", "missing", "confidence"):
             if k not in n:
                 lacks.append(f"{at}: missing {k!r}")
         step = n.get("step")
@@ -231,26 +221,14 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
                              f"(it has {sorted(decision_ids)})")
         if "state" in n and n.get("state") not in STATES:
             lacks.append(f"{at}.state: {n.get('state')!r} is not one of {STATES}")
-        for k in ("assumption", "would_settle"):
-            if k in n and not isinstance(n.get(k), str):
-                lacks.append(f"{at}.{k}: a string is required")
+        if "missing" in n and not isinstance(n.get("missing"), str):
+            lacks.append(f"{at}.missing: a string is required")
+        elif n.get("state") == "stopped" and not n.get("missing", "").strip():
+            lacks.append(f"{at}.missing: a stopped step names what is missing")
         c = n.get("confidence")
         if "confidence" in n and not (isinstance(c, (int, float)) and not isinstance(c, bool)
                                       and 0 <= c <= 1):
             lacks.append(f"{at}.confidence: a number in [0, 1] is required")
-        if "looks_at" in n:                          # 7a31059daa23 D2
-            looks = n["looks_at"]
-            if not isinstance(looks, list):
-                lacks.append(f"{at}.looks_at: a list is required")
-            else:
-                for j, item in enumerate(looks):
-                    if not (isinstance(item, dict) and set(item) == {"kind", "name"}):
-                        lacks.append(f"{at}.looks_at[{j}]: an object with exactly kind and name is required")
-                        continue
-                    if item["kind"] not in LOOK_KINDS:
-                        lacks.append(f"{at}.looks_at[{j}].kind: {item['kind']!r} is not one of {LOOK_KINDS}")
-                    if not (isinstance(item["name"], str) and item["name"]):
-                        lacks.append(f"{at}.looks_at[{j}].name: a non-empty string is required")
     # every decision the ticket carries, exactly once (D17): three readers that each judge
     # which decisions are steps never converge on the same set — measured on this machine's
     # own ticket, 6 of 17 ids step_absent — so the set is not judged, it is required. A
@@ -330,92 +308,91 @@ def reader_view(blob: bytes) -> str:
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
 
-# THE RECORDS A DOOR WRITES (D8): a commit that changes only these is a crossing or a seal — a
-# record of the cursor or of a proof's state, not work. The same idea as the tester's hollow
-# (cairn/devices/tester/hollow.py _RECORD_NAMES/_RECORD_DIRS), held separately under RULE 1.
-_RECORD_NAMES = frozenset({"history.json", "state.json", ".artifact-journal.jsonl"})
-_RECORD_DIRS = frozenset({"validations"})
+_PATH_TOKEN = re.compile(r"~?/?[\w.\-]+(?:/[\w.\-]+)+/?")
+_MODULE_TOKEN = re.compile(r"\b(?:cairn|skills)(?:\.[A-Za-z_]\w*)+")
+_PATH_TRAIL = ".,;:)'\"`"
 
 
-def _is_record(path: str) -> bool:
-    p = Path(path)
-    return p.name in _RECORD_NAMES or bool(_RECORD_DIRS & set(p.parts))
+def what_exists(texts: list[str], roots) -> list[dict]:
+    """The WHAT EXISTS list (ticket c9897770efe6 D5; Akien 2026-10-29: *"we should be telling
+    it what exists and what doesn't before hand"*): every path and dotted module the texts
+    cite, first-seen order, no duplicates, each measured with ``look`` before the read. A path
+    is a token with a '/' whose last segment carries a '.' or that ends '/'; a module is a
+    dotted name under ``cairn.`` or ``skills.``, measured on its longest prefix of two or more
+    segments that ``look`` finds, and that prefix rides as ``module`` when it is shorter than
+    the name (the rest is a name inside it). Nothing is imported or run."""
+    roots = [Path(r) for r in roots]
+    out: list[dict] = []
+    seen: set[str] = set()
+    for text in texts:
+        found = [(m.start(), "path", m.group(0).rstrip(_PATH_TRAIL)) for m in _PATH_TOKEN.finditer(text)]
+        found += [(m.start(), "module", m.group(0)) for m in _MODULE_TOKEN.finditer(text)]
+        for _, kind, name in sorted(found):
+            if kind == "path":
+                last = name.rstrip("/").rsplit("/", 1)[-1]
+                if not ("." in last or name.endswith("/")) or "/" not in name.rstrip("/"):
+                    continue
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            if kind == "path":
+                out.append({"kind": "path", "name": name, "found": look({"kind": "path", "name": name}, roots)})
+                continue
+            parts = name.split(".")
+            hit = next((".".join(parts[:k]) for k in range(len(parts), 1, -1)
+                        if look({"kind": "module", "name": ".".join(parts[:k])}, roots)), None)
+            entry = {"kind": "module", "name": name, "found": hit is not None}
+            if hit is not None and hit != name:
+                entry["module"] = hit
+            out.append(entry)
+    return out
 
 
-NOT_DONE = "This voyage is NOT complete: its remaining steps are still to be built."
-
-
-def landed(ticket: str, cursor: str, repo: Path) -> str:
-    """The ALREADY LANDED section (ticket 80518446bfc8): the ticket's cursor and every commit
-    whose message names the ticket id, oldest first. Measured 2026-10-07 on 41202d4c8d3b: a
-    reader told every ticket is unbuilt raised work already landed at 9154af40 and fc17a873
-    as a gap. The reader still gets text, never the repository (D4). A commit whose every
-    changed file is a record is left out (D8): measured 2026-10-08 (F22(b)), 0d83860a — a
-    PROVEME crossing the kick-back undid — listed as landed hid the crossing-command gap."""
-    try:
-        out = subprocess.run(["git", "-C", str(repo), "log", "--reverse", "--name-only",
-                              "--format=%x1e%h %s", f"--grep={ticket}"],
-                             capture_output=True, text=True, check=True).stdout
-    # NEVER str(exc): a CalledProcessError carries the command line, and the repo path in
-    # the reader's text is repository content the reader must not see (D7).
-    except subprocess.CalledProcessError as exc:
-        return f"\n# ALREADY LANDED\n\n{NOT_DONE}\n\n(landed commits could not be read: git log exited {exc.returncode})\n"
-    except OSError as exc:
-        return ("\n# ALREADY LANDED\n\n" + NOT_DONE + "\n\n(landed commits could not be read: "
-                + (exc.strerror or type(exc).__name__) + ")\n")
+def _what_exists_lines(entries: list[dict]) -> str:
+    if not entries:
+        return "(the steps cite no path or module)"
     lines = []
-    for chunk in out.split("\x1e"):
-        rows = [l for l in chunk.splitlines() if l.strip()]
-        if not rows:
-            continue
-        paths = rows[1:]
-        if paths and all(_is_record(p) for p in paths):
-            continue
-        lines.append(rows[0])
-    return ("\n# ALREADY LANDED\n\n" + NOT_DONE + "\n\ncursor: " + cursor + "\n\n"
-            + ("\n".join(lines) if lines else "(nothing landed for this ticket)") + "\n")
+    for e in entries:
+        if e["kind"] == "module" and e.get("module"):
+            lines.append(f"present module {e['module']} (cited as {e['name']}; the rest is a name "
+                         f"inside it, not measured)")
+        else:
+            lines.append(f"{'present' if e['found'] else 'absent'} {e['kind']} {e['name']}")
+    return "\n".join(lines)
 
 
-def render(ticket: str, *, root: Path | str | None = None, berths_root=None,
+def render(ticket: str, *, root: Path | str | None = None,
            repo: Path | str | None = None) -> tuple[str, str, Path]:
-    """The text the reader is handed: the ticket as ``reader_view`` shows it after the standing voyage-craft note, the standing chart berths
-    for the ticket (per stage, the latest claiming packet — through the one chain locator),
-    and the charters of the components orient ref'd. Returns ``(text, sha256 of the ticket
-    bytes as read, ticket path)``. No repository, no code: D4 is the whole point, and the
-    prompt says so to the reader."""
-    from cairn.tools.chain.chain import chain_for_ticket
+    """The text the reader is handed (ticket c9897770efe6 D6): the prompt, then THE PLAN — the
+    ticket's title, intention, why, how, falsifier, its live steps as ``reader_view`` labels
+    them and, when any, its scoped context lines — then WHAT EXISTS, measured over the steps'
+    and context's texts under [repo, commons] before the read. Nothing else: no cursor, berths,
+    questions, fixme list or watchme, and no voyage craft, landed commits, chart or charters
+    (Akien 2026-10-29: *"the ticket becomes nothing but the build plan"*). Returns ``(text,
+    sha256 of the ticket bytes as read, ticket path)``."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r} under {commons(root) / 'tickets'}")
     blob = tk.read_bytes()
     repo = Path(repo) if repo is not None else REPO
-    parts = [prompt(), "\n\n# VOYAGE CRAFT\n\n" + voyage_craft(), "\n\n# THE TICKET\n\n```json\n" + reader_view(blob) + "\n```\n"]
     try:
-        cursor = json.loads(blob).get("workflow_and_state") or "(no cursor)"
-    except (json.JSONDecodeError, AttributeError):
-        cursor = "(no cursor)"
-    parts.append(landed(ticket, str(cursor), repo))
-    try:
-        chain = chain_for_ticket(ticket, berths_root=berths_root)
-    except Exception as exc:  # the chart is a courtesy to the reader, not a gate here — the lane a_berthed_chart_chain_claims_the_ticket judges it
-        chain = {}
-        parts.append(f"\n# THE CHART\n\n(no chart could be read: {exc})\n")
-    refs: list[str] = []
-    for stage, path in chain.items():
-        if not path:
-            continue
-        try:
-            doc = json.loads(Path(path).read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if stage == "orient" and isinstance(doc.get("refs"), list):
-            refs = [r for r in doc["refs"] if isinstance(r, str)]
-        parts.append(f"\n# CHART — {stage}\n\n```json\n" + json.dumps(doc, indent=1, ensure_ascii=False) + "\n```\n")
-    for ref in refs:
-        ch = repo / ref / "intention+why.json"
-        if ch.is_file():
-            parts.append(f"\n# CHARTER — {ref}\n\n```json\n" + ch.read_text(encoding="utf-8").rstrip() + "\n```\n")
-    return "".join(parts), _sha(blob), tk
+        view = json.loads(reader_view(blob))
+    except json.JSONDecodeError:
+        view = {}
+    view = view if isinstance(view, dict) else {}
+
+    def labeled(ds) -> list[dict]:
+        return [{"step": f"D{d['n']}", "text": str(d.get("text", ""))}
+                for d in (ds or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    plan = {k: view[k] for k in ("title", "intention", "why", "how", "falsifier") if k in view}
+    plan["steps"] = labeled(view.get("decisions"))
+    if view.get("context"):
+        plan["context"] = labeled(view["context"])
+    texts = [x["text"] for x in plan["steps"] + plan.get("context", [])]
+    exists = what_exists(texts, [repo, commons(root)])
+    text = (prompt() + "\n\n# THE PLAN\n\n```json\n" + json.dumps(plan, indent=2, ensure_ascii=False)
+            + "\n```\n\n# WHAT EXISTS\n\n" + _what_exists_lines(exists) + "\n")
+    return text, _sha(blob), tk
 
 
 # ---------------------------------------------------------------------------
@@ -526,21 +503,6 @@ def read_tree(text: str, reader: Reader, n: int, *, ticket: str, sha: str,
 # ---------------------------------------------------------------------------
 # the diff (D6) — deterministic, by code
 
-_DECISION_ID = re.compile(r"\bD(\d+)\b")
-
-
-def cites_a_decision(step: str, assumption: str, decision_ids) -> bool:
-    """A reader's assumption is settled when it names ANOTHER decision the ticket carries
-    (Akien, open-ba8f0eaca8cd: "yes ... with that condition" — the id must resolve in the
-    same ticket). The step's own number never counts; an id the ticket does not carry never
-    counts."""
-    if not decision_ids or not assumption:
-        return False
-    own = re.fullmatch(r"D(\d+)", (step or "").strip())
-    own_n = int(own.group(1)) if own else None
-    return any(int(m) in decision_ids and int(m) != own_n for m in _DECISION_ID.findall(assumption))
-
-
 _MODULE_NAME = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)*")
 
 
@@ -574,38 +536,14 @@ def look(item: dict, roots) -> bool:
     return False
 
 
-def world_looker(roots) -> Callable[[dict], dict | None]:
-    """Ticket 7a31059daa23 D4: the looker ``gaps`` settles by. For a builds_under_assumption
-    node naming a non-empty ``looks_at`` it returns what was looked at and whether every
-    thing was found; for any other node, None — so cannot_proceed never settles by the
-    world, and a node naming nothing is untouched."""
-    roots = [Path(r) for r in roots]
-
-    def looker(node: dict) -> dict | None:
-        looks = node.get("looks_at")
-        if node.get("state") != "builds_under_assumption" or not isinstance(looks, list) or not looks:
-            return None
-        looked = [{"kind": i.get("kind"), "name": i.get("name"), "found": look(i, roots)}
-                  for i in looks if isinstance(i, dict)]
-        return {"looked_at": looked, "settled": bool(looked) and all(x["found"] for x in looked)}
-    return looker
-
-
-def gaps(reads: list[dict], decision_ids: set[int] | None = None,
-         looker: Callable[[dict], dict | None] | None = None) -> list[dict]:
-    """D6, verbatim: *"any node not builds_as_written in any read; any step present in one
-    read and absent in another after case-folding through cairn.tools.system_word; any two
-    reads whose assumption text differs on the same step."* Steps fold (a word the reader
-    could type); assumption text is free text and never folds. One gap per (kind, step),
-    reads merged, sorted by (kind, step) so two runs over the same trees write the same
-    list. Amended (open-d71a52522428): a step named ``unlisted: <text>`` in any read is a
-    gap of kind ``unlisted`` — the ticket owes the decision that would name it. Amended
-    (open-ba8f0eaca8cd): with ``decision_ids`` a builds_under_assumption node whose assumption
-    names another carried decision id (cites_a_decision) is settled — it raises no ``assumes``
-    gap and its text joins no ``assumption_differs`` comparison; without ids nothing settles.
-    Amended (7a31059daa23 D5): with a ``looker`` a node the world settles (every thing in its
-    ``looks_at`` found) is settled the same way, and an unsettled one's ``assumes`` gap carries
-    ``measured_absent`` naming each thing not found; without a looker nothing changes."""
+def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
+    """The deterministic diff (ticket c9897770efe6 D4): a ``stopped`` gap for every node any
+    read says stopped, its ``missing`` texts merged; an ``unlisted`` gap for every
+    'unlisted: <text>' step, with its missing; and a ``step_absent`` gap for a step present in
+    one read and absent in another after case-folding through cairn.tools.system_word. One gap
+    per (kind, step), reads merged, sorted by (kind, step) so two runs over the same trees
+    write the same list. ``decision_ids`` is accepted for the callers' symmetry and judges
+    nothing here: every carried decision is already required once by ``validate``."""
     by_kind_step: dict[tuple[str, str], dict] = {}
 
     def gap(kind: str, step: str, read_n: int, **more) -> None:
@@ -620,36 +558,16 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None,
             if v not in g[k]:
                 g[k].append(v)
 
-    def world(node) -> dict | None:
-        return looker(node) if looker is not None else None
-
-    def settled(node) -> bool:
-        if node["state"] != "builds_under_assumption":
-            return False
-        if cites_a_decision(node["step"], node.get("assumption", "").strip(), decision_ids):
-            return True
-        r = world(node)
-        return r is not None and r["settled"]
-
     steps_by_read: list[dict[str, dict]] = []
     for r in reads:
         seen: dict[str, dict] = {}
         for node in r.get("nodes", []):
             seen.setdefault(fold(node["step"]), node)
+            missing = str(node.get("missing", "")).strip()
             if node["step"].startswith(UNLISTED):
-                gap("unlisted", node["step"], r["read"],
-                    would_settle=node.get("would_settle", "").strip())
-            if node["state"] == "builds_under_assumption" and not settled(node):
-                gap("assumes", node["step"], r["read"],
-                    assumption=node.get("assumption", "").strip(),
-                    would_settle=node.get("would_settle", "").strip())
-                for x in (world(node) or {}).get("looked_at", []):
-                    if not x["found"]:
-                        gap("assumes", node["step"], r["read"], measured_absent=x["name"])
-            elif node["state"] == "cannot_proceed":
-                gap("cannot_proceed", node["step"], r["read"],
-                    assumption=node.get("assumption", "").strip(),
-                    would_settle=node.get("would_settle", "").strip())
+                gap("unlisted", node["step"], r["read"], missing=missing)
+            elif node["state"] == "stopped":
+                gap("stopped", node["step"], r["read"], missing=missing)
         steps_by_read.append(seen)
     every = set().union(*steps_by_read) if steps_by_read else set()
     for folded in sorted(every):
@@ -658,29 +576,9 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None,
         name = steps_by_read[present[0]][folded]["step"]
         for r_n in absent:
             gap("step_absent", name, r_n, present_in=[reads[i]["read"] for i in present])
-        live = [i for i in present if not settled(steps_by_read[i][folded])]
-        texts = {steps_by_read[i][folded].get("assumption", "").strip() for i in live}
-        texts.discard("")
-        if len(texts) > 1:
-            for i in live:
-                gap("assumption_differs", name, reads[i]["read"],
-                    assumption=steps_by_read[i][folded].get("assumption", "").strip())
     out = sorted(by_kind_step.values(), key=lambda g: (g["kind"], fold(g["step"])))
     for g in out:
         g["reads"].sort()
-    return out
-
-
-def settled_by_world(reads: list[dict], looker: Callable[[dict], dict | None]) -> list[dict]:
-    """Ticket 7a31059daa23 D13: every node the world settled, read then node order, with
-    what was looked at — the record says why a step raised no gap, so a look too shallow to
-    serve the goal is readable on the record that trusted it."""
-    out = []
-    for r in reads:
-        for node in r.get("nodes", []):
-            w = looker(node)
-            if w is not None and w["settled"]:
-                out.append({"step": node["step"], "read": r["read"], "looked_at": w["looked_at"]})
     return out
 
 
@@ -761,7 +659,7 @@ def _write_ticket(tk: Path, doc: dict, *, why: str) -> bytes:
 
 
 def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | None = None,
-             berths_root=None, repo: Path | str | None = None, by: str | None = None) -> dict:
+             repo: Path | str | None = None, by: str | None = None) -> dict:
     """One pass: render, three cold reads, the diff, one record — clean or not. On the sixth
     pass over an unclean ticket (D11) no read happens: ONE question is opened on the ticket
     naming the standing gaps, and the return names it. Returns the record as written (plus
@@ -772,7 +670,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     passes = passes_since_clean(ticket, root)
     if passes >= PASS_CAP:
         return _open_the_question(ticket, root)
-    text, sha_at_read, tk = render(ticket, root=root, berths_root=berths_root, repo=repo)
+    text, sha_at_read, tk = render(ticket, root=root, repo=repo)
     ids = decision_ids_of(json.loads(tk.read_text(encoding="utf-8")))
     reads, meta = [], []
     failed: ReaderFailed | None = None
@@ -790,10 +688,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     if failed is not None:
         return _record_the_failed_run(ticket, root, failed, reads=reads, meta=meta, text=text,
                                       sha_at_read=sha_at_read, passes=passes, by=by)
-    repo_path = Path(repo) if repo is not None else REPO
-    looker = world_looker([repo_path, commons(root)])      # 7a31059daa23 D13
-    found = gaps(reads, ids, looker)
-    sbw = settled_by_world(reads, looker)
+    found = gaps(reads, ids)
     clean = not found
     try:
         reaches = log_reaches(found, ticket_log.read_log(tk))
@@ -827,7 +722,6 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         "design_sha256": design,
         "reads": reads,
         "gaps": found,
-        **({"settled_by_world": sbw} if sbw else {}),
         # gaps a ticket-log line already speaks to (fad76bb5d1f5 D1: heuristic token overlap)
         "log_reaches": reaches,
         "log_reach_count": sum(1 for r in reaches if "gap_step" in r),
@@ -915,8 +809,7 @@ def drive_a_failed_run(scratch: Path | str) -> dict:
 
     door.set_diagnostic_roots({"cairn": scratch / "cairn", "CairnCommons": root})
     try:
-        return rehearse(tid, reader=nothing, root=root, berths_root=scratch / "no-berths",
-                        repo=scratch / "no-repo", by="drive")
+        return rehearse(tid, reader=nothing, root=root, repo=scratch / "no-repo", by="drive")
     finally:
         door.set_diagnostic_roots(None)
 
@@ -934,7 +827,7 @@ def _open_the_question(ticket: str, root: Path | str | None) -> dict:
         # ONE question (D11): the standing one is the answer owed, not a second copy of it
         return {"ticket": ticket, "question": already[0]["id"], "gaps": standing,
                 "passes": PASS_CAP, "clean": False, "already_open": True}
-    lines = "; ".join(f"{g['kind']} at '{g['step']}'" + (f" ({g['would_settle'][0]})" if g.get("would_settle") else "")
+    lines = "; ".join(f"{g['kind']} at '{g['step']}'" + (f" ({g['missing'][0]})" if g.get("missing") else "")
                       for g in standing[:8])
     q = (f"five rehearsal passes over {ticket} did not converge — the standing gaps are: {lines}"
          f"{' …' if len(standing) > 8 else ''}; which of these does the ticket settle, and how?")
@@ -946,31 +839,20 @@ def _open_the_question(ticket: str, root: Path | str | None) -> dict:
     return {"ticket": ticket, "question": rec["id"], "gaps": standing, "passes": PASS_CAP, "clean": False}
 
 
-def names_as_replaced(step: str, line: str) -> int | None:
-    """The 996668eceef1 shape (ticket c70eeeef73ac): a step shaped ``D<n>`` whose line names
-    that same D<n> as replaced or superseded — a line meant to stand IN PLACE of D<n>, which
-    ``decide`` would land BESIDE it. Returns n, or None. Any other line at a D<n> step is a
-    gap disposed at its own label and lands (the peer's ruling 2026-10-11 on clause 2)."""
-    m = re.fullmatch(r"D(\d+)", (step or "").strip())
-    if not m:
-        return None
-    n = m.group(1)
-    if (re.search(rf"\b(replac(?:es|ed|ing)|supersed(?:es|ed|ing))\s+D{n}\b", line, re.I)
-            or re.search(rf"\bD{n}\b(?:'s)?\s+(?:is\s+|are\s+)?(?:replaced|superseded)\b", line, re.I)):
-        return int(n)
-    return None
-
-
 def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | None = None,
            supersedes: list[int] | None = None) -> dict:
-    """A gap disposed as a decision line on the ticket (D3: a ticket is a list of one-line
-    decisions): appends ``{n, text, by, step, source: "rehearsal"}`` to ``decisions`` through
-    the door's ``cast`` verb. The next pass reads the edited ticket, so the pointer (if any)
-    goes stale by construction — the lane demands a fresh clean record.
+    """A gap disposed as a decision line on the ticket, through the door's ``cast`` verb (ticket
+    c9897770efe6 D7). At a step ``D<n>`` naming a live, unscoped line n — or at a ``FIXME <k>``
+    with a live line at that step — the line is rewritten IN PLACE: the old entry moves whole
+    to the ticket's log (kind ``decision_retired``, ``rewritten_in_place``), and the entry keeps
+    its n and step and takes the new text, by, source 'rehearsal' and at. Refused with nothing
+    written when n is absent, retired or scoped, or when line n's ``by`` differs from ``by``
+    (retire()'s author rule). A ``FIXME <k>`` with no live line, and any 'unlisted: <text>',
+    appends a new line. The next pass reads the edited ticket, so a clean pointer goes stale
+    by construction.
 
-    ``supersedes=[n, ...]`` (ticket c70eeeef73ac) retires each named line INTO the new one in
-    the same act — retire()'s rules and refusals, the plan written once. Without it, a line at
-    a ``D<n>`` step that names D<n> as replaced is refused naming --supersedes."""
+    ``supersedes=[n, ...]`` (ticket c70eeeef73ac) retires each named line INTO the line
+    written in the same act — retire()'s rules and refusals, the plan written once."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
@@ -978,35 +860,57 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         raise Refused("a decision is one line of text — an empty one decides nothing")
     if not (isinstance(by, str) and by.strip()):
         raise Refused("--by: who made this decision (D3 — each decision carries who made it)")
-    if not supersedes:
-        shaped = names_as_replaced(step, line)
-        if shaped is not None:
-            raise Refused(f"the line at step D{shaped} names D{shaped} as replaced — decide would land it "
-                          f"BESIDE D{shaped}, not in its place; say --supersedes D{shaped} to retire D{shaped} "
-                          f"into the new line in one act (c70eeeef73ac); nothing written")
+    step = (step or "").strip()
     doc = json.loads(tk.read_text(encoding="utf-8"))
     have = doc.get("decisions")
     have = list(have) if isinstance(have, list) else []
-    n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
-    entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step.strip(), "source": "rehearsal",
-             "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    why = f"rehearsal gap at '{step.strip()}' decided by {by.strip()}: D{n}"
+    by_n = {d["n"]: d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)}
+    at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    target: dict | None = None
+    m = re.fullmatch(r"D(\d+)", step)
+    if m:
+        k = int(m.group(1))
+        target = by_n.get(k)
+        if target is None:
+            raise Refused(f"D{k} is {'retired' if k in _retired_on_log(tk) else 'not on the ticket'} "
+                          f"— there is no line to rewrite; nothing written")
+        if target.get("retired") or target.get("context"):
+            raise Refused(f"D{k} is {'retired' if target.get('retired') else 'scoped as context'} "
+                          f"— not a step to rewrite; nothing written")
+    elif re.fullmatch(r"FIXME \d+", step):
+        live = [d for d in have if isinstance(d, dict) and d.get("step") == step
+                and not d.get("retired") and not d.get("context")]
+        target = live[-1] if live else None
+    if target is not None and fold(str(target.get("by") or "")) != fold(by.strip()):
+        raise Refused(f"D{target['n']} was written by {target.get('by')!r}, not {by.strip()!r} — "
+                      f"not yours to rewrite; nothing written")
+    if target is not None:
+        n = target["n"]
+        entry = dict(target, text=line.strip(), by=by.strip(), source="rehearsal", at=at)
+        why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n} rewritten in place"
+    else:
+        n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
+        entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step, "source": "rehearsal", "at": at}
+        why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n}"
     if supersedes:
-        want = sorted(set(supersedes))
+        want = sorted(set(supersedes) - {n})
         because = f"superseded by D{n}"
         lacks = _retire_lacks(doc, tk, want, by, because, into=None)
         if lacks:
             raise Refused(f"decide refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
-        at = entry["at"]
         why = f"{why}, superseding {', '.join('D%d' % k for k in want)}"
-        by_n = {d["n"]: d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)}
         for k in want:
             by_n[k]["retired"] = {"by": by.strip(), "at": at, "because": because, "into": n}
             # a retired line is trail (fad76bb5d1f5): it moves whole to the log, then leaves the plan
             ticket_log.append_log(tk, "decision_retired", {"decision": by_n[k]}, actor=by.strip(),
                                   why=f"retired D{k} by {by.strip()} into D{n}: {because}")
         have = [d for d in have if not (isinstance(d, dict) and d.get("n") in want)]
-    have.append(entry)
+    if target is not None:
+        ticket_log.append_log(tk, "decision_retired", {"decision": target, "rewritten_in_place": True},
+                              actor=by.strip(), why=f"D{n} rewritten in place by {by.strip()}")
+        have = [entry if (isinstance(d, dict) and d.get("n") == n) else d for d in have]
+    else:
+        have.append(entry)
     doc["decisions"] = have
     _write_ticket(tk, doc, why=why)
     return entry
@@ -1205,14 +1109,13 @@ REACH = 4   # D1: shared significant tokens for a log line to speak to a gap —
 
 def log_reaches(found: list[dict], log: list[dict], *, overlap: int = REACH) -> list[dict]:
     """The gaps a ticket-log line already speaks to (fad76bb5d1f5): words the plan did not
-    carry and the log does. A gap's words are its step plus its assumption and would_settle
-    texts; a line's are its whole JSON. One reach per gap — the line sharing the most tokens,
+    carry and the log does. A gap's words are its step plus its missing texts; a line's are its whole JSON. One reach per gap — the line sharing the most tokens,
     ties to the lowest index — when that is at least ``overlap``:
     ``{gap_step, gap_kind, log_index, kind, overlap}``, ``kind`` the line's."""
     lines = [_tokens(json.dumps(x, ensure_ascii=False)) for x in log]
     out = []
     for g in found:
-        words = _tokens(" ".join([g.get("step", ""), *g.get("assumption", []), *g.get("would_settle", [])]))
+        words = _tokens(" ".join([g.get("step", ""), *g.get("missing", [])]))
         best = max(range(len(lines)), key=lambda i: (len(words & lines[i]), -i), default=None)
         if best is not None and len(words & lines[best]) >= overlap:
             out.append({"gap_step": g.get("step"), "gap_kind": g.get("kind"), "log_index": best,

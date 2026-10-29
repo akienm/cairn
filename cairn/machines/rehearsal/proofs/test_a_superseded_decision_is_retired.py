@@ -113,7 +113,8 @@ def _refuses(fn, *needles):
 def retired_lines_leave_the_view_and_stay_in_the_file():
     from cairn.machines.rehearsal import rehearsal as R
     with World(BASE) as w:
-        new = R.decide(TID, "D3", RIGHT, by="cc", root=w.commons)["n"]
+        # an unlisted step appends a line (a D<n> step rewrites in place, c9897770efe6 D7)
+        new = R.decide(TID, "unlisted: the corrected D3", RIGHT, by="cc", root=w.commons)["n"]
         R.retire(TID, [3, 22], by="cc", because="folded into the corrected line", into=new,
                  root=w.commons)
         doc = w.doc()

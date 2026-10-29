@@ -52,9 +52,8 @@ FLUX = "unlisted: calibrate the flux capacitor gauge"
 SHED = "unlisted: paint the shed blue"
 
 
-def _node(step, state="builds_as_written", assumption="", would_settle=""):
-    return {"step": step, "state": state, "assumption": assumption,
-            "would_settle": would_settle, "confidence": 0.9}
+def _node(step, state="builds", missing=""):
+    return {"step": step, "state": state, "missing": missing, "confidence": 0.9}
 
 
 CLEAN_TREE = {"nodes": [_node("D1"), _node("D2")]}
@@ -101,7 +100,7 @@ class World:
         shutil.rmtree(self.dir, ignore_errors=True)
 
     def kw(self):
-        return dict(root=self.commons, berths_root=self.dir / "no-berths", repo=self.dir / "no-repo")
+        return dict(root=self.commons, repo=self.dir / "no-repo")
 
     def doc(self):
         return json.loads(self.ticket.read_text(encoding="utf-8"))

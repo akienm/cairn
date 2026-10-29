@@ -23,16 +23,17 @@ The teeth, each against the charter's falsifier:
      ticket edited after its rehearsal — by name — and reads a clean current one green; the
      entry gate lists five lanes, the fifth ``the_ticket_rehearses_clean``;
   5. the sixth pass opens ONE question naming the standing gaps and reads nothing (D11);
-  6. the prompt asserts the reader's job is the tree and that cannot_proceed is a legal
-     answer; schema.json and ``validate`` agree over the schema's own vocabulary;
+  6. the prompt asserts the reader's job (a build simulator, c9897770efe6) and that stopped is
+     a legal answer; schema.json and ``validate`` agree over the schema's own vocabulary;
   7. the WATCHME probe is armed (carry + enough) and measures a scratch commons: enough at
      eight empty divergences of ten, WRONG-INTENT trigger at seven;
   8. after PROVED, ``record_divergence`` writes the diff both ways onto the clean record;
   9. ``cairn rehearse --help`` exits 0 and ``--standing`` speaks JSON through the subprocess
      seam;
  10. the entry gate's five lanes (folded into 4 above) and the CLI's ``--decide`` step form;
- 11. the live fire's recorded reads (fixtures/live_fire_pass1.json, 46 gaps over 12/16/12
-     free-text steps; live_fire_pass4.json, 0 gaps over 36/36/36 decision ids) replay through
+ 11. the live fire's recorded reads (fixtures/live_fire_pass1.json, 12/16/12 free-text
+     steps, gappy; live_fire_pass4.json, 0 gaps over 36/36/36 decision ids; both converted to
+     builds|stopped by c9897770efe6 D10) replay through
      ``gaps`` and ``validate`` to the recorded numbers — clause 6's evidence without the
      reader (D15);
  12. the package init exists and skills/sail/SKILL.md sends the builder to `cairn rehearse`
@@ -80,7 +81,7 @@ PROVES = {
         "1": "test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read",
         "2": "test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes",
         "3": "test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green",
-        "4": "test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate",
+        "4": "test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirrors_validate",
         "5": "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
         "6": "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
         # the rest of the teeth, under the name of what each pins — the hollow reading counts
@@ -91,13 +92,6 @@ PROVES = {
         "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
         "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
         "skill": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
-    },
-    # ticket 80518446bfc8: the reader sees the ticket's landed commits and never raises landed work
-    "80518446bfc8": {
-        "1": "test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none",
-        "2": "test_the_prompt_says_landed_work_builds_as_written",
-        "3": "test_a_crossing_record_commit_is_not_listed_as_landed_work",
-        "4": "test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done",
     },
 }
 TID = "0badc0ffee01"
@@ -116,9 +110,8 @@ def _exe(path: Path) -> list:
     return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
-def _node(step, state="builds_as_written", assumption="", would_settle="", confidence=0.9):
-    return {"step": step, "state": state, "assumption": assumption,
-            "would_settle": would_settle, "confidence": confidence}
+def _node(step, state="builds", missing="", confidence=0.9):
+    return {"step": step, "state": state, "missing": missing, "confidence": confidence}
 
 
 # D6 as amended (open-d71a52522428): a step is a decision id, or 'unlisted: <text>' when the
@@ -133,15 +126,13 @@ CLEAN_TREE_WIRED = {"nodes": [_node("D1"), _node("D2"), _node("D3")]}   # after 
 LINT = "unlisted: lint the widget"
 GAPPY_TREES = [
     {"nodes": [_node("D1"),
-               _node("unlisted: Wire The Widget", "builds_under_assumption", "it hangs off the rack",
-                     "say where the widget is wired"),
+               _node("unlisted: Wire The Widget", "stopped", "say where the widget is wired"),
                _node("D2")]},
     {"nodes": [_node("D1"),
-               _node(WIRE, "cannot_proceed", "", "say where the widget is wired"),
+               _node(WIRE, "stopped", "say where the widget is wired"),
                _node("D2")]},
     {"nodes": [_node("D1"),
-               _node(WIRE, "builds_under_assumption", "it hangs off the shim",
-                     "say where the widget is wired"),
+               _node(WIRE, "stopped", "say where the widget is wired off the shim"),
                _node("D2"), _node(LINT)]},
 ]
 
@@ -201,7 +192,7 @@ def _log_records(w):
 
 
 def _kw(w):
-    return dict(root=w.commons, berths_root=w.dir / "no-berths", repo=w.dir / "no-repo")
+    return dict(root=w.commons, repo=w.dir / "no-repo")
 
 
 # 1 ------------------------------------------------------------------------
@@ -214,7 +205,6 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
         assert stub.calls == 3, stub.calls
         assert not rec["clean"] and rec["pass"] == 1, rec
         kinds = {(g["kind"], g["step"].lower()) for g in rec["gaps"]}
-        assert ("assumes", WIRE) in kinds and ("cannot_proceed", WIRE) in kinds, kinds
         # an unlisted step is a gap of its own kind in every read that names it (D6 as amended)
         assert ("unlisted", WIRE) in kinds, kinds
         wire = [g for g in rec["gaps"] if g["step"].lower() == WIRE and g["kind"] != "step_absent"]
@@ -228,8 +218,9 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
         assert all(g["step"].startswith("unlisted: ") for g in absent), absent
         # D1 and D2 build as written in all three reads under the same id: no gap names them
         assert not any(g["step"] in ("D1", "D2") for g in rec["gaps"]), rec["gaps"]
-        # the would_settle line rides the gap
-        assert any("say where the widget is wired" in (g.get("would_settle") or []) for g in rec["gaps"])
+        # what each read said is missing rides the gap, merged (c9897770efe6 D4)
+        wired = [g for g in rec["gaps"] if g["kind"] == "unlisted" and g["step"].lower() == WIRE]
+        assert len(wired) == 1 and len(wired[0]["missing"]) == 2, wired
         # deterministic: the same trees twice → the same list
         reads = [dict(t, read=i + 1) for i, t in enumerate(GAPPY_TREES)]
         assert R.gaps(reads) == R.gaps(reads) == rec["gaps"]
@@ -239,7 +230,8 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
         assert [e["verb"] for e in j] == ["rehearse"], [e["verb"] for e in j]
         assert json.loads(w.ticket.read_text()).get("rehearsal") is None
         # the reader saw the prompt and the ticket, nothing from any repo
-        assert "cannot_proceed" in stub.last_text and TID in stub.last_text and "no-repo" not in stub.last_text
+        # the plan carries no ticket id: the reader is handed only the plan (c9897770efe6)
+        assert "stopped" in stub.last_text and "prove the widget" in stub.last_text and "no-repo" not in stub.last_text
     finally:
         w.close()
 
@@ -249,7 +241,7 @@ def test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read():
 def test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record():
     w = World()
     try:
-        bad = {"nodes": [{"step": "x", "state": "maybe", "assumption": "", "would_settle": "", "confidence": 2}]}
+        bad = {"nodes": [{"step": "x", "state": "maybe", "missing": "", "confidence": 2}]}
         stub = Stub([bad, None, CLEAN_TREE])   # each read: bad, nothing, then good
         rec = R.rehearse(TID, reader=stub, **_kw(w))
         assert rec["clean"] and stub.calls == 9, (rec["clean"], stub.calls)
@@ -402,7 +394,7 @@ def test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_no
         assert out.get("question", "").startswith("open-") and out["passes"] == R.PASS_CAP, out
         qs = Q.open_for(TID, root=w.commons / "questions")
         assert len(qs) == 1 and qs[0]["id"] == out["question"] and qs[0]["source"] == "rehearsal", qs
-        assert "wire the widget" in qs[0]["question"] and qs[0]["question"].endswith("?"), qs[0]["question"]
+        assert "wire the widget" in qs[0]["question"].lower() and qs[0]["question"].endswith("?"), qs[0]["question"]
         assert "say where the widget is wired" in qs[0]["question"]
         assert out["question"] in json.loads(w.ticket.read_text())["questions"], "both ends of the link"
         assert len(list((w.commons / "rehearsals").iterdir())) == R.PASS_CAP, "no sixth record"
@@ -439,17 +431,17 @@ def test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_no
 
 # 6 ------------------------------------------------------------------------
 
-def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the_schema_mirrors_validate():
+def test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirrors_validate():
     text = R.prompt()
-    assert "Your job is the TREE, not the code" in text, "the prompt must say the job is the tree"
-    assert "cannot_proceed" in text and "correct answer, not a failure" in text, "cannot_proceed must be a legal answer"
-    assert "no repository" in text.lower() or "no repository, no shell" in text
+    assert "build simulator here to identify what's missing" in text, "the prompt must say the reader's job"
+    assert "Stopped is a legal and expected answer" in text, "stopped must be a legal answer"
+    assert "Use nothing you believe about the world beyond them" in text, "the reader stays inside what it is handed"
     s = R.schema()
     node = s["properties"]["nodes"]["items"]
     assert tuple(node["properties"]["state"]["enum"]) == R.STATES
-    assert sorted(node["required"]) == sorted(["step", "state", "assumption", "would_settle", "confidence"])
+    assert sorted(node["required"]) == sorted(["step", "state", "missing", "confidence"])
     assert s["properties"]["read"]["maximum"] == R.READS
-    assert R.validate({"nodes": [_node("unlisted: x", st) for st in R.STATES]}) == []
+    assert R.validate({"nodes": [_node("unlisted: x", st, "m" if st == "stopped" else "") for st in R.STATES]}) == []
     assert R.validate({"nodes": [_node("D1"), _node("D12")]}) == [], "any D<n> passes the shape alone"
     assert R.validate({"nodes": [_node("D1"), _node("D12")]}, {1}) == ["nodes[1].step: 'D12' names a decision the ticket does not carry (it has [1])"]
     assert R.validate({"nodes": [_node("D1")]}, {1, 2}) == ["nodes: every decision gets one node; missing ['D2']"]
@@ -467,9 +459,9 @@ def test_the_prompt_says_the_job_is_the_tree_and_cannot_proceed_is_legal_and_the
     assert "D<n>" in text and "unlisted:" in text, "the prompt teaches the step vocabulary"
     assert "exactly\n  one node" in text or "exactly one node" in text.replace("\n  ", " "), "one node per decision, always"
     assert "unlisted" in R.GAP_KINDS
-    # open-a57cdd7cf3c1 (Akien 2026-09-23): the reader judges each decision against the whole
-    # list — a piece another decision settles is settled, and a later decision governs
-    assert "against the WHOLE list" in text and "the later one governs" in text, "the whole-list rule"
+    # open-a57cdd7cf3c1 (Akien 2026-09-23): the reader judges each step against the whole
+    # plan — a piece another step settles is settled, and a later step governs
+    assert "against the WHOLE plan" in text and "the later one governs" in text, "the whole-plan rule"
 
 
 # 7 ------------------------------------------------------------------------
@@ -561,10 +553,12 @@ def test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_c
     assert one["pass"] == 1 and not one["clean"] and four["pass"] == 4 and four["clean"], (one["pass"], four["pass"])
     # pass 1: three cold reads over the un-amended ticket — every read names a gap, the
     # recorded count is reproduced, and the same trees twice give the same list (D6)
+    # the live run counted 46 under the old kinds; converted to builds|stopped (c9897770efe6
+    # D10) the same reads give 45, measured 2026-10-29 — the claim kept is gappy first, clean fourth
     g1 = R.gaps(one["reads"])
-    assert len(g1) == one["gaps_recorded"] == 46, (len(g1), one["gaps_recorded"])
+    assert len(g1) == one["gaps_recorded"] == 45 and one["gaps_recorded_live"] == 46, (len(g1), one["gaps_recorded"])
     assert sorted(set(sum((g["reads"] for g in g1), []))) == [1, 2, 3], "a read that named no gap"
-    assert {g["kind"] for g in g1} >= {"assumes", "step_absent"}, {g["kind"] for g in g1}
+    assert {g["kind"] for g in g1} >= {"stopped", "step_absent"}, {g["kind"] for g in g1}
     assert R.gaps(one["reads"]) == g1
     # pass 4: three reads that each carry every one of the 36 decisions once, and agree
     ids = set(range(1, 37))
@@ -592,127 +586,6 @@ def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehear
     assert "--decide" in skill and "cairn question open" in skill, "the skill never says how a gap is disposed"
     assert skill.index("cairn rehearse <ticket-id>") < skill.index("## 1. Journal BUILDME"), \
         "the rehearsal step must come before the BUILDME crossing"
-
-
-# 80518446bfc8 -------------------------------------------------------------
-
-def test_render_lists_the_tickets_landed_commits_oldest_first_and_says_when_none():
-    """The reader is handed the commits that name the ticket, oldest first, with the cursor; a
-    commit that does not name it is not listed, and a ticket with none says so (measured
-    2026-10-08: 41202d4c8d3b's reader re-raised landed work in 3 of 7 passes, told nothing)."""
-    w = World()
-    try:
-        repo = w.dir / "repo"
-        repo.mkdir()
-        git = ["git", "-C", str(repo)]
-        subprocess.run(git + ["init", "-q"], check=True)
-        for msg in ("aaaaaaaaaaaa: first", "unrelated: other", "aaaaaaaaaaaa: second"):
-            subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                                  "--allow-empty", "-m", msg], check=True)
-        cursor = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
-        for tid in ("aaaaaaaaaaaa", "bbbbbbbbbbbb"):
-            (w.commons / "tickets" / f"{tid}-a-landed-fixture.json").write_text(json.dumps(
-                {"id": tid, "title": "a landed fixture", "workflow_and_state": cursor,
-                 "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
-        text = R.render("aaaaaaaaaaaa", root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
-        assert "# ALREADY LANDED" in text, "render() hands the reader no ALREADY LANDED section"
-        assert f"cursor: {cursor}" in text, "the section must carry the ticket's cursor"
-        first = re.search(r"^[0-9a-f]{7,} aaaaaaaaaaaa: first$", text, re.M)
-        second = re.search(r"^[0-9a-f]{7,} aaaaaaaaaaaa: second$", text, re.M)
-        assert first and second, "both commits naming the ticket must be listed as '<hash> <subject>'"
-        assert first.start() < second.start(), "oldest first"
-        assert "unrelated: other" not in text, "a commit that does not name the ticket is not listed"
-        none = R.render("bbbbbbbbbbbb", root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
-        assert "# ALREADY LANDED" in none and "(nothing landed for this ticket)" in none
-    finally:
-        w.close()
-
-
-def test_a_crossing_record_commit_is_not_listed_as_landed_work():
-    """A door crossing is a record of the cursor, not work: a commit whose every changed file is
-    a record (history.json, state.json, a validations/ record, the journal) is left out, and a
-    commit that changes any other file stays. Measured 2026-10-08 (F22(b), F23): 41202d4c8d3b with
-    D14 removed — the reader shown 0d83860a 'PROVEME — ...', a crossing the kick-back undid, as
-    landed raised the crossing-command gap in 0 of 3 reads; the reader shown nothing, in 1 of 3."""
-    w = World()
-    try:
-        repo = w.dir / "repo"
-        (repo / "comp" / "proofs").mkdir(parents=True)
-        (repo / "comp" / "validations").mkdir()
-        git = ["git", "-C", str(repo)]
-        subprocess.run(git + ["init", "-q"], check=True)
-
-        def commit(msg, *files):
-            for f in files:
-                p = repo / f
-                p.write_text((p.read_text() if p.exists() else "") + msg + "\n")
-            subprocess.run(git + ["add", "-A"], check=True)
-            subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                                  "-m", msg], check=True)
-
-        tid = "cccccccccccc"
-        commit(f"{tid}: proof red", "comp/proofs/test_comp.py")
-        commit(f"{tid}: build", "comp/comp.py")
-        commit(f"{tid}: PROVEME crossing", "comp/history.json", "comp/state.json", ".artifact-journal.jsonl")
-        commit(f"{tid}: sealed", "comp/validations/test_comp.json", ".artifact-journal.jsonl")
-        commit(f"{tid}: build beside its record", "comp/comp.py", "comp/history.json")
-        (w.commons / "tickets" / f"{tid}-a-crossing-fixture.json").write_text(json.dumps(
-            {"id": tid, "title": "a crossing fixture",
-             "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
-             "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
-        text = R.render(tid, root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
-        section = text.split("# ALREADY LANDED", 1)[-1]
-        for kept in ("proof red", "build", "build beside its record"):
-            assert re.search(rf"^[0-9a-f]{{7,}} {tid}: {kept}$", section, re.M), \
-                f"a work commit ('{kept}') must stay listed"
-        assert f"{tid}: PROVEME crossing" not in section, \
-            "a crossing record (only history/state/journal changed) is listed as landed work"
-        assert f"{tid}: sealed" not in section, \
-            "a seal record (only a validations record and the journal changed) is listed as landed work"
-    finally:
-        w.close()
-
-
-def test_the_prompt_says_landed_work_builds_as_written():
-    text = R.prompt()
-    assert "BEFORE anyone builds it" not in text, "the prompt still frames every ticket as unbuilt"
-    rule = [ln for ln in text.splitlines() if "ALREADY LANDED" in ln and "builds_as_written" in ln]
-    assert rule, "the prompt carries no rule that landed work builds as written"
-    assert "unlisted:" in rule[0], "the rule must forbid an unlisted step for landed work"
-
-
-def test_landed_work_is_only_what_a_listed_commit_performs_and_the_voyage_is_not_done():
-    """The landed-work rule is narrowed to what a listed commit's change performs, and the section
-    says the voyage is not complete (F26). Measured 2026-10-08 (F25): 41202d4c8d3b minus D14's
-    subtree (D14, D16), 3 reads each — the reader with no section raised the crossing-command gap
-    in 1 of 3; the reader told 'landed work builds as written' raised it in 0 of 3. A crossing, a
-    proof and a cursor command are not performed by any landed commit; nothing may hide them."""
-    text = R.prompt()
-    for clause in ("A decision counts as built only where a listed commit's change performs it",
-                   "including crossings, proofs and the commands that move the cursor",
-                   "is judged exactly as if this section were absent"):
-        assert clause in text, f"the prompt's landed-work rule lacks: {clause!r}"
-    w = World()
-    try:
-        repo = w.dir / "repo"
-        repo.mkdir()
-        git = ["git", "-C", str(repo)]
-        subprocess.run(git + ["init", "-q"], check=True)
-        subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                              "--allow-empty", "-m", "dddddddddddd: build"], check=True)
-        cursor = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
-        for tid in ("dddddddddddd", "eeeeeeeeeeee"):
-            (w.commons / "tickets" / f"{tid}-a-not-done-fixture.json").write_text(json.dumps(
-                {"id": tid, "title": "a not-done fixture", "workflow_and_state": cursor,
-                 "decisions": [{"n": 1, "text": "x", "by": "the proof"}], "questions": []}, indent=2) + "\n")
-        for tid in ("dddddddddddd", "eeeeeeeeeeee"):
-            section = R.render(tid, root=w.commons, berths_root=w.dir / "no-berths", repo=repo)[0]
-            section = section.split("# ALREADY LANDED", 1)[-1]
-            assert R.NOT_DONE in section.split("cursor:", 1)[0], \
-                f"{tid}: the ALREADY LANDED header does not say the voyage is not complete"
-        assert "NOT complete" in R.NOT_DONE and "still to be built" in R.NOT_DONE, R.NOT_DONE
-    finally:
-        w.close()
 
 
 def main() -> int:

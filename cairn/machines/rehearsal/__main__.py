@@ -2,7 +2,7 @@
 rehearsal.py; this file only parses and prints.
 
   cairn rehearse <ticket>                                    one pass: render, three cold reads, the diff, one record
-  cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line on the ticket (step is D<n> or "unlisted: <text>")
+  cairn rehearse <ticket> --decide <step> "<line>" --by <who>  dispose a gap as a decision line: at D<n> the line is rewritten in place; "unlisted: <text>" appends
   cairn rehearse <ticket> --decide <step> "<line>" --supersedes D<n> [--supersedes D<m>] --by <who>
                                                              the new line retires D<n> into itself, in one act
   cairn rehearse <ticket> --proved <proof.py> [<proof.py> ...]  after PROVED: the divergence list onto the clean record
@@ -32,9 +32,8 @@ from cairn.tools.system_word import fold
 def _print_gaps(record: dict) -> None:
     for g in record.get("gaps") or []:
         line = f"  {g['kind']:19} {g['step']}  (reads {','.join(map(str, g['reads']))})"
-        for k in ("assumption", "would_settle"):
-            for v in g.get(k) or []:
-                line += f"\n{'':22}{k}: {v}"
+        for v in g.get("missing") or []:
+            line += f"\n{'':22}missing: {v}"
         print(line)
 
 

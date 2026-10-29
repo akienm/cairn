@@ -19,6 +19,7 @@ Proof: exit 0 = green.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -40,13 +41,18 @@ PROVES = {"5bc3a4b1ab27": {
 }}
 
 
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
+
+
 def _elsewhere(tag: str) -> str:
     return os.path.realpath(scratch_dir(f"exec_cwd_proof_fixture_{tag}_"))
 
 
 def test_exec_from_another_dir_runs_there():
     here = _elsewhere("caller")
-    r = subprocess.run([str(_CAIRN), "test", "--exec", "pwd"], capture_output=True, text=True,
+    r = subprocess.run([*_exe(_CAIRN), "test", "--exec", "pwd"], capture_output=True, text=True,
                        timeout=240, cwd=here)
     assert r.returncode == 0, f"--exec exit {r.returncode}: {r.stderr[-400:]}"
     assert r.stdout.strip() == here, (
@@ -66,7 +72,7 @@ def test_an_explicit_cwd_still_wins():
 
 
 def test_a_proof_path_run_still_resolves_from_the_repo():
-    r = subprocess.run([str(_CAIRN), "test", _FIXTURE], capture_output=True, text=True,
+    r = subprocess.run([*_exe(_CAIRN), "test", _FIXTURE], capture_output=True, text=True,
                        timeout=240, cwd=_elsewhere("proofpath"))
     out = r.stdout + r.stderr
     assert "found no proofs" not in out, f"a repo-relative proof path stopped resolving: {out[-400:]}"

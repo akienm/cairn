@@ -50,6 +50,8 @@ PROVES = {"7c41e2b09d5a": {
     "3": "test_certify_outside_emit_bumps_its_nose",
     "4": "test_the_probe_carries_the_certificate",
     "5": "test_a_proved_crossing_without_demo_can_be_certified",
+}, "e41a94da3fd0": {
+    "6": "test_a_gated_crossing_names_a_certificate_that_verifies",
 }}
 
 FAILURES: list[str] = []

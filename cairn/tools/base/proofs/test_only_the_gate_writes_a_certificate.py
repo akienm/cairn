@@ -46,6 +46,9 @@ PROVES = {"5dc4d8a0b4d2": {
     "4": "test_only_transitiongate_certify_writes_and_only_once",
     "5": "test_a_certificate_around_the_door_fails_both_checks",
     "6": "test_every_hash_is_recomputed",
+}, "e41a94da3fd0": {
+    "1": "test_certify_writes_what_verify_accepts",
+    "2": "test_a_certificate_around_the_door_fails_both_checks",
 }}
 
 FAILURES: list[str] = []

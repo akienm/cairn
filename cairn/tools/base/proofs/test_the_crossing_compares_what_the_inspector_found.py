@@ -71,6 +71,10 @@ PROVES = {"66ee1ffc1ec7": {
     "3": "test_the_record_is_what_the_inspector_found",
     "4": "test_the_rules_grammar_is_one_definition",
     "5": "test_the_inspector_never_reaches_the_crossing",
+}, "e41a94da3fd0": {
+    "3": "test_each_lane_asks_its_inspector_function",
+    "4": "test_the_gate_reads_nothing_of_the_world",
+    "5": "test_the_inspector_never_reaches_the_crossing",
 }}
 
 FAILURES: list[str] = []

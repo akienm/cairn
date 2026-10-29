@@ -179,7 +179,7 @@ def import_graph(repo_root: str) -> dict[str, set[str]]:
     """{path relative to repo_root: every dotted name it imports}."""
     graph: dict[str, set[str]] = {}
     for abs_path in walk_py(repo_root):
-        rel = os.path.relpath(abs_path, repo_root)
+        rel = os.path.relpath(abs_path, repo_root).replace(os.sep, "/")
         try:
             src = open(abs_path, encoding="utf-8", errors="replace").read()
         except OSError:
@@ -197,7 +197,7 @@ def _resolve(root: str, dotted: str) -> str | None:
     for cand in (os.path.join(root, *parts) + ".py",
                  os.path.join(root, *parts, "__init__.py")):
         if os.path.isfile(cand):
-            return os.path.relpath(cand, root)
+            return os.path.relpath(cand, root).replace(os.sep, "/")
     return None
 
 
@@ -215,7 +215,7 @@ def import_sites(repo_root: str) -> list[dict]:
     """
     sites: list[dict] = []
     for abs_path in walk_py(repo_root):
-        rel = os.path.relpath(abs_path, repo_root)
+        rel = os.path.relpath(abs_path, repo_root).replace(os.sep, "/")
         try:
             src = open(abs_path, encoding="utf-8", errors="replace").read()
         except OSError:

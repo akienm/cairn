@@ -44,6 +44,11 @@ BUDGET_MS = 10.0
 N = 15
 
 
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
+
+
 def _scratch() -> Path:
     from cairn.tools.scratch.scratch import scratch_dir
     return scratch_dir("0853-floor-")
@@ -69,7 +74,7 @@ def _probe_device(home: Path) -> None:
 
 
 def _run(cairn: Path, args: list, env: dict, timeout: float = 600) -> subprocess.CompletedProcess:
-    return subprocess.run([str(cairn), *args], env=env, capture_output=True, text=True, timeout=timeout, cwd="/")
+    return subprocess.run([*_exe(cairn), *args], env=env, capture_output=True, text=True, timeout=timeout, cwd="/")
 
 
 def test_absent_venv_is_laid_then_answers() -> None:

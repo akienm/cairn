@@ -219,7 +219,7 @@ def directory_fingerprint(root: str) -> str:
             if not name.endswith(".py"):
                 continue
             full = os.path.join(dirpath, name)
-            digest.update(os.path.relpath(full, root).encode("utf-8"))
+            digest.update(os.path.relpath(full, root).replace(os.sep, "/").encode("utf-8"))
             digest.update(b"\0")
             with open(full, "rb") as f:
                 digest.update(f.read())
@@ -342,7 +342,7 @@ def repo_relative_closure(files, proof_path: str) -> list[str]:
             continue
         if full.endswith(".pyc"):
             full = full[:-1]
-        rel = os.path.relpath(full, _REPO_ROOT)
+        rel = os.path.relpath(full, _REPO_ROOT).replace(os.sep, "/")
         if rel.startswith(os.pardir) or os.path.isabs(rel):
             continue
         if rel.endswith(".py"):
@@ -364,7 +364,7 @@ def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
     ``repo_relative_closure([], proof)`` pays nothing; a proof under no component keeps the
     whole closure rather than guessing."""
     from cairn.tools.base.address import component_of
-    mine = os.path.relpath(os.path.realpath(str(proof_path)), _REPO_ROOT)
+    mine = os.path.relpath(os.path.realpath(str(proof_path)), _REPO_ROOT).replace(os.sep, "/")
     others = rels - {mine}
     if not others:
         return rels

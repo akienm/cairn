@@ -657,6 +657,11 @@ def dirty_against_index(proof_rel: str, closure: list[str] | None, base: Path) -
     return sorted(dirty + untracked)
 
 
+def _posix_rel(path, base) -> str:
+    """``path`` relative to ``base`` spelled with ``/`` — the form git and the held/staged keys use."""
+    return os.path.relpath(path, base).replace(os.sep, "/")
+
+
 def _differs_from_index(rel: str, base: Path) -> bool:
     """True when the file at ``rel`` is untracked or carries a change the index lacks."""
     if subprocess.run(["git", "-C", str(base), "ls-files", "--error-unmatch", "--", rel],
@@ -689,7 +694,7 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
         # A HOLD BEFORE THE RUN (ticket 42075a49c121) wrote nothing, so there is nothing to
         # stage — but it is listed, so the hook's HELD line names what the commit lacks.
         if r.get("outcome") == "held":
-            held.append({"validation": os.path.relpath(validations_path_for(str(base / r["proof"])), base),
+            held.append({"validation": _posix_rel(validations_path_for(str(base / r["proof"])), base),
                          "because": r["because"]})
             continue
         # A RED IS STAGED TOO: the door seals its red (Law 7), and a red over the committed tree
@@ -704,14 +709,14 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
             continue
         proof = base / r["proof"]
         if outcome == "unchanged" and not _differs_from_index(
-                os.path.relpath(validations_path_for(str(proof)), base), base):
+                _posix_rel(validations_path_for(str(proof)), base), base):
             continue
         trail = read_validations(str(proof))
         if not trail:
             continue
         closure = closure_of(trail[-1])
         dirty = dirty_against_index(r["proof"], closure, base)
-        validation = os.path.relpath(validations_path_for(str(proof)), base)
+        validation = _posix_rel(validations_path_for(str(proof)), base)
         if dirty:
             held.append({"validation": validation, "because": dirty})
             continue

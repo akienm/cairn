@@ -49,6 +49,7 @@ SCHEMA_PATH = HERE / "schema.json"
 PROMPT_PATH = HERE / "prompt.md"
 VOYAGE_CRAFT_PATH = HERE / "voyage_craft.md"
 STATES = ("builds_as_written", "builds_under_assumption", "cannot_proceed")
+LOOK_KINDS = ("path", "module")   # 7a31059daa23 D2: what a reader may name for the machine to look at
 READS = 3               # D1: three cold reads
 RETRIES_PER_READ = 2    # D5: a read that fails the schema is re-read; this many times, then the pass is refused
 PASS_CAP = 5            # D11
@@ -211,7 +212,7 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
             lacks.append(f"{at}: not an object")
             continue
         for k in n:
-            if k not in ("step", "state", "assumption", "would_settle", "confidence"):
+            if k not in ("step", "state", "assumption", "would_settle", "confidence", "looks_at"):
                 lacks.append(f"{at}: unknown key {k!r}")
         for k in ("step", "state", "assumption", "would_settle", "confidence"):
             if k not in n:
@@ -236,6 +237,19 @@ def validate(tree: object, decision_ids: set[int] | None = None) -> list[str]:
         if "confidence" in n and not (isinstance(c, (int, float)) and not isinstance(c, bool)
                                       and 0 <= c <= 1):
             lacks.append(f"{at}.confidence: a number in [0, 1] is required")
+        if "looks_at" in n:                          # 7a31059daa23 D2
+            looks = n["looks_at"]
+            if not isinstance(looks, list):
+                lacks.append(f"{at}.looks_at: a list is required")
+            else:
+                for j, item in enumerate(looks):
+                    if not (isinstance(item, dict) and set(item) == {"kind", "name"}):
+                        lacks.append(f"{at}.looks_at[{j}]: an object with exactly kind and name is required")
+                        continue
+                    if item["kind"] not in LOOK_KINDS:
+                        lacks.append(f"{at}.looks_at[{j}].kind: {item['kind']!r} is not one of {LOOK_KINDS}")
+                    if not (isinstance(item["name"], str) and item["name"]):
+                        lacks.append(f"{at}.looks_at[{j}].name: a non-empty string is required")
     # every decision the ticket carries, exactly once (D17): three readers that each judge
     # which decisions are steps never converge on the same set — measured on this machine's
     # own ticket, 6 of 17 ids step_absent — so the set is not judged, it is required. A
@@ -526,7 +540,52 @@ def cites_a_decision(step: str, assumption: str, decision_ids) -> bool:
     return any(int(m) in decision_ids and int(m) != own_n for m in _DECISION_ID.findall(assumption))
 
 
-def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
+_MODULE_NAME = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)*")
+
+
+def look(item: dict, roots) -> bool:
+    """Ticket 7a31059daa23 D3: whether one thing a reader named is THERE. A path is found
+    when it exists (absolute after expanduser, else under any root); a module is found when
+    its source file exists under any root (``a/b.py``, ``a/b/__init__.py`` or
+    ``a/b/__main__.py``). Only stats files: a look never imports and never runs anything,
+    so naming a module cannot execute it."""
+    name = item.get("name")
+    if not (isinstance(name, str) and name):
+        return False
+    if item.get("kind") == "path":
+        expanded = os.path.expanduser(name)
+        if os.path.isabs(expanded):
+            return Path(expanded).exists()
+        return any((Path(root) / name).exists() for root in roots)
+    if item.get("kind") == "module":
+        if not _MODULE_NAME.fullmatch(name):
+            return False
+        rel = Path(*name.split("."))
+        return any((Path(root) / rel).with_suffix(".py").is_file()
+                   or (Path(root) / rel / "__init__.py").is_file()
+                   or (Path(root) / rel / "__main__.py").is_file() for root in roots)
+    return False
+
+
+def world_looker(roots) -> Callable[[dict], dict | None]:
+    """Ticket 7a31059daa23 D4: the looker ``gaps`` settles by. For a builds_under_assumption
+    node naming a non-empty ``looks_at`` it returns what was looked at and whether every
+    thing was found; for any other node, None — so cannot_proceed never settles by the
+    world, and a node naming nothing is untouched."""
+    roots = [Path(r) for r in roots]
+
+    def looker(node: dict) -> dict | None:
+        looks = node.get("looks_at")
+        if node.get("state") != "builds_under_assumption" or not isinstance(looks, list) or not looks:
+            return None
+        looked = [{"kind": i.get("kind"), "name": i.get("name"), "found": look(i, roots)}
+                  for i in looks if isinstance(i, dict)]
+        return {"looked_at": looked, "settled": bool(looked) and all(x["found"] for x in looked)}
+    return looker
+
+
+def gaps(reads: list[dict], decision_ids: set[int] | None = None,
+         looker: Callable[[dict], dict | None] | None = None) -> list[dict]:
     """D6, verbatim: *"any node not builds_as_written in any read; any step present in one
     read and absent in another after case-folding through cairn.tools.system_word; any two
     reads whose assumption text differs on the same step."* Steps fold (a word the reader
@@ -536,7 +595,10 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
     gap of kind ``unlisted`` — the ticket owes the decision that would name it. Amended
     (open-ba8f0eaca8cd): with ``decision_ids`` a builds_under_assumption node whose assumption
     names another carried decision id (cites_a_decision) is settled — it raises no ``assumes``
-    gap and its text joins no ``assumption_differs`` comparison; without ids nothing settles."""
+    gap and its text joins no ``assumption_differs`` comparison; without ids nothing settles.
+    Amended (7a31059daa23 D5): with a ``looker`` a node the world settles (every thing in its
+    ``looks_at`` found) is settled the same way, and an unsettled one's ``assumes`` gap carries
+    ``measured_absent`` naming each thing not found; without a looker nothing changes."""
     by_kind_step: dict[tuple[str, str], dict] = {}
 
     def gap(kind: str, step: str, read_n: int, **more) -> None:
@@ -551,9 +613,16 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
             if v not in g[k]:
                 g[k].append(v)
 
+    def world(node) -> dict | None:
+        return looker(node) if looker is not None else None
+
     def settled(node) -> bool:
-        return node["state"] == "builds_under_assumption" and cites_a_decision(
-            node["step"], node.get("assumption", "").strip(), decision_ids)
+        if node["state"] != "builds_under_assumption":
+            return False
+        if cites_a_decision(node["step"], node.get("assumption", "").strip(), decision_ids):
+            return True
+        r = world(node)
+        return r is not None and r["settled"]
 
     steps_by_read: list[dict[str, dict]] = []
     for r in reads:
@@ -567,6 +636,9 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
                 gap("assumes", node["step"], r["read"],
                     assumption=node.get("assumption", "").strip(),
                     would_settle=node.get("would_settle", "").strip())
+                for x in (world(node) or {}).get("looked_at", []):
+                    if not x["found"]:
+                        gap("assumes", node["step"], r["read"], measured_absent=x["name"])
             elif node["state"] == "cannot_proceed":
                 gap("cannot_proceed", node["step"], r["read"],
                     assumption=node.get("assumption", "").strip(),
@@ -589,6 +661,19 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
     out = sorted(by_kind_step.values(), key=lambda g: (g["kind"], fold(g["step"])))
     for g in out:
         g["reads"].sort()
+    return out
+
+
+def settled_by_world(reads: list[dict], looker: Callable[[dict], dict | None]) -> list[dict]:
+    """Ticket 7a31059daa23 D13: every node the world settled, read then node order, with
+    what was looked at — the record says why a step raised no gap, so a look too shallow to
+    serve the goal is readable on the record that trusted it."""
+    out = []
+    for r in reads:
+        for node in r.get("nodes", []):
+            w = looker(node)
+            if w is not None and w["settled"]:
+                out.append({"step": node["step"], "read": r["read"], "looked_at": w["looked_at"]})
     return out
 
 
@@ -698,7 +783,10 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
     if failed is not None:
         return _record_the_failed_run(ticket, root, failed, reads=reads, meta=meta, text=text,
                                       sha_at_read=sha_at_read, passes=passes, by=by)
-    found = gaps(reads, ids)
+    repo_path = Path(repo) if repo is not None else REPO
+    looker = world_looker([repo_path, commons(root)])      # 7a31059daa23 D13
+    found = gaps(reads, ids, looker)
+    sbw = settled_by_world(reads, looker)
     clean = not found
     try:
         reaches = log_reaches(found, ticket_log.read_log(tk))
@@ -732,6 +820,7 @@ def rehearse(ticket: str, *, reader: Reader = claude_reader, root: Path | str | 
         "design_sha256": design,
         "reads": reads,
         "gaps": found,
+        **({"settled_by_world": sbw} if sbw else {}),
         # gaps a ticket-log line already speaks to (fad76bb5d1f5 D1: heuristic token overlap)
         "log_reaches": reaches,
         "log_reach_count": sum(1 for r in reaches if "gap_step" in r),

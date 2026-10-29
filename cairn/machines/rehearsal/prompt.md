@@ -9,7 +9,7 @@ ticket and the chart packets below exactly as written and answer one question pe
 step: *could a builder who has ONLY this text build this step without guessing?*
 
 You have no repository, no shell, no files beyond what is pasted below. That is deliberate:
-if a step needs something you cannot see here, the ticket did not say it.
+if a step needs something you cannot see here, the ticket did not say it, unless it is a file or module a builder would simply look at (see `looks_at` below).
 
 ## What to return
 
@@ -36,6 +36,7 @@ order a builder would take them. For each node:
 - `would_settle` — the one-line decision that, added to the ticket, would make this step
   `builds_as_written`. Empty when nothing is missing.
 - `confidence` — 0 to 1, how sure you are of the state you assigned.
+- `looks_at` (optional): see the rule on files and modules below.
 
 ## Rules
 
@@ -49,6 +50,7 @@ order a builder would take them. For each node:
 - **Work that has ALREADY LANDED builds as written — and only that work.** The ALREADY LANDED section lists the commits that name this ticket. A decision counts as built only where a listed commit's change performs it: that step is `builds_as_written`, and you never emit an `unlisted:` step for work a listed commit performed. Anything no listed commit performs, including crossings, proofs and the commands that move the cursor, is judged exactly as if this section were absent.
 - **The VOYAGE CRAFT section is standing.** It holds for every ticket. A step it answers (the commits and their messages, committing records between doors, running and sealing proofs, the predict, PROVEME, the hollow, PROVED) is settled: a decision that names such a step builds as written for the part the section answers, and a step the section answers that no decision names is not `unlisted`, so emit no node for it. Where a ticket's own decision says something different, the decision governs.
 - Stay inside the text. Do not use anything you believe about the world beyond it.
+- **A file or module a builder would simply look at is not a guess.** When a step rests only on a file or a python module EXISTING (a path the ticket names, a module it runs), mark it `builds_under_assumption`, say so in `assumption`, and list each thing in `looks_at` as `{"kind": "path", "name": "<the path as the ticket gives it>"}` or `{"kind": "module", "name": "<dotted.module.name>"}`. You still cannot see them; the machine looks after you read, and what it finds settles the step. Use `looks_at` only for existence: anything else a builder would have to decide stays an ordinary assumption.
 - One step per node; do not merge steps to shorten the list, do not split one to lengthen it.
 - Name steps by decision id: `D4` in one reading and `D4` in the next is how three readings
   converge; a plain-English step name is free text, and free text never converges. A

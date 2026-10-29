@@ -59,6 +59,19 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1
+          },
+          "looks_at": {
+            "type": "array",
+            "description": "files or python modules a builder would simply look at to settle this step's assumption; the machine looks after the read (ticket 7a31059daa23)",
+            "items": {
+              "type": "object",
+              "required": ["kind", "name"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {"type": "string", "enum": ["path", "module"]},
+                "name": {"type": "string", "minLength": 1}
+              }
+            }
           }
         }
       }

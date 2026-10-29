@@ -25,6 +25,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -72,6 +73,11 @@ _failures: list[str] = []
 _PROOF_BOOT_LOG = str(scratch_dir("cairn-proof-boot-") / "boot")
 _REAL_BOOT_LOG = Path(os.environ.get("CAIRN_BOOT_LOG") or Path.home() / ".cairn" / "logs" / "boot")
 _REAL_BOOT_LOG_SIZE_AT_START = _REAL_BOOT_LOG.stat().st_size if _REAL_BOOT_LOG.is_file() else 0
+
+
+def _exe(path: Path) -> list:
+    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
+    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
 def _env(extra: dict | None = None) -> dict:
@@ -184,7 +190,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
     """The one thing the launcher may never do is fail to launch. A preflight that cannot
     repair must still hand off, carrying its report — 'always reach Claude Code so it can
     help rebuild a broken box' (launchers/intention+why.json)."""
-    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        env=_env({"CAIRN_VENV": UNCREATABLE}), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} with a broken preflight — {r.stderr!r}"
     assert "exec claude" in r.stdout, f"the launch was aborted by the preflight — {r.stdout!r}"
@@ -195,7 +201,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
 
 def test_a_working_preflight_adds_nothing_to_the_launch() -> None:
     """Invisible when it works — the launch line is byte-identical to the pre-preflight one."""
-    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        env=_env(), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} — {r.stderr!r}"
     assert "exec claude" in r.stdout, "no launch line"

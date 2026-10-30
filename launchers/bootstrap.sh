@@ -93,6 +93,15 @@ cairn_venv_dir() {
   echo "${CAIRN_VENV:-$HOME/.cairn/venv}"
 }
 
+# The venv's interpreter, wherever the host puts it: bin/python3 on POSIX, Scripts/python.exe
+# under Git Bash. When neither exists yet, the POSIX path is returned (the absent-venv message
+# names it, and apply re-resolves after it creates the venv).
+_cairn_venv_python() {
+  local d
+  d="$(cairn_venv_dir)"
+  if [[ ! -x "$d/bin/python3" && -x "$d/Scripts/python.exe" ]]; then echo "$d/Scripts/python.exe"; else echo "$d/bin/python3"; fi
+}
+
 cairn_python() {
   local vpy
   vpy="$(cairn_venv_dir)/bin/python3"
@@ -127,7 +136,7 @@ cairn_bootstrap_verify() {
   CAIRN_BOOTSTRAP_FINDINGS=()
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
-  vpy="$venv/bin/python3"
+  vpy="$(_cairn_venv_python)"
   _cairn_boot_log "verify: begin — venv=$venv root=$CAIRN_REPO_ROOT"
 
   if ! command -v python3 >/dev/null 2>&1; then
@@ -181,7 +190,7 @@ cairn_bootstrap_verify() {
 cairn_bootstrap_apply() {
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
-  vpy="$venv/bin/python3"
+  vpy="$(_cairn_venv_python)"
   # The probe's sharpest signal: apply running AT ALL means the previous launch's floor did
   # not survive. Two applies in a row for the same reason is a repair that is not repairing.
   _cairn_boot_log "apply: begin — the floor was not up"
@@ -208,6 +217,7 @@ cairn_bootstrap_apply() {
       CAIRN_BOOTSTRAP_FINDINGS+=("VENV CREATE FAILED — \`python3 -m venv $venv\` exited $rc. Output: ${out//$'\n'/ | }. Read that output first; candidates if it is unclear: ensurepip absent (apt install python3-venv), the path not writable, or the disk full.")
       return 1
     fi
+    vpy="$(_cairn_venv_python)"
   fi
 
   # --editable: the import root must FOLLOW the working tree, not snapshot it. A regular

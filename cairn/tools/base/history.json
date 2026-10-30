@@ -74175,5 +74175,88 @@
     "fingerprint": "ad0763f24b0e1deff5387e4e30fcbefaff4f0f031daf3861bcee0856d24a35a0",
     "at": "2026-10-30T07:27:42",
     "seq": 308
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "284798998ab0",
+    "actor": "cc",
+    "missing": [
+      "[criterion_failed] validate criterion 3 (suite_parity) fails by its own instrument: two NEW REDs not in the 18-red baseline — cairn/tools/base/proofs/test_base_probes_report_to_the_watch.py and cairn/tools/determinism/proofs/test_determinism.py. Both are green alone with --timeout 900 and TIMEOUT at the 120 s budget (127.6 s, 124.1 s). Measured cause: grammar.ticket_path globs the tickets dir per call (16,329 calls in one run, 58 s under cProfile), and the split took that dir from ~600 entries to 1,812, so each glob costs ~1.5 ms where it cost ~0.5. The build made the lookup three times slower; the fix is that the lookup does not re-list a dir that has not changed"
+    ],
+    "why": "the verdict's suite_parity criterion reds: two proofs now time out at 120 s",
+    "fingerprint": "6eed894dde9c162b67d95064c693a0834ba1275fb6b15f2dedc9b814f000c512",
+    "at": "2026-10-30T12:23:47",
+    "seq": 309
   }
 ]

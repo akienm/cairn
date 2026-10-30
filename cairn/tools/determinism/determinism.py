@@ -245,6 +245,13 @@ def measure(root: str | Path = ".") -> dict:
             f"determinism: no .py files under {root} — a report over an unread tree would "
             "show every component pure, which is the shape of a green that means nothing")
 
+    # ONE READ PER FILE PER REPORT (ticket 284798998ab0, FIXME 2). walk() reads the shell
+    # targets of every file in a component's import closure, and closures overlap: one
+    # report made 24,832 reads of ~3,100 files, 198 s of a 394 s profile. When readers came
+    # to import ticket_file (and through it the artifact door) every closure grew, and this
+    # proof crossed the tester's 120 s budget. A file does not change inside one report.
+    shells_of: dict[str, set[str]] = {}
+
     def walk(mods: list[str]) -> dict:
         llm: dict[str, str] = {}
         offbox: dict[str, str] = {}
@@ -258,7 +265,9 @@ def measure(root: str | Path = ".") -> dict:
             closure[mod] = [mod]
             reached |= set(closure)
             for path in closure:
-                shells |= shell_targets(root / path)
+                if path not in shells_of:
+                    shells_of[path] = shell_targets(root / path)
+                shells |= shells_of[path]
                 for imported in graph.get(path, ()):
                     for t in LLM:
                         if import_sieve._matches(imported, t):

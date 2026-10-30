@@ -336,21 +336,54 @@ def ticket_path(claim, root: str = CAIRN_ROOT, tickets_dir: str | None = None) -
         if os.path.isfile(literal):
             return literal
     if _HEX_ID_RE.match(claim):
-        import glob as _glob
-        matches = [m for m in _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))
-                   if not m.endswith(".state.json")]  # a plan, never its state (284798998ab0)
-        return matches[0] if matches else None
+        name = _ticket_plans(tickets_dir)[0].get(claim)  # a plan, never its state (284798998ab0)
+        return os.path.join(tickets_dir, name) if name else None
     if not _TICKET_RE.match(claim):
         return None
     filed = os.path.join(tickets_dir, claim + ".json")
     if os.path.isfile(filed):
         return filed
-    import glob as _glob
-    for match in sorted(_glob.glob(os.path.join(tickets_dir, "*-" + claim + ".json"))):
-        stem = os.path.basename(match)[: -len(".json")]
-        if _HEX_ID_RE.match(stem[: -(len(claim) + 1)]):
-            return match
-    return None
+    name = _ticket_plans(tickets_dir)[1].get(claim)
+    return os.path.join(tickets_dir, name) if name else None
+
+
+_TICKET_PLANS: dict[str, tuple[int, tuple[dict, dict]]] = {}
+
+
+def _ticket_plans(tickets_dir: str) -> tuple[dict, dict]:
+    """The tickets dir's ``<hex>-<slug>.json`` plans indexed by id and by slug (the first
+    in sorted order wins each key), re-listed only when the dir has changed.
+
+    WHY (ticket 284798998ab0, FIXME 2): ``ticket_path`` globbed the dir on every call, and one
+    run of ``test_base_probes_report_to_the_watch`` makes 16,329 calls. The split put a
+    ``.state.json`` and a ``.log.jsonl`` beside each plan, 1,812 entries where there had been
+    ~600, so each glob went from ~0.5 ms to ~1.5 ms and two proofs green before the build
+    crossed the tester's 120 s budget.
+
+    The key is the dir's ``st_mtime_ns``, which moves on every create, delete and rename in
+    it. A coarse clock tick could hold two writes, and the second would then be missed —
+    except that a write made after the mtime was READ gets a fine-grained stamp (the kernel's
+    multigrain timestamps), and this function reads it before it lists. Measured 2026-10-30 on
+    kernel 7.0: 20,000 creates, each made right after a stat, and the mtime moved on all of
+    them, on ext4 and on tmpfs alike."""
+    try:
+        mtime = os.stat(tickets_dir).st_mtime_ns
+    except OSError:
+        return {}, {}
+    hit = _TICKET_PLANS.get(tickets_dir)
+    if hit is not None and hit[0] == mtime:
+        return hit[1]
+    by_id: dict[str, str] = {}
+    by_slug: dict[str, str] = {}
+    for name in sorted(os.listdir(tickets_dir)):
+        if not name.endswith(".json") or name.endswith(".state.json"):
+            continue
+        head, sep, rest = name[: -len(".json")].partition("-")
+        if sep and _HEX_ID_RE.match(head):
+            by_id.setdefault(head, name)
+            by_slug.setdefault(rest, name)
+    _TICKET_PLANS[tickets_dir] = (mtime, (by_id, by_slug))
+    return by_id, by_slug
 
 
 def ticket_spellings(claim, root: str = CAIRN_ROOT) -> frozenset:

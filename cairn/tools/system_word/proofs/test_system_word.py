@@ -55,6 +55,8 @@ except ImportError as _exc:  # noqa: E402
 
     canon = fold = fold_flags = fold_head = is_word = pick = _missing
 
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 
 # Ticket e3cf75c6dc8f's falsifier numbers nine clauses; each names the one tooth that
@@ -147,7 +149,7 @@ def _stub(dir_: str, name: str, body: str) -> None:
 
 
 def _cairn(*args: str, **env: str) -> subprocess.CompletedProcess:
-    return subprocess.run([str(_DISPATCHER), *args], capture_output=True, text=True,
+    return subprocess.run([*bash_script_argv(_DISPATCHER), *args], capture_output=True, text=True,
                           env={**os.environ, **env}, timeout=60)
 
 
@@ -207,12 +209,12 @@ def test_the_real_ruling_list_takes_uppercase():
 
 
 def test_the_codemother_launcher_folds_its_subcommand():
-    r = subprocess.run([str(_CODEMOTHER), "NO-SUCH-SUBCOMMAND-XYZ"],
+    r = subprocess.run([*bash_script_argv(_CODEMOTHER), "NO-SUCH-SUBCOMMAND-XYZ"],
                        capture_output=True, text=True, timeout=60)
-    lo = subprocess.run([str(_CODEMOTHER), "no-such-subcommand-xyz"],
+    lo = subprocess.run([*bash_script_argv(_CODEMOTHER), "no-such-subcommand-xyz"],
                         capture_output=True, text=True, timeout=60)
     assert r.returncode == lo.returncode and r.stdout == lo.stdout, (r.stderr, lo.stderr)
-    r = subprocess.run([str(_CODEMOTHER), "SHOW", "NOT-A-VIEW"],
+    r = subprocess.run([*bash_script_argv(_CODEMOTHER), "SHOW", "NOT-A-VIEW"],
                        capture_output=True, text=True, timeout=60)
     # The show branch hands an unknown view to the base resolver (ticket b41b0c0fff0e), whose
     # refusal names the view it was given, folded, and the views that exist — the default arm

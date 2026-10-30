@@ -46,6 +46,8 @@ from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 _TICKET_ID = "e3cf75c6dc8f"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 _OWNING_TICKET = owning_ticket("system-words-fold-case-when-akien-types-them")
 
@@ -88,7 +90,7 @@ def _drive_dispatcher() -> list[tuple[str, bool]]:
         env = {**os.environ, "CAIRN_CMD_DIR": str(cmd), "CAIRN_INSTANCE_ROOT": str(d + "/inst")}
 
         def run(*a):
-            return subprocess.run([str(_DISPATCHER), *a], capture_output=True, text=True,
+            return subprocess.run([*bash_script_argv(_DISPATCHER), *a], capture_output=True, text=True,
                                   env=env, timeout=60)
 
         r = run("ECHOER", "x", "Y")
@@ -121,7 +123,7 @@ def _drive_python() -> list[tuple[str, bool]]:
     # THE COMMAND HE TYPES, as a subprocess: the tester is a device and its CLI is reached
     # as `cairn test`, never by importing its code (RULE 1, ticket 67b78ae59c1d).
     with tempfile.TemporaryDirectory() as empty:
-        te = subprocess.run([str(_DISPATCHER), "test",
+        te = subprocess.run([*bash_script_argv(_DISPATCHER), "test",
                              "--SEAL", "-Q", empty], capture_output=True, text=True, timeout=120)
         out.append(("tester --SEAL -Q", te.returncode != 2))
 

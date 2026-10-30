@@ -51,6 +51,12 @@
 
 CAIRN_BOOTSTRAP_SOURCED=1
 
+# Windows (Git Bash): Python's default text encoding is the ANSI code page (cp1252), which cannot
+# read or write the UTF-8 the charters and records are in. Measured: UnicodeDecodeError 0x90/0x8f/0x9d
+# and UnicodeEncodeError U+2192/U+2693. Python in UTF-8 mode fixes every site and subprocess at once;
+# POSIX hosts are already UTF-8 and are left alone.
+case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) export PYTHONUTF8=1 ;; esac
+
 # Resolve through symlinks before dirname — superclaude is linked into ~/.local/bin, and
 # without readlink -f this would compute the LINK's directory. Same lesson bin/cairn
 # learned on 2026-07-26; it is written down in both places because both places pay for it.

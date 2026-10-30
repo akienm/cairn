@@ -197,7 +197,8 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
     # (its own docstring: so a reader that opens a ticket and a gate that checks it is on file
     # can never disagree), and it globs a hex id. The id cannot be edited; the slug can.
     ticket_file = _owning_ticket()
-    ticket = json.loads(ticket_file.read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(ticket_file)
     assert watchme_spec.watchme_spec_error(ticket) is None, watchme_spec.watchme_spec_error(ticket)
     spec = watchme_spec.spec_for(ticket, "reported-but-unfixed-floor")
     assert spec is not None, "no spec for the object the workflow string names"
@@ -210,7 +211,8 @@ def test_the_berth_is_where_the_ticket_says_it_is() -> None:
     file, resolved from the repo root the gate resolves from."""
     from cairn.tools.base import watchme_spec
 
-    ticket = json.loads(_owning_ticket().read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(_owning_ticket())
     spec = watchme_spec.spec_for(ticket, "reported-but-unfixed-floor")
     assert (REPO / spec["probe"]).resolve() == BERTH.resolve(), (
         f"the ticket berths the probe at {spec['probe']!r}, this proof is proving {BERTH}")

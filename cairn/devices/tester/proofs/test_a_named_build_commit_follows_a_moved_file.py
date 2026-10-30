@@ -124,7 +124,8 @@ def test_the_live_87a7_build_anchors_at_its_parent():
     from cairn.devices.tester.hollow import (COMMONS, _roots, instrument_set, proven_by,
                                              writes_to)
     tid, first = "87a7f1c7ae21", "18e1923d06e13995084b72751801d4ccfd5d9f17"
-    ticket = json.loads(next((Path(COMMONS) / "tickets").glob(f"{tid}-*.json")).read_text())
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(next(p for p in plans(Path(COMMONS) / "tickets") if p.name.startswith(f"{tid}-")))
     assert first in (ticket.get("build_commits") or []), ticket.get("build_commits")
     # The files are what 87a7's chart CLAIMS and the instrument is its proofs, read the way
     # ``measure`` reads them — never typed here, so the departed path stays in the chart that

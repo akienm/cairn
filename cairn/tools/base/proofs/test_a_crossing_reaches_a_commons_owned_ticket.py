@@ -125,7 +125,8 @@ class World:
 def test_a_commons_owned_ticket_journals_beside_its_commons_charter(A) -> None:
     w = World(COMMONS_OWNER)
     new, exc = w.cross(A, "BUILDME")
-    cursor = json.loads(w.ticket.read_text(encoding="utf-8")).get("workflow_and_state")
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    cursor = read_ticket(w.ticket).get("workflow_and_state")
     ch, rh = w.journals(w.cdir), w.journals(w.comp)
     ok = (exc is None and isinstance(new, str) and "[BUILDME" in new and cursor == new
           and len(ch) == 1 and ch[0].get("ticket") == TID and (w.cdir / "state.json").exists()
@@ -163,8 +164,9 @@ def _tree_bytes(d: Path) -> dict:
 def test_the_live_commons_owner_resolves_without_writing(A) -> None:
     # the home checkout when no commons sits beside this tree (hollow's worktree), never ticket_file._TICKETS
     live = _LIVE_COMMONS
-    hits = [p for p in (live / "tickets").glob("6bc43453ca64-*.json") if not p.name.endswith(".log.jsonl")]
-    owning = json.loads(hits[0].read_text(encoding="utf-8"))["owning_intention"] if hits else ""
+    hits = [p for p in (live / "tickets").glob("6bc43453ca64-*.json") if not p.name.endswith(".state.json")]
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    owning = read_ticket(hits[0])["owning_intention"] if hits else ""
     watched = live / "intentions-not-beside-code"
     before = _tree_bytes(watched)
     try:

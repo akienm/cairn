@@ -2,8 +2,8 @@
   {
     "claim": "proof test_system_word.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-06T11:47:48",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-29T23:37:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -40,38 +40,40 @@
         "test_wrong_intent_free_text_lands_byte_identical"
       ],
       "teeth_red": [],
-      "test": "test-2398850df222",
+      "test": "test-86dd7445b1a5",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "0a0fe73f90b12f1acf339b3ea674838e39ecb56eef24f3d9331e81380c2bf2a3",
+        "proof": "f927537a8bb10c819905052365d8a65a497f8a1d8371394bdcf4b9ce1a9f4f1e",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 3957204,
+          "pid": 2113049,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2398850df222",
-      "source_fingerprint": "94f20734201bd9cc1913d58237bfc1637333c48079d976dc8b28c5cc32051f3d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-86dd7445b1a5",
+      "source_fingerprint": "890316a9e2db498bbbdfc217991b3b4da392307f1f9d2137a2239a49166c692e",
       "fingerprint_closure": [
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/probes/his_case_never_bites.py",
@@ -80,45 +82,47 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3951581-_xwczrhn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2100903-lwh0j2ue/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 22,
+          "count": 23,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "devices/tester/0/last_known.json",
+            "devices/trouble/0/drained.json",
             "devices/verb_device/0/last_known.json",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261006.174744.016360.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.174744.027167.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.174744.221614.BusDevice.post.json",
-            "logs/bus/0/20261006.174744.231482.BusDevice.post.json",
-            "logs/bus/0/20261006.174744.336662.BusDevice.post.json",
-            "logs/bus/0/20261006.174744.337772.BusDevice.delivered.json",
-            "logs/bus/0/20261006.174744.338573.BusDevice.delivered.json",
-            "logs/bus/0/20261006.174744.804643.BusDevice.post.json",
-            "logs/bus/0/20261006.174744.894338.BusDevice.post.json",
-            "logs/bus/0/20261006.174744.895058.BusDevice.delivered.json",
-            "logs/bus/0/20261006.174744.895678.BusDevice.delivered.json",
+            "logs/bus/0/20261030.053733.348069.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261030.053733.355764.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261030.053733.635071.BusDevice.post.json",
+            "logs/bus/0/20261030.053733.645734.BusDevice.post.json",
+            "logs/bus/0/20261030.053733.751119.BusDevice.post.json",
+            "logs/bus/0/20261030.053733.752085.BusDevice.delivered.json",
+            "logs/bus/0/20261030.053733.755238.BusDevice.delivered.json",
+            "logs/bus/0/20261030.053734.581712.BusDevice.post.json",
+            "logs/bus/0/20261030.053734.691216.BusDevice.post.json",
+            "logs/bus/0/20261030.053734.691959.BusDevice.delivered.json",
+            "logs/bus/0/20261030.053734.692561.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261006.174746.248874.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261006.174746.511526.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261006.174744.337883.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261006.174744.338027.TesterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261030.053736.424307.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261030.053736.808391.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261030.053733.753948.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261030.053733.754716.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 102564276,
-          "disk_bytes": 123490304,
-          "entries": 8588,
+          "bytes": 113686120,
+          "disk_bytes": 143400960,
+          "entries": 11758,
           "builds": 1,
-          "reuses": 59
+          "reuses": 50
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

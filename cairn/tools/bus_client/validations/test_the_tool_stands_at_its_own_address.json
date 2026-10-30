@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_tool_stands_at_its_own_address.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-03T14:21:51",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-29T23:36:20",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_i_every_address_this_build_wrote_is_load_bearing\n          charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled\n          probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough\n          journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'BUILDME')\n          journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME')\n          purity seal: cairn/tools/determinism/validations/test_determinism.json is green at 2026-10-02T01:18:26 with test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle among its green teeth\n  PASS  test_ii_the_charter_berths_at_the_tools_own_address (charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled)\n  PASS  test_iii_the_watchme_probe_moved_with_what_it_watches (probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough)\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'BUILDME'))\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'PROVEME'))\n  PASS  test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth (purity seal: cairn/tools/determinism/validations/test_determinism.json is green at 2026-10-02T01:18:26 with test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle among its green teeth)\ngreen — bus_client stands at its own address: its own charter, the WATCHME probe berthed with what it watches, a journal at each end of the seam whose cursor is its own last entry, and a standing purity seal that is green rather than nine hours stale",
+      "stdout_tail": "  PASS  test_i_every_address_this_build_wrote_is_load_bearing\n          charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled\n          probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough\n          journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'PROVED')\n          journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'BUILDME')\n          purity seal: cairn/tools/determinism/validations/test_determinism.json is green at 2026-10-02T01:18:26 with test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle among its green teeth\n  PASS  test_ii_the_charter_berths_at_the_tools_own_address (charter: cairn/tools/bus_client/intention+why.json declares component 'bus_client' with what/why/falsifier/owner filled)\n  PASS  test_iii_the_watchme_probe_moved_with_what_it_watches (probe: cairn/tools/bus_client/probes/a_client_reaches_and_never_beats.py imports and carries a PROBE with carry and enough)\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/bus_client's cursor mirrors its last history entry on 7 field(s) (standing 'PROVED'))\n  PASS  test_iv_each_end_of_the_seam_carries_a_journal_that_mirrors_its_cursor (journal: cairn/tools/base's cursor mirrors its last history entry on 7 field(s) (standing 'BUILDME'))\n  PASS  test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth (purity seal: cairn/tools/determinism/validations/test_determinism.json is green at 2026-10-02T01:18:26 with test_q_the_real_corpus_has_gates_and_not_one_consults_an_oracle among its green teeth)\ngreen — bus_client stands at its own address: its own charter, the WATCHME probe berthed with what it watches, a journal at each end of the seam whose cursor is its own last entry, and a standing purity seal that is green rather than nine hours stale",
       "stderr_tail": "",
       "teeth_green": [
         "test_i_every_address_this_build_wrote_is_load_bearing",
@@ -17,21 +17,35 @@
         "test_v_the_seal_the_falsifier_rests_on_is_green_and_names_the_purity_tooth"
       ],
       "teeth_red": [],
+      "test": "test-b25a9e670ba0",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
-      "source_fingerprint": "2972bd275839833916d55d7116e2668e2840fc1f2d8c3a25c948529796a4a0a1",
+      "conditions": {
+        "proof": "abca740e60b6c84bc73809a2240fde94f03b0c2bc7faf0d163bf5cf02481cdda",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b25a9e670ba0",
+      "source_fingerprint": "5aada681e766f61300b0b152783e1b4ac0a4f119f1b2eb1b333db4c6611febd6",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
         "cairn/tools/bus_client/probes/__init__.py",
@@ -40,7 +54,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1973405-3164l_bj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2100903-k5kb50zg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -49,13 +63,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119244301,
-          "disk_bytes": 140361728,
-          "entries": 8862,
+          "bytes": 113674720,
+          "disk_bytes": 143319040,
+          "entries": 11733,
           "builds": 1,
-          "reuses": 0
+          "reuses": 40
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -152,16 +152,16 @@ def main() -> int:
 
     # ── a ticket resolves verbatim (picked dynamically: unique stems only) ──
     ticket_stem = None
-    for p in sorted((COMMONS / "tickets").glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for p in plans(COMMONS / "tickets"):
         if len([m for m in (resolve(p.stem).get("matches") or [None])]) <= 1 \
                 and "found" in resolve(p.stem):
             ticket_stem = p.stem
             break
     if ticket_stem:
         got = resolve(ticket_stem)
-        with open(COMMONS / "tickets" / f"{ticket_stem}.json", encoding="utf-8") as fh:
-            tooth("ticket record EQUAL to json.load of its own file",
-                  got["found"]["record"] == json.load(fh))
+        tooth("ticket record EQUAL to json.load of its own file",
+              got["found"]["record"] == read_ticket(COMMONS / "tickets" / f"{ticket_stem}.json"))
     else:
         tooth("ticket record EQUAL to json.load of its own file", False,
               "no unambiguous ticket stem found — store empty?")

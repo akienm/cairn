@@ -90,10 +90,15 @@ def test_tickets_match_independent_read():
     independent_count = 0
     if TICKETS_DIR.exists():
         for p in TICKETS_DIR.glob("*.json"):
-            if p.name.startswith("_"):
+            # 284798998ab0: a ticket is plan + state; the state file is read WITH its plan,
+            # by hand rather than through ticket_file, so this read stays independent
+            if p.name.startswith("_") or p.name.endswith(".state.json"):
                 continue
             try:
                 t = json.loads(p.read_text())
+                sp = p.with_name(p.name[:-5] + ".state.json")
+                if isinstance(t, dict) and sp.is_file():
+                    t = {**t, **json.loads(sp.read_text())}
             except (json.JSONDecodeError, OSError):
                 continue
             if not isinstance(t, dict) or t.get("role") in ("store-charter", "charter"):
@@ -110,7 +115,10 @@ def test_tickets_match_independent_read():
     # state, never stored, so the file says :waiting while a live sail says :in-process —
     # found red 2026-09-15 with ticket fb988505c5cb's own voyage in flight).
     for r in result["records"]:
-        own = json.loads(Path(r["source"]).read_text())["workflow_and_state"]
+        src = Path(r["source"])  # 284798998ab0: the cursor stands in the plan's state file
+        sp = src.with_name(src.name[:-5] + ".state.json")
+        own = {**json.loads(src.read_text()),
+               **(json.loads(sp.read_text()) if sp.is_file() else {})}["workflow_and_state"]
         assert r["label"] == status_label(with_derived_phase(cursor_of(own), r["id"])), \
             (r["id"], r["label"], own[:80])
 

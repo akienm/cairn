@@ -134,7 +134,8 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
 
     filed = _find_ticket(SUT._OWNING_TICKET)
     assert filed.is_file(), f"the owning ticket is not on file at {filed} — nothing is proved"
-    ticket = json.loads(filed.read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(filed)
     assert "@v1:" not in ticket["workflow_and_state"], (
         "the owning ticket claims v1, whose vocabulary cannot carry a watch — it would be "
         "excluded from the corpus by version, not by the self-exclusion this proves")
@@ -143,7 +144,8 @@ def test_the_owning_ticket_is_not_in_its_own_corpus():
         "self-counting")
 
     surveyed = SUT.survey_the_corpus()
-    counted_here = sum(1 for p in sorted(SUT._TICKETS.glob("*.json"))
+    from cairn.tools.base.ticket_file import plans  # 284798998ab0: plans only, never a state file
+    counted_here = sum(1 for p in plans(SUT._TICKETS)
                        if not p.name.startswith("_") and not _is_owning_ticket(p.stem)
                        and _carries(p))
     assert surveyed["carried"] == counted_here, (
@@ -158,7 +160,8 @@ def _carries(path: Path) -> bool:
     reds where the survey shrugs would be measuring the proof, not the probe."""
     from cairn.tools.base.watchme_spec import workflow_objects
     try:
-        state = json.loads(path.read_text(encoding="utf-8")).get("workflow_and_state")
+        from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+        state = read_ticket(path).get("workflow_and_state")
         if not isinstance(state, str) or "@v1:" in state:
             return False
         return bool(workflow_objects(state))
@@ -181,7 +184,8 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it():
     proof could pass a probe the door refuses."""
     from cairn.tools.base import watchme_spec
 
-    ticket = json.loads(_find_ticket(SUT._OWNING_TICKET).read_text("utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(_find_ticket(SUT._OWNING_TICKET))
     # A missing receiver is allowed here exactly as the corpus sweep allows it
     # (test_watchme_spec.test_the_real_ticket_corpus_is_not_retro_redded): this spec predates
     # the field (fa4a411c96be), and its disposition — a receiver that USES the count, or FIXME

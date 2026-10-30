@@ -86,9 +86,10 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in build_inspector."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue
@@ -129,8 +130,9 @@ def test_the_unreceivable_probes_sent_their_tickets_to_fixme():
     """A probe no receiver can use (Akien's answer to open-291189a9766a) sends its ticket to
     FIXME through the watch verb, which takes it out of the standing population."""
     for uid in UNRECEIVABLE:
-        [path] = list(_tickets().glob(f"{uid}-*.json"))
-        doc = json.loads(path.read_text("utf-8"))
+        from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+        [path] = [p for p in plans(_tickets()) if p.name.startswith(f"{uid}-")]
+        doc = read_ticket(path)
         why = _off_the_watch(doc, UNRECEIVABLE[uid])
         assert why is None, f"{uid}: {why}"
 

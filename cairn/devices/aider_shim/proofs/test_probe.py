@@ -113,8 +113,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     root rather than to wherever the runner happened to stand.
     """
     from cairn.tools.chain.grammar import ticket_path
-    spec = json.loads(Path(ticket_path('d7b4019d2407'))
-                      .read_text(encoding="utf-8"))["watchme"]
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    spec = read_ticket(Path(ticket_path('d7b4019d2407')))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
     assert refusal is None, f"the gate would refuse the WATCHME crossing: {refusal}"

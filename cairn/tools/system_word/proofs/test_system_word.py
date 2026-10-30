@@ -565,7 +565,8 @@ def test_wrong_intent_a_stored_ticket_string_keeps_its_case():
         "e3cf75c6dc8f-system-words-fold-case-when-akien-types-them.json"
     if not ticket.is_file():
         return
-    wf = json.loads(ticket.read_text(encoding="utf-8"))["workflow_and_state"]
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    wf = read_ticket(ticket)["workflow_and_state"]
     assert wf.startswith("code-seam@v2: THINKME ->"), wf
     assert "buildme" not in wf and "proveme" not in wf, (
         "stage tokens on disk stay in the system's uppercase; nothing rewrote them")

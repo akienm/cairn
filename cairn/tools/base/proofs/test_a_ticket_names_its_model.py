@@ -71,7 +71,8 @@ def _doc(tmp: Path, tid: str, **over) -> dict:
 def _cast(tmp: Path, tickets: Path, tid: str, **over):
     from cairn.tools.base import transitions
     path = transitions.cast_ticket(_doc(tmp, tid, **over), actor="proof", tickets_dir=tickets)
-    return json.loads(path.read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    return read_ticket(path)
 
 
 def test_1(tmp: Path, tickets: Path) -> None:
@@ -125,8 +126,10 @@ def main() -> int:
         commons = tmp / "CairnCommons"
         tickets = commons / "tickets"
         tickets.mkdir(parents=True)
-        fields = json.loads(LIVE_CHARTER.read_text(encoding="utf-8"))["plan_fields"]
-        (tickets / "_charter+why.json").write_text(json.dumps({"plan_fields": fields}) + "\n")
+        declared = json.loads(LIVE_CHARTER.read_text(encoding="utf-8"))
+        # 284798998ab0: a ticket is plan + state + log, so the store declares all three sets
+        fields = {k: declared[k] for k in ("plan_fields", "state_fields", "log_fields", "log_kinds") if k in declared}
+        (tickets / "_charter+why.json").write_text(json.dumps(fields) + "\n")
         A.set_diagnostic_roots({"CairnCommons": commons, "cairn": REPO})
         try:
             test_1(tmp, tickets)

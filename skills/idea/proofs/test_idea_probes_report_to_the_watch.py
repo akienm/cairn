@@ -62,9 +62,10 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in idea."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue

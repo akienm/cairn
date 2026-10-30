@@ -76,8 +76,8 @@ def test_backfill_tickets_exist_and_parse():
     for fname in BACKFILL_TICKETS:
         path = os.path.join(TICKETS_DIR, fname)
         assert os.path.exists(path), f"backfill ticket missing: {fname}"
-        with open(path) as f:
-            ticket = json.load(f)
+        from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+        ticket = read_ticket(path)
         assert ticket["node_class"] == "concept-piece", (
             f"{fname}: node_class={ticket['node_class']}, expected concept-piece"
         )
@@ -97,8 +97,8 @@ def test_backfill_ticket_schema_complete():
     ]
     for fname in BACKFILL_TICKETS:
         path = os.path.join(TICKETS_DIR, fname)
-        with open(path) as f:
-            ticket = json.load(f)
+        from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+        ticket = read_ticket(path)
         missing = [k for k in required if k not in ticket]
         assert not missing, f"{fname} missing required fields: {missing}"
         assert ticket["schema_version"] == "v1", (

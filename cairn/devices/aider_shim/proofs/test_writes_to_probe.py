@@ -124,8 +124,8 @@ def test_the_probe_is_armed_at_the_path_the_TICKET_names():
     CURRENT WORKING DIRECTORY was green bare and red under the netns seal.)
     """
     from cairn.tools.chain.grammar import ticket_path
-    spec = json.loads(Path(ticket_path(TICKET))
-                      .read_text(encoding="utf-8"))["watchme"]
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    spec = read_ticket(Path(ticket_path(TICKET)))["watchme"]
     from cairn.tools.base.watchme_spec import armed_error
     refusal = armed_error(spec)
     assert refusal is None, f"the gate would refuse the WATCHME crossing: {refusal}"

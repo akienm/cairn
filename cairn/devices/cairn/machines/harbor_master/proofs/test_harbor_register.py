@@ -61,7 +61,8 @@ def test_register_is_an_index_not_a_rival_record():
     reg = register.register()
     # OPEN: the standing IS the one label the one reader derives from the ticket's OWN string.
     for b in reg["open"]:
-        ticket = json.loads(_abs(b["source"]).read_text(encoding="utf-8"))
+        from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+        ticket = read_ticket(_abs(b["source"]))
         # THROUGH THE ONE READER, INCLUDING ITS DERIVED HALF. ``in-process`` is never stored
         # on a ticket (2026-09-08 ruling: it is runtime state and the file is git-tracked), so
         # the label the register shows for a ticket under a LIVE sail legitimately differs

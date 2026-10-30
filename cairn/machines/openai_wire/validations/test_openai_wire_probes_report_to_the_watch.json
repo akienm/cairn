@@ -2,8 +2,8 @@
   {
     "claim": "proof test_openai_wire_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-05T14:12:54",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-10-29T23:34:01",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -15,64 +15,45 @@
         "test_openai_wire_probes_report_to_the_watch"
       ],
       "teeth_red": [],
+      "test": "test-3275b6cc83be",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "c8b8e66130d95b5fd204acc262ce9f3e50bf70342913686d117bff32b192bdff",
+        "proof": "4fb1012081fbd99db2a8aa048b839f41ebf14aa4995da9d70523bf0e727d0374",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "source_fingerprint": "6e9affb7ab4715a77193f156d6cbdfae60c96d6f9389cf723419cf3b94a24b34",
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3275b6cc83be",
+      "source_fingerprint": "39311a10894f69eb85e5eede40a48ebd00976b30d4255cdf1851b30bacdc06f8",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/machines/__init__.py",
         "cairn/machines/openai_wire/__init__.py",
         "cairn/machines/openai_wire/probes/__init__.py",
         "cairn/machines/openai_wire/probes/openai_wire_is_included_by_a_second_holder.py",
         "cairn/machines/openai_wire/proofs/test_openai_wire_probes_report_to_the_watch.py",
         "cairn/machines/openai_wire/serve.py",
-        "cairn/machines/openai_wire/translate.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/origin.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/settled.py",
-        "cairn/tools/base/transitions.py",
-        "cairn/tools/base/watchme_spec.py",
-        "cairn/tools/chain/__init__.py",
-        "cairn/tools/chain/grammar.py",
-        "cairn/tools/charter/__init__.py",
-        "cairn/tools/charter/projector.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/import_sieve/__init__.py",
-        "cairn/tools/import_sieve/sieve.py",
-        "cairn/tools/orient/__init__.py",
-        "cairn/tools/orient/orient.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "cairn/machines/openai_wire/translate.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3441607-_x1j21sc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2100903-rylj0de5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,13 +62,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 164827395,
-          "disk_bytes": 191373312,
-          "entries": 11333,
+          "bytes": 113674720,
+          "disk_bytes": 143319040,
+          "entries": 11733,
           "builds": 1,
-          "reuses": 37
+          "reuses": 28
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

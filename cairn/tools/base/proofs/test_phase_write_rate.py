@@ -55,11 +55,11 @@ def _a_non_terminal_ticket_id() -> str:
     by sitting in a constant instead of an assertion. Which ticket is unfinished is the world's
     business; that SOME ticket is unfinished is what these teeth actually need, and if the day
     ever comes when none is, that is a real finding and this raises rather than guesses."""
-    for path in sorted(TF._TICKETS.glob("*.json")):
+    for path in TF.plans(TF._TICKETS):  # 284798998ab0: plans only; the state rides read_ticket
         if path.name.startswith("_"):
             continue
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = TF.read_ticket(path)
             here = T.parse_workflow(doc["workflow_and_state"]).here
         except Exception:
             continue
@@ -168,9 +168,9 @@ def test_a_queued_goes_STALE_at_rest_when_its_dependency_reaches_a_terminal():
     from cairn.tools.base import ticket_file
     from cairn.tools.base import transitions
     terminal = None
-    for path in sorted(ticket_file._TICKETS.glob("*.json")):
+    for path in ticket_file.plans(ticket_file._TICKETS):  # 284798998ab0: plans only
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = ticket_file.read_ticket(path)
             if transitions.is_terminal(transitions.parse_workflow(
                     doc["workflow_and_state"]).here) and doc.get("id"):
                 terminal = doc["id"]

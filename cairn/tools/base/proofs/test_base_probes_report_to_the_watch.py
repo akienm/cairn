@@ -90,9 +90,10 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in base."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue
@@ -161,8 +162,9 @@ def test_every_standing_base_spec_names_the_receiver():
 
 
 def test_the_unreceivable_probe_sent_its_ticket_to_fixme():
-    [path] = list(_tickets().glob(f"{UNRECEIVABLE}-*.json"))
-    doc = json.loads(path.read_text("utf-8"))
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    [path] = [p for p in plans(_tickets()) if p.name.startswith(f"{UNRECEIVABLE}-")]
+    doc = read_ticket(path)
     why = _off_the_watch(doc, UNRECEIVABLE_PROBE)
     assert why is None, why
 

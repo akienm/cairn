@@ -65,9 +65,10 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in cc."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue
@@ -111,8 +112,9 @@ def test_the_unreceivable_probes_sent_their_tickets_to_fixme():
     for uid in UNRECEIVABLE:
         if uid in {tid for tid, _doc, _spec in _standing()}:
             continue  # repaired: it stands at a rest, and the teeth above measure it
-        [path] = list(_tickets().glob(f"{uid}-*.json"))
-        doc = json.loads(path.read_text("utf-8"))
+        from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+        [path] = [p for p in plans(_tickets()) if p.name.startswith(f"{uid}-")]
+        doc = read_ticket(path)
         if parse_workflow(doc["workflow_and_state"]).here in ("BUILDME", "PROVEME"):
             continue  # under repair: in voyage past FIXME, claiming no rest; its own proof measures it
         assert "[FIXME" in doc["workflow_and_state"], f"{uid}: {doc['workflow_and_state']}"

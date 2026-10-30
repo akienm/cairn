@@ -202,7 +202,8 @@ def test_the_probe_is_armed_the_way_the_emission_gate_means_it() -> None:
     ticket_path = Path(SUT._OWNING_TICKET)
     assert ticket_path.is_file(), f"the owning ticket is not on file at {ticket_path}"
     assert ticket_path.parent == watchme_spec._TICKETS, f"the owning ticket is outside the commons: {ticket_path}"
-    ticket = json.loads(ticket_path.read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # 284798998ab0: plan + state
+    ticket = read_ticket(ticket_path)
     assert watchme_spec.watchme_spec_error(ticket) is None, watchme_spec.watchme_spec_error(ticket)
     spec = watchme_spec.spec_for(ticket, "retention-window")
     assert spec is not None, "no spec for the object the workflow string names"

@@ -161,6 +161,8 @@ cairn_bootstrap_verify() {
     return 1
   fi
   # A venv that imports SOME OTHER checkout's cairn is a subtler wrong than none at all.
+  # Git Bash: python prints C:\... while the launcher's root is /c/...; compare in one spelling.
+  if command -v cygpath >/dev/null 2>&1; then out="$(cygpath -u "$out")"; fi
   case "$out" in
     "$CAIRN_REPO_ROOT"/*) : ;;
     *) CAIRN_BOOTSTRAP_FINDINGS+=("IMPORT ROOT POINTS ELSEWHERE — \`import cairn\` resolves to $out but this launcher lives under $CAIRN_REPO_ROOT. The venv is installed against a different checkout. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")

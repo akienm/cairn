@@ -68,6 +68,22 @@ _MARK = "scratch."
 # where reading /proc at import took the whole tester down before a tooth ran.
 _NS = os.stat("/proc/self/ns/pid").st_ino if os.path.exists("/proc/self/ns/pid") else 0
 _OWNED = re.compile(r"scratch\.(\d+)-(\d+)-[a-z0-9_]{8}$")
+
+
+def _rmtree(path, **kw) -> None:
+    """``shutil.rmtree``, except that on Windows a read-only entry (git writes its objects 0444)
+    is made writable and retried instead of raising [WinError 5]. POSIX removal is unchanged."""
+    if os.name != "nt":
+        shutil.rmtree(path, **kw)
+        return
+
+    def _writable(func, p, exc):
+        if isinstance(exc, FileNotFoundError):
+            return
+        os.chmod(p, 0o700)
+        func(p)
+
+    shutil.rmtree(path, onexc=_writable, **kw)
 _swept = False
 
 
@@ -106,7 +122,7 @@ def _sweep(d: Path) -> None:
     thing (Law 7 — loud means legible).
     """
     try:
-        shutil.rmtree(d)
+        _rmtree(d)
     except FileNotFoundError:
         pass                      # the proof cleaned up after itself — nothing to report
     except OSError as e:
@@ -254,11 +270,11 @@ def _sweep_dead_owners(tmp: str | None = None) -> list[str]:
                 if not first.startswith("gitdir:"):
                     raise ValueError(f"{gitfile} does not name a gitdir: {first!r}")
                 gitdir = first[len("gitdir:"):].strip()
-                shutil.rmtree(entry)
+                _rmtree(entry)
                 subprocess.run(["git", "--git-dir", str(Path(gitdir).parents[1]), "worktree", "prune"],
                                capture_output=True, text=True, env=git_env())
             else:
-                shutil.rmtree(entry)
+                _rmtree(entry)
             swept.append(str(entry))
         except (OSError, ValueError, IndexError) as e:
             print(f"scratch: could not sweep {entry}: {type(e).__name__}: {e}", file=sys.stderr)
@@ -302,7 +318,7 @@ def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn
         ["git", "-C", str(repo_root), "worktree", "add", "--detach", "--quiet", str(wt), commit],
         capture_output=True, text=True, env=git_env())
     if proc.returncode != 0:
-        shutil.rmtree(parent, ignore_errors=True)
+        _rmtree(parent, ignore_errors=True)
         raise WorktreeUnavailable(
             f"scratch_worktree: git worktree add failed for commit {commit!r} in {repo_root}: "
             f"{(proc.stderr or proc.stdout).strip()}")
@@ -328,7 +344,7 @@ def _sweep_worktree(repo_root: Path, wt: Path, parent: Path) -> None:
     except OSError as e:
         print(f"scratch: could not remove worktree {wt}: {type(e).__name__}: {e}", file=sys.stderr)
     try:
-        shutil.rmtree(parent)
+        _rmtree(parent)
     except FileNotFoundError:
         pass
     except OSError as e:

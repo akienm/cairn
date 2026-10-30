@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
+command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # cairn cc restart — relaunch THIS Claude Code session, or stand up a new one.
 #
 # THE ADDRESS IS THE POINT, and it was a correction (Akien, 2026-09-22): this verb

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
+command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # cairn librarian — ensure the librarian is up and reachable on the web.
 #
 # Starts the web_server listener as a systemd transient unit if it is not already running.
@@ -62,6 +64,11 @@ _venv_bin="${CAIRN_VENV:-$HOME/.cairn/venv}/bin"
 if [[ -d "$_venv_bin" ]]; then
   export PATH="$_venv_bin:$PATH"
 fi
+# Windows (Git Bash): the venv keeps python.exe in Scripts/, and there is no python3 beside it.
+_py=python3
+if [[ ! -d "$_venv_bin" && -x "${CAIRN_VENV:-$HOME/.cairn/venv}/Scripts/python.exe" ]]; then
+  _py="${CAIRN_VENV:-$HOME/.cairn/venv}/Scripts/python.exe"
+fi
 
 # --- start function (shared by first attempt and retry) ---------------------
 _start_unit() {
@@ -92,7 +99,7 @@ _ensure_web() {
 
   if ! command -v systemd-run >/dev/null 2>&1; then
     echo "librarian: systemd-run unavailable — starting with setsid (will die with this terminal)" >&2
-    ( setsid python3 "$REPO_ROOT/cairn/devices/web_server/listener.py" \
+    ( setsid "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py" \
         >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
     disown 2>/dev/null || true
     sleep 1
@@ -107,7 +114,7 @@ _ensure_web() {
 
   local err path="unavailable"
   if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
-      python3 "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
+      "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
     path="started"
   else
     _note "$WEB_LOG" "$err"
@@ -115,7 +122,7 @@ _ensure_web() {
       *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
         systemctl --user reset-failed "${WEB_UNIT}.service" >/dev/null 2>&1 || true
         if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
-            python3 "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
+            "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
           path="started"
         else
           _note "$WEB_LOG" "$err"
@@ -140,7 +147,7 @@ _ensure_web() {
       ;;
     *)
       echo "librarian: systemd-run failed — starting with setsid" >&2
-      ( setsid python3 "$REPO_ROOT/cairn/devices/web_server/listener.py" \
+      ( setsid "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py" \
           >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
       disown 2>/dev/null || true
       sleep 1

@@ -51,6 +51,12 @@
 
 CAIRN_BOOTSTRAP_SOURCED=1
 
+# Windows (Git Bash): Python's default text encoding is the ANSI code page (cp1252), which cannot
+# read or write the UTF-8 the charters and records are in. Measured: UnicodeDecodeError 0x90/0x8f/0x9d
+# and UnicodeEncodeError U+2192/U+2693. Python in UTF-8 mode fixes every site and subprocess at once;
+# POSIX hosts are already UTF-8 and are left alone.
+case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) export PYTHONUTF8=1 ;; esac
+
 # Resolve through symlinks before dirname — superclaude is linked into ~/.local/bin, and
 # without readlink -f this would compute the LINK's directory. Same lesson bin/cairn
 # learned on 2026-07-26; it is written down in both places because both places pay for it.
@@ -93,6 +99,15 @@ cairn_venv_dir() {
   echo "${CAIRN_VENV:-$HOME/.cairn/venv}"
 }
 
+# The venv's interpreter, wherever the host puts it: bin/python3 on POSIX, Scripts/python.exe
+# under Git Bash. When neither exists yet, the POSIX path is returned (the absent-venv message
+# names it, and apply re-resolves after it creates the venv).
+_cairn_venv_python() {
+  local d
+  d="$(cairn_venv_dir)"
+  if [[ ! -x "$d/bin/python3" && -x "$d/Scripts/python.exe" ]]; then echo "$d/Scripts/python.exe"; else echo "$d/bin/python3"; fi
+}
+
 cairn_python() {
   local vpy
   vpy="$(cairn_venv_dir)/bin/python3"
@@ -127,7 +142,7 @@ cairn_bootstrap_verify() {
   CAIRN_BOOTSTRAP_FINDINGS=()
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
-  vpy="$venv/bin/python3"
+  vpy="$(_cairn_venv_python)"
   _cairn_boot_log "verify: begin — venv=$venv root=$CAIRN_REPO_ROOT"
 
   if ! command -v python3 >/dev/null 2>&1; then
@@ -152,6 +167,8 @@ cairn_bootstrap_verify() {
     return 1
   fi
   # A venv that imports SOME OTHER checkout's cairn is a subtler wrong than none at all.
+  # Git Bash: python prints C:\... while the launcher's root is /c/...; compare in one spelling.
+  if command -v cygpath >/dev/null 2>&1; then out="$(cygpath -u "$out")"; fi
   case "$out" in
     "$CAIRN_REPO_ROOT"/*) : ;;
     *) CAIRN_BOOTSTRAP_FINDINGS+=("IMPORT ROOT POINTS ELSEWHERE — \`import cairn\` resolves to $out but this launcher lives under $CAIRN_REPO_ROOT. The venv is installed against a different checkout. Repair: $venv/bin/pip install -e $CAIRN_REPO_ROOT")
@@ -181,7 +198,7 @@ cairn_bootstrap_verify() {
 cairn_bootstrap_apply() {
   local venv vpy rc out
   venv="$(cairn_venv_dir)"
-  vpy="$venv/bin/python3"
+  vpy="$(_cairn_venv_python)"
   # The probe's sharpest signal: apply running AT ALL means the previous launch's floor did
   # not survive. Two applies in a row for the same reason is a repair that is not repairing.
   _cairn_boot_log "apply: begin — the floor was not up"
@@ -208,6 +225,7 @@ cairn_bootstrap_apply() {
       CAIRN_BOOTSTRAP_FINDINGS+=("VENV CREATE FAILED — \`python3 -m venv $venv\` exited $rc. Output: ${out//$'\n'/ | }. Read that output first; candidates if it is unclear: ensurepip absent (apt install python3-venv), the path not writable, or the disk full.")
       return 1
     fi
+    vpy="$(_cairn_venv_python)"
   fi
 
   # --editable: the import root must FOLLOW the working tree, not snapshot it. A regular

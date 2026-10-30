@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
+command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # codemother's post-commit subscriber — the commit reaches her `commit` verb (e0f318650123).
 #
 # Source: cairn/devices/codemother/hooks/post-commit  (tracked; run once per main-tree commit by

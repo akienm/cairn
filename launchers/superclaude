@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
+command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # superclaude — Cairn's Claude Code launcher.
 #
 # Canonical home: cairn/launchers/superclaude  (symlinked onto PATH via ~/.local/bin;

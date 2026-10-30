@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_killed_runs_scratch_is_swept_by_the_next.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-28T12:43:31",
+    "caller": "cairn test",
+    "date": "2026-10-30T17:54:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_killed_runs_scratch_dir_is_gone_after_the_next_call\n.\n  ok   test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call\n.\n  ok   test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call\n.\n  ok   test_an_entry_from_another_pid_namespace_survives_the_next_call\n                                                                     [100%]\n4 passed in 0.34s",
+      "stdout_tail": ".\n  ok   test_a_killed_runs_scratch_dir_is_gone_after_the_next_call\n.\n  ok   test_a_killed_runs_worktree_is_gone_and_deregistered_after_the_next_call\n.\n  ok   test_a_live_owners_dir_and_an_unmarked_dir_survive_the_next_call\n.\n  ok   test_an_entry_from_another_pid_namespace_survives_the_next_call\n                                                                     [100%]\n4 passed in 0.33s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_killed_runs_scratch_dir_is_gone_after_the_next_call",
@@ -16,14 +16,61 @@
         "test_an_entry_from_another_pid_namespace_survives_the_next_call"
       ],
       "teeth_red": [],
-      "test": "test-0dec2f0417c4",
+      "test": "test-51d6862cd078",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 46,
+        "tables": [
+          "bus_proc_2709640_1709553774_delivery",
+          "bus_proc_2709640_1709553774",
+          "bus_proc_2709718_1710065233_delivery",
+          "bus_proc_2709718_1710065233",
+          "bus_proc_2711188_1713599636_delivery",
+          "bus_proc_2711188_1713599636",
+          "bus_proc_2725620_1729468674_delivery",
+          "bus_proc_2725620_1729468674",
+          "bus_proc_2725870_1730340084_delivery",
+          "bus_proc_2725870_1730340084",
+          "bus_proc_2734641_1732341358_delivery",
+          "bus_proc_2734641_1732341358",
+          "bus_proc_2735519_1734437012_delivery",
+          "bus_proc_2735519_1734437012",
+          "bus_proc_2736113_1737010040_delivery",
+          "bus_proc_2736113_1737010040",
+          "bus_proc_2736143_1737012720_delivery",
+          "bus_proc_2736143_1737012720",
+          "bus_proc_2736189_1737027523_delivery",
+          "bus_proc_2736189_1737027523",
+          "bus_proc_2736224_1737043327_delivery",
+          "bus_proc_2736224_1737043327",
+          "bus_proc_2736277_1737071526_delivery",
+          "bus_proc_2736277_1737071526",
+          "bus_proc_2736481_1737341925_delivery",
+          "bus_proc_2736481_1737341925",
+          "bus_proc_2736547_1737429553_delivery",
+          "bus_proc_2736547_1737429553",
+          "bus_proc_2737018_1740359992_delivery",
+          "bus_proc_2737018_1740359992",
+          "bus_proc_2737086_1740426281_delivery",
+          "bus_proc_2737086_1740426281",
+          "bus_proc_2737315_1741003183_delivery",
+          "bus_proc_2737315_1741003183",
+          "bus_proc_2737488_1741240625_delivery",
+          "bus_proc_2737488_1741240625",
+          "bus_proc_2737670_1741418509_delivery",
+          "bus_proc_2737670_1741418509",
+          "bus_proc_2737764_1741470153_delivery",
+          "bus_proc_2737764_1741470153",
+          "bus_proc_2739446_1743174609_delivery",
+          "bus_proc_2739446_1743174609",
+          "bus_proc_2740908_1744350257_delivery",
+          "bus_proc_2740908_1744350257",
+          "bus_proc_2741468_1745182832_delivery",
+          "bus_proc_2741468_1745182832"
+        ]
       },
       "conditions": {
         "proof": "edcc46873d9fa66398ebe3b91e3e925b2e32cf078e65838a482b6ad434376b86",
@@ -37,13 +84,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0dec2f0417c4",
-      "source_fingerprint": "c6b2e1212af40cd5229d6818e5f147d20a701f1629c8c3f5c1f8efa08f23e794",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-51d6862cd078",
+      "source_fingerprint": "ff6121a3da438d2abebfa50cdf1f179e308ed571bf2408d4b872f97ce84a7943",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_a_killed_runs_scratch_is_swept_by_the_next.py",
@@ -51,7 +99,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1398195-hinpdrkm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2746618-c71h8qup/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,11 +108,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112584594,
-          "disk_bytes": 141479936,
-          "entries": 11455,
+          "bytes": 114227231,
+          "disk_bytes": 144027648,
+          "entries": 11787,
           "builds": 1,
-          "reuses": 42
+          "reuses": 0
         }
       }
     },

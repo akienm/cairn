@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-28T12:43:46",
+    "caller": "cairn test",
+    "date": "2026-10-30T17:54:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -22,7 +22,7 @@
         "the_tool_stands: AssertionError: test_scratch.py exit 1: thing",
         "test_no_proof_in_this_repo_calls_mkdtemp_bare"
       ],
-      "test": "test-d47087dc1e8b",
+      "test": "test-cb4b3c3d307b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,13 +43,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d47087dc1e8b",
-      "source_fingerprint": "ec70bf84d33b20b8d3177d3726245cf36757f1e26e5f702e004f6f8f6df7d11a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cb4b3c3d307b",
+      "source_fingerprint": "b3be97b7d2e86f6834f6e3264190352b625b9275e1b77e6a4a24d6e1514a5016",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch_is_a_tool.py",
@@ -57,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1398195-y0w8l1v4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2746718-0gdd4vz4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,11 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112584594,
-          "disk_bytes": 141479936,
-          "entries": 11455,
+          "bytes": 114227231,
+          "disk_bytes": 144027648,
+          "entries": 11787,
           "builds": 1,
-          "reuses": 44
+          "reuses": 0
         }
       },
       "reseal_ladder": {

@@ -356,13 +356,11 @@ def scan(tickets_dir: str) -> list[dict]:
     out: list[dict] = []
     if not os.path.isdir(tickets_dir):
         return out
-    for name in sorted(os.listdir(tickets_dir)):
-        if not name.endswith(".json") or name.startswith("_"):
-            continue
-        path = os.path.join(tickets_dir, name)
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for plan in plans(tickets_dir):
+        name, path = plan.name, plan
         try:
-            with open(path, encoding="utf-8") as fh:
-                node = json.load(fh)
+            node = read_ticket(path)
         except (OSError, ValueError) as e:
             out.append({"ticket": name, "why": f"unreadable: {type(e).__name__}: {e}"})
             continue
@@ -425,16 +423,18 @@ def drop_stored_chart_chain(tickets_dir: str | None = None, *, apply: bool = Fal
                     "notes_reshaped": [], "refused": []}
     if not root.is_dir():
         return report
-    for path in sorted(root.glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for path in plans(root):
         try:
             raw = path.read_bytes()
-            doc = json.loads(raw.decode("utf-8"))
+            plan_doc = json.loads(raw.decode("utf-8"))
+            doc = read_ticket(path)
         except (OSError, ValueError, UnicodeDecodeError) as exc:
             report["unreadable"].append({"ticket": path.name, "why": str(exc)})
             continue
         if not isinstance(doc, dict) or "chart_chain" not in doc:
             continue
-        ensure_ascii, newline = _shape_of(raw, doc)
+        ensure_ascii, newline = _shape_of(raw, plan_doc)
         value = doc["chart_chain"]
         tid = str(doc.get("id") or path.stem.split("-")[0])
         # THE NOTES SHAPE IS A DECISION, NOT A ONE-LINER. Across the 272-ticket corpus
@@ -530,9 +530,10 @@ def carriers(tickets_dir: str | None = None) -> list[dict]:
     out: list[dict] = []
     if not root.is_dir():
         return out
-    for path in sorted(root.glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for path in plans(root):
         try:
-            doc = json.loads(path.read_bytes().decode("utf-8"))
+            doc = read_ticket(path)
         except (OSError, ValueError, UnicodeDecodeError):
             continue
         if isinstance(doc, dict) and "chart_chain" in doc:

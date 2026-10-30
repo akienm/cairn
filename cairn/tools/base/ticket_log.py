@@ -44,6 +44,17 @@ def plan_fields(plan: str | Path) -> tuple[str, ...]:
     return tuple(_charter(Path(plan))["plan_fields"])
 
 
+def state_fields(plan: str | Path) -> tuple[str, ...]:
+    """The state file's declared keys (ticket 284798998ab0), read as ``plan_fields`` is."""
+    return tuple(_charter(Path(plan)).get("state_fields") or ())
+
+
+def log_fields(plan: str | Path) -> tuple[str, ...]:
+    """The census's log-bound fields (ticket 284798998ab0): a cast carrying one writes it as a
+    kind 'field' line rather than onto the plan."""
+    return tuple(_charter(Path(plan)).get("log_fields") or ())
+
+
 def log_kinds(plan: str | Path) -> dict:
     return dict(_charter(Path(plan))["log_kinds"])
 
@@ -110,10 +121,20 @@ def read_log(ticket: str | Path, kind: str | None = None) -> list[dict]:
     return [x for x in out if kind is None or x.get("kind") == kind]
 
 
+def field_value(ticket: str | Path, field: str, default=None):
+    """The last logged value of a log-bound ``field`` (a kind 'field' line), else ``default``:
+    how a reader reads ``from_idea`` or ``measurements_since_cast`` once the split has moved
+    it off the plan (ticket 284798998ab0)."""
+    hits = [x for x in read_log(ticket, "field") if x.get("field") == field]
+    return hits[-1]["value"] if hits else default
+
+
 def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     """Move every v1 trail item off a plan into its log, losslessly; idempotent.
 
-    - each top-level key outside plan_fields -> kind 'field' {field, value};
+    - each top-level key in state_fields -> the state file beside the plan, merged over the
+      one standing there (ticket 284798998ab0; counted as kind 'state');
+    - each other top-level key outside plan_fields -> kind 'field' {field, value};
     - each entry of a non-empty ``phase_writes`` list -> kind 'phase_write' {record};
     - a string ``rehearsal`` pointer -> kind 'rehearsal' {record};
     - each decision carrying 'retired' -> kind 'decision_retired' {decision} (whole);
@@ -129,11 +150,15 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     plan = _plan(ticket)
     doc = json.loads(plan.read_text(encoding="utf-8"))
     keep = set(plan_fields(plan))
+    to_state = set(state_fields(plan))
     at = _now()
     lines: list[dict] = []
     new = {}
+    state = {}
     for key, value in doc.items():
-        if key == _PHASE_WRITES and isinstance(value, list) and value:
+        if key in to_state:
+            state[key] = value
+        elif key == _PHASE_WRITES and isinstance(value, list) and value:
             lines += [_line(plan, "phase_write", {"record": r}, actor, at) for r in value]
         elif key == _REHEARSAL and isinstance(value, str):
             lines.append(_line(plan, "rehearsal", {"record": value}, actor, at))
@@ -157,9 +182,17 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     moved: dict[str, int] = {}
     for x in lines:
         moved[x["kind"]] = moved.get(x["kind"], 0) + 1
-    if not lines:
+    if state:
+        moved["state"] = len(state)
+    if not lines and not state:
         return {"moved": moved}
-    _append_lines(plan, lines, why)
+    if lines:
+        _append_lines(plan, lines, why)
+    if state:
+        from cairn.tools.base.ticket_file import state_path, write_state  # at call time
+        sp = state_path(plan)
+        standing = json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else {}
+        write_state(plan, {**standing, **state}, why=why, verb="cast")
     raw = plan.read_bytes()
     door.write_json(plan, new, verb="cast", why=why, ensure_ascii=not _has_non_ascii(raw),
                     newline=raw.endswith(b"\n"))
@@ -190,8 +223,9 @@ def _has_non_ascii(raw: bytes) -> bool:
     return any(b > 127 for b in raw)
 
 
-def reconstruct(plan_doc: dict, log: list[dict]) -> dict:
-    """The v1 doc a split started from: the plan plus every trail line put back.
+def reconstruct(plan_doc: dict, log: list[dict], state: dict | None = None) -> dict:
+    """The v1 doc a split started from: the plan, then its ``state`` file's keys, plus every
+    trail line put back.
 
     a 'renamed' line's ``to`` key leaves the plan, or takes back the blank ``was`` it replaced
     (its v1 key returns by its 'field' line);
@@ -199,7 +233,7 @@ def reconstruct(plan_doc: dict, log: list[dict]) -> dict:
     log order; the last 'rehearsal' record is the pointer; retired decisions rejoin the live
     ones in ``n`` order (the corpus measured 2026-10-10: every decisions list carrying a
     retired line is sorted by integer n)."""
-    doc = dict(plan_doc)
+    doc = {**plan_doc, **(state or {})}
     for x in log:
         if x.get("kind") == "renamed":
             if "was" in x:

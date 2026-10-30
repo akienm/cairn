@@ -2,7 +2,7 @@
   {
     "claim": "proof test_watch_receives_a_finding.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-11T19:05:50",
+    "date": "2026-10-29T21:09:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_watch_verb_receives_a_finding"
       ],
       "teeth_red": [],
-      "test": "test-bb4ddfe56819",
+      "test": "test-2c53447ae911",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ce3fd75450c0c4bcaf3ab1766ef47e7b580c9ec5d7ae6e9621d9c76c599f8e57",
+        "proof": "36d94114e839131697a361f734f72e40cf2133d39d2085eac8901fb67200852d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -35,14 +35,16 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb4ddfe56819",
-      "source_fingerprint": "4bb784bcc6be7180f67210bd258bd4349d81472abb8061209be1630cdda8e5be",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c53447ae911",
+      "source_fingerprint": "95db589453b368faa615513ffd15b9b1865d703e7f99932f355b007a78391cfe",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
@@ -51,29 +53,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1676524-70jx417f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1994004-iy7x7fnj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261012.010549.268502.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261012.010549.277263.charter_projector_append_entry.append_entry.json",
-            "logs/harbor_master/0/20261012.010549.270314.HarborMasterDevice.watch_received.json",
-            "logs/harbor_master/0/20261012.010549.278460.HarborMasterDevice.watch_received.json"
+            "logs/charter/0/20261030.030910.815267.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.030910.822439.charter_projector_append_entry.append_entry.json",
+            "logs/harbor_master/0/20261030.030910.817921.HarborMasterDevice.watch_received.json",
+            "logs/harbor_master/0/20261030.030910.823746.HarborMasterDevice.watch_received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 107220713,
-          "disk_bytes": 131039232,
-          "entries": 9682,
+          "bytes": 113430649,
+          "disk_bytes": 143089664,
+          "entries": 11726,
           "builds": 1,
-          "reuses": 5
+          "reuses": 8
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

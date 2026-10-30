@@ -140,7 +140,8 @@ class HollowUnmeasurable(RuntimeError):
 
 
 def _ticket_path(ticket_id: str, commons: Path = COMMONS) -> Path:
-    hits = sorted((Path(commons) / "tickets").glob(f"{ticket_id}*.json"))
+    hits = sorted(h for h in (Path(commons) / "tickets").glob(f"{ticket_id}*.json")
+                  if not h.name.endswith(".state.json"))  # the plan, never its state
     if not hits:
         raise HollowUnmeasurable(f"hollow: no ticket file matches {ticket_id!r} in {commons}/tickets")
     return hits[0]
@@ -941,7 +942,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     from cairn.devices.tester.device import TesterDevice
     tester = tester or TesterDevice()
 
-    ticket = json.loads(_ticket_path(ticket_id, commons).read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket
+    ticket = read_ticket(_ticket_path(ticket_id, commons))
     tid = str(ticket.get("id") or ticket_id)
     roots = _roots(repo_root, commons)
     commons = Path(commons)

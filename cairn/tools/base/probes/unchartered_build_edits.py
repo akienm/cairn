@@ -58,12 +58,11 @@ def _proved_tickets_with_chains() -> list[dict]:
     from cairn.tools.chain.chain import chain_for_ticket
 
     results = []
-    for name in sorted(os.listdir(_TICKETS_DIR)):
-        if not name.endswith(".json") or name.startswith("_"):
-            continue
-        path = os.path.join(_TICKETS_DIR, name)
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for plan in plans(_TICKETS_DIR):
+        name, path = plan.name, str(plan)
         try:
-            t = json.load(open(path))
+            t = read_ticket(plan)
         except (OSError, ValueError):
             continue
         state = t.get("workflow_and_state", "")

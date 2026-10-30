@@ -249,11 +249,10 @@ def _scan_tickets(tickets_dir: Path | None) -> list[dict]:
     if not d.exists():
         return []
     records: list[dict] = []
-    for p in sorted(d.glob("*.json")):
-        if p.name.startswith("_"):
-            continue
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for p in plans(d):
         try:
-            t = json.loads(p.read_text())
+            t = read_ticket(p)
         except (json.JSONDecodeError, OSError):
             continue
         if not isinstance(t, dict) or t.get("role") in ("store-charter", "charter"):
@@ -889,9 +888,8 @@ def show_artifact(id_prefix: str) -> str:
             return f"berth file unreadable: {berth_path}"
         return _format_artifact(doc, berth_path)
 
-    ticket_matches = [p for p in sorted(TICKETS_DIR.glob("*.json"))
-                      if not p.name.startswith("_")
-                      and p.name.startswith(id_prefix)]
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    ticket_matches = [p for p in plans(TICKETS_DIR) if p.name.startswith(id_prefix)]
     if ticket_matches:
         if len(ticket_matches) > 1:
             lines = [f"ambiguous — {len(ticket_matches)} tickets match {id_prefix!r}:"]
@@ -900,7 +898,7 @@ def show_artifact(id_prefix: str) -> str:
             return "\n".join(lines)
         path = ticket_matches[0]
         try:
-            doc = json.loads(path.read_text())
+            doc = read_ticket(path)
         except (json.JSONDecodeError, OSError):
             return f"ticket file unreadable: {path}"
         return _format_ticket(doc, path)
@@ -1078,7 +1076,11 @@ def show_item(token: str, **kw) -> str:
     doc = None
     if path is not None and path.is_file() and path.suffix == ".json":
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            if hit["lane"].startswith("tickets"):
+                from cairn.tools.base.ticket_file import read_ticket
+                doc = read_ticket(path)   # plan + state (284798998ab0)
+            else:
+                doc = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError) as exc:
             return f"[{hit['lane']}] {hit['id']} — file unreadable: {path}: {exc}"
     if hit["lane"].startswith("tickets") and isinstance(doc, dict):
@@ -1201,7 +1203,13 @@ def _format_ticket(doc: dict, path: Path) -> str:
             lines.append(_wrap(f"· {d}", "  ", width))
         lines.append("")
 
-    ms = doc.get("measurements_since_cast", [])
+    ms = doc.get("measurements_since_cast")
+    if ms is None:  # log-bound since the split (284798998ab0)
+        from cairn.tools.base.ticket_log import field_value
+        try:
+            ms = field_value(path, "measurements_since_cast", [])
+        except ValueError:
+            ms = []
     if ms:
         lines.append("MEASUREMENTS:")
         for m in ms[-5:]:

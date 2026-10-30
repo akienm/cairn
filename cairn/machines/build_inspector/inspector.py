@@ -310,7 +310,7 @@ def _component_tickets(comp_dir: Path) -> set:
             active.add(tid)
             continue
         try:
-            tdata = json.loads(Path(filed).read_text(encoding="utf-8"))
+            tdata = _tf.read_ticket(filed)
         except (json.JSONDecodeError, OSError):
             active.add(tid)
             continue
@@ -385,8 +385,7 @@ def _forwarding_map(ticket_id) -> dict:
     if filed is None:
         return {}
     try:
-        with open(filed, encoding="utf-8") as fh:
-            ticket = json.load(fh)
+        ticket = _tf.read_ticket(filed)
     except (OSError, json.JSONDecodeError):
         return {}  # forwarding_order_resolves owns the unreadable-ticket finding
     return _valid_orders(ticket.get("forwarding"))
@@ -446,10 +445,10 @@ def _hand_order_index() -> dict:
         import glob as _glob
         tickets_dir = os.path.join(os.path.dirname(key), "CairnCommons", "tickets")
         seen: dict = {}
-        for filed in sorted(_glob.glob(os.path.join(tickets_dir, "*.json"))):
+        from cairn.tools.base.ticket_file import plans, read_ticket
+        for filed in plans(tickets_dir) if os.path.isdir(tickets_dir) else []:
             try:
-                with open(filed, encoding="utf-8") as fh:
-                    ticket = json.load(fh)
+                ticket = read_ticket(filed)
             except (OSError, json.JSONDecodeError):
                 continue  # forwarding_order_resolves owns the unreadable ticket
             if not isinstance(ticket, dict):
@@ -889,8 +888,7 @@ def forwarding_order_resolves(row: dict, comp_dir: Path) -> list[dict]:
         if filed is None:
             continue  # a ticket not on file is another gate's finding, not this one's
         try:
-            with open(filed, encoding="utf-8") as fh:
-                ticket = json.load(fh)
+            ticket = _tf.read_ticket(filed)
         except (OSError, json.JSONDecodeError) as e:
             findings.append(_finding(
                 "forwarding_order_resolves", row["component"],
@@ -2018,7 +2016,7 @@ def buildme_rides_the_intent(ticket: str, *, tickets_root: Path | None = None) -
     if filed is None:
         return []
     try:
-        doc = json.loads(Path(filed).read_text())
+        doc = _tf.read_ticket(filed)
     except (OSError, json.JSONDecodeError):
         # Not this gate's finding to make: an unfiled or unreadable ticket is already
         # the chokepoint's own refusal ("a named-but-uncast ticket is an error to fix"),
@@ -2174,7 +2172,7 @@ def buildme_rides_the_sorted(ticket: str, *, tickets_root: Path | None = None) -
     if filed is None:
         return []
     try:
-        doc = json.loads(Path(filed).read_text())
+        doc = _tf.read_ticket(filed)
     except (OSError, json.JSONDecodeError):
         # The chokepoint's own refusal already covers an unreadable ticket; two sieves
         # reporting one fault is noise at the diagnostic surface.
@@ -2535,7 +2533,7 @@ def crossing_emission(obj: str | None, ticket: object) -> list[dict]:
     if not cast:
         return record
 
-    data = json.loads(ticket_file.read_text(encoding="utf-8"))
+    data = _tf.read_ticket(ticket_file)
     spec = watchme_spec.spec_for(data, obj)
     carried = f"ticket {ticket!r} carries a watchme spec for {obj!r}"
     record.append(_check("the_ticket_carries_a_spec_for_this_watch",
@@ -2674,7 +2672,7 @@ def crossing_fixme(ticket: object, history_path: str | None = None) -> list[dict
     if path is None:
         actual = f"no ticket file resolves for {ticket!r} — the FIXME list cannot be read"
     else:
-        body = json.loads(path.read_text(encoding="utf-8"))
+        body = _tf.read_ticket(path)  # fixme is a state field (284798998ab0)
         fixme = body.get("fixme")
         if not isinstance(fixme, list) or not fixme:
             actual = f"ticket {ticket!r} stands at FIXME with no fixme list — nothing says what it lacks"
@@ -2718,7 +2716,7 @@ def crossing_demo(ticket: str) -> list[dict]:
                              actual=f"ticket file not found matching {ticket!r} in {_tf._TICKETS}",
                              code=code, ticket=ticket)]
 
-    ticket_data = _json.loads(ticket_file.read_text())
+    ticket_data = _tf.read_ticket(ticket_file)
     if not ticket_data.get("demo"):
         return [_check("demo_gate_binding_check",
                              expected=False, actual=bool(ticket_data.get("demo")),
@@ -3002,8 +3000,7 @@ def build_started(ticket: str, *, roots=None, root=CAIRN_ROOT, tickets_dir=None)
     if not path:
         return None, []
     try:
-        with open(path) as f:
-            commits = list(json.load(f).get("build_commits") or [])
+        commits = list(_tf.read_ticket(path).get("build_commits") or [])
     except (OSError, ValueError):
         return None, []
     times = []
@@ -3568,9 +3565,10 @@ def question_links_agree(row: dict, comp_dir: Path, *, commons: Path | None = No
     tickets: dict[str, tuple[str, dict]] = {}
     berths: dict[str, str] = {}
     tdir = root / "tickets"
-    for tk in sorted(tdir.glob("*.json")) if tdir.exists() else []:
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for tk in plans(tdir) if tdir.exists() else []:
         try:
-            doc = json.loads(tk.read_text(encoding="utf-8"))
+            doc = read_ticket(tk)
         except (OSError, ValueError):
             continue
         if not isinstance(doc, dict):
@@ -3728,7 +3726,7 @@ def history_reach(root: Path) -> list[dict]:
                 unclassifiable += 1
                 continue
             try:
-                tdata = json.loads(Path(tpath).read_text(encoding="utf-8"))
+                tdata = _tf.read_ticket(tpath)
             except (json.JSONDecodeError, OSError):
                 unclassifiable += 1
                 continue
@@ -3982,7 +3980,8 @@ def slate_reach(root: Path) -> list[dict]:
     tickets_dir = commons / "tickets"
     if not slates_dir.is_dir() or not tickets_dir.is_dir():
         return []
-    ticket_ids = {tf.stem for tf in tickets_dir.glob("*.json")}
+    from cairn.tools.base.ticket_file import find_ticket, plans, read_ticket
+    ticket_ids = {tf.stem for tf in plans(tickets_dir)}
     stale = 0
     active = 0
     unclassifiable = 0
@@ -4006,14 +4005,9 @@ def slate_reach(root: Path) -> list[dict]:
         if not matched_ticket:
             unclassifiable += 1
             continue
-        tfile = tickets_dir / (matched_ticket + ".json")
-        if not tfile.is_file():
-            hits = list(tickets_dir.glob(f"*-{matched_ticket}.json"))
-            if not hits:
-                hits = list(tickets_dir.glob(f"{matched_ticket}-*.json"))
-            tfile = hits[0] if hits else tfile
+        tfile = find_ticket(matched_ticket, tickets_dir) or tickets_dir / (matched_ticket + ".json")
         try:
-            tdata = json.loads(tfile.read_text(encoding="utf-8"))
+            tdata = read_ticket(tfile)
         except (json.JSONDecodeError, OSError):
             unclassifiable += 1
             continue

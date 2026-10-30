@@ -112,6 +112,13 @@ def test_append_log_lands_lines_in_order_and_refuses_what_it_must(L, t: Path) ->
           shaped and refused == [True, True], f"lines {lines!r:.160} refusals {refused}")
 
 
+def _state(plan: Path) -> dict | None:
+    """The state file split moved the state keys into (ticket 284798998ab0), when one stands."""
+    from cairn.tools.base.ticket_file import state_path
+    sp = state_path(plan)
+    return json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else None
+
+
 def test_split_moves_the_trail_and_reconstructs_the_v1_doc(L, t: Path) -> None:
     plan = t / "abc123def456-v1.json"
     v1 = _v1("abc123def456")
@@ -121,7 +128,7 @@ def test_split_moves_the_trail_and_reconstructs_the_v1_doc(L, t: Path) -> None:
     fields = set(L.plan_fields(plan))
     clean = (set(after) <= fields and "phase_writes" not in after and "rehearsal" not in after
              and after.get("decisions") == [{"n": 2, "text": "the live line"}])
-    back = L.reconstruct(after, L.read_log(plan))
+    back = L.reconstruct(after, L.read_log(plan), _state(plan))
     check("test_split_moves_the_trail_and_reconstructs_the_v1_doc", clean and back == v1,
           f"moved {out.get('moved')}; plan keys outside: {sorted(set(after) - fields)}; "
           f"lossless {back == v1}")
@@ -147,7 +154,7 @@ def test_set_phase_appends_its_record_to_the_log(L, T, t: Path) -> None:
         new = T.set_phase(CURSOR, "hold", release="CLAUDE.md", actor="proof", ticket="cafe00beef00")
     finally:
         TF._TICKETS = saved
-    doc = json.loads(plan.read_text(encoding="utf-8"))
+    doc = TF.read_ticket(plan)  # the cursor and release are state fields (284798998ab0)
     pw = L.read_log(plan, "phase_write")
     ok = (len(pw) == 1 and pw[0]["record"]["workflow"] == doc["workflow_and_state"] == new
           and "phase_writes" not in doc and doc.get("release") == "CLAUDE.md")
@@ -204,7 +211,7 @@ def test_split_names_the_plans_one_intention(L, t: Path) -> None:
         again = L.split(plan, actor="proof", why="proof: split again")
         ok = (doc.get("intention") == want
               and [(x["from"], x["to"]) for x in ren] == ([(frm, "intention")] if frm else [])
-              and L.reconstruct(doc, L.read_log(plan)) == v1
+              and L.reconstruct(doc, L.read_log(plan), _state(plan)) == v1
               and not again.get("moved") and plan.read_bytes() == pb
               and L.log_path(plan).read_bytes() == lb)
         if not ok:
@@ -219,7 +226,7 @@ def test_split_names_the_plans_one_intention(L, t: Path) -> None:
     doc = json.loads(plan.read_text(encoding="utf-8"))
     want = {k: v for k, v in v1.items() if k not in ("phase_writes", "rehearsal")}
     if not (doc.get("intention") == "the old what"
-            and L.reconstruct(doc, L.read_log(plan)) == want):
+            and L.reconstruct(doc, L.read_log(plan), _state(plan)) == want):
         bad.append(f"feed00000004: intention {doc.get('intention')!r}")
     check("test_split_names_the_plans_one_intention", not bad, "; ".join(bad))
 

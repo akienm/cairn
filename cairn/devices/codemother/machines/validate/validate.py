@@ -147,8 +147,8 @@ def _clause_coverage_record(packet: dict, root: str) -> list:
         return []
     from cairn.tools.proof_coverage import clauses, declared
     from cairn.tools.system_word import fold
-    with open(tp) as fh:
-        doc = json.load(fh)
+    from cairn.tools.base.ticket_file import read_ticket
+    doc = read_ticket(tp)  # node_class is a state field (284798998ab0)
     if fold(str(doc.get("node_class") or "")) == "concept-piece":
         return []
     want = clauses(doc)

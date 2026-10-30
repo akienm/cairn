@@ -122,7 +122,8 @@ def test_a_red_finding_sends_the_ticket_to_fixme():
     with _standing(world):
         reply = _watch({"ticket": TID, "holds": False, "finding": "fixture finding"})
     assert reply.get("accepted") is True and reply.get("acted") == "fixme", reply
-    doc = json.loads(_ticket(world).read_text("utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # the cursor is a state field (284798998ab0)
+    doc = read_ticket(_ticket(world))
     assert "[FIXME:waiting]" in doc["workflow_and_state"], doc["workflow_and_state"]
     assert doc.get("fixme") == [{"n": 1, "kind": "watchme", "missing": "fixture finding"}], \
         doc.get("fixme")

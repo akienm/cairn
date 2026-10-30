@@ -69,11 +69,12 @@ def survey_the_corpus() -> dict:
     from cairn.tools.base.watchme_spec import workflow_objects
 
     carried = declined = 0
-    for p in sorted(_TICKETS.glob("*.json")):
-        if p.name.startswith("_") or p.stem == _OWNING_TICKET or p.stem.endswith("-" + _OWNING_TICKET):
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for p in plans(_TICKETS):
+        if p.stem == _OWNING_TICKET or p.stem.endswith("-" + _OWNING_TICKET):
             continue
         try:
-            t = json.loads(p.read_text(encoding="utf-8"))
+            t = read_ticket(p)
             state = t.get("workflow_and_state")
             if not isinstance(state, str) or "@v1:" in state:
                 continue

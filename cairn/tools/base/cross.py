@@ -25,7 +25,6 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.tools.artifact.artifact import write
 from cairn.tools.base import ticket_file, transitions
 
 
@@ -57,12 +56,13 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
     repo_root = Path(repo_root if repo_root is not None else transitions._REPO_ROOT)
     node_class_root = Path(node_class_root if node_class_root is not None
                            else transitions._NODE_CLASSES)
-    hits = sorted(tickets_dir.glob(f"{ticket_id}-*.json"))
+    hits = sorted(h for h in tickets_dir.glob(f"{ticket_id}-*.json")
+                  if not h.name.endswith(".state.json"))
     if len(hits) != 1:
         raise ValueError(f"ticket {ticket_id} resolves to {len(hits)} files under {tickets_dir}, "
                          "not one")
     tp = hits[0]
-    t = json.loads(tp.read_text(encoding="utf-8"))
+    t = ticket_file.read_ticket(tp)
     wf = transitions.parse_workflow(t["workflow_and_state"])
     class_def = transitions.load_class_def(wf.node_class, root=node_class_root)
     tgt = transitions.canon_target(wf, target, class_def)
@@ -84,7 +84,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
                            node_class_root=node_class_root, **extra)
     if new != t["workflow_and_state"]:
         t["workflow_and_state"] = new
-        write(str(tp), json.dumps(t, indent=2, ensure_ascii=False) + "\n", verb="cast", why=why)
+        ticket_file.rewrite_ticket(tp, t, verb="cast", why=why)
     return new
 
 

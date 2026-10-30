@@ -337,7 +337,8 @@ def ticket_path(claim, root: str = CAIRN_ROOT, tickets_dir: str | None = None) -
             return literal
     if _HEX_ID_RE.match(claim):
         import glob as _glob
-        matches = _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))
+        matches = [m for m in _glob.glob(os.path.join(tickets_dir, claim + "-*.json"))
+                   if not m.endswith(".state.json")]  # a plan, never its state (284798998ab0)
         return matches[0] if matches else None
     if not _TICKET_RE.match(claim):
         return None

@@ -102,8 +102,8 @@ def _find_by_stem(token: str, directory: Path, store: str,
     matches = []
     for path in sorted(directory.glob("*.json")):
         stem = path.stem
-        if stem.startswith("_"):
-            continue                       # a store's own charter, not a record in it
+        if stem.startswith("_") or path.name.endswith(".state.json"):
+            continue                       # a store's own charter, or a ticket's state half
         if token == stem or (date_stripped and token == DATE_PREFIX.sub("", stem)):
             matches.append({"store": store, "name": stem, "address": str(path)})
     return matches
@@ -145,7 +145,11 @@ def _present(m: dict) -> dict:
             else "nothing — an approve/disprove has answered it (the verdict record lives under CairnCommons/learning/records)")
         return {"found": {"store": store, "id": m["name"], "address": m["address"],
                           "record": rec, "waiting_on": waiting}}
-    record = _read_json(m["address"])
+    if store == "tickets":
+        from cairn.tools.base.ticket_file import read_ticket
+        record = read_ticket(m["address"])   # plan + state (ticket 284798998ab0)
+    else:
+        record = _read_json(m["address"])
     if store == "tickets":
         cursor = CURSOR.search(str(record.get("workflow_and_state", record.get("state", ""))))
         waiting = (f"the {cursor.group(1)} crossing — the bracketed summons on its own cursor"

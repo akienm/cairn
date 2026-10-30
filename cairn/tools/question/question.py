@@ -61,6 +61,7 @@ from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
 from cairn.tools.base.address import ROOTS
+from cairn.tools.base.ticket_file import find_ticket, read_ticket, rewrite_ticket
 
 QUESTIONS_DIR = Path(os.environ.get("CAIRN_QUESTIONS_DIR", ROOTS["commons"] / "questions"))
 PREFIX = "open-"
@@ -99,11 +100,7 @@ def _ticket_file(ticket: str) -> Path | None:
     if commons is None:
         return None
     tdir = commons / "tickets"
-    exact = tdir / f"{ticket}.json"
-    if exact.exists():
-        return exact
-    hits = sorted(tdir.glob(f"{ticket}-*.json")) if tdir.exists() else []
-    return hits[0] if len(hits) == 1 else None
+    return find_ticket(ticket, tdir) if tdir.is_dir() else None
 
 
 def _link_to_ticket(ticket: str, qid: str, *, why: str) -> Path | None:
@@ -114,7 +111,7 @@ def _link_to_ticket(ticket: str, qid: str, *, why: str) -> Path | None:
     tk = _ticket_file(ticket)
     if tk is None:
         return None
-    doc = json.loads(tk.read_text(encoding="utf-8"))
+    doc = read_ticket(tk)
     have = doc.get("questions")
     if isinstance(have, list):
         if qid in have:
@@ -123,7 +120,7 @@ def _link_to_ticket(ticket: str, qid: str, *, why: str) -> Path | None:
     else:
         have = [qid]
     doc["questions"] = have
-    door.write(str(tk), json.dumps(doc, indent=2, ensure_ascii=False) + "\n", verb="cast", why=why)
+    rewrite_ticket(tk, doc, verb="cast", why=why)
     return tk
 
 
@@ -281,7 +278,7 @@ def rebind(ticket: str, root: Path | str | None = None) -> list[dict]:
     tk = _ticket_file(ticket)
     if tk is None:
         raise Refused(f"rebind refused — no ticket file for {ticket!r} under {door.roots().get('CairnCommons')}/tickets")
-    doc = json.loads(tk.read_text(encoding="utf-8"))
+    doc = read_ticket(tk)
     berth = doc.get("intent_berth")
     if not isinstance(berth, str) or "/" not in berth:
         return []
@@ -302,7 +299,7 @@ def _berth_of(ticket: str) -> str | None:
     if tk is None:
         return None
     try:
-        berth = json.loads(tk.read_text(encoding="utf-8")).get("intent_berth")
+        berth = read_ticket(tk).get("intent_berth")
     except (OSError, ValueError):
         return None
     return berth if isinstance(berth, str) and "/" in berth else None

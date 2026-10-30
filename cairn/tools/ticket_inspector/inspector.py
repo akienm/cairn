@@ -65,7 +65,7 @@ def _has_because(val) -> bool:
 
 
 def _find_ticket_by_hex(hex_id: str, tdir: Path) -> Path | None:
-    matches = list(tdir.glob(f"{hex_id}-*.json"))
+    matches = [m for m in tdir.glob(f"{hex_id}-*.json") if not m.name.endswith(".state.json")]
     return matches[0] if matches else None
 
 
@@ -239,11 +239,10 @@ def inspect_corpus(tickets_dir: Path | None = None) -> dict:
     checked = 0
     clean = 0
 
-    for f in sorted(tdir.glob("*.json")):
-        if f.name.startswith("_"):
-            continue
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for f in plans(tdir):
         try:
-            t = json.loads(f.read_text())
+            t = read_ticket(f)
         except (json.JSONDecodeError, OSError):
             continue
         if t.get("role") in ("store-charter", "charter"):

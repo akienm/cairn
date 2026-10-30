@@ -196,12 +196,12 @@ class HarborMasterDevice(BaseDevice):
         roots = clearance._crossing_roots()
         tickets = Path(roots["commons"]) / "tickets" if roots else Path(clearance.TICKETS_DIR)
         repo = Path(roots["repo"]) if roots else Path(clearance.CAIRN_ROOT)
-        hits = sorted(tickets.glob(f"{tid}-*.json")) or sorted(tickets.glob(f"{tid}.json"))
-        if len(hits) != 1:
-            return refuse(f"ticket {tid} resolves to {len(hits)} file(s) under {tickets}, "
-                          "not one")
+        from cairn.tools.base.ticket_file import find_ticket, read_ticket
+        found = find_ticket(tid, tickets)
+        if found is None:
+            return refuse(f"ticket {tid} resolves to no one plan file under {tickets}")
         try:
-            doc = json.loads(hits[0].read_text(encoding="utf-8"))
+            doc = read_ticket(found)
         except (OSError, ValueError) as exc:
             return refuse(f"ticket {tid} does not read: {type(exc).__name__}: {exc}")
         spec = doc.get("watchme")
@@ -234,7 +234,7 @@ class HarborMasterDevice(BaseDevice):
             history_path=str(comp / "history.json"), state_path=str(comp / "state.json"),
             why=f"a WATCHME finding: {finding}")
         try:
-            after = json.loads(hits[0].read_text(encoding="utf-8")).get("workflow_and_state")
+            after = read_ticket(found).get("workflow_and_state")
         except (OSError, ValueError):
             after = workflow
         acted = "fixme" if after != workflow else "none"

@@ -353,11 +353,10 @@ def sweep(tickets_dir: Path | str = _TICKETS) -> list[dict]:
     by — and the row that answers the falsifier this piece was most likely to fail: a check
     that RETRO-REDS pre-existing cast tickets is a check that gets turned off."""
     out = []
-    for p in sorted(Path(tickets_dir).glob("*.json")):
-        if p.name.startswith("_"):
-            continue                      # the schema charter, not a ticket
+    from cairn.tools.base.ticket_file import plans, read_ticket  # at call time: ticket_file imports transitions
+    for p in plans(tickets_dir):          # never the schema charter, never a state file
         try:
-            t = json.loads(p.read_text(encoding="utf-8"))
+            t = read_ticket(p)
         except Exception as exc:  # noqa: BLE001
             out.append({"ticket": p.stem, "error": f"unreadable: {exc}"})
             continue

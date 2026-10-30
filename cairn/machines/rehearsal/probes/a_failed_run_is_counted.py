@@ -45,7 +45,8 @@ def _measure(context: dict, commons: Path | None = None) -> dict:
             continue
         if not isinstance(rec, dict) or rec.get("ran") is not False:
             continue
-        tickets = sorted((commons / "tickets").glob(f"{rec.get('ticket')}-*.json"))
+        tickets = sorted(t for t in (commons / "tickets").glob(f"{rec.get('ticket')}-*.json")
+                         if not t.name.endswith(".state.json"))
         if not rec.get("ticket") or not tickets:
             continue
         row = {"ticket": rec["ticket"], "record": p.name}

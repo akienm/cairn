@@ -81,8 +81,9 @@ def survey_the_casts(commons_root: Path | None = None) -> dict:
     named = {e["path"] for e in entries if isinstance(e.get("path"), str)}
     tickets_dir = root / "tickets"
     try:
-        unjournaled = sorted("tickets/" + p.name for p in tickets_dir.glob("*.json")
-                             if not p.name.startswith("_") and "tickets/" + p.name not in named)
+        from cairn.tools.base.ticket_file import plans
+        unjournaled = sorted("tickets/" + p.name for p in plans(tickets_dir)
+                             if "tickets/" + p.name not in named)
     except OSError:
         unjournaled = []
     beside = [a["path"] for a in arrivals if a["class"] != "through_the_door"]

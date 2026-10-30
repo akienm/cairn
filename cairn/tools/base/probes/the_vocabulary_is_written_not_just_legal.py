@@ -72,11 +72,10 @@ def _walk_tickets() -> dict:
     stale_or_lacking: list[dict] = []
     live = 0
     unparsed = 0
-    for path in sorted(_TICKETS.glob("*.json")):
-        if path.name.startswith("_"):
-            continue
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for path in plans(_TICKETS):
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = read_ticket(path)
         except Exception:  # noqa: BLE001 — a ticket this probe cannot read is not a finding
             continue
         if not isinstance(doc, dict) or not isinstance(doc.get("workflow_and_state"), str):

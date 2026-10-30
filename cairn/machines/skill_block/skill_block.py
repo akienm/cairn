@@ -471,10 +471,14 @@ def berth_ticket_cursors(*, tickets: Path | None = None,
     out: dict[str, list[str]] = {}
     if not tdir.is_dir():
         return out
-    for tp in sorted(tdir.glob("*.json")):
-        if tp.name.startswith("_"):
-            continue
-        doc = _read_json_dict(tp)
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    from cairn.tools.base.ticket_log import field_value  # from_idea is log-bound (284798998ab0)
+    for tp in plans(tdir):
+        try:
+            doc = read_ticket(tp)
+        except (OSError, ValueError):
+            doc = None
+        doc = doc if isinstance(doc, dict) else None
         if doc is None or not isinstance(doc.get("workflow_and_state"), str):
             continue
         try:
@@ -482,7 +486,7 @@ def berth_ticket_cursors(*, tickets: Path | None = None,
         except MalformedWorkflow:
             continue
         keys = [_berth_key(doc.get("intent_berth")), _berth_key(doc.get("sorted_berth")),
-                _idea_berth(doc.get("from_idea"), idir)]
+                _idea_berth(doc["from_idea"] if "from_idea" in doc else field_value(tp, "from_idea"), idir)]
         for k in keys:
             if k is not None:
                 out.setdefault(k, []).append(state)

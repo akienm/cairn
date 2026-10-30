@@ -74,11 +74,10 @@ def _walk() -> dict:
     """Every ticket carrying the key, every PROVED crossing since the migration, and whether
     the derivation has grown a fallback to the stored copy."""
     carriers: list[dict] = []
-    for path in sorted(_TICKETS.glob("*.json")):
-        if path.name.startswith("_"):
-            continue
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for path in plans(_TICKETS):
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = read_ticket(path)
         except Exception:  # noqa: BLE001 — a ticket this probe cannot read is not a finding
             continue
         if isinstance(doc, dict) and "crossings" in doc:

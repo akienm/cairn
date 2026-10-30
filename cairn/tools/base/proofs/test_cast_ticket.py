@@ -118,14 +118,21 @@ def test_a_cast_lands_and_the_journal_line_is_the_record(A, tmp: Path, commons: 
           str(path))
     check("the slug lower-cases and collapses non-alphanumerics",
           _S._slug("Casting rides a door!!  Proof") == "casting-rides-a-door-proof")
-    written = json.loads(path.read_text(encoding="utf-8"))
+    from cairn.tools.base.ticket_file import read_ticket  # cast is a state field (284798998ab0)
+    written = read_ticket(path)
     check("cast is stamped with today's date when absent",
           written.get("cast") == __import__("datetime").date.today().isoformat(), str(written.get("cast")))
     check("no other key was touched",
           {k: v for k, v in written.items() if k != "cast"} == {k: v for k, v in doc.items() if k != "cast"})
     entries = _journal(A, commons)
-    e = entries[-1]
-    check("exactly one journal line was added", len(entries) == before + 1)
+    # the ticket is plan + state (284798998ab0): one line per file, and the plan's is the record
+    added = entries[before:]
+    names = sorted(x.get("path", "") for x in added)
+    check("exactly two journal lines were added — the plan and its state file",
+          len(added) == 2 and names[0].endswith("-casting-rides-a-door-proof.json")
+          and names[1].endswith("-casting-rides-a-door-proof.state.json")
+          and all(x["verb"] == "cast" for x in added), str(names))
+    e = next((x for x in added if x.get("path", "").endswith("-proof.json")), entries[-1])
     check("the line is verb cast, sha_before absent, why naming id title actor",
           e["verb"] == "cast" and e["sha_before"] == "absent"
           and e["why"] == "cast_ticket: abc123def456 Casting rides a door!!  Proof by proof", e.get("why"))
@@ -134,7 +141,7 @@ def test_a_cast_lands_and_the_journal_line_is_the_record(A, tmp: Path, commons: 
     dated = _fields(tmp, tid="abc123def457", cast="2026-01-01")
     p2 = _S.cast_ticket(dated, actor="proof", tickets_dir=tickets)
     check("a cast that already carries its date keeps it",
-          json.loads(p2.read_text())["cast"] == "2026-01-01")
+          read_ticket(p2)["cast"] == "2026-01-01")
 
 
 def test_a_multi_lack_cast_is_refused_naming_every_lack_and_writes_nothing(A, tmp: Path, commons: Path) -> None:

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_seal_measures_what_the_commit_carries.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T12:15:36",
+    "date": "2026-10-29T21:12:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run\n.\n  ok   test_the_same_proof_runs_once_the_commit_carries_its_closure\n.\n  ok   test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs\n.\n  ok   test_the_hook_path_passes_index_only\n                                                                     [100%]\n4 passed in 0.15s",
+      "stdout_tail": ".\n  ok   test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run\n.\n  ok   test_the_same_proof_runs_once_the_commit_carries_its_closure\n.\n  ok   test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs\n.\n  ok   test_the_hook_path_passes_index_only\n                                                                     [100%]\n4 passed in 0.11s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run",
@@ -16,17 +16,14 @@
         "test_the_hook_path_passes_index_only"
       ],
       "teeth_red": [],
-      "test": "test-45bc974e74fc",
+      "test": "test-abe4b61a5b5c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_1400154_1215273014_delivery",
-          "bus_proc_1400154_1215273014"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "141bc8af0d199f814ba05a6c27cd972261654eeb157ed5b8aa0ca91697bcf4ea",
@@ -45,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-45bc974e74fc",
-      "source_fingerprint": "7fb63e3755ca08ae36b830cc18e3e5c467b5c137d35399e8c52de9c1652454a0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-abe4b61a5b5c",
+      "source_fingerprint": "cec3f7b8c4d7a7224dae1bbc95758dde6d0fdc24ea86afcbd415f60b2f17de60",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -61,7 +58,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1398195-5q2gjhbw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1994004-rjqk9ags/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,11 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112584594,
-          "disk_bytes": 141479936,
-          "entries": 11455,
+          "bytes": 113428967,
+          "disk_bytes": 143073280,
+          "entries": 11718,
           "builds": 1,
-          "reuses": 10
+          "reuses": 24
         }
       }
     },

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T18:02:13",
+    "date": "2026-10-29T21:40:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,7 +22,7 @@
         "the_build_inspector_reaches_no_device"
       ],
       "teeth_red": [],
-      "test": "test-b28efdfb16ab",
+      "test": "test-9989e4095adb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,7 +32,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8",
+        "proof": "5f2a00a71347c18aa78d8cf1362c124b678dbdac36530c9deb1b4092f3fafcc0",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -48,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b28efdfb16ab",
-      "source_fingerprint": "49af2bd61f14cf07615f382cde1d0fdfd91114aadc9b2c0201ed7288a21651ea",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9989e4095adb",
+      "source_fingerprint": "6c74ef2f56d947e99315ab0959d52dbeb9ca2b18fd01798101a52db1ae00d4f4",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -57,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1603607-ab6ahiu1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1994004-nw1dgtju/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,24 +66,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112881642,
-          "disk_bytes": 142151680,
-          "entries": 11579,
+          "bytes": 113428967,
+          "disk_bytes": 143073280,
+          "entries": 11718,
           "builds": 1,
-          "reuses": 9
+          "reuses": 66
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8",
-        "opened": "2026-10-28T15:41:32",
-        "last_red": "2026-10-28T17:49:54",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector",
-        "ruling": null,
-        "closed_at": "2026-10-28T18:02:13",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "841d54ade716b0f360a059904c2012f096ec30222355ea63ed0bb6e532b1d7f8"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

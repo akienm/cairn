@@ -190,10 +190,10 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     found = None
     scanned = 0
     rejected = 0
-    for t in sorted(tickets_dir.glob("*.json")):
+    for t in _ticket_file.plans(tickets_dir):
         scanned += 1
         try:
-            state = json.loads(t.read_text()).get("workflow_and_state")
+            state = _ticket_file.read_ticket(t).get("workflow_and_state")
             wf = transitions.parse_workflow(state) if isinstance(state, str) else None
         except (ValueError, OSError):
             rejected += 1
@@ -1864,11 +1864,9 @@ def _a_non_terminal_ticket_id() -> str:
     live data asserts INVARIANTS, never snapshots — the invariant is 'a queued release
     naming an unfinished ticket is no lack', and which ticket is unfinished is the world's
     business, not the proof's."""
-    for path in sorted(_ticket_file._TICKETS.glob("*.json")):
-        if path.name.startswith("_"):
-            continue
+    for path in _ticket_file.plans(_ticket_file._TICKETS):
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = _ticket_file.read_ticket(path)  # the cursor is a state field (284798998ab0)
             here = transitions.parse_workflow(doc["workflow_and_state"]).here
         except Exception:
             continue
@@ -1890,11 +1888,9 @@ def test_queued_self_clears_against_the_LIVE_corpus() -> None:
     """Driven against a real terminal ticket read out of CairnCommons/tickets, never a
     fixture: the self-clearing claim is about the world, so the world is what answers it."""
     terminal = None
-    for path in sorted(_ticket_file._TICKETS.glob("*.json")):
-        if path.name.startswith("_"):
-            continue
+    for path in _ticket_file.plans(_ticket_file._TICKETS):
         try:
-            doc = json.loads(path.read_text(encoding="utf-8"))
+            doc = _ticket_file.read_ticket(path)
             here = transitions.parse_workflow(doc["workflow_and_state"]).here
         except Exception:
             continue
@@ -1982,7 +1978,7 @@ import shutil as _shutil
 
 def _live_tickets() -> list[Path]:
     d = _REPO_ROOT.parent / "CairnCommons" / "tickets"
-    return sorted(p for p in d.glob("*.json"))
+    return _ticket_file.plans(d)  # plans only: a state file is not a ticket (284798998ab0)
 
 
 def _one_ticket_per_live_shape() -> dict[tuple[bool, bool], Path]:
@@ -2005,7 +2001,7 @@ def _one_ticket_per_live_shape() -> dict[tuple[bool, bool], Path]:
             doc = json.loads(raw.decode("utf-8"))
         except Exception:
             continue
-        if not isinstance(doc, dict) or "workflow_and_state" not in doc:
+        if not isinstance(doc, dict) or "workflow_and_state" not in _ticket_file.read_ticket(path):
             continue
         try:
             shape = transitions._ticket_shape(raw, doc)
@@ -2028,6 +2024,8 @@ def _sandbox_ticket(tmp: Path, shape: tuple[bool, bool] | None = None) -> Path:
     src_t = shapes[shape] if shape is not None else next(iter(shapes.values()))
     dst = tmp / src_t.name
     _shutil.copyfile(src_t, dst)
+    if _ticket_file.state_path(src_t).is_file():  # the ticket is plan + state (284798998ab0)
+        _shutil.copyfile(_ticket_file.state_path(src_t), _ticket_file.state_path(dst))
     return dst
 
 
@@ -2081,6 +2079,8 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
         ticket_file = _sandbox_ticket(tmp, shape)
         before_raw = ticket_file.read_bytes()
         before = json.loads(before_raw.decode("utf-8"))
+        sp = _ticket_file.state_path(ticket_file)
+        before_state_doc = json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else {}
         real_root = _ticket_file._TICKETS
         _ticket_file._TICKETS = tmp
         try:
@@ -2091,7 +2091,7 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
         finally:
             _ticket_file._TICKETS = real_root
         after_raw = ticket_file.read_bytes()
-        after = json.loads(after_raw.decode("utf-8"))
+        after = _ticket_file.read_ticket(ticket_file)
 
         assert "[BUILDME:hold]" in out, out
         # The act record lands in the ticket's LOG (76da3a283277), never on the plan.
@@ -2106,15 +2106,25 @@ def _one_shape_writes_back_unreformatted(shape: tuple[bool, bool]) -> None:
         assert rec["workflow"] == after["workflow_and_state"] == out, (rec, after["workflow_and_state"])
 
         # NOTHING ELSE MOVED — reconstructed from the ORIGINAL bytes, not from the new ones.
-        expected = json.loads(before_raw.decode("utf-8"))
-        expected["workflow_and_state"] = out
-        expected["release"] = "CLAUDE.md"  # the pair the watching probe reads (see below)
+        # The ticket is plan + state (284798998ab0): the plan keeps its own shape and loses
+        # only the state keys an unsplit plan carried; the state file takes the phase write.
+        from cairn.tools.base.ticket_log import state_fields
+        sk = set(state_fields(ticket_file))
+        before_whole = {**before, **before_state_doc}
+        expected_plan = {k: v for k, v in before.items() if k not in sk}
         ensure_ascii, newline = transitions._ticket_shape(before_raw, before)
-        body = json.dumps(expected, indent=2, ensure_ascii=ensure_ascii)
+        body = json.dumps(expected_plan, indent=2, ensure_ascii=ensure_ascii)
         assert ((body + "\n" if newline else body).encode("utf-8")) == after_raw, (
             f"the door changed more than the phase write — a ticket in shape "
             f"(ensure_ascii={shape[0]}, trailing_newline={shape[1]}) was REFORMATTED to add "
             f"one record, burying it in whole-file churn")
+        expected_state = {k: v for k, v in before_whole.items() if k in sk}
+        expected_state["workflow_and_state"] = out
+        expected_state["release"] = "CLAUDE.md"  # the pair the watching probe reads (see below)
+        got_state = json.loads(_ticket_file.state_path(ticket_file).read_text(encoding="utf-8"))
+        assert got_state == expected_state, (
+            "the state file carries more or less than the standing state plus the phase write: "
+            f"{sorted(set(got_state) ^ set(expected_state))}")
 
 
 def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
@@ -2138,7 +2148,7 @@ def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
         try:
             out = transitions.set_phase(live, "hold", release="CLAUDE.md", actor="proof",
                                         ticket=ticket_file.stem)
-            doc = json.loads(ticket_file.read_text(encoding="utf-8"))
+            doc = _ticket_file.read_ticket(ticket_file)
             assert doc["release"] == "CLAUDE.md", "the top level carries no release to read"
             phase = transitions.parse_workflow(doc["workflow_and_state"]).phase
             assert phase == "hold", phase
@@ -2147,7 +2157,7 @@ def test_the_written_ticket_reads_sound_to_the_watching_probe() -> None:
 
             # ...and back down to a phase that has no release to give.
             transitions.set_phase(out, "waiting", actor="proof", ticket=ticket_file.stem)
-            doc = json.loads(ticket_file.read_text(encoding="utf-8"))
+            doc = _ticket_file.read_ticket(ticket_file)
             assert "release" not in doc, (
                 f"a release outlived its phase: {doc.get('release')!r} still stands under "
                 f"{doc['workflow_and_state']!r}")
@@ -2169,7 +2179,12 @@ def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> 
     with tempfile.TemporaryDirectory() as d:
         tmp = Path(d)
         ticket_file = _sandbox_ticket(tmp)
-        digest = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
+        sp = _ticket_file.state_path(ticket_file)  # the ticket is plan + state (284798998ab0)
+
+        def _both() -> str:
+            return _hashlib.sha256(ticket_file.read_bytes()
+                                   + (sp.read_bytes() if sp.is_file() else b"")).hexdigest()
+        digest = _both()
         tid = ticket_file.stem
         real_root = _ticket_file._TICKETS
         _ticket_file._TICKETS = tmp
@@ -2195,7 +2210,7 @@ def test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal() -> 
                     assert fragment in str(exc), (name, str(exc))
                 else:
                     raise AssertionError(f"{name} was accepted")
-                now = _hashlib.sha256(ticket_file.read_bytes()).hexdigest()
+                now = _both()
                 assert now == digest, f"{name} refused but the ticket changed on disk"
         finally:
             _ticket_file._TICKETS = real_root

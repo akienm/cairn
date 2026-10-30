@@ -37,7 +37,8 @@ _DOOR_FRAME = re.compile(r"(^|/)transitions\.py:\d+:cast_ticket$")
 
 
 def _is_ticket(p: Path) -> bool:
-    return p.suffix == ".json" and not p.name.startswith("_")
+    return (p.suffix == ".json" and not p.name.startswith("_")
+            and not p.name.endswith(".state.json"))  # a ticket is its plan (284798998ab0)
 
 
 def classify(first: dict | None) -> str:

@@ -94,16 +94,12 @@ def _matches_in(path: Path) -> list[dict]:
 
 
 def _ticket_state(ticket_id: str) -> str | None:
-    p = _TICKETS / (ticket_id + ".json")
-    if not p.is_file():
-        hits = list(_TICKETS.glob(f"*-{ticket_id}.json"))
-        if not hits:
-            hits = list(_TICKETS.glob(f"{ticket_id}-*.json"))
-        p = hits[0] if hits else p
-    if not p.is_file():
+    from cairn.tools.base.ticket_file import find_ticket, read_ticket
+    p = find_ticket(ticket_id, _TICKETS)
+    if p is None:
         return None
     try:
-        state = json.loads(p.read_text(encoding="utf-8")).get("workflow_and_state")
+        state = read_ticket(p).get("workflow_and_state")
         return state if isinstance(state, str) else None
     except (OSError, json.JSONDecodeError):
         return None

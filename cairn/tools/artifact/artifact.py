@@ -738,11 +738,12 @@ def check_title(subject: str) -> list[str]:
         return []
     tid, word = m.groups()
     tickets = roots()["CairnCommons"] / "tickets"
-    hits = [p for p in tickets.glob(f"{tid}-*.json") if not p.name.endswith(".log.jsonl")]
+    from cairn.tools.base.ticket_file import read_ticket
+    hits = [p for p in tickets.glob(f"{tid}-*.json") if not p.name.endswith(".state.json")]
     if len(hits) != 1:
         return [f"title names ticket {tid}, but {tickets} holds {len(hits)} plan(s) for it"]
     try:
-        wf = str(json.loads(hits[0].read_text(encoding="utf-8")).get("workflow_and_state") or "")
+        wf = str(read_ticket(hits[0]).get("workflow_and_state") or "")
     except (OSError, ValueError) as exc:
         return [f"title names ticket {tid}, whose plan {hits[0].name} is unreadable ({exc})"]
     if word not in re.findall(r"[A-Z]{2,}", wf.split(":", 1)[-1]):

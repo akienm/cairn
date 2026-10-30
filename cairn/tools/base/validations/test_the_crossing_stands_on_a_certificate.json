@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_crossing_stands_on_a_certificate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-29T11:11:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-10-29T21:51:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261029T171117Z-dd36.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261029T171117Z-76b3.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261030T035121Z-8998.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261030T035121Z-32d7.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_gated_crossing_names_a_certificate_that_verifies",
@@ -17,7 +17,7 @@
         "test_a_proved_crossing_without_demo_can_be_certified"
       ],
       "teeth_red": [],
-      "test": "test-ffbbe293a0e4",
+      "test": "test-3f81e00fd924",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ffbbe293a0e4",
-      "source_fingerprint": "ed6fdaad46bebdd18f14588bf5117acb439ea1d7f01509ea0b5bb19f16045207",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3f81e00fd924",
+      "source_fingerprint": "1592b01236cfaa6acf0b75566334ca720206ae249d99cdf2723d393532ace9f9",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -65,43 +64,28 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1752032-goce6yci/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1994004-tb9tufrb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261029.171117.554154.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261029.171117.560655.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261029.171117.565915.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261029.171117.567039.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261029.171117.575790.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261029.171117.585650.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261030.035121.173836.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.035121.180963.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.035121.187109.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.035121.188344.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.035121.197884.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261030.035121.208252.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 113003802,
-          "disk_bytes": 142405632,
-          "entries": 11632,
+          "bytes": 113432058,
+          "disk_bytes": 143097856,
+          "entries": 11726,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "e41a94da3fd0": {
-          "CairnCommons/tickets/e41a94da3fd0-the-inspector-finds-the-gate-certifies.json": {
-            "notified": "n-f2bb692445a5"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "e41a94da3fd0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "79d85f6d8c71247c3981d02abc5e5d1cefb43e28",
-          "anchor_first_build": null,
-          "commit": "79d85f6d8c71247c3981d02abc5e5d1cefb43e28"
+          "reuses": 123
         }
       }
     },

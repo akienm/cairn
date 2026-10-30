@@ -34,9 +34,10 @@ today = date.today()
 
 # Collect open tickets with stage_needs
 open_tickets = []
-for f in sorted(tickets_dir.glob('*.json')):
+from cairn.tools.base.ticket_file import plans, read_ticket
+for f in plans(tickets_dir):
     try:
-        data = json.loads(f.read_text())
+        data = read_ticket(f)
     except Exception:
         continue
     state = data.get('state', '')

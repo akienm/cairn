@@ -351,10 +351,12 @@ def drop_stored_crossings(roots: dict[str, Path] | None = None, *, apply: bool =
                     "notes_carried": 0, "unjournalled": [], "unreadable": []}
     if not tickets.is_dir():
         return report
-    for path in sorted(tickets.glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for path in plans(tickets):
         try:
             raw = path.read_bytes()
-            doc = json.loads(raw.decode("utf-8"))
+            plan_doc = json.loads(raw.decode("utf-8"))
+            doc = read_ticket(path)
         except (OSError, ValueError, UnicodeDecodeError) as exc:
             report["unreadable"].append({"ticket": path.name, "why": str(exc)})
             continue
@@ -366,7 +368,7 @@ def drop_stored_crossings(roots: dict[str, Path] | None = None, *, apply: bool =
         # the old bytes from the new content, which no pair can do — it refuses, correctly,
         # and the migration dies on its first file with nothing written.
         from cairn.tools.base.ticket_file import ticket_shape as _shape_of
-        ensure_ascii, newline = _shape_of(raw, doc)
+        ensure_ascii, newline = _shape_of(raw, plan_doc)
         value = doc["crossings"]
         tid = str(doc.get("id") or path.stem.split("-")[0])
         notes = doc.get("notes")

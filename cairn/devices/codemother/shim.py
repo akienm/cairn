@@ -249,7 +249,8 @@ class CodeMotherDevice(BaseDevice):
                 f"no ticket on file for {ticket!r}, so its workflow and its component's "
                 f"history cannot be read. Pass workflow/history_path/state_path "
                 f"explicitly, or cast the ticket first")
-        doc = json.loads(Path(path).read_text(encoding="utf-8"))
+        from cairn.tools.base.ticket_file import read_ticket
+        doc = read_ticket(path)
         workflow = workflow or doc.get("workflow_and_state") or ""
         if not workflow:
             raise ValueError(f"ticket {ticket!r} carries no workflow_and_state — there is "

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_clause_a_decide_line_adds_is_covered.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-18T14:29:14",
+    "date": "2026-10-29T21:54:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_decide_line_that_adds_a_clause_extends_clauses\n.\n  ok   test_lacks_names_the_clause_a_decide_line_added\n.\n  ok   test_a_decision_citing_a_marker_in_prose_adds_nothing\n                                                                      [100%]\n3 passed in 0.20s",
+      "stdout_tail": ".\n  ok   test_a_decide_line_that_adds_a_clause_extends_clauses\n.\n  ok   test_lacks_names_the_clause_a_decide_line_added\n.\n  ok   test_a_decision_citing_a_marker_in_prose_adds_nothing\n                                                                      [100%]\n3 passed in 0.21s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_decide_line_that_adds_a_clause_extends_clauses",
@@ -15,14 +15,17 @@
         "test_a_decision_citing_a_marker_in_prose_adds_nothing"
       ],
       "teeth_red": [],
-      "test": "test-ba42128a6497",
+      "test": "test-1364deb05353",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2029334_2153543556_delivery",
+          "bus_proc_2029334_2153543556"
+        ]
       },
       "conditions": {
         "proof": "f3349a8ad304711af9d2d18a77c005583a5f89fd38127ac9f64b814493705424",
@@ -41,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ba42128a6497",
-      "source_fingerprint": "4a52fc4dcb6ba9174671e114867be200a21e19a79d51687888fdd01c471e9aa6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1364deb05353",
+      "source_fingerprint": "09cddbc9c55a305b87208428ed2d6cd62437d6219b1ec8fd5776d3820f28cbb5",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -50,7 +53,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-419162-_vchusuw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1994004-c9tx02e8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,14 +62,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111153784,
-          "disk_bytes": 139329536,
-          "entries": 11148,
+          "bytes": 113428967,
+          "disk_bytes": 143073280,
+          "entries": 11718,
           "builds": 1,
-          "reuses": 1
+          "reuses": 151
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

@@ -15,18 +15,61 @@ from cairn.tools.base.workflow_grammar import IllegalTransition
 _TICKETS = Path(__file__).resolve().parents[3].parent / "CairnCommons" / "tickets"
 
 
-def find_ticket(name: str) -> Path | None:
-    """Resolve a ticket by slug or hex id to its file path, handling hex-slug filenames."""
-    exact = _TICKETS / f"{name}.json"
-    if exact.is_file():
+def find_ticket(name: str, tickets_dir: Path | None = None) -> Path | None:
+    """Resolve a ticket by slug or hex id to its PLAN file path, handling hex-slug filenames.
+
+    ``tickets_dir`` defaults to the live store (``_TICKETS``, read at call time so a proof's
+    patch holds). A ``.state.json`` beside a plan is never returned (ticket 284798998ab0)."""
+    d = _TICKETS if tickets_dir is None else Path(tickets_dir)
+    exact = d / f"{name}.json"
+    if exact.is_file() and not _is_state(exact):
         return exact
-    hits = list(_TICKETS.glob(f"*-{name}.json"))
+    hits = [h for h in d.glob(f"*-{name}.json") if not _is_state(h)]
     if len(hits) == 1:
         return hits[0]
-    hits = list(_TICKETS.glob(f"{name}-*.json"))
+    hits = [h for h in d.glob(f"{name}-*.json") if not _is_state(h)]
     if len(hits) == 1:
         return hits[0]
     return None
+
+
+# A TICKET IS THREE FILES (ticket 284798998ab0; Akien 2026-10-29, open-c7809a745bf7: "three
+# parts. record it and reshape the ticket."): the PLAN ``<id>-<slug>.json`` a builder builds
+# from, the STATE ``<id>-<slug>.state.json`` a gate or door reads or writes as the ticket
+# moves, and the LOG ``<id>-<slug>.log.jsonl`` (ticket_log). Which key goes where is declared
+# once, in the store charter's ``plan_fields`` / ``state_fields``; this module reads it there.
+_STATE_SUFFIX = ".state.json"
+
+
+def _is_state(p: Path) -> bool:
+    return p.name.endswith(_STATE_SUFFIX)
+
+
+def state_path(plan: str | Path) -> Path:
+    """``<dir>/<id>-<slug>.state.json`` beside ``<dir>/<id>-<slug>.json``."""
+    p = Path(plan)
+    if not p.name.endswith(".json") or _is_state(p):
+        raise ValueError(f"{p} is not a plan file (*.json, not *{_STATE_SUFFIX})")
+    return p.with_name(p.name[:-5] + _STATE_SUFFIX)
+
+
+def plans(tickets_dir: str | Path | None = None) -> list[Path]:
+    """Every plan in the store: the sorted ``*.json`` that is neither the store's own charter
+    (``_``-prefixed) nor a state file. A ``.log.jsonl`` never matches ``*.json``."""
+    d = _TICKETS if tickets_dir is None else Path(tickets_dir)
+    return sorted(p for p in d.glob("*.json")
+                  if not p.name.startswith("_") and not _is_state(p))
+
+
+def read_ticket(plan: str | Path) -> dict:
+    """The whole ticket a reader means: the plan's JSON updated with its state file's, when
+    one stands (a key in both takes the state's value — only an unsplit plan carries one)."""
+    p = Path(plan)
+    doc = json.loads(p.read_text(encoding="utf-8"))
+    s = state_path(p)
+    if s.is_file():
+        doc.update(json.loads(s.read_text(encoding="utf-8")))
+    return doc
 
 
 # WHY THE SHAPE IS DETECTED RATHER THAN IMPOSED, AND IT IS A MEASUREMENT. The chart's
@@ -63,7 +106,7 @@ def ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
 
 
 def write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
-                  why: str = "phase") -> None:
+                  why: str = "phase", verb: str = "phase") -> None:
     """Write ``doc`` back to ``path`` in the shape ``ticket_shape`` measured, atomically,
     THROUGH THE ARTIFACT DOOR (ticket 30531f6e1c5d).
 
@@ -71,7 +114,35 @@ def write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
     (as it would be for the instance-space sail record) but a corrupted record of truth
     sitting in ``git status``. The door does temp-then-replace in the same directory, and
     journals the crossing with WHO made it from the caller's cgroup — which is exactly the
-    fact ticket 481221f45884's hand-moved cursor (commit 42e3db0) had no record of."""
+    fact ticket 481221f45884's hand-moved cursor (commit 42e3db0) had no record of.
+
+    SPLIT AT THE DOOR (ticket 284798998ab0): the keys the charter declares in ``state_fields``
+    land in ``state_path(path)`` (indent=2, not ASCII-escaped, newline), the rest in the plan
+    in its measured shape. The state file is written only when it carries a key, so a writer
+    that hands over the plan alone leaves the standing state untouched."""
     from cairn.tools.artifact import artifact as door
+    from cairn.tools.base.ticket_log import state_fields  # at call time: ticket_log imports us
+    if isinstance(doc, dict):
+        sk = set(state_fields(path))
+        state = {k: v for k, v in doc.items() if k in sk}
+        doc = {k: v for k, v in doc.items() if k not in sk}
+        if state:
+            write_state(path, state, why=why, verb=verb)
     body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
-    door.write(path, body + "\n" if newline else body, verb="phase", why=why)
+    door.write(path, body + "\n" if newline else body, verb=verb, why=why)
+
+
+def rewrite_ticket(plan: str | Path, doc: dict, *, why: str, verb: str = "phase") -> None:
+    """``write_ticket`` in the plan's own measured shape: the one call a writer that read the
+    ticket with ``read_ticket`` makes to put it back (ticket 284798998ab0)."""
+    p = Path(plan)
+    raw = p.read_bytes()
+    write_ticket(p, doc, *ticket_shape(raw, json.loads(raw.decode("utf-8"))), why=why, verb=verb)
+
+
+def write_state(plan: str | Path, state: dict, *, why: str, verb: str = "phase") -> None:
+    """Write ``state`` as the plan's whole state file through the door: indent=2, not
+    ASCII-escaped, trailing newline — one shape, since every state file is born of this."""
+    from cairn.tools.artifact import artifact as door
+    door.write(state_path(plan), json.dumps(state, indent=2, ensure_ascii=False) + "\n",
+               verb=verb, why=why)

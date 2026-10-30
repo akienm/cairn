@@ -859,9 +859,10 @@ def load_tickets(commons: Path) -> list[dict]:
     tickets_dir = Path(commons) / "tickets"
     if not tickets_dir.is_dir():
         return out
-    for f in sorted(tickets_dir.glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    for f in plans(tickets_dir):
         try:
-            data = json.loads(f.read_text(encoding="utf-8"))
+            data = read_ticket(f)
         except (OSError, json.JSONDecodeError):
             continue
         if isinstance(data, dict):

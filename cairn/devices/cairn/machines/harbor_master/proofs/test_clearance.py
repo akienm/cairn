@@ -1949,7 +1949,7 @@ def test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack():
     exc, ticket_path, journal, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
     assert "FIXME" in str(exc), f"the refusal must say where the boat went: {exc}"
-    doc = json.loads(ticket_path.read_text(encoding="utf-8"))
+    doc = _tfile.read_ticket(ticket_path)
     # the back-edge's cursor carries its sub-state (``[FIXME:waiting]``), measured 2026-10-01
     assert _at_fixme(doc["workflow_and_state"]), doc["workflow_and_state"]
     fixme = doc.get("fixme") or []
@@ -1972,7 +1972,7 @@ def test_a_fixture_refusal_WRITES_NOTHING_LIVE():
     tid = "fixmelive00a"
     exc, ticket_path, _, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
-    assert _at_fixme(json.loads(ticket_path.read_text(encoding="utf-8"))["workflow_and_state"]), \
+    assert _at_fixme(_tfile.read_ticket(ticket_path)["workflow_and_state"]), \
         "the fixture-world ticket was not written, so 'nothing live' would be vacuous"
     live = Path(_clearance.COMMONS_ROOT)
     from cairn.devices.trouble.trouble import store_root
@@ -1988,7 +1988,7 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
     tid = "fixmehold00a"
     exc, ticket_path, _, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
-    doc = json.loads(ticket_path.read_text(encoding="utf-8"))
+    doc = _tfile.read_ticket(ticket_path)
     saved = _tfile._TICKETS
     _tfile._TICKETS = ticket_path.parent
     try:

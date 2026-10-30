@@ -539,9 +539,12 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
     ticket_path = os.path.join(tickets_dir, f"{boat_id}.json")
     if not os.path.isfile(ticket_path):
         import glob as _glob
-        hits = _glob.glob(os.path.join(tickets_dir, f"*-{boat_id}.json"))
+        # a plan, never its .state.json (ticket 284798998ab0); owning_intention is a plan key
+        hits = [h for h in _glob.glob(os.path.join(tickets_dir, f"*-{boat_id}.json"))
+                if not h.endswith(".state.json")]
         if len(hits) != 1:
-            hits = _glob.glob(os.path.join(tickets_dir, f"{boat_id}-*.json"))
+            hits = [h for h in _glob.glob(os.path.join(tickets_dir, f"{boat_id}-*.json"))
+                    if not h.endswith(".state.json")]
         if len(hits) == 1:
             ticket_path = hits[0]
         else:
@@ -884,11 +887,16 @@ def riders_of(intention: str, *, tickets_dir: str = TICKETS_DIR,
     in_flight = attributable = 0
 
     for name in sorted(os.listdir(tickets_dir) if os.path.isdir(tickets_dir) else []):
-        if not name.endswith(".json"):
+        if not name.endswith(".json") or name.endswith(".state.json"):
             continue
         path = os.path.join(tickets_dir, name)
         try:
+            # the cursor is a STATE key (ticket 284798998ab0): ticket_file.read_ticket's merge,
+            # spelled in file reads because this read must not depend on anything being up
             ticket = json.loads(open(path, encoding="utf-8").read())
+            sp = path[:-len(".json")] + ".state.json"
+            if os.path.isfile(sp):
+                ticket = {**ticket, **json.loads(open(sp, encoding="utf-8").read())}
         except (ValueError, OSError) as exc:
             unreadable.append((name, f"unreadable ticket: {exc}"))
             continue
@@ -1103,8 +1111,6 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
     ``why`` names the cause on the journal record and the ticket write. ``None`` keeps the
     refused-PROVED wording; the ``watch`` verb passes its WATCHME finding (a88d6a368cfb).
     """
-    import glob as _glob
-    from cairn.tools.artifact.artifact import write as _write
     missing = [f"[{one['kind']}] {one['why']}" for one in lacks]
     try:
         new = emit(workflow_str, "FIXME", history_path=history_path, state_path=state_path,
@@ -1115,17 +1121,17 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
                 "where it is.")
     roots = _crossing_roots()
     tickets = (Path(roots["commons"]) / "tickets") if roots else Path(TICKETS_DIR)
-    hits = _glob.glob(str(tickets / f"{boat_id}-*.json")) or _glob.glob(
-        str(tickets / f"{boat_id}.json"))
-    if len(hits) != 1:
+    from cairn.tools.base.ticket_file import find_ticket, read_ticket, rewrite_ticket
+    found = find_ticket(boat_id, tickets)
+    if found is None:
         return (f"The boat was sent to FIXME ({new}) but its ticket did not resolve to one file "
-                f"under {tickets} ({len(hits)} found), so the fixme list was not written.")
+                f"under {tickets}, so the fixme list was not written.")
     try:
-        doc = json.loads(Path(hits[0]).read_text(encoding="utf-8"))
+        doc = read_ticket(found)
         doc["workflow_and_state"] = new
         doc["fixme"] = [{"n": i, "kind": one["kind"], "missing": one["why"]}
                         for i, one in enumerate(lacks, 1)]
-        _write(hits[0], json.dumps(doc, indent=2, ensure_ascii=False) + "\n", verb="cast",
+        rewrite_ticket(found, doc, verb="cast",
                why=f"{boat_id}: {why}" if why else (
                    f"{boat_id}: clearance refused at PROVED — sent to FIXME with "
                    f"{len(lacks)} missing"))

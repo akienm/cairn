@@ -131,6 +131,7 @@ from cairn.tools.system_word import canon
 from cairn.tools.base import ticket_file as _tf
 from cairn.tools.base.ticket_file import (
     find_ticket as _find_ticket,
+    read_ticket as _read_ticket,
     ticket_shape as _ticket_shape,
     write_ticket as _write_ticket,
     _TICKET_SHAPES,
@@ -1854,8 +1855,7 @@ def _ticket_standing(path: str) -> str | None:
     NOT terminal: a ticket we cannot parse must never silently red a queue that may be sound
     (Law 7 — a lack is reported as a lack, never collapsed into a verdict)."""
     try:
-        with open(path) as fh:
-            doc = json.load(fh)
+        doc = _read_ticket(path)          # the cursor is a state key (284798998ab0)
         return parse_workflow(doc["workflow_and_state"]).here
     except Exception:
         return None
@@ -1999,12 +1999,15 @@ def set_phase(
                 "not as a bare id, not as a slug, not as a hex-slug filename, or it matches "
                 "more than one and the resolver will not guess. Nothing was journaled.")
         raw = ticket_file.read_bytes()
-        ticket_doc = json.loads(raw.decode("utf-8"))
-        if not isinstance(ticket_doc, dict):
+        plan_doc = json.loads(raw.decode("utf-8"))
+        if not isinstance(plan_doc, dict):
             raise IllegalTransition(
                 f"set_phase refused: {ticket_file} does not hold a JSON object, so it has no "
                 "fields to record a phase write in. Nothing was journaled.")
-        ticket_shape = _ticket_shape(raw, ticket_doc)
+        ticket_shape = _ticket_shape(raw, plan_doc)
+        # THE WHOLE TICKET, plan and state (ticket 284798998ab0): write_ticket splits it back,
+        # so the cursor and release land in the state file and the plan's bytes stand.
+        ticket_doc = _read_ticket(ticket_file)
 
     new_str = _render_at(wf, wf.cursor, phase)
 
@@ -2227,7 +2230,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
         else:
             held = [p.name for p in
                     [tickets_dir / f"{tid}.json", *tickets_dir.glob(f"{tid}-*.json")]
-                    if p.is_file()]
+                    if p.is_file() and not p.name.endswith(".state.json")]
             if held:
                 lacks.append(f"id {tid!r} is already held by {held}")
             target = tickets_dir / f"{tid}-{_slug(doc.get('title') or '')}.json"
@@ -2256,11 +2259,15 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
         else:
             doc["model"] = folded
 
-    # (e) the plan holds the plan (ticket 76da3a283277): every top-level key must be one the
-    # store charter declares in ``plan_fields`` — read there, never a second copy here.
-    from cairn.tools.base.ticket_log import plan_fields  # at call time: ticket_log imports us
-    declared = set(plan_fields(tickets_dir / "_charter+why.json"))
-    lacks.extend(f"{key} is not a plan field; trail goes to the log"
+    # (e) the plan holds the plan (ticket 76da3a283277), the state its state, the log the rest
+    # (ticket 284798998ab0): every top-level key must be one the store charter declares in
+    # ``plan_fields``, ``state_fields`` or ``log_fields`` — read there, never a second copy here.
+    from cairn.tools.base.ticket_log import plan_fields, state_fields  # at call time: ticket_log imports us
+    from cairn.tools.base.ticket_log import log_fields
+    charter = tickets_dir / "_charter+why.json"
+    to_log = set(log_fields(charter)) - set(plan_fields(charter)) - set(state_fields(charter))
+    declared = set(plan_fields(charter)) | set(state_fields(charter)) | to_log
+    lacks.extend(f"{key} is not a plan, state or log field"
                  for key in doc if key not in declared)
 
     if lacks:
@@ -2283,8 +2290,22 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
             doc["decisions"] = [{"n": 1, "text": f"D1 (the /sorted builder_check): {check}",
                                  "by": actor, "step": "cast", "source": "sorted",
                                  "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}]
+    why = f"cast_ticket: {doc['id']} {doc['title']} by {actor}"
+    trail = {k: doc.pop(k) for k in list(doc) if k in to_log}
     from cairn.tools.artifact import artifact as door
-    body = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
-    door.write(target, body, verb="cast",
-               why=f"cast_ticket: {doc['id']} {doc['title']} by {actor}")
+    from cairn.tools.base.ticket_file import state_path, write_state
+    sk = set(state_fields(charter))
+    state = {k: v for k, v in doc.items() if k in sk}
+    plan = {k: v for k, v in doc.items() if k not in sk}
+    # THE PLAN FIRST, then the state beside it, then the trail: the log door resolves the
+    # ticket by its plan, and a reader that finds a plan without its state reads no cursor
+    # (loud) rather than a cursor without its plan.
+    door.write(target, json.dumps(plan, indent=2, ensure_ascii=False) + "\n", verb="cast", why=why)
+    if state:
+        write_state(target, state, why=why, verb="cast")
+    if trail:
+        from cairn.tools.base.ticket_log import append_log
+        for k, v in trail.items():
+            append_log(target, "field", {"field": k, "value": v}, actor=actor, why=why)
+    assert state_path(target).is_file() or not state
     return target

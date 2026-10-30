@@ -2228,9 +2228,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
         if not _CAST_ID.match(tid):
             lacks.append(f"id {tid!r} is not twelve lowercase hex")
         else:
-            held = [p.name for p in
-                    [tickets_dir / f"{tid}.json", *tickets_dir.glob(f"{tid}-*.json")]
-                    if p.is_file() and not p.name.endswith(".state.json")]
+            held = [p.name for p in _tf.plans_of(tid, tickets_dir)]
             if held:
                 lacks.append(f"id {tid!r} is already held by {held}")
             target = tickets_dir / f"{tid}-{_slug(doc.get('title') or '')}.json"

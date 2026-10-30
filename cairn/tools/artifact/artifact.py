@@ -738,8 +738,8 @@ def check_title(subject: str) -> list[str]:
         return []
     tid, word = m.groups()
     tickets = roots()["CairnCommons"] / "tickets"
-    from cairn.tools.base.ticket_file import read_ticket
-    hits = [p for p in tickets.glob(f"{tid}-*.json") if not p.name.endswith(".state.json")]
+    from cairn.tools.base.ticket_file import plans_of, read_ticket
+    hits = plans_of(tid, tickets)
     if len(hits) != 1:
         return [f"title names ticket {tid}, but {tickets} holds {len(hits)} plan(s) for it"]
     try:

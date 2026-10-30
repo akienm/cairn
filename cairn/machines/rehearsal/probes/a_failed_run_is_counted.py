@@ -18,6 +18,7 @@ from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
 from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.ticket_file import plans_of
 
 _TICKET_ID = "ba4166fe51c4"
 
@@ -45,8 +46,7 @@ def _measure(context: dict, commons: Path | None = None) -> dict:
             continue
         if not isinstance(rec, dict) or rec.get("ran") is not False:
             continue
-        tickets = sorted(t for t in (commons / "tickets").glob(f"{rec.get('ticket')}-*.json")
-                         if not t.name.endswith(".state.json"))
+        tickets = plans_of(str(rec.get("ticket")), commons / "tickets")
         if not rec.get("ticket") or not tickets:
             continue
         row = {"ticket": rec["ticket"], "record": p.name}

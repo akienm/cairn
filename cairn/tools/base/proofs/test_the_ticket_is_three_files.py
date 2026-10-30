@@ -461,10 +461,17 @@ def r_casting_door(t, patch):
     return got == ["tickets/" + PLAN + ".json"], got
 
 
+def r_plans_of(t, patch):
+    m = _mod("cairn.tools.base.ticket_file")
+    _orphan(t)
+    got = ([q.name for q in m.plans_of(TID, t)], m.plans_of(TID2, t))
+    return got == ([PLAN + ".json"], []), got
+
+
 def r_cast_sweep(t, patch):
     m = _mod("cairn.tools.base.cast")
-    got = (m._is_ticket(Path(PLAN + ".json")), m._is_ticket(Path(PLAN + ".state.json")))
-    return got == (True, False), got
+    got = sorted(m.sweep_casts(t.parent)["tickets"])
+    return got == ["tickets/" + PLAN + ".json"], got
 
 
 def r_whatsnext(t, patch):
@@ -484,6 +491,7 @@ def r_whatsnext(t, patch):
 
 P = "cairn.tools.base.probes."
 READERS = (
+    ("reader_plans_of_resolves_an_id_to_its_plans", r_plans_of),
     ("reader_cast_sweep_counts_a_plan_never_a_state", r_cast_sweep),
     ("reader_whatsnext_walks_plans_only", r_whatsnext),
     ("reader_inbox_scans_plans_with_their_state", r_inbox),

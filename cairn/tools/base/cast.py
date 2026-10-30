@@ -29,16 +29,13 @@ import re
 import sys
 from pathlib import Path
 
+from cairn.tools.base.ticket_file import plans
+
 _CLASSES = ("through_the_door", "journaled_beside", "pre_door", "unjournaled")
 # The door's OWN frame, not any function that happens to share its name: a scratch helper
 # named cast_ticket wrote 5 tickets on 2026-09-16 (castlib.py:83:cast_ticket) and the bare
 # ':cast_ticket' suffix credited them to a door that did not exist yet.
 _DOOR_FRAME = re.compile(r"(^|/)transitions\.py:\d+:cast_ticket$")
-
-
-def _is_ticket(p: Path) -> bool:
-    return (p.suffix == ".json" and not p.name.startswith("_")
-            and not p.name.endswith(".state.json"))  # a ticket is its plan (284798998ab0)
 
 
 def classify(first: dict | None) -> str:
@@ -79,7 +76,7 @@ def sweep_casts(commons_root: Path) -> dict:
                 landing = e
     tickets: dict[str, str] = {}
     try:
-        files = sorted(p for p in tickets_dir.glob("*.json") if _is_ticket(p))
+        files = plans(tickets_dir)
     except OSError:
         files = []
     for p in files:

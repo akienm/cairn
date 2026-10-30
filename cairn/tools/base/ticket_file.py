@@ -61,6 +61,15 @@ def plans(tickets_dir: str | Path | None = None) -> list[Path]:
                   if not p.name.startswith("_") and not _is_state(p))
 
 
+def plans_of(ticket_id: str, tickets_dir: str | Path | None = None) -> list[Path]:
+    """The plans filed under one id: ``<id>.json`` and every ``<id>-<slug>.json``, sorted,
+    never a state file. Unlike ``find_ticket`` it returns every hit, so a caller that must
+    say "resolves to N files, not one" still can."""
+    d = _TICKETS if tickets_dir is None else Path(tickets_dir)
+    return sorted(p for p in [d / f"{ticket_id}.json", *d.glob(f"{ticket_id}-*.json")]
+                  if p.is_file() and not _is_state(p))
+
+
 def read_ticket(plan: str | Path) -> dict:
     """The whole ticket a reader means: the plan's JSON updated with its state file's, when
     one stands (a key in both takes the state's value — only an unsplit plan carries one)."""

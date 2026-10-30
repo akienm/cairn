@@ -140,8 +140,8 @@ class HollowUnmeasurable(RuntimeError):
 
 
 def _ticket_path(ticket_id: str, commons: Path = COMMONS) -> Path:
-    hits = sorted(h for h in (Path(commons) / "tickets").glob(f"{ticket_id}*.json")
-                  if not h.name.endswith(".state.json"))  # the plan, never its state
+    from cairn.tools.base.ticket_file import plans_of
+    hits = plans_of(ticket_id, Path(commons) / "tickets")  # the plan, never its state
     if not hits:
         raise HollowUnmeasurable(f"hollow: no ticket file matches {ticket_id!r} in {commons}/tickets")
     return hits[0]

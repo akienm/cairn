@@ -56,8 +56,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
     repo_root = Path(repo_root if repo_root is not None else transitions._REPO_ROOT)
     node_class_root = Path(node_class_root if node_class_root is not None
                            else transitions._NODE_CLASSES)
-    hits = sorted(h for h in tickets_dir.glob(f"{ticket_id}-*.json")
-                  if not h.name.endswith(".state.json"))
+    hits = ticket_file.plans_of(ticket_id, tickets_dir)
     if len(hits) != 1:
         raise ValueError(f"ticket {ticket_id} resolves to {len(hits)} files under {tickets_dir}, "
                          "not one")

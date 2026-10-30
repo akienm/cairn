@@ -461,8 +461,31 @@ def r_casting_door(t, patch):
     return got == ["tickets/" + PLAN + ".json"], got
 
 
+def r_cast_sweep(t, patch):
+    m = _mod("cairn.tools.base.cast")
+    got = (m._is_ticket(Path(PLAN + ".json")), m._is_ticket(Path(PLAN + ".state.json")))
+    return got == (True, False), got
+
+
+def r_whatsnext(t, patch):
+    """bin/cmd/whatsnext reads the tickets beside the repo it sits in, so it runs from a copy
+    standing in the fixture world, its code reached through a link to this repo's package."""
+    import subprocess
+    _orphan(t, {"stage_needs": {"BUILDME": ["x"]}, "state": CURSOR})
+    fake = t.parent.parent / "cairn"
+    (fake / "bin" / "cmd").mkdir(parents=True)
+    shutil.copy2(REPO / "bin" / "cmd" / "whatsnext", fake / "bin" / "cmd" / "whatsnext")
+    (fake / "cairn").symlink_to(REPO / "cairn", target_is_directory=True)
+    p = subprocess.run(["bash", str(fake / "bin" / "cmd" / "whatsnext")], capture_output=True,
+                       text=True, timeout=120)
+    got = (p.stdout + p.stderr).strip()[-300:]
+    return got == "no open tickets carry stage_needs.", got
+
+
 P = "cairn.tools.base.probes."
 READERS = (
+    ("reader_cast_sweep_counts_a_plan_never_a_state", r_cast_sweep),
+    ("reader_whatsnext_walks_plans_only", r_whatsnext),
     ("reader_inbox_scans_plans_with_their_state", r_inbox),
     ("reader_ticket_inspector_checks_each_ticket_once", r_ticket_inspector),
     ("reader_watchme_sweep_sees_each_ticket_once", r_watchme_spec),

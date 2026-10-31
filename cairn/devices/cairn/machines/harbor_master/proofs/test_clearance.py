@@ -1959,6 +1959,28 @@ def test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack():
     assert len(back[0].get("missing") or []) == len(fixme), (back[0], fixme)
 
 
+def test_a_refused_boat_has_its_fixme_list_WRITTEN_ONCE():
+    """Ticket 44cc43080f93. emit writes the fixme list on a hand kick-back; clearance writes
+    its own, so it passes ``write_fixme=False`` and the list is written exactly once, with the
+    lack kinds — never a second, ``hand_kickback`` list over it."""
+    writes = []
+    real = _tfile.rewrite_ticket
+
+    def counting(plan, doc, **kw):
+        if "fixme" in doc:
+            writes.append([e.get("kind") for e in doc["fixme"]])
+        return real(plan, doc, **kw)
+
+    _tfile.rewrite_ticket = counting
+    try:
+        exc, _, _, _ = _refuse_at_proved("fixmeonce00a")
+    finally:
+        _tfile.rewrite_ticket = real
+    assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    assert len(writes) == 1, f"the fixme list must be written exactly once: {writes}"
+    assert "hand_kickback" not in writes[0], writes
+
+
 def test_a_refused_boat_RAISES_NO_TROUBLE():
     """Clause (2). Not one trouble, through any raiser the module could reach for."""
     exc, _, _, raised = _refuse_at_proved("fixmequiet0a")
@@ -2159,6 +2181,7 @@ def _main() -> int:
         test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading,
         # A REFUSED BOAT GOES TO FIXME (ticket 973574dddb77).
         test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack,
+        test_a_refused_boat_has_its_fixme_list_WRITTEN_ONCE,
         test_a_refused_boat_RAISES_NO_TROUBLE,
         test_a_fixture_refusal_WRITES_NOTHING_LIVE,
         test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered,

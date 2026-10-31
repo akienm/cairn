@@ -1114,7 +1114,7 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
     missing = [f"[{one['kind']}] {one['why']}" for one in lacks]
     try:
         new = emit(workflow_str, "FIXME", history_path=history_path, state_path=state_path,
-                   ticket=boat_id, actor=actor, missing=missing,
+                   write_fixme=False, ticket=boat_id, actor=actor, missing=missing,
                    why=why or f"clearance refused at PROVED: {len(lacks)} lack(s)")
     except Exception as exc:  # noqa: BLE001 — see the docstring
         return (f"The boat could not be sent to FIXME ({type(exc).__name__}: {exc}); it stays "

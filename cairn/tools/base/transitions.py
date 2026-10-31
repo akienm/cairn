@@ -1348,6 +1348,7 @@ def emit(
     history_path: str | None = None,
     state_path: str | None = None,
     node_class_root: Path | str = _NODE_CLASSES,
+    write_fixme: bool = True,
     **journal_extra,
 ) -> str:
     """The chokepoint: validate the transition (RULES), then journal the crossing (TRUTH),
@@ -1370,6 +1371,11 @@ def emit(
     tense, while nothing wrapped anything: measured 2026-08-05, of 229 records across 21
     component histories, 146 were emit-shaped and ZERO carried ``cleared_by``. It still does
     not wrap this call — it is a seat AT it, and only for the crossing into a rest.
+
+    A journaled back-edge into a repair summons that names a ticket also writes that ticket's
+    ``fixme`` list from ``missing`` (ticket 44cc43080f93), after the journal. ``write_fixme``
+    is never journaled; False is for a caller that writes its own list in the same act —
+    clearance, whose entries carry the lack kinds.
     """
     wf = parse_workflow(workflow_str)
     class_def = load_class_def(wf.node_class, root=node_class_root)
@@ -1388,7 +1394,8 @@ def emit(
         objs = tuple(wf.objects) + (None,) * (len(wf.path) - len(wf.objects))
         wf = dataclasses.replace(wf, path=wf.path[:a] + (target,) + wf.path[a:],
                                  objects=objs[:a] + (None,) + objs[a:], cursor=wf.cursor + 1)
-    if target in repair and resolve_target(wf, target) < wf.cursor:
+    kick_back = target in repair and resolve_target(wf, target) < wf.cursor
+    if kick_back:
         missing = journal_extra.get("missing")
         if not (isinstance(missing, list) and missing
                 and all(isinstance(m, str) and m.strip() for m in missing)):
@@ -1655,8 +1662,37 @@ def emit(
         except Exception as exc:  # noqa: BLE001 — the post never gates (D5)
             print(f"emit: certification notice for {journal_extra.get('ticket')} failed: "
                   f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        if kick_back and write_fixme and journal_extra.get("ticket"):
+            _write_fixme(str(journal_extra["ticket"]), journal_extra["missing"], target)
     _stamp_sail(journal_extra.get("ticket"), new_str)
     return new_str
+
+
+def _write_fixme(ticket: str, missing: list[str], target: str) -> None:
+    """A HAND KICK-BACK WRITES THE LIST THE FIXME GATE READS (ticket 44cc43080f93).
+
+    Until this, only clearance wrote a ticket's ``fixme``; a hand ``emit(..., "FIXME",
+    missing=[...])`` journaled the list and left the ticket without one, so the crossing back
+    out refused for a reason nobody had written (measured 2026-10-29 on 7a31059daa23). The
+    list REPLACES the old one, numbered from 1, because the gate reads entries 1..N against
+    answers dated after the latest kick-back. Never raises: the journal entry above is the
+    record of truth (Law 7), so an unresolvable ticket or a failed write is said on stderr.
+    """
+    found = _tf.find_ticket(ticket)
+    if found is None:
+        print(f"emit: {ticket} entered {target} but did not resolve to one ticket file, so its "
+              "fixme list was not written", file=sys.stderr)
+        return
+    try:
+        doc = _tf.read_ticket(found)
+        doc["fixme"] = [{"n": i, "kind": "hand_kickback", "missing": m}
+                        for i, m in enumerate(missing, 1)]
+        _tf.rewrite_ticket(found, doc, verb="cast",
+                                   why=f"{ticket}: hand kick-back into {target} — "
+                                       f"{len(missing)} missing")
+    except Exception as exc:  # noqa: BLE001 — see the docstring
+        print(f"emit: {ticket} entered {target} but its fixme write failed: "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
 
 
 def _certify_crossing(target: str, forward: bool, ticket: object, history_path: str | None,

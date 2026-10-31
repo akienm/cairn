@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_killed_reseal_leaves_nothing_unstaged.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T21:11:48",
+    "date": "2026-10-30T21:42:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_change_that_moves_no_seal_runs_no_proof\n.\n  ok   test_a_killed_runs_leftover_that_still_reproduces_is_adopted_by_the_next_run\n.\n  ok   test_a_leftover_that_no_longer_reproduces_is_rerun_not_adopted\n.\n  ok   test_an_unchanged_seal_already_in_the_index_stages_nothing\n                                                                     [100%]\n4 passed in 0.19s",
+      "stdout_tail": ".\n  ok   test_a_change_that_moves_no_seal_runs_no_proof\n.\n  ok   test_a_killed_runs_leftover_that_still_reproduces_is_adopted_by_the_next_run\n.\n  ok   test_a_leftover_that_no_longer_reproduces_is_rerun_not_adopted\n.\n  ok   test_an_unchanged_seal_already_in_the_index_stages_nothing\n                                                                     [100%]\n4 passed in 0.21s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_change_that_moves_no_seal_runs_no_proof",
@@ -16,7 +16,7 @@
         "test_an_unchanged_seal_already_in_the_index_stages_nothing"
       ],
       "teeth_red": [],
-      "test": "test-310770534842",
+      "test": "test-987ea4c87604",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-310770534842",
-      "source_fingerprint": "2c3913acc24ba09af23a88482e3f2dfe3e1801fdc0cd4a717b91e136e79a45ab",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-987ea4c87604",
+      "source_fingerprint": "3f260807b3ab5d48a9adee73da2851866906a548858db495ef5a23a4a758a9b7",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -57,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1994004-n3o74kuk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2913920-x1ovnkst/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,11 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113428967,
-          "disk_bytes": 143073280,
-          "entries": 11718,
+          "bytes": 114676889,
+          "disk_bytes": 144760832,
+          "entries": 11895,
           "builds": 1,
-          "reuses": 19
+          "reuses": 5
         }
       }
     },

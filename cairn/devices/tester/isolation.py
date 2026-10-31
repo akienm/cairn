@@ -68,6 +68,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from cairn.tools.base.address import ROOTS
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 # The seal's four honest verdicts — record vocabulary, so it lives with the store (fe1cba85cb12).
 from cairn.tools.validation_store.validation_store import BREACHED, INDETERMINATE, OPEN, SEALED  # noqa: E402,F401
@@ -134,7 +135,7 @@ _PROBE = (
 
 
 @dataclass(frozen=True)
-class Seal:
+class Seal(DiagnosticBase):
     """Did this run actually lose its route to the forbidden resource? Measured, from inside."""
 
     verdict: str
@@ -633,7 +634,7 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
                         f"the outer run's own wrote_to_instance is the host-side witness")
 
 
-class Isolation(ABC):
+class Isolation(DiagnosticBase, ABC):
     """A way to run a command such that it cannot reach what it must not reach."""
 
     name: str = "abstract"

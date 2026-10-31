@@ -2,12 +2,12 @@
   {
     "claim": "proof test_tester_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T12:24:30",
+    "date": "2026-10-30T21:48:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "  FAIL  test_every_standing_tester_probe_posts_watch: AssertionError: 357c402172ca: cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py posts verb ''\n  FAIL  test_every_standing_tester_spec_names_the_receiver: AssertionError: 357c402172ca: receiver is None\n  FAIL  test_tester_probes_report_to_the_watch: AssertionError: 357c402172ca: cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py posts verb ''\nRED — 3 tooth/teeth bit",
+      "stdout_tail": "  FAIL  test_every_standing_tester_probe_posts_watch: KeyError: 'id'\n  FAIL  test_every_standing_tester_spec_names_the_receiver: KeyError: 'id'\n  FAIL  test_tester_probes_report_to_the_watch: KeyError: 'id'\nRED — 3 tooth/teeth bit",
       "stderr_tail": "",
       "teeth_green": [],
       "teeth_red": [
@@ -15,7 +15,7 @@
         "test_every_standing_tester_spec_names_the_receiver",
         "test_tester_probes_report_to_the_watch"
       ],
-      "test": "test-c54657b3d7a2",
+      "test": "test-bc81b24b98dc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,19 +41,14 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c54657b3d7a2",
-      "source_fingerprint": "81f40d8c89996b58d39b7063b41f00b9aa4a13a9ad30d888bc08417f10c26bb8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bc81b24b98dc",
+      "source_fingerprint": "ecba73eb58867eec3f20c83aa52736d3aba59d92ea941d6aeaa8d24715f10a46",
       "fingerprint_closure": [
-        "cairn/devices/tester/__init__.py",
-        "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/probes/__init__.py",
-        "cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py",
-        "cairn/devices/tester/probes/an_open_reading_is_not_silently_converted.py",
         "cairn/devices/tester/proofs/test_tester_probes_report_to_the_watch.py"
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1398195-gx06tun3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2913920-8lk6dypg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,18 +57,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 112584594,
-          "disk_bytes": 141479936,
-          "entries": 11455,
+          "bytes": 114676889,
+          "disk_bytes": 144760832,
+          "entries": 11895,
           "builds": 1,
-          "reuses": 26
+          "reuses": 28
         }
       },
       "reseal_ladder": {
         "proof_sha256": "d4c9f0384efdbda8e5c7bdc9dcc057dc8999fe6cc5eb621b127b0951639d498d",
         "opened": "2026-10-28T12:24:30",
-        "last_red": "2026-10-28T12:24:30",
-        "passes": 1,
+        "last_red": "2026-10-30T21:48:45",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
         "ruling": null

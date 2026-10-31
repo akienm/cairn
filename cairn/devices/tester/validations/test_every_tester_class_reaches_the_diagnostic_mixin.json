@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_every_tester_class_reaches_the_diagnostic_mixin.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-10-30T21:41:04",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_reads_the_tester_green  — 0 finding(s): \n  PASS  test_the_seal_stays_frozen_and_keeps_its_verdicts\n  PASS  test_the_isolations_reach_the_mixin_and_keep_their_behaviour\n  PASS  test_isolation_imports_fresh\n  PASS  test_the_tester_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_sieve_reads_the_tester_green",
+        "test_the_seal_stays_frozen_and_keeps_its_verdicts",
+        "test_the_isolations_reach_the_mixin_and_keep_their_behaviour",
+        "test_isolation_imports_fresh",
+        "test_the_tester_holds_every_clause_of_the_falsifier"
+      ],
+      "teeth_red": [],
+      "test": "test-ef1b4d38f2ee",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2913012_2139507523_delivery",
+          "bus_proc_2913012_2139507523"
+        ]
+      },
+      "conditions": {
+        "proof": "1b729f87f70fa7143efabdba909a2f0017b8b89412164b23f5e6e7ca57f5f88a",
+        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef1b4d38f2ee",
+      "source_fingerprint": "010a9c8e6d8698406244b33f157494d8125caf0b742ae05306a3054bae053962",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py"
+      ],
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2913798-dkmowqj_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 114672626,
+          "disk_bytes": 144748544,
+          "entries": 11892,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

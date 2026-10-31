@@ -2,12 +2,12 @@
   {
     "claim": "proof test_reseal_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T21:18:28",
+    "date": "2026-10-30T21:47:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        surfaces += sorted((_REPO_ROOT / \"cairn\").rglob(\"shim.py\"))\n        surfaces += [p for p in sorted((_REPO_ROOT / \"cairn\").rglob(\"probes/*.py\"))]\n        surfaces += sorted((_REPO_ROOT / \"cairn\" / \"devices\" / \"cairn\" / \"machines\"\n                            / \"ground_loop\").rglob(\"*.py\"))\n        assert surfaces, \"the grep found no pulse surfaces at all — the tooth measured nothing\"\n    \n        offenders = []\n        for path in surfaces:\n            if \"reseal\" in _code_without_prose(path):\n                offenders.append(str(path.relative_to(_REPO_ROOT)))\n>       assert not offenders, (\n            f\"the reseal door is named on a pulse path: {offenders}. It runs proofs; the beat \"\n            f\"cannot afford it, and the ticket bounds it to pre-commit and a direct call.\")\nE       AssertionError: the reseal door is named on a pulse path: ['cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py']. It runs proofs; the beat cannot afford it, and the ticket bounds it to pre-commit and a direct call.\nE       assert not ['cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py']\n\ntest_reseal_door.py:423: AssertionError\n=========================== short test summary info ============================\nFAILED test_reseal_door.py::test_no_pulse_path_reaches_the_door - AssertionEr...\n1 failed, 8 passed in 0.55s",
+      "stdout_tail": "        surfaces += sorted((_REPO_ROOT / \"cairn\").rglob(\"shim.py\"))\n        surfaces += [p for p in sorted((_REPO_ROOT / \"cairn\").rglob(\"probes/*.py\"))]\n        surfaces += sorted((_REPO_ROOT / \"cairn\" / \"devices\" / \"cairn\" / \"machines\"\n                            / \"ground_loop\").rglob(\"*.py\"))\n        assert surfaces, \"the grep found no pulse surfaces at all — the tooth measured nothing\"\n    \n        offenders = []\n        for path in surfaces:\n            if \"reseal\" in _code_without_prose(path):\n                offenders.append(str(path.relative_to(_REPO_ROOT)))\n>       assert not offenders, (\n            f\"the reseal door is named on a pulse path: {offenders}. It runs proofs; the beat \"\n            f\"cannot afford it, and the ticket bounds it to pre-commit and a direct call.\")\nE       AssertionError: the reseal door is named on a pulse path: ['cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py']. It runs proofs; the beat cannot afford it, and the ticket bounds it to pre-commit and a direct call.\nE       assert not ['cairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py']\n\ntest_reseal_door.py:423: AssertionError\n=========================== short test summary info ============================\nFAILED test_reseal_door.py::test_no_pulse_path_reaches_the_door - AssertionEr...\n1 failed, 8 passed in 0.57s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_component_whose_source_moved_reads_red_with_no_human_act",
@@ -23,7 +23,7 @@
         "test_no_pulse_path_reaches_the_door",
         "test_reseal_door"
       ],
-      "test": "test-7d3e3e7fff93",
+      "test": "test-efb5cdf957f3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -49,8 +49,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7d3e3e7fff93",
-      "source_fingerprint": "1d693e5bd82d3172e3f9b662c3eaf8bf7927a1669887dc3cfc6ef9162fa0e008",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-efb5cdf957f3",
+      "source_fingerprint": "2e6e7b053817c93bd9ddac718095e05ba8f9d31d6e0451af67434e9542451726",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -64,30 +64,30 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1994004-e2seznyz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2913920-olwq1l_v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/trouble/0/20261030.031827.391519.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261030.031827.400027.TroubleDevice.clear.json"
+            "logs/trouble/0/20261031.034703.328153.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261031.034703.337415.TroubleDevice.clear.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 113429653,
-          "disk_bytes": 143081472,
-          "entries": 11722,
+          "bytes": 114677575,
+          "disk_bytes": 144769024,
+          "entries": 11899,
           "builds": 1,
-          "reuses": 37
+          "reuses": 23
         }
       },
       "reseal_ladder": {
         "proof_sha256": "01e3239ea61af57e06e4ccd541a604cab7b3d97ef39632f5b5030f79b7d21bae",
         "opened": "2026-10-28T12:22:23",
-        "last_red": "2026-10-29T21:18:28",
-        "passes": 2,
+        "last_red": "2026-10-30T21:47:04",
+        "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
         "ruling": null

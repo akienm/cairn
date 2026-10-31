@@ -87,7 +87,7 @@ from cairn.tools.base.transitions import (
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.tools.base.validation import standing
 from cairn.tools.system_word import fold
-from cairn.tools.proof_coverage import lacks as coverage_lacks
+from cairn.tools.proof_coverage import declared, lacks as coverage_lacks
 
 # THE TWO ROOTS THE OWNER-READ WALKS, derived from this file's own address rather than
 # taken from a caller. That is not fussiness: the whole point of ticket
@@ -508,6 +508,37 @@ class BoatOwner:
     ticket: dict | None = None
 
 
+def _admitted_by_kind(ticket, boat_id: str, proof: str, read: dict) -> bool:
+    """Whether a proof that is not in proven-space may still be named at BUILDME, by the
+    ticket's kind (outline 19.14.8; ticket 56280fc01410 D3). The kind is read off the ticket,
+    so the rule stays deterministic and asks nothing about who built or who answered.
+
+    x, a code-seam (new or changed code): the proof exists and its PROVES names this ticket,
+    so a red-first proof can be the proof its own BUILDME names.
+    y, a bug (a fixit): the ticket's ``fixes`` lists the proof and its seal is really red on
+    disk. A ticket cannot call itself a fixit to get y (19.14.8.3): a proof never sealed, or
+    sealed green and gone stale, is not a red anyone measured.
+
+    Any other kind, or no ticket to read: False, and rule 2 refuses exactly as before."""
+    if not isinstance(ticket, dict):
+        return False
+
+    def _abs(p) -> str:
+        p = os.path.expanduser(str(p))
+        return os.path.normpath(p if os.path.isabs(p) else os.path.join(CAIRN_ROOT, p))
+
+    path = _abs(proof)
+    kind = fold(str(ticket.get("node_class") or ""))
+    if kind == "code-seam":
+        return os.path.isfile(path) and boat_id in declared(path)
+    if kind == "bug":
+        fixes = ticket.get("fixes")
+        seal = read.get("seal")
+        return (isinstance(fixes, list) and any(_abs(one) == path for one in fixes)
+                and isinstance(seal, dict) and fold(str(seal.get("verdict"))) == "red")
+    return False
+
+
 def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
                   cairn_root: str = CAIRN_ROOT,
                   commons_root: str = COMMONS_ROOT) -> BoatOwner:
@@ -556,6 +587,18 @@ def boat_owner_of(boat_id: str, *, tickets_dir: str = TICKETS_DIR,
             )
     try:
         ticket = json.loads(open(ticket_path, encoding="utf-8").read())
+        # A split ticket keeps its standing keys (node_class, the cursor) in its .state.json
+        # beside the plan; the state's key wins, as ticket_file.read_ticket does (ticket
+        # 56280fc01410 D1). Spelled with the files-only calls this read is held to
+        # (test_clearance.py, test_the_read_reaches_nothing_outward): a crossing must not
+        # depend on anything being up, and a second module's helper would be a second promise.
+        _state = ticket_path[:-len(".json")] + ".state.json"
+        if ticket_path.endswith(".json") and os.path.isfile(_state):
+            _standing = json.loads(open(_state, encoding="utf-8").read())
+            if not isinstance(_standing, dict):
+                raise OwnerUnresolvable(
+                    f"boat {boat_id!r}'s state file at {_state} does not hold an object")
+            ticket = {**ticket, **_standing}
     except (ValueError, OSError) as exc:
         raise OwnerUnresolvable(
             f"boat {boat_id!r}'s ticket at {ticket_path} could not be read: {exc}"
@@ -1403,9 +1446,19 @@ def _decide(
             "proof at all. The harbor clears only onto proven code (Law 8), and a crossing "
             "with nothing in proven_by is a claim about evidence that was never pointed at."
         )
+    #    AT BUILDME THE RULE FOLLOWS THE TICKET'S KIND (outline 19.14.8, Akien 2026-10-31: "for
+    #    new/changed code tickets the rule is x, for fixit tickets the rule is y"). A code-seam
+    #    may name its own red-first proof; a bug may name the red it fixes. Every other
+    #    crossing is unchanged — see _admitted_by_kind.
+    at_buildme = fold(canon_target(parse_workflow(workflow_str), target)) == "buildme"
     proven = None
     for _one in _named:
         _read = standing(_one)
+        if (not _read["proven"] and at_buildme
+                and _admitted_by_kind(owner.ticket, boat_id, _one, _read)):
+            if proven is None:
+                proven = _read
+            continue
         if not _read["proven"]:
             raise Unproven(
                 f"{actor!r} may not move boat {boat_id!r} to {target!r} onto code that is not "
@@ -1484,7 +1537,9 @@ def _decide(
         # reader a year out can go and look at the same evidence the gate looked at rather than
         # taking "it was proven" on the record's word (Law 5 — the proof shares the address).
         proven_by=proven_by,
-        proven_seal_date=proven["seal"]["date"],
+        # A proof admitted at BUILDME by the ticket's kind may never have been sealed; its
+        # witness then has no date, and says so rather than inventing one (56280fc01410).
+        proven_seal_date=(proven["seal"] or {}).get("date"),
         # WAS ``actor != boat_owner``; now "a per-operation grant was spent". The word is
         # kept and the distinction it draws is kept — direct standing vs a capability
         # minted for this one move — which is exactly what transitions.py renders as

@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import importlib
 import sys
-import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -97,14 +96,13 @@ def _world(node_class: str, reads: dict, **ticket):
 
 
 def _cross(c, wf: str, target: str, proven_by):
-    """Ask the gate; return the refusal, or None when it cleared."""
-    with tempfile.TemporaryDirectory() as tmp:
-        try:
-            c.clear(wf, target, actor=_ACTOR, boat_id=_BOAT, proven_by=proven_by,
-                    history_path=str(Path(tmp) / "history.json"),
-                    state_path=str(Path(tmp) / "state.json"))
-        except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
-            return exc
+    """Ask the gate; return the refusal, or None when it cleared. UNJOURNALED on purpose:
+    the chokepoint runs its entry gates only when a crossing has a record to write to, so
+    no history_path means the harbor's rules are the only thing this measures."""
+    try:
+        c.clear(wf, target, actor=_ACTOR, boat_id=_BOAT, proven_by=proven_by)
+    except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
+        return exc
     return None
 
 

@@ -38,6 +38,7 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 PROVES = {"6c9db321d638": {
     "1": "test_a_bus_started_in_a_run_carries_its_test_id",
@@ -139,7 +140,7 @@ def test_a_tester_run_that_starts_a_bus_leaves_no_unit():
         f"assert _show({unit!r}, 'LoadState') == 'loaded', 'no bus unit was started'\n"
         "print('ok   test_fixture_tooth')\n")
     # The tester is reached only through its interface, bin/cairn test (45c168cc1ff1).
-    r = subprocess.run([str(ROOT / "bin" / "cairn"), "test", str(proof)],
+    r = subprocess.run([*bash_script_argv(ROOT / "bin" / "cairn"), "test", str(proof)],
                        capture_output=True, text=True, timeout=300)
     assert r.returncode == 0 and f"  green  {proof}" in r.stdout.splitlines(), r.stdout + r.stderr
     assert _gone(unit), f"{unit} outlived the run: {_show(unit, 'ActiveState')!r}"

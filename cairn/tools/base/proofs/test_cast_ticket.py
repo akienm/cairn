@@ -34,6 +34,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 PROVES = {
     "23089d52d805": {
@@ -225,7 +226,7 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     # hollow reading named it HOLLOW while no tooth fired it (2026-09-18).
     import subprocess
     shim = REPO / "bin" / "cmd" / "cast"
-    run = subprocess.run([str(shim), "--sweep", str(commons)], capture_output=True, text=True,
+    run = subprocess.run([*bash_script_argv(shim), "--sweep", str(commons)], capture_output=True, text=True,
                          timeout=120, cwd=str(REPO))
     try:
         via_shim = json.loads(run.stdout)
@@ -237,7 +238,7 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     empty = tmp / "empty_fields.json"
     empty.write_text("{}\n", encoding="utf-8")
     files_before = sorted(p.name for p in tickets.iterdir())
-    run = subprocess.run([str(shim), str(empty), "--actor", "proof"], capture_output=True,
+    run = subprocess.run([*bash_script_argv(shim), str(empty), "--actor", "proof"], capture_output=True,
                          text=True, timeout=120, cwd=str(REPO))
     check("bin/cmd/cast refuses an empty cast on stderr with exit 1 and writes nothing",
           run.returncode == 1 and "15 lacks" in run.stderr and "Nothing was written" in run.stderr

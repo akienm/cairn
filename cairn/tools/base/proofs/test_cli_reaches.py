@@ -10,6 +10,9 @@ import sys
 import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN_BIN = os.path.join(REPO_ROOT, "bin", "cairn")
 DEVICES_DIR = os.path.join(REPO_ROOT, "cairn", "devices")
 INSTANCE_ROOT = os.path.expanduser("~/.cairn/devices")
@@ -74,7 +77,7 @@ class TestCairnDeviceResolves:
         failures = []
         for dev in shimmed:
             result = subprocess.run(
-                [CAIRN_BIN, dev],
+                [*bash_script_argv(CAIRN_BIN), dev],
                 capture_output=True, text=True, timeout=30,
                 env={**os.environ, "PYTHONPATH": REPO_ROOT},
             )
@@ -86,7 +89,7 @@ class TestCairnDeviceResolves:
         wrong = []
         for dev in shimmed:
             result = subprocess.run(
-                [CAIRN_BIN, dev],
+                [*bash_script_argv(CAIRN_BIN), dev],
                 capture_output=True, text=True, timeout=30,
                 env={**os.environ, "PYTHONPATH": REPO_ROOT},
             )
@@ -99,14 +102,14 @@ class TestCairnDeviceResolves:
 
     def test_nonexistent_device_fails(self):
         result = subprocess.run(
-            [CAIRN_BIN, "nonexistent_device_xyz"],
+            [*bash_script_argv(CAIRN_BIN), "nonexistent_device_xyz"],
             capture_output=True, text=True, timeout=10,
         )
         assert result.returncode != 0, "nonexistent device should fail"
 
     def test_dispatcher_lists_all_shimmed(self, shimmed):
         result = subprocess.run(
-            [CAIRN_BIN, "no_such_device_trigger_usage"],
+            [*bash_script_argv(CAIRN_BIN), "no_such_device_trigger_usage"],
             capture_output=True, text=True, timeout=10,
         )
         listed = result.stderr

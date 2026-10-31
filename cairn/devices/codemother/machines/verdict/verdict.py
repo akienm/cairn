@@ -73,6 +73,7 @@ import shutil
 import subprocess
 import time
 
+from cairn.tools.base.script_argv import bash_script_argv
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, inspected, lacks_of, ticket_claim_error, ticket_path)
 from cairn.tools.chain.chain import (
@@ -240,7 +241,7 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
     words — and nothing else is forked, since running anyway is the leak this closes."""
     started = time.time()
     try:
-        done = subprocess.run([os.path.join(CAIRN_ROOT, "bin", "cairn"), "test", "--exec",
+        done = subprocess.run([*bash_script_argv(os.path.join(CAIRN_ROOT, "bin", "cairn")), "test", "--exec",
                                command, "--timeout", str(timeout_s)], cwd=cwd,
                               capture_output=True, text=True, timeout=timeout_s + 120)
     except subprocess.TimeoutExpired as exc:

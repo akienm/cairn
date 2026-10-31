@@ -49,6 +49,8 @@ sys.path.insert(0, str(_REPO_ROOT))
 from cairn.devices.codemother.machines.verdict import verdict as _verdict  # noqa: E402
 
 _CAIRN = str(_REPO_ROOT / "bin" / "cairn")
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+_CAIRN_ARGV = bash_script_argv(_CAIRN)
 _LIVE = Path.home() / ".cairn"
 _MARKER = "CAIRN_TESTER_INSTANCE_SEALED"
 _RUN_ID = "CAIRN_TESTER_TEST_ID"
@@ -126,10 +128,10 @@ rec = v.run_instrument("touch verdict-proof-fixture", timeout_s=30, cwd="/tmp")
 print(json.dumps({"seen": seen, "rec": rec}))
 ''')
     assert got["seen"], f"run_instrument forked nothing: {got}"
-    assert all(a[:3] == [_CAIRN, "test", "--exec"] for a in got["seen"]), \
+    assert all(a[:len(_CAIRN_ARGV) + 2] == [*_CAIRN_ARGV, "test", "--exec"] for a in got["seen"]), \
         f"an instrument was forked somewhere other than {_CAIRN} test --exec: {got['seen']}"
     argv = got["seen"][-1]
-    assert argv == [_CAIRN, "test", "--exec", "touch verdict-proof-fixture", "--timeout", "30"], \
+    assert argv == [*_CAIRN_ARGV, "test", "--exec", "touch verdict-proof-fixture", "--timeout", "30"], \
         f"the instrument or its bound was altered on the way to the seal: {argv}"
 
 

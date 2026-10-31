@@ -1909,6 +1909,11 @@ class _CountingModuleRaiser(_SandboxedModuleRaiser):
 def _fixme_world_ticket(tid: str) -> Path:
     tickets = _journal_world() / "commons" / "tickets"
     tickets.mkdir(parents=True, exist_ok=True)
+    # The store charter rides beside the plan: a hollow worktree has no commons beside it, and
+    # the ticket write reads its declared field sets from this file.
+    live = (_tfile._TICKETS if _tfile._TICKETS.is_dir()
+            else Path.home() / "dev" / "src" / "CairnCommons" / "tickets")
+    (tickets / "_charter+why.json").write_bytes((live / "_charter+why.json").read_bytes())
     path = tickets / f"{tid}-a-fixture-boat-refused-at-proved.json"
     path.write_text(json.dumps({"id": tid, "workflow_and_state": _FIXME_WF, "decisions": []},
                                indent=2) + "\n", encoding="utf-8")

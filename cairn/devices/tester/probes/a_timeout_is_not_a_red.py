@@ -36,6 +36,7 @@ import json
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+from cairn.tools.base.address import log_path
 from cairn.tools.base.probe import Probe, once, owning_ticket
 
 _OWNING_TICKET = "3dfceaa272ec"
@@ -46,7 +47,7 @@ _CLASS_SPACE = Path(__file__).resolve().parents[4]
 # walked class-space alone would be blind to part of the population.
 _COMMONS = _CLASS_SPACE.parent / "CairnCommons"
 # The tester's own trail: one JSON per run_proof, written by DiagnosticBase.emit.
-_TRAIL = Path.home() / ".cairn" / "logs" / "tester" / "0"
+_TRAIL = log_path("tester")
 
 # MEASURED 2026-10-18 AT ARMING, across both roots: 0 standing red validations whose stderr_tail
 # begins 'timed out after', 0 persisted at verdict timeout. Carried as CONTEXT, never asserted.

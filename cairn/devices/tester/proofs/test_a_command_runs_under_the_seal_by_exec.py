@@ -40,6 +40,8 @@ PROOF_TIMEOUT_S = 300
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+
 _CAIRN = _REPO_ROOT / "bin" / "cairn"
 _CHARTER = _REPO_ROOT / "cairn" / "devices" / "tester" / "intention+why.json"
 _LIVE = Path.home() / ".cairn"
@@ -55,7 +57,7 @@ PROVES = {"2c9eeab2da87": {
 
 
 def _exec(command: str, *extra: str) -> subprocess.CompletedProcess:
-    return subprocess.run([str(_CAIRN), "test", "--exec", command, *extra],
+    return subprocess.run([*bash_script_argv(_CAIRN), "test", "--exec", command, *extra],
                           capture_output=True, text=True, timeout=240, cwd=str(_REPO_ROOT))
 
 

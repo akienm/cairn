@@ -74,6 +74,10 @@ PROVES = {
     "45000a1642cb": {
         "all": "test_a_record_a_named_proof_reads_is_reverted_and_its_tooth_watched",
     },
+    "1d23d635f7ca": {
+        "1": "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
+        "2": "test_the_live_subject_is_the_newest_qualifying_proved_ticket",
+    },
 }
 
 FIXTURE = "f1x7u2e00001"

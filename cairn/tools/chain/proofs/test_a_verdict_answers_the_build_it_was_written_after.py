@@ -40,7 +40,8 @@ PROVES = {
 }
 
 T = "2026-10-01T12:00:00"
-LIVE_6890 = "/home/akien/.cairn/devices/chart/0/packets/verdict-20260902T053326-61dcf9791245.json"
+LIVE_6890 = str(Path(os.environ.get("CAIRN_INSTANCE_ROOT") or Path.home() / ".cairn")
+                / "devices/chart/0/packets/verdict-20260902T053326-61dcf9791245.json")
 
 _ANSWER = {
     "verdicts": [{"claim": "c1", "instrument": "cmd", "outcome": "pass",

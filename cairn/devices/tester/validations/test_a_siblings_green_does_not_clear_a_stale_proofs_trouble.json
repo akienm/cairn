@@ -2,22 +2,20 @@
   {
     "claim": "proof test_a_siblings_green_does_not_clear_a_stale_proofs_trouble.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-18T16:26:49",
+    "date": "2026-10-30T19:53:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT\n                                                                      [100%]\n=================================== FAILURES ===================================\n________ test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED ________\n\n    def test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED():\n        _, fast, slow = _both_sealed_then_code_moves()\n        raiser = _Raiser()\n        timed = reseal(slow, tester=_Tester(RED, timed_out=True), raiser=raiser)\n>       assert timed[\"outcome\"] == \"timeout\", timed\nE       AssertionError: {'proof': '/tmp/sibling-green-fixture-scratch.4026531836-446185-geieu6a0/widget/proofs/test_slow.py', 'outcome': 'red', 'rung': 3, 'ran': True, ...}\nE       assert 'red' == 'timeout'\nE         \nE         - timeout\nE         + red\n\ntest_a_siblings_green_does_not_clear_a_stale_proofs_trouble.py:117: AssertionError\n=========================== short test summary info ============================\nFAILED test_a_siblings_green_does_not_clear_a_stale_proofs_trouble.py::test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED\n1 failed, 2 passed in 0.12s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED\n.\n  ok   test_the_green_that_leaves_no_stale_sibling_CLEARS\n.\n  ok   test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT\n                                                                      [100%]\n3 passed in 0.16s",
       "stderr_tail": "",
       "teeth_green": [
+        "test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED",
         "test_the_green_that_leaves_no_stale_sibling_CLEARS",
         "test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT"
       ],
-      "teeth_red": [
-        "test_a_siblings_green_leaves_a_timed_out_proofs_trouble_RAISED",
-        "test_a_siblings_green_does_not_clear_a_stale_proofs_trouble"
-      ],
-      "test": "test-3e3ee0adb970",
+      "teeth_red": [],
+      "test": "test-8a3893dc8d5c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9bb31d3a8f88e43f6f7bfce53195c80530a5b5da4296947c9d015aef6c57b9d7",
+        "proof": "4b28d85d50037b0b1c255e04f16525691a1cfa09d9094fafc34f9f2d1b775c11",
         "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,13 +36,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e3ee0adb970",
-      "source_fingerprint": "bbd020588f39db53a33d2093ece5439aaeb866a220619731966f4633e42c9f87",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a3893dc8d5c",
+      "source_fingerprint": "4c4415156fc3f410633a2c90bce6450cbcf2b273f03c804e95a0ab2a589ef62d",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -58,7 +57,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-445376-b0h7nw_s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2797752-0xfpzk3q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,21 +66,32 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111216341,
-          "disk_bytes": 139452416,
-          "entries": 11169,
+          "bytes": 114325214,
+          "disk_bytes": 144216064,
+          "entries": 11821,
           "builds": 1,
-          "reuses": 11
+          "reuses": 2
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "open-64cfb7b5c07f",
+      "reseal_closed": {
         "proof_sha256": "9bb31d3a8f88e43f6f7bfce53195c80530a5b5da4296947c9d015aef6c57b9d7",
         "opened": "2026-10-18T16:26:49",
         "last_red": "2026-10-18T16:26:49",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-10-30T19:53:56",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "4b28d85d50037b0b1c255e04f16525691a1cfa09d9094fafc34f9f2d1b775c11"
+      },
+      "conditions_moved": {
+        "notified": "n-2754402f22de",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -59,6 +59,13 @@ _BOAT = "kindrule000a"
 _SCRATCH = Path(scratch_dir("proven-space-kind-"))
 
 
+def _commons() -> Path:
+    """The commons beside this tree, else the home checkout: hollow's worktree has none beside
+    it, and every read of the class table or the ticket store goes through this."""
+    beside = _REPO_ROOT.parent / "CairnCommons"
+    return beside if beside.is_dir() else Path.home() / "dev" / "src" / "CairnCommons"
+
+
 def _c():
     return importlib.import_module("cairn.devices.cairn.machines.harbor_master.clearance")
 
@@ -86,13 +93,16 @@ def _world(node_class: str, reads: dict, **ticket):
     c = _c()
     owner = c.BoatOwner(intention="thing/intention+why.json", hands=(_ACTOR,),
                         ticket={"id": _BOAT, "node_class": node_class, **ticket})
-    real_owner, real_standing = c.boat_owner_of, c.standing
+    t = importlib.import_module("cairn.tools.base.transitions")
+    real_owner, real_standing, real_load = c.boat_owner_of, c.standing, t.load_class_def
     c.boat_owner_of = lambda *a, **k: owner
     c.standing = lambda p: reads.get(str(p), _read("none"))
+    t.load_class_def = lambda name, *, root=None: real_load(
+        name, root=root if root is not None and Path(root).is_dir() else _commons() / "node_classes")
     try:
         yield c
     finally:
-        c.boat_owner_of, c.standing = real_owner, real_standing
+        c.boat_owner_of, c.standing, t.load_class_def = real_owner, real_standing, real_load
 
 
 def _cross(c, wf: str, target: str, proven_by):
@@ -159,11 +169,12 @@ def test_every_other_crossing_still_demands_proven_space():
 
 def test_the_owner_read_carries_the_state_files_kind():
     from cairn.tools.base import ticket_file
-    tickets = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+    tickets = _commons() / "tickets"
     plan = next(p for p in sorted(tickets.glob(f"{_TID}-*.json"))
                 if not p.name.endswith(".state.json"))
     want = ticket_file.read_ticket(plan).get("node_class")
-    got = (_c().boat_owner_of(_TID).ticket or {}).get("node_class")
+    got = (_c().boat_owner_of(_TID, tickets_dir=str(tickets),
+                              commons_root=str(_commons())).ticket or {}).get("node_class")
     assert want and got == want, f"the owner read carries node_class {got!r}; the ticket says {want!r}"
 
 

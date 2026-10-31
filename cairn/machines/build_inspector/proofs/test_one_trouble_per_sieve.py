@@ -31,10 +31,11 @@ teeth rather than an import that never ran.
 """
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 
 class _Late:
@@ -139,7 +140,7 @@ def every_run_raises_the_same_identity():
 
 
 def the_standing_set_is_per_sieve():
-    d = Path(tempfile.mkdtemp(prefix="cairn-proof-one-trouble-baseline-"))
+    d = scratch_dir("cairn-proof-one-trouble-baseline-")
     bp = d / "finding_baseline.json"
     bp.write_text(json.dumps({"known": [], "updated": "2026-10-18"}), encoding="utf-8")
     still = _inspector._standing_finding_ids(_FINDINGS, baseline_path=bp)
@@ -149,7 +150,7 @@ def the_standing_set_is_per_sieve():
 
 def the_old_fan_out_clears():
     old = "inspector-new-finding-proof-sieve-alpha-devices-one"
-    bp = Path(tempfile.mkdtemp(prefix="cairn-proof-one-trouble-bp-")) / "none.json"
+    bp = scratch_dir("cairn-proof-one-trouble-bp-") / "none.json"
 
     def reconcile(mod):
         real_bp = mod._BASELINE_PATH

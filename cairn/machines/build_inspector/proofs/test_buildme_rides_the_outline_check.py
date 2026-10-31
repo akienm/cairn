@@ -21,11 +21,12 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
     "c66b25d122e6": {
@@ -49,7 +50,7 @@ class _World:
     def __init__(self):
         from cairn.tools.artifact import artifact as door
         self.door = door
-        self.dir = Path(tempfile.mkdtemp(prefix="outline-lane-proof-"))
+        self.dir = scratch_dir("outline-lane-proof-")
         self.commons = self.dir / "CairnCommons"
         self.cairn = self.dir / "cairn"
         (self.commons / "tickets").mkdir(parents=True)

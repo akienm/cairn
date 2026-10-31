@@ -26,12 +26,13 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
+from cairn.tools.scratch.scratch import scratch_dir
 
 # The falsifier reads as one clause ('all'); T3 is the tooth the hollow build reds, and T1/T2
 # are the same verdict's other two callers.
@@ -42,8 +43,8 @@ PROVES = {"25ee4866642e": {
 FAILURES: list[str] = []
 
 SUBJECT = r'''
-import os, subprocess, sys, tempfile
-d = tempfile.mkdtemp(prefix="cairn-proof-gitenv-subject-")
+import os, subprocess, sys
+d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "subject-repo"); os.makedirs(d)
 def g(*a):
     return subprocess.run(["git", "-C", d, *a], capture_output=True, text=True)
 r = g("init", "-q")
@@ -78,7 +79,7 @@ def _clean_env() -> dict:
 
 def _run(mode: str) -> tuple[int | None, str]:
     """The subject's exit code when called ``mode``: 'bare', 'plain' or 'paths'."""
-    work = Path(tempfile.mkdtemp(prefix="cairn-proof-gitenv-outer-"))
+    work = Path(scratch_dir("cairn-proof-gitenv-outer-"))
     try:
         subject = work / "subject.py"
         subject.write_text(SUBJECT)

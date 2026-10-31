@@ -78,6 +78,9 @@ PROVES = {
         "3": "test_a_fixture_refusal_WRITES_NOTHING_LIVE",
         "4": "test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered",
     },
+    "44cc43080f93": {
+        "all": "test_a_refused_boat_has_its_fixme_list_WRITTEN_ONCE",
+    },
 }
 
 from cairn.tools.base.transitions import IllegalTransition

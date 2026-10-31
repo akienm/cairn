@@ -85,6 +85,7 @@ from pathlib import Path
 from cairn.tools.base.transitions import (
     canon_target, emit, parse_workflow, resolve_target)
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.validation import standing
 from cairn.tools.system_word import fold
 from cairn.tools.proof_coverage import declared, lacks as coverage_lacks
@@ -838,7 +839,7 @@ def hollow_lacks(ticket: dict, named, *, repo_root=None, seal_reader=None,
 
 
 @dataclass(frozen=True)
-class Riders:
+class Riders(DiagnosticBase):
     """Who is riding one intention right now — and, inseparably, what the read COULD NOT SEE.
 
     The four blind fields are not diagnostics hung off the side of the answer; they are half
@@ -986,7 +987,7 @@ def _resolved_charter(addr: str, *, cairn_root: str, commons_root: str) -> str |
 
 
 @dataclass(frozen=True)
-class Grant:
+class Grant(DiagnosticBase):
     """A per-operation delegation: the owner authorizes ONE actor to make ONE transition on
     ONE boat, WITHIN A WINDOW. Frozen and specific by construction — it cannot be widened after
     minting, and it authorizes nothing but the exact (boat, target, actor) it names, for as long

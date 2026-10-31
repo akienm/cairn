@@ -45,6 +45,8 @@ PROVES = {
 # path (a hollow worktree in /tmp has no commons beside it).
 _COMMONS_CLASSES = (transitions._NODE_CLASSES if transitions._NODE_CLASSES.is_dir()
                     else Path.home() / "dev" / "src" / "CairnCommons" / "node_classes")
+_COMMONS_TICKETS = (ticket_file._TICKETS if ticket_file._TICKETS.is_dir()
+                    else Path.home() / "dev" / "src" / "CairnCommons" / "tickets")
 _AT_PROVEME = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
 _TID = "a0fixme0hand"
 
@@ -69,6 +71,9 @@ def _kick_back(**flag) -> tuple[dict, list[dict]]:
     from cairn.tools.base.transitions import emit
     from cairn.tools.charter import projector
     tickets = scratch_dir("hand_kickback_fixture_tickets_")
+    # The store charter rides beside the plan, so the write never reaches for a commons the
+    # hollow worktree does not have.
+    (tickets / "_charter+why.json").write_bytes((_COMMONS_TICKETS / "_charter+why.json").read_bytes())
     plan = tickets / f"{_TID}-a-fixture-boat-kicked-back-by-hand.json"
     plan.write_text(json.dumps({"id": _TID, "workflow_and_state": _AT_PROVEME,
                                 "fixme": [{"n": 1, "kind": "old", "missing": "stale"}]},

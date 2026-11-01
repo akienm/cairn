@@ -10,6 +10,13 @@ unreachable for every decision made after the store froze.
 The question records here are fixtures in a scratch root, written as plain JSON: they are the
 shape ``cairn.tools.question.question.answer`` writes, and the proof reads them back through
 that tool's declared interface, never through its door (which would link a real ticket).
+
+CHANGED 2026-10-31 under ticket e8be83a46ea9 (outline 19.14.8.3: "rung 4 no longer asks who
+answered"). Tooth 2 asserted a question answered by measurement was refused; that is now the
+opposite of the spec, so the measured case moved to the new proof's tooth 6
+(test_rung_4_follows_the_ticket_kind.py, test_a_measured_answer_lifts_rung_4) and asserts it
+lifts. Tooth 2 keeps what still holds — an open or an unknown question does not lift — and the
+tooth it replaced, test_an_open_a_measured_or_an_unknown_question_does_not, is removed.
 """
 from __future__ import annotations
 
@@ -27,7 +34,7 @@ from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: 
 PROVES = {
     "37ddc47686c2": {
         "1": "test_a_question_akien_answered_lifts_rung_4",
-        "2": "test_an_open_a_measured_or_an_unknown_question_does_not",
+        "2": "test_an_open_or_an_unknown_question_does_not",
         "3": "test_a_confirmed_legacy_ruling_still_lifts_it",
     },
 }
@@ -53,12 +60,10 @@ def test_a_question_akien_answered_lifts_rung_4():
     assert ruling_refusal(qid, question_root=root) is None
 
 
-def test_an_open_a_measured_or_an_unknown_question_does_not():
+def test_an_open_or_an_unknown_question_does_not():
     root = scratch_dir("cairn-rung4-")
     still_open = _question(root, "open-f1x7a0000002", resolved=False, answered_by=None)
-    measured = _question(root, "open-f1x7a0000003", resolved=True,
-                         answered_by="measurement: /tmp/x.json, recorded by caller class cc")
-    for qid in (still_open, measured, "open-f1x7a0000404"):
+    for qid in (still_open, "open-f1x7a0000404"):
         why = ruling_refusal(qid, question_root=root)
         assert isinstance(why, str) and why.strip(), (qid, why)
         assert qid in why, f"the refusal must name the id it read: {why}"

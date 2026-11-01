@@ -17,7 +17,9 @@ bytes, so it stays deterministic; a hollow build fails at least one:
   (4) x: a code-seam lifts rung 4 when its proof's PROVES names it, and is refused when not;
   (5) 19.14.8.3, a ticket cannot call itself a fixit: another kind, or an id resolving to no
       ticket, is refused;
-  (6) a resolved question lifts rung 4 whoever answered it, measurement included.
+  (6) a resolved question lifts rung 4 whoever answered it, measurement included;
+  (7) ``cairn test --help`` tells the operator a ticket id is accepted, and no longer says the
+      id is Akien's alone.
 
 The world is a scratch git repo holding one component whose proof was committed, sealed red
 under an open ladder bound to those committed bytes, then edited. Fixture tickets are plain
@@ -51,6 +53,7 @@ PROVES = {
         "4": "test_a_code_seam_lifts_rung_4_only_when_its_proof_names_it",
         "5": "test_another_kind_or_an_unknown_ticket_is_refused",
         "6": "test_a_measured_answer_lifts_rung_4",
+        "7": "test_the_ruling_flag_names_a_ticket_and_not_who_answered",
     },
 }
 
@@ -161,6 +164,21 @@ def test_a_measured_answer_lifts_rung_4():
         "answered_at": "2026-10-31T09:00:00", "spawned": []}), encoding="utf-8")
     got = ruling_refusal(qid, question_root=root)
     assert got is None, f"rung 4 no longer asks who answered: {got!r}"
+
+
+def test_the_ruling_flag_names_a_ticket_and_not_who_answered():
+    import contextlib
+    import io
+    from cairn.devices.tester.cli import main
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        try:
+            main(["--help"])
+        except SystemExit:
+            pass
+    text = " ".join(out.getvalue().split())
+    assert "12-hex ticket" in text, f"--ruling's help must say a ticket id is accepted: {text[-800:]!r}"
+    assert "Akien's alone" not in text, "--ruling's help must no longer say the id is Akien's alone"
 
 
 if __name__ == "__main__":

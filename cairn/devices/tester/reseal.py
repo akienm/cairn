@@ -198,9 +198,9 @@ def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str 
 
     Two stores, one per era. An ``open-`` id is a question (ticket 9adc6fddf185: since
     2026-09-14 a decision IS an answered question), read through the question tool's declared
-    interface, and it lifts rung 4 only when resolved with ``answered_by`` in his name — an
-    answer by measurement settles what IS, and a proof's claim changing is what SHOULD BE,
-    which is his (Law 9). Any other id is a legacy ruling in the frozen decisions/ store,
+    interface, and it lifts rung 4 when it is resolved, whoever answered it: outline 19.14.8.3
+    (Akien, 2026-10-31) — *"rung 4 no longer asks who answered"* (ticket e8be83a46ea9; until
+    then a measured answer was refused for not being his). Any other id is a legacy ruling in the frozen decisions/ store,
     which must be CONFIRMED (ticket 37ddc47686c2). ``question_root`` points the question read
     at a scratch store for a proof; ``None`` is the live one.
 
@@ -223,11 +223,7 @@ def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str 
             return (f"no question {ruling_id!r} exists — rung 4 is Akien's, and an id that "
                     f"resolves to nothing is a paragraph wearing an id")
         if not record.get("resolved"):
-            return f"question {ruling_id!r} is still open — rung 4 waits on his answer"
-        if not str(record.get("answered_by") or "").startswith("Akien"):
-            return (f"question {ruling_id!r} was answered by {record.get('answered_by')!r}, "
-                    f"not by Akien — a proof's claim changing is a spec change, and the spec "
-                    f"is his")
+            return f"question {ruling_id!r} is still open — rung 4 waits on its answer"
         return None
     for record in ruling_mod.load_all():
         if record.get("id") != ruling_id:
@@ -305,7 +301,98 @@ def proofs_touching(staged: list[str], *, root: Path | None = None,
     return out
 
 
-def rung4_refusal(proof_path, ruling_id: str | None) -> str | None:
+_TICKET_ID = re.compile(r"[0-9a-f]{12}")
+
+
+def _teeth(source) -> set[str]:
+    """The top-level ``def test_*`` names in a proof's source; an unparseable one has none."""
+    import ast
+    try:
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return set()
+    return {n.name for n in tree.body
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith("test_")}
+
+
+def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
+    """The committed bytes of ``proof`` whose sha256 is ``sha`` — the file the ladder bounded
+    the repair to — or ``None`` when git holds no such blob of it.
+
+    The ladder stores only the hash, and git already holds the bytes, so the teeth a moved
+    proof removed are read back from history rather than stored twice. The caller's GIT_*
+    is dropped (a pre-commit hook carries GIT_INDEX_FILE and friends), so the repo asked is
+    the one the proof sits in."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+
+    def git(*args: str, cwd: Path, text: bool = True):
+        return subprocess.run(["git", "-C", str(cwd), *args], capture_output=True, text=text, env=env)
+
+    top = git("rev-parse", "--show-toplevel", cwd=proof.parent)
+    if top.returncode != 0:
+        return None
+    root = Path(top.stdout.strip())
+    try:
+        rel = proof.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return None
+    log = git("log", "--format=%H", "--", rel, cwd=root)
+    if log.returncode != 0:
+        return None
+    for commit in log.stdout.split():
+        blob = git("show", f"{commit}:{rel}", cwd=root, text=False)
+        if blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == sha:
+            return blob.stdout
+    return None
+
+
+def _ticket_refusal(proof: Path, tid: str, ladder: dict, *, tickets_dir=None) -> str | None:
+    """``None`` when ticket ``tid``'s kind admits the change to ``proof``; else why not.
+
+    OUTLINE 19.14.8.2-3 (Akien, 2026-10-31): *"for new/changed code tickets the rule is x, for
+    fixit tickets the rule is y"*, and *"the fix may change the test case itself without a
+    ruling: the proof's why names the ticket and says what it tests and why it changed, and
+    names any tooth it removed."* Read off the ticket and the bytes, so it stays deterministic:
+    y — a bug whose ``fixes`` lists this proof (the ladder being open is the real red on disk:
+    ``read_ladder`` reads only a non-green seal); x — a code-seam whose proof's PROVES names it.
+    Then, for both, the proof names the ticket and every tooth it removed since the bytes the
+    ladder bounded. A ticket cannot call itself a fixit to get y: the kind and ``fixes`` are
+    read here, never claimed in the act. Ticket e8be83a46ea9."""
+    from cairn.tools.base.ticket_file import find_ticket, read_ticket
+    from cairn.tools.proof_coverage.proof_coverage import declared
+
+    plan = find_ticket(tid, tickets_dir)
+    if plan is None:
+        return f"no ticket {tid!r} — a ticket id that resolves to nothing is a paragraph wearing an id"
+    ticket = read_ticket(plan)
+    kind = str(ticket.get("node_class") or "").strip().lower()
+    if kind == "code-seam":
+        if tid not in declared(proof):
+            return (f"ticket {tid} is a code-seam and the proof's PROVES does not name it (x: "
+                    f"a code-seam changes a proof it declares)")
+    elif kind == "bug":
+        fixes = ticket.get("fixes")
+        here = proof.resolve()
+        if not (isinstance(fixes, list) and any(
+                (Path(f) if Path(str(f)).is_absolute() else REPO_ROOT / str(f)).resolve() == here
+                for f in fixes)):
+            return f"ticket {tid} is a bug and its fixes does not list {_rel(proof)} (y: a fixit names the red it fixes)"
+    else:
+        return f"ticket {tid} is a {kind or 'kindless'} ticket; rung 4 admits a code-seam (x) or a bug (y)"
+    now_text = proof.read_text(encoding="utf-8")
+    if tid not in now_text:
+        return f"the proof does not name ticket {tid} — its why names the ticket that changed it"
+    old = _recorded_bytes(proof, ladder.get("proof_sha256") or "")
+    if old is None:
+        return (f"git holds no blob of {_rel(proof)} hashing {ladder.get('proof_sha256')}, so "
+                f"the teeth ticket {tid} removed cannot be measured")
+    for name in sorted(_teeth(old) - _teeth(now_text)):
+        if name not in now_text:
+            return f"ticket {tid} removed tooth {name} and the proof does not name it"
+    return None
+
+
+def rung4_refusal(proof_path, ruling_id: str | None, *, tickets_dir=None) -> str | None:
     """``None`` when rung 4 lets a seal land on this proof; else the refusal, naming the proof.
 
     ONE GATE FOR BOTH SEAL WRITERS (ticket 2dd69b2ba087). Measured 2026-10-08 on
@@ -317,14 +404,18 @@ def rung4_refusal(proof_path, ruling_id: str | None) -> str | None:
     now_hash = proof_sha256(proof)
     if not (ladder and ladder.get("proof_sha256") and ladder["proof_sha256"] != now_hash):
         return None
-    why = ruling_refusal(ruling_id or "")
+    if _TICKET_ID.fullmatch(ruling_id or ""):
+        why = _ticket_refusal(proof, ruling_id, ladder, tickets_dir=tickets_dir)
+    else:
+        why = ruling_refusal(ruling_id or "")
     if why is None:
         return None
     return (f"{_rel(proof)}: the ladder opened {ladder.get('opened')} bounded the repair to a "
             f"proof file hashing {ladder['proof_sha256']}, and the file on disk now hashes "
             f"{now_hash}. The assertions moved, so this is not a repair — it is 'the "
-            f"proof's claim no longer matches the spec', which is a RULING and Akien's "
-            f"alone (ruling 2026-09-06-a-seal-that-cannot-be-reproven-is-red-then-repaired-"
+            f"proof's claim no longer matches the spec', which needs a resolved question, a "
+            f"confirmed ruling, or a ticket whose kind admits the change (outline 19.14.8; "
+            f"ruling 2026-09-06-a-seal-that-cannot-be-reproven-is-red-then-repaired-"
             f"then-a-trouble-then-design). Refused: {why}. The component stays red until "
             f"it is reproven under one.")
 

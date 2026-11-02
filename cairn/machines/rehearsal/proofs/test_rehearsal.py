@@ -19,9 +19,13 @@ The teeth, each against the charter's falsifier:
   3. with the gap answered as a decision line (``decide``, journaled ``cast``) the next pass
      returns zero gaps and writes a CLEAN record (journaled ``rehearse``) the ticket points
      at, whose ticket_sha256 equals the live bytes (D8 as amended);
-  4. the sieve ``buildme_rides_the_rehearsal`` reds a ticket without a rehearsal, reds a
-     ticket edited after its rehearsal — by name — and reads a clean current one green; the
-     entry gate lists five lanes, the fifth ``the_ticket_rehearses_clean``;
+  4. the sieve ``buildme_rides_the_rehearsal`` reds a ticket no rehearsal has run over (a
+     ran:false record alone included), reds a ticket edited after its rehearsal — by name —
+     and reads a current record green, clean or not (ticket 5f2e99bff577, Akien 2026-11-01:
+     a clean rehearsal is the aim, not the minimum; the tooth renamed from
+     test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green);
+     the entry gate lists six lanes, the fifth ``the_ticket_was_rehearsed`` (renamed from
+     the_ticket_rehearses_clean by the same ticket);
   5. the sixth pass opens ONE question naming the standing gaps and reads nothing (D11);
   6. the prompt asserts the reader's job (a build simulator, c9897770efe6) and that stopped is
      a legal answer; schema.json and ``validate`` agree over the schema's own vocabulary;
@@ -80,7 +84,7 @@ PROVES = {
     "cf80bdb57205": {
         "1": "test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read",
         "2": "test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes",
-        "3": "test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green",
+        "3": "test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green",
         "4": "test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirrors_validate",
         "5": "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
         "6": "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
@@ -92,6 +96,12 @@ PROVES = {
         "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
         "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
         "skill": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
+    },
+    # ticket 5f2e99bff577 (Akien 2026-11-01): the lane needs a rehearsal recorded, clean or not
+    "5f2e99bff577": {
+        "1": "test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green",
+        "2": "test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal",
+        "3": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
     },
 }
 TID = "0badc0ffee01"
@@ -319,19 +329,27 @@ def test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record
 
 # 4 ------------------------------------------------------------------------
 
-def test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green():
+def test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green():
+    """Ticket 5f2e99bff577 (Akien 2026-11-01: a clean rehearsal is "what we're aiming for not the
+    minimum requirement"): the lane needs a rehearsal RECORDED over the live design, clean or not,
+    and the gaps stay on the record. This tooth replaces the removed
+    test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green, which
+    asserted an unclean pass points nothing and a pointer at an unclean record reds."""
     from cairn.machines.build_inspector.inspector import buildme_rides_the_rehearsal as sieve
     w = World()
     try:
         f = sieve(TID, root=w.commons)
         assert len(f) == 1 and f[0]["method"] == "buildme_rides_the_rehearsal", f
         v = f[0]["values"]
-        assert "no rehearsal pointer" in v["lack"] and f"cairn rehearse {TID}" == v["rehearse_with"], f[0]
+        assert "no rehearsal has run" in v["lack"] and f"cairn rehearse {TID}" == v["rehearse_with"], f[0]
         R.rehearse(TID, reader=Stub(GAPPY_TREES), **_kw(w))
-        f = sieve(TID, root=w.commons)
-        assert len(f) == 1 and "no rehearsal pointer" in f[0]["values"]["lack"], "an unclean pass points nothing"
+        assert sieve(TID, root=w.commons) == [], "an unclean current record is green: the attempt is recorded"
+        st = R.standing(TID, w.commons)
+        assert st["ok"] and st["clean"] is False and st["gaps"] > 0, st
         R.rehearse(TID, reader=Stub([CLEAN_TREE]), **_kw(w))
         assert sieve(TID, root=w.commons) == [], "a clean current record is green"
+        st = R.standing(TID, w.commons)
+        assert st["ok"] and st["clean"] is True and st["gaps"] == 0, st
         # edited after its rehearsal — through the door, as an edit would be
         doc = json.loads(w.ticket.read_text())
         doc["decisions"].append({"n": 9, "text": "one more thing", "by": "the proof"})
@@ -339,16 +357,17 @@ def test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_
         f = sieve(TID, root=w.commons)
         assert len(f) == 1 and "edited after its rehearsal" in f[0]["values"]["lack"], f
         assert f[0]["values"]["ticket_sha256"] != f[0]["values"]["live_sha256"]
-        # the pointer at an unclean record is red too
-        unclean = [p for p, d in R.records_for(TID, w.commons) if not d.get("clean")]
-        assert len(unclean) == 1, "one gappy record stands beside the clean one — same second, two files"
-        from cairn.tools.base.ticket_log import append_log
-        append_log(w.ticket, "rehearsal", {"record": "rehearsals/" + unclean[0].name}, actor="the proof",
-                   why="the proof repoints the ticket's last rehearsal line")
-        f = sieve(TID, root=w.commons)
-        assert len(f) == 1 and "is not clean" in f[0]["values"]["lack"], f
         # a ticket that is not on file is the chokepoint's refusal, not this sieve's
         assert sieve("ffffffffffff", root=w.commons) == []
+    finally:
+        w.close()
+    w = World()
+    try:
+        # a run that failed to run is not a rehearsal: a ran:false record alone reds
+        rec = R.rehearse(TID, reader=Stub([None]), **_kw(w))
+        assert rec["ran"] is False, rec
+        f = sieve(TID, root=w.commons)
+        assert len(f) == 1 and "no rehearsal has run" in f[0]["values"]["lack"], f
     finally:
         w.close()
 
@@ -371,9 +390,9 @@ def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        assert len(names) == 6 and names[4] == "the_ticket_rehearses_clean", names
+        assert len(names) == 6 and names[4] == "the_ticket_was_rehearsed", names
         src = (REPO / "cairn/tools/base/transitions.py").read_text()
-        assert src.count('_sieve_lane("the_ticket_rehearses_clean"') == 1
+        assert src.count('_sieve_lane("the_ticket_was_rehearsed"') == 1
     finally:
         w.close()
 
@@ -582,7 +601,7 @@ def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehear
     assert (REPO / "cairn" / "machines" / "rehearsal" / "__init__.py").is_file()
     skill = (REPO / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert "cairn rehearse <ticket-id>" in skill, "the skill never tells the builder to rehearse"
-    assert "the_ticket_rehearses_clean" in skill, "the skill never names the lane that holds the crossing"
+    assert "the_ticket_was_rehearsed" in skill, "the skill never names the lane that holds the crossing"
     assert "--decide" in skill and "cairn question open" in skill, "the skill never says how a gap is disposed"
     assert skill.index("cairn rehearse <ticket-id>") < skill.index("## 1. Journal BUILDME"), \
         "the rehearsal step must come before the BUILDME crossing"

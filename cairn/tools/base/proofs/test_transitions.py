@@ -1509,7 +1509,8 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     all. The count IS the ruleset's size: drop a sieve and this tooth fails on the LENGTH,
     which is the whole difference between a shorter record and a cleaner one. Four since
     2026-09-14 (ticket 9adc6fddf185): the_ticket_has_every_answer_it_needs is the fourth.
-    Five since 2026-09-15 (ticket cf80bdb57205): the_ticket_rehearses_clean is the fifth.
+    Five since 2026-09-15 (ticket cf80bdb57205): the fifth is the rehearsal lane, renamed
+    the_ticket_was_rehearsed 2026-11-01 (ticket 5f2e99bff577) from the_ticket_rehearses_clean.
     Six since 2026-10-26 (ticket c66b25d122e6): the_ticket_was_checked_against_the_outline is the sixth."""
     import cairn.machines.build_inspector.inspector as _insp
     with tempfile.TemporaryDirectory() as d:
@@ -1524,7 +1525,7 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                 "the_ticket_names_its_intent_firing",
                 "the_ticket_names_its_sorted_door_firing",
                 "the_ticket_has_every_answer_it_needs",
-                "the_ticket_rehearses_clean",
+                "the_ticket_was_rehearsed",
                 "the_ticket_was_checked_against_the_outline"], record
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             transitions.emit(_AT_TICKET, "BUILDME",
@@ -1537,13 +1538,13 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                   "the_ticket_names_its_intent_firing",
                   "the_ticket_names_its_sorted_door_firing",
                   "the_ticket_has_every_answer_it_needs",
-                  "the_ticket_rehearses_clean",
+                  "the_ticket_was_rehearsed",
                   "the_ticket_was_checked_against_the_outline"):
         assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
     assert rec["entry_gate"].endswith(
         "the entry_gate proved 6 check(s): a_berthed_chart_chain_claims_the_ticket, "
         "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, "
-        "the_ticket_has_every_answer_it_needs, the_ticket_rehearses_clean, "
+        "the_ticket_has_every_answer_it_needs, the_ticket_was_rehearsed, "
         "the_ticket_was_checked_against_the_outline"), \
         f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
 

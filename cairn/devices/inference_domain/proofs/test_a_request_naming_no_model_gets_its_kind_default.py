@@ -28,13 +28,14 @@ import json
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
+from cairn.tools.scratch.scratch import scratch_dir
 
 PROVES = {
     "959bb65192a1": {
@@ -103,7 +104,7 @@ def test_a_request_naming_a_model_passes_it_through():
 
 def test_a_default_that_does_not_serve_its_kind_is_refused_at_load():
     from cairn.devices.inference_domain.machines.route.route import RouteRefused, load_stacks
-    d = Path(tempfile.mkdtemp(prefix="proof-959b-stacks-"))
+    d = Path(scratch_dir("proof-959b-stacks-"))
     try:
         for f in _STACKS.glob("*.json"):
             shutil.copy(f, d / f.name)

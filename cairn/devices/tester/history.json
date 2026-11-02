@@ -72488,5 +72488,301 @@
     "fingerprint": "8ba6b003414add5ae4b0cee051e53584fae4a147a42b8c8f45e32b1ca3285ca4",
     "at": "2026-11-01T22:25:14",
     "seq": 256
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(timeout_is_not_a_red) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket '3dfceaa272ec'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py'] (seal 2026-11-01T15:58:48, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(timeout_is_not_a_red) emitted the probe berthed at cairn/devices/tester/probes/a_timeout_is_not_a_red.py (ticket '3dfceaa272ec')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20261101T222431-e69385b4fbee.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 4",
+        "actual": "WATCHME -> PROVED moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 4,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(timeout_is_not_a_red) crossing",
+        "actual": "a cast ticket for the WATCHME(timeout_is_not_a_red) crossing",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "3dfceaa272ec",
+          "watch_object": "timeout_is_not_a_red",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3dfceaa272ec-a-timeout-is-not-a-red.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket '3dfceaa272ec' carries a watchme spec for 'timeout_is_not_a_red'",
+        "actual": "ticket '3dfceaa272ec' carries a watchme spec for 'timeout_is_not_a_red'",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "3dfceaa272ec",
+          "watch_object": "timeout_is_not_a_red",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "3dfceaa272ec",
+          "watch_object": "timeout_is_not_a_red",
+          "berth": "cairn/devices/tester/probes/a_timeout_is_not_a_red.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'tester' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "3dfceaa272ec",
+          "component": "tester",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '3dfceaa272ec' is cast",
+        "actual": "named ticket '3dfceaa272ec' is cast",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "3dfceaa272ec",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/3dfceaa272ec-a-timeout-is-not-a-red.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "3dfceaa272ec"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_durability",
+        "values": {
+          "ticket": "3dfceaa272ec",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "30b10905af8b4077f5edc23b88cd6b39435a589d",
+              "upstream": "30b10905af8b4077f5edc23b88cd6b39435a589d",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/cairn/cairn/devices/tester",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "d9d3d37421700181327c8fd7badc653282beb529",
+              "upstream": "d9d3d37421700181327c8fd7badc653282beb529",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'tester' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "tester",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py stands in proven-space",
+        "actual": "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py stands in proven-space",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py",
+          "named": [
+            "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py's seal at '2026-11-01T15:58:48'",
+        "actual": "the witness dates cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py's seal at '2026-11-01T15:58:48'",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py",
+          "named": [
+            "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py"
+          ],
+          "seal": "2026-11-01T15:58:48",
+          "claimed": "2026-11-01T15:58:48"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": false,
+        "actual": false,
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_demo",
+        "values": {
+          "ticket": "3dfceaa272ec",
+          "note": "no demo flag — the demo gate does not fire"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "certificate": "certificates/3dfceaa272ec-PROVED-20261102T052543Z-4122.cert.json",
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/tester/proofs/test_a_timeout_is_not_a_red.py"
+    ],
+    "proven_seal_date": "2026-11-01T15:58:48",
+    "delegated": false,
+    "ticket": "3dfceaa272ec",
+    "why": "a timeout is not a red: a proof over its wall-clock budget now writes no verdict, leaves the standing seal untouched, prints in its own TIMEOUT column naming the budget, and is counted apart from red. The proof reads 4 of 6 red with the build taken away (sealed hollow) and 6 of 6 green with it; the verdict ran all four criteria; the probe watches for a red that was really a timeout",
+    "fingerprint": "5928af6fdabeb0474fa760a4df476e10dbfdec112185d55b7d0f81d109760139",
+    "at": "2026-11-01T22:25:44",
+    "seq": 257
   }
 ]

@@ -12,6 +12,8 @@ Fixture components in a scratch root, the sieve called directly with that root:
   2. B's current validation record changes — exactly one finding, naming B, color yellow.
   3. component_color over A in case (2) reads no finding: yellow is not red.
   4. A seal without ``reached`` reads no finding.
+  5. No gate composes it: inspect() carries the yellow under ``yellow`` and none of it among
+     the ``findings`` its proof record (and so the PROVEME build gate) is rendered from.
 
     python3 cairn/machines/build_inspector/proofs/test_a_reached_component_moved.py
 """
@@ -34,6 +36,7 @@ PROVES = {
         "2": "test_a_moved_reach_reads_one_yellow_finding",
         "3": "test_yellow_is_not_red",
         "4": "test_a_seal_without_reached_reads_no_finding",
+        "5": "test_no_gate_composes_the_yellow",
     },
 }
 
@@ -113,6 +116,18 @@ def test_a_seal_without_reached_reads_no_finding():
         a = _fixture(root, reached=False)
         _seal_b(root / "cairn" / "b", "b-fingerprint-second")
         assert _sieve(a, root) == [], _sieve(a, root)
+
+
+def test_no_gate_composes_the_yellow():
+    from cairn.machines.build_inspector.inspector import inspect
+    with scratch_dir("reached_component_no_gate_") as root:
+        _fixture(root)
+        _seal_b(root / "cairn" / "b", "b-fingerprint-second")
+        report = inspect(root=root / "cairn", component="a")
+        assert [f["values"]["reached"] for f in report.get("yellow", [])] == ["cairn/b"], \
+            report.get("yellow")
+        assert not [f for f in report["findings"]
+                    if f["method"] == "a_reached_component_moved"], report["findings"]
 
 
 if __name__ == "__main__":

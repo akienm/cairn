@@ -70,6 +70,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 # The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
 # read from ~/.cairn/devices/inference_domain/0/hosts.json through route.py's overlay (moved
 # there 2026-08-17 — the device's state in the device's own space), and the default-built
@@ -100,7 +102,7 @@ class HostUnreachable(RuntimeError):
     """The host could not be reached at all. Loud — never a silently-empty answer (Law 7)."""
 
 
-class SlotHeld(HostUnreachable):
+class SlotHeld(DiagnosticBase, HostUnreachable):
     """The slot's owner admits one caller per endpoint, and a caller that waits its whole
     timeout is refused by name. A HostUnreachable, so the failover walk treats a held slot as
     an unreachable host and moves on (ticket d0672a46aa7e)."""

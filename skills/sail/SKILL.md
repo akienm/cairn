@@ -108,14 +108,22 @@ carries the sha256 of the ticket's live bytes. Exit 1 lists the gaps.
   and the entry lane `the_ticket_has_every_answer_it_needs` holds the crossing
   until he answers.
 
-**Five passes is the cap** (ticket cf80bdb57205, D11): the sixth pass reads
-nothing and opens ONE question naming the standing gaps — a ticket that cannot
-be rehearsed clean in five is a ticket being written by trial, and that is his
-to see. The fifth BUILDME entry lane, `the_ticket_rehearses_clean`, refuses the
-crossing on no record, an unclean record, or a record whose hash no longer
-matches the live ticket (edit the ticket → rehearse again). Akien, 2026-09-15:
-*the ticket is a list of one-line decisions, and the cheapest model proves it
-is buildable before the expensive one builds it.*
+**Three passes, then one question** (Akien, 2026-10-29 and 2026-11-01). Count passes
+yourself, decides included. One extra pass is fine after a real change to the
+ticket. If it is still unclean after that, open ONE question naming the standing
+gaps and stop looping. Dozens of passes is what the cap prevents. The code's own cap is five
+(ticket cf80bdb57205, D11: the sixth pass reads nothing and opens that question),
+and the three is held by hand until the code says it.
+
+**A clean pass is the aim, not the minimum** (Akien, 2026-11-01, ticket
+5f2e99bff577: *"it's what we're aiming for not the minimum requirement"*). The
+fifth BUILDME entry lane, `the_ticket_was_rehearsed`, refuses the crossing only
+when no rehearsal has run over the ticket (a `ran: false` record alone does not
+count), or when the newest record's design no longer matches the live ticket
+(edit the ticket → rehearse again). An unclean current record opens it, and its
+gaps stay on the record as data for the build. Akien, 2026-09-15: *the ticket is
+a list of one-line decisions, and the cheapest model proves it is buildable
+before the expensive one builds it.*
 
 ## 1. Journal BUILDME
 

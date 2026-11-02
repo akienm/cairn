@@ -2273,17 +2273,19 @@ def buildme_has_no_open_questions(ticket: str, *, questions_root: Path | None = 
 
 
 def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> list[dict]:
-    """Green (empty findings) iff the ticket carries a ``rehearsal`` pointer at a readable,
-    CLEAN rehearsal record whose ``ticket_sha256`` equals the sha256 of the ticket's live bytes.
+    """Green (empty findings) iff a rehearsal record that RAN stands over the ticket's live
+    design (``rehearsal.standing``), clean or not — ticket 5f2e99bff577, Akien 2026-11-01: a
+    clean pass is "what we're aiming for not the minimum requirement", and the gaps stay on
+    the record as data. The lane it fills is ``the_ticket_was_rehearsed``.
 
     The fifth entry lane (ticket cf80bdb57205, Akien 2026-09-15: *"We run an agent with the
     ticket, ask for it's proof tree, simplify or get questions answered, then try again until
     it passes that gate. All on the cheapest model. and after the prebuild."*). The rehearsal
     machine (``cairn/machines/rehearsal``) has the cheapest reader read the ticket plus its
     chart three times cold and diffs the trees by code; a pass with zero gaps writes a clean
-    record under ``<commons>/rehearsals/`` through the artifact door and points the ticket at
-    it. This sieve does not judge the trees — only that a clean record stands over THESE
-    bytes (D8: an edited ticket is un-rehearsed again). Red returns ONE finding naming the
+    record under ``<commons>/rehearsals/`` through the artifact door. This sieve does not
+    judge the trees — only that a record that ran stands over THIS design (D8: an edited
+    ticket is un-rehearsed again). Red returns ONE finding naming the
     lack and the command that clears it; None or an unreadable ticket returns [] (the
     chokepoint's own refusal covers that). Rides the door's roots, so the scratch world a
     proof hands the door is the world this reads.
@@ -2297,7 +2299,7 @@ def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> lis
         return []
     return [_finding(
         "buildme_rides_the_rehearsal", ticket,
-        "a clean rehearsal record stands over the ticket's live bytes",
+        "a rehearsal record stands over the ticket's live design",
         expected=True, actual=False,
         lack=st["lack"], record=st.get("record"),
         ticket_sha256=st.get("ticket_sha256"), live_sha256=st.get("live_sha256"),

@@ -8,7 +8,9 @@ berths as text, hand it to the cheapest reader three times cold, and diff the th
 build trees BY CODE into deterministic gaps (D6). A gap is disposed at the CLI as a decision
 line on the ticket (``decide``) or as a question in his inbox; a pass with zero gaps writes a
 CLEAN record carrying the ticket's sha256, and the BUILDME entry lane
-``the_ticket_rehearses_clean`` (``build_inspector.buildme_rides_the_rehearsal``) reads it.
+``the_ticket_was_rehearsed`` (``build_inspector.buildme_rides_the_rehearsal``) reads the newest
+record that ran, clean or not (ticket 5f2e99bff577, Akien 2026-11-01: clean is the aim, not the
+minimum).
 
 What is physics here and what is not:
   - the reader is INJECTABLE (``reader(prompt_text, schema) -> (tree | None, meta)``) so a
@@ -651,11 +653,19 @@ def gaps(reads: list[dict], decision_ids: set[int] | None = None) -> list[dict]:
 # ---------------------------------------------------------------------------
 # records
 
+def _collision_n(path: Path, ticket: str) -> int:
+    """The ``n`` of ``<ticket>-<stamp>-<n>.json``; 1 for ``<ticket>-<stamp>.json``."""
+    tail = path.stem[len(ticket) + 1:].split("-")
+    return int(tail[1]) if len(tail) == 2 and tail[1].isdigit() else 1
+
+
 def records_for(ticket: str, root: Path | str | None = None) -> list[tuple[Path, dict]]:
     """Every readable rehearsal record for the ticket, oldest first.
 
-    Order rides the record's own ``at`` and ``pass`` — a filename can carry a
-    ``-2`` de-collision suffix that sorts BEFORE ``.json``, so names lie.
+    Order rides the record's own ``at``, then the de-collision number ``_record_path`` minted
+    (``-2`` is the second record inside one second). Not ``pass`` — a decide resets it, so a
+    gappy pass 1 and the clean pass 1 after it tie — and not the name, whose ``-2`` sorts
+    BEFORE ``.json`` (ticket 5f2e99bff577: the newest record is what the lane reads).
     """
     d = records_dir(root)
     out = []
@@ -664,7 +674,7 @@ def records_for(ticket: str, root: Path | str | None = None) -> list[tuple[Path,
             out.append((p, json.loads(p.read_text(encoding="utf-8"))))
         except (OSError, json.JSONDecodeError):
             continue
-    out.sort(key=lambda pd: (str(pd[1].get("at", "")), int(pd[1].get("pass") or 0), pd[0].name))
+    out.sort(key=lambda pd: (str(pd[1].get("at", "")), _collision_n(pd[0], ticket), pd[0].name))
     return out
 
 
@@ -900,7 +910,7 @@ def _open_the_question(ticket: str, root: Path | str | None) -> dict:
     rec = Q.open_question(
         ticket, q,
         f"the cheapest reader cannot build this ticket as written after {PASS_CAP} passes; "
-        f"the BUILDME lane the_ticket_rehearses_clean holds until a clean record exists",
+        f"the gaps stand on the newest record",
         source="rehearsal", root=qroot)
     return {"ticket": ticket, "question": rec["id"], "gaps": standing, "passes": PASS_CAP, "clean": False}
 
@@ -1113,49 +1123,39 @@ def scope(ticket: str, ns: list[int], *, by: str, because: str,
 # the lane's question: is the ticket rehearsed clean, over these exact bytes?
 
 def standing(ticket: str, root: Path | str | None = None) -> dict:
-    """What the BUILDME lane reads: ``{ok, lack, record, ticket_sha256, live_sha256}``.
-    ``ok`` iff the ticket's ``rehearsal`` pointer names a readable record that is clean and
-    whose ``design_sha256`` equals ``design_sha`` of the live ticket — the DESIGN, so the cursor
-    moving does not stale it (ticket 9fb045a476dc). A record written before that carries no
-    ``design_sha256`` and stands on the whole bytes (``ticket_sha256``) as it did. Everything
-    else is a named lack — no pointer, an unreadable record, an unclean one, a stale design."""
+    """What the BUILDME lane reads: ``{ok, lack, record, clean, gaps, ticket_sha256,
+    live_sha256, design_sha256}``. ``ok`` iff a rehearsal RAN over the ticket and the newest
+    such record's ``design_sha256`` equals ``design_sha`` of the live ticket — the DESIGN, so
+    the cursor moving does not stale it (ticket 9fb045a476dc). A record written before that,
+    or a pass the ticket moved under, carries no ``design_sha256`` and stands on the whole
+    bytes (``ticket_sha256``). Clean or not: Akien 2026-11-01 (ticket 5f2e99bff577), a clean
+    rehearsal is "what we're aiming for not the minimum requirement", so the lane needs the
+    attempt recorded and the gaps stay on the record as data (``clean``, ``gaps``). A
+    ``ran: false`` record is a run that read nothing and is not a rehearsal."""
     tk = ticket_file(ticket, root)
     if tk is None:
         return {"ok": False, "lack": "no ticket file", "record": None}
     try:
         blob = tk.read_bytes()
-        doc = json.loads(blob)
+        json.loads(blob)
     except (OSError, json.JSONDecodeError) as exc:
         return {"ok": False, "lack": f"ticket unreadable: {exc}", "record": None}
-    try:
-        lines = ticket_log.read_log(tk, "rehearsal")
-    except (OSError, ValueError) as exc:
-        return {"ok": False, "lack": f"ticket log unreadable: {exc}", "record": None, "live_sha256": _sha(blob)}
-    # the last 'rehearsal' line on the log (fad76bb5d1f5); a v1 plan not yet split by
-    # 29569fca68a3 still carries its pointer on the plan, and stands on it (D3)
-    ptr = lines[-1].get("record") if lines else (doc.get("rehearsal") if isinstance(doc, dict) else None)
-    if not isinstance(ptr, str) or not ptr.strip():
-        return {"ok": False, "lack": "the ticket carries no rehearsal pointer (no 'rehearsal' line on its log) "
-                                     "— `cairn rehearse <id>`",
+    ran = [(p, d) for p, d in records_for(ticket, root) if d.get("ran") is not False]
+    if not ran:
+        return {"ok": False, "lack": "no rehearsal has run over the ticket — `cairn rehearse <id>`",
                 "record": None, "live_sha256": _sha(blob)}
-    rec_path = commons(root) / ptr
-    try:
-        rec = json.loads(rec_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        return {"ok": False, "lack": f"rehearsal record {ptr} unreadable: {exc}", "record": ptr,
-                "live_sha256": _sha(blob)}
-    if not rec.get("clean"):
-        return {"ok": False, "lack": f"rehearsal record {ptr} is not clean ({len(rec.get('gaps') or [])} gap(s))",
-                "record": ptr, "live_sha256": _sha(blob)}
+    path, rec = ran[-1]
+    ptr = rec.get("record") or str(path.relative_to(commons(root)))
     if rec.get("design_sha256"):
         stale = rec["design_sha256"] != design_sha(blob)
-    else:   # a record written before ticket 9fb045a476dc stands on the whole bytes, as it did
+    else:   # before ticket 9fb045a476dc, or the ticket moved under the read: the whole bytes
         stale = rec.get("ticket_sha256") != _sha(blob)
+    out = {"record": ptr, "clean": bool(rec.get("clean")), "gaps": len(rec.get("gaps") or []),
+           "ticket_sha256": rec.get("ticket_sha256"), "live_sha256": _sha(blob),
+           "design_sha256": rec.get("design_sha256")}
     if stale:
-        return {"ok": False, "lack": "the ticket was edited after its rehearsal — rehearse again",
-                "record": ptr, "ticket_sha256": rec.get("ticket_sha256"), "live_sha256": _sha(blob)}
-    return {"ok": True, "lack": None, "record": ptr, "ticket_sha256": rec.get("ticket_sha256"),
-            "live_sha256": _sha(blob), "design_sha256": rec.get("design_sha256")}
+        return {"ok": False, "lack": "the ticket was edited after its rehearsal — rehearse again", **out}
+    return {"ok": True, "lack": None, **out}
 
 
 # ---------------------------------------------------------------------------

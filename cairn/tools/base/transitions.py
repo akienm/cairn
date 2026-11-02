@@ -991,9 +991,11 @@ def inspect_entry(ticket: str) -> list[dict]:
         _sieve_lane("the_ticket_has_every_answer_it_needs", _answered(ticket),
                     code=code, ticket=ticket),
         # The fifth lane joined 2026-09-15 (ticket cf80bdb57205): the cheapest reader has
-        # rehearsed the ticket clean over its live bytes — a clean record it points at, whose
-        # hash matches — so what the ticket leaves unsaid is found before a builder is spent.
-        _sieve_lane("the_ticket_rehearses_clean", _rehearsed(ticket),
+        # rehearsed the ticket over its live design, so what the ticket leaves unsaid is found
+        # before a builder is spent. Renamed 2026-11-01 (ticket 5f2e99bff577) from
+        # the_ticket_rehearses_clean: the attempt must be recorded, clean or not — Akien, a
+        # clean pass is "what we're aiming for not the minimum requirement".
+        _sieve_lane("the_ticket_was_rehearsed", _rehearsed(ticket),
                     code=code, ticket=ticket),
         # The sixth lane joined 2026-10-26 (ticket c66b25d122e6, outline 10.3.5.1): the
         # cheapest reader has read the ticket beside the component outline, so a conflict with

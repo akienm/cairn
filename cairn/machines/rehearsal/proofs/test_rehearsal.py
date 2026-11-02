@@ -546,7 +546,8 @@ def test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess
         r = subprocess.run(cli + [TID, "--standing"], capture_output=True, text=True, env=w.env(), timeout=120)
         assert r.returncode == 0, r.stderr[-400:]
         st = json.loads(r.stdout)
-        assert st["ok"] is False and "no rehearsal pointer" in st["lack"], st
+        # the lack names no run, not a missing pointer (ticket 5f2e99bff577 reads the records)
+        assert st["ok"] is False and "no rehearsal has run" in st["lack"], st
         r = subprocess.run(cli + [TID, "--DECIDE", WIRE, "off the shim"],
                            capture_output=True, text=True, env=w.env(), timeout=120)
         assert r.returncode == 2 and "--by" in r.stderr, (r.returncode, r.stderr[-200:])

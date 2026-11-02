@@ -3865,6 +3865,56 @@ def component_color(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
+def a_reached_component_moved(row: dict, comp_dir: Path, repo_root: Path = _REPO_ROOT) -> list[dict]:
+    """A green seal whose own code is unmoved, run through a component whose seals have moved since.
+
+    Provenance: ticket 50e0581737e8 (2026-10-07, with its children f43b5705ea03 — ``seal_digest`` —
+    and 734b22d09f2e — ``evidence.reached``). A proof that ran through another component was
+    green against THAT component's code as it then stood; when the other re-seals, the green is
+    still the proof's but it was earned against something no longer there. That is YELLOW, not
+    red: ``component_color`` reads only the proof's own fingerprint and stays silent on it, one
+    mouth per defect.
+
+    NOT A SIEVE, ON PURPOSE. The PROVEME build gate (``transitions._build_gate``) renders from
+    ``inspect()``'s proof record, which is built from every SIEVES finding — a yellow there would
+    refuse the crossing, which is red under another name and the very thing the ticket rules out
+    ("no gate composes it"). So ``inspect()`` runs this after the shake and reports it under
+    ``yellow``, beside the findings and never among them.
+
+    ``reached`` keys are repo-relative dirs, so they resolve against ``repo_root`` — the census
+    root's parent, which on the live tree is this repo.
+    """
+    from cairn.tools.validation_store.validation_store import seal_digest
+    proofs_dir = comp_dir / "proofs"
+    vals_dir = comp_dir / "validations"
+    out = []
+    for proof in sorted(proofs_dir.glob("test_*.py")) if proofs_dir.is_dir() else []:
+        try:
+            records = json.loads((vals_dir / (proof.stem + ".json")).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue  # component_color reports the missing or unreadable seal
+        seal = records[-1] if isinstance(records, list) and records else records
+        if not isinstance(seal, dict) or seal.get("verdict") != "green":
+            continue
+        evidence = seal.get("evidence") or {}
+        recorded = evidence.get("source_fingerprint")
+        if recorded is None or recorded != _sealed_fingerprint_now(proof, seal):
+            continue  # its own code moved: that is component_color's red, not a yellow
+        reached = evidence.get("reached")
+        if not isinstance(reached, dict):
+            continue
+        for rel, digest in sorted(reached.items()):
+            now = seal_digest(str(repo_root / rel))
+            if now != digest:
+                out.append(_finding(
+                    "a_reached_component_moved", row["component"],
+                    f"{rel} has not moved since {proof.name} was sealed",
+                    expected=digest, actual=now,
+                    proof=proof.name, reached=rel, color="yellow",
+                ))
+    return out
+
+
 def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
     """Intentions with no corresponding proved component — the unbuilt lots.
 
@@ -4849,6 +4899,14 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         opaque_sites = len(encapsulation_opaque(str(Path(root).resolve().parent)))
     # ONE record, read twice. Building it twice would let the report and the verdict be
     # about different things — the exact drift a proof record exists to make impossible.
+    # Yellow rides beside the findings, never among them: the build gate renders from the proof
+    # record below, and a yellow there would refuse a crossing (ticket 50e0581737e8).
+    yellow = []
+    for row in rows:
+        for f in a_reached_component_moved(row, root / row["dir"],
+                                           repo_root=Path(root).resolve().parent):
+            f["at"] = row["dir"]
+            yellow.append(f)
     record = proof_record(shaken["gradation"], shaken["findings"])
     return {
         "inspector": "build_inspector",
@@ -4861,6 +4919,7 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
         "gradation": shaken["gradation"],
         "component_scores": shaken["roll_up"],
         "findings": shaken["findings"],
+        "yellow": yellow,
         "unbuilt_intentions": unbuilt,
         "stale_slates": stale_slates,
         "stale_histories": stale_histories,

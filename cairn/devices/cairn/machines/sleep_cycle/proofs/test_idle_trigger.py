@@ -38,13 +38,14 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
+from cairn.tools.scratch.scratch import scratch_dir
 
 # One clause, one declarable tooth (proof_coverage: an unnumbered falsifier is clause "all").
 PROVES = {
@@ -61,7 +62,7 @@ class _World:
     """One fixture world: roots, transcripts, terminals, and an asker that mints."""
 
     def __init__(self) -> None:
-        self.tmp = Path(tempfile.mkdtemp(prefix="cairn-proof-idle-trigger-"))
+        self.tmp = Path(scratch_dir("cairn-proof-idle-trigger-"))
         self.roots = {"repo": self.tmp, "commons": self.tmp, "instance": self.tmp / "instance"}
         self.transcripts = self.tmp / "transcripts"
         self.pts = self.tmp / "pts"
@@ -204,7 +205,7 @@ def tooth_h_the_threshold_is_a_parameter():
 
 
 def tooth_i_the_entry_point_runs_once_and_records():
-    home = Path(tempfile.mkdtemp(prefix="cairn-proof-idle-trigger-home-"))
+    home = Path(scratch_dir("cairn-proof-idle-trigger-home-"))
     env = {**os.environ, "HOME": str(home), "PYTHONPATH": str(_REPO_ROOT)}
     p = subprocess.run([sys.executable, "-m", "cairn.devices.cairn", "pulse"], cwd=_REPO_ROOT,
                        env=env, capture_output=True, text=True, timeout=60)

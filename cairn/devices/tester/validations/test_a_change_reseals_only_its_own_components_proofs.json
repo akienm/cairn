@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_change_reseals_only_its_own_components_proofs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-01T15:57:45",
+    "date": "2026-11-02T01:30:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,21 +16,25 @@
         "on_the_live_census_the_reach_stops_at_the_owner"
       ],
       "teeth_red": [],
-      "test": "test-c5137ff16af6",
+      "test": "test-c3aca9e4c020",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
+        "dropped": 6,
         "tables": [
-          "bus_proc_3019617_1512211108_delivery",
-          "bus_proc_3019617_1512211108"
+          "bus_proc_3346055_0125450169_delivery",
+          "bus_proc_3346055_0125450169",
+          "bus_proc_3346117_0125542648_delivery",
+          "bus_proc_3346117_0125542648",
+          "bus_proc_3347607_0129239219_delivery",
+          "bus_proc_3347607_0129239219"
         ]
       },
       "conditions": {
         "proof": "9d56fc368f4e30238bbca6729130038ca2cdaa6b22c9c6f20b3a3a381a01b636",
-        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
@@ -45,21 +49,28 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c5137ff16af6",
-      "source_fingerprint": "fc343b0ad91b649e0703270a45a4dc85cea51a4b605fb40240fde8384688231d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3aca9e4c020",
+      "source_fingerprint": "03bce80fa2f84dcc0bc166a8e346d9517e26191dd03eefbd2f4e287cd32d43c2",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_a_change_reseals_only_its_own_components_proofs.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/devices/tester/reseal.py",
         "cairn/devices/tester/runs.py",
         "cairn/devices/tester/scratch_sweep.py"
       ],
+      "reached": {
+        "cairn/tools/base": "0eff79a7fdb2241aa184eaafeaafe7e128d12fc24a2e7662ce3730cc87bf105c",
+        "cairn/tools/scratch": "84284c7a59d8fe42b49e7633799bac0ce7cb2d3e44326f41a82f6151e79109f2",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
+        "cairn/tools/validation_store": "88510b9c9272f1c9b3ae95663c4b3abd000dcbd27bedbba97c2fbd506b3e83c9"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3148858-2_fqwnlf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3347825-70krtj5m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,9 +79,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114855270,
-          "disk_bytes": 145059840,
-          "entries": 11937,
+          "bytes": 115336652,
+          "disk_bytes": 146071552,
+          "entries": 12115,
           "builds": 1,
           "reuses": 0
         }

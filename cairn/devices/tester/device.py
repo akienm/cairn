@@ -128,7 +128,7 @@ push the teeth out of the reading it shares.
 """
 
 
-def _read_closure(path: str, proof_path: str) -> list[str] | None:
+def _read_closure(path: str, proof_path: str, extra=()) -> list[str] | None:
     """The runner's report, filtered to the repo — or ``None`` when it reported nothing.
 
     ``None`` and ``[]`` are different answers and the seal treats them differently: nothing
@@ -158,11 +158,66 @@ def _read_closure(path: str, proof_path: str) -> list[str] | None:
         return None
     if not isinstance(raw, list):
         return None
-    closure = repo_relative_closure(raw, proof_path)
+    # ``extra`` is what the run's OTHER python processes loaded (the reach log, ticket
+    # 734b22d09f2e, decision D1): a meta-proof's seal covers the proof it runs as a subprocess.
+    closure = repo_relative_closure(raw + list(extra), proof_path)
     mine = repo_relative_closure([], proof_path)
     if not mine or mine[0] not in closure:
         return None
     return closure
+
+
+_REACH_DIR = Path(__file__).resolve().parent / "reach"
+_REACH_LOG_ENV = "CAIRN_TESTER_REACH_LOG"
+
+
+def _read_reach(path: str) -> list[str] | None:
+    """Every file the run's python processes logged through ``reach/sitecustomize.py``, or
+    ``None`` when the log cannot be read. A line that does not parse is skipped, not fatal:
+    a process killed mid-write loses its own line and nobody else's."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines()
+    except OSError:
+        return None
+    files = []
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict) and isinstance(row.get("files"), list):
+            files.extend(f for f in row["files"] if isinstance(f, str))
+    return files
+
+
+def _reached(files: list[str], proof_path) -> dict | None:
+    """``{component dir relative to the proof's checkout: seal_digest(dir)}`` for every component
+    other than the proof's own that a file in ``files`` belongs to (ticket 734b22d09f2e, D2/D5).
+
+    The mapper is ``address.component_of`` — path in, deepest owning component out — over the
+    proof's OWN checkout, so a hollow worktree's run is mapped against the worktree. A file no
+    component owns (the stdlib, ``bin/``, the package root) is dropped. ``None`` for a proof
+    outside any checkout: there is no tree to map against, and an empty map would claim it
+    reached nothing.
+    """
+    from cairn.tools.base.address import component_of
+    from cairn.tools.validation_store.validation_store import seal_digest
+    root = _tree_root(proof_path)
+    if root is None:
+        return None
+    pkg = root / "cairn"
+    own = component_of(Path(proof_path).resolve(), pkg_root=pkg)
+    dirs = set()
+    for f in files:
+        full = Path(os.path.realpath(f[:-1] if f.endswith(".pyc") else f))
+        if pkg not in full.parents:
+            continue
+        owner = component_of(full, pkg_root=pkg)
+        if owner is not None and owner != own:
+            dirs.add(owner)
+    return {os.path.relpath(d, root).replace(os.sep, "/"): seal_digest(str(d))
+            for d in sorted(dirs)}
 
 
 def _tail(text: str, n: int = 20) -> str:
@@ -575,6 +630,11 @@ class TesterDevice(BaseDevice):
         # something the proof did — an instrument contaminating its own reading.
         _closure_fd, closure_out = tempfile.mkstemp(prefix="cairn-tester-closure-", suffix=".json")
         os.close(_closure_fd)
+        # WHAT EVERY OTHER PYTHON PROCESS OF THE RUN LOADED (ticket 734b22d09f2e). The same
+        # host-temp reasoning as closure_out (D3): run_dir sits under the root the instance
+        # seal swaps. reach/sitecustomize.py appends one line per process at its exit.
+        _reach_fd, reach_out = tempfile.mkstemp(prefix="cairn-tester-reach-", suffix=".jsonl")
+        os.close(_reach_fd)
 
         # THE INSTANCE SEAL — ALWAYS ON, AND DELIBERATELY NOT A PARAMETER (ticket
         # a-proof-cannot-seed-the-tree-it-reads). Every other knob on this method is named at
@@ -630,7 +690,11 @@ class TesterDevice(BaseDevice):
             # subject exits is the run's to kill; what returns marked with it is its to report.
             pinned = {k: v for k, v in _env_pinned_to(proof_path).items() if k != TEST_ID_ENV}
             test = mint_test_id()
-            run_env = {**pinned, TEST_ID_ENV: test}
+            # The reach channel rides the subject's env only, like the test id: the conditions
+            # digest is taken over `pinned`, and a per-run log path there would read as moved.
+            run_env = {**pinned, TEST_ID_ENV: test, _REACH_LOG_ENV: reach_out,
+                       "PYTHONPATH": os.pathsep.join(
+                           [str(_REACH_DIR)] + [p for p in [pinned.get("PYTHONPATH")] if p])}
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
                             cwd=str(proof_path.parent), instance_swap=swap)
             base_evidence = {
@@ -734,12 +798,20 @@ class TesterDevice(BaseDevice):
             # A run raced by an edit seals nothing green; that is the conservative direction,
             # and it is a real case — this session's own 22-minute re-seal batch overlapped
             # edits to the very files it was sealing.
-            closure = _read_closure(closure_out, str(proof_path))
+            reach = _read_reach(reach_out)
+            closure = _read_closure(closure_out, str(proof_path), extra=reach or ())
             tree_moved = source_fingerprint(str(proof_path)) != dir_fp_before
             if closure is not None and not tree_moved:
                 evidence["source_fingerprint"] = source_fingerprint(
                     str(proof_path), closure=closure)
                 evidence["fingerprint_closure"] = closure
+                # WHAT THE RUN REACHED BEYOND ITS OWN COMPONENT, and how sealed each one was
+                # at this moment — what the yellow reading (50e0581737e8) compares against.
+                # Unset under the same conditions the closure is: an unread log or a moved
+                # tree says nothing, rather than a confident empty map (D5).
+                reached = _reached(reach, proof_path) if reach is not None else None
+                if reached is not None:
+                    evidence["reached"] = reached
             else:
                 # STATED, NEVER SILENT. A seal with no closure is re-checked against the whole
                 # directory, and a reader asking why this one expires more eagerly than its
@@ -771,10 +843,11 @@ class TesterDevice(BaseDevice):
         finally:
             if made:
                 shutil.rmtree(Path(made).parent, ignore_errors=True)
-            try:
-                os.unlink(closure_out)
-            except OSError:
-                pass
+            for channel in (closure_out, reach_out):
+                try:
+                    os.unlink(channel)
+                except OSError:
+                    pass
 
         # The method names HOW the verdict was reached AND how trustworthy the seal
         # under it is — so a reader sees seal-backing without opening the evidence.

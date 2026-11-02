@@ -361,54 +361,166 @@ def test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the
 
 # ── tooth 5 ───────────────────────────────────────────────────────────────────────────
 
-def _code_without_prose(path: Path) -> str:
-    """The file's code with its comments and docstrings taken off.
+_DOOR_MODULES = ("cairn.devices.tester.reseal", "cairn.devices.tester.cli")
+_BARE_LAUNCHERS = {"exec", "eval", "__import__", "import_module"}
 
-    A mention of a door is not a reach for it. Comments vanish because ``ast.parse``
-    never keeps them; docstrings are popped by hand because they are ordinary string
-    expressions and would survive the round trip. Everything else survives — including
-    string literals in live positions, which is where a dynamic import would hide."""
+
+def _module_of(path: Path) -> str:
+    """The dotted module a file under the repo would import as — what a relative import
+    in it resolves against."""
+    try:
+        rel = path.resolve().relative_to(_REPO_ROOT)
+    except ValueError:
+        return ""
+    return ".".join(rel.with_suffix("").parts)
+
+
+def _reaches(path: Path, module: str | None = None) -> list[str]:
+    """Every way this file REACHES the reseal door, as one line each — empty when it reaches
+    nothing.
+
+    Two shapes reach (adjudicated 2026-11-01, open-1fd084bd6c01, sieve why against probe why):
+    an IMPORT of the door's module or the tester cli that fronts it, absolute or relative; or
+    a reseal-bearing string — a literal, or a name bound to one, however many hops — inside
+    the arguments of something that launches or loads: subprocess, os.system/popen/exec*/
+    spawn*, import_module, __import__, exec, eval, runpy. A name merely HOLDING the string,
+    compared against a record and never handed to a launcher, reaches nothing; nor does a
+    comment or a docstring. An unparseable file is measured whole: the word anywhere reds it."""
     import ast
 
     text = path.read_text(encoding="utf-8", errors="replace")
     try:
         tree = ast.parse(text)
     except SyntaxError:
-        return text  # unparseable: measure it whole rather than measure nothing
+        return ["unparseable, and the word reseal appears in it"] if "reseal" in text.lower() else []
+    module = _module_of(path) if module is None else module
+    found = []
+
+    def door(name: str) -> bool:
+        return any(name == m or name.startswith(m + ".") for m in _DOOR_MODULES)
+
+    launchers = set(_BARE_LAUNCHERS)
     for node in ast.walk(tree):
-        body = getattr(node, "body", None)
-        if not isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
-                                 ast.AsyncFunctionDef)) or not body:
-            continue
-        first = body[0]
-        if (isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant)
-                and isinstance(first.value.value, str)):
-            body.pop(0)
-            if not body:
-                body.append(ast.Pass())
-    return ast.unparse(tree)
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                if door(a.name):
+                    found.append(f"line {node.lineno}: import {a.name}")
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            if node.level:
+                pkg = module.split(".")[:-node.level]
+                base = ".".join(pkg + ([node.module] if node.module else []))
+            for a in node.names:
+                if door(base) or door(f"{base}.{a.name}"):
+                    found.append(f"line {node.lineno}: from {base} import {a.name}")
+                if base in ("subprocess", "runpy", "importlib") or (base == "os" and (
+                        a.name in ("system", "popen") or a.name.startswith(("exec", "spawn")))):
+                    launchers.add(a.asname or a.name)
+
+    def bearing(sub) -> bool:
+        return any(isinstance(n, ast.Constant) and isinstance(n.value, str)
+                   and "reseal" in n.value.lower() for n in ast.walk(sub))
+
+    bound: set[str] = set()
+    while True:  # a name bound to a name bound to the literal is still the literal
+        grew = False
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)) and node.value is not None:
+                v = node.value
+                if bearing(v) or any(isinstance(n, ast.Name) and n.id in bound for n in ast.walk(v)):
+                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                    for t in targets:
+                        for n in ast.walk(t):
+                            if isinstance(n, ast.Name) and n.id not in bound:
+                                bound.add(n.id)
+                                grew = True
+        if not grew:
+            break
+
+    def launches(func) -> bool:
+        if isinstance(func, ast.Name):
+            return func.id in launchers
+        if isinstance(func, ast.Attribute):
+            root = func.value
+            while isinstance(root, ast.Attribute):
+                root = root.value
+            root = root.id if isinstance(root, ast.Name) else ""
+            if func.attr == "import_module" or root in ("subprocess", "runpy"):
+                return True
+            return root == "os" and (func.attr in ("system", "popen")
+                                     or func.attr.startswith(("exec", "spawn")))
+        return False
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and launches(node.func):
+            parts = list(node.args) + [k.value for k in node.keywords]
+            if any(bearing(p) or any(isinstance(n, ast.Name) and n.id in bound
+                                     for n in ast.walk(p)) for p in parts):
+                found.append(f"line {node.lineno}: {ast.unparse(node.func)}(...) carries a reseal string")
+    return found
+
+
+# Each shape the narrowed tooth must still red, and two it must not — written out rather than
+# derived, so a reach the narrowing forgot shows up here as a fixture that stops redding.
+_REACH_FIXTURES = {
+    "import_reseal": "import cairn.devices.tester.reseal\n",
+    "from_tester_cli": "from cairn.devices.tester import cli\n",
+    "from_reseal": "from cairn.devices.tester.reseal import reseal\n",
+    "relative": "from .. import reseal\n",
+    "subprocess_literal": "import subprocess\nsubprocess.run(['bin/cairn', 'test', '--reseal'])\n",
+    "subprocess_bound": "import subprocess\nCMD = 'cairn test --reseal'\nsubprocess.Popen(CMD, shell=True)\n",
+    "two_hops": "import os\nA = '--reseal'\nB = ['cairn', 'test', A]\nos.execvp('cairn', B)\n",
+    "from_subprocess": "from subprocess import check_call\ncheck_call(['cairn', 'test', '--reseal'])\n",
+    "os_system": "import os\nx = 1\nos.system(f'cairn test --reseal {x}')\n",
+    "os_spawn": "import os\nos.spawnlp(os.P_WAIT, 'cairn', 'cairn', 'test', '--reseal')\n",
+    "import_module": "import importlib\nimportlib.import_module('cairn.devices.tester.reseal')\n",
+    "dunder_import": "__import__('cairn.devices.tester.reseal')\n",
+    "exec": "exec('import cairn.devices.tester.reseal')\n",
+    "eval": "eval(\"__import__('cairn.devices.tester.reseal')\")\n",
+    "runpy": "import runpy\nrunpy.run_module('cairn.devices.tester.reseal')\n",
+    "unparseable": "def (:\n    cairn test --reseal\n",
+}
+_CLEAR_FIXTURES = {
+    "compared_only": ("import subprocess\n_CALLER = 'cairn test --reseal'\n"
+                      "subprocess.run(['git', 'log', '-1'], timeout=10)\n"
+                      "def sealed_by_hook(r):\n    return r.get('caller') == _CALLER\n"),
+    "prose_only": '"""the reseal door runs proofs"""\n# a reseal is minutes\nX = 1\n',
+}
 
 
 def test_no_pulse_path_reaches_the_door():
-    """The ticket's third constraint, as a grep: *fired from pre-commit over staged files;
-    never from any on_pulse path.* The door runs proofs — minutes of subprocess — and the
-    beat already spends 23.5 of every 23.7 seconds re-walking corpora that did not move. A
-    reseal sweep on the beat would not be slow, it would be a machine that never finishes
-    one pulse before the next.
+    """The ticket's third constraint: *fired from pre-commit over staged files; never from
+    any on_pulse path.* The door runs proofs — minutes of subprocess — and the beat already
+    spends 23.5 of every 23.7 seconds re-walking corpora that did not move. A reseal sweep on
+    the beat would not be slow, it would be a machine that never finishes one pulse before
+    the next.
 
     Measured over shims, probes and the ground loop rather than over a list of files a
     future caller could sidestep: those three ARE the pulse surface.
 
-    AND IT IS MEASURED OVER THE CODE, NOT OVER THE PROSE (2026-09-09, ticket
-    1accdc1781aa). Until today the tooth grepped the raw file text, so the first shim to
-    merely *explain* the door in a docstring redded it — measured when codemother's new
-    ``sealed`` handler wrote the word "resealed" in a sentence about why it reads only the
-    LATEST crossing. A tooth that reds a comment is not measuring its own claim: the claim
-    is that a pulse path REACHES the door, and a paragraph reaches nothing. So comments and
-    docstrings come off first and the grep runs over what is left, which still catches a
-    dynamic reach — ``ast.unparse`` keeps every string literal that is not a docstring, so
-    ``import_module("...reseal...")`` is as visible as an ``import``. The narrowing is not a
-    weakening in the direction that matters: an unparseable file is measured WHOLE."""
+    IT MEASURES A REACH, NOT A WORD (2026-11-01, open-1fd084bd6c01, ridden by ticket
+    e8be83a46ea9). On 2026-09-09 (ticket 1accdc1781aa) the grep stopped reading prose,
+    because "a paragraph reaches nothing". It still read every remaining string, so the probe
+    a_commit_that_reseals_leaves_a_clean_tree.py redded it for holding the hook's caller
+    string "cairn test --reseal" — which it only compares against a validation record's
+    caller field, beside a read-only git log. Weighed sieve why against probe why: the claim
+    is that a pulse path REACHES the door, and holding a string to compare reaches nothing
+    either. So the tooth reads the two shapes that do reach (see `_reaches`), and before it
+    trusts that narrowing over the live surfaces it proves every reach shape — sixteen of
+    them, written out in `_REACH_FIXTURES` — still reds, and that the compare-only and
+    prose-only shapes do not. A narrowing that lost a shape fails here, not in the field."""
+    tmp = scratch_dir("cairn-pulsereach-")
+    for name, src in _REACH_FIXTURES.items():
+        f = tmp / f"{name}.py"
+        f.write_text(src, encoding="utf-8")
+        assert _reaches(f, module="cairn.devices.tester.probes.fixture"), \
+            f"the narrowed tooth no longer reds the {name!r} reach: {src!r}"
+    for name, src in _CLEAR_FIXTURES.items():
+        f = tmp / f"{name}.py"
+        f.write_text(src, encoding="utf-8")
+        assert not _reaches(f, module="cairn.devices.tester.probes.fixture"), \
+            (name, _reaches(f, module="cairn.devices.tester.probes.fixture"))
+
     surfaces = []
     surfaces += sorted((_REPO_ROOT / "cairn").rglob("shim.py"))
     surfaces += [p for p in sorted((_REPO_ROOT / "cairn").rglob("probes/*.py"))]
@@ -416,12 +528,13 @@ def test_no_pulse_path_reaches_the_door():
                         / "ground_loop").rglob("*.py"))
     assert surfaces, "the grep found no pulse surfaces at all — the tooth measured nothing"
 
-    offenders = []
+    offenders = {}
     for path in surfaces:
-        if "reseal" in _code_without_prose(path):
-            offenders.append(str(path.relative_to(_REPO_ROOT)))
+        reach = _reaches(path)
+        if reach:
+            offenders[str(path.relative_to(_REPO_ROOT))] = reach
     assert not offenders, (
-        f"the reseal door is named on a pulse path: {offenders}. It runs proofs; the beat "
+        f"the reseal door is reached from a pulse path: {offenders}. It runs proofs; the beat "
         f"cannot afford it, and the ticket bounds it to pre-commit and a direct call.")
 
 

@@ -1,22 +1,21 @@
 [
   {
     "claim": "proof test_the_bus_client_is_admitted_to_the_sole_path.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-01T23:05:03",
+    "caller": "cairn test",
+    "date": "2026-11-01T23:06:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL test_the_real_repo_has_one_door: AssertionError: [\"launchers/proofs/test_superclaude_sets_cairn_user.py imports ['socket'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py') is supposed to be the only one\"]\n  ok   test_a_planted_dialer_is_still_caught\n  ok   test_the_charter_names_the_answer\n  ok   test_the_charter_names_the_answer\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_real_repo_has_one_door\n  ok   test_a_planted_dialer_is_still_caught\n  ok   test_the_charter_names_the_answer\n  ok   test_the_charter_names_the_answer\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "test_the_real_repo_has_one_door",
         "test_a_planted_dialer_is_still_caught",
         "test_the_charter_names_the_answer"
       ],
-      "teeth_red": [
-        "test_the_real_repo_has_one_door"
-      ],
-      "test": "test-32b2b291c6b8",
+      "teeth_red": [],
+      "test": "test-69616e9b5578",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,12 +36,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-32b2b291c6b8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-69616e9b5578",
       "source_fingerprint": "36847c0aa86f754ec37ec4f3ff4899d5ad652deb76fa1695cc870026bc9e0202",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
@@ -51,7 +51,7 @@
       ],
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3297258-jo9237kx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3299380-q4h5546_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,23 +60,31 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115225836,
-          "disk_bytes": 145784832,
-          "entries": 12057,
+          "bytes": 115228106,
+          "disk_bytes": 145788928,
+          "entries": 12058,
           "builds": 1,
-          "reuses": 8
+          "reuses": 1
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "90575ec00984f17df4391be23c812d7e1123b00265544256e76d43e1db9ce805",
         "opened": "2026-11-01T23:05:03",
         "last_red": "2026-11-01T23:05:03",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-inference-domain",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-01T23:06:45",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "90575ec00984f17df4391be23c812d7e1123b00265544256e76d43e1db9ce805"
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "conditions_moved": {
+        "notified": "n-d7f60d13192e",
+        "changed": [
+          "env"
+        ]
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

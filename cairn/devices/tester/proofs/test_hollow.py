@@ -76,7 +76,7 @@ PROVES = {
     },
     "1d23d635f7ca": {
         "1": "test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason",
-        "2": "test_the_live_subject_is_the_newest_qualifying_proved_ticket",
+        "2": "test_the_many_file_subject_is_a_fixture_that_reads_the_same_twice",
     },
 }
 
@@ -381,7 +381,14 @@ def test_evidence_hollow_lands_inside_the_seal_and_the_eight_fields_still_stand(
 
 
 def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_reason():
-    """THE LIVE FIRING, against ticket 9579a6f9cec6 — invariants, never the day's counts.
+    """THE MANY-FILE FIRING, over a fixture repo built for it — invariants, never the day's counts.
+
+    THE SUBJECT WAS A LIVE TICKET UNTIL IT COULD NOT BE MEASURED. Until 2026-10-30 this tooth fired
+    over ticket 9579a6f9cec6 in the real repo. That day the subject became unmeasurable: commit
+    433cdc908813 no longer reverse-applies over diagnostic.py after e8b58520aeb9, so the pre-build
+    reading could not be built at all. Akien chose a built fixture on 2026-11-01 ("agreed", ticket
+    1d23d635f7ca) because a fixture does not drift as the real repo changes. Residue: the tooth no
+    longer reads the live repo's history, so a fault that only the live repo would show is outside it.
 
     Snapshotting "5 hollow" here would red the day someone writes the missing teeth, which is
     the day the system got BETTER. What must hold forever is the instrument's contract: every
@@ -421,7 +428,8 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     """
     import time
     from cairn.devices.tester import hollow as _h
-    from cairn.devices.tester.hollow import writes_to, _ticket_path
+
+    tmp, repo, commons, declared_files = _many_file_subject("cairn-hollowlive-")
 
     made: list[str] = []
     real_worktree = _h.scratch_worktree
@@ -434,13 +442,11 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     _h.scratch_worktree = counting
     started = time.time()
     try:
-        f = measure("9579a6f9cec6", repo_root=_REPO_ROOT, timeout=120)
+        f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
     finally:
         _h.scratch_worktree = real_worktree
     elapsed = time.time() - started
 
-    ticket = json.loads(_ticket_path("9579a6f9cec6").read_text(encoding="utf-8"))
-    declared_files = writes_to(ticket)
     # A declared file a later ticket moved is measured at its successor (ticket d65fe3aa96e2);
     # the report's "moved" names the source it came from, so read it back through that.
     moved = f.get("moved", {})
@@ -463,8 +469,41 @@ def test_the_live_run_reads_every_writes_to_file_it_did_not_skip_for_a_named_rea
     assert elapsed < 1800, f"the run took {elapsed:.0f}s, which is a hang, not a slow box"
 
     # The commit reverted to must genuinely precede the crossing that named the build.
-    at = _git(_REPO_ROOT, "show", "-s", "--format=%cI", f["commit"]).stdout.strip()
+    at = _git(repo, "show", "-s", "--format=%cI", f["commit"]).stdout.strip()
     assert at[:19] < f["buildme_at"][:19], (at, f["buildme_at"])
+    return True
+
+
+def _many_file_subject(prefix: str):
+    """The spread fixture, re-berthed so its decompose declares four files rather than three —
+    the proof file too, so one run spans every skip-or-measure branch the live subject did."""
+    tmp = scratch_dir(prefix)
+    repo, commons = _fixture_spread(tmp)
+    declared_files = ["subject.py", "second.py", "unchecked.py", "proofs/test_fixture.py"]
+    _berth_decompose(tmp, declared_files)
+    return tmp, repo, commons, declared_files
+
+
+def test_the_many_file_subject_is_a_fixture_that_reads_the_same_twice():
+    """THE SUBJECT IS BUILT, NOT BORROWED — and a built subject reads the same every time.
+
+    The live tooth above lost its subject on 2026-10-30 because the real repo moved under it.
+    What makes the fixture the cure is two properties, asserted here so neither can quietly lapse:
+    every commit the reading reverts to lives in the fixture's own repo and is NOT an object of
+    the real one (so the real repo's drift cannot reach it), and two independent builds give the
+    same measured / hollow / skipped reading (so nothing in it depends on the day). unchecked.py
+    stays hollow in both, which is what keeps the agreement from being two empty readings.
+    """
+    readings = []
+    for prefix in ("cairn-hollowtwiceA-", "cairn-hollowtwiceB-"):
+        tmp, repo, commons, _ = _many_file_subject(prefix)
+        f = measure(FIXTURE, repo_root=repo, commons=commons, berths_root=_berths_root(tmp), timeout=60)
+        assert _git(repo, "cat-file", "-e", f["commit"]).returncode == 0, f["commit"]
+        assert _git(_REPO_ROOT, "cat-file", "-e", f["commit"]).returncode != 0, \
+            f"the fixture's commit {f['commit']} is an object of the real repo"
+        assert f["hollow"] == ["unchecked.py"], f["hollow"]
+        readings.append((f["measured"], f["hollow"], [s["file"] for s in f["skipped"]]))
+    assert readings[0] == readings[1], readings
     return True
 
 

@@ -37,7 +37,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
-from cairn.tools.base.probe import Probe, once, owning_ticket
+from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3dfceaa272ec"
 
@@ -173,9 +173,10 @@ PROBE = Probe(
         "lands as a red validation is a fact about live traffic, and the falsifier asks for zero "
         "WHILE timeouts keep being reported, so stillness cannot clear it",
     trigger=_trigger,
-    to="tester",
+    to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,
 )

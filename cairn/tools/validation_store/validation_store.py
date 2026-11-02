@@ -183,6 +183,30 @@ def component_root_for(proof_path: str) -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(proof_path)))
 
 
+def seal_digest(component_dir: str) -> str:
+    """One sha256 over a component's CURRENT seals — the token the yellow sieve records at seal
+    time and recomputes later (ticket f43b5705ea03). Rows are ``[stem, verdict,
+    evidence.source_fingerprint]`` of each validations file's last record, sorted by stem; older
+    entries and timestamps are deliberately outside it, so only a moved seal moves the digest.
+    No validations dir digests the canonical empty list."""
+    vdir = os.path.join(component_dir, "validations")
+    rows = []
+    names = sorted(os.listdir(vdir)) if os.path.isdir(vdir) else []
+    for name in names:
+        if not name.endswith(".json"):
+            continue
+        records = read_validations(path=os.path.join(vdir, name))
+        if not records:
+            continue
+        cur = records[-1] if isinstance(records, list) else records
+        if not isinstance(cur, dict):
+            raise ValueError(f"seal_digest: {name} current record is not an object")
+        rows.append([name[:-5], cur.get("verdict"),
+                     (cur.get("evidence") or {}).get("source_fingerprint")])
+    return hashlib.sha256(
+        json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
 def artifact_fingerprint(artifact_path: str) -> str:
     """One sha256 over a human-proved artifact's bytes — ``source_fingerprint``'s twin for
     prose. A quorum seal carries it so ``standing`` can expire the seal when the piece the

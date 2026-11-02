@@ -28,6 +28,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.tools.base.ticket_file import plans, read_ticket  # noqa: E402
 from cairn.tools.base.transitions import parse_workflow  # noqa: E402
 from cairn.tools.base.watchme_spec import watchme_spec_error  # noqa: E402
 
@@ -62,9 +63,9 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in tester."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue

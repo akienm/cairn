@@ -73975,5 +73975,167 @@
     "fingerprint": "b35a1b7f45fce51704b3839921f8e0c086c882f608013d20ffb2d3bcf5ce4b59",
     "at": "2026-11-01T23:55:29",
     "seq": 260
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/tester/proofs/test_reseal_door.py"
+    ],
+    "proven_seal_date": "2026-11-01T20:54:27",
+    "delegated": false,
+    "ticket": "36098e56d7d6",
+    "why": "superseded by e8be83a46ea9 (86d61399): the pulse-path tooth already measures a reach (an import of the door, or a reseal string handed to a launcher) and sixteen fixtures prove each reach shape reds; measured 2026-11-02, test_reseal_door.py 9 passed including test_no_pulse_path_reaches_the_door, with the probe byte-unchanged. Nothing is left for this ticket to build. CC's call, procedural (Akien 2026-11-01).",
+    "fingerprint": "133c024154ffecb1d51c2b0b3968b57edf7cd275ddfe29466500e024c00e8e81",
+    "at": "2026-11-01T23:57:41",
+    "seq": 261
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/tester/proofs/test_tester_probes_report_to_the_watch.py"
+    ],
+    "proven_seal_date": "2026-11-01T21:25:08",
+    "delegated": false,
+    "ticket": "b37661893ac8",
+    "why": "superseded by 71189b2ddffc (00334bef): _standing() already iterates ticket_file.plans() and reads each with read_ticket(), so a .state.json sidecar is never taken for a ticket; measured 2026-11-02, test_tester_probes_report_to_the_watch.py green with all three teeth passing. The population-vanished assert already reds a reader that skips state-only cursors, so the extra tooth would duplicate it. CC's call, procedural (Akien 2026-11-01).",
+    "fingerprint": "aa2f64954bafb139a950ac08cdc98786a2beb3c807b116a80d2300061d630ab0",
+    "at": "2026-11-01T23:57:41",
+    "seq": 262
   }
 ]

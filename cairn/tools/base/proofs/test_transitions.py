@@ -36,6 +36,24 @@ from cairn.tools.base import transitions
 from cairn.tools.base import ticket_file as _ticket_file
 from cairn.tools.charter import projector
 
+# THE COMMONS, BESIDE THE REPO ELSE UNDER $HOME — the rule hollow itself resolves by. Hollow
+# runs this file whole in a /tmp worktree with no CairnCommons beside it, where transitions'
+# repo-relative class table points at nothing and the first emitting tooth crashed the run
+# before any tooth after it could be read (ticket a0b0231dde70, FIXME 1). So when the sibling
+# is absent, the class-table defaults are pointed at the home checkout, for this process only.
+_COMMONS = _REPO_ROOT.parent / "CairnCommons"
+if not _COMMONS.is_dir():
+    _COMMONS = Path.home() / "dev" / "src" / "CairnCommons"
+    transitions._NODE_CLASSES = _COMMONS / "node_classes"
+    _ticket_file._TICKETS = _COMMONS / "tickets"
+    from cairn.tools.base import ticket_log as _ticket_log
+    _ticket_log._LIVE_CHARTER = _COMMONS / "tickets" / "_charter+why.json"
+    for _fn in (transitions.emit, transitions.load_class_def):
+        _kw = _fn.__kwdefaults__
+        for _k in ("node_class_root", "root"):
+            if _k in _kw:
+                _kw[_k] = _COMMONS / "node_classes"
+
 _CODE_SEAM = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 
 
@@ -185,7 +203,7 @@ def test_it_parses_a_real_live_ticket_workflow_string():
     # so it went red announcing an absent fixture rather than a defect. The parser does not care
     # which version a string claims — take any live code-seam ticket and conform it against the
     # registered path for the version IT claims. Asserts INVARIANTS, never a live cursor value.
-    tickets_dir = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+    tickets_dir = _COMMONS / "tickets"
     versions = transitions.load_class_def("code-seam")["workflow_versions"]
     found = None
     scanned = 0
@@ -1978,7 +1996,7 @@ import shutil as _shutil
 
 
 def _live_tickets() -> list[Path]:
-    d = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+    d = _COMMONS / "tickets"
     return _ticket_file.plans(d)  # plans only: a state file is not a ticket (284798998ab0)
 
 

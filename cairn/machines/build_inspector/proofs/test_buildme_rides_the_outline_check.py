@@ -8,7 +8,7 @@ the tooth fills by hand. No tooth calls the reader — the sieve reads only what
 
 The teeth, one per falsifier clause:
 
-  1. the entry gate lists six lanes, the sixth ``the_ticket_was_checked_against_the_outline``;
+  1. the entry gate lists ``the_ticket_was_checked_against_the_outline`` as its last lane (five lanes since a0b0231dde70 retired the rehearsal lane);
   2. with no record, ``buildme_rides_the_outline_check`` returns ONE finding whose
      check_with is ``cairn outlinecheck <id>``;
   3. with only a ran:false record, it returns one finding;
@@ -30,7 +30,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
     "c66b25d122e6": {
-        "1": "test_1_the_entry_gate_lists_six_lanes_and_the_sixth_is_the_outline_check",
+        "1": "test_1_the_entry_gate_lists_the_outline_check_as_its_last_lane",
         "2": "test_2_no_record_is_one_finding_naming_the_command",
         "3": "test_3_a_run_that_did_not_read_is_still_red",
         "4": "test_4_a_run_that_read_is_green",
@@ -72,7 +72,7 @@ class _World:
         shutil.rmtree(self.dir, ignore_errors=True)
 
 
-def test_1_the_entry_gate_lists_six_lanes_and_the_sixth_is_the_outline_check():
+def test_1_the_entry_gate_lists_the_outline_check_as_its_last_lane():
     from cairn.tools.base import transitions
     from cairn.tools.base import ticket_file
     import cairn.machines.build_inspector.inspector as I
@@ -90,7 +90,8 @@ def test_1_the_entry_gate_lists_six_lanes_and_the_sixth_is_the_outline_check():
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        assert len(names) == 6 and names[-1] == LANE, names
+        # five lanes since 2026-11-02: the rehearsal lane is retired (ticket a0b0231dde70)
+        assert len(names) == 5 and names[-1] == LANE, names
     finally:
         w.close()
 
@@ -153,7 +154,7 @@ def main() -> int:
     if failed:
         print(f"red — {len(failed)} of {len(teeth)} teeth: {', '.join(failed)}")
         return 1
-    print(f"green — {len(teeth)} teeth: the sixth BUILDME lane reds a ticket no outline check has "
+    print(f"green — {len(teeth)} teeth: the outline BUILDME lane reds a ticket no outline check has "
           "read, greens one a check has read, leaves an unfiled ticket to the chokepoint, and /sorted "
           "sends the caster to cairn outlinecheck")
     return 0

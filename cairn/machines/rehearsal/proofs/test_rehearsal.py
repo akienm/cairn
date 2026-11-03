@@ -24,8 +24,9 @@ The teeth, each against the charter's falsifier:
      and reads a current record green, clean or not (ticket 5f2e99bff577, Akien 2026-11-01:
      a clean rehearsal is the aim, not the minimum; the tooth renamed from
      test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green);
-     the entry gate lists six lanes, the fifth ``the_ticket_was_rehearsed`` (renamed from
-     the_ticket_rehearses_clean by the same ticket);
+     the entry gate lists five lanes and none is ``the_ticket_was_rehearsed``: the lane is
+     retired until a learner reads the records (ticket a0b0231dde70, Akien 2026-11-02, outline
+     17.6; the tooth renamed from test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal);
   5. the sixth pass opens ONE question naming the standing gaps and reads nothing (D11);
   6. the prompt asserts the reader's job (a build simulator, c9897770efe6) and that stopped is
      a legal answer; schema.json and ``validate`` agree over the schema's own vocabulary;
@@ -91,7 +92,7 @@ PROVES = {
         # the rest of the teeth, under the name of what each pins — the hollow reading counts
         # DECLARED teeth only, so an undeclared tooth is one a reverted file can never red
         "reread": "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record",
-        "lanes": "test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal",
+        "lanes": "test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired",
         "cap": "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing",
         "probe": "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
         "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
@@ -372,7 +373,7 @@ def test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_c
         w.close()
 
 
-def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
+def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
     from cairn.tools.base import transitions
     from cairn.tools.base import ticket_file
     import cairn.machines.build_inspector.inspector as I
@@ -390,9 +391,10 @@ def test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal():
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        assert len(names) == 6 and names[4] == "the_ticket_was_rehearsed", names
+        assert len(names) == 5 and "the_ticket_was_rehearsed" not in names, names
         src = (REPO / "cairn/tools/base/transitions.py").read_text()
-        assert src.count('_sieve_lane("the_ticket_was_rehearsed"') == 1
+        assert src.count('_sieve_lane("the_ticket_was_rehearsed"') == 0
+        assert callable(I.buildme_rides_the_rehearsal), "the sieve stays for the learner"
     finally:
         w.close()
 
@@ -598,11 +600,14 @@ def test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_c
 def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme():
     """The build's two non-code writes: the package init that makes ``cairn.machines.rehearsal``
     importable as a machine (not a namespace accident), and the /sail step that is the only
-    mouth telling a builder the lane exists. Both were hollow on the first reading (2026-09-15)."""
+    mouth telling a builder about the lane. Both were hollow on the first reading (2026-09-15).
+    Re-aimed 2026-11-02 (ticket a0b0231dde70): the skill now says the lane is retired until a
+    learner reads the records, and still says how to rehearse and dispose a gap when one runs."""
     assert (REPO / "cairn" / "machines" / "rehearsal" / "__init__.py").is_file()
     skill = (REPO / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert "cairn rehearse <ticket-id>" in skill, "the skill never tells the builder to rehearse"
-    assert "the_ticket_was_rehearsed" in skill, "the skill never names the lane that holds the crossing"
+    assert "the_ticket_was_rehearsed" in skill and "retired until a learner reads the records" in skill, \
+        "the skill never says the rehearsal lane is retired"
     assert "--decide" in skill and "cairn question open" in skill, "the skill never says how a gap is disposed"
     assert skill.index("cairn rehearse <ticket-id>") < skill.index("## 1. Journal BUILDME"), \
         "the rehearsal step must come before the BUILDME crossing"

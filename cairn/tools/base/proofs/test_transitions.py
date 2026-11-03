@@ -36,14 +36,6 @@ from cairn.tools.base import transitions
 from cairn.tools.base import ticket_file as _ticket_file
 from cairn.tools.charter import projector
 
-# Ticket a0b0231dde70 (Akien 2026-11-02, outline 17.6): a ticket crosses into BUILDME without
-# a rehearsal until a learner reads the rehearsal records. Its falsifier is one clause.
-PROVES = {
-    "a0b0231dde70": {
-        "all": "test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane",
-    },
-}
-
 _CODE_SEAM = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 
 
@@ -2374,30 +2366,3 @@ def _main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(_main())
-
-
-def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
-    """Ticket a0b0231dde70 (Akien 2026-11-02, outline 17.6): rehearsal is graph-tree training
-    data, and until a learner reads its records it is not a BUILDME requirement. So the entry
-    gate composes no rehearsal lane for a ticket no rehearsal has run over, and the two mouths
-    that told a builder the lane exists (/sail, the rehearsal charter) say it is retired. The
-    sieve itself (build_inspector.buildme_rides_the_rehearsal) stays for that learner."""
-    import cairn.machines.build_inspector.inspector as _insp
-    with tempfile.TemporaryDirectory() as d:
-        tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
-        try:
-            names = [e["identity"] for e in transitions.inspect_entry("widget")]
-        finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
-    assert "the_ticket_was_rehearsed" not in names, f"the retired lane still composes: {names}"
-    assert len(names) == 5, f"exactly the rehearsal lane is gone, no other: {names}"
-    assert callable(_insp.buildme_rides_the_rehearsal), "the sieve stays for the learner"
-    sail = (_REPO_ROOT / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
-    assert "retired until a learner reads the records" in sail, \
-        "/sail still tells the builder the rehearsal lane holds the crossing"
-    charter = (_REPO_ROOT / "cairn" / "machines" / "rehearsal" / "intention+why.json").read_text(encoding="utf-8")
-    assert "retired until a learner reads the records" in charter, \
-        "the rehearsal charter still states the lane as live"

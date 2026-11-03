@@ -25569,5 +25569,88 @@
     "fingerprint": "3f2578b9246764f4523be2c4c57e771513eab17166e20186d2a0ce4c93e2be9c",
     "at": "2026-11-02T19:38:30",
     "seq": 80
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "a0b0231dde70",
+    "actor": "CC",
+    "why": "hollow --seal refused: no reading attributable; the falsifier tooth needs a proof file that runs in a commons-less worktree",
+    "missing": [
+      "the falsifier tooth test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane cannot be hollow-measured inside cairn/tools/base/proofs/test_transitions.py: the file runs every tooth from _main, and test_a_back_edge_kickback_is_legal_and_carries_severity (line 173) crashes first in a commons-less worktree (emit's default node_class_root, IllegalTransition unknown node-class 'code-seam'), so teeth_that_ran_at_all is 0"
+    ],
+    "fingerprint": "f8f9e70dfb6f7a4baaee78e7498867b505cdc8774d5c7b18aa7c9212b2d26167",
+    "at": "2026-11-02T19:40:30",
+    "seq": 81
   }
 ]

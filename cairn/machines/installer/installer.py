@@ -96,14 +96,23 @@ def ask_cairn_home(
 ) -> dict:
     """Outline 7.3.7.4: is this box a cairn home, or which home does it attach to?
 
-    The answer is CAIRN_HOME_HOST, beside CAIRN_ROOT and CAIRN_RUNTIME in the shell rc:
+    The answer is CAIRN_HOME_HOST, beside CAIRN_ROOT and CAIRN_RUNTIME in the shell rc
+    (on Windows a user environment variable, set with setx, so every shell sees it):
     the home box's name, the same value on every box of the install (the home writes
     its own hostname). superclaude reads it to start the web server on the home only.
     """
+    windows = os.name == "nt" and rc is None
     rc = rc or SHELL_RC
     line_start = f"export {HOME_VAR}="
     have = os.environ.get(HOME_VAR, "")
-    if not have and rc.exists():
+    if not have and windows:   # a user env var: every shell sees it (PowerShell, cmd, Git Bash)
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as k:
+                have = winreg.QueryValueEx(k, HOME_VAR)[0]
+        except OSError:
+            pass
+    if not have and not windows and rc.exists():
         for ln in rc.read_text(errors="replace").splitlines():
             if ln.strip().startswith(line_start):
                 have = ln.strip()[len(line_start):].strip("'\"")
@@ -126,6 +135,13 @@ def ask_cairn_home(
             return {"id": "cairn-home", "status": "skipped", "detail": "no home named"}
     else:
         return {"id": "cairn-home", "status": "skipped", "detail": f"expected y or n, got {yn!r}"}
+    if windows:
+        r = subprocess.run(["setx", HOME_VAR, home], capture_output=True, text=True)
+        if r.returncode:
+            return {"id": "cairn-home", "status": "failed",
+                    "detail": f"RED: setx {HOME_VAR} failed: {r.stderr.strip() or r.stdout.strip()}"}
+        return {"id": "cairn-home", "status": "applied",
+                "detail": f"{HOME_VAR}={home} set for this user (setx); new shells see it"}
     with rc.open("a") as f:
         f.write(f"\n{line_start}{home}   # the cairn home box (cairn install, outline 7.3.7.4)\n")
     return {"id": "cairn-home", "status": "applied", "detail": f"{HOME_VAR}={home} written to {rc}"}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import subprocess
 import sys
 from pathlib import Path
@@ -73,6 +74,61 @@ def _ask_interactive(question: str) -> bool:
     print(f"\n{question} [Y/N] ", end="", flush=True)
     answer = input().strip().upper()
     return answer in ("Y", "YES")
+
+
+HOME_VAR = "CAIRN_HOME_HOST"
+SHELL_RC = Path(os.path.expanduser("~/.bashrc"))
+
+
+def _ask_text(question: str) -> str | None:
+    if not sys.stdin.isatty():
+        return None
+    print(f"\n{question} ", end="", flush=True)
+    return input().strip()
+
+
+def ask_cairn_home(
+    *,
+    rc: Path | None = None,
+    dry_run: bool = False,
+    ask_text_fn: object = None,
+    hostname: str | None = None,
+) -> dict:
+    """Outline 7.3.7.4: is this box a cairn home, or which home does it attach to?
+
+    The answer is CAIRN_HOME_HOST, beside CAIRN_ROOT and CAIRN_RUNTIME in the shell rc:
+    the home box's name, the same value on every box of the install (the home writes
+    its own hostname). superclaude reads it to start the web server on the home only.
+    """
+    rc = rc or SHELL_RC
+    line_start = f"export {HOME_VAR}="
+    have = os.environ.get(HOME_VAR, "")
+    if not have and rc.exists():
+        for ln in rc.read_text(errors="replace").splitlines():
+            if ln.strip().startswith(line_start):
+                have = ln.strip()[len(line_start):].strip("'\"")
+    if have:
+        return {"id": "cairn-home", "status": "already_applied", "detail": f"{HOME_VAR}={have}"}
+    if dry_run:
+        return {"id": "cairn-home", "status": "offered",
+                "detail": "ask: is this a cairn home, or which home does it attach to?"}
+    ask = ask_text_fn if callable(ask_text_fn) else _ask_text
+    me = hostname or socket.gethostname().split(".")[0]
+    yn = ask(f"Is this box ({me}) a cairn home? [y/n]")
+    if yn is None:
+        return {"id": "cairn-home", "status": "skipped", "detail": "no terminal to ask on"}
+    if yn.strip().lower() in ("y", "yes"):
+        home = me
+    elif yn.strip().lower() in ("n", "no"):
+        home = (ask("Then what's the hostname or IP of the cairn home this box should attach to?")
+                or "").strip()
+        if not home:
+            return {"id": "cairn-home", "status": "skipped", "detail": "no home named"}
+    else:
+        return {"id": "cairn-home", "status": "skipped", "detail": f"expected y or n, got {yn!r}"}
+    with rc.open("a") as f:
+        f.write(f"\n{line_start}{home}   # the cairn home box (cairn install, outline 7.3.7.4)\n")
+    return {"id": "cairn-home", "status": "applied", "detail": f"{HOME_VAR}={home} written to {rc}"}
 
 
 def install(
@@ -166,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = p.parse_args(argv)
 
-    results = install(
+    results = [ask_cairn_home(dry_run=args.dry_run)] + install(
         intentions_dir=args.intentions_dir,
         dry_run=args.dry_run,
     )

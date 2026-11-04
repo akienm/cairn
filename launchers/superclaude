@@ -8,6 +8,16 @@ command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # in Windows Terminal. DETACHED_PROCESS|CREATE_NO_WINDOW is memory_sync.py's push pattern.
 # Linux never reaches this: it has setsid and systemd-run, and its branches are unchanged.
 _sc_is_windows() { case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) return 0 ;; esac; return 1; }
+# Is this box the cairn home (outline 7.3.7.4, 18.3.5)? CAIRN_HOME_HOST names the home box, the
+# same value on every box of an install; `cairn install` asks for it. Unset = not yet asked, and
+# the box behaves as a home, which is what every box did before the question existed.
+_sc_is_cairn_home() {
+  local h="${CAIRN_HOME_HOST:-}" me
+  [[ -z "$h" ]] && return 0
+  h="${h,,}"; h="${h%%.*}"; me="$(hostname 2>/dev/null)"; me="${me,,}"; me="${me%%.*}"
+  [[ "$h" == "$me" || "$h" == localhost || "$h" == 127 ]] && return 0
+  [[ " $(hostname -I 2>/dev/null) " == *" ${CAIRN_HOME_HOST} "* ]]   # an IP of this box (Linux)
+}
 _sc_spawn_detached() {  # <logfile> <cmd...>
   local _log="$1"; shift
   python3 - "$_log" "$@" <<'PY' >/dev/null 2>&1
@@ -588,7 +598,9 @@ _sc_web_start() {
     -- python3 "$_sc_web_root/cairn/devices/web_server/listener.py" 2>&1
 }
 
-if [[ "$dry_run" -eq 0 ]]; then
+if [[ "$dry_run" -eq 0 ]] && ! _sc_is_cairn_home; then
+  _sc_log "web_server: not started: this box attaches to the cairn home $CAIRN_HOME_HOST (outline 18.3.5)"
+elif [[ "$dry_run" -eq 0 ]]; then
   mkdir -p "$(dirname "$_sc_web_log")" 2>/dev/null || true
   if ss -tlnH 2>/dev/null | grep -q ':80\b'; then
     _sc_log "web_server: already listening on port 80"

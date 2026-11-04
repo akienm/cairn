@@ -263,8 +263,46 @@ def test_run_verify_no_command():
         fail("no_cmd", f"unexpected output: {output}")
 
 
+def test_cairn_home_question():
+    """Outline 7.3.7.4: yes writes this box's own name, no writes the named home,
+    an answer already in the rc is never asked again, and no terminal writes nothing.
+    A build that asks every run, writes on a skip, or ignores the answer trips this."""
+    from cairn.machines.installer.installer import ask_cairn_home  # bound at call time
+    saved = os.environ.pop("CAIRN_HOME_HOST", None)
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            rc = Path(d) / "rc"
+            rc.write_text("export CAIRN_ROOT=/x\n")
+            r = ask_cairn_home(rc=rc, ask_text_fn=lambda q: "y", hostname="boxa")
+            if r["status"] != "applied" or "export CAIRN_HOME_HOST=boxa" not in rc.read_text():
+                fail("home_yes", f"{r} / {rc.read_text()!r}")
+            before = rc.read_text()
+            asked = []
+            r = ask_cairn_home(rc=rc, ask_text_fn=lambda q: asked.append(q) or "n", hostname="boxa")
+            if r["status"] != "already_applied" or asked or rc.read_text() != before:
+                fail("home_again", f"{r}, asked={asked}")
+
+            rc2 = Path(d) / "rc2"
+            answers = iter(["n", "homebox"])
+            r = ask_cairn_home(rc=rc2, ask_text_fn=lambda q: next(answers), hostname="boxb")
+            if r["status"] != "applied" or "export CAIRN_HOME_HOST=homebox" not in rc2.read_text():
+                fail("home_no", f"{r}")
+
+            rc3 = Path(d) / "rc3"
+            r = ask_cairn_home(rc=rc3, ask_text_fn=lambda q: None, hostname="boxc")
+            if r["status"] != "skipped" or rc3.exists():
+                fail("home_no_tty", f"{r}, rc3 exists={rc3.exists()}")
+            r = ask_cairn_home(rc=rc3, dry_run=True, ask_text_fn=lambda q: 1 / 0)
+            if r["status"] != "offered" or rc3.exists():
+                fail("home_dry", f"{r}")
+    finally:
+        if saved is not None:
+            os.environ["CAIRN_HOME_HOST"] = saved
+
+
 def main() -> int:
     tests = [
+        test_cairn_home_question,
         test_discovery,
         test_verify_first_idempotent,
         test_operator_decline,

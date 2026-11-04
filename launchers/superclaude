@@ -299,7 +299,16 @@ if [[ "$no_preflight" -eq 0 ]]; then
       # The venv goes on PATH ahead of system python, so `python3` inside the session IS
       # the floor we just laid. Without this the session would still reach system python
       # and the whole preflight would be theatre.
-      venv_bin="$(cairn_venv_dir)/bin"
+      # A Windows venv keeps its executables in Scripts, not bin (same switch as bin/cairn).
+      # And a Windows venv ships python.exe but no python3.exe, so `python3` would still fall
+      # through to the WindowsApps stub (system python, no cairn) — alias it once, idempotent.
+      case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*) venv_sub="Scripts"
+          [[ -x "$(cairn_venv_dir)/Scripts/python.exe" && ! -e "$(cairn_venv_dir)/Scripts/python3.exe" ]] \
+            && cp "$(cairn_venv_dir)/Scripts/python.exe" "$(cairn_venv_dir)/Scripts/python3.exe" 2>/dev/null ;;
+        *) venv_sub="bin" ;;
+      esac
+      venv_bin="$(cairn_venv_dir)/$venv_sub"
       [[ -d "$venv_bin" ]] && export PATH="$venv_bin:$PATH"
       residue="$(cairn_bootstrap_report 2>/dev/null)" || true
       [[ -n "$residue" ]] && preflight_arg=(--append-system-prompt "$residue")

@@ -302,6 +302,27 @@ else
   _sc_log "preflight: skipped by --no-preflight"
 fi
 
+# ── CC's memory: link the folder we were launched in (outline 12.3.5) ────────
+# Claude Code keeps memory per launch folder. Akien works from any repo on any of his
+# boxes ("cairn superclaude" in the weather folder had none of CC's knowledge), so the
+# launcher links THIS folder's memory to CC's private memory repo before CC starts:
+# no list of folders to keep, and a new box clones and installs the sync hooks the
+# first time it is used. Same prime directive as the preflight: guarded, never fatal.
+# Anything that needs a hand (a refused link, a failed clone) rides to CC with the
+# preflight residue, so CC sees it rather than starting quietly amnesiac.
+_sc_memlink="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../cairn/devices/cc/scripts/memory_link.py"
+_sc_py="$(command -v python3 || command -v python || true)"
+if [[ -r "$_sc_memlink" && -n "$_sc_py" ]]; then
+  _sc_memnote="$("$_sc_py" "$_sc_memlink" --quiet "$PWD" 2>&1)" || true
+  _sc_log "memory: link $PWD · $([[ -n "$_sc_memnote" ]] && echo "said: $_sc_memnote" || echo ok)"
+  if [[ -n "$_sc_memnote" ]]; then
+    echo "superclaude: $_sc_memnote" >&2
+    residue="${residue:+$residue
+}$_sc_memnote"
+    preflight_arg=(--append-system-prompt "$residue")
+  fi
+fi
+
 # ── assemble the launch ──────────────────────────────────────────────────────
 claude_bin="${CLAUDE_BIN:-claude}"
 

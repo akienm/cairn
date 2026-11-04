@@ -18,8 +18,10 @@ called a tool that must gate writes at its own address is a machine; this one ne
 
 THE THREE FACES, and choosing between them is the contract ticket fc93d8cd5961 settled:
 ``reach(*devices)`` is the CLIENT's face — it wires a delivery hook per named device and
-pays no beat. ``connect_bus`` / ``connect_system`` are the RUNNER's, and they beat. A beat
-costs ~23.5s against ~0.23s per shim, so a client that reaches for the runner's face is a
+pays no beat. ``connect_bus`` / ``connect_system`` are the RUNNER's. Since one bus per
+instance (ticket 48519f4789b1) neither beats either: ``beat`` is accepted and ignored, and the
+ground loop is the only heartbeat (outline 5.5, 19.5.1). When they did beat, a beat
+cost ~23.5s against ~0.23s per shim; a client that reaches for the runner's face is still a
 measured defect, and ``probes/a_client_reaches_and_never_beats.py`` reds for it.
 """
 

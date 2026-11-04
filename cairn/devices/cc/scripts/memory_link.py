@@ -5,20 +5,44 @@ Claude Code keeps memory per launch folder, at
 of those paths becomes a link to one clone of the private repo: every launch
 folder, on every box, reads and writes the same memory.
 
-    python3 memory_link.py [--repo URL] [--clone DIR] [LAUNCH_FOLDER ...]
+    python memory_link.py [--repo URL] [--clone DIR] [--no-hooks] [LAUNCH_FOLDER ...]
 
-Launch folders default to the home folder and the cairn repo. A real (unlinked)
+One command per box: clones the repo, links every launch folder, and installs
+the two sync hooks in ~/.claude/settings.json. Launch folders default to the home
+folder and the cairn repo this script sits in. The hooks name the exact Python
+that ran this and this script's absolute path, in forward slashes (Windows
+Python, cmd and Git Bash all accept them), so nothing depends on `python3` being
+on PATH or on where cairn lives. Re-running replaces its own hook entries. A real (unlinked)
 memory folder that already exists is only replaced when every file in it is
 already in the clone, byte for byte; otherwise it refuses and names the files.
 Linux/macOS: a symlink. Windows: a directory junction (no admin needed).
 """
-import argparse, filecmp, os, re, shutil, subprocess, sys
+import argparse, filecmp, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 HOME = Path.home()
 REPO = "https://github.com/akienm/cc-memory.git"
 CLONE = HOME / "dev" / "src" / "cc-memory"
-DEFAULT_LAUNCH = [HOME, HOME / "dev" / "src" / "cairn"]
+HERE = Path(__file__).resolve().parent
+CAIRN = HERE.parents[3]                  # <cairn>/cairn/devices/cc/scripts
+DEFAULT_LAUNCH = [HOME, CAIRN]
+SETTINGS = HOME / ".claude" / "settings.json"
+SYNC = HERE / "memory_sync.py"
+
+
+def install_hooks(clone: Path) -> None:
+    d = json.loads(SETTINGS.read_text()) if SETTINGS.exists() else {}
+    hooks = d.setdefault("hooks", {})
+    base = f'"{Path(sys.executable).as_posix()}" "{SYNC.as_posix()}"'
+    for event, verb in (("SessionStart", "pull"), ("Stop", "push")):
+        kept = [h for h in hooks.get(event, [])
+                if not any("memory_sync.py" in x.get("command", "") for x in h.get("hooks", []))]
+        kept.append({"hooks": [{"type": "command", "timeout": 40,
+                                "command": f'{base} {verb} "{clone.as_posix()}"'}]})
+        hooks[event] = kept
+    SETTINGS.parent.mkdir(parents=True, exist_ok=True)
+    SETTINGS.write_text(json.dumps(d, indent=2) + "\n")
+    print(f"hooks  {SETTINGS}: SessionStart pull, Stop push")
 
 
 def slug(folder: Path) -> str:
@@ -59,6 +83,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--repo", default=REPO)
     ap.add_argument("--clone", type=Path, default=CLONE)
+    ap.add_argument("--no-hooks", action="store_true")
     ap.add_argument("launch", nargs="*", type=Path)
     a = ap.parse_args()
     clone = a.clone.resolve()
@@ -81,6 +106,8 @@ def main() -> int:
         mem.parent.mkdir(parents=True, exist_ok=True)
         make_link(mem, clone)
         print(f"linked  {mem} -> {clone}")
+    if not a.no_hooks:
+        install_hooks(clone)
     return 1 if bad else 0
 
 

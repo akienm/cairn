@@ -1,7 +1,9 @@
 """Keep CC's private memory repo in step across boxes (outline 12.3.5).
 
-    memory_sync.py pull   # SessionStart: take what other CC instances wrote
-    memory_sync.py push   # Stop: commit what this session wrote, push it
+    memory_sync.py pull [CLONE]   # SessionStart: take what other CC instances wrote
+    memory_sync.py push [CLONE]   # Stop: commit what this session wrote, push it
+
+memory_link.py installs both hooks with CLONE spelled out.
 
 CC will not remember to commit its memory, so hooks do it. `push` commits only
 when something changed and pushes in a detached child, so a turn never waits on
@@ -44,12 +46,16 @@ def push() -> int:
     git("add", "-A")
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     git("commit", "-q", "-m", f"memory from {socket.gethostname()} {stamp}")
-    subprocess.Popen(["git", "-C", str(CLONE), "push", "-q"], start_new_session=True,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    detach = ({"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW}
+              if os.name == "nt" else {"start_new_session": True})
+    subprocess.Popen(["git", "-C", str(CLONE), "push", "-q"], stdin=subprocess.DEVNULL,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **detach)
     return 0
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 2:
+        CLONE = Path(sys.argv[2])
     if not (CLONE / ".git").exists():
         sys.exit(0)       # this box has no clone yet: memory_link.py makes one
     sys.exit({"pull": pull, "push": push}[sys.argv[1]]())

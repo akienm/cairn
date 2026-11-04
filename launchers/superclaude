@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 # setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
 command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
+# Windows only: a background sibling must LEAVE the console. nohup (above) detaches nothing there,
+# so a sibling that exits (the ground loop's singleton loser exits 3 at once) takes the shared
+# console's output mode back to what it saw at its start -- measured 0x7 -> 0x0 half a second
+# after launch under `cairn superclaude`, which is what drew Claude Code's ESC bytes as "<-[?25h"
+# in Windows Terminal. DETACHED_PROCESS|CREATE_NO_WINDOW is memory_sync.py's push pattern.
+# Linux never reaches this: it has setsid and systemd-run, and its branches are unchanged.
+_sc_is_windows() { case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) return 0 ;; esac; return 1; }
+_sc_spawn_detached() {  # <logfile> <cmd...>
+  local _log="$1"; shift
+  python3 - "$_log" "$@" <<'PY' >/dev/null 2>&1
+import subprocess, sys
+log = open(sys.argv[1], "ab")
+subprocess.Popen(sys.argv[2:], stdin=subprocess.DEVNULL, stdout=log, stderr=log,
+                 creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW)
+PY
+}
 # superclaude — Cairn's Claude Code launcher.
 #
 # Canonical home: cairn/launchers/superclaude  (symlinked onto PATH via ~/.local/bin;
@@ -523,9 +539,13 @@ if [[ "$dry_run" -eq 0 ]]; then
       _sc_log "ground_loop: ${_sc_loop_unit}.service refused the start — nothing was spawned; see $_sc_loop_log"
       ;;
     *)
-      ( setsid python3 -m cairn.devices.cairn.machines.ground_loop \
-          >>"$_sc_loop_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-      disown 2>/dev/null || true
+      if _sc_is_windows; then
+        _sc_spawn_detached "$_sc_loop_log" python3 -m cairn.devices.cairn.machines.ground_loop || true
+      else
+        ( setsid python3 -m cairn.devices.cairn.machines.ground_loop \
+            >>"$_sc_loop_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+        disown 2>/dev/null || true
+      fi
       _sc_log "ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)"
       ;;
   esac
@@ -585,9 +605,13 @@ if [[ "$dry_run" -eq 0 ]]; then
       esac
     fi
   else
-    ( setsid python3 "$_sc_web_root/cairn/devices/web_server/listener.py" \
-        >>"$_sc_web_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-    disown 2>/dev/null || true
+    if _sc_is_windows; then
+      _sc_spawn_detached "$_sc_web_log" python3 "$_sc_web_root/cairn/devices/web_server/listener.py" || true
+    else
+      ( setsid python3 "$_sc_web_root/cairn/devices/web_server/listener.py" \
+          >>"$_sc_web_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
+      disown 2>/dev/null || true
+    fi
     _sc_log "web_server: systemd-run unavailable — spawned with setsid"
   fi
 fi

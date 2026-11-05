@@ -70,6 +70,11 @@ class World:
         self.dir = Path(scratch_dir("testing-b9be8f2e3e68-decide-reports-"))
         self.commons = self.dir / "CairnCommons"
         (self.commons / "tickets").mkdir(parents=True)
+        # ticket_log reads the declared log kinds beside the plan; a hollow worktree has no
+        # live commons beside it to fall back on
+        (self.commons / "tickets" / "_charter+why.json").write_text(json.dumps({
+            "plan_fields": ["id", "title", "intention", "workflow_and_state", "decisions", "questions"],
+            "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
         self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n", encoding="utf-8")
 

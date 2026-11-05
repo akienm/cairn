@@ -36,7 +36,7 @@ _THREE = ("cairn/tools/base/proofs/test_chat_pane.py",
           "cairn/tools/base/proofs/test_console_pane.py",
           "cairn/tools/base/proofs/test_probe_carry.py")
 
-PROVES = {_TICKET: {
+PROVES = {"ad7caca4d54c": {
     "1": "test_no_breach_from_the_three",
     "2": "test_the_three_reach_the_live_bus_marked",
     "3": "test_the_carry_holds_no_testing_name",

@@ -1,0 +1,111 @@
+[
+  {
+    "claim": "proof test_codemother_probes_report_to_the_watch.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-05T04:25:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_standing_codemother_probe_posts_watch\n  PASS  test_every_standing_codemother_spec_names_the_receiver\n  PASS  test_codemother_probes_report_to_the_watch\ngreen — every standing codemother probe reports {ticket, holds, finding} to the watch verb",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_standing_codemother_probe_posts_watch",
+        "test_every_standing_codemother_spec_names_the_receiver",
+        "test_codemother_probes_report_to_the_watch"
+      ],
+      "teeth_red": [],
+      "test": "test-63f16adf9335",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "70ab93af3a1e3352a2fd184be85737c51a700531dca3936f8c547685385b460a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63f16adf9335",
+      "source_fingerprint": "7788504c16b0711a8e8451fd874f050ec7f1aaf9c92a621f71141ac680200d64",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/__init__.py",
+        "cairn/devices/codemother/probes/charter_feedback_reaches.py",
+        "cairn/devices/codemother/probes/known_pattern_missed.py",
+        "cairn/devices/codemother/proofs/test_codemother_probes_report_to_the_watch.py",
+        "cairn/devices/codemother/shim.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/data_recorder": "b7bc334d7794d529f21fdf0d782d30dbe360a2cfbab800b5fe268d7e06c60018",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/instanceizer": "9a7ff006213be62d2a2d632de5bd8c3086b387c3c8fcdcafae9777e107168ef7",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-10451-k4qve3f4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116710906,
+          "disk_bytes": 148414464,
+          "entries": 12468,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "337b78c2667d": {
+          "cairn/devices/codemother/probes/known_pattern_missed.py": [
+            "test_codemother_probes_report_to_the_watch"
+          ],
+          "cairn/devices/codemother/probes/charter_feedback_reaches.py": [
+            "test_codemother_probes_report_to_the_watch"
+          ],
+          "CairnCommons/tickets/760149d5fe55-a-device-that-surfaces-what-cc-needs-to-know.state.json": [
+            "test_codemother_probes_report_to_the_watch"
+          ],
+          "CairnCommons/tickets/65b34c57ab71-charter-placed-under-codemother.state.json": [
+            "test_codemother_probes_report_to_the_watch"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "337b78c2667d": {
+          "anchor_rule": "journal",
+          "anchor_journal": "ee1af15e3493c94a2e412d86bc51ab84b46c7bb2",
+          "anchor_first_build": "72043e0df595bf792548eb63ada5e1ed16deff65",
+          "commit": "ee1af15e3493c94a2e412d86bc51ab84b46c7bb2"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

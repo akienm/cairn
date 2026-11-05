@@ -13,7 +13,8 @@ Teeth, each importing the code under test at call time:
   (2) behaviour unchanged: all 13 are DiagnosticBase subclasses; Fence stays frozen and equal
       values stay equal; a _Surface still records a non-underscore attribute read; a _stub
       still answers with a _Recorder and still carries its real exception class; VenvRunFailed
-      is still a RuntimeError; DriveResult still asdict()s.
+      is still a RuntimeError; DriveResult still asdict()s; and every other aider_shim proof,
+      run as its own process, still exits 0 (falsifier clause 3).
 
     PYTHONPATH=. python3 cairn/devices/aider_shim/proofs/test_every_aider_shim_class_reaches_the_diagnostic_mixin.py
 """
@@ -31,6 +32,7 @@ if str(_REPO) not in sys.path:
 PROVES = {"b13c53dd679c": {
     "1": "test_no_bare_class_in_aider_shim",
     "2": "test_behaviour_unchanged",
+    "3": "test_behaviour_unchanged",
 }}
 
 _CLASSES = (("driver", "DriveResult"), ("fence", "Fence"), ("fence", "SeenLog"),
@@ -107,6 +109,19 @@ def test_behaviour_unchanged() -> None:
     dr = mods["driver"].DriveResult(ticket="t", piece_index=0, model="m", at="now")
     if dataclasses.asdict(dr).get("ticket") != "t":
         lacks.append("DriveResult no longer asdict()s")
+
+    if not lacks:
+        import subprocess
+        env = {**os.environ, "PYTHONPATH": str(_REPO)}
+        here = Path(__file__).resolve()
+        for proof in sorted(here.parent.glob("test_*.py")):
+            if proof == here:
+                continue
+            run = subprocess.run([sys.executable, str(proof)], cwd=str(_REPO), env=env,
+                                 capture_output=True, text=True, timeout=600)
+            if run.returncode != 0:
+                tail = (run.stdout + run.stderr).strip().splitlines()[-4:]
+                lacks.append(f"{proof.name} exited {run.returncode}: {' | '.join(tail)}")
 
     check("test_behaviour_unchanged", not lacks, "; ".join(lacks))
 

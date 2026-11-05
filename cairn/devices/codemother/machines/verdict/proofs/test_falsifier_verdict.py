@@ -33,6 +33,11 @@ import pytest
 import sys
 from pathlib import Path
 
+# Ticket 0d38d0f5a4e3 changed one tooth: it read the live ticket through a repo-relative
+# commons and so went red in hollow's commons-less worktree, which redded that ticket's
+# clause (4) at HEAD. It now reads beside-else-home; no tooth was removed.
+PROVES = {"0d38d0f5a4e3": {"4": "test_the_real_ticket_that_built_this_form_yields_its_clauses"}}
+
 _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -323,7 +328,11 @@ def test_the_real_ticket_that_built_this_form_yields_its_clauses(root, tickets):
     """Over the LIVE ticket, asserting INVARIANTS and never a snapshot count: this
     ticket's falsifier will grow if the design does, and a pinned 8 would turn
     normal motion into a spurious red."""
-    criteria, err = falsifier_criteria("watchme-emits-a-probe")
+    # hollow runs this in a /tmp worktree with no CairnCommons beside it: read the live
+    # ticket beside the repo, else from the home checkout (0d38d0f5a4e3 tooth 4).
+    here = Path(__file__).resolve().parents[5]
+    live = here if (here.parent / "CairnCommons" / "tickets").is_dir() else Path.home() / "dev" / "src" / "cairn"
+    criteria, err = falsifier_criteria("watchme-emits-a-probe", root=str(live))
     assert err is None, err
     assert len(criteria) >= 3, criteria  # a non-vacuity bit, not the count
     for i, c in enumerate(criteria):

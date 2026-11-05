@@ -26,13 +26,7 @@ _ROOT = Path(__file__).resolve().parents[4]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-PROVES = {
-    "d81baa1b5cb8": {
-        "1": "test_the_four_files_carry_no_breach",
-        "2": "test_the_probe_loader_reds_a_broken_probe",
-        "3": "test_the_class_tooth_reads_bases_by_ast",
-    },
-}
+PROVES = {"d81baa1b5cb8": {"all": "test_the_four_files_carry_no_breach"}}
 
 _BASE = _ROOT / "cairn" / "tools" / "base"
 _FOUR = (

@@ -405,13 +405,27 @@ class BusProcess(DiagnosticBase):
 
     # --- mail that stands (ticket b30069239480) ----------------------------------------
 
+    def _dispose_test_mail(self, envelope: dict, age: float | None) -> None:
+        """Testing-marked mail standing STOOD_S is test debris (ticket 6357c2eeff7c; 71d1bbfa98b0
+        D2): logged and receipted, never raised into the live trouble lane."""
+        mark = testing_mark.mark_of(envelope.get("body") or {}) or {}
+        to = envelope.get("addressee") or ""
+        emit = getattr(self.bus, "emit", None)
+        if callable(emit):
+            emit("test_mail_disposed", pointer=envelope["id"], values={
+                "envelope": envelope["id"], "sender": envelope.get("sender") or "",
+                "addressee": to, "test": mark.get("test", ""),
+                "age_s": None if age is None else int(age)})
+        self.bus.record_delivery(envelope["id"], to=to, by="bus-test-mail-disposed")
+
     def report_stood(self, now: datetime | None = None) -> int:
         """Raise one trouble for each personal envelope standing undelivered STOOD_S or more,
         once per envelope. Rides the flush because the flush is the one op the beat sends the
         bus process. It REPORTS and nothing else: no wake or delivery is retried here, so no
         message ever waits on a tick to be delivered (bus clause 5). Identity is per
         addressee — many stuck letters to one name are one trouble with a count. An envelope
-        whose date cannot be read is raised too, with its age unknown, never skipped (Law 7)."""
+        whose date cannot be read is raised too, with its age unknown, never skipped (Law 7).
+        Testing-marked mail that stands is test debris: disposed of, never raised (6357c2eeff7c)."""
         now = now or datetime.now()
         raised = 0
         for envelope in self.bus.undelivered(limit=1_000_000):
@@ -419,6 +433,10 @@ class BusProcess(DiagnosticBase):
                 continue
             age = _age_s(envelope.get("date"), now)
             if age is not None and age < STOOD_S:
+                continue
+            if testing_mark.mark_of(envelope.get("body") or {}):
+                self._dispose_test_mail(envelope, age)
+                self._stood_reported.add(envelope["id"])
                 continue
             to = envelope.get("addressee") or ""
             sender = envelope.get("sender") or ""

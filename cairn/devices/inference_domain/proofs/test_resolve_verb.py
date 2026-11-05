@@ -16,15 +16,17 @@ What a hollow build cannot pass (Law 8):
 
 Requires Postgres (domain.resolve writes to the cache). Self-cleaning.
 
+The rig reaches the bus through bus_client and hands inference_domain's own shim a
+perform-marked request (ticket 12e6ecd87700, RULE 1; the d0c8c4b4283e pattern): the caller is a
+testing name, the reply rides the test's mark, and the caller takes it.
+
     python3 cairn/devices/inference_domain/proofs/test_resolve_verb.py   # exit 0 = green
 """
 
 from __future__ import annotations
 
-import contextlib
 import sys
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -32,17 +34,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
-from cairn.tools.base.device import BaseDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
-from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 from cairn.devices.inference_domain.device import InferenceDomainDevice  # noqa: E402
 from cairn.devices.inference_domain.shim import InferenceDomainShim  # noqa: E402
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
-_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
-NOW = datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc)
+_TICKET = "12e6ecd87700"        # the ticket that moved this rig onto bus_client; the perform mark's test id
 
 FAKE_VECTOR = [0.1, 0.2, 0.3]
 
@@ -59,40 +55,48 @@ def _fake_resolver(request):
     raise ValueError(f"unknown kind {kind!r}")
 
 
-class CallerShim(BaseShim):
-    def __init__(self, bus=None):
-        super().__init__(bus=bus)
-        self._presence = ONLINE
+class _TestingBus:
+    """The bus, reached through bus_client, with one decline: a testing shim never asks the bus
+    to hold it (the d0c8c4b4283e rig)."""
 
-    @property
-    def device_id(self):
-        return "caller"
+    def __init__(self, bus):
+        self._bus = bus
 
-    def _start_device(self):
-        dev = BaseDevice.__new__(BaseDevice)
-        dev.__dict__["_device_id"] = "caller"
-        dev.intention = lambda: {"what": "proof caller"}
-        dev.state = lambda: {}
-        dev.settings = lambda: {}
-        dev.device_id = property(lambda s: "caller")
-        return dev
+    def wire_delivery(self, *args, **kwargs):
+        return None
+
+    def __getattr__(self, name):
+        return getattr(self._bus, name)
 
 
-def _fresh_bus():
-    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_resolve"))
-    return bus
+class _Rig:
+    """inference_domain's own shim on the bus, and a testing-named caller (ticket 12e6ecd87700).
 
+    RULE 1: the bus is reached through bus_client, never by importing the cairn device's bus
+    machine. A request is handed to the shim as a perform-marked envelope (d0c8c4b4283e): the
+    shim runs the verb and posts the reply, carrying the mark, on the bus for the caller, who
+    reads it by reply_to and takes it."""
 
-def _rig_with_inference(bus):
-    loop = DeviceRoster(bus)
-    bus_shim = BusShim(bus, loop)
-    inf_shim = InferenceDomainShim(bus=bus)
-    caller_shim = CallerShim(bus=bus)
-    loop.hold(bus_shim)
-    loop.hold(inf_shim)
-    loop.hold(caller_shim)
-    loop.pulse(NOW)
-    return loop
+    def __init__(self) -> None:
+        from cairn.tools.bus_client import bus_client
+        self.bus = _TestingBus(bus_client.reach())
+        self.caller = f"testing-{_TICKET}-caller-{uuid.uuid4().hex[:8]}"
+        self.shim = InferenceDomainShim(bus=self.bus)
+
+    def ask(self, verb: str, body: dict, resolver=_fake_resolver) -> dict:
+        from cairn.tools.base import testing_mark
+        envelope_id = f"testing-{_TICKET}-{uuid.uuid4().hex}"
+        with patch("cairn.devices.inference_domain.host.ollama_resolver",
+                   return_value=resolver):
+            self.shim.deliver({
+                "id": envelope_id, "sender": self.caller, "addressee": "inference_domain",
+                "channel": "personal", "verb": verb,
+                "body": {**body, testing_mark.FIELD: testing_mark.mark(_TICKET, testing_mark.PERFORM)}})
+        replies = [e for e in self.bus.read(to=self.caller, channel="personal")
+                   if e.get("reply_to") == envelope_id]
+        assert len(replies) == 1, f"{len(replies)} replies to {verb!r} on the bus, want 1"
+        self.bus.record_delivery(replies[0]["id"], to=self.caller, by=self.caller)
+        return replies[0]
 
 
 # --- teeth ------------------------------------------------------------------
@@ -123,46 +127,25 @@ def test_resolve_verb_includes_base_verbs():
 
 def test_resolve_returns_real_result():
     """The resolve verb calls domain.resolve with the body's request and returns the answer."""
-    bus = _fresh_bus()
-    _rig_with_inference(bus)
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_fake_resolver):
-        reply = bus.request(
-            sender="caller", to="inference_domain", channel="personal",
-            verb="resolve", why="proof: embed test",
-            body={"kind": "embed", "prompt": "test text", "model": "nomic-embed-text"},
-        )
+    rig = _Rig()
+    reply = rig.ask("resolve", {"kind": "embed", "prompt": "test text", "model": "nomic-embed-text"})
     assert reply["body"]["answer"]["vector"] == FAKE_VECTOR, reply["body"]
     assert "hit" in reply["body"], "result must carry hit flag"
 
 
 def test_reply_lands_in_ring():
     """The reply is posted back to the sender with reply_to set."""
-    bus = _fresh_bus()
-    _rig_with_inference(bus)
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_fake_resolver):
-        reply = bus.request(
-            sender="caller", to="inference_domain", channel="personal",
-            verb="resolve", why="proof: reply check",
-            body={"kind": "embed", "prompt": "test", "model": "nomic-embed-text"},
-        )
+    rig = _Rig()
+    reply = rig.ask("resolve", {"kind": "embed", "prompt": "test", "model": "nomic-embed-text"})
     assert reply["sender"] == "inference_domain"
-    assert reply["addressee"] == "caller"
+    assert reply["addressee"] == rig.caller
     assert reply["reply_to"] is not None, "reply must carry reply_to"
 
 
 def test_generate_kind():
     """The resolve verb handles 'generate' kind requests."""
-    bus = _fresh_bus()
-    _rig_with_inference(bus)
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_fake_resolver):
-        reply = bus.request(
-            sender="caller", to="inference_domain", channel="personal",
-            verb="resolve", why="proof: generate test",
-            body={"kind": "generate", "prompt": "say hello", "model": "qwen2.5:7b"},
-        )
+    rig = _Rig()
+    reply = rig.ask("resolve", {"kind": "generate", "prompt": "say hello", "model": "qwen2.5:7b"})
     assert reply["body"]["answer"]["text"] == "hello from the fake host"
 
 
@@ -183,20 +166,9 @@ def test_device_is_bus_unaware():
 
 def test_yield_view_via_get_verb():
     """The yield view is reachable through the base get verb on the bus."""
-    bus = _fresh_bus()
-    _rig_with_inference(bus)
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_fake_resolver):
-        bus.request(
-            sender="caller", to="inference_domain", channel="personal",
-            verb="resolve", why="proof: warm the cache",
-            body={"kind": "embed", "prompt": "test", "model": "nomic-embed-text"},
-        )
-    reply = bus.request(
-        sender="caller", to="inference_domain", channel="personal",
-        verb="get", why="proof: yield view",
-        body={"what": "yield"},
-    )
+    rig = _Rig()
+    rig.ask("resolve", {"kind": "embed", "prompt": "test", "model": "nomic-embed-text"})
+    reply = rig.ask("get", {"what": "yield"})
     data = reply["body"]["data"]
     assert "spent" in data, f"yield view must report spent, got {sorted(data)}"
     assert "avoided" in data, f"yield view must report avoided, got {sorted(data)}"
@@ -232,14 +204,9 @@ def test_a_toolset_survives_the_bus_verb():
                 "function": {"name": "clock", "description": "the time",
                              "parameters": {"type": "object", "properties": {}}}}]
 
-    bus = _fresh_bus()
-    _rig_with_inference(bus)
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_capturing):
-        bus.request(sender="caller", to="inference_domain", channel="personal",
-                    verb="resolve", why="proof: a toolset crosses the bus",
-                    body={"kind": "chat", "messages": turns, "model": "qwen2.5:7b",
-                          "tools": toolset})
+    rig = _Rig()
+    rig.ask("resolve", {"kind": "chat", "messages": turns, "model": "qwen2.5:7b",
+                        "tools": toolset}, _capturing)
     assert seen, "the resolver was never called — the request never reached the domain"
     assert seen[-1].get("tools") == toolset, (
         "the bus verb DROPPED the toolset: the resolver saw "
@@ -252,13 +219,9 @@ def test_a_toolset_survives_the_bus_verb():
     # THE CONTROL: no toolset in, no toolset key out. Without this the assertion above is
     # satisfied by a handler that copies the body wholesale, which is a different design.
     seen.clear()
-    with patch("cairn.devices.inference_domain.host.ollama_resolver",
-               return_value=_capturing):
-        bus.request(sender="caller", to="inference_domain", channel="personal",
-                    verb="resolve", why="proof: a toolless chat carries no toolset",
-                    body={"kind": "chat",
-                          "messages": [{"role": "user", "content": f"plain {_RUN}"}],
-                          "model": "qwen2.5:7b"})
+    rig.ask("resolve", {"kind": "chat",
+                        "messages": [{"role": "user", "content": f"plain {_RUN}"}],
+                        "model": "qwen2.5:7b"}, _capturing)
     assert seen and "tools" not in seen[-1], \
         "a toolless chat must carry no `tools` key at all — an always-present key forks the " \
         "cache for every caller who never asked for one"
@@ -292,7 +255,6 @@ if __name__ == "__main__":
                 print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
     finally:
         _domain.set_diagnostic_roots(None)
-        _SCRATCH.close()
     if failures:
         print(f"RED — {failures} tooth/teeth bit")
         raise SystemExit(1)

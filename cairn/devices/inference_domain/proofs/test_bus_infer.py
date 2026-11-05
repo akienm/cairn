@@ -21,19 +21,14 @@ Requires Postgres (domain.resolve writes to the cache). Self-cleaning.
 
 from __future__ import annotations
 
-import contextlib
 import sys
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
-
-from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
-from cairn.tools.base.device import BaseDevice  # noqa: E402
 
 # THE SUBJECT IS BOUND AT CALL TIME, never at import (ticket 87a7f1c7ae21's FIXME 1-2): the
 # bus, the roster and the domain all import cairn.tools.bus_client, whose package __init__
@@ -42,17 +37,21 @@ from cairn.tools.base.device import BaseDevice  # noqa: E402
 # the first tooth (UNREAD). Bound in the teeth, each tooth FAILS by name instead.
 
 
+#
+# THE BUS IS REACHED THROUGH bus_client (ticket 12e6ecd87700, RULE 1): never by importing the
+# cairn device's bus machine. A request is handed to inference_domain's own shim as a
+# perform-marked envelope (the d0c8c4b4283e pattern); the shim runs the verb and posts the
+# reply, carrying the mark, on the bus for a testing-named caller, who reads it and takes it.
+
+
 def _subject():
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
-    from cairn.devices.cairn.machines.bus.shim import BusShim
-    from cairn.tools.bus_client.roster import DeviceRoster
+    from cairn.tools.bus_client import bus_client
     from cairn.devices.inference_domain.device import InferenceDomainDevice
     from cairn.devices.inference_domain.shim import InferenceDomainShim
-    return BusDevice, BusShim, DeviceRoster, InferenceDomainDevice, InferenceDomainShim
+    return bus_client, InferenceDomainDevice, InferenceDomainShim
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in message text; never a table name
-_SCRATCH = contextlib.ExitStack()   # every bus this run minted rides store.scratch(): dropped at close, swept by pid if not
-NOW = datetime(2026, 9, 18, 12, 0, tzinfo=timezone.utc)
+_TICKET = "12e6ecd87700"        # the perform mark's test id
 FAKE_VECTOR = [0.5, 0.25, 0.125]
 SEEN: list[dict] = []
 
@@ -77,76 +76,76 @@ def _stub_resolver(request):
     raise ValueError(f"unknown kind {kind!r}")
 
 
-class CallerShim(BaseShim):
-    def __init__(self, bus=None):
-        super().__init__(bus=bus)
-        self._presence = ONLINE
+class _TestingBus:
+    """The bus with one decline: a testing shim never asks the bus to hold it."""
 
-    @property
-    def device_id(self):
-        return "caller"
+    def __init__(self, bus):
+        self._bus = bus
 
-    def _start_device(self):
-        dev = BaseDevice.__new__(BaseDevice)
-        dev.__dict__["_device_id"] = "caller"
-        dev.intention = lambda: {"what": "proof caller"}
-        dev.state = lambda: {}
-        dev.settings = lambda: {}
-        dev.device_id = property(lambda s: "caller")
-        return dev
+    def wire_delivery(self, *args, **kwargs):
+        return None
+
+    def __getattr__(self, name):
+        return getattr(self._bus, name)
 
 
 def _fresh_bus():
-    BusDevice, BusShim, DeviceRoster, _, InferenceDomainShim = _subject()
-    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_infer"))
-    loop = DeviceRoster(bus)
-    loop.hold(BusShim(bus, loop))
-    loop.hold(InferenceDomainShim(bus=bus))
-    loop.hold(CallerShim(bus=bus))
-    loop.pulse(NOW)
-    return bus
+    """inference_domain's own shim on the bus and a fresh testing-named caller."""
+    bus_client, _, InferenceDomainShim = _subject()
+    bus = _TestingBus(bus_client.reach())
+    caller = f"testing-{_TICKET}-caller-{uuid.uuid4().hex[:8]}"
+    return {"bus": bus, "caller": caller, "shim": InferenceDomainShim(bus=bus)}
 
 
-def _ask(bus, verb, body):
+def _ask(rig, verb, body):
+    from cairn.tools.base import testing_mark
+    envelope_id = f"testing-{_TICKET}-{uuid.uuid4().hex}"
     with patch("cairn.devices.inference_domain.host.ollama_resolver",
                return_value=_stub_resolver):
-        return bus.request(sender="caller", to="inference_domain", channel="personal",
-                           verb=verb, why=f"proof: {verb} over the bus", body=body)
+        rig["shim"].deliver({
+            "id": envelope_id, "sender": rig["caller"], "addressee": "inference_domain",
+            "channel": "personal", "verb": verb,
+            "body": {**body, testing_mark.FIELD: testing_mark.mark(_TICKET, testing_mark.PERFORM)}})
+    replies = [e for e in rig["bus"].read(to=rig["caller"], channel="personal")
+               if e.get("reply_to") == envelope_id]
+    assert len(replies) == 1, f"{len(replies)} replies to {verb!r} on the bus, want 1"
+    rig["bus"].record_delivery(replies[0]["id"], to=rig["caller"], by=rig["caller"])
+    return replies[0]
 
 
 # --- teeth ------------------------------------------------------------------
 
 def test_embed_and_infer_are_declared_beside_resolve():
-    InferenceDomainDevice = _subject()[3]
+    InferenceDomainDevice = _subject()[1]
     verbs = InferenceDomainDevice().declared_verbs()
     assert {"embed", "infer", "resolve"} <= set(verbs), sorted(verbs)
     assert all(callable(verbs[v]) for v in ("embed", "infer", "resolve"))
 
 
 def test_infer_over_the_bus_answers_a_completion():
-    bus = _fresh_bus()
+    rig = _fresh_bus()
     SEEN.clear()
     nonce = f"say the nonce {_RUN}"
-    reply = _ask(bus, "infer", {"prompt": nonce, "model": "qwen2.5:7b"})
-    assert reply["sender"] == "inference_domain" and reply["addressee"] == "caller", reply
+    reply = _ask(rig, "infer", {"prompt": nonce, "model": "qwen2.5:7b"})
+    assert reply["sender"] == "inference_domain" and reply["addressee"] == rig["caller"], reply
     assert reply["body"]["answer"]["text"] == f"stub says: {nonce}", reply["body"]
     assert reply["body"].get("hit") is False, reply["body"]
     assert SEEN and SEEN[-1]["kind"] == "generate" and SEEN[-1]["prompt"] == nonce, SEEN
 
 
 def test_embed_over_the_bus_answers_a_vector():
-    bus = _fresh_bus()
+    rig = _fresh_bus()
     SEEN.clear()
-    reply = _ask(bus, "embed", {"prompt": f"embed me {_RUN}", "model": "nomic-embed-text"})
+    reply = _ask(rig, "embed", {"prompt": f"embed me {_RUN}", "model": "nomic-embed-text"})
     assert reply["body"]["answer"]["vector"] == FAKE_VECTOR, reply["body"]
     assert SEEN and SEEN[-1]["kind"] == "embed", SEEN
 
 
 def test_the_verb_fixes_the_kind_over_a_callers_own():
     """embed means embed: a body that says kind=generate still gets a vector from ``embed``."""
-    bus = _fresh_bus()
+    rig = _fresh_bus()
     SEEN.clear()
-    reply = _ask(bus, "embed", {"kind": "generate", "prompt": f"contrary {_RUN}",
+    reply = _ask(rig, "embed", {"kind": "generate", "prompt": f"contrary {_RUN}",
                                 "model": "nomic-embed-text"})
     assert "vector" in reply["body"]["answer"], reply["body"]
     assert SEEN[-1]["kind"] == "embed", SEEN
@@ -154,10 +153,10 @@ def test_the_verb_fixes_the_kind_over_a_callers_own():
 
 def test_no_host_is_dialed():
     """Every ask above went to the stub — the recorder saw every request the domain made."""
-    bus = _fresh_bus()
+    rig = _fresh_bus()
     SEEN.clear()
-    _ask(bus, "infer", {"prompt": f"one {_RUN}", "model": "qwen2.5:7b"})
-    _ask(bus, "embed", {"prompt": f"two {_RUN}", "model": "nomic-embed-text"})
+    _ask(rig, "infer", {"prompt": f"one {_RUN}", "model": "qwen2.5:7b"})
+    _ask(rig, "embed", {"prompt": f"two {_RUN}", "model": "nomic-embed-text"})
     assert [r["kind"] for r in SEEN] == ["generate", "embed"], SEEN
 
 
@@ -185,6 +184,5 @@ if __name__ == "__main__":
     finally:
         if _domain is not None:
             _domain.set_diagnostic_roots(None)
-        _SCRATCH.close()
     print("green — infer and embed answer over the bus, no host dialed" if rc == 0 else "RED")
     sys.exit(rc)

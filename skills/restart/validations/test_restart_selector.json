@@ -2,7 +2,7 @@
   {
     "claim": "proof test_restart_selector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-04T21:28:35",
+    "date": "2026-11-05T06:02:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "test_only_holding_selects_the_session_ending_verb"
       ],
       "teeth_red": [],
-      "test": "test-f640b22c771a",
+      "test": "test-0856312265d3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +33,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3c9cdb3d1571ea60d0cb975b2bb4089c563c01fa9dd4e89ebd89f43c19a2e3fe",
+        "proof": "6fc8207ca6045400e7d8ea9f802d9e4707682042aeb9a22afe629bee5f9387ba",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -50,33 +50,30 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f640b22c771a",
-      "source_fingerprint": "688a629158e806ce6e32e2961510b1d26072d4231d738c3c5001cc9d11f2e1dc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0856312265d3",
+      "source_fingerprint": "c37da9d3b870bf1bb03ba4cab7bdc324d2cd1f0a6d9b20fe753648b79b7fe69a",
       "fingerprint_closure": [
         "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cc/__init__.py",
-        "cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/probe.py",
+        "cairn/tools/base/watchme_spec.py",
         "cairn/tools/system_word/__init__.py",
         "cairn/tools/system_word/system_word.py",
         "skills/restart/proofs/test_restart_selector.py",
         "skills/restart/selector.py"
       ],
       "reached": {
-        "cairn/devices/cc": "6e86b23bb3fb4aa4dbe1740a9fa53b6e0d3e91aa434bef157ec5d6b9d6b9bc2f",
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
         "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3860073-dy0bdvwj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-60384-l5t5gw9x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,14 +82,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116068152,
-          "disk_bytes": 147083264,
-          "entries": 12228,
+          "bytes": 116902313,
+          "disk_bytes": 148766720,
+          "entries": 12529,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

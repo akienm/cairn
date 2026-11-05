@@ -150,7 +150,8 @@ def test_the_emission_lands_in_the_RAISERS_OWN_log_home():
         landed = _raises_in(tmp)
         assert len(landed) == 1, landed
         rec = landed[0]
-        assert rec["values"]["detail"] == {"n": 1}
+        # the caller's detail lands as handed, beside the raise's own call stack (ticket 7c76b7c95433)
+        assert {k: v for k, v in rec["values"]["detail"].items() if k != "stack"} == {"n": 1}
         assert not (Path(tmp) / "logs" / "trouble").exists(), (
             "the raise wrote into trouble's log home — the raiser writes its own")
 

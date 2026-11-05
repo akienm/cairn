@@ -85,7 +85,11 @@ def test_2() -> None:
             d = _device(tmp)
             d.raise_trouble("x", why="w", detail=None)
             d.raise_trouble("y", why="w", detail={"a": 1})
-            details = sorted((r["pointer"], json.dumps(r["values"]["detail"])) for r in _raises(tmp))
+            # the caller's keys land as handed; the raise adds its own call stack beside them
+            # (ticket 7c76b7c95433), so the stack is set aside before the comparison
+            details = sorted((r["pointer"], json.dumps({k: v for k, v in r["values"]["detail"].items()
+                                                        if k != "stack"}))
+                             for r in _raises(tmp))
             check(name, details == [("x", "{}"), ("y", '{"a": 1}')], repr(details))
         except Exception as exc:  # noqa: BLE001
             check(name, False, f"{type(exc).__name__}: {exc}")

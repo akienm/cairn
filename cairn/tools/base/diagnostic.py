@@ -96,6 +96,7 @@ same way the heartbeat's ``beat`` takes ``now``.
 from __future__ import annotations
 
 import copyreg
+import traceback
 from datetime import datetime, timezone
 
 # address and breadcrumb_log are imported where they are used, never here: they inherit this
@@ -350,7 +351,8 @@ class DiagnosticBase:
         flap the same trouble as the first, and what the drain folds on. ``why`` is
         required (CP3): a fault with no reason is not a report. ``detail`` is this
         occurrence's own data and rides on the ticket's tail; carry everything a resolver
-        needs in one pass (I-complete-diagnostic-on-first-pass).
+        needs in one pass (I-complete-diagnostic-on-first-pass). The call stack of the raise
+        rides there too, as ``detail.stack`` (open-f998fae25b35, ticket 7c76b7c95433).
 
         Returns the emission record with a ``poke`` key saying how the lane was reached —
         ``sent`` (the notifier took it, so the ticket exists now), ``held for the beat``
@@ -373,8 +375,12 @@ class DiagnosticBase:
             raise TroubleRaiseRefused(
                 "a trouble's detail is a mapping (this occurrence's own data, keyed); "
                 f"got {type(detail).__name__}")
+        # THE RAISE CARRIES ITS CALL STACK (ticket 7c76b7c95433; Akien 2026-09-24, open-f998fae25b35:
+        # "a trouble should have it's diagnostic info too, so the call stack will be in there").
+        # Innermost last, this frame dropped; a new dict, so the caller's is never mutated.
+        detail = {**(detail or {}), "stack": traceback.format_stack()[:-1]}
         record = self.emit("raise_trouble", pointer=identity,
-                           values={"why": why, "detail": detail or {}}, now=now)
+                           values={"why": why, "detail": detail}, now=now)
         return self._poke_trouble_lane(record)
 
     def _poke_trouble_lane(self, record: dict) -> dict:

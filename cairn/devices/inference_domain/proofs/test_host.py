@@ -40,7 +40,12 @@ _SOLE_PATH = {
     "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
                 "aiohttp", "socket", "ftplib", "telnetlib"),
     # bus_client/remote.py's socket is the local AF_UNIX bus socket (open-10941757e6b7, ticket f5a344e6c629).
-    "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py"),
+    # bus_client/tls.py's is the bus's pinned box-to-box door (open-06cfefbe745e, ticket 5183005fa134).
+    "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py",
+             "cairn/tools/bus_client/tls.py",
+             # the bus TCP proof dials, raw, only the loopback and LAN doors of a bus it started
+             # itself, to show they refuse plain TCP and a wrong key (ticket 5183005fa134).
+             "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py"),
 }
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single

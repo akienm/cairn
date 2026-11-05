@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import os
-import socket
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -117,12 +117,13 @@ def ask_cairn_home(
             if ln.strip().startswith(line_start):
                 have = ln.strip()[len(line_start):].strip("'\"")
     if have:
-        return {"id": "cairn-home", "status": "already_applied", "detail": f"{HOME_VAR}={have}"}
+        return {"id": "cairn-home", "status": "already_applied", "detail": f"{HOME_VAR}={have}",
+                "home": have}
     if dry_run:
         return {"id": "cairn-home", "status": "offered",
                 "detail": "ask: is this a cairn home, or which home does it attach to?"}
     ask = ask_text_fn if callable(ask_text_fn) else _ask_text
-    me = hostname or socket.gethostname().split(".")[0]
+    me = hostname or platform.node().split(".")[0]
     yn = ask(f"Is this box ({me}) a cairn home? [y/n]")
     if yn is None:
         return {"id": "cairn-home", "status": "skipped", "detail": "no terminal to ask on"}
@@ -141,10 +142,84 @@ def ask_cairn_home(
             return {"id": "cairn-home", "status": "failed",
                     "detail": f"RED: setx {HOME_VAR} failed: {r.stderr.strip() or r.stdout.strip()}"}
         return {"id": "cairn-home", "status": "applied",
-                "detail": f"{HOME_VAR}={home} set for this user (setx); new shells see it"}
+                "detail": f"{HOME_VAR}={home} set for this user (setx); new shells see it",
+                "home": home}
     with rc.open("a") as f:
         f.write(f"\n{line_start}{home}   # the cairn home box (cairn install, outline 7.3.7.4)\n")
-    return {"id": "cairn-home", "status": "applied", "detail": f"{HOME_VAR}={home} written to {rc}"}
+    return {"id": "cairn-home", "status": "applied", "detail": f"{HOME_VAR}={home} written to {rc}",
+            "home": home}
+
+
+def ask_box_identity(
+    *,
+    home: str | None = None,
+    dry_run: bool = False,
+    ask_text_fn: object = None,
+    hostname: str | None = None,
+    tls_dir: Path | None = None,
+    port: int | None = None,
+    first_contact_fn: object = None,
+) -> dict:
+    """Ticket 5183005fa134: the box's own TLS identity, and the fingerprint exchange — the
+    one setup step pinned TLS adds, so it rides cairn install beside the cairn-home question.
+
+    Every box: make ``<bus home>/tls/box.key`` + ``box.crt`` once (openssl), named by its
+    hostname. An ATTACHING box (``home`` names another box): first contact with the home's
+    bus — pin its certificate, leave this box's as an ask there, and print both fingerprints
+    for the two operators to compare. The HOME: show each held ask and ask accept or decline.
+    """
+    from cairn.tools.bus_client import remote, tls
+
+    d = Path(tls_dir) if tls_dir is not None else remote.tls_dir()
+    me = (hostname or platform.node()).split(".")[0]
+    home = (home if home is not None else os.environ.get(HOME_VAR, "")).strip()
+    attaching = bool(home) and home.split(".")[0].lower() != me.lower()
+    if dry_run:
+        return {"id": "box-identity", "status": "offered" if not tls.has_identity(d) else
+                "already_applied", "detail": f"the box identity at {d}"
+                + (f"; first contact with {home}" if attaching else "; the home's held asks")}
+    try:
+        made = not tls.has_identity(d)
+        fp = tls.make_identity(d, me)
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {"id": "box-identity", "status": "failed", "detail": f"RED: {exc}"}
+    said = [f"{'made' if made else 'have'} {me} {fp}"]
+    if attaching:
+        host = home.split(".")[0]
+        if host in tls.known(d):
+            return {"id": "box-identity", "status": "already_applied",
+                    "detail": f"{said[0]}; {host} pinned {tls.known(d)[host]}"}
+        contact = first_contact_fn if callable(first_contact_fn) else tls.first_contact
+        try:
+            got = contact(d, home, port or tls.lan_port())
+        except (OSError, ValueError) as exc:
+            return {"id": "box-identity", "status": "failed",
+                    "detail": f"RED: {said[0]}; first contact with {home} failed: "
+                              f"{type(exc).__name__}: {exc}"}
+        print(f"\n  pinned {got['home']}: {got['home_fingerprint']}\n"
+              f"  this box {me}:  {got['mine']}\n"
+              f"  compare both on {got['home']} (cairn install there accepts this box)")
+        return {"id": "box-identity", "status": "applied",
+                "detail": f"{said[0]}; pinned {got['home']} {got['home_fingerprint']}; "
+                          f"ask held there: {got['reply']}"}
+    pending = tls.asks(d)
+    if not pending:
+        return {"id": "box-identity", "status": "applied" if made else "already_applied",
+                "detail": f"{said[0]}; {len(tls.known(d))} pinned, no asks"}
+    ask = ask_text_fn if callable(ask_text_fn) else _ask_text
+    for name, afp in pending.items():
+        yn = ask(f"Box {name} asks to join, fingerprint {afp}. Accept? [y/n]")
+        if yn is None:
+            said.append(f"{name} left waiting (no terminal)")
+        elif yn.strip().lower() in ("y", "yes"):
+            tls.accept(d, name)
+            said.append(f"accepted {name}")
+        elif yn.strip().lower() in ("n", "no"):
+            tls.decline(d, name)
+            said.append(f"declined {name}")
+        else:
+            said.append(f"{name} left waiting (expected y or n, got {yn!r})")
+    return {"id": "box-identity", "status": "applied", "detail": "; ".join(said)}
 
 
 def install(
@@ -238,7 +313,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = p.parse_args(argv)
 
-    results = [ask_cairn_home(dry_run=args.dry_run)] + install(
+    home = ask_cairn_home(dry_run=args.dry_run)
+    results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run)] + install(
         intentions_dir=args.intentions_dir,
         dry_run=args.dry_run,
     )

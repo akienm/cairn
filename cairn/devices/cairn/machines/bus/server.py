@@ -9,11 +9,17 @@ every caller speaks to it over a unix socket through ``cairn.tools.bus_client.re
 THE ADDRESS. ``<home>/bus.sock`` (mode 0600 — one box, one user, the file mode is the gate)
 and ``<home>/bus.lock``, where home is ``CAIRN_BUS_HOME`` else the bus's instance folder
 ``~/.cairn/devices/cairn/machines/bus/0`` (the instance segment is never optional).
+Where Python has no AF_UNIX (Windows, measured 2026-11-04 on akiendell) or with ``serve
+--tcp``, the local door is a loopback port the kernel picks, written with a per-start key to
+``<home>/bus.port`` (the key is the gate a file mode cannot be on a port). The box-to-box door
+is TLS on the LAN port, both ends pinned (``cairn.tools.bus_client.tls``), open by default
+only on a home with a box identity, and answering only ``LAN_OPS``. Ticket 5183005fa134.
 
 THE CLAIM. ``fcntl.flock(LOCK_EX|LOCK_NB)`` on the lock file — the shape of
 ``ground_loop/guard.py claim_singleton``, written again here and cited, never imported (RULE 1:
-guard is the ground loop's internal). A refused claim exits 3, the unit's SuccessExitStatus.
-A stale socket from a dead process is unlinked only AFTER the claim is won.
+guard is the ground loop's internal); on Windows, msvcrt's non-blocking lock on its first byte.
+A refused claim exits 3, the unit's SuccessExitStatus. A stale socket (or ``bus.port``) from a
+dead process is removed only AFTER the claim is won.
 
 THE WIRE. One JSON object per line each way. Every request carries ``op`` and ``root`` (the
 caller's class root). Ops: ``call``, ``hold``, ``verbs``, ``flush``, ``stats``, ``shutdown``.
@@ -26,10 +32,12 @@ and nothing else; the client shuts this process down and starts one from its own
 from __future__ import annotations
 
 import faulthandler
-import fcntl
+import hmac
 import importlib
 import json
 import os
+import platform
+import secrets
 import signal
 import socketserver
 import sys
@@ -40,6 +48,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
+
+try:                      # the claim's two spellings: flock on Linux, a byte lock on Windows
+    import fcntl
+except ImportError:       # pragma: no cover — Windows
+    fcntl = None
 
 # cairn/devices/cairn/machines/bus/server.py → five parents up is the class root.
 ROOT = Path(__file__).resolve().parents[5]
@@ -405,13 +418,17 @@ class BusProcess:
                                     "__file__", None)
                       for name in self.roster.held}}}
 
-    def answer(self, req: dict, *, in_process: bool = False) -> dict:
+    def answer(self, req: dict, *, in_process: bool = False, remote: bool = False) -> dict:
         # A request from code this process hosts runs this process's code by definition, so
-        # it is never stale against it; only a caller across the socket can be.
+        # it is never stale against it; only a caller across the socket can be. A caller on
+        # ANOTHER BOX (``remote``) runs its own box's code: its root names a different
+        # checkout by construction, and its replace-on-stale cannot reach this process, so
+        # the stale answer would be a refusal nobody can act on (ticket 5183005fa134).
         root = req.get("root")
-        if not in_process and root is not None and str(root) != str(ROOT):
+        local = not in_process and not remote
+        if local and root is not None and str(root) != str(ROOT):
             return {"ok": False, "stale": True, "root": str(ROOT)}
-        if (not in_process and req.get("op") not in ("shutdown", "flush")
+        if (local and req.get("op") not in ("shutdown", "flush")
                 and code_stamp() > self.stamp):
             return {"ok": False, "stale": True, "root": str(ROOT)}
         handler = getattr(self, f"op_{req.get('op')}", None)
@@ -424,6 +441,9 @@ class BusProcess:
 
 
 class _Handler(socketserver.StreamRequestHandler):
+    """One JSON line in, one out. ``admit`` may refuse a request before it is answered;
+    ``reply_to`` answers an admitted one — the two seams the loopback and LAN doors fill."""
+
     def handle(self) -> None:
         line = self.rfile.readline()
         if not line:
@@ -431,26 +451,96 @@ class _Handler(socketserver.StreamRequestHandler):
         try:
             req = json.loads(line)
         except ValueError as exc:
-            reply = {"ok": False, "error": f"not one JSON line: {exc}"}
-            req = {}
-        else:
-            if req.get("op") == "shutdown":
-                # A shutdown ENDS the process whatever the flush does: a bus that cannot stop
-                # is a stale bus nothing can replace (measured 2026-10-03 — one Decimal in the
-                # ring failed every flush, so every shutdown, so every caller after it).
-                reply = final_flush(self.server.process.bus, self.server.home)
-                self._send(reply)
-                threading.Thread(target=self.server.shutdown, daemon=True).start()
-                return
-            reply = self.server.process.answer(req)
-        self._send(reply)
+            self._send({"ok": False, "error": f"not one JSON line: {exc}"})
+            return
+        if not isinstance(req, dict):
+            self._send({"ok": False, "error": "a request is one JSON object"})
+            return
+        refused = self.admit(req)
+        if refused is not None:
+            self._send(refused)
+            return
+        if req.get("op") == "shutdown":
+            # A shutdown ENDS the process whatever the flush does: a bus that cannot stop
+            # is a stale bus nothing can replace (measured 2026-10-03 — one Decimal in the
+            # ring failed every flush, so every shutdown, so every caller after it).
+            reply = final_flush(self.server.process.bus, self.server.home)
+            self._send(reply)
+            threading.Thread(target=self.server.shutdown, daemon=True).start()
+            return
+        self._send(self.reply_to(req))
+
+    def admit(self, req: dict) -> dict | None:
+        return None
+
+    def reply_to(self, req: dict) -> dict:
+        return self.server.process.answer(req)
 
     def _send(self, reply: dict) -> None:
         self.wfile.write((json.dumps(reply, default=str) + "\n").encode())
         self.wfile.flush()
 
 
-class _Server(socketserver.ThreadingUnixStreamServer):
+class _LoopHandler(_Handler):
+    """The loopback door (no AF_UNIX, or ``serve --tcp``). A loopback port has no file mode to
+    gate it — any local account can dial 127.0.0.1 — so the gate moves to a key: random per
+    start, written beside the port in ``<home>/bus.port``, which carries the home folder's
+    own permissions. A request without it is refused before it is read further."""
+
+    def admit(self, req: dict) -> dict | None:
+        key = req.pop("key", None)
+        if not isinstance(key, str) or not hmac.compare_digest(key, self.server.key):
+            return {"ok": False, "error": "the bus key is wrong or missing — read it from "
+                                          f"{self.server.home}/bus.port"}
+        return None
+
+
+# What a pinned box across the LAN may ask. Not shutdown, hold or flush: those govern THIS
+# box's process and its ring, and the box that runs it is the one that owns them (Law 6).
+LAN_OPS = ("call", "stats", "verbs")
+
+
+class _LanHandler(_Handler):
+    """The box-to-box door: TLS on the bus's own TCP port, both ends pinned (``tls``). The
+    handshake runs here, per connection, so an ask accepted a moment ago counts at once."""
+
+    timeout = 900.0  # the socket waits as long as the slowest local caller already waits
+
+    def setup(self) -> None:
+        from cairn.tools.bus_client import tls
+        raw = self.request
+        raw.settimeout(30)           # a handshake that stalls is a dead peer, not a slow verb
+        self.request = tls.server_context(self.server.tls_dir).wrap_socket(raw, server_side=True)
+        self.peer = tls.peer_box(self.server.tls_dir, self.request)
+        super().setup()
+
+    def admit(self, req: dict) -> dict | None:
+        op = req.get("op")
+        if self.peer is None:
+            if op == "ask":
+                return None
+            return {"ok": False, "error": "this box is not pinned here — it may only ask "
+                                          "(cairn install on the asking box)"}
+        if op not in LAN_OPS:
+            return {"ok": False, "error": f"{op!r} is not open across the LAN — one of {LAN_OPS}"}
+        return None
+
+    def reply_to(self, req: dict) -> dict:
+        from cairn.tools.bus_client import tls
+        d = self.server.tls_dir
+        if req.get("op") == "ask":
+            try:
+                fp = tls.hold_ask(d, tls.check_name(str(req.get("box"))), str(req.get("cert")))
+            except (ValueError, OSError) as exc:
+                return {"ok": False, "error": f"the ask was not held: {exc}"}
+            me = tls.identity(d)
+            print(f"bus: held an ask from {req.get('box')} ({fp}) at {d}/asks",
+                  file=sys.stderr, flush=True)
+            return {"ok": True, "held": True, "box": me["name"], "fingerprint": me["fingerprint"]}
+        return self.server.process.answer(req, remote=True)
+
+
+class _HomeWatch:
     daemon_threads = True
     home: Path | None = None
 
@@ -461,6 +551,29 @@ class _Server(socketserver.ThreadingUnixStreamServer):
             print(f"bus: {self.home} is gone — exiting", file=sys.stderr, flush=True)
             threading.Thread(target=self.shutdown, daemon=True).start()
             self.home = None
+
+
+if hasattr(socketserver, "ThreadingUnixStreamServer"):   # absent on Windows
+    class _Server(_HomeWatch, socketserver.ThreadingUnixStreamServer):
+        pass
+
+
+class _LoopServer(_HomeWatch, socketserver.ThreadingTCPServer):
+    allow_reuse_address = False   # port 0: the kernel picks, so there is nothing to reuse
+    key = ""
+
+
+class _LanServer(socketserver.ThreadingTCPServer):
+    daemon_threads = True
+    # On Windows SO_REUSEADDR lets a second process steal a bound port; off there.
+    allow_reuse_address = os.name != "nt"
+    tls_dir: Path | None = None
+
+    def handle_error(self, request, client_address) -> None:
+        # A refused handshake is the door working; one line, not a traceback per stranger.
+        exc = sys.exc_info()[1]
+        print(f"bus: lan {client_address[0]} refused: {type(exc).__name__}: {exc}",
+              file=sys.stderr, flush=True)
 
 
 SPILL = "bus.unflushed.jsonl"
@@ -494,14 +607,28 @@ def land_spill(bus: BusDevice, home: Path) -> dict | None:
     return {"restored": restored, "flushed": flushed}
 
 
+def _lock(fh) -> bool:
+    if fcntl is not None:
+        try:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            return False
+        return True
+    import msvcrt   # Windows: a non-blocking lock on the first byte, held while fh is open
+    fh.seek(0)
+    try:
+        msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError:
+        return False
+    return True
+
+
 def claim(home: Path):
     """Take ``<home>/bus.lock`` or return None — the singleton claim (cited from
     ground_loop/guard.py claim_singleton). The open file IS the claim; keep it."""
     home.mkdir(parents=True, exist_ok=True)
     fh = open(home / "bus.lock", "a+")
-    try:
-        fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
+    if not _lock(fh):
         fh.close()
         return None
     fh.seek(0)
@@ -511,36 +638,91 @@ def claim(home: Path):
     return fh
 
 
-def serve(home: Path, bus: BusDevice) -> int:
+PORT_FILE = "bus.port"
+
+
+def _is_the_home() -> bool:
+    """This box is a cairn home: CAIRN_HOME_HOST unset (the installer's answer for a home, as
+    before it was asked), or naming this box."""
+    host = os.environ.get("CAIRN_HOME_HOST", "").strip()
+    return not host or host.split(".")[0].lower() == platform.node().split(".")[0].lower()
+
+
+def _lan_default(home: Path, scratch: bool) -> int | None:
+    """The LAN door opens by default only on a home that has a box identity — never on a
+    scratch bus, never on an attaching box (federation is not this ticket's)."""
+    from cairn.tools.bus_client import tls
+    if scratch or not _is_the_home() or not tls.has_identity(home / "tls"):
+        return None
+    return tls.lan_port()
+
+
+def _write_port(home: Path, record: dict) -> None:
+    tmp = home / f"{PORT_FILE}.{os.getpid()}.tmp"
+    tmp.write_text(json.dumps(record) + "\n")
+    if os.name != "nt":
+        os.chmod(tmp, 0o600)
+    os.replace(tmp, home / PORT_FILE)
+
+
+def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = None,
+          scratch: bool = False) -> int:
+    """Serve the bus at ``home``. The local door is ``<home>/bus.sock`` where the platform has
+    AF_UNIX, else (or with ``tcp``) a loopback port named in ``<home>/bus.port`` with its key.
+    ``lan`` opens the box-to-box TLS door on that port; None means the default rule
+    (``_lan_default``), 0 means closed."""
     # A wedged bus is a diagnostic surface (Law 7): ``kill -USR1 <pid>`` writes every
     # thread's stack to the bus log without stopping the process or needing ptrace rights.
-    faulthandler.register(signal.SIGUSR1, all_threads=True)
+    if hasattr(signal, "SIGUSR1"):
+        faulthandler.register(signal.SIGUSR1, all_threads=True)
     held = claim(home)
     if held is None:
         print(f"bus: {home}/bus.lock is held — one bus per instance; exiting {EXIT_HELD}",
               file=sys.stderr)
         return EXIT_HELD
+    process = BusProcess(bus)
+    # No AF_UNIX (Windows) shows as no unix server class; the server never imports socket
+    # (the sole-path mesh, inspector.py _SOLE_PATH: a module that can dial is a door).
+    unix = hasattr(socketserver, "ThreadingUnixStreamServer") and not tcp
     sock = home / "bus.sock"
-    sock.unlink(missing_ok=True)   # only now: the claim is ours, so any socket here is dead
-    old = os.umask(0o177)
-    try:
-        server = _Server(str(sock), _Handler)
-    finally:
-        os.umask(old)
-    os.chmod(sock, 0o600)
-    server.process = BusProcess(bus)
+    (home / PORT_FILE).unlink(missing_ok=True)   # the claim is ours: any record here is dead
+    if unix:
+        sock.unlink(missing_ok=True)   # only now: the claim is ours, so any socket here is dead
+        old = os.umask(0o177)
+        try:
+            server = _Server(str(sock), _Handler)
+        finally:
+            os.umask(old)
+        os.chmod(sock, 0o600)
+        where = str(sock)
+    else:
+        server = _LoopServer(("127.0.0.1", 0), _LoopHandler)
+        server.key = secrets.token_hex(16)
+        where = f"127.0.0.1:{server.server_address[1]}"
+    server.process = process
     server.home = home
+    lan_port_open = _lan_default(home, scratch) if lan is None else (lan or None)
+    lan_server = None
+    if lan_port_open:
+        lan_server = _LanServer(("0.0.0.0", lan_port_open), _LanHandler)
+        lan_server.process, lan_server.home, lan_server.tls_dir = process, home, home / "tls"
+    if not unix or lan_server is not None:
+        _write_port(home, {"port": server.server_address[1] if not unix else None,
+                           "key": server.key if not unix else None,
+                           "pid": os.getpid(),
+                           "lan": lan_server.server_address[1] if lan_server else None})
     # A hosted shim that reaches the bus is answered on its own thread (see remote.py), and
     # reaches THIS bus: a shim hosted at a scratch home must never dial the live instance.
     from cairn.tools.bus_client import remote
     os.environ["CAIRN_BUS_HOME"] = str(home)
-    process = server.process
     remote.answer_in_process(home, lambda req: process.answer(req, in_process=True))
     try:
         land_spill(bus, home)
     except Exception as exc:  # noqa: BLE001 — the spill stays on disk for the next start
         print(f"bus: spill did not land: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
-    print(f"bus: serving {sock} pid {os.getpid()} root {ROOT}", file=sys.stderr, flush=True)
+    lan_note = f" lan 0.0.0.0:{lan_server.server_address[1]}" if lan_server else ""
+    print(f"bus: serving {where}{lan_note} pid {os.getpid()} root {ROOT}",
+          file=sys.stderr, flush=True)
 
     def _backlog() -> None:
         # After the bind (ticket 7cb1989e7825): a woken shim may dial this bus back, so the
@@ -552,11 +734,18 @@ def serve(home: Path, bus: BusDevice) -> int:
                   file=sys.stderr, flush=True)
 
     threading.Thread(target=_backlog, name="bus-backlog", daemon=True).start()
+    if lan_server is not None:
+        threading.Thread(target=lan_server.serve_forever, name="bus-lan", daemon=True).start()
     try:
         server.serve_forever()
     finally:
+        if lan_server is not None:
+            lan_server.shutdown()
+            lan_server.server_close()
         server.server_close()
         final_flush(bus, home)
-        sock.unlink(missing_ok=True)
+        if unix:
+            sock.unlink(missing_ok=True)
+        (home / PORT_FILE).unlink(missing_ok=True)
         held.close()
     return 0

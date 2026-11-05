@@ -300,9 +300,60 @@ def test_cairn_home_question():
             os.environ["CAIRN_HOME_HOST"] = saved
 
 
+def test_box_identity_step():
+    """Ticket 5183005fa134: the fingerprint exchange is a cairn install step. Every box makes
+    its identity once; an attaching box makes first contact with its home (pins it, prints
+    both fingerprints); the home's operator accepts or declines each held ask; a box already
+    pinned to its home is not contacted again. A build that skips the step, regenerates the
+    key, contacts on every run, or pins an ask without the operator trips this."""
+    from cairn.machines.installer.installer import ask_box_identity  # bound at call time
+    from cairn.tools.bus_client import tls
+    with tempfile.TemporaryDirectory() as d:
+        home_d, box_d = Path(d) / "home", Path(d) / "box"
+        r = ask_box_identity(home="homebox", hostname="homebox", tls_dir=home_d,
+                             ask_text_fn=lambda q: 1 / 0)
+        if r["status"] != "applied" or not tls.has_identity(home_d):
+            fail("identity_home", f"{r}")
+        fp_home = tls.identity(home_d)["fingerprint"]
+
+        contacts = []
+
+        def contact(dd, host, port):
+            contacts.append((host, port))
+            tls.hold_ask(home_d, "boxb", tls.identity(dd)["cert"])   # what the home's bus does
+            return {"home": "homebox", "mine": tls.identity(dd)["fingerprint"], "reply": {"held": True},
+                    "home_fingerprint": tls.trust(dd, "homebox", tls.identity(home_d)["cert"])}
+
+        r = ask_box_identity(home="homebox", hostname="boxb", tls_dir=box_d, port=7419,
+                             first_contact_fn=contact)
+        if (r["status"] != "applied" or contacts != [("homebox", 7419)]
+                or tls.known(box_d).get("homebox") != fp_home):
+            fail("identity_attach", f"{r}, contacts={contacts}")
+        key = (box_d / "box.key").read_bytes()
+        r = ask_box_identity(home="homebox", hostname="boxb", tls_dir=box_d,
+                             first_contact_fn=contact)
+        if r["status"] != "already_applied" or len(contacts) != 1 or (box_d / "box.key").read_bytes() != key:
+            fail("identity_attach_again", f"{r}, contacts={contacts}")
+
+        if "boxb" in tls.known(home_d):
+            fail("identity_ask_not_pinned", "the ask was pinned before the operator answered")
+        asked = []
+        r = ask_box_identity(home="homebox", hostname="homebox", tls_dir=home_d,
+                             ask_text_fn=lambda q: asked.append(q) or "y")
+        if ("boxb" not in tls.known(home_d) or tls.asks(home_d) or len(asked) != 1
+                or tls.identity(box_d)["fingerprint"] not in asked[0]):
+            fail("identity_accept", f"{r}, asked={asked}")
+        tls.hold_ask(home_d, "boxc", tls.identity(box_d)["cert"])
+        r = ask_box_identity(home="homebox", hostname="homebox", tls_dir=home_d,
+                             ask_text_fn=lambda q: "n")
+        if "boxc" in tls.known(home_d) or tls.asks(home_d):
+            fail("identity_decline", f"{r}")
+
+
 def main() -> int:
     tests = [
         test_cairn_home_question,
+        test_box_identity_step,
         test_discovery,
         test_verify_first_idempotent,
         test_operator_decline,

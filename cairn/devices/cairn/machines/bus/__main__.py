@@ -2,6 +2,10 @@
 
 ``serve [--home H] [--scratch]`` runs the instance's one bus process (``server.py``);
 ``--scratch`` puts it over a throwaway table (``BusDevice.scratch``) for proofs.
+``--tcp`` serves the local door on a loopback port (``<home>/bus.port``) instead of
+``bus.sock`` — what Windows does, having no AF_UNIX; ``--lan PORT`` opens the box-to-box TLS
+door on PORT (0 closes it; absent, the home with a box identity opens CAIRN_BUS_TCP_PORT,
+default 7419). Ticket 5183005fa134.
 
 ``pulse [--home H]`` is what the ground loop's spawned pulse runs (decision 1): it asks the
 bus process to flush its ring and exits. No bus process running means no ring holds anything,
@@ -39,6 +43,8 @@ def main(argv=None) -> int:
     s = sub.add_parser("serve")
     s.add_argument("--home")
     s.add_argument("--scratch", action="store_true")
+    s.add_argument("--tcp", action="store_true")
+    s.add_argument("--lan", type=int, default=None)
     p = sub.add_parser("pulse")
     p.add_argument("--home")
     args = ap.parse_args(argv)
@@ -49,10 +55,11 @@ def main(argv=None) -> int:
     from cairn.devices.cairn.machines.bus.server import bus_home, serve
 
     home = bus_home(args.home)
+    opts = {"tcp": args.tcp, "lan": args.lan, "scratch": args.scratch}
     if args.scratch:
         with BusDevice.scratch("bus_proc") as bus:
-            return serve(home, bus)
-    return serve(home, BusDevice())
+            return serve(home, bus, **opts)
+    return serve(home, BusDevice(), **opts)
 
 
 if __name__ == "__main__":

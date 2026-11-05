@@ -2,22 +2,23 @@
   {
     "claim": "proof test_an_unentered_admission_reds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-04T21:09:01",
+    "date": "2026-11-04T22:19:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_an_unentered_file_admission_reds_once\n  ok   test_an_entry_at_the_seat_clears_it\n  ok   test_a_directory_member_needs_no_entry\n  ok   test_a_rule_under_fixtures_is_skipped\n  ok   test_the_live_repo_reads_clean\nGREEN",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_an_unentered_file_admission_reds_once\n  ok   test_an_entry_at_the_seat_clears_it\n  ok   test_a_directory_member_needs_no_entry\n  ok   test_a_rule_under_fixtures_is_skipped\n  FAIL test_the_live_repo_reads_clean: AssertionError: ['admission entered: cairn/devices/inference_domain/proofs/test_host.py::cairn/tools/bus_client/tls.py', 'admission entered: cairn/devices/inference_domain/proofs/test_host.py::cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'admission entered: cairn/machines/build_inspector/inspector.py::bus_client/tls.py', 'admission entered: cairn/machines/build_inspector/inspector.py::bus/proofs/test_the_bus_speaks_tcp.py']\nRED",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_unentered_file_admission_reds_once",
         "test_an_entry_at_the_seat_clears_it",
         "test_a_directory_member_needs_no_entry",
-        "test_a_rule_under_fixtures_is_skipped",
+        "test_a_rule_under_fixtures_is_skipped"
+      ],
+      "teeth_red": [
         "test_the_live_repo_reads_clean"
       ],
-      "teeth_red": [],
-      "test": "test-d6857bbb0176",
+      "test": "test-20c607db4ecc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d6857bbb0176",
-      "source_fingerprint": "fcd7835d3f70fdf4da03321d8c555f895b037e9046e1fde65ab03fa25023952c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-20c607db4ecc",
+      "source_fingerprint": "37a2384ba24c062875809984d0502ae360ab7ac509990702fbc53b9daa421a28",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -54,19 +55,19 @@
         "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
         "cairn/machines/corrosion": "d0c695fabba4dec18710eff5f5a7fe7d1fc81b5b4fea1897221b6d061c65612d",
         "cairn/machines/exemptions": "39a8adc013f4b82b7bb6fb6251db1f389d74f4557a0957df07b6a6d258ba7d81",
-        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
+        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
         "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
         "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "4f983123392004625aef74fd708838dcb1b939b26e5396a47cc5305d3733530a",
         "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
-        "cairn/tools/scratch": "84284c7a59d8fe42b49e7633799bac0ce7cb2d3e44326f41a82f6151e79109f2",
+        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95",
         "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
         "cairn/tools/validation_store": "88510b9c9272f1c9b3ae95663c4b3abd000dcbd27bedbba97c2fbd506b3e83c9"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3828458-ssk32c8d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3920748-1tlucyv3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,12 +76,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115870325,
-          "disk_bytes": 146833408,
-          "entries": 12212,
+          "bytes": 116107045,
+          "disk_bytes": 147169280,
+          "entries": 12244,
           "builds": 1,
-          "reuses": 15
+          "reuses": 9
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f186649e7391fd87009f82178bc39f51cf84116f7fe9d55c39b1618ac5a595c1",
+        "opened": "2026-11-04T22:19:14",
+        "last_red": "2026-11-04T22:19:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

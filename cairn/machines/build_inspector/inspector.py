@@ -3036,7 +3036,10 @@ _SOLE_PATH = {
     "capability": "the inference host",
     "modules": ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
                 "aiohttp", "socket", "ftplib", "telnetlib"),
-    "only": ("inference_domain/", "bus_client/remote.py"),
+    # bus_client/tls.py joins it (ticket 5183005fa134, question open-06cfefbe745e): the bus's box-to-box door, pinned TLS to another box's bus, never the inference host.
+    # and the bus TCP proof, which dials raw only the loopback and LAN doors of a bus it started, to show they refuse plain TCP and a wrong key.
+    "only": ("inference_domain/", "bus_client/remote.py", "bus_client/tls.py",
+             "bus/proofs/test_the_bus_speaks_tcp.py"),
 }
 
 

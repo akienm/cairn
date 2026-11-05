@@ -14,13 +14,21 @@ the bus process — delivery happens THERE, and the local hook is dropped by des
 THE BUS SERVES THE CODE THAT ASKS (decision 4). Every request carries this file's class root;
 a bus started from another root, or one whose code changed under it, answers ``stale``, and
 ``_call`` shuts it down, starts one from this root, and retries once.
+
+THE ADDRESS (ticket 5183005fa134). A home is a folder or ``host:port``. A folder is this box's
+bus: ``<home>/bus.sock`` where Python has AF_UNIX, else the loopback port and key the bus wrote
+to ``<home>/bus.port`` (Windows has no AF_UNIX — measured 2026-11-04 on akiendell). ``host:port``
+is another box's bus, dialled over pinned mutual TLS (``tls``): never started from here, never
+replaced from here, and never stale (it runs its own box's code).
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import socket
 import subprocess
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -36,6 +44,9 @@ _START_WAIT_S = 15.0
 # A verb may run a slow device (the librarian answers in seconds, a request can wait on a
 # reply); the socket waits as long as the slowest caller already waited in-process.
 _TIMEOUT_S = 900.0
+# host:port — another box's bus. Two characters of host at least, so ``C:7419`` stays a path.
+_REMOTE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]+:\d+$")
+_PORT_FILE = "bus.port"
 
 
 class BusStale(RuntimeError):
@@ -49,10 +60,29 @@ def bus_home(home: str | Path | None = None) -> Path:
     return Path(env).expanduser() if env else _DEFAULT_HOME.expanduser()
 
 
+def remote_address(home: str | Path | None = None) -> tuple[str, int] | None:
+    """``(host, port)`` when the home names another box's bus, else None."""
+    raw = str(home) if home is not None else os.environ.get("CAIRN_BUS_HOME", "")
+    if not _REMOTE_RE.match(raw):
+        return None
+    host, _, port = raw.rpartition(":")
+    return host, int(port)
+
+
+def tls_dir() -> Path:
+    """This box's identity and pins: ``CAIRN_BUS_TLS_DIR``, else the live bus home's ``tls``."""
+    env = os.environ.get("CAIRN_BUS_TLS_DIR")
+    return Path(env).expanduser() if env else _live_home() / "tls"
+
+
 def _live_home() -> Path:
     """The instance's own bus home, read from the account's home directory in the password
-    database — never from ``HOME``, which a proof points at a scratch folder."""
-    import pwd
+    database — never from ``HOME``, which a proof points at a scratch folder. Windows has no
+    password database; there the profile folder is the account's home."""
+    try:
+        import pwd
+    except ImportError:
+        return Path(os.path.expanduser("~")) / ".cairn/devices/cairn/machines/bus/0"
     return Path(pwd.getpwuid(os.getuid()).pw_dir) / ".cairn/devices/cairn/machines/bus/0"
 
 
@@ -92,15 +122,38 @@ def exchange(request: dict, home: str | Path | None = None, *, timeout: float = 
         # The wire's shape both ways, so a caller cannot tell which path answered it.
         req = json.loads(json.dumps(req, default=str))
         return json.loads(json.dumps(_IN_PROCESS[1](req), default=str))
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
-        conn.settimeout(timeout)
-        conn.connect(str(bus_home(home) / "bus.sock"))
-        conn.sendall((json.dumps(req, default=str) + "\n").encode())
-        with conn.makefile("r", encoding="utf-8") as fh:
-            line = fh.readline()
+    line = _wire(req, home, timeout)
     if not line:
         raise ConnectionError("the bus process closed the socket without an answer")
     return json.loads(line)
+
+
+def _wire(req: dict, home, timeout: float) -> str:
+    """Send one line, read one, over the transport the address names."""
+    far = remote_address(home)
+    if far is not None:
+        from cairn.tools.bus_client import tls
+        conn = tls.dial(tls_dir(), far[0], far[1], timeout=timeout)
+    elif hasattr(socket, "AF_UNIX"):
+        conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            conn.settimeout(timeout)
+            conn.connect(str(bus_home(home) / "bus.sock"))
+        except BaseException:
+            conn.close()
+            raise
+    else:
+        # No AF_UNIX (Windows): the bus wrote its loopback port and key beside its lock. No
+        # record is no bus — FileNotFoundError, the same signal a missing bus.sock gives.
+        rec = json.loads((bus_home(home) / _PORT_FILE).read_text())
+        if not rec.get("port"):
+            raise FileNotFoundError(f"{bus_home(home) / _PORT_FILE} names no loopback port")
+        req = {**req, "key": rec["key"]}
+        conn = socket.create_connection(("127.0.0.1", int(rec["port"])), timeout=timeout)
+    with conn:
+        conn.sendall((json.dumps(req, default=str) + "\n").encode())
+        with conn.makefile("r", encoding="utf-8") as fh:
+            return fh.readline()
 
 
 def _answers(home) -> dict | None:
@@ -153,10 +206,14 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
     if not via_unit:
         return _setsid(home, scratch, log, "this process's mount namespace is not the user "
                                            "manager's — bus spawned with setsid beside it")
+    if os.name == "nt":
+        return _detached(home, scratch, log)
     unit = _unit(home)
     cmd = ["python3", "-m", _BUS_MODULE, "serve", "--home", str(home)]
     if scratch:
         cmd.append("--scratch")
+    if not hasattr(socket, "AF_UNIX"):
+        cmd.append("--tcp")
     env_home = os.environ.get("HOME", str(Path.home()))
     argv = ["systemd-run", "--user", "--quiet", "--unit", unit,
             "--working-directory", str(_CLASS_ROOT),
@@ -194,11 +251,35 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
                    "systemd-run unavailable — bus spawned with setsid (dies with this session)")
 
 
+# Windows: the bus outlives the console that started it and opens no window. The values
+# stand beside the names so a proof on Linux can read the flags a Windows spawn would pass.
+_DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
+_CREATE_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+_CREATE_NEW_PROCESS_GROUP = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0x00000200)
+
+
+def _detached(home: Path, scratch: bool, log: Path) -> str:
+    """The Windows spawn (the shape of superclaude's _sc_spawn_detached): this venv's python,
+    TCP loopback, no console, its own process group."""
+    cmd = [sys.executable, "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
+    if scratch:
+        cmd.append("--scratch")
+    with open(log, "a", encoding="utf-8") as fh:
+        subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), stdin=subprocess.DEVNULL, stdout=fh,
+                         stderr=fh, close_fds=True,
+                         creationflags=_DETACHED_PROCESS | _CREATE_NO_WINDOW
+                         | _CREATE_NEW_PROCESS_GROUP)
+    _note("bus spawned detached (Windows: no systemd, no AF_UNIX — loopback TCP)")
+    return "detached"
+
+
 def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
     cmd = ["python3", "-m", _BUS_MODULE, "serve",
            "--home", str(home)]
     if scratch:
         cmd.append("--scratch")
+    if not hasattr(socket, "AF_UNIX"):
+        cmd.append("--tcp")
     with open(log, "a", encoding="utf-8") as fh:
         subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), start_new_session=True,
                          stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
@@ -207,8 +288,11 @@ def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
 
 
 def _unit_active(home: Path) -> bool:
-    r = subprocess.run(["systemctl", "--user", "is-active", f"{_unit(home)}.service"],
-                       capture_output=True, text=True, timeout=30)
+    try:
+        r = subprocess.run(["systemctl", "--user", "is-active", f"{_unit(home)}.service"],
+                           capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
     return r.stdout.strip() in ("active", "activating", "deactivating", "reloading")
 
 
@@ -217,6 +301,14 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
 
     Answering already = one stats exchange and nothing else. A bus answering ``stale`` is
     shut down and replaced by one from this class root. Returns the stats it ended with."""
+    far = remote_address(home)
+    if far is not None:
+        # Another box's bus is that box's to start (Law 6): answer, or say who did not.
+        found = _answers(home)
+        if found is not None and found.get("ok"):
+            return found["json"]
+        raise ConnectionError(f"the bus at {far[0]}:{far[1]} did not answer "
+                              f"(last answer: {_last_answer(home)}) — it is started on its box")
     home = bus_home(home)
     found = _answers(home)
     if found is not None and found.get("stale"):
@@ -258,19 +350,34 @@ def _replace(home: Path) -> None:
     while time.monotonic() < deadline and _answers(home) is not None:
         time.sleep(0.05)
     unit = _unit(home)
-    subprocess.run(["systemctl", "--user", "reset-failed", f"{unit}.service"],
-                   capture_output=True, text=True, timeout=30)
+    try:
+        subprocess.run(["systemctl", "--user", "reset-failed", f"{unit}.service"],
+                       capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        pass   # no systemd (Windows): nothing holds a unit name
 
 
 class RemoteBus:
     """A bus handle that is a socket to the instance's one bus process."""
 
     def __init__(self, home: str | Path | None = None, *, scratch: bool = False) -> None:
-        self._home = bus_home(home)
+        self._far = remote_address(home)
+        self._home = str(home if home is not None else os.environ["CAIRN_BUS_HOME"]) \
+            if self._far else bus_home(home)
         self._scratch = scratch
 
     def _call(self, request: dict) -> dict:
-        reply = exchange(request, self._home)
+        try:
+            reply = exchange(request, self._home)
+        except (FileNotFoundError, ConnectionRefusedError):
+            if self._far is not None:
+                raise
+            # No bus answers at this box's home: the command lazy-inits the system.
+            ensure_bus(self._home, scratch=self._scratch)
+            reply = exchange(request, self._home)
+        if reply.get("stale") and self._far is not None:
+            raise BusStale(f"the bus at {self._home} answered stale ({reply.get('root')}) — "
+                           "a bus on another box is never replaced from here")
         if reply.get("stale"):
             _replace(self._home)
             ensure_bus(self._home, scratch=self._scratch)

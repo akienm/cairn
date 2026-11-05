@@ -15,7 +15,8 @@ The same composite tooth also holds the three files the selector is useless with
 read so its absence reds here (the 2026-09-24 hollow reading found all three unchecked):
 (g) SKILL.md orders MEASURE -> SAVE -> HAND OFF, aborts on any slate refusal, and says the
 spawn branch kills nothing; (h) the charter parses and names its owner and its proof; (i)
-the WATCHME probe is a Probe carrying both carry and enough. The selector is reached at call
+the WATCHME gate's armed_error passes the probe's berth (a Probe carrying why, carry and
+enough). The selector is reached at call
 time, not import time, so a build reverted to before selector.py reds a tooth instead of
 crashing the proof before its first check.
 
@@ -43,6 +44,15 @@ def _selector():
         raise AssertionError(f"skills/restart/selector.py is not importable: {exc!r}") from exc
 
 PROVES = {"15b80c0c393c": {"all": "test_only_holding_selects_the_session_ending_verb"}}
+
+_PROBE_BERTH = "cairn/devices/cc/probes/a_restart_leaves_a_slate_behind_it.py"
+
+
+def _probe_armed(berth=_PROBE_BERTH):
+    """The WATCHME gate's own measure of this skill's probe, by berth path: None when armed,
+    else the refusal (RULE 1, ticket e9c29538b7fb)."""
+    from cairn.tools.base.watchme_spec import armed_error
+    return armed_error({"probe": str(berth)}, root=_ROOT)
 
 
 # The captured shapes. (a) and (b) are the FULL output of `cairn cc restart status`, six
@@ -122,14 +132,8 @@ def test_only_holding_selects_the_session_ending_verb() -> None:
         "(h) the charter does not name its owner and this proof")
     print("  ok  (h) the charter parses and names its owner and its proof")
 
-    try:
-        probe_mod = importlib.import_module("cairn.devices.cc.probes.a_restart_leaves_a_slate_behind_it")
-        from cairn.tools.base.probe import Probe
-    except ImportError as exc:
-        raise AssertionError(f"(i) the WATCHME probe is not importable: {exc!r}") from exc
-    pr = probe_mod.PROBE
-    assert isinstance(pr, Probe) and pr.carry and pr.enough and pr.why, (
-        "(i) the probe is not a Probe carrying why, carry and enough")
+    err = _probe_armed()
+    assert err is None, f"(i) the WATCHME probe is not armed: {err}"
     print("  ok  (i) the WATCHME probe is a Probe carrying why, carry and enough")
 
 

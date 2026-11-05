@@ -150,6 +150,91 @@ def charter_on_disk(row: dict, comp_dir: Path) -> list[dict]:
     )]
 
 
+# ── intention_fidelity (ticket 5dbc03e007c5) ─────────────────────────────────
+# THE THRESHOLDS ARE A CENSUS, FROZEN (Law 3; open-9570fbb8e2af, answered 2026-09-24: Akien
+# approved CC's proposal "set the thresholds from the census, with the census cited as the
+# source"). The census: 2026-11-05, the measure below over the live corpus, 419 charter/ticket
+# pairs across 49 components. 0.07 is the 10th percentile of per-component best coverage; 0.95
+# the 90th percentile of per-component best invented. Constants, never recomputed at run time:
+# a live percentile would red a fixed fraction of components forever, whatever they wrote.
+FIDELITY_COVERAGE_FLOOR = 0.07
+FIDELITY_INVENTED_CEILING = 0.95
+FIDELITY_STOPWORDS = frozenset((
+    "the and that this with from into when what which while where every each only than then "
+    "they them their there these those have has had not are was were been being will would "
+    "should could must does done for but any all its it's onto over under once also just more "
+    "most such same other some none nor own very can our out who whom why how both").split())
+
+
+def _fidelity_keywords(value) -> set[str]:
+    """The content words of a falsifier: a string as written, a dict or list as sorted JSON."""
+    text = value if isinstance(value, str) else json.dumps(value, sort_keys=True)
+    return {w for w in re.findall(r"[a-z][a-z0-9_]{3,}", text.lower())
+            if w not in FIDELITY_STOPWORDS}
+
+
+def intention_fidelity(row: dict, comp_dir: Path) -> list[dict]:
+    """A charter whose falsifier no longer translates the falsifiers of the tickets that built it.
+
+    Provenance: ticket 5dbc03e007c5. A charter is the summarized design; its falsifier should be
+    a translation of its tickets' falsifiers, and nothing measured whether it still was —
+    charter_on_disk reads a charter rewritten into anything at all as green. Pairs the charter's
+    falsifier with every ticket whose owning_intention names this charter; per pair, coverage =
+    |T∩C|/|T| (how much of the ticket the charter still says) and invented = |C−T|/|C| (how much
+    the charter says that no ticket did). The component's best pair is judged: best coverage
+    under the floor is over-hedging, best invented over the ceiling is over-claiming.
+
+    Absent or unparseable charter → [] (charter_on_disk owns absence). No commons beside the
+    repo, or no ticket naming this charter → [] (nothing to be faithful to).
+    """
+    charter_path = comp_dir / "intention+why.json"
+    try:
+        charter = json.loads(charter_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(charter, dict):
+        return []
+    resolved = charter_path.resolve()
+    repo = next((a for a in resolved.parents
+                 if (a.parent / "CairnCommons" / "tickets").is_dir()), None)
+    if repo is None:
+        return []
+    key = resolved.relative_to(repo).as_posix()
+    C = _fidelity_keywords(charter.get("falsifier") or "")
+    if not C:
+        return []
+    pairs = []
+    for plan in _tf.plans(repo.parent / "CairnCommons" / "tickets"):
+        try:
+            t = _tf.read_ticket(plan)
+        except Exception:  # noqa: BLE001 — an unreadable ticket names no charter we can pair
+            continue
+        if not isinstance(t, dict) or str(t.get("owning_intention", "")).strip() != key:
+            continue
+        T = _fidelity_keywords(t.get("falsifier") or "")
+        if not T:
+            continue
+        pairs.append((len(T & C) / len(T), len(C - T) / len(C), str(t.get("id", plan.stem))))
+    if not pairs:
+        return []
+    best_cov, _, best_ticket = max(pairs, key=lambda p: p[0])
+    best_inv = min(p[1] for p in pairs)
+    out = []
+    if best_cov < FIDELITY_COVERAGE_FLOOR:
+        out.append(_finding(
+            "intention_fidelity", row["component"],
+            "the charter's falsifier covers its tickets' falsifiers",
+            expected=FIDELITY_COVERAGE_FLOOR, actual=round(best_cov, 3), compare=">=",
+            charter=key, pairs=len(pairs), best_ticket=best_ticket, reason="over-hedging"))
+    if best_inv > FIDELITY_INVENTED_CEILING:
+        out.append(_finding(
+            "intention_fidelity", row["component"],
+            "the charter's falsifier claims no scope its tickets lack",
+            expected=FIDELITY_INVENTED_CEILING, actual=round(best_inv, 3), compare="<=",
+            charter=key, pairs=len(pairs), reason="over-claiming"))
+    return out
+
+
 def proofs_exist(row: dict, comp_dir: Path) -> list[dict]:
     """A component with code but zero proofs.
 
@@ -4767,6 +4852,7 @@ def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
 
 SIEVES = {
     "charter_on_disk": charter_on_disk,
+    "intention_fidelity": intention_fidelity,
     "proofs_exist": proofs_exist,
     "silent_device": silent_device,
     "state_is_projection": state_is_projection,

@@ -16,9 +16,10 @@ printed, none stopping at the first red:
   (b)  the LAN door: plain TCP gets no answer; a pinned box is answered and is never stale
        (its root is another checkout's); an unpinned box is refused; a box with no
        certificate may only ask, and its ask is held, not pinned; shutdown is refused.
-  (c)  the Unix-socket p50 round trip stays within 10% of the baseline measured before the
-       build (``BASELINE_UNIX_P50_US``, recorded on the ticket); TCP loopback is measured and
-       printed beside it.
+  (c)  the Unix-socket p50 round trip stays within 10% of the pre-build tree's, both measured
+       in this run: ``PRE_BUILD_COMMIT``'s cairn/ and bin/ and the code under test's, side by
+       side in one scratch folder, benched in turn for three rounds; TCP loopback is measured
+       and printed beside it.
 
 Run:  python3 cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py
 """
@@ -45,13 +46,15 @@ PROVES = {
     },
 }
 
-# Measured 2026-11-04 on akiendelllinux before the build, through exchange({"op": "stats"})
-# against a scratch bus (filled in from the pre-build bench; see the ticket's decisions).
-# Measured 2026-11-04 on akiendelllinux BEFORE the build (tree at 9b327b6a, this file's own _bench,
-# 400 exchanges after 50 warm-up, three scratch buses): p50 6893.0 / 6953.6 / 6810.8 us; the
-# median is the baseline. The ticket's 50 us was a bare-broker bench; the live exchange carries
-# the code-stamp staleness check on every call, which is why the measured floor is ~7 ms.
-BASELINE_UNIX_P50_US = 6893.0
+# The baseline is MEASURED IN THE RUN, never recorded (ticket 5183005fa134, D8). A recorded
+# 6893 us (2026-11-04, this tree at 9b327b6a) read RED twice that evening at 9983 / 10180 us
+# while the code was not slower: a paired bench in one scratch folder put the build at +1.4%
+# (5844 vs 5924 us). Each exchange is mostly code_stamp's walk over ~1650 files, so its p50
+# is the filesystem's stat cost and the box's load (tmpfs 5.3 ms, ext4 6.5 ms per walk),
+# and a number carried across that drift measures the drift. The pre-build tree is the
+# commit before the build (8d54f46e's parent's tree, the one the 6893 was read from).
+PRE_BUILD_COMMIT = "9b327b6a"
+_ROUNDS = 3
 
 FAILURES: list[str] = []
 _MODULE = "cairn.devices.cairn.machines.bus"
@@ -261,8 +264,10 @@ def tooth_b_the_lan_door(base: Path) -> None:
 
 # --- (c) ---------------------------------------------------------------------------------
 
-def _bench(home: Path, no_unix: bool, n: int = 400) -> float:
-    r = _py(home, (_NO_UNIX if no_unix else "") +
+def _bench(home: Path, no_unix: bool, n: int = 400, repo: Path = _REPO) -> float:
+    env = _env(home)
+    env["PYTHONPATH"] = str(repo) + os.pathsep + os.environ.get("PYTHONPATH", "")
+    code = ((_NO_UNIX if no_unix else "") +
             "import json, time, statistics\n"
             "from cairn.tools.bus_client.remote import exchange, ensure_bus\n"
             "ensure_bus(scratch=True)\n"
@@ -270,25 +275,48 @@ def _bench(home: Path, no_unix: bool, n: int = 400) -> float:
             "ts = []\n"
             f"for _ in range({n}):\n"
             "    t = time.perf_counter(); exchange({'op': 'stats'}); ts.append(time.perf_counter() - t)\n"
-            "print(statistics.median(ts) * 1e6)\n", timeout=180)
+            "print(statistics.median(ts) * 1e6)\n")
+    r = subprocess.run([sys.executable, "-c", code], env=env, cwd=str(repo),
+                       capture_output=True, text=True, timeout=180)
     return float(r.stdout.strip().splitlines()[-1]) if r.returncode == 0 else float("nan")
 
 
+def _trees(base: Path) -> tuple[Path, Path]:
+    """The pre-build tree and the code under test, as cairn/ + bin/ in one folder, so the two
+    benches stat the same filesystem."""
+    pre, now = base / "tree-pre", base / "tree-now"
+    for d in (pre, now):
+        d.mkdir(parents=True, exist_ok=True)
+    arc = subprocess.run(["git", "-C", str(_REPO), "archive", PRE_BUILD_COMMIT, "cairn", "bin"],
+                         capture_output=True, check=True)
+    subprocess.run(["tar", "-x", "-C", str(pre)], input=arc.stdout, check=True)
+    subprocess.run(["rsync", "-a", "--exclude", "__pycache__", str(_REPO / "cairn"),
+                    str(_REPO / "bin"), str(now) + "/"], check=True)
+    return pre, now
+
+
 def tooth_c_latency(base: Path) -> None:
-    uhome, thome = base / "unix", base / "tcp"
-    try:
-        unix = _bench(uhome, False)
-    finally:
-        _stop(uhome)
+    pre_tree, now_tree = _trees(base / "c-trees")
+    pre, now = [], []
+    for rnd in range(_ROUNDS):
+        for tree, out in ((pre_tree, pre), (now_tree, now)):
+            home = base / f"c-{tree.name}-{rnd}"
+            try:
+                out.append(_bench(home, False, repo=tree))
+            finally:
+                _stop(home)
+    thome = base / "tcp"
     try:
         tcp = _bench(thome, True)
     finally:
         _stop(thome, no_unix=True)
-    print(f"         unix p50 {unix:.0f} us; tcp loopback p50 {tcp:.0f} us; "
-          f"baseline unix {BASELINE_UNIX_P50_US} us")
+    p_pre, p_now = statistics.median(pre), statistics.median(now)
+    print(f"         unix p50 pre-build {p_pre:.0f} us, now {p_now:.0f} us "
+          f"(rounds {[round(x) for x in pre]} / {[round(x) for x in now]}); "
+          f"tcp loopback p50 {tcp:.0f} us")
     ok(PROVES["5183005fa134"]["c"],
-       BASELINE_UNIX_P50_US is not None and unix <= BASELINE_UNIX_P50_US * 1.10 and tcp == tcp,
-       f"unix={unix:.0f}us tcp={tcp:.0f}us baseline={BASELINE_UNIX_P50_US}")
+       p_pre == p_pre and p_now == p_now and p_now <= p_pre * 1.10 and tcp == tcp,
+       f"pre={p_pre:.0f}us now={p_now:.0f}us tcp={tcp:.0f}us")
 
 
 def main() -> int:

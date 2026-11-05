@@ -22,6 +22,7 @@ the first red:
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -43,8 +44,27 @@ SUPERCLAUDE = CC / "superclaude"
 def tooth_files_are_home():
     assert not (ROOT / "launchers").exists(), "launchers/ still exists"
     for p in (BOOTSTRAP, RECOVERY / "bootstrap_first_run.sh", RECOVERY / "intention+why.json",
-              RECOVERY / "probes" / "reported_but_unfixed_floor.py", SUPERCLAUDE):
+              RECOVERY / "probes" / "reported_but_unfixed_floor.py", SUPERCLAUDE, *MOVED_PROOFS):
         assert p.is_file(), f"missing at its new home: {p.relative_to(ROOT)}"
+    for p in MOVED_PROOFS:
+        if p.suffix != ".py":
+            continue
+        v = p.parent.parent / "validations" / f"{p.stem}.json"
+        assert v.is_file(), f"no seal at the new address: {v.relative_to(ROOT)}"
+        recs = json.loads(v.read_text())
+        last = recs[-1] if isinstance(recs, list) else recs
+        assert last.get("verdict") == "green", f"{v.relative_to(ROOT)} last sealed {last.get('verdict')}"
+
+
+# "every moved proof is green and sealed at its new address" (the falsifier): the proofs that
+# left launchers/proofs/, each at the device that now owns what it measures.
+MOVED_PROOFS = tuple(RECOVERY / "proofs" / n for n in (
+    "PROOF.md", "test_a_unit_a_test_run_starts_is_the_runs.py", "test_bootstrap.py",
+    "test_ground_loop_survives_its_caller.py", "test_launchers_probes_report_to_the_watch.py",
+    "test_launchers_reach_into_no_device.py", "test_reported_but_unfixed_probe.py",
+    "test_the_unswapped_arm_measures_swap_first.py")) + tuple(CC / "proofs" / n for n in (
+    "test_superclaude_memory_scope.py", "test_superclaude_sets_cairn_user.py",
+    "test_superclaude_wire.py"))
 
 
 def tooth_scripts_parse_and_locate():

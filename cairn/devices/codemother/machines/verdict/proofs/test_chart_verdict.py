@@ -60,6 +60,11 @@ import shutil
 import sys
 from pathlib import Path
 
+# Ticket 0d38d0f5a4e3 (2026-11-05) changed test_import_allowlist_tree_free: verdict.py has
+# imported cairn.tools.base.script_argv since 878131f2, so the allow tuple names it and the
+# tooth measures its imports stdlib-only. No tooth was removed.
+PROVES = {"0d38d0f5a4e3": {"4": "test_import_allowlist_tree_free"}}
+
 _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))

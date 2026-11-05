@@ -54,7 +54,11 @@ def _main_tree() -> Path:
 
 
 def _tickets() -> Path:
-    return _main_tree().parent / "CairnCommons" / "tickets"
+    """The commons beside THIS checkout first: the hollow links its reverted commons worktree
+    there (cairn/devices/tester/hollow.py, b312ff041558), so a reverted receiver is what this
+    proof reads. Only a checkout with nothing beside it falls back to the main tree's."""
+    beside = _REPO_ROOT.parent / "CairnCommons" / "tickets"
+    return beside if beside.is_dir() else _main_tree().parent / "CairnCommons" / "tickets"
 
 
 def _specs(doc: dict) -> list[dict]:

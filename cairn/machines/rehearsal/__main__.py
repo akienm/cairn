@@ -105,7 +105,10 @@ def main(argv: list[str] | None = None) -> int:
                 p.error("--decide needs --by <who> (each decision carries who made it)")
             sup = [_decision_id(p, v) for v in args.supersedes] if args.supersedes else None
             entry = R.decide(args.ticket, args.decide[0], args.decide[1], by=args.by, supersedes=sup)
-            print(f"decided D{entry['n']} on {args.ticket} at '{entry['step']}' by {entry['by']}: {entry['text']}")
+            # A line the cast wrote carries no step, and an in-place rewrite keeps its keys —
+            # so the step reported is the one the caller named (ticket b9be8f2e3e68).
+            step = entry.get("step") or args.decide[0]
+            print(f"decided D{entry['n']} on {args.ticket} at '{step}' by {entry['by']}: {entry['text']}")
             for k in sorted(set(sup or [])):
                 print(f"retired D{k} into D{entry['n']}")
             print("the ticket's bytes changed — rehearse again before BUILDME")

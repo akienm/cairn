@@ -72,6 +72,7 @@ refused commit. A hook that blocked would make "commit often" (a standing instru
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import subprocess
@@ -88,6 +89,7 @@ from cairn.tools.validation_store.validation_store import (
     component_root_for,
     persist_validation,
     read_validations,
+    seal_trouble_identity,
     sealed_fingerprint_now,
     standing,
     validations_path_for,
@@ -108,7 +110,6 @@ CALLER = "cairn test --reseal"
 # (device_isolation_holds), and a seam that has to agree on one word does not need a door.
 CLEARS_FOR = "cc"
 
-_SLUG = re.compile(r"[^a-z0-9-]+")
 
 
 class ResealRefused(Exception):
@@ -151,15 +152,46 @@ def proof_sha256(proof_path) -> str:
     return digest.hexdigest()
 
 
-def trouble_identity(proof_path) -> str:
-    """ONE TROUBLE PER COMPONENT, not per proof — the ticket's own words, and the existing
-    identity scheme (``build_inspector._finding_trouble_id`` slugs the same way).
+# ONE KEY PER PROOF, spelled by the store (ticket 87f0fc7b3514): the ladder's raises and
+# clears and the store's announce and round-trip clear all name a red seal the same way.
+trouble_identity = seal_trouble_identity
 
-    Per-proof would file eleven troubles for one broken import, which is the flap the
-    damper exists to stop arriving by a different route: eleven identities are eleven
-    first-sightings, and every one of them notifies."""
-    comp = _rel(component_root_for(str(proof_path)))
-    return _SLUG.sub("-", f"seal-red-{comp}".lower()).strip("-")
+# THE KEYS THIS PROCESS RAISED, for a raiser with no trail to read (a fixture's). A raiser
+# that has one (ModuleRaiser: ``diagnostic_trail()``) is asked through its trail instead,
+# because the store's round-trip clear lands on disk before the ladder asks.
+_RAISED_THIS_RUN: set[str] = set()
+
+
+def _raise(raiser, identity: str, **kw) -> None:
+    raiser.raise_trouble(identity, **kw)
+    _RAISED_THIS_RUN.add(identity)
+
+
+def _stands_raised(raiser, identity: str, ladder) -> bool:
+    """Does ``identity`` stand raised, so a green may clear it? (ticket 87f0fc7b3514, D2/D7).
+
+    Measured 2026-11-05: 5054 seal-red clears in ~/.cairn/logs/tester/0 had no standing raise —
+    every green cleared whether or not anything had been raised. An open ladder on the seal is
+    the record that a rung-3 raise stood; otherwise the raiser's own trail says (the newest
+    raise/clear naming the key), and a raiser with no trail falls back to this process's set.
+    Reads only; writes nothing."""
+    if ladder:
+        return True
+    trail_of = getattr(raiser, "diagnostic_trail", None)
+    trail = trail_of() if callable(trail_of) else None
+    if trail is not None and Path(trail).is_dir():
+        names = sorted((n for n in os.listdir(trail)
+                        if n.endswith(".raise_trouble.json") or n.endswith(".clear_trouble.json")),
+                       reverse=True)
+        for name in names:
+            try:
+                rec = json.loads((Path(trail) / name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if rec.get("pointer") == identity:
+                return name.endswith(".raise_trouble.json")
+        return False
+    return identity in _RAISED_THIS_RUN
 
 
 def unreproduced_siblings(proof_path) -> list[str]:
@@ -551,7 +583,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         if recorded and current and recorded == current:
             identity = trouble_identity(proof)
             try:
-                raiser.raise_trouble(identity, why=(
+                _raise(raiser, identity, why=(
                     f"{rel} is sealed RED and nothing in the closure that red was taken over "
                     f"has moved since, so the door did not re-run it — the answer is already "
                     f"taken from these exact bytes (Law 1). It will run again the moment a "
@@ -601,7 +633,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         # the budget the run actually used: a proof's own PROOF_TIMEOUT_S beats --timeout
         budget = (evidence.get("conditions") or {}).get("timeout", timeout)
         try:
-            raiser.raise_trouble(identity, why=(
+            _raise(raiser, identity, why=(
                 f"the reseal door could not REPROVE {rel} inside its {budget}s budget — it "
                 f"timed out. This is the door's impatience, not the proof's verdict, so no "
                 f"seal was written and no repair was bounded: the standing record is "
@@ -630,18 +662,16 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         sealed = {**record, "evidence": evidence}
         compare(sealed, proof)
         persist_validation(sealed, proof_path=str(proof), unsealing_because=NETWORK_SEAL_RETIRED)
-        # THE TROUBLE IS THE COMPONENT'S, SO ONE PROOF'S GREEN IS NOT ITS CLEAR (ticket
-        # 86b6bf19ed2a). Measured 2026-10-06: test_transitions.py timed out at commit, the
-        # door raised seal-red-cairn-tools-base, and test_watchme_spec.py's green cleared it
-        # 1.8s later — the stale seal stood with nothing on any record saying so. The clear
-        # waits for the green that leaves no SEALED sibling unreproduced; a never-sealed
-        # sibling is not a seal that stopped reproducing, so it does not hold the clear.
+        # ONE KEY PER PROOF, CLEARED ONLY WHERE IT STANDS (ticket 87f0fc7b3514). Siblings
+        # carry their own keys now, so 86b6bf19ed2a's sibling gate has nothing to hold; the
+        # unreproduced siblings are still named in the result, as information.
         still = unreproduced_siblings(proof)
-        if not still:
+        if _stands_raised(raiser, identity, ladder):
             try:
                 raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
                     f"{CALLER}: {rel} ran green and its seal was landed through the store's "
-                    f"door — no sealed proof in the component is left unreproduced"))
+                    f"door"))
+                _RAISED_THIS_RUN.discard(identity)
             except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
                 pass           #   (loud and wrong beats quiet and wrong; Law 7)
         return {"proof": rel, "outcome": "resealed" if ladder or before["seal"] else "sealed",
@@ -649,7 +679,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                 "ruling": ruling_id, "ladder_closed": bool(ladder),
                 "still_unreproduced": still,
                 "why": f"ran green under isolation {iso!r}; the seal was replaced"
-                       + (f" — the component's trouble stands for {', '.join(still)}"
+                       + (f" — unreproduced siblings: {', '.join(still)}"
                           if still else "")}
 
     # ── RUNG 3: the red stands, and it becomes attention ──────────────────────────────
@@ -690,7 +720,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                        unsealing_because=NETWORK_SEAL_RETIRED)
     tail = evidence.get("stderr_tail") or evidence.get("stdout_tail") or ""
     try:
-        raiser.raise_trouble(identity, why=(
+        _raise(raiser, identity, why=(
             f"a sealed green stopped reproducing and the reseal did not repair it: {rel} exited "
             f"{evidence.get('returncode')} under isolation {iso!r}. The repair is bounded to a "
             f"proof file hashing {bound[:12]}… — any change leaving those bytes alone reseals "

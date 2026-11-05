@@ -6,8 +6,8 @@ out on every commit touching its closure. The door DID raise: ``~/.cairn/logs/te
 20261006.083253.205466.tester.raise_trouble.json`` carries ``seal-red-cairn-tools-base`` with
 the timeout why. 1.8 seconds later ``20261006.083254.995762.tester.clear_trouble.json`` cleared
 the SAME identity because a sibling, ``test_watchme_spec.py``, resealed green. The identity is
-one per component on purpose (``trouble_identity``'s docstring: per-proof would file eleven
-troubles for one broken import). The clear has no such reason. A green from one proof says
+one per component then; ticket 87f0fc7b3514 made it per proof (Akien, open-69cd989012c4),
+and a clear now needs its key to stand raised. A green from one proof says
 nothing about another proof in the component, so the trouble vanished while the stale seal
 stood. The next PROVED was refused by ``component_color``, and nothing on any record said why.
 
@@ -151,6 +151,9 @@ def test_a_red_sibling_holds_and_a_never_sealed_one_does_NOT():
     persist_validation(_record(fast2, GREEN), proof_path=str(fast2))   # slow2: never sealed
     (root / "code.py").write_text("VALUE = 3\n", encoding="utf-8")
     raiser2 = _Raiser()
+    # A clear needs a standing raise (ticket 87f0fc7b3514), so fast2 goes red first.
+    reseal(fast2, tester=_Tester(RED), raiser=raiser2)
+    (root / "code.py").write_text("VALUE = 2  # repaired\n", encoding="utf-8")
     out = reseal(fast2, tester=_Tester(GREEN), raiser=raiser2)
     assert raiser2.cleared == [trouble_identity(fast2)], (
         f"a never-sealed sibling held the clear. It is not a seal that stopped reproducing: "

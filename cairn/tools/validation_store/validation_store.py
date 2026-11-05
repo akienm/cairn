@@ -86,6 +86,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import tempfile
 
 # THE RECORD VOCABULARY LIVES WITH THE RECORD (ticket fe1cba85cb12, RULE 1). These names were
@@ -221,6 +222,32 @@ def artifact_fingerprint(artifact_path: str) -> str:
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))))
+
+
+_SEAL_SLUG = re.compile(r"[^a-z0-9-]+")
+
+
+def seal_trouble_identity(proof_path) -> str:
+    """THE ONE KEY FOR A RED SEAL, per proof (ticket 87f0fc7b3514; Akien answered the grain
+    per proof, open-69cd989012c4). The commit ladder (``reseal.trouble_identity``) and this
+    store's announce and round-trip clear all call it, so a raise and its clear can never be
+    spelled two ways again — measured 2026-11-05: the ladder keyed per component, the store
+    per stem, and 5054 clears stood with no raise of their key.
+
+    ``seal-red-`` + the proof's path relative to the repo (absolute outside it), ``.py``
+    dropped, lowercased, every run outside ``[a-z0-9-]`` folded to ``-``."""
+    full = os.path.abspath(str(proof_path))
+    rel = os.path.relpath(full, _REPO_ROOT) if full.startswith(_REPO_ROOT + os.sep) else full
+    rel = rel[:-3] if rel.endswith(".py") else rel
+    return _SEAL_SLUG.sub("-", f"seal-red-{rel}".lower()).strip("-")
+
+
+def _proof_path_for_validations(path: str) -> str:
+    """``<component>/validations/<stem>.json`` -> ``<component>/proofs/<stem>.py`` — the inverse
+    of ``validations_path_for``, so the store keys a trouble by the proof the seal is about."""
+    full = os.path.abspath(path)
+    stem = os.path.splitext(os.path.basename(full))[0]
+    return os.path.join(os.path.dirname(os.path.dirname(full)), "proofs", stem + ".py")
 
 
 def directory_fingerprint(root: str) -> str:
@@ -629,7 +656,7 @@ def announce_verdict_change(path: str, change: dict, *, device=None) -> dict:
         from cairn.tools.base.diagnostic import ModuleRaiser
         device = ModuleRaiser("tester")
     return device.raise_trouble(
-        f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}",
+        seal_trouble_identity(_proof_path_for_validations(path)),
         why=(f"the verdict standing at {path} changed from {change['from']!r} (sealed "
              f"{change['was_sealed']} by {change['was_caller']}) to {change['to']!r} (sealed "
              f"{change['now_sealed']} by {change['now_caller']}). The trail holds ONE record "
@@ -864,7 +891,7 @@ def persist_validation(
         + (f"; unsealing because {unsealing_because}" if unsealing_because else "")
         + (f"; converting because {converting_because}" if converting_because else "")))
     if change is not None and record.get("verdict") == "green" and not fixture_address:
-        identity = f"validation-verdict-changed-{os.path.splitext(os.path.basename(path))[0]}"
+        identity = seal_trouble_identity(_proof_path_for_validations(path))
         what_changed = (f"re-seal round-trip: {change['from']}→green by "
                         f"{record.get('caller', '?')} ({record.get('date', '?')})")
         try:

@@ -40,12 +40,19 @@ import platform
 import secrets
 import signal
 import socketserver
+import struct
 import sys
 import threading
+import traceback
 from collections import deque
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:
+    import resource
+except ImportError:   # Windows: no getrusage, so a stop line's maxrss is null
+    resource = None
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
 
@@ -464,6 +471,9 @@ class _Handler(socketserver.StreamRequestHandler):
             # A shutdown ENDS the process whatever the flush does: a bus that cannot stop
             # is a stale bus nothing can replace (measured 2026-10-03 — one Decimal in the
             # ring failed every flush, so every shutdown, so every caller after it).
+            stop = getattr(self.server, "stop", None)
+            if stop is not None:
+                stop.set("verb", {"op": "shutdown", **self.caller()})
             reply = final_flush(self.server.process.bus, self.server.home)
             self._send(reply)
             threading.Thread(target=self.server.shutdown, daemon=True).start()
@@ -472,6 +482,26 @@ class _Handler(socketserver.StreamRequestHandler):
 
     def admit(self, req: dict) -> dict | None:
         return None
+
+    def caller(self) -> dict:
+        """Who is asking (ticket 73c58a1dcad7, D5). On the unix door the kernel's peer
+        credentials (SO_PEERCRED on Linux) name the asking process and its command line; a TCP
+        door names the peer address. Read through the request this handler already holds, so
+        the server never imports socket."""
+        if isinstance(self.client_address, tuple):
+            return {"peer": f"{self.client_address[0]}:{self.client_address[1]}"}
+        if not sys.platform.startswith("linux"):
+            return {"caller_pid": None}
+        try:   # SOL_SOCKET 1, SO_PEERCRED 17: struct ucred {pid, uid, gid}
+            pid, _uid, _gid = struct.unpack("3i", self.request.getsockopt(1, 17, 12))
+        except OSError as exc:
+            return {"caller_pid": None, "caller_error": f"{type(exc).__name__}: {exc}"}
+        try:
+            cmd = Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode(
+                errors="replace").strip()
+        except OSError:
+            cmd = None
+        return {"caller_pid": pid, "caller_cmd": cmd}
 
     def reply_to(self, req: dict) -> dict:
         return self.server.process.answer(req)
@@ -549,6 +579,9 @@ class _HomeWatch:
         scratch HOME was removed under it — so it ends itself rather than run on as a leak."""
         if self.home is not None and not self.home.exists():
             print(f"bus: {self.home} is gone — exiting", file=sys.stderr, flush=True)
+            stop = getattr(self, "stop", None)
+            if stop is not None:
+                stop.set("home-gone", {"home": str(self.home)})
             threading.Thread(target=self.shutdown, daemon=True).start()
             self.home = None
 
@@ -665,6 +698,79 @@ def _write_port(home: Path, record: dict) -> None:
     os.replace(tmp, home / PORT_FILE)
 
 
+STOPS_FILE = "stops.jsonl"
+_STOP_SIGNALS = tuple(getattr(signal, n) for n in ("SIGTERM", "SIGINT", "SIGHUP")
+                      if hasattr(signal, n))
+
+
+class _Stop:
+    """Why this bus process stopped (ticket 73c58a1dcad7). The first cause recorded wins (D4):
+    the shutdown a signal starts does not overwrite the signal. Unset at the end means clean."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self.cause: str | None = None
+        self.detail: dict = {}
+
+    def set(self, cause: str, detail: dict) -> bool:
+        with self._lock:
+            if self.cause is not None:
+                return False
+            self.cause, self.detail = cause, detail
+            return True
+
+
+def _signal_stops(server, stop: _Stop):
+    """Catch SIGTERM, SIGINT and SIGHUP as a recorded stop (D3). The signals are blocked in
+    this thread before any thread serve() starts, so they wait for one daemon waiter whose
+    sigwaitinfo names the sender's pid; a Python handler stays installed for a thread that
+    predates the mask (sender_pid null). Returns the undo, run when serve() ends."""
+    if not _STOP_SIGNALS or threading.current_thread() is not threading.main_thread():
+        return lambda: None
+
+    def _stopped_by(signum: int, sender: int | None) -> None:
+        if stop.set("signal", {"signal": signal.Signals(signum).name, "sender_pid": sender}):
+            threading.Thread(target=server.shutdown, daemon=True).start()
+
+    old_handlers = {s: signal.signal(s, lambda n, _f: _stopped_by(n, None))
+                    for s in _STOP_SIGNALS}
+    old_mask = None
+    if hasattr(signal, "sigwaitinfo") and hasattr(signal, "pthread_sigmask"):
+        old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, _STOP_SIGNALS)
+
+        def _wait() -> None:
+            while True:
+                info = signal.sigwaitinfo(_STOP_SIGNALS)
+                _stopped_by(info.si_signo, info.si_pid)
+
+        threading.Thread(target=_wait, name="bus-stop-signals", daemon=True).start()
+
+    def _undo() -> None:
+        if old_mask is not None:
+            signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
+        for s, h in old_handlers.items():
+            signal.signal(s, h)
+    return _undo
+
+
+def _record_stop(home: Path, stop: _Stop) -> None:
+    """One line per stop at ``<home>/stops.jsonl`` and on stderr (D2, D7): stderr is the bus
+    log, so a home-gone stop, whose home cannot hold the file, is still recorded."""
+    line = json.dumps({
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "pid": os.getpid(), "cause": stop.cause or "clean", "detail": stop.detail,
+        "maxrss": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss if resource else None,
+    }, default=str)
+    print(f"bus: stop {line}", file=sys.stderr, flush=True)
+    if home.is_dir():
+        try:
+            with open(home / STOPS_FILE, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+        except OSError as exc:
+            print(f"bus: stop line not written to {home / STOPS_FILE}: "
+                  f"{type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+
+
 def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = None,
           scratch: bool = False) -> int:
     """Serve the bus at ``home``. The local door is ``<home>/bus.sock`` where the platform has
@@ -675,6 +781,7 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
     # thread's stack to the bus log without stopping the process or needing ptrace rights.
     if hasattr(signal, "SIGUSR1"):
         faulthandler.register(signal.SIGUSR1, all_threads=True)
+    stop = _Stop()
     held = claim(home)
     if held is None:
         print(f"bus: {home}/bus.lock is held — one bus per instance; exiting {EXIT_HELD}",
@@ -701,6 +808,9 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
         where = f"127.0.0.1:{server.server_address[1]}"
     server.process = process
     server.home = home
+    server.stop = stop
+    # Before any thread this function starts, so each inherits the blocked mask (D3).
+    undo_signals = _signal_stops(server, stop)
     lan_port_open = _lan_default(home, scratch) if lan is None else (lan or None)
     lan_server = None
     if lan_port_open:
@@ -738,14 +848,22 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
         threading.Thread(target=lan_server.serve_forever, name="bus-lan", daemon=True).start()
     try:
         server.serve_forever()
+    except BaseException as exc:
+        stop.set("exception", {"type": type(exc).__name__, "message": str(exc),
+                               "traceback": traceback.format_exc()})
+        raise
     finally:
-        if lan_server is not None:
-            lan_server.shutdown()
-            lan_server.server_close()
-        server.server_close()
-        final_flush(bus, home)
-        if unix:
-            sock.unlink(missing_ok=True)
-        (home / PORT_FILE).unlink(missing_ok=True)
-        held.close()
+        try:
+            if lan_server is not None:
+                lan_server.shutdown()
+                lan_server.server_close()
+            server.server_close()
+            final_flush(bus, home)
+            if unix:
+                sock.unlink(missing_ok=True)
+            (home / PORT_FILE).unlink(missing_ok=True)
+        finally:
+            _record_stop(home, stop)
+            undo_signals()
+            held.close()
     return 0

@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_compiler.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-04T21:23:29",
+    "caller": "cairn test",
+    "date": "2026-11-05T02:38:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\n  PASS  test_verify_catches_a_drifted_copy\n  PASS  test_verify_catches_a_missing_copy\n  PASS  test_verify_catches_an_extra_file\n  PASS  test_verify_ignores_underscore_prefixed_files\n  PASS  test_verify_does_not_write\n  PASS  test_verify_reports_green_over_a_clean_lab",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 291, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 280, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/intentions_model_compiler/proofs/test_compiler.py\", line 255, in test_verify_on_the_real_repo\n    assert v[\"ok\"], (\n           ~^^^^^^\nAssertionError: the real lab drifts from its sources: drifted=[{'lab_name': 'cairn-devices-cc--intention+why.json', 'source': '/home/akien/dev/src/cairn/cairn/devices/cc/intention+why.json', 'source_bytes': 24067, 'lab_bytes': 24068}], missing=[], extra=[]",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_copy_is_byte_identical_to_its_source\n  PASS  test_every_charter_in_the_repo_is_copied_not_just_the_package\n  PASS  test_a_removed_source_removes_its_copy\n  PASS  test_a_hand_edited_copy_is_overwritten\n  PASS  test_the_store_charter_is_never_touched\n  PASS  test_a_name_collision_is_loud_never_last_write_wins\n  PASS  test_the_plan_is_deterministic\n  PASS  test_the_real_repo_reaches_both_trees_and_every_charter\n  PASS  test_verify_catches_a_drifted_copy\n  PASS  test_verify_catches_a_missing_copy\n  PASS  test_verify_catches_an_extra_file\n  PASS  test_verify_ignores_underscore_prefixed_files\n  PASS  test_verify_does_not_write\n  PASS  test_verify_reports_green_over_a_clean_lab\n  PASS  test_verify_on_the_real_repo\ngreen — intentions_model_compiler (15 teeth): the copier (byte-identical, reaches both trees, removes stale, overwrites drift, collision raises, store charter untouched, deterministic) + verify_lab (catches drift/missing/extra, ignores _-prefixed, never writes, green on clean lab, green on the real repo)",
+      "stderr_tail": "",
       "teeth_green": [
         "test_a_copy_is_byte_identical_to_its_source",
         "test_every_charter_in_the_repo_is_copied_not_just_the_package",
@@ -23,26 +23,18 @@
         "test_verify_catches_an_extra_file",
         "test_verify_ignores_underscore_prefixed_files",
         "test_verify_does_not_write",
-        "test_verify_reports_green_over_a_clean_lab"
+        "test_verify_reports_green_over_a_clean_lab",
+        "test_verify_on_the_real_repo"
       ],
       "teeth_red": [],
-      "test": "test-0f1684ce4573",
+      "test": "test-3c5970be44df",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 8,
-        "tables": [
-          "bus_proc_3854127_2123216384_delivery",
-          "bus_proc_3854127_2123216384",
-          "bus_proc_3854169_2123218939_delivery",
-          "bus_proc_3854169_2123218939",
-          "bus_proc_3854219_2123232572_delivery",
-          "bus_proc_3854219_2123232572",
-          "bus_proc_3854255_2123247454_delivery",
-          "bus_proc_3854255_2123247454"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "6d4d24b7a6e86ca1423838be6c775ac874dbdc87df88ebf3396a8ac9aaaa14cc",
@@ -56,12 +48,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0f1684ce4573",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3c5970be44df",
       "source_fingerprint": "8abee733af43dffdeeab8aba99bcb7ff315c00f71f732afd24315ec2275b9752",
       "fingerprint_closure": [
         "cairn/tools/intentions_model_compiler/__init__.py",
@@ -69,15 +62,15 @@
         "cairn/tools/intentions_model_compiler/proofs/test_compiler.py"
       ],
       "reached": {
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
         "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
-        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/scratch": "84284c7a59d8fe42b49e7633799bac0ce7cb2d3e44326f41a82f6151e79109f2"
+        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3828458-dar3kfyw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4142468-ghr3mr_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -86,21 +79,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115870325,
-          "disk_bytes": 146833408,
-          "entries": 12212,
+          "bytes": 116579551,
+          "disk_bytes": 148078592,
+          "entries": 12405,
           "builds": 1,
-          "reuses": 98
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "6d4d24b7a6e86ca1423838be6c775ac874dbdc87df88ebf3396a8ac9aaaa14cc",
         "opened": "2026-11-04T21:23:29",
         "last_red": "2026-11-04T21:23:29",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-intentions-model-compiler",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-05T02:38:55",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "6d4d24b7a6e86ca1423838be6c775ac874dbdc87df88ebf3396a8ac9aaaa14cc"
+      },
+      "conditions_moved": {
+        "notified": "n-6307a374a49c",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

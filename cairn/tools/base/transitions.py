@@ -2245,7 +2245,10 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     today's ISO date only when absent (a caster that already dated the cast keeps its date),
     ``model`` it stamps ``'opus'`` when absent, or folds to the table's spelling (ticket
     2cee2c5e8478), and ``decisions`` it seeds with the sorted builder_check only when the doc
-    carries none (ticket 0dbc830e58d2)."""
+    carries none (ticket 0dbc830e58d2).
+
+    A decision that is not a line ``{n: int >= 1, text: non-blank}``, or an n carried twice, is
+    refused by name (ticket 6d81b55be139)."""
     if not isinstance(doc, dict):
         raise CastRefused(["the cast is not a JSON object"])
     tickets_dir = _tf._TICKETS if tickets_dir is None else Path(tickets_dir)
@@ -2292,6 +2295,29 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
             lacks.append(f"model {model!r} is not one of {list(TICKET_MODELS)}")
         else:
             doc["model"] = folded
+
+    # (d3) the decisions are lines a reader can index (ticket 6d81b55be139): every reader —
+    # the rehearsal's labeled(), decide, retire, scope — keys a line by its int n and reads its
+    # text, and silently drops anything else, so a plain-string plan rehearsed as 'no steps'
+    # (measured 2026-11-04 on 3dc005de27cf). Refused here, never normalized: the caster's lines
+    # are the caster's, and an n or a by invented at the door would be a translation of them.
+    decisions = doc.get("decisions")
+    if decisions is not None:
+        if not isinstance(decisions, list):
+            lacks.append(f"decisions is not a list: {repr(decisions)[:80]}")
+        else:
+            seen: set[int] = set()
+            for i, d in enumerate(decisions):
+                n = d.get("n") if isinstance(d, dict) else None
+                ok_n = isinstance(n, int) and not isinstance(n, bool) and n >= 1
+                text = d.get("text") if isinstance(d, dict) else None
+                if not (ok_n and isinstance(text, str) and text.strip()):
+                    lacks.append(f"decisions[{i}] is not a line {{n: int >= 1, text: non-blank}}: "
+                                 f"{repr(d)[:80]}")
+                elif n in seen:
+                    lacks.append(f"decisions carries D{n} twice")
+                else:
+                    seen.add(n)
 
     # (e) the plan holds the plan (ticket 76da3a283277), the state its state, the log the rest
     # (ticket 284798998ab0): every top-level key must be one the store charter declares in

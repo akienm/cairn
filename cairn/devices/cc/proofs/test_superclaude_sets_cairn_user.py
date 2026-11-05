@@ -58,8 +58,15 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _dry_run(*args: str, inherit: str | None = None) -> str:
-    env = {k: v for k, v in os.environ.items() if k != "CAIRN_USER"}
-    env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO)})
+    # A scratch HOME and tmux socket: since ticket ae4d581be071 a launch at an instance a live
+    # loop holds moves to the next free one, so reading the live HOME would measure which
+    # sessions happen to be running on this box, not what superclaude names.
+    if str(_REPO) not in sys.path:
+        sys.path.insert(0, str(_REPO))
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = str(scratch_dir("testing-superclaude-sets-cairn-user-"))
+    env = {k: v for k, v in os.environ.items() if k not in ("CAIRN_USER", "TMUX")}
+    env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO), "HOME": home, "TMUX_TMPDIR": home})
     if inherit is not None:
         env["CAIRN_USER"] = inherit
     r = subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), "--dry-run", "--no-preflight", *args],
@@ -91,11 +98,16 @@ def test_an_inherited_value_is_overwritten() -> None:
 
 
 def _exec_argv(*args: str) -> list[str]:
-    """The claude argv a dry run prints, after ``exec <bin>``."""
-    import shlex
+    """The claude argv a dry run prints, after ``exec <bin>``.
+
+    The line is bash's own ``printf %q`` quoting (``$'...'`` once a residue prompt carries a
+    newline or a quote), which shlex cannot read, so bash splits it."""
     for line in _dry_run(*args).splitlines():
         if line.startswith("exec "):
-            return shlex.split(line)[2:]
+            r = subprocess.run([shutil.which("bash") or "bash", "-c",
+                                'eval "set -- $1"; printf "%s\\0" "$@"', "_", line[len("exec "):]],
+                               capture_output=True, text=True, timeout=30)
+            return r.stdout.split("\0")[1:-1]
     return []
 
 

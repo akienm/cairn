@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_superclaude_sets_cairn_user.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-04T21:28:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T03:37:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n  PASS  test_a_name_fills_the_instance_slot  — --name builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_a_name_fills_the_instance_slot  — --name=builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_claude_gets_one_name  — ['--name', 'akiendelllinux_cc_builder', '--remote-control', 'akiendelllinux_cc_builder', '--dangerously-skip-permissions']\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n  PASS  test_a_name_fills_the_instance_slot  — --name builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_a_name_fills_the_instance_slot  — --name=builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_claude_gets_one_name  — ['--name', 'akiendelllinux_cc_builder', '--remote-control', 'akiendelllinux_cc_builder', '--dangerously-skip-permissions', '--append-system-prompt', \"CC MEMORY: could not clone https://github.com/akienm/cc-memory.git to /tmp/testing-superclaude-sets-cairn-user-scratch.4026531836-4184587-tp73qxo8/dev/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\"]\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_default_launch_is_cc0",
@@ -17,17 +17,19 @@
         "test_claude_gets_one_name"
       ],
       "teeth_red": [],
-      "test": "test-34022c1c9b30",
+      "test": "test-63d7999ecc65",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 1,
+        "tables": [
+          "bus_proc_4171592_0308590592"
+        ]
       },
       "conditions": {
-        "proof": "1bd617b399bea045285e3658ee241c5b074011606f3aff4c6ce43b0fe3f2b18e",
+        "proof": "e9f1f804ffa16076dd33e8349aae101aba7945780a1b261b2efc911a84a076e5",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,46 +40,34 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-34022c1c9b30",
-      "source_fingerprint": "fccdf382b630c9a55acd8fa7eaa0350091495271592f546d70782b00e68ef989",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63d7999ecc65",
+      "source_fingerprint": "6ff4f0ea880c5789550de7a8184e86de7cebab5bce16adedc9c2e9d194689652",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py"
       ],
       "reached": {
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b"
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3859251-896agvri/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4184571-ppqonn0p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 11,
-          "paths": [
-            "devices/learning_block/0/traces/logger_for_bash.jsonl",
-            "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
-            "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
-            "launchers/superclaude/0/flags/COMMAND_RESTART_FRESH.flag",
-            "launchers/superclaude/2/flags/COMMAND_DO_NOT_RESTART.flag",
-            "launchers/superclaude/2/flags/COMMAND_RESTART.flag",
-            "launchers/superclaude/2/flags/COMMAND_RESTART_FRESH.flag",
-            "launchers/superclaude/builder/flags/COMMAND_DO_NOT_RESTART.flag",
-            "launchers/superclaude/builder/flags/COMMAND_RESTART.flag",
-            "launchers/superclaude/builder/flags/COMMAND_RESTART_FRESH.flag",
-            "logs/boot"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 116073078,
-          "disk_bytes": 147087360,
-          "entries": 12229,
+          "bytes": 116647797,
+          "disk_bytes": 148271104,
+          "entries": 12442,
           "builds": 1,
           "reuses": 0
         }

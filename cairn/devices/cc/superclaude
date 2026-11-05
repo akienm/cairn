@@ -259,6 +259,34 @@ fi
 # server are shared singletons regardless.
 host=$(hostname | cut -d. -f1 | tr '[:upper:]' '[:lower:]')
 instance="${instance:-0}"
+# ── A HELD INSTANCE MOVES TO THE NEXT FREE ONE (ticket ae4d581be071) ─────────
+# Measured 2026-10-06: two loops launched at instance 0 shared one loop.pid and one flag set,
+# so `cairn cc restart now` from one session would have hung up the other. Akien answered
+# open-62a7f29771e6 "b, next free instance": an instance is one session. HELD is restart's own
+# _instance_alive question (cairn/devices/cc/0/bin/restart): a live loop.pid, or a tmux session
+# of that name ("=" so tmux matches the name exactly, never as a prefix). A number counts up;
+# a word keeps its name and takes a suffix, so a role launched twice stays that role. Decided
+# here, before session, CAIRN_USER and the flags home are derived, so all three follow it.
+_sc_instance_held() {
+  local pid; pid="$(cat "$HOME/.cairn/launchers/superclaude/$1/loop.pid" 2>/dev/null)"
+  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then _sc_held_by="live loop $pid"; return 0; fi
+  if command -v tmux >/dev/null 2>&1 && tmux has-session -t "=cairn_cc_$1" 2>/dev/null; then
+    _sc_held_by="tmux session cairn_cc_$1"; return 0
+  fi
+  return 1
+}
+_sc_asked="$instance"
+_sc_moved=""
+_sc_held_by=""
+if _sc_instance_held "$instance"; then
+  _sc_first_held_by="$_sc_held_by"
+  if [[ "$instance" =~ ^[0-9]+$ ]]; then _sc_stem=""; _sc_n=$((instance + 1))
+  else _sc_stem="${instance}_"; _sc_n=1; fi
+  while _sc_instance_held "${_sc_stem}${_sc_n}"; do _sc_n=$((_sc_n + 1)); done
+  instance="${_sc_stem}${_sc_n}"
+  _sc_moved="instance $_sc_asked is held by $_sc_first_held_by; launching as instance $instance"
+  echo "superclaude: $_sc_moved" >&2
+fi
 session="${host}_cc_${instance}"
 # WHICH CLAUDE THIS IS (8c899e9ea338). Akien 2026-10-13: "if CAIRN_USER is set, then it's you";
 # overwrites any inherited value, so a session started from another session names itself.
@@ -293,6 +321,7 @@ if [[ -r "$_sc_logger" ]]; then
   source "$_sc_logger" 2>/dev/null || true
 fi
 _sc_log "launch: argv=[$*] session=$session context=$context_state preflight=$([[ "$no_preflight" -eq 1 ]] && echo bypassed || echo on)"
+[[ -n "$_sc_moved" ]] && _sc_log "moved: $_sc_moved"
 
 preflight_arg=()
 if [[ "$no_preflight" -eq 0 ]]; then
@@ -661,6 +690,8 @@ if [[ "$dry_run" -eq 1 ]]; then
   echo "# tmux: $([[ "$tmux_mode" -eq 1 ]] && echo "on (session: cairn_cc_${instance})" || echo "off")"
   echo "# CLAUDE_CODE_DISABLE_1M_CONTEXT=${CLAUDE_CODE_DISABLE_1M_CONTEXT:-<unset>}"
   echo "# CAIRN_USER=$(printenv CAIRN_USER || echo "<unset>")"
+  echo "# instance: asked $_sc_asked, launching $instance"
+  [[ -n "$_sc_moved" ]] && echo "# moved: $_sc_moved"
   if [[ "$tmux_mode" -eq 1 ]]; then
     printf 'tmux new-session -d -s %q -- %s' "cairn_cc_${instance}" "$claude_bin"
     printf ' %q' "$@"

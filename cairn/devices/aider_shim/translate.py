@@ -40,6 +40,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.chain.chain import chain_for_ticket
 
 #: Class-space root. Holdings addressed relative to it resolve here; holdings OUTSIDE it
@@ -88,7 +89,7 @@ class Span:
 
 
 @dataclass
-class Brief:
+class Brief(DiagnosticBase):
     """What aider is handed for one piece. A brief is data; running it is someone else's."""
 
     ticket: str

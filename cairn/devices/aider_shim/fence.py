@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.address import instance_path
 
 # Instance-space, per Law 6 and the three roots: the tool's state berths under the holder
@@ -79,7 +80,7 @@ class AskTruncated(Exception):
 
 
 @dataclass(frozen=True)
-class Fence:
+class Fence(DiagnosticBase):
     """What this device is allowed to ask for, by name.
 
     ``models`` and ``providers`` are EXACT-MATCH tuples, never patterns. A pattern is how
@@ -168,7 +169,7 @@ class Fence:
 
 
 @dataclass
-class SeenLog:
+class SeenLog(DiagnosticBase):
     """Every ask this device made, and how the fence dispositioned it.
 
     THIS EXISTS SO A GREEN CANNOT BE EARNED BY NOTHING HAPPENING. A fence proof that

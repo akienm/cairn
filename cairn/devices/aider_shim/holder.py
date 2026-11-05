@@ -26,6 +26,7 @@ from __future__ import annotations
 import sys
 import types
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.devices.aider_shim import interceptor
 
 #: Marks a module as one of ours, so a check can tell our surface from the real package.
@@ -33,7 +34,7 @@ from cairn.devices.aider_shim import interceptor
 SURFACE_FLAG = "_cairn_surface"
 
 
-class _Recorder:
+class _Recorder(DiagnosticBase):
     """A no-op that remembers being used. Every stub attribute resolves to one of these."""
 
     def __init__(self, module: str, path: str, calls: list):
@@ -57,7 +58,7 @@ class _Recorder:
         return False
 
 
-class _Stub(types.ModuleType):
+class _Stub(DiagnosticBase, types.ModuleType):
     """A module that answers any attribute with a recorder, and records what was asked."""
 
     def __getattr__(self, name):

@@ -45,6 +45,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.address import instance_path
 
 #: Instance-space. Law 6 and the three roots: no runtime state in class-space, ever.
@@ -168,7 +169,7 @@ def emit(obj):
 '''
 
 
-class VenvRunFailed(RuntimeError):
+class VenvRunFailed(DiagnosticBase, RuntimeError):
     """The in-venv script did not come back with data. LOUD, and complete on the first pass.
 
     Carries the interpreter, the returncode and both streams, because the caller is in a

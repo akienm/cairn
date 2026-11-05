@@ -35,6 +35,7 @@ from __future__ import annotations
 import sys
 import types
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.devices.aider_shim.fence import (
     DEFAULT_RECORD,
     AskTruncated,
@@ -77,7 +78,7 @@ EXCEPTION_NAMES = (
 # Every attribute below was measured off aider's own reads (models.py:1039-1068,
 # base_coder.py:1836-1900 and :1994-2037). Nothing here is speculative shape.
 
-class _Message:
+class _Message(DiagnosticBase):
     def __init__(self, content: str, role: str = "assistant"):
         self.content = content
         self.role = role
@@ -86,21 +87,21 @@ class _Message:
         self.reasoning = None
 
 
-class _Choice:
+class _Choice(DiagnosticBase):
     def __init__(self, message: _Message, finish_reason: str = "stop"):
         self.message = message
         self.finish_reason = finish_reason
         self.index = 0
 
 
-class _Usage:
+class _Usage(DiagnosticBase):
     def __init__(self, prompt_tokens: int, completion_tokens: int):
         self.prompt_tokens = prompt_tokens
         self.completion_tokens = completion_tokens
         self.total_tokens = prompt_tokens + completion_tokens
 
 
-class _Response:
+class _Response(DiagnosticBase):
     """What ``completion`` returns. ``usage`` is None on a cache hit, and that is honest."""
 
     def __init__(self, text: str, usage: _Usage | None, *, model: str, cairn: dict):
@@ -117,7 +118,7 @@ class _Response:
         )
 
 
-class _Logging:
+class _Logging(DiagnosticBase):
     """``LazyLiteLLM._load_litellm`` calls ``litellm._logging._disable_debugging()``."""
 
     @staticmethod
@@ -135,7 +136,7 @@ def _exception_names() -> tuple[tuple[str, ...], str]:
     return tuple(e.name for e in EXCEPTIONS), "derived from aider.exceptions.EXCEPTIONS"
 
 
-class _Surface(types.ModuleType):
+class _Surface(DiagnosticBase, types.ModuleType):
     """A module object that RECORDS which of its attributes were actually touched.
 
     The recording is the instrument for one specific claim — that the surface enumerated

@@ -41,6 +41,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.devices.aider_shim import translate
 from cairn.devices.aider_shim.fence import DEFAULT_RECORD, Fence
 from cairn.devices.aider_shim.venv import VenvRunFailed, run_in_venv
@@ -85,7 +86,7 @@ class DriveRefused(RuntimeError):
 
 
 @dataclass
-class DriveResult:
+class DriveResult(DiagnosticBase):
     """What one driven piece did. Serializable by construction — the record IS this."""
 
     ticket: str

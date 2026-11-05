@@ -6,8 +6,9 @@ Child of 71d1bbfa98b0, split per component under RULE 1 (Akien, 2026-10-01), res
 tolerates a testing artifact is RETURN TO SENDER, Akien verbatim: "code mother should return it
 to the tester ... "Yep, got here" is implicit in the return. so the tester would see that it's a
 returning message, from test abcdefg, and that test can now be marked complete." And where:
-"the shim. device gets the "perform this test" kind later". So the mark is {kind, test}; today the
-only kind is "return", and a future "perform this test" kind must fit without a reshape.
+"the shim. device gets the "perform this test" kind later". So the mark is {kind, test}; the first
+kind was "return", and "perform this test" had to fit without a reshape — it did (ticket
+d0c8c4b4283e built "perform"; no reader changed).
 
 The first build stamped every DiagnosticBase emission with a process mark. Measured 2026-10-05:
 no production code reads that stamp, and its one named consumer (a tester debris census) is
@@ -17,7 +18,7 @@ nobody reads goes, so tooth 3 holds its absence.
 This proof measures only cairn/tools/base (RULE 1).
 
   1. A MARK IS BUILT ONE WAY. mark("t") is {"kind": "return", "test": "t"}; an empty test id
-     and a kind other than "return" are refused (nothing builds the future kind yet).
+     and a kind nothing builds ("bogus") are refused; the built kinds are "return" and "perform".
   2. A MARK IS READ ONE WAY. mark_of() returns the mark riding under FIELD on an artifact, and
      None for an artifact without one, a non-dict, an empty test id or an empty kind. A
      well-formed mark of a kind this code does not know is still returned, so the future kind
@@ -81,10 +82,10 @@ def _refused(fn):
 
 def a_mark_is_built_one_way():
     tm = _tm()
-    assert tm.RETURN == "return" and tm.KINDS == ("return",), (tm.RETURN, tm.KINDS)
+    assert tm.RETURN == "return" and tm.KINDS == ("return", "perform"), (tm.RETURN, tm.KINDS)
     assert tm.mark(TEST) == {"kind": "return", "test": TEST}, tm.mark(TEST)
     assert _refused(lambda: tm.mark("")), "an empty test id was not refused"
-    assert _refused(lambda: tm.mark(TEST, kind="perform")), "a kind nothing builds was not refused"
+    assert _refused(lambda: tm.mark(TEST, kind="bogus")), "a kind nothing builds was not refused"
 
 
 def a_mark_is_read_one_way():

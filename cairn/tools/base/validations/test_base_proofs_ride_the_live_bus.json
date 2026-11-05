@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_base_proofs_ride_the_live_bus.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T07:01:49",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T07:28:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_carry_holds_no_testing_name"
       ],
       "teeth_red": [],
-      "test": "test-3e10604a8bda",
+      "test": "test-1089b792328d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,20 +36,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 99834,
+          "pid": 109721,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e10604a8bda",
-      "source_fingerprint": "a2900e1631c2f10a9f3cc23ac4f9a42b751b1204345efe3a95e8e42b8e249a7a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1089b792328d",
+      "source_fingerprint": "8402301c80f1cf34d786c70bbfb3b272ec068a4e9a360c75a8b0a9d93c633941",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -88,7 +87,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-99774-27_jxa0z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-109539-sooy_plu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 9,
@@ -96,49 +95,22 @@
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cairn/machines/bus/0/stops.jsonl",
             "logs/bus.log",
-            "logs/bus/0/20261105.140146.765146.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.140146.808409.BusDevice.post.json",
-            "logs/bus/0/20261105.140146.813842.BusDevice.post.json",
-            "logs/bus/0/20261105.140146.816681.BusDevice.raise_trouble.json",
-            "logs/bus/0/20261105.140146.816833.BusDevice.delivered.json",
-            "logs/bus/0/20261105.140146.816945.BusDevice.delivered.json"
+            "logs/bus/0/20261105.142845.195432.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.142845.222557.BusDevice.post.json",
+            "logs/bus/0/20261105.142845.228004.BusDevice.post.json",
+            "logs/bus/0/20261105.142845.230881.BusDevice.raise_trouble.json",
+            "logs/bus/0/20261105.142845.231038.BusDevice.delivered.json",
+            "logs/bus/0/20261105.142845.231169.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 117079413,
-          "disk_bytes": 149164032,
-          "entries": 12600,
+          "bytes": 117203903,
+          "disk_bytes": 149360640,
+          "entries": 12635,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "ad7caca4d54c": {
-          "cairn/tools/base/proofs/test_chat_pane.py": [
-            "test_no_breach_from_the_three",
-            "test_the_three_reach_the_live_bus_marked",
-            "cairn/tools/base/proofs/test_chat_pane.py::test_chat_pane_only_reads_the_bus"
-          ],
-          "cairn/tools/base/proofs/test_console_pane.py": [
-            "test_no_breach_from_the_three",
-            "test_the_three_reach_the_live_bus_marked",
-            "cairn/tools/base/proofs/test_console_pane.py::test_panes_only_read_the_bus"
-          ],
-          "cairn/tools/base/proofs/test_probe_carry.py": [
-            "test_no_breach_from_the_three",
-            "test_the_carry_holds_no_testing_name",
-            "test_the_three_reach_the_live_bus_marked"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ad7caca4d54c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "91c89acc49b9d085635656c249f135c11fa22eaa",
-          "anchor_first_build": "0ebff2b569e03a7d8d33a4e3947773dcb26f8d98",
-          "commit": "91c89acc49b9d085635656c249f135c11fa22eaa"
+          "reuses": 6
         }
       }
     },

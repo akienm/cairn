@@ -812,10 +812,16 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
                         pass
                 raise
             if isinstance(result, dict) and self._bus is not None:
+                # A PERFORMED TEST'S REPLY RIDES THE TEST'S MARK (ticket d0c8c4b4283e): the
+                # device never learns about testing; the shim stamps the mark it passed through.
+                mark = testing_mark.mark_of(envelope.get("body") or {})
+                body = ({**result, testing_mark.FIELD: mark}
+                        if mark is not None and mark["kind"] == testing_mark.PERFORM
+                        and testing_mark.FIELD not in result else result)
                 self._bus.post(
                     sender=self.device_id, to=envelope["sender"],
                     channel="personal", why=f"{verb} reply",
-                    body=result, reply_to=envelope["id"],
+                    body=body, reply_to=envelope["id"],
                 )
             return result
         receive = getattr(self._device, "receive", None)
@@ -854,7 +860,8 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         goes back to its sender with the mark and ``is_return``, answering the envelope by
         ``reply_to``; the device is never woken and no handler runs. The return is the "got here".
         A return that arrives here goes to ``handle_return`` and is never returned again. Any
-        other kind passes through. Returns None when the envelope is not this shim's to return."""
+        other kind passes through (a perform mark is stamped onto the verb reply in deliver).
+        Returns None when the envelope is not this shim's to return."""
         body = envelope.get("body") or {}
         mark = testing_mark.mark_of(body)
         if mark is None:

@@ -4,13 +4,14 @@ Test against live, marked as testing (Akien, ruled 2026-09-28, reshaped 2026-10-
 system is the test surface, and an artifact a test puts on it carries a mark. The mark carries a
 KIND, which says what the receiver does with it:
 
-  - ``return`` — the only kind today. The receiving device's SHIM sends the artifact back to the
+  - ``return`` — the receiving device's SHIM sends the artifact back to the
     tester unacted on, and the device never sees it. The return itself is the "got here"; the
     tester matches it to ``test`` and marks that test complete (Akien: "code mother should return
     it to the tester ... "Yep, got here" is implicit in the return").
-  - a future "perform this test" kind passes through to the device (Akien: "device gets the
-    "perform this test" kind later"). Nothing builds it yet, so ``mark()`` refuses it; ``mark_of()``
-    still reads it, so it fits without a reshape.
+  - ``perform`` — "perform this test" (Akien: "device gets the "perform this test" kind later";
+    built by ticket d0c8c4b4283e). The shim passes it through to the device's verb, and stamps the
+    same mark onto the verb's reply, so a reply caused by a test rides the test's mark and no
+    device has to learn about testing.
 
 The mark rides under ``FIELD`` on any artifact as ``{"kind": <kind>, "test": <test id>}``.
 Stdlib only: it sits at the base floor, beside ``address``.
@@ -19,7 +20,8 @@ from __future__ import annotations
 
 FIELD = "testing"      # the key the mark rides under on any artifact
 RETURN = "return"      # the receiving shim sends it back to the tester, unacted on
-KINDS = (RETURN,)      # the kinds this code builds; "perform this test" joins later
+PERFORM = "perform"    # the shim passes it to the device's verb and marks the verb's reply
+KINDS = (RETURN, PERFORM)  # the kinds this code builds
 
 
 def mark(test: str, kind: str = RETURN) -> dict:
@@ -33,7 +35,7 @@ def mark(test: str, kind: str = RETURN) -> dict:
 
 def mark_of(artifact) -> dict | None:
     """The well-formed mark riding on ``artifact``, or None. Any kind is returned; the reader
-    decides what a kind means (the shim acts on ``RETURN`` only)."""
+    decides what a kind means."""
     if not isinstance(artifact, dict):
         return None
     m = artifact.get(FIELD)

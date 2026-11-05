@@ -22,7 +22,11 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 PROVES = {"f5a344e6c629": {
     "4": "test_the_real_bus_client_row_is_clean",
     "5": "test_a_second_bus_client_dialer_is_caught",
-}}
+},
+    # Ticket 5183005fa134: the real row now holds tls.py (the pinned box-to-box door) too, so
+    # the same tooth reds an inspector whose sole-path seat forgot to admit it.
+    "5183005fa134": {"b": "test_the_real_bus_client_row_is_clean"},
+}
 
 
 def test_the_real_bus_client_row_is_clean():

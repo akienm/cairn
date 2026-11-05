@@ -8,8 +8,8 @@ here are two measurements over the device's OWN SOURCE (an ast walk for the impo
 literal scan for the path — the same instrument would red a "moved" path exactly as it
 reds the old one, which is what makes the wrong-intent clause falsifiable) and two over
 the door that replaced the reach: the surface asks the bus ``get`` / ``what=models`` and
-sizes its model table off the answer, and inference_domain actually declares that view
-and answers it with the parsed stack.
+sizes its model table off the answer, and inference_domain, asked over the bus through
+bus_client (ticket ea19fc079c0b), actually answers that view with the parsed stack.
 
 A HOLLOW BUILD COULD NOT PASS THESE: the source teeth are satisfied by deleting the reach,
 but the door teeth are satisfied only by a surface that still gets a stack from somewhere
@@ -175,25 +175,24 @@ def test_an_injected_stack_never_touches_the_bus():
     assert set(mod.model_cost) == {"fixture-model:1b"}
 
 
-def test_inference_domain_declares_a_models_view_that_returns_the_stack():
-    from cairn.devices.inference_domain.device import InferenceDomainDevice
+def test_inference_domain_answers_the_models_view_over_the_bus():
+    """The owner's half, asked the way every consumer asks it — over the bus, through
+    bus_client (ticket ea19fc079c0b). Until 2026-11-05 this was two teeth that imported
+    InferenceDomainDevice and called its get verb in-process: a RULE 1 reach from aider_shim's
+    proof into another device's code. Asked over the bus, reverting inference_domain's models
+    view still reds here — the get verb refuses and the body carries no models view."""
+    from cairn.tools.bus_client import inference_bus, models_stack
 
-    dev = InferenceDomainDevice()
-    views = dev.declared_views()
-    assert "models" in views, f"no models view, available: {sorted(views)}"
-    reply = dev.declared_verbs()["get"]({"body": {"what": "models"}})
-    assert reply["accepted"] is True and reply["view"] == "models"
-    stack = reply["data"]
-    names = {m["name"] for m in stack["models"]}
-    assert names, "the models stack declares no models"
+    reply = inference_bus().request(
+        sender="aider_shim", to="inference_domain", verb="get",
+        why="aider_shim proof: the models view, asked of its owner over the bus",
+        body={"what": "models"},
+    )
+    body = reply["body"]
+    assert body.get("accepted") is True and body.get("view") == "models", f"no models view: {body}"
+    names = {m["name"] for m in body["data"]["models"]}
     assert "qwen3-coder:30b" in names, f"the declared stack lost the coder model: {sorted(names)}"
-
-
-def test_the_seam_answers_the_same_stack_as_the_view():
-    from cairn.tools.bus_client import models_stack
-    from cairn.devices.inference_domain.device import InferenceDomainDevice
-
-    assert models_stack() == InferenceDomainDevice().declared_views()["models"]()
+    assert models_stack() == body["data"], "bus_client.models_stack answers a different stack"
 
 
 def test_aider_shim_reaches_inference_domain_only_through_a_door():
@@ -205,8 +204,7 @@ def test_aider_shim_reaches_inference_domain_only_through_a_door():
     test_no_module_in_aider_shim_imports_inference_domain()
     test_no_module_in_aider_shim_spells_a_path_into_inference_domain()
     test_the_surface_asks_the_bus_for_the_models_stack()
-    test_inference_domain_declares_a_models_view_that_returns_the_stack()
-    test_the_seam_answers_the_same_stack_as_the_view()
+    test_inference_domain_answers_the_models_view_over_the_bus()
 
 
 if __name__ == "__main__":

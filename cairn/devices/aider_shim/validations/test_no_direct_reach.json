@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_no_direct_reach.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-06T00:24:23",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T08:40:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_device_has_modules_to_measure\n.\n  ok   test_no_module_in_aider_shim_imports_inference_domain\n.\n  ok   test_no_module_in_aider_shim_spells_a_path_into_inference_domain\n.\n  ok   test_the_instrument_would_catch_a_repointed_path\n.\n  ok   test_the_surface_asks_the_bus_for_the_models_stack\n.\n  ok   test_an_injected_stack_never_touches_the_bus\n.\n  ok   test_inference_domain_declares_a_models_view_that_returns_the_stack\n.\n  ok   test_the_seam_answers_the_same_stack_as_the_view\n.\n  ok   test_aider_shim_reaches_inference_domain_only_through_a_door\n                                                                [100%]\n9 passed in 4.72s",
+      "stdout_tail": ".\n  ok   test_the_device_has_modules_to_measure\n.\n  ok   test_no_module_in_aider_shim_imports_inference_domain\n.\n  ok   test_no_module_in_aider_shim_spells_a_path_into_inference_domain\n.\n  ok   test_the_instrument_would_catch_a_repointed_path\n.\n  ok   test_the_surface_asks_the_bus_for_the_models_stack\n.\n  ok   test_an_injected_stack_never_touches_the_bus\n.\n  ok   test_inference_domain_answers_the_models_view_over_the_bus\n.\n  ok   test_aider_shim_reaches_inference_domain_only_through_a_door\n                                                                 [100%]\n8 passed in 7.84s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_device_has_modules_to_measure",
@@ -16,83 +16,113 @@
         "test_the_instrument_would_catch_a_repointed_path",
         "test_the_surface_asks_the_bus_for_the_models_stack",
         "test_an_injected_stack_never_touches_the_bus",
-        "test_inference_domain_declares_a_models_view_that_returns_the_stack",
-        "test_the_seam_answers_the_same_stack_as_the_view",
+        "test_inference_domain_answers_the_models_view_over_the_bus",
         "test_aider_shim_reaches_inference_domain_only_through_a_door"
       ],
       "teeth_red": [],
-      "test": "test-b521e8823adf",
+      "test": "test-74b750537eed",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "e4ef991cd0083a194741d404e355d1553347a0700150ef9f8c5b097ba8af2ef9",
+        "proof": "cb2d351535c6102237d3dc5d459bfb9e476e586b618fc8eec72fcbd8787c1e41",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 3711749,
+          "pid": 151569,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b521e8823adf",
-      "source_fingerprint": "b07cbf7bcbe2227a4a4e05ed1aaafa8d8760b7723993dcd14a42795adbb8889c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-74b750537eed",
+      "source_fingerprint": "53988336166c510b8d39748440b7649e9b15a58b3d7e4d13cb709e436f856d9b",
       "fingerprint_closure": [
         "cairn/devices/aider_shim/__init__.py",
         "cairn/devices/aider_shim/fence.py",
         "cairn/devices/aider_shim/interceptor.py",
         "cairn/devices/aider_shim/proofs/test_no_direct_reach.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/cairn/machines/bus": "73a87cda6bfe4ffe56d9e57ba6b76a3fa0a39fc7d8f5dc0eb669baa637886374",
+        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
+        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
+        "cairn/devices/inference_domain": "7fb2358aecdfe132aeb86d0e3dadcc212282d4ed414f2466a16afacc5ac6809a",
+        "cairn/devices/inference_domain/machines/route": "c7fba49368e801796b8446c2c33890faf9813743ff14c3a1cb4a46011a5e158e",
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
+        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3",
+        "cairn/tools/bus_client": "f1874cfae649302d8b88a2eeb6ada23f1b765e0820469dae070a0bb690455796",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
+        "cairn/tools/instanceizer": "9a7ff006213be62d2a2d632de5bd8c3086b387c3c8fcdcafae9777e107168ef7",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
+        "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-owexjfi1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-151548-5y4w29jx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
+          "count": 24,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/inference_domain/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261006.062417.641789.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261006.062421.909854.BusDevice.post.json",
-            "logs/bus/0/20261006.062421.919479.BusDevice.post.json",
-            "logs/bus/0/20261006.062421.921281.BusDevice.post.json",
-            "logs/bus/0/20261006.062421.922274.BusDevice.delivered.json",
-            "logs/bus/0/20261006.062421.922658.BusDevice.delivered.json",
-            "logs/bus/0/20261006.062422.041451.BusDevice.post.json",
-            "logs/bus/0/20261006.062422.042024.BusDevice.post.json",
-            "logs/bus/0/20261006.062422.042738.BusDevice.delivered.json",
-            "logs/bus/0/20261006.062422.042865.BusDevice.delivered.json",
-            "logs/inference_domain/0/20261006.062421.922388.InferenceDomainShim.clear_trouble.json",
-            "logs/inference_domain/0/20261006.062421.922545.InferenceDomainShim.clear_trouble.json"
+            "logs/bus/0/20261105.154019.820934.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.154027.239755.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.250414.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.252201.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.253242.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.256495.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.290764.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.291341.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.292071.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.292209.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.378710.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.379288.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.380003.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.380128.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.411076.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.411636.BusDevice.post.json",
+            "logs/bus/0/20261105.154027.412355.BusDevice.delivered.json",
+            "logs/bus/0/20261105.154027.412474.BusDevice.delivered.json",
+            "logs/inference_domain/0/20261105.154027.255418.InferenceDomainShim.clear_trouble.json",
+            "logs/inference_domain/0/20261105.154027.256361.InferenceDomainShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 177024339,
-          "disk_bytes": 205180928,
-          "entries": 12067,
+          "bytes": 117401999,
+          "disk_bytes": 149823488,
+          "entries": 12724,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

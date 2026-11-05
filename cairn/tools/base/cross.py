@@ -82,8 +82,9 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
                            state_path=str(dev / "state.json"),
                            node_class_root=node_class_root, **extra)
     if new != t["workflow_and_state"]:
-        t["workflow_and_state"] = new
-        ticket_file.rewrite_ticket(tp, t, verb="cast", why=why)
+        fresh = ticket_file.read_ticket(tp)  # emit may have written the fixme list (5a2a8f45177a)
+        fresh["workflow_and_state"] = new
+        ticket_file.rewrite_ticket(tp, fresh, verb="cast", why=why)
     return new
 
 

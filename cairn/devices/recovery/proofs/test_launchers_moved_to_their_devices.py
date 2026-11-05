@@ -150,6 +150,9 @@ def test_launchers_moved_to_their_devices():
             reds.append(t.__name__)
             print(f"  RED    {t.__name__}")
             print(f"         {type(e).__name__}: {e}")
+    # The declared composite tooth (PROVES "all"): hollow reads THIS name, so it prints
+    # green only when every narrow tooth above passed.
+    print(f"  {'RED   ' if reds else 'GREEN '} test_launchers_moved_to_their_devices")
     assert not reds, f"red teeth: {reds}"
 
 

@@ -2,7 +2,7 @@
 f04d5ef26a48, which marked the launcher's two systemd-run blocks, and of c64adc092835, which made
 a tester run stop the units carrying its id).
 
-ensure_ground_loop (cairn/tools/base/shim.py) is "launchers/superclaude's systemd-run block,
+ensure_ground_loop (cairn/tools/base/shim.py) is "cairn/devices/cc/superclaude's systemd-run block,
 spelled once here for python". f04d5ef26a48 marked the launcher's spelling; this one is the
 other. systemd-run hands a unit the MANAGER's environment, so a run's CAIRN_TESTER_TEST_ID stops
 at the shim's process, and a ground loop a shim starts inside a test run carries nothing the

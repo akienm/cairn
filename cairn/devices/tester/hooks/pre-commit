@@ -30,7 +30,7 @@ REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 [ -n "$REPO" ] || exit 0
 [ -f "$REPO/cairn/devices/tester/reseal.py" ] || exit 0
 
-BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+BOOTSTRAP="$REPO/cairn/devices/recovery/bootstrap.sh"
 PY="python3"
 if [ -r "$BOOTSTRAP" ]; then
   # shellcheck source=/dev/null

@@ -2,45 +2,26 @@
   {
     "claim": "proof test_a_bounce_answers_the_request_that_bore_it.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T10:51:49",
+    "date": "2026-11-04T21:16:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.25s",
+      "stdout_tail": ".\n  ok   test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to\n.\n  ok   test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce\n                                                                       [100%]\n2 passed in 0.26s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to",
         "test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce"
       ],
       "teeth_red": [],
-      "test": "test-ab3646c393fa",
+      "test": "test-8e2dbb61fade",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 18,
-        "tables": [
-          "bus_proc_1226467_2243317209_delivery",
-          "bus_proc_1226467_2243317209",
-          "bus_proc_1241368_2301584530_delivery",
-          "bus_proc_1241368_2301584530",
-          "bus_proc_1241820_2302333876_delivery",
-          "bus_proc_1241820_2302333876",
-          "bus_proc_1250419_2304365019_delivery",
-          "bus_proc_1250419_2304365019",
-          "bus_proc_1251484_2306116845_delivery",
-          "bus_proc_1251484_2306116845",
-          "bus_proc_1326571_1046157708_delivery",
-          "bus_proc_1326571_1046157708",
-          "bus_proc_1326857_1046503838_delivery",
-          "bus_proc_1326857_1046503838",
-          "bus_proc_1335546_1048464327_delivery",
-          "bus_proc_1335546_1048464327",
-          "bus_proc_1336415_1050203623_delivery",
-          "bus_proc_1336415_1050203623"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "c51c523049638f1b3e488df5eb32e5bf8c69fe6bc8533b36a046fd762cc60db1",
@@ -59,14 +40,14 @@
       },
       "killed": [
         {
-          "pid": 1337453,
+          "pid": 3842570,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ab3646c393fa",
-      "source_fingerprint": "4a79eca6224529cd539d1d3df9440bc969e12101eddef7811e39bd85568370e7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8e2dbb61fade",
+      "source_fingerprint": "8fd285b4ba7bec6e134c4d0077ecd6c150bd099cbfd012435bda4206f5de25ea",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -78,9 +59,16 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/base/testing_mark.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/bus_client": "204eac3ce7784027c8a6e0dfe3f8968286e9aad2ba48b5d1e102590902707c01",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1337430-ynwcix8q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-pd7rd3cf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
@@ -89,24 +77,24 @@
             "devices/one_verb_device_60cc/0/last_known.json",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261028.165148.020981.BusDevice.post.json",
-            "logs/bus/0/20261028.165148.035129.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165148.059593.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165148.077900.BusDevice.post.json",
-            "logs/bus/0/20261028.165148.078183.BusDevice.post.json",
-            "logs/bus/0/20261028.165148.079436.BusDevice.delivered.json",
-            "logs/bus/0/20261028.165148.079553.BusDevice.delivered.json",
-            "logs/tester/0/20261028.165148.079257.TesterShim.bounce_sent.json"
+            "logs/bus/0/20261105.041650.577808.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041650.577966.BusDevice.post.json",
+            "logs/bus/0/20261105.041650.596028.BusDevice.post.json",
+            "logs/bus/0/20261105.041650.596288.BusDevice.post.json",
+            "logs/bus/0/20261105.041650.597496.BusDevice.delivered.json",
+            "logs/bus/0/20261105.041650.597609.BusDevice.delivered.json",
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/20261105.041650.597332.TesterShim.bounce_sent.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112545050,
-          "disk_bytes": 141443072,
-          "entries": 11446,
+          "bytes": 115873939,
+          "disk_bytes": 146870272,
+          "entries": 12226,
           "builds": 1,
-          "reuses": 0
+          "reuses": 33
         }
       }
     },

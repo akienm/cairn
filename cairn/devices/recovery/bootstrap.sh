@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# cairn/launchers/bootstrap.sh — the HOST-SEAM that brings the floor up before Claude Code starts.
+# cairn/devices/recovery/bootstrap.sh — the HOST-SEAM that brings the floor up before Claude Code starts.
 #
-# Charter + why: cairn/launchers/intention+why.json
+# Charter + why: cairn/devices/recovery/intention+why.json
 # Ticket:        CairnCommons/tickets/superclaude-starts-itself.json
 #
 # ── WHAT ─────────────────────────────────────────────────────────────────────
@@ -60,8 +60,8 @@ case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) export PYTHONUTF8=1 ;; e
 # Resolve through symlinks before dirname — superclaude is linked into ~/.local/bin, and
 # without readlink -f this would compute the LINK's directory. Same lesson bin/cairn
 # learned on 2026-07-26; it is written down in both places because both places pay for it.
-CAIRN_LAUNCHERS_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-CAIRN_REPO_ROOT="$(cd "$CAIRN_LAUNCHERS_DIR/.." && pwd)"
+CAIRN_RECOVERY_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+CAIRN_REPO_ROOT="$(cd "$CAIRN_RECOVERY_DIR/../../.." && pwd)"
 
 # Findings accumulate here — one line each, complete enough to act on (see the report
 # contract below). Reset by verify, appended to by apply.
@@ -271,7 +271,7 @@ cairn_bootstrap_report() {
 import json, os, sys, datetime
 findings = [f for f in os.environ.get("CAIRN_RPT_FINDINGS", "").split("\n") if f.strip()]
 json.dump({
-    "component": "launchers/bootstrap.sh",
+    "component": "cairn/devices/recovery/bootstrap.sh",
     "measured_at": datetime.datetime.now().isoformat(timespec="seconds"),
     "venv": os.environ["CAIRN_RPT_VENV"],
     "repo_root": os.environ["CAIRN_RPT_ROOT"],
@@ -293,7 +293,7 @@ json.dump({
   [[ ${#CAIRN_BOOTSTRAP_FINDINGS[@]} -eq 0 ]] && return 0
 
   echo "CAIRN PREFLIGHT — the launcher tried to bring the floor up and could not finish."
-  echo "These are MEASURED at launch (host-seam: cairn/launchers/bootstrap.sh), not guesses."
+  echo "These are MEASURED at launch (host-seam: cairn/devices/recovery/bootstrap.sh), not guesses."
   echo "Full record: $logdir/preflight.json  ·  re-measure: cairn_bootstrap_verify"
   echo
   local f
@@ -309,7 +309,7 @@ json.dump({
 # copy. Uses CAIRN_INSTANCE_ROOT (default $HOME/.cairn/devices). Prints "wired N skipped M".
 # A device is wired when its class-space 0/bin exists and its instance bin does not: every
 # executable in the class bin gets a symlink. superclaude is wired by hand (its launcher
-# lives in launchers/, not a device bin). Nothing here is fatal — a link that cannot be
+# lives at cairn/devices/cc/superclaude, not a device bin). Nothing here is fatal — a link that cannot be
 # made is a finding the first run prints, not an abort.
 cairn_wire_instances() {
   local instance_root="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
@@ -339,6 +339,14 @@ cairn_wire_instances() {
     local inst_bin="$instance_root/$device/$instance/bin"
     local name
     name="$(basename "$script_path")"
+    # A link that already points here, or a real file, is left alone. A link pointing
+    # anywhere else (a box wired when superclaude lived in the old launchers folder, now dangling) is
+    # repointed: skipping it would leave that box's instance bin broken (ticket 38125c3ada38).
+    if [[ -L "$inst_bin/$name" && "$(readlink -f "$inst_bin/$name" 2>/dev/null)" != "$(readlink -f "$script_path")" ]]; then
+      ln -sfn "$script_path" "$inst_bin/$name" 2>/dev/null || true
+      wired=$((wired + 1))
+      return 0
+    fi
     if [[ -L "$inst_bin/$name" || -f "$inst_bin/$name" ]]; then
       skipped=$((skipped + 1))
       return 0
@@ -348,7 +356,7 @@ cairn_wire_instances() {
     wired=$((wired + 1))
   }
 
-  _cairn_wire_single "superclaude" "0" "$CAIRN_REPO_ROOT/launchers/superclaude"
+  _cairn_wire_single "superclaude" "0" "$CAIRN_REPO_ROOT/cairn/devices/cc/superclaude"
   local dev_dir dev
   for dev_dir in "$CAIRN_REPO_ROOT"/cairn/devices/*/; do
     [[ -d "$dev_dir" ]] || continue

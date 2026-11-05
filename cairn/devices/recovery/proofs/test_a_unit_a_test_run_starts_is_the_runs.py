@@ -39,7 +39,7 @@ reset-failed at the end. The web unit is reached by a PATH shim whose `ss` repor
 (the live web server holds it), so the launcher starts the unit and its listener fails to bind:
 exactly the failure that left the measured corpses.
 
-    python3 launchers/proofs/test_a_unit_a_test_run_starts_is_the_runs.py
+    python3 cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py
 """
 from __future__ import annotations
 
@@ -50,12 +50,12 @@ import sys
 import time
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-SUPERCLAUDE = REPO / "launchers" / "superclaude"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
 HOLD_ENV = "CAIRN_LAUNCHERS_UNITMARK_HOLD"
 
@@ -215,7 +215,7 @@ def test_a_run_killed_by_its_timeout_leaves_no_unit() -> None:
         return {line.split()[0] for line in r.stdout.splitlines() if line.strip()}
     before = proof_units()
     run = _run(str(REPO / "bin" / "cairn"), "test", "--timeout", "25",
-               "launchers/proofs/test_ground_loop_survives_its_caller.py", timeout=180)
+               "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py", timeout=180)
     time.sleep(4)
     left = sorted(u for u in proof_units() - before if "unitmark" not in u)
     ok("test_a_run_killed_by_its_timeout_leaves_no_unit",

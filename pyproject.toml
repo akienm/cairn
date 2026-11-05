@@ -14,7 +14,7 @@ requires-python = ">=3.12"
 #
 # `psycopg2-binary`, not `psycopg2`: the binary wheel needs no libpq-dev and no compiler, so
 # the bootstrap can bring the floor up on a bare box without a build toolchain. That serves
-# the rescue ethos (launchers/intention+why.json) — the tier below the system's machinery
+# the rescue ethos (cairn/devices/recovery/intention+why.json) — the tier below the system's machinery
 # must work when the machinery does not.
 dependencies = [
   "psycopg2-binary>=2.9",
@@ -37,7 +37,7 @@ aider = [
 # never raises a pane should not be made to install an ASGI stack to bring the floor up —
 # that is the rescue ethos again. Measured 2026-09-10: cairn/devices/web_server/listener.py
 # imports starlette and uvicorn at module scope and neither was declared anywhere, so
-# launchers/proofs/test_bootstrap.py stood red and the device worked only by accident of
+# cairn/devices/recovery/proofs/test_bootstrap.py stood red and the device worked only by accident of
 # this host.
 web = [
   "starlette",
@@ -52,8 +52,8 @@ web = [
 # never been performed, `cairn` imported only because cwd happened to be the repo root, and
 # PEP 668 (/usr/lib/python3.12/EXTERNALLY-MANAGED) refuses the install into system python
 # outright — so the promise could not have been kept where it was being made. The venv the
-# bootstrap builds (cairn/launchers/bootstrap.sh) is what makes this line true rather than
-# aspirational; `cairn test cairn/launchers/proofs/test_bootstrap.py` is what keeps it true.
+# bootstrap builds (cairn/devices/recovery/bootstrap.sh) is what makes this line true rather than
+# aspirational; `cairn test cairn/devices/recovery/proofs/test_bootstrap.py` is what keeps it true.
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"
 filterwarnings = [

@@ -16,7 +16,7 @@ moment at which anyone is told. Law 4 — a rule that matters is enforced by phy
 
 AND THE SPELLING WAS NOT THE DEFECT. The first pass fixed thirty ``mkdtemp`` sites and the
 corpus tooth guarding them grepped for ``mkdtemp`` — which missed a thirty-first leak
-wearing a different spelling (``tempfile.gettempdir()`` in ``launchers/proofs/test_bootstrap.py``,
+wearing a different spelling (``tempfile.gettempdir()`` in ``cairn/devices/recovery/proofs/test_bootstrap.py``,
 one boot-log FILE per run, 18 of them standing). A tooth narrower than its own defect is
 the hollow kind. The rule is therefore about the REACH, not the function name: a proof
 touches the system temp directory only through this door. The three call sites that merely
@@ -203,7 +203,7 @@ def bare_temp_reach(root: str | Path) -> list[str]:
     b4d39f3610f3 moved it here.
 
     gettempdir is here because the FIRST version grepped only for mkdtemp and missed a real
-    leak of a different spelling — 18 boot-log FILES from launchers/proofs/test_bootstrap.py,
+    leak of a different spelling — 18 boot-log FILES from cairn/devices/recovery/proofs/test_bootstrap.py,
     one per run. A scan narrower than its own defect is the hollow kind. Both reach the system
     temp dir; only the door may. The three sites that named a deliberately-NONEXISTENT path came
     through the door too, so there is no exemption to maintain and no judgement call about

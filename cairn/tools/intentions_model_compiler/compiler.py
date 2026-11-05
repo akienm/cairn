@@ -23,7 +23,7 @@ The contract:
     overwritten. The lab is never a record of truth (Law 7); the sources are.
   - EVERY intention+why IN THE REPO IS COPIED, not just ``cairn/*/``. Measured 2026-07-31:
     the old ``cairn/*/`` scan reached 19 of 32, leaving all nine ``skills/*/`` plus
-    ``bin/``, ``learning/``, ``launchers/`` and ``press_office/`` out of the folder that
+    ``bin/``, ``learning/``, ``launchers`` (moved 2026-11-04 to cairn/devices/recovery and cc) and ``press_office/`` out of the folder that
     claims it can regrow the system. A copier that misses 40% of what it copies fails its
     own charter, so the walk is the whole repo.
   - A NAME COLLISION IS LOUD, NEVER LAST-WRITE-WINS (Law 7). Two sources claiming one lab

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_shim.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T10:56:07",
+    "date": "2026-11-04T21:21:42",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,7 +27,7 @@
         "test_contract_override_declares_capabilities"
       ],
       "teeth_red": [],
-      "test": "test-ee8f4725fc9d",
+      "test": "test-87a8172e3733",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -53,8 +53,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee8f4725fc9d",
-      "source_fingerprint": "47690d106a259d192d97b66c047e6dd7cb8fa0ca4b987066f9a2a86918bc3e62",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-87a8172e3733",
+      "source_fingerprint": "9bdaaf4402d1eccdffea66fb9fa3619dee00fe9a0d3670a9febd7ed84c88d90a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -66,25 +66,31 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/base/testing_mark.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1337430-v7svq6uh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-185_yzt7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
+          "count": 3,
           "paths": [
             "devices/spec/0/last_known.json",
-            "devices/verb_device/0/last_known.json"
+            "devices/verb_device/0/last_known.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112542401,
-          "disk_bytes": 141406208,
-          "entries": 11432,
+          "bytes": 115878409,
+          "disk_bytes": 146841600,
+          "entries": 12213,
           "builds": 1,
-          "reuses": 54
+          "reuses": 83
         }
       }
     },

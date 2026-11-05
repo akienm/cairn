@@ -78,7 +78,7 @@ if [ $# -eq 0 ]; then
     exec "$device_bin/librarian"
   fi
   # Not wired — try the bootstrap, which wires everything up
-  bootstrap="$HERE/../launchers/bootstrap_first_run.sh"
+  bootstrap="$HERE/../cairn/devices/recovery/bootstrap_first_run.sh"
   if [ -x "$bootstrap" ]; then
     exec "$bootstrap"
   fi
@@ -95,7 +95,7 @@ fi
 # THE HAPPY PATH IS THREE BUILTIN TESTS AND NOTHING ELSE — no subprocess, no python, no
 # cache (baseline 4.3ms median to exec, measured 2026-09-16; the budget is <10ms added).
 # A miss pays the heavy path once: the lay-down is LIFTED, never copied — the venv is
-# launchers/bootstrap.sh's (verify then apply), the wiring is bootstrap.sh's
+# cairn/devices/recovery/bootstrap.sh's (verify then apply), the wiring is bootstrap.sh's
 # cairn_wire_instances, the db start is one sudo -n call and the only place it is made.
 # A floor that cannot be laid is refused loud, with the check named, exit 3 — the resolver
 # is never reached on a floor that is not there (Law 7; gates are physics).
@@ -120,13 +120,13 @@ _floor_venv() {
   [[ "$CAIRN_WINDOWS" -eq 1 && ! -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && return 0
   [[ -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && return 0
   # shellcheck source=/dev/null
-  source "$HERE/../launchers/bootstrap.sh" 2>/dev/null || _floor_refuse venv \
-    "$CAIRN_VENV/bin/python3 is absent and $HERE/../launchers/bootstrap.sh (the venv's one recipe) did not load"
+  source "$HERE/../cairn/devices/recovery/bootstrap.sh" 2>/dev/null || _floor_refuse venv \
+    "$CAIRN_VENV/bin/python3 is absent and $HERE/../cairn/devices/recovery/bootstrap.sh (the venv's one recipe) did not load"
   declare -F cairn_bootstrap_apply >/dev/null 2>&1 || _floor_refuse venv \
     "$CAIRN_VENV/bin/python3 is absent and bootstrap.sh exposes no cairn_bootstrap_apply"
   cairn_bootstrap_verify >/dev/null 2>&1 || cairn_bootstrap_apply >/dev/null 2>&1 || true
   cairn_bootstrap_verify >/dev/null 2>&1 && return 0
-  _floor_refuse venv "$CAIRN_VENV/bin/python3 was absent and the lay-down (launchers/bootstrap.sh cairn_bootstrap_apply) did not leave a working venv: $(printf '%s | ' ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"})"
+  _floor_refuse venv "$CAIRN_VENV/bin/python3 was absent and the lay-down (cairn/devices/recovery/bootstrap.sh cairn_bootstrap_apply) did not leave a working venv: $(printf '%s | ' ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"})"
 }
 
 _floor_db() {
@@ -152,7 +152,7 @@ _floor_db() {
 _floor_instance() {
   [[ -d "$INSTANCE_ROOT/cairn/0" ]] && return 0
   # shellcheck source=/dev/null
-  source "$HERE/../launchers/bootstrap.sh" 2>/dev/null || true
+  source "$HERE/../cairn/devices/recovery/bootstrap.sh" 2>/dev/null || true
   if declare -F cairn_wire_instances >/dev/null 2>&1; then
     CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances >/dev/null 2>&1 || true
   fi
@@ -161,7 +161,7 @@ _floor_instance() {
   # first write.
   mkdir -p "$INSTANCE_ROOT/cairn/0" 2>/dev/null || true
   [[ -d "$INSTANCE_ROOT/cairn/0" ]] && return 0
-  _floor_refuse instance "$INSTANCE_ROOT/cairn/0 was absent and could not be laid (launchers/bootstrap.sh cairn_wire_instances + mkdir)"
+  _floor_refuse instance "$INSTANCE_ROOT/cairn/0 was absent and could not be laid (cairn/devices/recovery/bootstrap.sh cairn_wire_instances + mkdir)"
 }
 
 _floor() {

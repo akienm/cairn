@@ -34,7 +34,7 @@ launch" outranks the cap: if the scope is declined or unavailable the launch sti
 Claude, unbounded, and SAYS SO in the boot log. A cap that could strand Akien without a
 session on a broken box would be a worse defect than the one it fixes.
 
-    python3 launchers/proofs/test_superclaude_memory_scope.py     # exit 0 = green
+    python3 cairn/devices/cc/proofs/test_superclaude_memory_scope.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -45,13 +45,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))     # cairn/devices/recovery/proofs -> repo root
 
 from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-REPO = Path(__file__).resolve().parents[2]
-SUPERCLAUDE = REPO / "launchers" / "superclaude"
+REPO = Path(__file__).resolve().parents[4]
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 
 # Every reach into the system temp directory goes through scratch_dir (its own docstring says
 # why), and the boot log is redirected out of ~/.cairn so a proof run never becomes evidence

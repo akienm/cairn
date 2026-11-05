@@ -29,9 +29,9 @@ PY
 }
 # superclaude — Cairn's Claude Code launcher.
 #
-# Canonical home: cairn/launchers/superclaude  (symlinked onto PATH via ~/.local/bin;
+# Canonical home: cairn/devices/cc/superclaude  (symlinked onto PATH via ~/.local/bin;
 # a convenience pointer also sits at the repo root: cairn/superclaude).
-# Charter + why: cairn/launchers/intention+why.json
+# Charter + why: cairn/devices/cc/intention+why.json
 #
 # ── WHAT ─────────────────────────────────────────────────────────────────────
 # Launches Claude Code with Cairn's standing session contract:
@@ -185,7 +185,7 @@ superclaude — Cairn's Claude Code launcher.
                     itself is what's broken — the launch must always be reachable)
     -h, --help      this message
 
-  Preflight — superclaude gets itself started (cairn/launchers/bootstrap.sh):
+  Preflight — superclaude gets itself started (cairn/devices/recovery/bootstrap.sh):
     Brings up the venv + editable install so `cairn` imports from anywhere, then
     hands Claude a report of whatever it could NOT fix, so the session opens already
     knowing. Silent when the floor is up. It can never abort the launch.
@@ -287,7 +287,7 @@ _sc_log() { declare -F lognote >/dev/null 2>&1 && lognote "$@"; return 0; }
 # a launch that used it is the single most interesting line this probe can capture: it means
 # the floor check got broken enough that someone routed around it. Recording only the
 # launches that took the happy path would make the probe blind to its own failure mode.
-_sc_logger="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../bin/logger_for_bash"
+_sc_logger="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../../bin/logger_for_bash"
 if [[ -r "$_sc_logger" ]]; then
   # shellcheck source=/dev/null
   source "$_sc_logger" 2>/dev/null || true
@@ -296,7 +296,7 @@ _sc_log "launch: argv=[$*] session=$session context=$context_state preflight=$([
 
 preflight_arg=()
 if [[ "$no_preflight" -eq 0 ]]; then
-  bootstrap="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/bootstrap.sh"
+  bootstrap="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../recovery/bootstrap.sh"
   if [[ -r "$bootstrap" ]]; then
     # shellcheck source=/dev/null
     source "$bootstrap" || true
@@ -345,7 +345,7 @@ fi
 # first time it is used. Same prime directive as the preflight: guarded, never fatal.
 # Anything that needs a hand (a refused link, a failed clone) rides to CC with the
 # preflight residue, so CC sees it rather than starting quietly amnesiac.
-_sc_memlink="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../cairn/devices/cc/scripts/memory_link.py"
+_sc_memlink="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/scripts/memory_link.py"
 _sc_py="$(command -v python3 || command -v python || true)"
 if [[ -r "$_sc_memlink" && -n "$_sc_py" ]]; then
   _sc_memnote="$("$_sc_py" "$_sc_memlink" --quiet "$PWD" 2>&1)" || true
@@ -498,7 +498,7 @@ if [[ -n "${CAIRN_TESTER_TEST_ID:-}" ]]; then
 fi
 _sc_loop_unit="${SUPERCLAUDE_GROUND_LOOP_UNIT:-cairn-ground-loop}"
 _sc_loop_log="${HOME}/.cairn/logs/ground_loop_nohup.log"
-_sc_loop_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/null && pwd)"
+_sc_loop_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." 2>/dev/null && pwd)"
 
 # Spelled ONCE so the retry cannot drift from the first attempt — the retry differs from the
 # first try in nothing but the reset that precedes it, and a second copy of eight flags is a
@@ -584,7 +584,7 @@ fi
 # failure in the log.
 _sc_web_unit="${SUPERCLAUDE_WEB_UNIT:-cairn-web-server}"
 _sc_web_log="${HOME}/.cairn/logs/web_server.log"
-_sc_web_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." 2>/dev/null && pwd)"
+_sc_web_root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." 2>/dev/null && pwd)"
 
 _sc_web_start() {
   systemd-run --user --quiet \

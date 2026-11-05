@@ -42,7 +42,7 @@
 #   logrun bash -c 'a | b'
 #
 # ── NEVER `set -e` / `set -u` IN THIS FILE ───────────────────────────────────
-# Same constraint as launchers/bootstrap.sh, for the same reason and one more. This is
+# Same constraint as cairn/devices/recovery/bootstrap.sh, for the same reason and one more. This is
 # SOURCED — by ~/.bashrc (where an abort costs you the shell) and by superclaude (whose
 # prime directive is that nothing between parse and exec may abort the launch). A `set`
 # in a sourced file leaks into the CALLER. Every function below RETURNS a code; not one

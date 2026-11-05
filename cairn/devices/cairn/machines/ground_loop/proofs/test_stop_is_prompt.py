@@ -6,7 +6,7 @@ MEASURED, 2026-09-08, from both ends of the same defect:
     ``State 'stop-sigterm' timed out. Killing.`` at 90s and SIGKILLed the loop — so a beat
     in flight was torn down mid-write instead of finished, which is exactly what the
     liveness record's atomic write exists to prevent.
-  - ``launchers/proofs/test_ground_loop_survives_its_caller.py`` died in its own
+  - ``cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py`` died in its own
     ``finally:`` cleanup on ``systemctl --user stop`` at a 20s subprocess timeout, and the
     TimeoutExpired replaced every tooth's verdict with a traceback.
 

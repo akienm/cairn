@@ -13,7 +13,7 @@ balloons stood loaded in the user manager, because the balloon scopes carried no
 The memory-scope proof is loaded by path INSIDE each tooth, so a reverted build reds a tooth
 rather than crashing the import.
 
-Run bare:  PYTHONPATH=. python3 launchers/proofs/test_the_unswapped_arm_measures_swap_first.py
+Run bare:  PYTHONPATH=. python3 cairn/devices/recovery/proofs/test_the_unswapped_arm_measures_swap_first.py
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ import sys
 import types
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -37,7 +37,7 @@ PROVES = {
     },
 }
 
-SUBJECT = REPO / "launchers/proofs/test_superclaude_memory_scope.py"
+SUBJECT = REPO / "cairn/devices/cc/proofs/test_superclaude_memory_scope.py"
 FAILURES: list[str] = []
 
 

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_reached_component_moved.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-02T04:42:26",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-04T21:05:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_unmoved_reach_reads_no_finding\n.\n  ok   test_a_moved_reach_reads_one_yellow_finding\n.\n  ok   test_yellow_is_not_red\n.\n  ok   test_a_seal_without_reached_reads_no_finding\n.\n  ok   test_no_gate_composes_the_yellow\n                                                                    [100%]\n5 passed in 0.50s",
+      "stdout_tail": ".\n  ok   test_an_unmoved_reach_reads_no_finding\n.\n  ok   test_a_moved_reach_reads_one_yellow_finding\n.\n  ok   test_yellow_is_not_red\n.\n  ok   test_a_seal_without_reached_reads_no_finding\n.\n  ok   test_no_gate_composes_the_yellow\n                                                                    [100%]\n5 passed in 0.47s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_unmoved_reach_reads_no_finding",
@@ -17,7 +17,7 @@
         "test_no_gate_composes_the_yellow"
       ],
       "teeth_red": [],
-      "test": "test-0fe1ae3b5e0c",
+      "test": "test-5402abe8197f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0fe1ae3b5e0c",
-      "source_fingerprint": "da1fd3c80709eaffa88deac41a9297fba88f7daca87860f89aa610c06bb33984",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5402abe8197f",
+      "source_fingerprint": "dc8ff291dbb34b776c91cb45dd2dccb1cac00e83a5678408138581a62d4676f6",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -53,7 +52,7 @@
       ],
       "reached": {
         "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/base": "0eff79a7fdb2241aa184eaafeaafe7e128d12fc24a2e7662ce3730cc87bf105c",
+        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
         "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
         "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -66,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3438586-7ojcr6m4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-gdk5ds2u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,30 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115372205,
-          "disk_bytes": 146161664,
-          "entries": 12133,
+          "bytes": 115870325,
+          "disk_bytes": 146833408,
+          "entries": 12212,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "50e0581737e8": {
-          "cairn/machines/build_inspector/inspector.py": [
-            "test_a_moved_reach_reads_one_yellow_finding",
-            "test_a_seal_without_reached_reads_no_finding",
-            "test_an_unmoved_reach_reads_no_finding",
-            "test_no_gate_composes_the_yellow",
-            "test_yellow_is_not_red"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "50e0581737e8": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c17dafa2e74d041695f5ad2eac70d5be3a057b55",
-          "anchor_first_build": "7a5ecfa35dd4db8a74f97ae41c967bcfabe46960",
-          "commit": "c17dafa2e74d041695f5ad2eac70d5be3a057b55"
+          "reuses": 11
         }
       }
     },

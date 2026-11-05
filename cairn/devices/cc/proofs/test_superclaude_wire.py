@@ -6,7 +6,7 @@ counted. The wire is backgrounded, so the teeth wait for the record; and the tee
 assert INVARIANTS, never snapshots (the preflight's residue on a real box is
 legitimately variable — pinning it would red on normal motion).
 
-    python3 launchers/proofs/test_superclaude_wire.py     # exit 0 = green
+    python3 cairn/devices/cc/proofs/test_superclaude_wire.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -19,13 +19,13 @@ import sys
 import time
 from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[2]
+_REPO = Path(__file__).resolve().parents[4]
 # Runnable bare, so it cannot lean on an externally-set PYTHONPATH to reach cairn.*.
 sys.path.insert(0, str(_REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-_LAUNCHER = _REPO / "launchers" / "superclaude"
+_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
 
 
 def _launch(*args: str, troot: str) -> subprocess.CompletedProcess:

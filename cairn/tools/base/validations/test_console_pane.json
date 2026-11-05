@@ -2,12 +2,12 @@
   {
     "claim": "proof test_console_pane.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-28T10:54:25",
+    "date": "2026-11-04T21:19:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_debug_pane_in_floor_without_bus\n.\n  ok   test_info_pane_shows_info_messages\n.\n  ok   test_debug_pane_shows_debug_messages\n.\n  ok   test_info_and_debug_do_not_cross\n.\n  ok   test_panes_do_not_alter_channels\n.\n  ok   test_panes_are_not_in_declared_panes\n.\n  ok   test_empty_channels_render_empty_entries\n.\n  ok   test_record_channels_not_in_diagnostic_panes\n.\n  ok   test_roster_minimum\n                                                               [100%]\n10 passed in 0.80s",
+      "stdout_tail": ".\n  ok   test_debug_pane_in_floor_without_bus\n.\n  ok   test_info_pane_shows_info_messages\n.\n  ok   test_debug_pane_shows_debug_messages\n.\n  ok   test_info_and_debug_do_not_cross\n.\n  ok   test_panes_do_not_alter_channels\n.\n  ok   test_panes_are_not_in_declared_panes\n.\n  ok   test_empty_channels_render_empty_entries\n.\n  ok   test_record_channels_not_in_diagnostic_panes\n.\n  ok   test_roster_minimum\n                                                               [100%]\n10 passed in 1.22s",
       "stderr_tail": "",
       "teeth_green": [
         "test_info_pane_in_floor_without_bus",
@@ -22,7 +22,7 @@
         "test_roster_minimum"
       ],
       "teeth_red": [],
-      "test": "test-a13e57e201c4",
+      "test": "test-57a8f5e30024",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -48,8 +48,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a13e57e201c4",
-      "source_fingerprint": "3a828a04d693dfbd0f6903fbaffd4766559ddf35cfda15240a97dfaf244ca316",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-57a8f5e30024",
+      "source_fingerprint": "fd5907dbdb760296f8ee8a620f830649554a92ae074795ad460def01f9630d9c",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -62,37 +62,49 @@
         "cairn/tools/base/shim.py",
         "cairn/tools/base/testing_mark.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/cairn/machines/bus": "2b3fb3c96029f92401c953fa53b6cfdc576d6d3173d009d2e2c3655ec4e21a57",
+        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
+        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/instanceizer": "9a7ff006213be62d2a2d632de5bd8c3086b387c3c8fcdcafae9777e107168ef7",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1337430-fw4qjwbu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-s5ai3gfa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 14,
+          "count": 15,
           "paths": [
-            "logs/bus/0/20261028.165423.615715.BusDevice.post.json",
-            "logs/bus/0/20261028.165423.616469.BusDevice.post.json",
-            "logs/bus/0/20261028.165423.661250.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165423.738566.BusDevice.post.json",
-            "logs/bus/0/20261028.165423.786513.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165423.864583.BusDevice.post.json",
-            "logs/bus/0/20261028.165423.864846.BusDevice.post.json",
-            "logs/bus/0/20261028.165423.923442.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165424.058898.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165424.184781.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261028.165424.257574.BusDevice.post.json",
-            "logs/bus/0/20261028.165424.258839.BusDevice.post.json",
-            "logs/bus/0/20261028.165424.258976.BusDevice.post.json",
-            "logs/bus/0/20261028.165424.307499.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261105.041941.602597.BusDevice.post.json",
+            "logs/bus/0/20261105.041941.604146.BusDevice.post.json",
+            "logs/bus/0/20261105.041941.657053.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041941.786315.BusDevice.post.json",
+            "logs/bus/0/20261105.041941.886064.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041942.002827.BusDevice.post.json",
+            "logs/bus/0/20261105.041942.003343.BusDevice.post.json",
+            "logs/bus/0/20261105.041942.077254.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041942.226438.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041942.454101.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.041942.573313.BusDevice.post.json",
+            "logs/bus/0/20261105.041942.577146.BusDevice.post.json",
+            "logs/bus/0/20261105.041942.577581.BusDevice.post.json",
+            "logs/bus/0/20261105.041942.645894.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 112545940,
-          "disk_bytes": 141463552,
-          "entries": 11448,
+          "bytes": 115878492,
+          "disk_bytes": 146898944,
+          "entries": 12229,
           "builds": 1,
-          "reuses": 23
+          "reuses": 55
         }
       }
     },

@@ -373,7 +373,6 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
                                   #   intention+why.json + code + state + history
                                   #   + proofs/ (+ the validations beside them)
   skills/                         # canonical; ~/.claude/skills symlinks here; purged set only
-  launchers/                      # cairn launch/rescue scripts; symlinked onto PATH
 ```
 
 No `devlab/` — CairnCommons replaces it entirely. No `docs/` — knowledge lives

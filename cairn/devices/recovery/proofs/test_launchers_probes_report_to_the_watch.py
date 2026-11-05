@@ -10,10 +10,10 @@ What a hollow build cannot pass (Law 8):
     verb, ``to``, ``ticket``, ``holds`` and ``finding``.
 
 The population is read from the commons, never listed here: every ticket at a rest (PROVED or
-WATCHME) whose watchme probe berths under launchers/probes. Live payloads are
+WATCHME) whose watchme probe berths under cairn/devices/recovery/probes. Live payloads are
 asserted as INVARIANTS only — a holds value is the world's to change.
 
-    python3 launchers/proofs/test_launchers_probes_report_to_the_watch.py   # exit 0 = green
+    python3 cairn/devices/recovery/proofs/test_launchers_probes_report_to_the_watch.py   # exit 0 = green
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -37,7 +37,7 @@ PROVES = {
     },
 }
 
-BERTH = "launchers/probes/"
+BERTH = "cairn/devices/recovery/probes/"
 RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
 
 

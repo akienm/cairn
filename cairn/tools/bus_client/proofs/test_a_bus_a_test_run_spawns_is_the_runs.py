@@ -1,5 +1,5 @@
 """A bus a test run spawns is the run's (the bus twin of 2120e74dcf44, which marked
-ensure_ground_loop, and of f04d5ef26a48, which marked launchers/superclaude; c64adc092835 made a
+ensure_ground_loop, and of f04d5ef26a48, which marked cairn/devices/cc/superclaude; c64adc092835 made a
 tester run stop the units carrying its id).
 
 remote.py ``_spawn`` is "``ensure_ground_loop``'s systemd-run block, spelled again for the bus".
@@ -7,7 +7,7 @@ remote.py ``_spawn`` is "``ensure_ground_loop``'s systemd-run block, spelled aga
 MANAGER's environment, so a run's CAIRN_TESTER_TEST_ID stops at the caller's process, and a bus
 a test run causes carries nothing the tester's stop can find. One that fails lingers as a failed
 unit. Measured 2026-10-11: eight cairn-bus-<hash> corpses left loaded/failed by
-launchers/proofs/test_a_unit_a_test_run_starts_is_the_runs.py tooth 2.
+cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py tooth 2.
 
   1. A BUS STARTED IN A RUN CARRIES ITS TEST ID: the user manager records the unit
      ``ensure_bus`` starts as handed the CAIRN_TESTER_TEST_ID its caller was given.

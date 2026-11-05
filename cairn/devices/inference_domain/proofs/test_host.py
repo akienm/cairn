@@ -346,7 +346,7 @@ def test_no_other_module_in_the_tree_opens_the_inference_host():
 
     WHAT CHANGED ON 2026-08-06, and why it was not just a refactor. The hand-rolled version
     globbed `_REPO_ROOT / "cairn"` — the package directory. It therefore never looked at
-    bin/, skills/, launchers/ or learning/: 26 real Python files, including every skill door
+    bin/, skills/, the launchers folder (since 2026-11-04 cairn/devices/recovery and cc) or learning/: 26 real Python files, including every skill door
     and probe, in which a second dialer would have been invisible. Measured with the mutant:
     a file planted at skills/ was missed by the old glob and is caught by the sieve.
 

@@ -17,7 +17,7 @@ is not a flaw in this proof, it is its job — this file IS the re-runnable `ver
 
 Deliberately dependency-light: subprocess + bash + json. Runs bare.
 
-    python3 launchers/proofs/test_bootstrap.py     # exit 0 = green
+    python3 cairn/devices/recovery/proofs/test_bootstrap.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -30,13 +30,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))     # cairn/devices/recovery/proofs -> repo root
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-REPO = Path(__file__).resolve().parents[2]
-BOOTSTRAP = REPO / "launchers" / "bootstrap.sh"
-SUPERCLAUDE = REPO / "launchers" / "superclaude"
+REPO = Path(__file__).resolve().parents[4]
+BOOTSTRAP = REPO / "cairn" / "devices" / "recovery" / "bootstrap.sh"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 
 # A path that cannot be created, so `apply` genuinely fails rather than quietly succeeding.
 # /proc is a kernel filesystem: mkdir under it is refused, which is what makes this a real
@@ -52,7 +52,7 @@ _failures: list[str] = []
 # THE PROOF OWNS ITS OWN NAMESPACE, and this is not hygiene — it is the difference between a
 # probe measuring the world and a probe measuring its own test suite.
 #
-# MEASURED, 2026-07-30, on the FIRST live fire of launchers/probes/reported_but_unfixed_floor.py:
+# MEASURED, 2026-07-30, on the FIRST live fire of cairn/devices/recovery/probes/reported_but_unfixed_floor.py:
 # the probe read the real boot log and reported a finding that had ridden UNFIXED through
 # twelve separate launches. The finding was "SYNTHETIC FINDING for the proof" — this file's
 # own fixture, written twelve times by twelve runs of this suite. Nothing in the record marked
@@ -189,7 +189,7 @@ def test_bootstrap_sets_no_errexit_because_it_is_sourced() -> None:
 def test_a_broken_preflight_still_reaches_claude() -> None:
     """The one thing the launcher may never do is fail to launch. A preflight that cannot
     repair must still hand off, carrying its report — 'always reach Claude Code so it can
-    help rebuild a broken box' (launchers/intention+why.json)."""
+    help rebuild a broken box' (cairn/devices/recovery/intention+why.json)."""
     r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        env=_env({"CAIRN_VENV": UNCREATABLE}), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} with a broken preflight — {r.stderr!r}"
@@ -217,7 +217,7 @@ def test_the_live_floor_is_up() -> None:
     r = _sh('cairn_bootstrap_verify; echo "RC=$?"; printf "%s\\n" ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"}')
     assert "RC=0" in r.stdout, (
         "the floor on this host is DOWN. This is the host-seam's seal expiring, not a code "
-        f"defect. Repair: run `superclaude` once, or source launchers/bootstrap.sh and call "
+        f"defect. Repair: run `superclaude` once, or source cairn/devices/recovery/bootstrap.sh and call "
         f"cairn_bootstrap_apply.\nFindings:\n{r.stdout}"
     )
 
@@ -268,10 +268,7 @@ def test_every_third_party_import_is_declared() -> None:
       4. anything not in ANY group — truly unknown, the catchall
     The most useful error message is the one that names what to do, not just what is wrong."""
     import ast
-    try:
-        import tomllib
-    except ModuleNotFoundError:
-        import tomli as tomllib  # type: ignore[no-redef]
+    import tomllib  # requires-python >= 3.12: always stdlib (the tomli fallback was dead, and redded the scan once this proof moved under cairn/)
 
     # Package name → import name, for the cases where they differ. Every entry here is a
     # measured gap: the sieve redded on a real import that a declared package satisfies.
@@ -430,7 +427,7 @@ def test_this_proof_wrote_nothing_into_the_real_flight_recorder() -> None:
             assert hit is None, (
                 f"{marker!r} is a reported finding in the REAL flight recorder "
                 f"({_REAL_BOOT_LOG}): {hit!r} — this harness is contaminating the record that "
-                "launchers/probes/reported_but_unfixed_floor.py reads, so the probe is "
+                "cairn/devices/recovery/probes/reported_but_unfixed_floor.py reads, so the probe is "
                 "measuring the suite"
             )
 

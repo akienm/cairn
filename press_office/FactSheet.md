@@ -41,7 +41,7 @@ Read the numbers as evidence about the **method**, not as a claim about the **ar
 | Charters (`intention+why.json`) in the tree | 56 | `find . -name "intention+why.json" \| wc -l` |
 | Charters compiled into the help surface | 56 | `cairn cairnmap` (footer) |
 | Chartered components under `cairn/` | 39 | `find cairn -name "intention+why.json" \| wc -l` |
-| Python, whole tree | 85,690 lines | `find cairn bin skills launchers learning -name "*.py" \| xargs wc -l` |
+| Python, whole tree | 85,690 lines | `find cairn bin skills learning -name "*.py" \| xargs wc -l` |
 | Python living in `proofs/` | 43,444 lines | `find . -path "*proofs*" -name "*.py" \| xargs wc -l` |
 | **Proof share of the codebase** | **50.7%** | derived from the two rows above |
 | Proof files (`proofs/test_*.py`) | 131 | `find . -name "test_*.py" -path "*proofs*" \| wc -l` |

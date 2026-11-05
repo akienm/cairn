@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_ticket_log_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-02T19:38:08",
+    "date": "2026-11-04T21:22:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_append_log_lands_lines_in_order_and_refuses_what_it_must  — lines [{'actor': 'proof', 'at': '2026-11-02T19:38:07', 'field': 'one', 'kind': 'field', 'value': 1}, {'actor': 'proof', 'at': '2026-11-02T19:38:07', 'field': 'two', ' refusals [True, True]\n  PASS  test_split_moves_the_trail_and_reconstructs_the_v1_doc  — moved {'field': 1, 'phase_write': 2, 'rehearsal': 1, 'decision_retired': 1, 'state': 4}; plan keys outside: []; lossless True\n  PASS  test_a_second_split_is_a_no_op  — moved {}\n  PASS  test_set_phase_appends_its_record_to_the_log  — log phase_writes 1; plan keys ['id', 'release', 'title', 'workflow_and_state']\n  PASS  test_cast_ticket_refuses_a_field_outside_the_plan  — refusal named the field True; extra cast landed False; clean cast True\n  PASS  test_split_names_the_plans_one_intention\n\nGREEN",
+      "stdout_tail": "  PASS  test_append_log_lands_lines_in_order_and_refuses_what_it_must  — lines [{'actor': 'proof', 'at': '2026-11-04T21:22:15', 'field': 'one', 'kind': 'field', 'value': 1}, {'actor': 'proof', 'at': '2026-11-04T21:22:15', 'field': 'two', ' refusals [True, True]\n  PASS  test_split_moves_the_trail_and_reconstructs_the_v1_doc  — moved {'field': 1, 'phase_write': 2, 'rehearsal': 1, 'decision_retired': 1, 'state': 4}; plan keys outside: []; lossless True\n  PASS  test_a_second_split_is_a_no_op  — moved {}\n  PASS  test_set_phase_appends_its_record_to_the_log  — log phase_writes 1; plan keys ['id', 'release', 'title', 'workflow_and_state']\n  PASS  test_cast_ticket_refuses_a_field_outside_the_plan  — refusal named the field True; extra cast landed False; clean cast True\n  PASS  test_split_names_the_plans_one_intention\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_append_log_lands_lines_in_order_and_refuses_what_it_must",
@@ -18,7 +18,7 @@
         "test_split_names_the_plans_one_intention"
       ],
       "teeth_red": [],
-      "test": "test-eeaf74c7de7c",
+      "test": "test-63fb02800cb2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eeaf74c7de7c",
-      "source_fingerprint": "1d05c57eaa154e1f833bd9a8afc03904ec273417aa33ecd7db846f70adbdd831",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63fb02800cb2",
+      "source_fingerprint": "61a0c44405f9438bf3ae456545f3699a93c322a6db01f58d278e8a3fb4ab0e70",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -69,7 +69,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3532455-9r7nv4g6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-t0x1h2s5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,11 +78,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115463352,
-          "disk_bytes": 146309120,
-          "entries": 12160,
+          "bytes": 115870325,
+          "disk_bytes": 146833408,
+          "entries": 12212,
           "builds": 1,
-          "reuses": 33
+          "reuses": 91
         }
       }
     },

@@ -8,7 +8,7 @@ THE FAILURE THIS GRIPS IS MEASURED, TO THE SECOND, ON 2026-08-18:
     14:58:01  ← the next one, and NOTHING between: the heartbeat went down in that scope
 
 ``setsid`` detaches a tty. It does not detach a cgroup. The spawn at
-``launchers/superclaude`` said "so it outlives this shell and the terminal" in its own
+``cairn/devices/cc/superclaude`` said "so it outlives this shell and the terminal" in its own
 comment and that sentence was true of the tty and false of the terminal, which is the
 exact shape of a rule enforced by policy rather than by physics (Law 4).
 
@@ -36,7 +36,7 @@ claims its own ``run.lock`` instead of losing to the resident one, and writes it
 liveness, nohup log and boot log), and a per-run unit name via
 ``SUPERCLAUDE_GROUND_LOOP_UNIT`` so the live ``cairn-ground-loop`` unit is never touched.
 
-    python3 launchers/proofs/test_ground_loop_survives_its_caller.py     # exit 0 = green
+    python3 cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))     # launchers/proofs -> repo root
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))     # cairn/devices/recovery/proofs -> repo root
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
@@ -63,8 +63,8 @@ from cairn.tools.liveness.liveness import CADENCE_S as _CADENCE_S  # noqa: E402
 # unreachable to this proof's own scope wrapper too — the isolation leaking one level up.
 SYSTEMD_RUN = shutil.which("systemd-run") or "systemd-run"
 
-REPO = Path(__file__).resolve().parents[2]
-SUPERCLAUDE = REPO / "launchers" / "superclaude"
+REPO = Path(__file__).resolve().parents[4]
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 
 # THE READ IS A TOOL'S AND THE JUDGEMENTS ARE THIS PROOF'S. The read of /proc/*/cgroup berths
 # at cairn/tools/cgroup (SOLE_READER below) and is imported; a second spelling here would be
@@ -616,11 +616,11 @@ def arm_five_the_directive() -> None:
 # a check that passes for the wrong reason. So the census counts BOTH, and the second count
 # is compared against this dict — a new entry anywhere reds until it is named here.
 _DECLARED_MENTIONS = {
-    "launchers/proofs/test_superclaude_memory_scope.py":
+    "cairn/devices/cc/proofs/test_superclaude_memory_scope.py":
         "a bash one-liner (`cut -d: -f3 /proc/self/cgroup`) inside the stand-in that REPLACES "
         "the claude binary — it runs as the launched process, reporting its own cgroup from "
         "inside a scope this proof cannot enter, and it cannot import a python probe",
-    "launchers/proofs/test_ground_loop_survives_its_caller.py":
+    "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py":
         "this file: prose in the docstring and the census pattern itself; the read it uses "
         "is the tool's, imported at the top and asserted by the next check",
 }

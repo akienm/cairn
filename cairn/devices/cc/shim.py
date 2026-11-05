@@ -95,7 +95,7 @@ class CCShim(BaseShim):
 
     @staticmethod
     def poke_target() -> str:
-        """The session name superclaude gives CC (launchers/superclaude --name)."""
+        """The session name superclaude gives CC (cairn/devices/cc/superclaude --name)."""
         return f"{os.uname().nodename}_cc_0"
 
     @staticmethod

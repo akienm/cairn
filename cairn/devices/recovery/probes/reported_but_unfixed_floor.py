@@ -1,7 +1,7 @@
 """PROBE — a floor this seam REPORTED but could not fix: does it actually get fixed?
 
 Berth for the WATCHME that ticket ``superclaude-starts-itself`` carries. Berthed here, in
-``launchers/``, because that is WHAT IT WATCHES — ``bootstrap.sh`` and ``superclaude``, three
+``cairn/devices/recovery/``, because that is WHAT IT WATCHES — ``bootstrap.sh`` and ``superclaude``, three
 files away. The ticket it was compiled from lives in the commons and this does not follow it
 there (``cairn/tools/base/probe.py``: a probe berths with what it watches).
 
@@ -21,7 +21,7 @@ placing it.
 THE EFFICACY QUESTION, and why it is this one. The seam's whole intention is Akien's:
 "it does what it can, then reports to Claude if there are problems so Claude can get them
 fixed — it's part of the tool becoming invisible when you use it." The repair half is proved
-(``launchers/proofs/``). The REPORTING half is a bet on a human-and-model loop no proof can
+(``cairn/devices/recovery/proofs/``). The REPORTING half is a bet on a human-and-model loop no proof can
 reach: that a finding riding in on ``--append-system-prompt`` gets ACTED ON. Its obvious way
 to fail is silent and slow — the same finding rides in launch after launch, is scrolled past
 every time, and "the tool is invisible" quietly becomes "the tool is ignored." A report
@@ -57,7 +57,7 @@ from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 _TICKET_ID = "835af7f398ce"
 
 # The namespace ``superclaude`` exports for its own launch. The OVERRIDE and the SEGMENT are
-# this probe's to know — they are the same two things ``launchers/superclaude`` and
+# this probe's to know — they are the same two things ``cairn/devices/cc/superclaude`` and
 # ``bootstrap.sh`` know, so the probe and the recorder cannot develop two opinions about where
 # the record is. The ROOT is not: ``instance/logs`` is resolved by the module that owns it
 # (Law 6 / ticket one-owner-for-the-instance-address), because a second spelling of ``~/.cairn``

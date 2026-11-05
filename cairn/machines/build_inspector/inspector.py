@@ -4430,7 +4430,7 @@ def _breaches(repo_root: str) -> list[dict]:
 
 def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
     """RULE 1 at one census row: the row's own breaches, plus breaches whose reacher sits
-    outside the census (skills/, bin/, launchers/) landing on this row.
+    outside the census (skills/, bin/) landing on this row.
 
     Provenance: 2026-10-01, ticket 56d1aff4455e under RULE 1 (agreed with Akien that day:
     every component talks to every other only through its public interface). Measured

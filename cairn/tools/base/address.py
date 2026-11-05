@@ -414,7 +414,7 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
 
 def rung_of(comp_dir: Path | str, pkg_root: Path | str | None = None) -> str | None:
     """Which rung this component sits on: ``'devices'``, ``'tools'``, or ``'machines'``.
-    ``None`` for a component outside the rung structure (skills, bin, launchers).
+    ``None`` for a component outside the rung structure (skills, bin).
 
     Reads the path, never a declaration — the rung IS the directory name on the path,
     and a directory under ``cairn/devices/`` is a device by being there (Law 4).

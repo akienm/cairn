@@ -25,7 +25,7 @@ the instance slot, read off the same dry run:
       claude as <host>_cc_builder, remote control under the same name;
   (5) claude sees exactly one --name — the launcher's, never the operator's forwarded raw.
 
-    bin/cairn test launchers/proofs/test_superclaude_sets_cairn_user.py
+    bin/cairn test cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py
 """
 
 from __future__ import annotations
@@ -36,8 +36,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[2]
-_LAUNCHER = _REPO / "launchers" / "superclaude"
+_REPO = Path(__file__).resolve().parents[4]
+_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
 
 PROVES = {"8c899e9ea338": {
     "1": "test_a_default_launch_is_cc0",

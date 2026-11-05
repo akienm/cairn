@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# cairn/launchers/bootstrap_first_run.sh — the zero-to-librarian path.
+# cairn/devices/recovery/bootstrap_first_run.sh — the zero-to-librarian path.
 #
 # Called by bin/cairn when instance-space is not wired yet.
 # Brings up everything a fresh download needs:
@@ -17,7 +17,7 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-REPO_ROOT="$(cd "$HERE/.." && pwd)"
+REPO_ROOT="$(cd "$HERE/../../.." && pwd)"
 INSTANCE_ROOT="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
 
 echo "cairn: first run detected — setting up."

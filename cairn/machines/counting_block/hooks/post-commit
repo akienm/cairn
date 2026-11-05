@@ -18,7 +18,7 @@ REPO="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 [ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ] || exit 0
 [ -f "$REPO/cairn/machines/counting_block/block.py" ] || exit 0
 
-BOOTSTRAP="$REPO/launchers/bootstrap.sh"
+BOOTSTRAP="$REPO/cairn/devices/recovery/bootstrap.sh"
 PY="python3"
 if [ -r "$BOOTSTRAP" ]; then
   # shellcheck source=/dev/null

@@ -7,7 +7,7 @@ synthetic dials, and every defect this system has found in a probe has been in t
 WHAT THE FIRST LIVE FIRE FOUND, and it was not in the predicates. Fired by hand against the
 real boot log the moment the berth existed, the probe reported a finding that had ridden
 UNFIXED through twelve separate launches — an unarguable poke to the owner. The finding was
-``SYNTHETIC FINDING for the proof``: ``launchers/proofs/test_bootstrap.py``'s own fixture,
+``SYNTHETIC FINDING for the proof``: ``cairn/devices/recovery/proofs/test_bootstrap.py``'s own fixture,
 written twelve times by twelve runs of the suite, because the harness inherited the
 environment and ``bootstrap.sh`` writes to ``${CAIRN_BOOT_LOG:-$HOME/.cairn/logs/boot}``.
 The probe was correct, the predicates were correct, and the answer was fabricated — the test
@@ -32,7 +32,7 @@ WHAT THIS PROVES:
   - THE DATUM POINTS AT THE TICKET AND DOES NOT COPY IT (Law 6).
   - IT REACHES NOWHERE — no device, no bus, no network — so it is cheap on a pulse.
 
-    python3 launchers/proofs/test_reported_but_unfixed_probe.py     # exit 0 = green
+    python3 cairn/devices/recovery/proofs/test_reported_but_unfixed_probe.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -44,10 +44,10 @@ import json
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
-BERTH = REPO / "launchers" / "probes" / "reported_but_unfixed_floor.py"
+BERTH = REPO / "cairn" / "devices" / "recovery" / "probes" / "reported_but_unfixed_floor.py"
 
 _spec = importlib.util.spec_from_file_location("_probe_reported_but_unfixed", BERTH)
 SUT = importlib.util.module_from_spec(_spec)

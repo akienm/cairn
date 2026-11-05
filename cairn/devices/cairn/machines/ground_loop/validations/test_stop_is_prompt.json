@@ -2,22 +2,22 @@
   {
     "claim": "proof test_stop_is_prompt.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-26T16:20:44",
+    "date": "2026-11-04T21:05:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.03s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
+      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
       "stderr_tail": "",
       "teeth_green": [
         "the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None",
         "it is still alive to be signalled (not a runner that exited early)",
-        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.03s",
+        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s",
         "the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0",
         "the stop was clean, not a crash  — rc=0"
       ],
       "teeth_red": [],
-      "test": "test-bdc1bb89802e",
+      "test": "test-edded2d3a9fa",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b82e728c936b3e4960b1a891265919ec76495250386b9b5a3fc189621b031b86",
+        "proof": "128cbf40dad546be41254684f90c9eacf646568bd7d2e4207c877562985684bc",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bdc1bb89802e",
-      "source_fingerprint": "b405ba4ab17b771923bd8297985a2dcf93ce67c6d9e5aaa85efeeeb90cf0bc59",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-edded2d3a9fa",
+      "source_fingerprint": "599f0260bf1dc5108f26850ee1a7fd9fd3859bb9e203d3f7cf6d408be2584382",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
@@ -52,9 +52,16 @@
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_stop_is_prompt.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-731713-mwbg_y5c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3828458-0dcgtm1m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,14 +70,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111870374,
-          "disk_bytes": 140349440,
-          "entries": 11269,
+          "bytes": 115870325,
+          "disk_bytes": 146833408,
+          "entries": 12212,
           "builds": 1,
           "reuses": 2
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

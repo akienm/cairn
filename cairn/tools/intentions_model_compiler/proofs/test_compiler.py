@@ -9,7 +9,7 @@ Teeth a hollow copier could not pass:
     lab readable by anything that reads the originals, which is the whole point.
   - EVERY intention+why IN THE REPO IS COPIED, not just ``cairn/*/``. Measured 2026-07-31:
     the old scan reached 19 of 32, silently leaving all nine ``skills/*/`` plus ``bin/``,
-    ``learning/``, ``launchers/`` and ``press_office/`` out of the folder whose stated job
+    ``learning/``, ``launchers`` (moved 2026-11-04 to cairn/devices/recovery and cc) and ``press_office/`` out of the folder whose stated job
     is to regrow the system. A build that walks only the package dir trips this.
   - A REMOVED SOURCE REMOVES ITS COPY. The lab is regenerated whole. A build that only ever
     writes — the easy build — leaves a deleted intention standing in the lab forever, which

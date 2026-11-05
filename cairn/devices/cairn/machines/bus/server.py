@@ -56,6 +56,7 @@ except ImportError:   # Windows: no getrusage, so a stop line's maxrss is null
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.base import testing_mark
 
 try:                      # the claim's two spellings: flock on Linux, a byte lock on Windows
     import fcntl
@@ -290,7 +291,9 @@ class BusProcess(DiagnosticBase):
         ONLY thing that wakes a device here; nobody mailed is never held. If no shim answers,
         or the shim could not take it (a shim that cannot wake a device), the bus bounces once
         and the envelope leaves transit. A returned letter that cannot land is never bounced
-        again: the bus raises the addressee's mail trouble itself and receipts the bounce."""
+        again: the bus raises the addressee's mail trouble itself and receipts the bounce. A
+        testing-marked bounce that cannot land is test debris and is disposed of, never raised
+        (ticket b3386f431ae3; 71d1bbfa98b0 D2)."""
         if not self._still_waiting(envelope):
             return
         to = envelope.get("addressee") or ""
@@ -305,20 +308,42 @@ class BusProcess(DiagnosticBase):
         if reason is None:
             reason = f"{to}'s shim could not take the envelope — it cannot wake a device to receive it"
         if body.get("is_bounce"):
-            self._raise_undeliverable_bounce(envelope, reason)
+            if testing_mark.mark_of(body) is not None:
+                self._dispose_test_bounce(envelope, reason)
+            else:
+                self._raise_undeliverable_bounce(envelope, reason)
         else:
             self._return_to_sender(envelope, reason)
 
     def _return_to_sender(self, envelope: dict, reason: str) -> None:
         to = envelope.get("addressee") or ""
         sender = envelope.get("sender") or ""
+        body = {"is_bounce": True, "reason": reason,
+                "original_verb": envelope.get("verb", ""), "original_addressee": to,
+                "original_sender": sender, "trouble": f"mail-{to}-has-no-receiver"}
+        # CONTAGION (ticket b3386f431ae3; 71d1bbfa98b0): a bounce born of a test's letter
+        # carries the test's mark, so wherever it lands it reads as test debris.
+        mark = testing_mark.mark_of(envelope.get("body") or {})
+        if mark is not None:
+            body[testing_mark.FIELD] = mark
         self.bus.post(
             sender="bus", to=sender, channel="personal", why=f"bounced: {reason}",
-            body={"is_bounce": True, "reason": reason,
-                  "original_verb": envelope.get("verb", ""), "original_addressee": to,
-                  "original_sender": sender, "trouble": f"mail-{to}-has-no-receiver"},
-            reply_to=envelope["id"])
+            body=body, reply_to=envelope["id"])
         self.bus.record_delivery(envelope["id"], to=to, by="bus-bounced-no-receiver")
+
+    def _dispose_test_bounce(self, bounce: dict, reason: str) -> None:
+        """A testing-marked bounce nobody can take is test debris (ticket b3386f431ae3;
+        71d1bbfa98b0 D2): logged and receipted, never raised into the live trouble lane."""
+        body = bounce.get("body") or {}
+        mark = testing_mark.mark_of(body) or {}
+        sender = bounce.get("addressee") or ""
+        emit = getattr(self.bus, "emit", None)
+        if callable(emit):
+            emit("test_bounce_disposed", pointer=bounce["id"], values={
+                "bounce_envelope": bounce["id"], "sender": sender,
+                "receiver": body.get("original_addressee") or "",
+                "test": mark.get("test", ""), "reason": reason})
+        self.bus.record_delivery(bounce["id"], to=sender, by="bus-test-bounce-disposed")
 
     def _raise_undeliverable_bounce(self, bounce: dict, reason: str) -> None:
         body = bounce.get("body") or {}

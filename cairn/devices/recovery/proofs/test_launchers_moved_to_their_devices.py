@@ -124,6 +124,12 @@ def tooth_no_live_reference():
     assert not hits, f"{len(hits)} live reference(s) to launchers/:\n" + "\n".join(hits[:20])
 
 
+def _outside_the_repo():
+    """A cwd outside the repo, through the scratch door (a bare temp reach reds test_scratch)."""
+    from cairn.tools.scratch.scratch import scratch_dir
+    return str(scratch_dir("testing-recovery-cwd-"))
+
+
 def tooth_instance_space_did_not_move():
     """The move is class-space only: the restart flags home stays ~/.cairn/launchers/superclaude/<N>.
 
@@ -131,7 +137,7 @@ def tooth_instance_space_did_not_move():
     loop (old address) and `cairn cc restart` (new address) would have read two homes.
     """
     r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
-                       timeout=120, cwd=tempfile.gettempdir())
+                       timeout=120, cwd=_outside_the_repo())
     m = re.search(r"flags home: (\S+)", r.stdout + r.stderr)
     assert m, f"superclaude --dry-run printed no flags home: {(r.stdout + r.stderr)[-400:]}"
     want = Path.home() / ".cairn" / "launchers" / "superclaude" / "0"

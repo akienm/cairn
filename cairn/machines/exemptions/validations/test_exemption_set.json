@@ -1,9 +1,9 @@
 [
   {
     "claim": "proof test_exemption_set.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-06T11:45:15",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test",
+    "date": "2026-11-04T22:30:19",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -33,7 +33,7 @@
         "and reds when the site is gone entirely",
         "test_A_SYMBOL_THAT_MOVED_REDS",
         "the live set exists",
-        "the live set carries 11 entries — 10 measured sites plus itself",
+        "the live set carries 17 entries — 16 measured sites plus itself",
         "every measured site is in the set",
         "every entry declares a legal justification_kind",
         "every entry's declared justification resolves against the live corpus",
@@ -72,32 +72,35 @@
         "test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE"
       ],
       "teeth_red": [],
-      "test": "test-c22573a7d59e",
+      "test": "test-24c73428b1c4",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "ef96dfdba72f59587145bb72a3e4afed0e9897ea306d8887beec25e4df9166c1",
+        "proof": "1779da1157ef819b3f4fe1c2321c9fbc5590cfa846d35d7ea1869d25b612a74f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c22573a7d59e",
-      "source_fingerprint": "6a40a2b01932cdb9a5289cdef2277b1833d14ea1849988d0b6798fee6bba9474",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-24c73428b1c4",
+      "source_fingerprint": "599d2829f267490430ef8da5a7c4abe45f1eb848771461565c61cd93fca4b259",
       "fingerprint_closure": [
         "cairn/machines/exemptions/__init__.py",
         "cairn/machines/exemptions/justification.py",
@@ -105,9 +108,22 @@
         "cairn/machines/exemptions/probes/every_exemption_cites_a_ruling_or_an_impossibility.py",
         "cairn/machines/exemptions/proofs/test_exemption_set.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/machines/build_inspector": "87b7ed16e6da1ad4619c4cd8e21ca6819889ca497dbec68c789f2118830044cc",
+        "cairn/machines/corrosion": "d0c695fabba4dec18710eff5f5a7fe7d1fc81b5b4fea1897221b6d061c65612d",
+        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "4f983123392004625aef74fd708838dcb1b939b26e5396a47cc5305d3733530a",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3951581-th6fab_t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3937388-knpbogjd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -116,13 +132,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102557452,
-          "disk_bytes": 123416576,
-          "entries": 8563,
+          "bytes": 116128224,
+          "disk_bytes": 147202048,
+          "entries": 12251,
           "builds": 1,
-          "reuses": 21
+          "reuses": 1
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

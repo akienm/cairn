@@ -1,0 +1,106 @@
+[
+  {
+    "claim": "proof test_the_cast_refuses_decisions_a_rehearsal_cannot_read.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-05T01:30:08",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  a_string_decision_is_refused\n        lacks=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: 'D1: a string'\"] landed=[]\n  PASS  an_n_less_or_blank_decision_is_refused\n        n-less=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'text': 'no n'}\"] [] blank=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'n': 1, 'text': '  '}\"] []\n  PASS  a_repeated_n_is_refused\n        lacks=['decisions carries D1 twice'] landed=[]\n  PASS  well_formed_decisions_still_cast\n        [{\"n\": 1, \"text\": \"D1: a\", \"by\": \"cc\", \"source\": \"cast\"}]\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_string_decision_is_refused",
+        "an_n_less_or_blank_decision_is_refused",
+        "a_repeated_n_is_refused",
+        "well_formed_decisions_still_cast"
+      ],
+      "teeth_red": [],
+      "test": "test-bf5bd0424f2b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "16306b05ef44a1868d73e831f45363c8962e7ed1964260599905cd7eec1e2fc6",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bf5bd0424f2b",
+      "source_fingerprint": "86d8bb663a077b253a2118c0a3a0c99b47ffa8590a5a5dd4f749cc97a3c8f183",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_the_cast_refuses_decisions_a_rehearsal_cannot_read.py",
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-4107302-pvfv_70_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116477114,
+          "disk_bytes": 147861504,
+          "entries": 12365,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "6d81b55be139": {
+          "cairn/tools/base/transitions.py": [
+            "a_repeated_n_is_refused",
+            "a_string_decision_is_refused",
+            "an_n_less_or_blank_decision_is_refused"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "6d81b55be139": {
+          "anchor_rule": "journal",
+          "anchor_journal": "511ac8f22eb8980298d7d912653949222973dfca",
+          "anchor_first_build": "f20c59eac1f8ecdeba9eab40d17f38c1b759115b",
+          "commit": "511ac8f22eb8980298d7d912653949222973dfca"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

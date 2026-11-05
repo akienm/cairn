@@ -1,0 +1,90 @@
+[
+  {
+    "claim": "proof test_reported_but_unfixed_probe.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-04T21:28:06",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "proof: the reported-but-unfixed-floor probe — berth=cairn/devices/recovery/probes/reported_but_unfixed_floor.py\n  PASS  test_the_watch_can_never_clear_before_it_could_fire\n  PASS  test_the_floor_is_at_least_the_patience\n  PASS  test_fire_and_clear_are_mutually_exclusive\n  PASS  test_every_clause_is_load_bearing\n  PASS  test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch\n  PASS  test_an_unparseable_line_is_skipped_not_guessed_at\n  PASS  test_an_absent_record_is_not_a_finding\n  PASS  test_the_bypass_is_counted_but_does_not_fire\n  PASS  test_the_probe_is_armed_the_way_the_emission_gate_means_it\n  PASS  test_the_berth_is_where_the_ticket_says_it_is\n  PASS  test_the_datum_points_at_the_ticket_and_does_not_copy_it\n  PASS  test_it_reaches_nowhere\n\nall green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_watch_can_never_clear_before_it_could_fire",
+        "test_the_floor_is_at_least_the_patience",
+        "test_fire_and_clear_are_mutually_exclusive",
+        "test_every_clause_is_load_bearing",
+        "test_a_launch_is_a_pid_and_a_finding_counts_once_per_launch",
+        "test_an_unparseable_line_is_skipped_not_guessed_at",
+        "test_an_absent_record_is_not_a_finding",
+        "test_the_bypass_is_counted_but_does_not_fire",
+        "test_the_probe_is_armed_the_way_the_emission_gate_means_it",
+        "test_the_berth_is_where_the_ticket_says_it_is",
+        "test_the_datum_points_at_the_ticket_and_does_not_copy_it",
+        "test_it_reaches_nowhere"
+      ],
+      "teeth_red": [],
+      "test": "test-09f02cec8fb3",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "c477c3b8227d24dde50f9edad116162b8d34ea8b46d178292155ac6f420dab58",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-09f02cec8fb3",
+      "source_fingerprint": "6a4ede2636d41f8008a53ee07caefe2a117c47e87df42d9293ae4533097118bb",
+      "fingerprint_closure": [
+        "cairn/devices/recovery/proofs/test_reported_but_unfixed_probe.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3858825-_ph5iydd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116068152,
+          "disk_bytes": 147083264,
+          "entries": 12228,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -145,10 +145,11 @@ def test_launchers_moved_to_their_devices():
     for t in TEETH:
         try:
             t()
-            print(f"GREEN {t.__name__}")
+            print(f"  GREEN  {t.__name__}")
         except Exception as e:  # every tooth prints; none stops the rest
             reds.append(t.__name__)
-            print(f"RED   {t.__name__}: {e}")
+            print(f"  RED    {t.__name__}")
+            print(f"         {type(e).__name__}: {e}")
     assert not reds, f"red teeth: {reds}"
 
 

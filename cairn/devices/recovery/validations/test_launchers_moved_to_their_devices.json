@@ -1,0 +1,101 @@
+[
+  {
+    "claim": "proof test_launchers_moved_to_their_devices.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-04T21:36:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  GREEN  tooth_files_are_home\n  GREEN  tooth_scripts_parse_and_locate\n  GREEN  tooth_stale_link_is_repointed\n  GREEN  tooth_no_live_reference\n  GREEN  tooth_instance_space_did_not_move\n  GREEN  tooth_discover_loads_recovery",
+      "stderr_tail": "",
+      "teeth_green": [
+        "tooth_files_are_home",
+        "tooth_scripts_parse_and_locate",
+        "tooth_stale_link_is_repointed",
+        "tooth_no_live_reference",
+        "tooth_instance_space_did_not_move",
+        "tooth_discover_loads_recovery"
+      ],
+      "teeth_red": [],
+      "test": "test-ce44a736b637",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "391b3ed4ede9a9c2d347f1c315f62f56fbc7016f1e50e4229ea20dbc599b4d0a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce44a736b637",
+      "source_fingerprint": "e558966b9e6b8e5e60538191eb67d4359842a932cdad0f8e49d02c4c82164a88",
+      "fingerprint_closure": [
+        "cairn/devices/recovery/probes/reported_but_unfixed_floor.py",
+        "cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py"
+      ],
+      "reached": {
+        "cairn/devices/cc": "6e86b23bb3fb4aa4dbe1740a9fa53b6e0d3e91aa434bef157ec5d6b9d6b9bc2f",
+        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
+        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
+        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
+        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3862021-4ljcfc7z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 6,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "launchers/superclaude/0/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/0/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/boot",
+            "logs/preflight.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116071947,
+          "disk_bytes": 147099648,
+          "entries": 12232,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "conditions_moved": {
+        "notified": "n-73158d50e1b0",
+        "changed": [
+          "proof"
+        ]
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

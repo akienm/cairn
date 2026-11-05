@@ -1,0 +1,111 @@
+[
+  {
+    "claim": "proof test_cc_proofs_reach_no_other_device.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-05T05:40:37",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS test_no_cc_file_imports_another_device\nPASS test_each_loader_still_judges\nPASS test_each_loader_loads_ccs_probes",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_no_cc_file_imports_another_device",
+        "test_each_loader_still_judges",
+        "test_each_loader_loads_ccs_probes"
+      ],
+      "teeth_red": [],
+      "test": "test-19dcb0a3ffb5",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "3a402a235f5321cd951bee69f30758740a91df2a11c9131cbe39fe3519312a1f",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-19dcb0a3ffb5",
+      "source_fingerprint": "c24698a8a03c070e880ba8beaf23f2cc72bd8edb4e8f1a3570b0cae59bf6e28e",
+      "fingerprint_closure": [
+        "cairn/devices/cc/__init__.py",
+        "cairn/devices/cc/proofs/test_cc_device.py",
+        "cairn/devices/cc/proofs/test_cc_proofs_reach_no_other_device.py",
+        "cairn/devices/cc/proofs/test_memory_probe.py",
+        "cairn/devices/cc/proofs/test_the_shim_delivers_mail.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-54521-56i0r5ob/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116844305,
+          "disk_bytes": 148664320,
+          "entries": 12511,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "f5c334da752a": {
+          "cairn/devices/cc/proofs/test_cc_device.py": [
+            "test_each_loader_loads_ccs_probes",
+            "test_each_loader_still_judges",
+            "test_no_cc_file_imports_another_device",
+            "cairn/devices/cc/proofs/test_cc_device.py::test_the_rack_lists_cc_and_its_probes_load"
+          ],
+          "cairn/devices/cc/proofs/test_memory_probe.py": [
+            "test_each_loader_loads_ccs_probes",
+            "test_each_loader_still_judges",
+            "test_no_cc_file_imports_another_device",
+            "cairn/devices/cc/proofs/test_memory_probe.py::test_the_probes_load_with_zero_failures"
+          ],
+          "cairn/devices/cc/proofs/test_the_shim_delivers_mail.py": [
+            "test_each_loader_loads_ccs_probes",
+            "test_each_loader_still_judges",
+            "test_no_cc_file_imports_another_device"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "f5c334da752a": {
+          "anchor_rule": "journal",
+          "anchor_journal": "43bb45c501582089a980509791eb6c25bdfa3885",
+          "anchor_first_build": "beb6f341c615b2b90271be2eda1d4ae5d1da15dc",
+          "commit": "43bb45c501582089a980509791eb6c25bdfa3885"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

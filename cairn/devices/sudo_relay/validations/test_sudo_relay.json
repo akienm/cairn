@@ -2,7 +2,7 @@
   {
     "claim": "proof test_sudo_relay.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-07T21:58:56",
+    "date": "2026-11-05T02:39:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -25,7 +25,7 @@
         "test_an_orphan_is_a_loud_finding"
       ],
       "teeth_red": [],
-      "test": "test-64d9a175100f",
+      "test": "test-2f79e689165b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,23 +43,31 @@
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-64d9a175100f",
-      "source_fingerprint": "18754cb46540acb56d41ab6287b310276f147a1f275e82ca38986c9c2f090349",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2f79e689165b",
+      "source_fingerprint": "c651801e65ce688c6f7e168452ff769106816919adb7b5368a48459d2a559d22",
       "fingerprint_closure": [
         "cairn/devices/sudo_relay/__init__.py",
         "cairn/devices/sudo_relay/proofs/test_sudo_relay.py",
         "cairn/devices/sudo_relay/relay.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-305589-39jg54l7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4142952-3in16fhn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,35 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 104157781,
-          "disk_bytes": 125984768,
-          "entries": 8939,
+          "bytes": 116582979,
+          "disk_bytes": 148103168,
+          "entries": 12411,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "conditions_moved": {
-        "notified": "n-7683a63f3eb1",
-        "changed": [
-          "env"
-        ]
-      },
-      "hollow": {
-        "ae25d8fae5cb": {
-          "cairn/devices/sudo_relay/relay.py": [
-            "test_a_leftover_result_is_never_returned",
-            "test_an_orphan_is_a_loud_finding",
-            "test_an_unanswered_request_times_out_rather_than_taking_anothers",
-            "test_the_daemon_runs_under_the_requests_timeout"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ae25d8fae5cb": {
-          "anchor_rule": "journal",
-          "anchor_journal": "262daa49542a67400ef8517d0a562a0a4629f906",
-          "anchor_first_build": "2fa6a12493c7782b37398654845232fd873b507d",
-          "commit": "262daa49542a67400ef8517d0a562a0a4629f906"
+          "reuses": 1
         }
       }
     },

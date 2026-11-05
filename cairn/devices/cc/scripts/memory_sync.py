@@ -10,7 +10,7 @@ when something changed and pushes in a detached child, so a turn never waits on
 the network. A pull that cannot rebase cleanly is aborted, the local work kept,
 and said loudly (Law 7) for CC to resolve by hand.
 """
-import datetime, os, socket, subprocess, sys
+import datetime, os, platform, subprocess, sys
 from pathlib import Path
 
 CLONE = Path(os.environ.get("CAIRN_CC_MEMORY_CLONE", Path.home() / "dev" / "src" / "cc-memory"))
@@ -45,7 +45,7 @@ def push() -> int:
         return 0
     git("add", "-A")
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    git("commit", "-q", "-m", f"memory from {socket.gethostname()} {stamp}")
+    git("commit", "-q", "-m", f"memory from {platform.node()} {stamp}")
     detach = ({"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW}
               if os.name == "nt" else {"start_new_session": True})
     subprocess.Popen(["git", "-C", str(CLONE), "push", "-q"], stdin=subprocess.DEVNULL,

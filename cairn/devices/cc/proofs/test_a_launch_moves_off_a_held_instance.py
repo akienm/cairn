@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import os
 import shutil
-import socket
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -45,7 +45,7 @@ PROVES = {"ae4d581be071": {
     "5": "test_a_tmux_session_holds_like_a_loop",
 }}
 
-_HOST = socket.gethostname().split(".")[0].lower()
+_HOST = platform.node().split(".")[0].lower()
 
 
 def _world() -> Path:

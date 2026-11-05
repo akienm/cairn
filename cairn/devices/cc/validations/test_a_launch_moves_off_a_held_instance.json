@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_launch_moves_off_a_held_instance.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T03:38:56",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T03:41:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_held_default_moves_to_the_next_instance\n.\n  ok   test_a_dead_pid_does_not_hold\n.\n  ok   test_two_held_moves_to_the_third\n.\n  ok   test_a_held_word_keeps_its_name\n.\n  ok   test_a_tmux_session_holds_like_a_loop\n                                                                    [100%]\n5 passed in 2.92s",
+      "stdout_tail": ".\n  ok   test_a_held_default_moves_to_the_next_instance\n.\n  ok   test_a_dead_pid_does_not_hold\n.\n  ok   test_two_held_moves_to_the_third\n.\n  ok   test_a_held_word_keeps_its_name\n.\n  ok   test_a_tmux_session_holds_like_a_loop\n                                                                    [100%]\n5 passed in 2.64s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_held_default_moves_to_the_next_instance",
@@ -17,7 +17,7 @@
         "test_a_tmux_session_holds_like_a_loop"
       ],
       "teeth_red": [],
-      "test": "test-33ab3da1e366",
+      "test": "test-df008f7718ed",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "bac983441697447dcd3fae040aa91b14d68d7b26128c483b701e892e15459d93",
+        "proof": "bfeba0ed56e0ccd74c173620ae8d136b812283dc04b5a723df3153a7e0b4d186",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-33ab3da1e366",
-      "source_fingerprint": "8a03f47ad258bbf98a6f0ef9cb1a0c0148efd3c95c5374da337a199b287004a5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-df008f7718ed",
+      "source_fingerprint": "7eb1eee1174737946a09bbeb7b724665b5a2f5841ae2eba9201760ce7ff8a98c",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_a_launch_moves_off_a_held_instance.py"
@@ -58,7 +57,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4187555-tflbv3n8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4191389-g8l401_e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,34 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116656324,
-          "disk_bytes": 148299776,
-          "entries": 12448,
+          "bytes": 116664066,
+          "disk_bytes": 148312064,
+          "entries": 12450,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "ae4d581be071": {
-          "cairn/devices/cc/superclaude": [
-            "test_a_dead_pid_does_not_hold",
-            "test_a_held_default_moves_to_the_next_instance",
-            "test_a_held_word_keeps_its_name",
-            "test_a_tmux_session_holds_like_a_loop",
-            "test_two_held_moves_to_the_third"
-          ],
-          "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py": [
-            "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py::test_a_default_launch_is_cc0",
-            "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py::test_an_inherited_value_is_overwritten"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ae4d581be071": {
-          "anchor_rule": "journal",
-          "anchor_journal": "717f65fa789a8334033784a9bcaf34405a6fe8f6",
-          "anchor_first_build": "bfaf14a89d30aafc541ab26323e6eb08df2dfe13",
-          "commit": "717f65fa789a8334033784a9bcaf34405a6fe8f6"
         }
       }
     },

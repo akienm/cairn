@@ -204,6 +204,7 @@ def tooth_b_the_lan_door(base: Path) -> None:
         tls.trust(d, "boxa", (srv_tls / "box.crt").read_text())
     tls.trust(srv_tls, "boxb", (mine / "box.crt").read_text())
     lan = _free_port()
+    before = len(FAILURES)
     log = open(base / "lan-bus.log", "w")
     proc = subprocess.Popen([sys.executable, "-m", _MODULE, "serve", "--home", str(home),
                              "--scratch", "--lan", str(lan)], env=_env(home), cwd=str(_REPO),
@@ -253,6 +254,10 @@ def tooth_b_the_lan_door(base: Path) -> None:
            first.get("home") == "boxa" and (first.get("reply") or {}).get("held") is True
            and held.get("boxd") == tls.identity(asker)["fingerprint"]
            and "boxd" not in tls.known(srv_tls), f"first={first} asks={held}")
+        # The declared tooth's own verdict: green only when every assertion above held, so
+        # the tester (which reads the PROVES name) sees (b) go green, not only go red.
+        mine_reds = FAILURES[before:]
+        ok(PROVES["5183005fa134"]["b"], not mine_reds, "; ".join(mine_reds)[:300])
     finally:
         _stop(home)
         try:

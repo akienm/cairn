@@ -48,6 +48,10 @@ ASK_USER = REPO / "cairn" / "machines" / "installer" / "ask_user.sh"
 
 failures: list[str] = []
 
+# Ticket 5183005fa134 (b): the pinned-TLS door's fingerprint exchange is a step inside cairn
+# install, so a new box can join without a hand step (the falsifier's "wrong intent" clause).
+PROVES = {"5183005fa134": {"b": "test_box_identity_step"}}
+
 
 def fail(name: str, msg: str) -> None:
     failures.append(f"  FAIL [{name}]: {msg}")

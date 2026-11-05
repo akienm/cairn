@@ -2,22 +2,22 @@
   {
     "claim": "proof test_memory_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-04T21:05:38",
+    "date": "2026-11-05T05:38:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_probe_loads_via_probecache_with_zero_failures\n.\n  ok   test_sample_produces_nonempty_series_with_positive_cgroup\n.\n  ok   test_cgroup_matches_independent_read_within_one_page\n.\n  ok   test_rss_present_and_distinct_from_cgroup\n.\n  ok   test_series_grows_monotonically\n                                                                    [100%]\n5 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_the_probes_load_with_zero_failures\n.\n  ok   test_sample_produces_nonempty_series_with_positive_cgroup\n.\n  ok   test_cgroup_matches_independent_read_within_one_page\n.\n  ok   test_rss_present_and_distinct_from_cgroup\n.\n  ok   test_series_grows_monotonically\n                                                                    [100%]\n5 passed in 0.02s",
       "stderr_tail": "",
       "teeth_green": [
-        "test_probe_loads_via_probecache_with_zero_failures",
+        "test_the_probes_load_with_zero_failures",
         "test_sample_produces_nonempty_series_with_positive_cgroup",
         "test_cgroup_matches_independent_read_within_one_page",
         "test_rss_present_and_distinct_from_cgroup",
         "test_series_grows_monotonically"
       ],
       "teeth_red": [],
-      "test": "test-5667dd420ae7",
+      "test": "test-3dfef8b6e7fc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "2e4955b6f2acfa7f9d9a5d24c59ba1ebf0958f3ba8d4183194df9d8f62552809",
+        "proof": "1e3e77a231e056cca74eadaa0aa6ad25da17c2967e467d4bd5cdd3e493705f49",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,25 +43,23 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5667dd420ae7",
-      "source_fingerprint": "f046c9073cac161f4a0f7d3d45d62888756e9384f08ff4c2d987e4957844a2e4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3dfef8b6e7fc",
+      "source_fingerprint": "4c03d0d55d5c837431a6d325df753a3d02095157318a673ba0cb4a8f76400b0b",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/probes/memory_curve.py",
         "cairn/devices/cc/proofs/test_memory_probe.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/cairn/machines/ground_loop": "3236c705f1ea49b79454a7dffe456b68fe507e1deeb1e88ca285dc0e060859ce",
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
         "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3828458-j2ulihur/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-53572-2h3_9_hw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,11 +68,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115870325,
-          "disk_bytes": 146833408,
-          "entries": 12212,
+          "bytes": 116838873,
+          "disk_bytes": 148643840,
+          "entries": 12508,
           "builds": 1,
-          "reuses": 7
+          "reuses": 1
         }
       }
     },

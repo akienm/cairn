@@ -45,6 +45,34 @@ PROVES = {
 _DEVICE = _REPO_ROOT / "cairn" / "devices" / "cc"
 
 
+def _load_own_probes(folder):
+    """``(probes, failures)`` for one probes/ folder: the judgement the ground loop's
+    ProbeCache makes (imports, declares a module-level PROBE, PROBE is a Probe), made here so
+    cc's proofs never reach into the cairn device (RULE 1, ticket f5c334da752a)."""
+    import importlib.util
+    from cairn.tools.base.probe import Probe
+
+    probes, failures = [], []
+    for path in sorted(Path(folder).glob("*.py")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location("cairn._cc_proof_probes." + path.stem, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except Exception as exc:  # noqa: BLE001 — a bad probe file is a failure, not a crash
+            failures.append({"file": str(path), "lack": f"import raised {type(exc).__name__}: {exc}"})
+            continue
+        probe = getattr(module, "PROBE", None)
+        if probe is None:
+            failures.append({"file": str(path), "lack": "no module-level PROBE"})
+        elif not isinstance(probe, Probe):
+            failures.append({"file": str(path), "lack": f"PROBE is {type(probe).__name__}, not a Probe"})
+        else:
+            probes.append(probe)
+    return probes, failures
+
+
 @contextmanager
 def _sandbox():
     """Point the shim and the probe at a temporary mail dir and ledger; restore after."""
@@ -86,9 +114,8 @@ def test_the_device_is_whole():
 
 
 def test_the_probes_load_with_zero_failures():
-    """Clause (2): the ground loop's probe cache loads the cc probe folder with no failures."""
-    from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache
-    probes, failures = ProbeCache().probes_for(_DEVICE / "probes")
+    """Clause (2): the cc probe folder loads with no failures."""
+    probes, failures = _load_own_probes(_DEVICE / "probes")
     assert not failures, f"probe loading failures: {failures}"
     assert any("bus messages" in p.why for p in probes), \
         f"the mail probe did not load: {[p.why[:40] for p in probes]}"

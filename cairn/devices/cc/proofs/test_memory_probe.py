@@ -1,7 +1,7 @@
 """Proofs for the memory curve probe — teeth a hollow build could not pass.
 
 Four things the ticket's falsifier demands:
-  (1) the probe loads via ProbeCache with zero failures
+  (1) the probes load with zero failures
   (2) a sample produces a non-empty series with positive cgroup_bytes
   (3) cgroup_bytes matches an independent read within one page (4096 bytes)
   (4) rss_bytes is present and distinct from cgroup_bytes
@@ -17,6 +17,34 @@ from pathlib import Path
 import pytest
 
 
+def _load_own_probes(folder):
+    """``(probes, failures)`` for one probes/ folder: the judgement the ground loop's
+    ProbeCache makes (imports, declares a module-level PROBE, PROBE is a Probe), made here so
+    cc's proofs never reach into the cairn device (RULE 1, ticket f5c334da752a)."""
+    import importlib.util
+    from cairn.tools.base.probe import Probe
+
+    probes, failures = [], []
+    for path in sorted(Path(folder).glob("*.py")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location("cairn._cc_proof_probes." + path.stem, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except Exception as exc:  # noqa: BLE001 — a bad probe file is a failure, not a crash
+            failures.append({"file": str(path), "lack": f"import raised {type(exc).__name__}: {exc}"})
+            continue
+        probe = getattr(module, "PROBE", None)
+        if probe is None:
+            failures.append({"file": str(path), "lack": "no module-level PROBE"})
+        elif not isinstance(probe, Probe):
+            failures.append({"file": str(path), "lack": f"PROBE is {type(probe).__name__}, not a Probe"})
+        else:
+            probes.append(probe)
+    return probes, failures
+
+
 @pytest.fixture(autouse=True)
 def _isolate_series(tmp_path, monkeypatch):
     series = tmp_path / "memory_series.jsonl"
@@ -25,10 +53,8 @@ def _isolate_series(tmp_path, monkeypatch):
     yield series
 
 
-def test_probe_loads_via_probecache_with_zero_failures():
-    from cairn.devices.cairn.machines.ground_loop.discovery import ProbeCache
-
-    probes, failures = ProbeCache().probes_for(Path(__file__).resolve().parent.parent / "probes")  # by address, not cwd (77f15efd5a96)
+def test_the_probes_load_with_zero_failures():
+    probes, failures = _load_own_probes(Path(__file__).resolve().parent.parent / "probes")  # by address, not cwd (77f15efd5a96)
     assert len(failures) == 0, f"probe loading failures: {failures}"
     names = [p.why for p in probes]
     assert any("memory" in w for w in names), (

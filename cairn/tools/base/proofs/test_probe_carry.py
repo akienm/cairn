@@ -195,30 +195,47 @@ def test_a_non_callable_carry_is_refused_at_construction():
 
 def test_the_shim_fires_the_carrier_against_the_pulse_context():
     """End to end: the poke that reaches the bus carries what the trigger just saw."""
+    import uuid
     from cairn.tools.base.shim import BaseShim
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.tools.bus_client import bus_client
 
     seen = {"ticket": {"id": "T-7", "gate": "PROVEME"}}
+    # Ticket ad7caca4d54c: the LIVE bus through its published client tool (RULE 1), with fresh
+    # testing-marked names so a run reads only its own poke and never pins a moving channel.
+    tag = uuid.uuid4().hex[:8]
+    recipient = f"testing-ad7caca4d54c-recipient-{tag}"
+    watcher = f"testing-ad7caca4d54c-watcher-{tag}"
+
+    class _TestingBus:
+        """The live bus with one decline: a testing shim never asks the bus to hold it."""
+
+        def __init__(self, bus):
+            self._bus = bus
+
+        def wire_delivery(self, *args, **kwargs):
+            return None
+
+        def __getattr__(self, name):
+            return getattr(self._bus, name)
 
     class _Shim(BaseShim):
         @property
         def device_id(self) -> str:
-            return "watcher"
+            return watcher
 
         def probes(self):
             return [Probe(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
-                             to="test_recipient", carry=by_text("ticket detected at {gate} as {ticket}"))]
+                             to=recipient, carry=by_text("ticket detected at {gate} as {ticket}"))]
 
-    # A SCRATCH transit table this proof owns — the durable bus is shared, so counting a
-    # live channel would pin a legitimately-moving value and go red on the second run.
-    with BusDevice.scratch("probe_carry") as bus:
-        shim = _Shim(bus=bus)
-        shim.on_pulse(now="2026-07-25", context={**seen, "gate": "PROVEME"})
-        posted = bus.read(to="test_recipient", channel="personal")
-        assert len(posted) == 1, f"one fire, one poke — got {len(posted)}"
-        assert posted[0]["body"]["text"] == \
-            "ticket detected at PROVEME as {'id': 'T-7', 'gate': 'PROVEME'}", posted[0]["body"]
+    bus = _TestingBus(bus_client.reach())
+    shim = _Shim(bus=bus)
+    shim.on_pulse(now="2026-07-25", context={**seen, "gate": "PROVEME"})
+    posted = bus.read(to=recipient, channel="personal")
+    assert len(posted) == 1, f"one fire, one poke — got {len(posted)}"
+    assert posted[0]["body"]["text"] == \
+        "ticket detected at PROVEME as {'id': 'T-7', 'gate': 'PROVEME'}", posted[0]["body"]
 
+PROVES = {"ad7caca4d54c": {"2": "test_the_shim_fires_the_carrier_against_the_pulse_context"}}
 
 TESTS = [
     test_no_carrier_says_only_that_the_line_was_crossed,

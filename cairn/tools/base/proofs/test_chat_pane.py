@@ -14,9 +14,37 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT))
 
+import uuid
+
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
-from cairn.devices.cairn.machines.bus.bus import BusDevice, CHANNELS
+from cairn.tools.bus_client import bus_client
+from cairn.tools.base import testing_mark
+
+# Ticket ad7caca4d54c: this proof rides the LIVE bus through its published client tool
+# (RULE 1), every name marked testing-<ticket>- and every body carrying the testing mark,
+# so each run owns fresh addresses and never counts another run's traffic.
+_TICKET = "ad7caca4d54c"
+
+
+def _name(label):
+    return f"testing-{_TICKET}-{label}-{uuid.uuid4().hex[:8]}"
+
+
+def _body(text):
+    return {"text": text, testing_mark.FIELD: testing_mark.mark(_TICKET)}
+
+
+class _Recording:
+    """Forwards to the live bus and records which of its members the panes reached for."""
+
+    def __init__(self, bus):
+        self._bus = bus
+        self.called = []
+
+    def __getattr__(self, name):
+        self.called.append(name)
+        return getattr(self._bus, name)
 
 
 class _Device(BaseDevice):
@@ -29,13 +57,14 @@ class _Device(BaseDevice):
 
 
 class _Shim(BaseShim):
-    def __init__(self, bus=None):
+    def __init__(self, bus=None, device_id=None):
         super().__init__(bus=bus)
         self._dev = _Device()
+        self._id = device_id or _name("chat")
 
     @property
     def device_id(self):
-        return "test_chat_device"
+        return self._id
 
     def device(self):
         return self._dev
@@ -53,27 +82,28 @@ class TestChatPaneIsFloor:
         assert "absent" in chat, "without bus the chat pane explains why it is absent"
 
     def test_chat_pane_shows_personal_messages(self):
-        with BusDevice.scratch("chat_pane") as bus:
-            shim = _Shim(bus=bus)
-            bus.post(sender="alice", to="test_chat_device", channel="personal",
-                     why="test message", body={"text": "hello"})
-            bus.post(sender="bob", to="test_chat_device", channel="personal",
-                     why="another test", body={"text": "world"})
-            page = shim.active_page()
-            chat = [p for p in page["panes"] if p["kind"] == "personal_feed"][0]
-            assert chat["data"] is not None, "with bus the chat pane has data"
-            turns = chat["data"]["turns"]
-            assert len(turns) == 2, f"expected 2 turns, got {len(turns)}"
-            assert turns[0]["sender"] == "alice"
-            assert turns[1]["sender"] == "bob"
-            assert turns[0]["body"] == {"text": "hello"}
+        bus = bus_client.reach()
+        shim = _Shim(bus=bus)
+        alice, bob = _name("alice"), _name("bob")
+        bus.post(sender=alice, to=shim.device_id, channel="personal",
+                 why="test message", body=_body("hello"))
+        bus.post(sender=bob, to=shim.device_id, channel="personal",
+                 why="another test", body=_body("world"))
+        page = shim.active_page()
+        chat = [p for p in page["panes"] if p["kind"] == "personal_feed"][0]
+        assert chat["data"] is not None, "with bus the chat pane has data"
+        turns = chat["data"]["turns"]
+        assert len(turns) == 2, f"expected 2 turns, got {len(turns)}"
+        assert turns[0]["sender"] == alice
+        assert turns[1]["sender"] == bob
+        assert turns[0]["body"]["text"] == "hello"
+        assert turns[0]["body"][testing_mark.FIELD] == testing_mark.mark(_TICKET)
 
-    def test_chat_pane_does_not_alter_channels(self):
-        channels_before = dict(CHANNELS)
-        with BusDevice.scratch("chat_pane") as bus:
-            shim = _Shim(bus=bus)
-            shim.active_page()
-            assert CHANNELS == channels_before, "rendering the chat pane must not alter CHANNELS"
+    def test_chat_pane_only_reads_the_bus(self):
+        rec = _Recording(bus_client.reach())
+        _Shim(bus=rec).active_page()
+        assert rec.called, "the chat pane reached the bus for nothing"
+        assert set(rec.called) <= {"read", "count"}, f"rendering reached past read/count: {rec.called}"
 
     def test_chat_pane_is_not_in_declared_panes(self):
         dev = _Device()
@@ -82,12 +112,14 @@ class TestChatPaneIsFloor:
         ), "chat is a floor pane (shim), not a declared pane (device)"
 
     def test_empty_personal_channel_renders_empty_turns(self):
-        with BusDevice.scratch("chat_pane") as bus:
-            shim = _Shim(bus=bus)
-            page = shim.active_page()
-            chat = [p for p in page["panes"] if p["kind"] == "personal_feed"][0]
-            assert chat["data"] == {"turns": []}, "empty personal channel → empty turns, not absent"
+        bus = bus_client.reach()
+        shim = _Shim(bus=bus)
+        page = shim.active_page()
+        chat = [p for p in page["panes"] if p["kind"] == "personal_feed"][0]
+        assert chat["data"] == {"turns": []}, "empty personal channel → empty turns, not absent"
 
+
+PROVES = {"ad7caca4d54c": {"2": "test_chat_pane_shows_personal_messages"}}
 
 ROSTER_MIN = 5
 

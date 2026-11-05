@@ -1,0 +1,102 @@
+[
+  {
+    "claim": "proof test_intention_fidelity.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-05T05:11:18",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_is_registered  — SIEVES['intention_fidelity'] = <function intention_fidelity at 0x703d33cc41a0>\n  PASS  test_a_rewritten_falsifier_reds  — reasons ['over-claiming', 'over-hedging']; charter_on_disk []\n  PASS  test_a_faithful_falsifier_passes  — 0 finding(s): []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_sieve_is_registered",
+        "test_a_rewritten_falsifier_reds",
+        "test_a_faithful_falsifier_passes"
+      ],
+      "teeth_red": [],
+      "test": "test-307be5ca9088",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "b502eba1800e0c8ce06b67b0e37b6cdde10b8da02fd646193c3bfa3719f52b44",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-307be5ca9088",
+      "source_fingerprint": "1255658ffde1d16ee2afac40cac407582bb42150846dbf5f86b6b0656c853993",
+      "fingerprint_closure": [
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/inspector.py",
+        "cairn/machines/build_inspector/proofs/test_intention_fidelity.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-45855-3xlpxisv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 116776570,
+          "disk_bytes": 148545536,
+          "entries": 12492,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "hollow": {
+        "5dbc03e007c5": {
+          "cairn/machines/build_inspector/inspector.py": [
+            "test_a_faithful_falsifier_passes",
+            "test_a_rewritten_falsifier_reds",
+            "test_the_sieve_is_registered"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "5dbc03e007c5": {
+          "anchor_rule": "journal",
+          "anchor_journal": "3e5968cf63d617d09de14cbefea3b0d5952863bf",
+          "anchor_first_build": "b3c6cd3bd84723d70ccb034ccca9a0415eb8d90d",
+          "commit": "3e5968cf63d617d09de14cbefea3b0d5952863bf"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

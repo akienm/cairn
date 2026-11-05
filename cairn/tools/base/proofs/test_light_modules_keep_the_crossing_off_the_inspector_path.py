@@ -61,7 +61,7 @@ PROVES = {"632edb992aa3": {
     "4": "test_the_base_edges_no_longer_import_transitions",
     "5": "test_the_charter_declares_both_modules",
     "6": "test_ticket_file_holds_the_one_patch_point",
-}}
+}, "d81baa1b5cb8": {"all": "test_the_grammar_loads_nothing_that_posts"}}
 
 FAILURES: list[str] = []
 

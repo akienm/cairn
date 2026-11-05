@@ -55,6 +55,7 @@ except ImportError:   # Windows: no getrusage, so a stop line's maxrss is null
     resource = None
 
 from cairn.devices.cairn.machines.bus.bus import BusDevice
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 try:                      # the claim's two spellings: flock on Linux, a byte lock on Windows
     import fcntl
@@ -111,12 +112,13 @@ def code_stamp(root: Path = ROOT) -> float:
     return newest
 
 
-class BusProcess:
+class BusProcess(DiagnosticBase):
     """The ring, the held shims, and the per-shim locks — everything one request touches."""
 
     def __init__(self, bus: BusDevice) -> None:
         from cairn.tools.bus_client.roster import DeviceRoster
 
+        super().__init__()
         self.bus = bus
         self.roster = DeviceRoster(bus)
         self.stamp = code_stamp()
@@ -447,7 +449,7 @@ class BusProcess:
             return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
 
-class _Handler(socketserver.StreamRequestHandler):
+class _Handler(DiagnosticBase, socketserver.StreamRequestHandler):
     """One JSON line in, one out. ``admit`` may refuse a request before it is answered;
     ``reply_to`` answers an admitted one — the two seams the loopback and LAN doors fill."""
 
@@ -570,7 +572,7 @@ class _LanHandler(_Handler):
         return self.server.process.answer(req, remote=True)
 
 
-class _HomeWatch:
+class _HomeWatch(DiagnosticBase):
     daemon_threads = True
     home: Path | None = None
 
@@ -596,7 +598,7 @@ class _LoopServer(_HomeWatch, socketserver.ThreadingTCPServer):
     key = ""
 
 
-class _LanServer(socketserver.ThreadingTCPServer):
+class _LanServer(DiagnosticBase, socketserver.ThreadingTCPServer):
     daemon_threads = True
     # On Windows SO_REUSEADDR lets a second process steal a bound port; off there.
     allow_reuse_address = os.name != "nt"
@@ -703,11 +705,12 @@ _STOP_SIGNALS = tuple(getattr(signal, n) for n in ("SIGTERM", "SIGINT", "SIGHUP"
                       if hasattr(signal, n))
 
 
-class _Stop:
+class _Stop(DiagnosticBase):
     """Why this bus process stopped (ticket 73c58a1dcad7). The first cause recorded wins (D4):
     the shutdown a signal starts does not overwrite the signal. Unset at the end means clean."""
 
     def __init__(self) -> None:
+        super().__init__()
         self._lock = threading.Lock()
         self.cause: str | None = None
         self.detail: dict = {}

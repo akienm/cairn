@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_bus_speaks_tcp.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-05T03:02:38",
+    "date": "2026-11-05T03:08:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "         -> {'fcntl': None, 'first': True, 'second': False, 'calls': [[2, 1], [2, 1]]}\n  ok   the Windows spawn is detached, windowless, this python, over --tcp\n         -> how=detached seen={'cmd': ['/home/akien/.cairn/venv/bin/python3', '-m', 'cairn.devices.cairn.machines.bus', 'serve', '--home', '/tmp/bus-tcpscratch.4026531836-4154654-kx1i8t94/a3', '--tcp', '--scratch'], 'flags': 134218248}\n  ok   the LAN port refuses plain TCP\n         -> got b'\\x15\\x03\\x03\\x00\\x02\\x02\\x16'\n  ok   a pinned box is answered, and its other root is not stale\n         -> {'ok': True, 'json': {'pid': 4154694, 'root': '/home/akien/dev/src/cairn', 'table': 'bus_proc_4154694_0301599821', 'posted': 0, 'delivered': 0, 'db_reads': 1, 'ring_depth': 0, 'receipts': [], 'held': [], 'shims': {}}}\n  ok   RemoteBus at host:port speaks the BusDevice face across TLS\n         -> {'ok': True, 'list': {}}\n  ok   a pinned box may not shut this box's bus down\n         -> {'ok': False, 'error': \"'shutdown' is not open across the LAN — one of ('call', 'stats', 'verbs')\"}\n  ok   an unpinned box is refused at the handshake\n         -> {'refused': 'ConnectionResetError: [Errno 104] Connection reset by peer'}\n  ok   a box with no certificate may only ask, and the ask is held, not pinned\n         -> first={'home': 'boxa', 'home_fingerprint': 'b0ce45024a6da8260a1a272622d4b8d53079de5da2b52d0e1006c9651f008326', 'mine': '06fb75766ee4fa9049e99ca5ffc81c8f0a84dc4baf46da0ad8d2214f84646b96', 'reply': {'ok': True, 'held': True, 'box': 'boxa', 'fingerprint': 'b0ce45024a6da8260a1a272622d4b8d53079de5da2b52d0e1006c9651f008326'}} asks={'boxd': '06fb75766ee4fa9049e99ca5ffc81c8f0a84dc4baf46da0ad8d2214f84646b96'}\n  ok   the LAN port answers only a pinned box and refuses plain TCP\n         unix p50 pre-build 9257 us, now 9472 us (rounds [9247, 9257, 9268] / [9490, 9376, 9472]); tcp loopback p50 10506 us\n  ok   the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured\n         -> pre=9257us now=9472us tcp=10506us\nGREEN — the bus speaks TCP on a box with no AF_UNIX, and only to pinned boxes",
+      "stdout_tail": "         -> {'fcntl': None, 'first': True, 'second': False, 'calls': [[2, 1], [2, 1]]}\n  ok   the Windows spawn is detached, windowless, this python, over --tcp\n         -> how=detached seen={'cmd': ['/home/akien/.cairn/venv/bin/python3', '-m', 'cairn.devices.cairn.machines.bus', 'serve', '--home', '/tmp/bus-tcpscratch.4026531836-4167232-fwoo8ppv/a3', '--tcp', '--scratch'], 'flags': 134218248}\n  ok   the LAN port refuses plain TCP\n         -> got b'\\x15\\x03\\x03\\x00\\x02\\x02\\x16'\n  ok   a pinned box is answered, and its other root is not stale\n         -> {'ok': True, 'json': {'pid': 4167272, 'root': '/home/akien/dev/src/cairn', 'table': 'bus_proc_4167272_0307511843', 'posted': 0, 'delivered': 0, 'db_reads': 1, 'ring_depth': 0, 'receipts': [], 'held': [], 'shims': {}}}\n  ok   RemoteBus at host:port speaks the BusDevice face across TLS\n         -> {'ok': True, 'list': {}}\n  ok   a pinned box may not shut this box's bus down\n         -> {'ok': False, 'error': \"'shutdown' is not open across the LAN — one of ('call', 'stats', 'verbs')\"}\n  ok   an unpinned box is refused at the handshake\n         -> {'refused': 'ConnectionResetError: [Errno 104] Connection reset by peer'}\n  ok   a box with no certificate may only ask, and the ask is held, not pinned\n         -> first={'home': 'boxa', 'home_fingerprint': '6310097e2d3c5d9898315cf670251cd854c32628c04e8271c8f107b7d161de7b', 'mine': '427fdd02160762fafc1d92516540fec9471e8dc0fab3cc3523147cb26d5c3eaa', 'reply': {'ok': True, 'held': True, 'box': 'boxa', 'fingerprint': '6310097e2d3c5d9898315cf670251cd854c32628c04e8271c8f107b7d161de7b'}} asks={'boxd': '427fdd02160762fafc1d92516540fec9471e8dc0fab3cc3523147cb26d5c3eaa'}\n  ok   the LAN port answers only a pinned box and refuses plain TCP\n         unix p50 pre-build 8963 us, now 9067 us (rounds [8975, 8963, 8831] / [9025, 9096, 9067]); tcp loopback p50 10286 us\n  ok   the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured\n         -> pre=8963us now=9067us tcp=10286us\nGREEN — the bus speaks TCP on a box with no AF_UNIX, and only to pinned boxes",
       "stderr_tail": "",
       "teeth_green": [
         "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1",
@@ -24,7 +24,7 @@
         "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured"
       ],
       "teeth_red": [],
-      "test": "test-f5deffc57dd2",
+      "test": "test-f9a398edb2d4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -50,14 +50,14 @@
       },
       "killed": [
         {
-          "pid": 4157685,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-tcpscratch.4026531836-4154654-kx1i8t94/tcp --scratch --tcp",
+          "pid": 4170225,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-tcpscratch.4026531836-4167232-fwoo8ppv/tcp --scratch --tcp",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f5deffc57dd2",
-      "source_fingerprint": "52ddfe6b5f92b3df7f7e46644ac57dc7844e17be88d3e19935c056c8d0802095",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f9a398edb2d4",
+      "source_fingerprint": "dbeac1acf7afed869640eeebd15d7da582517efcc9bd689ee2edb09708afb1f7",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -77,31 +77,31 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4154142-9zvz38j6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4166647-1f0metbv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 10,
           "paths": [
             "logs/bus.log",
-            "logs/bus/0/20261105.100159.654178.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100200.070927.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100202.113981.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100206.689941.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100211.359854.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100215.930264.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100220.566277.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100225.214505.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100229.916104.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261105.100750.838879.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100751.267016.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100753.409380.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100757.835859.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100802.297914.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100806.684061.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100811.166043.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100815.513984.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100819.947840.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 116611044,
-          "disk_bytes": 148201472,
-          "entries": 12435,
+          "bytes": 116631874,
+          "disk_bytes": 148242432,
+          "entries": 12440,
           "builds": 1,
-          "reuses": 4
+          "reuses": 5
         }
       }
     },

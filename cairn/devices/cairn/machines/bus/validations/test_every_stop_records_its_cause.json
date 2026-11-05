@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_every_stop_records_its_cause.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T03:03:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T03:07:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_sigterm_names_the_signal_and_its_sender\n.\n  ok   test_sigint_names_the_signal_and_its_sender\n.\n  ok   test_an_exception_in_serve_forever_names_its_type\n.\n  ok   test_a_clean_return_says_clean\n.\n  ok   test_the_shutdown_verb_names_its_caller\n                                                                    [100%]\n5 passed in 2.39s",
+      "stdout_tail": ".\n  ok   test_sigterm_names_the_signal_and_its_sender\n.\n  ok   test_sigint_names_the_signal_and_its_sender\n.\n  ok   test_an_exception_in_serve_forever_names_its_type\n.\n  ok   test_a_clean_return_says_clean\n.\n  ok   test_the_shutdown_verb_names_its_caller\n                                                                    [100%]\n5 passed in 2.35s",
       "stderr_tail": "",
       "teeth_green": [
         "test_sigterm_names_the_signal_and_its_sender",
@@ -17,16 +17,14 @@
         "test_the_shutdown_verb_names_its_caller"
       ],
       "teeth_red": [],
-      "test": "test-d2bb4a0e490d",
+      "test": "test-2fcc1f032efc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 1,
-        "tables": [
-          "bus_proc_4159233_0303153476"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "8c4abe94b2a55365d5770fad970bf519998b02e7e243387ff67c21cdddb835c3",
@@ -40,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d2bb4a0e490d",
-      "source_fingerprint": "1781e3bf4623223ff0671f4ab983e6411d785f4f5a92760dbba86396fa6deaae",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2fcc1f032efc",
+      "source_fingerprint": "9225de1a76a19024d2ce1b65b6f3818a879812f237c6c2cdaa196daf6d38a54c",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -69,43 +66,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4159444-zor5ajvt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4166647-lfj7uspd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/bus/0/20261105.100336.956498.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100337.653689.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261105.100338.606238.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261105.100730.162859.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100730.838495.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261105.100731.761749.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 116610939,
-          "disk_bytes": 148193280,
-          "entries": 12431,
+          "bytes": 116626719,
+          "disk_bytes": 148213760,
+          "entries": 12433,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "73c58a1dcad7": {
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "test_a_clean_return_says_clean",
-            "test_an_exception_in_serve_forever_names_its_type",
-            "test_sigint_names_the_signal_and_its_sender",
-            "test_sigterm_names_the_signal_and_its_sender",
-            "test_the_shutdown_verb_names_its_caller"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "73c58a1dcad7": {
-          "anchor_rule": "journal",
-          "anchor_journal": "e66d9730d1d1169d4e68b3ab7198bc004632c1c6",
-          "anchor_first_build": "af38a231fdc32b8f5ee296fec542ef4c7accb7be",
-          "commit": "e66d9730d1d1169d4e68b3ab7198bc004632c1c6"
+          "reuses": 1
         }
       }
     },

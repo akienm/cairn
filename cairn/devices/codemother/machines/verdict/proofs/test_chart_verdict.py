@@ -554,13 +554,21 @@ def test_import_allowlist_tree_free(root, berths, val):
     allow = ("__future__", "hashlib", "json", "os", "re", "shlex", "shutil",
              "subprocess", "time",
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
-             "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate")
+             "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate",
+             "cairn.tools.base.script_argv")
     import cairn.tools.chain.verdict_contract as _contract
     assert sorted(import_map(_contract.__file__)["measured"]["imports"]) == [
         "__future__", "cairn.tools.chain.chain", "cairn.tools.chain.grammar", "json", "os",
         "re", "time"], "the chain contract grew an import — the tree-free claim is measured"
     assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \
         "the gate tool grew an import — the tree-free claim above is measured, not assumed"
+    # cairn.tools.base.script_argv joined 2026-10-30 (commit 878131f2: run_instrument forks
+    # bin/cairn through bash_script_argv, for Windows); allowed 2026-11-05 under ticket
+    # 0d38d0f5a4e3 by d8e8a2dc1176's precedent — its own imports measured stdlib-only.
+    import cairn.tools.base.script_argv as _script_argv
+    assert sorted(import_map(_script_argv.__file__)["measured"]["imports"]) == [
+        "__future__", "os", "pathlib", "shutil"], \
+        "script_argv grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

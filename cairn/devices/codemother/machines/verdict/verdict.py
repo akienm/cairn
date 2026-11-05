@@ -155,7 +155,8 @@ _ASSIGNMENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 # and every name added to it is a word that stops reading as prose.
 _SHELL_HEADS = frozenset((
     "test", "[", "for", "while", "if", "case", "cd", "echo", "set", "export",
-    "true", "false", "read", "eval", "exec", "source", ".", "printf", ":"))
+    "true", "false", "read", "eval", "exec", "source", ".", "printf", ":",
+    "!"))  # shell negation: '! grep -q x f' passes when the grep finds nothing (0d38d0f5a4e3)
 
 
 def _tail(text) -> str:
@@ -319,7 +320,11 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
         for criterion in criteria:
             if isinstance(criterion, dict) and isinstance(criterion.get("claim"), str):
                 declared.setdefault(criterion["claim"], criterion)
-    observations = []
+    # EVERY COMMAND IS EXTRACTED BEFORE ANY IS RUN (ticket 0d38d0f5a4e3). Extraction is pure,
+    # so the order changes nothing a green verdict reads; what it changes is the refusal: an
+    # unrunnable instrument last in the list used to be found only after every slow one before
+    # it had run (measured 2026-10-30: about 85 minutes of reading thrown away).
+    planned = []
     for entry in artifact.get("verdicts") or []:
         if not isinstance(entry, dict):
             continue
@@ -330,11 +335,14 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
             "outcome": entry.get("outcome"),
             "expect_exit": _declared(criterion, entry, "expect_exit", 0),
         }
-        command = extract_command(entry.get("instrument"), where)
-        if command is None:
-            reading["runnable"] = False
-            observations.append(reading)
-            continue
+        planned.append((entry, criterion, reading,
+                        extract_command(entry.get("instrument"), where)))
+    if any(command is None for _e, _c, _r, command in planned):
+        for _e, _c, reading, command in planned:
+            reading["runnable"] = command is not None
+        return [reading for _e, _c, reading, _cmd in planned]
+    observations = []
+    for entry, criterion, reading, command in planned:
         reading["runnable"] = True
         reading["run"] = runner(
             command,

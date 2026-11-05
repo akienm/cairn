@@ -232,15 +232,41 @@ def test_the_enough_condition_is_reachable():
             m._TICKETS = original
 
 
-def test_discovery_arms_the_probe_with_no_hand_registration():
-    """``cairn/tools/base`` is itself a discovered device, so the pass that reports the divergence
-    is the pass that arms the reporter. No subscribe call, no list to go stale."""
-    from cairn.devices.cairn.machines.ground_loop.discovery import discover
+def _load_own_probes(folder):
+    """``(probes, failures)`` for one probes/ folder: the judgement the ground loop's
+    ProbeCache makes (imports, declares a module-level PROBE, PROBE is a Probe), made here so
+    base's proofs never reach into the cairn device (RULE 1, ticket d81baa1b5cb8)."""
+    import importlib.util
+    from cairn.tools.base.probe import Probe
 
-    found = discover()
-    assert "base" in found, "cairn/tools/base must be discovered as a device"
-    assert found["base"]["failures"] == [], f"import failures: {found['base']['failures']}"
-    whys = [p.why for p in found["base"]["probes"]]
+    probes, failures = [], []
+    for path in sorted(Path(folder).glob("*.py")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location("cairn._base_proof_probes." + path.stem, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except Exception as exc:  # noqa: BLE001 — a bad probe file is a failure, not a crash
+            failures.append({"file": str(path), "lack": f"import raised {type(exc).__name__}: {exc}"})
+            continue
+        probe = getattr(module, "PROBE", None)
+        if probe is None:
+            failures.append({"file": str(path), "lack": "no module-level PROBE"})
+        elif not isinstance(probe, Probe):
+            failures.append({"file": str(path), "lack": f"PROBE is {type(probe).__name__}, not a Probe"})
+        else:
+            probes.append(probe)
+    return probes, failures
+
+
+def test_discovery_arms_the_probe_with_no_hand_registration():
+    """The divergence probe is armed by its file in base's probes/ folder, the folder discovery
+    reads, with no subscribe call and no list to go stale. That discover() itself reads that
+    folder is the cairn device's to prove at its own address (RULE 1, ticket d81baa1b5cb8)."""
+    probes, failures = _load_own_probes(_REPO_ROOT / "cairn" / "tools" / "base" / "probes")
+    assert failures == [], f"import failures: {failures}"
+    whys = [p.why for p in probes]
     assert any("CLAIM device-hood" in w for w in whys), (
         "the divergence probe must be armed by discovery, not by a hand"
     )

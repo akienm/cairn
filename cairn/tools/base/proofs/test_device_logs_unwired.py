@@ -33,6 +33,7 @@ instrument it is about to read.
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 import sys
@@ -127,17 +128,22 @@ def test_derivation_agrees_with_the_tree_walk_corpus_wide() -> None:
 def test_real_device_classes_name_their_own_component() -> None:
     """The two devices that HAD hand-spelled names now derive them, and the derived name is
     checked against where the class's file actually lives — not against the string that used
-    to be in the runner, which is gone precisely because this works."""
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
-    from cairn.devices.cairn.machines.ground_loop.shim import HeartbeatPage
-    import inspect
-    for cls in (BusDevice, HeartbeatPage):
-        derived = component_of_module(cls.__module__)
-        home = component_of(Path(inspect.getfile(cls)))
+    to be in the runner, which is gone precisely because this works. The classes are read by
+    path and AST, so base imports no device (RULE 1, ticket d81baa1b5cb8)."""
+    for name, rel in (("BusDevice", "cairn/devices/cairn/machines/bus/bus.py"),
+                      ("HeartbeatPage", "cairn/devices/cairn/machines/ground_loop/shim.py")):
+        path = _REPO_ROOT / rel
+        derived = component_of_module(rel[:-3].replace("/", "."))
+        home = component_of(path)
         ok(home is not None and derived == home.name,
-           f"{cls.__name__} derives {derived!r} but its file lives in {home}")
-        ok(issubclass(cls, DiagnosticBase),
-           f"{cls.__name__} must carry the emit surface structurally")
+           f"{name} derives {derived!r} but its file lives in {home}")
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        cls = next((n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == name), None)
+        bases = [b.id for b in cls.bases if isinstance(b, ast.Name)] if cls else []
+        ok(cls is not None and "BaseDevice" in bases,
+           f"{name} must subclass BaseDevice in {rel}; bases {bases}")
+    from cairn.tools.base.device import BaseDevice
+    ok(issubclass(BaseDevice, DiagnosticBase), "BaseDevice must carry the emit surface structurally")
 
 
 def test_a_rungless_class_gets_no_invented_name() -> None:

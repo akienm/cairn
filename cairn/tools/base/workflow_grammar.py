@@ -15,7 +15,7 @@ import re
 from dataclasses import dataclass
 
 from cairn.tools.base.diagnostic import DiagnosticBase
-from cairn.tools.system_word.system_word import canon
+from cairn.tools.system_word import canon
 
 _HEADER_RE = re.compile(r"^\s*([a-z][a-z-]*)@(v\d+)\s*$")     # "code-seam@v1"
 # A state token, maybe bracketed, maybe carrying its OBJECT in parens — "WATCHME(what-it-watches)"

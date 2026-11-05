@@ -12,18 +12,26 @@ than being pushed.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Any, Callable, Protocol
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 
-if TYPE_CHECKING:
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
+
+class _Bus(Protocol):
+    """The four bus methods an external participant calls — named here so base imports no
+    device (RULE 1, ticket d81baa1b5cb8). Callable attributes, not stub methods: a shape
+    carries no code, so it owes the diagnostic mixin nothing."""
+
+    post: Callable[..., Any]
+    read: Callable[..., Any]
+    undelivered: Callable[..., Any]
+    request: Callable[..., Any]
 
 
 class ExternalParticipant(DiagnosticBase):
     """A bus participant with no poke path. Posts, reads, and announces — never poked."""
 
-    def __init__(self, device_id: str, bus: "BusDevice",
+    def __init__(self, device_id: str, bus: _Bus,
                  verbs: list[str] | None = None) -> None:
         self._device_id = device_id
         self._bus = bus

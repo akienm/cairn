@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 
 _OWNING_TICKET = "65b34c57ab71"
 _OBJECT = "charter-feedback-reaches-codemother"
@@ -57,6 +57,13 @@ def _enough(context: dict) -> bool:
     return s["ensured"] and s["records"] >= _ENOUGH_RECORDS and s["read_back"]
 
 
+def _holds(context: dict) -> bool:
+    """The falsifier holds while the instance is held and readable (its reds (1) and (3));
+    arrival is the enough, not the falsifier, so HELD, SILENT holds."""
+    s = once(context, "survey", survey)
+    return bool(s["ensured"]) and not s.get("broken")
+
+
 def _carry(context: dict) -> dict:
     s = once(context, "survey", survey)
     if not s["ensured"]:
@@ -81,7 +88,8 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": _OBJECT},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_OWNING_TICKET, _carry, holds=_holds),
     enough=_enough,
     horizon=500,
 )

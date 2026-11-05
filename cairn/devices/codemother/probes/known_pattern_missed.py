@@ -8,7 +8,9 @@ the learning signal, not a failure.
 
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, watch_carry
+
+_TICKET_ID = "760149d5fe55"
 
 
 def _trigger(now, context: dict) -> bool:
@@ -36,7 +38,8 @@ PROBE = Probe(
     trigger=_trigger,
     to="harbor_master",
     body={"nexus": "hypothesize", "kind": "efficacy", "object": "known-pattern-violation-caught-before-code"},
-    carry=_carry,
+    verb="watch",
+    carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=200,
 )

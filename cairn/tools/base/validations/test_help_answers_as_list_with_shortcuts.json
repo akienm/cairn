@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_help_answers_as_list_with_shortcuts.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-06T04:33:13",
+    "caller": "cairn test",
+    "date": "2026-11-06T04:35:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "0 failing: []"
       ],
       "teeth_red": [],
-      "test": "test-8799ddbd126c",
+      "test": "test-feb93e542489",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +39,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 513622,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-513609-ox2kdlmu/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8799ddbd126c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-feb93e542489",
       "source_fingerprint": "b94a6f8094153b39c8ccc728b09699c7546a0853e37ef89d525ab72d65573418",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -64,7 +71,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-509125-6sbm_0es/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-513563-z8p1qu8d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,18 +80,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119036238,
-          "disk_bytes": 152580096,
-          "entries": 13111,
+          "bytes": 119041722,
+          "disk_bytes": 152596480,
+          "entries": 13115,
           "builds": 1,
-          "reuses": 15
+          "reuses": 0
         }
-      },
-      "conditions_moved": {
-        "notified": "n-e9ae077297f0",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

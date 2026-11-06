@@ -232,7 +232,10 @@ def main() -> int:
                       count=3, why="WHY-MARKER-ONE")
         write_trouble(t_live, "no-standing-at-all.json", id="no-standing-at-all",
                       count=1, why="WHY-MARKER-TWO")
-        write_trouble(t_live, "already-cleared.json", id="already-cleared",
+        # A trouble's LOCATION is its liveness (ticket 4ddc9df3369e): a clear moves the file
+        # into cleared/, and the top of the store is the live list whatever a field says.
+        from cairn.devices.trouble.trouble import CLEARED_DIR
+        write_trouble(t_live / CLEARED_DIR, "already-cleared.json", id="already-cleared",
                       standing="CLEARED", count=9, why="WHY-MARKER-CLEARED")
         r = run(s1, t_live)
         i_trouble = r.stdout.find("LIVE TROUBLE")

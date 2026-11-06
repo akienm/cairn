@@ -2,12 +2,12 @@
   {
     "claim": "proof test_slate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T05:00:41",
+    "date": "2026-11-06T05:06:38",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   stamped still wins\n  ok   unstamped does not win\n\n    ...and a day of only-unstamped slates is named as a guess, not an answer\n  ok   says the ranking fell back to filename order\n  ok   names how many slates share the date\n  ok   still restores a slate\n  ok   still exit 0\n\n    ...and a lone unstamped slate does not cry ambiguity\n  ok   no warning for a lone unstamped slate\n  ok   restores it\n\n91/96 green\nRED:\n  - a CLEARED trouble is not shown\n  - THE COUNT TOOTH: the trouble count is the first line under the rule\n  - THE CUSTODY TOOTH: the detail renders under a lane that says CC owns it\n  - the count line does not carry the paragraphs\n  - the receipt counts LIVE TROUBLES, not occurrences",
+      "returncode": 0,
+      "stdout_tail": "  ok   picks the later WRITTEN_AT\n  ok   does NOT pick the alphabetically-last filename\n  ok   no ambiguity warning when the winner is stamped\n  ok   exit 0\n\n    ...and an unstamped record of the same day ranks below a stamped one\n  ok   stamped still wins\n  ok   unstamped does not win\n\n    ...and a day of only-unstamped slates is named as a guess, not an answer\n  ok   says the ranking fell back to filename order\n  ok   names how many slates share the date\n  ok   still restores a slate\n  ok   still exit 0\n\n    ...and a lone unstamped slate does not cry ambiguity\n  ok   no warning for a lone unstamped slate\n  ok   restores it\n\n96/96 green",
       "stderr_tail": "",
       "teeth_green": [
         "picks the later DATE",
@@ -27,8 +27,12 @@
         "troubles come BEFORE the slate",
         "a well-formed live trouble is shown",
         "a trouble with NO standing is still live",
+        "a CLEARED trouble is not shown",
         "the count rides along",
+        "THE COUNT TOOTH: the trouble count is the first line under the rule",
+        "THE CUSTODY TOOTH: the detail renders under a lane that says CC owns it",
         "the CC lane sits BELOW the operator's review lane",
+        "the count line does not carry the paragraphs",
         "says the inbox is empty",
         "exit 0 on the live tree",
         "emits a session-open banner",
@@ -42,6 +46,7 @@
         "troubles still precede the slate inside the context",
         "a receipt is present",
         "the receipt names the CHOSEN slate",
+        "the receipt counts LIVE TROUBLES, not occurrences",
         "the receipt is not the whole banner",
         "a different tree yields a DIFFERENT receipt",
         "the empty store is named in the receipt",
@@ -93,14 +98,8 @@
         "no warning for a lone unstamped slate",
         "restores it"
       ],
-      "teeth_red": [
-        "a CLEARED trouble is not shown",
-        "THE COUNT TOOTH: the trouble count is the first line under the rule  — top@-1 lane@-1",
-        "THE CUSTODY TOOTH: the detail renders under a lane that says CC owns it  — lane@-1 why@412",
-        "the count line does not carry the paragraphs",
-        "the receipt counts LIVE TROUBLES, not occurrences  — got '🪝 slate · REAL · 3 live trouble(s) · 0 awaiting review · 56 tickets (TICKETME:waiting 35, PROVEME:in-process 1, PROVEME:waiting 3, BUILDME:waiting 6, BUILDME:queued 1, WATCHME:waiting 9, FIXME:waiting 1)' — expected 2 live (3 records, 1 CLEARED); '3' would be the occurrence count of one record"
-      ],
-      "test": "test-024263735c8f",
+      "teeth_red": [],
+      "test": "test-de2400e90a55",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -110,11 +109,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "56c824cd315a33a704beb045c82d64d8f812af46df2ac56dc18583e9acf537d1",
+        "proof": "f6c26aa8fd26daf0bbfecd876a087852205f56fa270d16a7e218f389bd578780",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -127,8 +126,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-024263735c8f",
-      "source_fingerprint": "d2f7c8bc373593b2ddbc1e5469bf558de3bcd2bb6d7f7f3e2dcbce15053ab241",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-de2400e90a55",
+      "source_fingerprint": "566950077da72601528f9b20c4038f814df127ebd10a389f3808f73ee2307711",
       "fingerprint_closure": [
         "bin/proofs/test_slate.py",
         "cairn/__init__.py",
@@ -184,7 +183,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-531670-jume6cgc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-540720-2sbztwt_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -193,12 +192,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119089340,
-          "disk_bytes": 152715264,
-          "entries": 13138,
+          "bytes": 119092942,
+          "disk_bytes": 152727552,
+          "entries": 13139,
           "builds": 1,
-          "reuses": 14
+          "reuses": 0
         }
+      },
+      "conditions_moved": {
+        "notified": "n-68a6440b032c",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

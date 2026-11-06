@@ -188,10 +188,60 @@ A ticket is a record of truth and it ENTERS the store through exactly one judge,
 scratchpad — the caster mints the id (twelve lowercase hex, `openssl rand -hex 6`) and
 carries every required field: `id`, `title`, `date`, `owner`, `owning_intention`,
 `intention`, `why`, `traces_to`, `how`, `falsifier`, `node_class`,
-`workflow_and_state`, `watchme`, `sorted_berth`, `intent_berth` (the decision lines,
-`questions`, `chart_claim` and the rest ride along as extras) — then fire:
+`workflow_and_state`, `watchme`, `sorted_berth`, `intent_berth`, `bounds`, `measured`
+(`questions`, `chart_claim` and the rest ride along as extras) — then fire:
 
     cairn cast <scratchpad>/ticket_fields.json --actor cc
+
+**The plan is JSON data, not prose** (ticket `e4f02a1ceef5`; Akien 2026-11-05: *"should
+be json"*). The door reads four shapes from the store charter's `plan_shapes` and refuses
+each one it cannot read, by name:
+
+- **falsifier**: `{"clauses": [{"n": 1, "claim": "..."}, ...]}`, numbered 1..k. Each `n` is
+  the key the proof's `PROVES` declares for that clause, one tooth per clause.
+- **decisions**: each line carries `writes_to` and `reads`, lists of repo-relative paths
+  (empty lists are allowed). Every `reads` path must resolve to a file.
+- **bounds**: `{"in": [...], "out": [...]}`. `in` is the union of every decision's
+  `writes_to`, the proof included.
+- **measured**: `[{"when": "YYYY-MM-DD", "saw": "...", "how": "..."}]`, the measurement the
+  `why` rests on.
+
+One shaped ticket, admitted as written by the door (its proof,
+`skills/sorted/proofs/test_sorted_instructs_the_shaped_plan.py`, casts it into a scratch
+commons, so this example tracks the door). Swap the id and the two berths for your own:
+
+<!-- the shaped example (ticket 02a4ddc2d12a) -->
+```json
+{
+  "id": "<twelve lowercase hex>",
+  "title": "the cast door names a blank owner",
+  "date": "2026-11-05",
+  "owner": "CC",
+  "owning_intention": "cairn/tools/base/intention+why.json",
+  "intention": "cast_ticket refuses a ticket whose owner is blank, naming the owner.",
+  "why": "Measured 2026-11-05: a blank owner cast without a lack named.",
+  "traces_to": "Law 6 — everything has exactly one owner.",
+  "how": "Add owner to the required set in cast_ticket; red-first proof casts a doc with owner blank.",
+  "falsifier": {"clauses": [
+    {"n": 1, "claim": "a doc with owner blank is refused, the lack naming owner, and nothing lands"},
+    {"n": 2, "claim": "the same doc with owner set casts"}]},
+  "decisions": [
+    {"n": 1, "text": "D1: owner joins the required set in cast_ticket.",
+     "writes_to": ["cairn/tools/base/transitions.py"], "reads": ["cairn/tools/base/transitions.py"]},
+    {"n": 2, "text": "D2: the proof casts into a scratch commons, one tooth per clause.",
+     "writes_to": ["cairn/tools/base/proofs/test_the_cast_names_a_blank_owner.py"], "reads": []}],
+  "bounds": {"in": ["cairn/tools/base/transitions.py",
+                    "cairn/tools/base/proofs/test_the_cast_names_a_blank_owner.py"],
+             "out": ["every other component"]},
+  "measured": [{"when": "2026-11-05", "saw": "a blank owner cast with no lack named",
+                "how": "cairn cast over a scratch doc with owner \"\""}],
+  "node_class": "code-seam",
+  "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
+  "watchme": "none, because its proof cairn/tools/base/proofs/test_the_cast_names_a_blank_owner.py is the whole of its correctness",
+  "sorted_berth": "<the path /sorted's door printed>",
+  "intent_berth": "<the path /intent's door printed>"
+}
+```
 
 The door refuses with **every** lack named in one pass and writes nothing: a blank
 required field, an id the store already holds, a `workflow_and_state` that

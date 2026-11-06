@@ -64,18 +64,36 @@ PROVES = {
 }
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
-_HELD: list[str] = []
+_HELD: list[tuple[str, str]] = []   # (nexus name, owner) — each forgotten under its own owner at close
+_ORIENT: list[str] = []
+
+# deposit_orient writes under codemother's owner since 2b3d842bc118, so the teeth that drive it
+# deposit into a codemother-owned scratch nexus and read it there (ticket a229f01ed699).
+ORIENT_OWNER = "codemother"
 
 
 def _nexus() -> str:
-    """This run's own nexus, minted on first use through tree.scratch_nexus()."""
-    if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(scratch_nexus("orient")))
-    return _HELD[0]
+    """This run's own chart-owned nexus, minted on first use through tree.scratch_nexus()."""
+    if not any(o == "chart" for _, o in _HELD):
+        _HELD.append((_SCRATCH.enter_context(scratch_nexus("orient")), "chart"))
+    return next(n for n, o in _HELD if o == "chart")
 
 
 def _table() -> str:
     return nexus_table(_nexus())
+
+
+def _orient_nexus() -> str:
+    """This run's codemother-owned scratch nexus, the one deposit_orient's leaf lands in."""
+    if not _ORIENT:
+        name = _SCRATCH.enter_context(scratch_nexus("orient", owner=ORIENT_OWNER))
+        _HELD.append((name, ORIENT_OWNER))
+        _ORIENT.append(name)
+    return _ORIENT[0]
+
+
+def _orient_table() -> str:
+    return nexus_table(_orient_nexus(), owner=ORIENT_OWNER)
 
 
 _PROV = {"source": "proofs/test_chart_tree.py", "ground": "fixture"}
@@ -150,7 +168,7 @@ def test_the_table_is_born_owned_by_chart():
 
 
 def test_gate_before_seed():
-    before = trees.tree_state(_nexus(), table=_table(), owner="chart")
+    before = trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER)
     with tempfile.TemporaryDirectory() as tmp:
         berth = _berthed_fixture(tmp, _packet())
         # A malformed packet (missing a required field) never reaches the tree.
@@ -167,22 +185,22 @@ def test_gate_before_seed():
         assert missing in msg, "the refusal must name the berth that is not there: " + msg
         assert "provenance does not cover" not in msg, \
             "the fixture was refused one lack early — the berth check was never reached"
-        assert trees.tree_state(_nexus(), table=_table(), owner="chart") == before, \
+        assert trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER) == before, \
             "a refused deposit-back must leave the tree exactly where it stood"
         # THE CONTROL: the same packet, with the berth that exists, is accepted — so the
         # refusal above was the berth's and not some earlier lack the packet carries.
-        control = _packet(intent=f"the gate control packet of the chart tree proof [{_nexus()}]")
+        control = _packet(intent=f"the gate control packet of the chart tree proof [{_orient_nexus()}]")
         berth = _berthed_fixture(tmp, control)
-        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_nexus())
+        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_orient_nexus())
         _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False, "the control packet must land as a new node"
 
 
 def test_deposit_back_lands_and_dedups():
     with tempfile.TemporaryDirectory() as tmp:
-        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_nexus()}]")
+        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_orient_nexus()}]")
         berth = _berthed_fixture(tmp, packet)
-        r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_nexus())
+        r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_orient_nexus())
         _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False
         node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
@@ -191,13 +209,13 @@ def test_deposit_back_lands_and_dedups():
         assert node_rows[0]["provenance"]["source"] == berth, "provenance names the berth"
         assert node_rows[0]["provenance"]["confidence"] == packet["confidence"]
         assert node_rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
-        leaf_rows = store.read(_table(), where="node_id = %s", params=(r["node_id"],))
+        leaf_rows = store.read(_orient_table(), where="node_id = %s", params=(r["node_id"],))
         assert leaf_rows, "a leaf must land in the nexus's table"
         # The same packet again: a duplicate writes nothing (Law 1).
-        before = trees.tree_state(_nexus(), table=_table(), owner="chart")
-        r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_nexus())
+        before = trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER)
+        r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_orient_nexus())
         assert r2["duplicate"] is True
-        assert trees.tree_state(_nexus(), table=_table(), owner="chart") == before
+        assert trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER) == before
 
 
 def test_the_orient_leaf_is_codemothers_scratch():
@@ -208,7 +226,7 @@ def test_the_orient_leaf_is_codemothers_scratch():
     with tempfile.TemporaryDirectory() as tmp:
         packet = _packet(intent=f"the orient leaf ownership probe [{_nexus()}]")
         berth = _berthed_fixture(tmp, packet)
-        nexus = _orient_nexus() if "_orient_nexus" in globals() else _nexus()
+        nexus = _orient_nexus()
         r = deposit_orient(packet, [0.7, 0.3, 0.0], berth_path=berth, nexus=nexus)
         _CREATED_NODES.append(r["node_id"])
         leaf = nexus_table(nexus, owner=orient_mod.OWNER)
@@ -388,8 +406,8 @@ def _main() -> int:
                 print(f"  FAIL  {check.__name__}", flush=True)
                 failed.append(check.__name__)
     finally:
-        for name in _HELD:            # this run's rows out of the shared tables, then the scratch nexus dropped
-            trees.forget_leaf(nexus_table(name))
+        for name, owner in _HELD:     # this run's rows out of the shared tables, then the scratch nexi dropped
+            trees.forget_leaf(nexus_table(name, owner=owner))
         _SCRATCH.close()
     if failed:
         print(f"RED — {len(failed)} failure(s): {', '.join(failed)}")

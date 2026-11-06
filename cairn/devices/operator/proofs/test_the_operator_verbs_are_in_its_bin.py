@@ -44,7 +44,7 @@ VERBS = ("operator", "show", "answer")
 TICKET = "fd597e74056f"
 ALLOWED = {"cairn.tools.operator_inbox.inbox", "cairn.tools.question", "cairn.tools.question.question"}
 
-PROVES = {TICKET: {
+PROVES = {"fd597e74056f": {
     "1": "clause_1_the_charter_stands_and_the_instance_bin_resolves",
     "2": "clause_2_show_inbox_runs_through_the_device_bin",
     "3": "clause_3_answer_records_the_words_as_the_question_door_does",

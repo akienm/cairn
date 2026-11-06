@@ -1,0 +1,94 @@
+[
+  {
+    "claim": "proof test_help_answers_as_list_with_shortcuts.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-06T04:28:28",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "2d6c1c36f3bd — help answers as list, and list carries the device's bin shortcuts\n  FAIL  clause_1_help_is_in_the_semantics\n        ROOT_VERB_SEMANTICS carries no help; ROOT_VERBS (derived) carries no help\n  FAIL  clause_2_help_answers_as_list\n        help's exit differs from list's: 2 vs 0; help's text differs from list's: \"cairn 2d6c-fixture: no such verb 'help' — root verbs: list show get stop start settings\" vs \"verbs:\\n  list\\n  show\\n  get\\n  stop\\n  start\\n  settings\\nviews:\\n  status\\n  settings\\npanes:\\n  (none)\\nsemantics:\\n  list: enumerates the verbs, views and panes — cold from the declared contract, hot from the device\\n  show: renders one view for a human — cold from last_known, hot from the device\\n  get: returns one view as one line of JSON: device, view, cached, timestamp, data\\n  stop: puts the device instance's process down; presence reads OFFLINE\\n  start: wakes the device instance's process; presence reads ONLINE\\n  settings: renders the settings view; 'No settings' when the device declares none\\n(cold — the 2d6c-fixture is not running; add hot for the device's own list)\"; help's data differs from list's: None vs {'panes': [], 'semantics': {'get': 'returns one view as one line of JSON: device, view, cached, timestamp, data', 'list': 'enumerates the verbs, views and panes — cold from the declared contract, hot from the device', 'settings': \"renders the settings view; 'No settings' when the device declares no\n  FAIL  clause_3_list_carries_the_bin_shortcuts\n        data['shortcuts'] is None, want [{'name': 'frob', 'about': \"frob — turns the fixture's crank\"}, {'name': 'zap', 'about': 'zap the fixture, twice'}]; the text carries no 'shortcuts:' section\n  FAIL  clause_4_cold_list_needs_no_shim_and_no_bus\n        shim.py has no module-level cold_list\n  FAIL  clause_5_the_vocabulary_proof_passes_over_seven\n        test_root_verb_vocabulary's _RULED does not name help — it still pins six\nRED: 5 failing: ['clause_1_help_is_in_the_semantics', 'clause_2_help_answers_as_list', 'clause_3_list_carries_the_bin_shortcuts', 'clause_4_cold_list_needs_no_shim_and_no_bus', 'clause_5_the_vocabulary_proof_passes_over_seven']",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "clause_1_help_is_in_the_semantics",
+        "clause_2_help_answers_as_list",
+        "clause_3_list_carries_the_bin_shortcuts",
+        "clause_4_cold_list_needs_no_shim_and_no_bus",
+        "clause_5_the_vocabulary_proof_passes_over_seven",
+        "5 failing: ['clause_1_help_is_in_the_semantics', 'clause_2_help_answers_as_list', 'clause_3_list_carries_the_bin_shortcuts', 'clause_4_cold_list_needs_no_shim_and_no_bus', 'clause_5_the_vocabulary_proof_passes_over_seven']"
+      ],
+      "test": "test-4642119be3db",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "761afb344b2cbf38edfa59c16a0a132d77a8fb35a09e63c66e8d7a0fd2cd1383",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "pid": 506901,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-506872-8nnz1k5k/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4642119be3db",
+      "source_fingerprint": "c7c287b58dd58d0413c648f845736da517f0ba38d19850583e8254b585682e06",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_help_answers_as_list_with_shortcuts.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-506618-65l6q3gk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119024547,
+          "disk_bytes": 152543232,
+          "entries": 13102,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

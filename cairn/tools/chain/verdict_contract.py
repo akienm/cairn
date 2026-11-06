@@ -77,6 +77,8 @@ def falsifier_criteria(ticket_id: str, root: str = CAIRN_ROOT) -> tuple[list, st
         return [], ("ticket %r cannot be read (%s: %s) — an unreadable obligation "
                     "refuses, it does not vanish" % (ticket_id, type(e).__name__, e))
     raw = ticket.get("falsifier")
+    if isinstance(raw, dict) and "clauses" in raw:
+        return _clause_criteria(ticket_id, raw["clauses"])
     text = raw.get("proves_red", "") if isinstance(raw, dict) else raw
     if not isinstance(text, str) or not text.strip():
         return [], ("ticket %r carries no falsifier — there is nothing for a "
@@ -102,6 +104,31 @@ def falsifier_criteria(ticket_id: str, root: str = CAIRN_ROOT) -> tuple[list, st
                         % (ticket_id, i + 1))
         criteria.append({"claim": clause,
                          "source": "%s%s clause (%d)" % (FALSIFIER_REF, ticket_id, i + 1)})
+    return criteria, None
+
+
+def _clause_criteria(ticket_id: str, clauses) -> tuple[list, str | None]:
+    """The clause-list plan shape (ticket e6cac10b0297, parent e4f02a1ceef5): the falsifier
+    already IS the segmentation, so each {n, claim} is one criterion, read as data. The
+    refusals keep the standing reader's wording, because the lacks are the same lacks."""
+    if not isinstance(clauses, list) or not clauses:
+        return [], ("ticket %r carries no falsifier clauses — there is nothing for a "
+                    "falsifier-sourced verdict to answer, and an empty obligation "
+                    "would pass everything" % (ticket_id,))
+    numbers = [c.get("n") if isinstance(c, dict) else None for c in clauses]
+    if numbers != list(range(1, len(clauses) + 1)):
+        return [], ("ticket %r's falsifier numbers its clauses %s, not 1..%d — a "
+                    "falsifier this reader cannot segment refuses rather than "
+                    "silently mis-segmenting" % (ticket_id, numbers, len(clauses)))
+    criteria = []
+    for c in clauses:
+        claim = c.get("claim")
+        if not isinstance(claim, str) or not claim.strip():
+            return [], ("ticket %r's falsifier clause (%d) is empty — a RED "
+                        "condition that says nothing cannot be answered"
+                        % (ticket_id, c["n"]))
+        criteria.append({"claim": claim.strip(),
+                         "source": "%s%s clause (%d)" % (FALSIFIER_REF, ticket_id, c["n"])})
     return criteria, None
 
 

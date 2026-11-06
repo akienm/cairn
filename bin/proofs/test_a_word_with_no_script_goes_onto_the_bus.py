@@ -44,6 +44,7 @@ FAILURES: list[str] = []
 
 
 def _check(name: str, ok: bool, detail: str = "") -> None:
+    # the label is the tooth's PROVES name: the hollow reading reads green teeth by it
     print(f"  {'PASS' if ok else 'FAIL'}  {name}", flush=True)
     if not ok:
         if detail:
@@ -76,7 +77,7 @@ def _cairn(root: Path, mouth: Path, *args: str) -> subprocess.CompletedProcess:
 
 def clause_1_a_word_naming_a_script_runs_it(root: Path, mouth: Path, log: Path) -> None:
     r = _cairn(root, mouth, DEV, "Hello", "a b", "c")
-    _check("1: `cairn <dev> hello` runs bin/hello with the rest verbatim",
+    _check("clause_1_a_word_naming_a_script_runs_it",
            r.returncode == 0 and r.stdout == "hello:a b c\n" and not log.exists(),
            f"rc={r.returncode} out={r.stdout!r} err={r.stderr[-400:]!r} mouth_called={log.exists()}")
 
@@ -84,7 +85,7 @@ def clause_1_a_word_naming_a_script_runs_it(root: Path, mouth: Path, log: Path) 
 def clause_2_a_flag_reaches_the_self_named_launcher(root: Path, mouth: Path, log: Path) -> None:
     bare = _cairn(root, mouth, DEV)
     flag = _cairn(root, mouth, DEV, "--flag", "x")
-    _check("2: no word and a '-' word both reach the self-named launcher",
+    _check("clause_2_a_flag_reaches_the_self_named_launcher",
            bare.stdout == "self:\n" and flag.stdout == "self:--flag x\n" and flag.returncode == 0
            and not log.exists(),
            f"bare={bare.stdout!r} flag={flag.stdout!r} rc={flag.returncode} err={flag.stderr[-400:]!r} "
@@ -94,7 +95,7 @@ def clause_2_a_flag_reaches_the_self_named_launcher(root: Path, mouth: Path, log
 def clause_3_any_other_word_goes_to_the_bus_mouth(root: Path, mouth: Path, log: Path) -> None:
     r = _cairn(root, mouth, DEV, "zork", "Two Words")
     argv = log.read_text().splitlines() if log.exists() else None
-    _check("3: `cairn <dev> zork` execs the bus mouth with [dev, words...] and returns its code",
+    _check("clause_3_any_other_word_goes_to_the_bus_mouth",
            argv == [DEV, "zork", "Two Words"] and r.returncode == 7 and "self:" not in r.stdout
            and r.stdout == "mouth answered\n",
            f"argv={argv!r} rc={r.returncode} out={r.stdout!r} err={r.stderr[-400:]!r}")
@@ -104,7 +105,7 @@ def clause_4_the_operator_inbox_comes_through_its_device() -> None:
     legacy = REPO / "bin" / "cmd" / "operator"
     r = subprocess.run([str(CAIRN), "operator", "show", "inbox"], capture_output=True, text=True,
                        timeout=300)
-    _check("4: bin/cmd/operator is absent and `cairn operator show inbox` prints the inbox",
+    _check("clause_4_the_operator_inbox_comes_through_its_device",
            not legacy.exists() and r.returncode == 0 and "OPERATOR INBOX" in r.stdout,
            f"legacy_exists={legacy.exists()} rc={r.returncode} out={r.stdout[:200]!r} "
            f"err={r.stderr[-400:]!r}")

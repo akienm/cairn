@@ -2,7 +2,7 @@
   {
     "claim": "proof test_trouble_never_rides_the_bus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T05:46:11",
+    "date": "2026-11-06T05:49:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -23,7 +23,7 @@
         "test_trouble_never_rides_the_bus"
       ],
       "teeth_red": [],
-      "test": "test-4ca9d671890a",
+      "test": "test-cf464142a84a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,12 +45,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4ca9d671890a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cf464142a84a",
       "source_fingerprint": "cdb4f3379b7c6b5095105b7d90a1614ec4fd1f0cdbc5c5acc1510389e934d858",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
@@ -78,20 +79,19 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-571945-3bmruquy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-cf464142a84a/stderr.txt",
+            "logs/tester/0/runs/test-cf464142a84a/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 119192962,
-          "disk_bytes": 153018368,
-          "entries": 13199,
-          "builds": 1,
-          "reuses": 10
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {

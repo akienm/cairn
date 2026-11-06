@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_text_detail_still_lands.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T05:45:07",
+    "date": "2026-11-06T05:48:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "the_watermark_moves_past_it"
       ],
       "teeth_red": [],
-      "test": "test-0a7b6eda9423",
+      "test": "test-65f502673b60",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,12 +36,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0a7b6eda9423",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65f502673b60",
       "source_fingerprint": "cfcffab122975b9a139da86361534557e8a5b96b83c4a258381e82447963805d",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
@@ -60,24 +61,22 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-571945-w398zbe1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 5,
           "paths": [
             "devices/trouble/0/last_known.json",
-            "logs/trouble/0/20261106.124504.663901.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261106.124504.665191.TroubleDevice.raise_trouble.json"
+            "logs/tester/0/runs/test-65f502673b60/stderr.txt",
+            "logs/tester/0/runs/test-65f502673b60/stdout.txt",
+            "logs/trouble/0/20261106.124821.617072.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261106.124821.618229.TroubleDevice.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 119192708,
-          "disk_bytes": 153026560,
-          "entries": 13203,
-          "builds": 1,
-          "reuses": 3
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       }
     },

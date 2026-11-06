@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# cairn trouble clear — the recipient says it was fixed: <id> --what-changed <what> [--by <who>]
+#
+# Moved verbatim from the launcher's case arm (ticket 285a8f3f7599): a word with a script in
+# the device's bin runs it, else the line goes onto the bus (Q#27, outline 8.4). It is trouble's
+# OWN code, so it reads the store as files through tools/store/ and never asks trouble over the
+# bus (ticket ee04bb869795).
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+
+args = sys.argv[1:]
+identity = args[0] if args and not args[0].startswith('--') else ''
+
+def opt(name):
+    return args[args.index(name) + 1] if name in args and args.index(name) + 1 < len(args) else ''
+
+by = opt('--by') or 'cc'
+what_changed = opt('--what-changed')
+if not identity or not what_changed:
+    print('usage: cairn trouble clear <identity> [--by <who>] --what-changed <what>',
+          file=sys.stderr)
+    # WHAT-CHANGED IS NOT OPTIONAL, here or at the door. A clear with no change behind it is
+    # the silent failure this lane exists to remove; refusing it at the CLI costs the
+    # operator one retry instead of costing the record its meaning.
+    sys.exit(1)
+
+# THE CLEAR IS AN EMISSION FOLDED IN THIS PROCESS (ticket ee04bb869795). clear_trouble measures
+# the hand here, in the clearer's own process (c2172127d7a4, 63e6eb836769), and the emission
+# lands in logs/cli/0 — a home the drain reads (it skips only trouble's own). The drain is the
+# owner's code deciding the clear, so declining stays the owner's judgment (Law 6).
+import time
+from cairn.devices.trouble.shim import TroubleShim
+from cairn.devices.trouble.tools.store import store
+from cairn.tools.base.diagnostic import ModuleRaiser
+shim = TroubleShim()
+ModuleRaiser('cli').clear_trouble(identity, by=by, what_changed=what_changed)
+def mine(rows):
+    return [f for f in rows or [] if str(f.get('emission', '')).startswith('cli/')
+            and str(f.get('emission', '')).endswith('.clear_trouble.json')]
+outcome = None
+for _ in range(50):
+    report = shim.drain()
+    wanted = shim._device.identity_of(identity)
+    hits = [f for f in mine(report.get('folded')) if f.get('id') == wanted] + mine(report.get('refused'))
+    if hits:
+        outcome = hits[-1]
+        break
+    if report.get('outcome') != 'reentrant':
+        break
+    time.sleep(0.1)  # another process holds the fold lock and is folding; ask again
+if outcome is None:
+    print(f'{identity}: not folded here — the emission stands in logs/cli/0 for the next drain',
+          file=sys.stderr)
+    sys.exit(1)
+if 'error' in outcome or outcome.get('outcome') == 'declined':
+    print(f\"{identity}: {outcome.get('outcome') or 'refused'} — {outcome.get('why') or outcome.get('error', '')}\",
+          file=sys.stderr)
+    sys.exit(1)
+root = store.store_root()
+path = root / f'{wanted}.json'
+if not path.is_file():
+    path = root / store.CLEARED_DIR / f'{wanted}.json'
+body = json.loads(path.read_text(encoding='utf-8'))
+if '--json' in args:
+    print(json.dumps(body, indent=2))
+else:
+    print(f\"{identity}: cleared by {by} — now {body.get('standing', '?')}\")
+    done = {c.get('by') for c in body.get('cleared_by') or [] if isinstance(c, dict)}
+    still = [r for r in body.get('notified') or [] if r not in done]
+    if still and body.get('standing') != 'CLEARED':
+        print(f\"still awaiting clear from: {', '.join(still)}\")
+" "$@"

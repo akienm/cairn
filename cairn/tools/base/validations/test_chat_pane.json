@@ -1,26 +1,24 @@
 [
   {
     "claim": "proof test_chat_pane.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-06T04:32:09",
+    "caller": "cairn test",
+    "date": "2026-11-06T04:35:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "self = <cairn.tools.base.proofs.test_chat_pane.TestChatPaneIsFloor object at 0x7652b4eb02d0>\n\n    def test_chat_pane_shows_personal_messages(self):\n        bus = bus_client.reach()\n        shim = _Shim(bus=bus)\n        alice, bob = _name(\"alice\"), _name(\"bob\")\n        bus.post(sender=alice, to=shim.device_id, channel=\"personal\",\n                 why=\"test message\", body=_body(\"hello\"))\n        bus.post(sender=bob, to=shim.device_id, channel=\"personal\",\n                 why=\"another test\", body=_body(\"world\"))\n        page = shim.active_page()\n        chat = [p for p in page[\"panes\"] if p[\"kind\"] == \"personal_feed\"][0]\n>       assert chat[\"data\"] is not None, \"with bus the chat pane has data\"\nE       AssertionError: with bus the chat pane has data\nE       assert None is not None\n\ntest_chat_pane.py:94: AssertionError\n=========================== short test summary info ============================\nFAILED test_chat_pane.py::TestChatPaneIsFloor::test_chat_pane_shows_personal_messages\n1 failed, 5 passed in 1.20s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_chat_pane_in_floor_without_bus\n.\n  ok   test_chat_pane_shows_personal_messages\n.\n  ok   test_chat_pane_only_reads_the_bus\n.\n  ok   test_chat_pane_is_not_in_declared_panes\n.\n  ok   test_empty_personal_channel_renders_empty_turns\n.\n  ok   test_roster_minimum\n                                                                   [100%]\n6 passed in 0.66s",
       "stderr_tail": "",
       "teeth_green": [
         "test_chat_pane_in_floor_without_bus",
+        "test_chat_pane_shows_personal_messages",
         "test_chat_pane_only_reads_the_bus",
         "test_chat_pane_is_not_in_declared_panes",
         "test_empty_personal_channel_renders_empty_turns",
         "test_roster_minimum"
       ],
-      "teeth_red": [
-        "test_chat_pane_shows_personal_messages",
-        "test_chat_pane"
-      ],
-      "test": "test-b5efe38e14e5",
+      "teeth_red": [],
+      "test": "test-3aff581b5b2f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,18 +39,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 509873,
+          "pid": 512590,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b5efe38e14e5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3aff581b5b2f",
       "source_fingerprint": "f819f349e9fb21a62573d9a2245eb4a6e1a7b3731604d52cddf8546c23dc5250",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -82,46 +81,54 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-509125-zxsvjaso/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-512549-ufvvtn70/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
+          "count": 14,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cairn/machines/bus/0/stops.jsonl",
             "logs/bus.log",
-            "logs/bus/0/20261106.113206.857633.BusDevice.post.json",
-            "logs/bus/0/20261106.113206.867217.BusDevice.post.json",
-            "logs/bus/0/20261106.113206.869912.BusDevice.test_bounce_disposed.json",
-            "logs/bus/0/20261106.113206.870122.BusDevice.delivered.json",
-            "logs/bus/0/20261106.113206.870292.BusDevice.delivered.json",
-            "logs/bus/0/20261106.113206.888262.BusDevice.post.json",
-            "logs/bus/0/20261106.113206.891183.BusDevice.post.json",
-            "logs/bus/0/20261106.113206.893891.BusDevice.test_bounce_disposed.json",
-            "logs/bus/0/20261106.113206.894097.BusDevice.delivered.json",
-            "logs/bus/0/20261106.113206.894277.BusDevice.delivered.json",
-            "logs/bus/0/20261106.113207.368529.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261106.113207.394977.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261106.113523.636880.BusDevice.post.json",
+            "logs/bus/0/20261106.113523.637992.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261106.113523.644634.BusDevice.post.json",
+            "logs/bus/0/20261106.113523.647593.BusDevice.test_bounce_disposed.json",
+            "logs/bus/0/20261106.113523.647828.BusDevice.delivered.json",
+            "logs/bus/0/20261106.113523.648186.BusDevice.delivered.json",
+            "logs/bus/0/20261106.113523.662702.BusDevice.post.json",
+            "logs/bus/0/20261106.113523.664694.BusDevice.post.json",
+            "logs/bus/0/20261106.113523.666510.BusDevice.test_bounce_disposed.json",
+            "logs/bus/0/20261106.113523.666659.BusDevice.delivered.json",
+            "logs/bus/0/20261106.113523.666777.BusDevice.delivered.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119040867,
-          "disk_bytes": 152633344,
-          "entries": 13126,
+          "bytes": 119044055,
+          "disk_bytes": 152637440,
+          "entries": 13127,
           "builds": 1,
-          "reuses": 8
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "0d2c66a1d6e089e2761896d2173f29577d7454f36e0642e954b83939ee16422c",
         "opened": "2026-11-06T04:32:09",
         "last_red": "2026-11-06T04:32:09",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-chat-pane",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-06T04:35:26",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "0d2c66a1d6e089e2761896d2173f29577d7454f36e0642e954b83939ee16422c"
+      },
+      "conditions_moved": {
+        "notified": "n-6e7ac3bc4df7",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

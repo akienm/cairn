@@ -156,13 +156,12 @@ def clause_3_a_device_with_no_shim_is_refused_by_name(empty: Path) -> None:
 
 
 def clause_4_an_unreachable_bus_exits_1_with_the_cause() -> None:
-    import socket
-    with socket.socket() as s:  # a port nothing listens on: bound, then released
-        s.bind(("127.0.0.1", 0))
-        port = s.getsockname()[1]
-    r = _mouth(f"127.0.0.1:{port}", FIXTURE, "ping", timeout=180)
+    # tcpmux's port: a privileged port no bus is ever given. No socket is opened here — the
+    # sole-path sieve holds the network doors to remote.py and tls.py (build_inspector).
+    far = "127.0.0.1:1"
+    r = _mouth(far, FIXTURE, "ping", timeout=180)
     _check("clause_4_an_unreachable_bus_exits_1_with_the_cause",
-           r.returncode == 1 and str(port) in r.stderr and not r.stdout.strip()
+           r.returncode == 1 and far in r.stderr and not r.stdout.strip()
            and "Traceback" not in r.stderr,
            f"rc={r.returncode} stdout={r.stdout[-300:]!r} stderr={r.stderr[-700:]!r}")
 

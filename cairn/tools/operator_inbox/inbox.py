@@ -1189,8 +1189,17 @@ def _format_ticket(doc: dict, path: Path) -> str:
     if falsifier:
         lines.append("FALSIFIER:")
         if isinstance(falsifier, dict):
+            clauses = falsifier.get("clauses")
+            if isinstance(clauses, list):
+                # The plan-as-JSON shape (ticket 4b05529f5f49, parent e4f02a1ceef5): one
+                # wrapped '(n) claim' line per clause, never the list's Python repr.
+                for c in clauses:
+                    if isinstance(c, dict):
+                        lines.append(_wrap(f"({c.get('n', '?')}) {c.get('claim', '')}", "  ", width))
+                    else:
+                        lines.append(_wrap(f"MALFORMED clause: {c!r}", "  ", width))
             for k, v in falsifier.items():
-                if v:
+                if v and not (k == "clauses" and isinstance(clauses, list)):
                     lines.append(f"  {k}: {v}")
         else:
             lines.append(_wrap(str(falsifier), "  ", width))

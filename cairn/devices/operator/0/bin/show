@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# cairn operator show — read what stands for the operator: inbox, or artifact <id> (ticket fd597e74056f).
+# Hands its words to operator_inbox's one verb, show, unchanged.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+cd "$REPO_ROOT"
+exec python3 -m cairn.tools.operator_inbox.inbox show "$@"

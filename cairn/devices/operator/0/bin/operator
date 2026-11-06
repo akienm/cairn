@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# cairn operator — the operator's inbox: what stands for him to read and answer (ticket fd597e74056f).
+# The operator is Akien; this device is his seat. No words prints the inbox; any words are an
+# operator_inbox line (`show inbox`, `show artifact <id>`), handed to its public interface.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+cd "$REPO_ROOT"
+if [ $# -eq 0 ]; then
+  exec python3 -m cairn.tools.operator_inbox.inbox show inbox
+fi
+exec python3 -m cairn.tools.operator_inbox.inbox "$@"

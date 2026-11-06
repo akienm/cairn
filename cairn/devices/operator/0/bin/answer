@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# cairn operator answer — answer an open question in his words: <id> "<words>" --spawned <none|q?> (ticket fd597e74056f).
+# Answering is the operator acting (outline 8.4.4, Q#27). The question door records the words
+# verbatim and stays the one writer of an answer (Law 6); this hands it the line unchanged.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+cd "$REPO_ROOT"
+exec python3 -m cairn.tools.question answer "$@"

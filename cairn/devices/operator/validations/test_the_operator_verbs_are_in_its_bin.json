@@ -1,0 +1,100 @@
+[
+  {
+    "claim": "proof test_the_operator_verbs_are_in_its_bin.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-06T06:27:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "fd597e74056f — the operator is a device whose bin carries the operator's verbs\n  PASS  clause_1_the_charter_stands_and_the_instance_bin_resolves\n  PASS  clause_2_show_inbox_runs_through_the_device_bin\n  PASS  clause_3_answer_records_the_words_as_the_question_door_does\n  PASS  clause_4_no_script_reaches_past_the_two_interfaces\n        {\"operator\": [\"cairn.tools.operator_inbox.inbox\"], \"show\": [\"cairn.tools.operator_inbox.inbox\"], \"answer\": [\"cairn.tools.question\"]}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "clause_1_the_charter_stands_and_the_instance_bin_resolves",
+        "clause_2_show_inbox_runs_through_the_device_bin",
+        "clause_3_answer_records_the_words_as_the_question_door_does",
+        "clause_4_no_script_reaches_past_the_two_interfaces"
+      ],
+      "teeth_red": [],
+      "test": "test-65727b9b1c4d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f3fb268f2e20647f023cc31118081cad0678c8a4506cf122cbd63f8ae42ab3cb",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "pid": 594016,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65727b9b1c4d",
+      "source_fingerprint": "3e97691781b793fbc0cdebdf34e644913ba9dcbf7c96644b4536454d4ed36c67",
+      "fingerprint_closure": [
+        "cairn/devices/operator/proofs/test_the_operator_verbs_are_in_its_bin.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-593969-23jkf2jk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 17,
+          "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cairn/machines/bus/0/stops.jsonl",
+            "devices/tester/0/last_known.json",
+            "devices/trouble/0/drained.json",
+            "logs/bus.log",
+            "logs/bus/0/20261106.132752.500553.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261106.132752.852609.BusDevice.post.json",
+            "logs/bus/0/20261106.132752.863681.BusDevice.post.json",
+            "logs/bus/0/20261106.132752.981033.BusDevice.post.json",
+            "logs/bus/0/20261106.132752.982257.BusDevice.delivered.json",
+            "logs/bus/0/20261106.132752.986127.BusDevice.delivered.json",
+            "logs/bus/0/20261106.132754.052728.BusDevice.post.json",
+            "logs/bus/0/20261106.132754.181926.BusDevice.post.json",
+            "logs/bus/0/20261106.132754.182970.BusDevice.delivered.json",
+            "logs/bus/0/20261106.132754.184064.BusDevice.delivered.json",
+            "logs/tester/0/20261106.132752.984564.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261106.132752.985520.TesterShim.clear_trouble.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 119276165,
+          "disk_bytes": 153239552,
+          "entries": 13258,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

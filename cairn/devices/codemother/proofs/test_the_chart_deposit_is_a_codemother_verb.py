@@ -122,7 +122,7 @@ def a_real_deposit_rides_the_bus():
     berth = str(scratch_dir("testing-e8fe361a5b2f-berth-") / Path(packets[-1]).name)
     Path(berth).write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
     bus = reach("codemother", "inference_domain")
-    with scratch_nexus("testing_e8fe") as nexus:
+    with scratch_nexus("testing_e8fe", owner="codemother") as nexus:
         reply = bus.request(sender=SENDER, to="codemother", verb="deposit",
                             why="testing: e8fe361a5b2f proof deposits into a scratch nexus",
                             body={"berth": berth, "nexus": nexus})

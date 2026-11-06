@@ -2,7 +2,7 @@
   {
     "claim": "proof test_chart_orient.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T23:29:28",
+    "date": "2026-11-06T00:32:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -39,7 +39,7 @@
         "26 teeth"
       ],
       "teeth_red": [],
-      "test": "test-7097985d2ee9",
+      "test": "test-961d060bc80a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -65,16 +65,31 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7097985d2ee9",
-      "source_fingerprint": "bbfb9147bc92637178b3cbba91ffad277cb315609785a6513630b182c8b303a4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-961d060bc80a",
+      "source_fingerprint": "2057fd501376b6a94a977e610abc4567de803111d75febb24e42036902544030",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/orient/__init__.py",
         "cairn/devices/codemother/machines/orient/orient.py",
         "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py"
       ],
+      "reached": {
+        "cairn/devices/codemother": "a914d9e0cf7213461994f877b7d60674798ddd971b58e43abed763159e0de270",
+        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
+        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
+        "cairn/devices/librarian": "45a4338d30bae41ab041f6aab8d2e05dec83d0c202ba4f731d008accf85a12ef",
+        "cairn/devices/librarian/tools/trees": "b23c78e80dc4bf219388914a87122d193eeb1f1dc5023cda5337cbe5adee7033",
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
+        "cairn/tools/tree": "b7f6644637cda1e88fd7db0cbbe17ec93d3350799119071b3f0789fee2189364"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2100903-jrt_krtb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-397577-prozqe_r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,14 +98,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113674720,
-          "disk_bytes": 143319040,
-          "entries": 11733,
+          "bytes": 118437491,
+          "disk_bytes": 151670784,
+          "entries": 13007,
           "builds": 1,
-          "reuses": 9
+          "reuses": 5
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

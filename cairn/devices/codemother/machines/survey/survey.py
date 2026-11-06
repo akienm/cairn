@@ -50,6 +50,9 @@ from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
+
+# codemother owns her learning (Akien 2026-11-05; ticket 2b3d842bc118): her leaves are codemother_<nexus>_nodes
+OWNER = "codemother"
 from cairn.tools.orient.orient import device_census
 
 AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["survey"]
@@ -369,4 +372,4 @@ def deposit_survey(packet: dict, vector, *, berth_path: str, root: str = CAIRN_R
         "constrain_ref": packet["constrain_ref"],
         "confidence": packet["confidence"],
     }
-    return deposit_learning("survey", content, vector, provenance, conn=conn)
+    return deposit_learning("survey", content, vector, provenance, owner=OWNER, conn=conn)

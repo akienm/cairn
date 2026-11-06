@@ -33,6 +33,9 @@ _ACTIVATIONS_DIR = _WATCH_LOG / "activations"
 
 _BUS = None
 
+# The tree the watcher walks: codemother_<WATCH_NEXUS>_nodes, her orient learning.
+WATCH_NEXUS = "orient"
+
 
 def _bus():
     global _BUS
@@ -77,13 +80,12 @@ def activate(area: str, reason: str, *, context: dict | None = None) -> dict:
     escalated = False
 
     try:
-        hits = tree_counsel(
-            vector=vector,
-            query_text=area,
-            owner="codemother",
-            k=5,
-        )
-        tree_hits = len(hits) if hits else 0
+        # counsel takes no query text and answers a dict (ticket 2b3d842bc118, measured
+        # 2026-11-06: the old query_text= call was a TypeError this except swallowed, so
+        # tree_hits was always 0 and every activation escalated to hex).
+        got = tree_counsel(vector, nexus=WATCH_NEXUS, owner="codemother", k=5)
+        hits = got["above_floor"]
+        tree_hits = len(hits)
         if hits:
             findings.extend(_extract_findings(hits, source="tree"))
     except Exception:

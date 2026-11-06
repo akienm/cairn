@@ -64,7 +64,7 @@ _HELD: list[str] = []
 def _nexus() -> str:
     """This run's own nexus, minted on first use through tree.scratch_nexus()."""
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(scratch_nexus("hypothesize")))
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("hypothesize", owner="codemother")))
     return _HELD[0]
 
 
@@ -283,19 +283,19 @@ def test_deposit_back_is_gated(root, decompose_berth, triage_berth):
         and "[by python3 proofs/test_splitter.py, run twice]" in content, \
         "the node content is the ONE rendering: upstream intent + the claims, instruments visible"
     # A berth that does not exist refuses, tree untouched.
-    table = nexus_table(_nexus())
-    before = trees.tree_state(_nexus(), table=table, owner="chart")
+    table = nexus_table(_nexus(), owner="codemother")
+    before = trees.tree_state(_nexus(), table=table, owner="codemother")
     expect_refusal(lambda: deposit_hypothesize(packet, [1.0, 0.0, 0.0],
                                                berth_path=berth + ".gone",
                                                root=root),
                    "does not exist")
-    assert trees.tree_state(_nexus(), table=table, owner="chart") == before
+    assert trees.tree_state(_nexus(), table=table, owner="codemother") == before
     # The real deposit lands in the hypothesize corpus with the berth as provenance.
     unique = content + f" [{_nexus()}]"
     r = trees.deposit(unique, [1.0, 0.0, 0.0],
                       {"source": berth, "triage_ref": packet["triage_ref"],
                        "confidence": packet["confidence"]},
-                      tree=_nexus(), table=table, owner="chart")
+                      tree=_nexus(), table=table, owner="codemother")
     rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert rows and rows[0]["content"] == unique
     assert rows[0]["provenance"]["source"] == berth

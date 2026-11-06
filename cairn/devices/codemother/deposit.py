@@ -29,6 +29,9 @@ from cairn.tools.chain.grammar import CAIRN_ROOT
 from cairn.tools.chain.verdict_contract import mark_failed
 from cairn.tools.tree.tree import deposit_learning
 
+# codemother owns her learning (Akien 2026-11-05; ticket 2b3d842bc118): her leaves are codemother_<nexus>_nodes
+OWNER = "codemother"
+
 EMBED_MODEL = "nomic-embed-text"
 _SENDER = "codemother"
 
@@ -136,7 +139,7 @@ def deposit_verdict(artifact: dict, embed, *, berth_path: str,
         # are honest; only the metered one can say what the ceiling really is.
         vector = got["vector"] if isinstance(got, dict) else got
         tokens = got.get("tokens") if isinstance(got, dict) else None
-        node = deposit_learning(nexus, content, vector, provenance, conn=conn)
+        node = deposit_learning(nexus, content, vector, provenance, owner=OWNER, conn=conn)
         landed.append({"part": kind, "part_index": i, "node_id": node["node_id"],
                        "duplicate": node.get("duplicate"), "tokens": tokens,
                        "chars": len(content)})

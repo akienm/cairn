@@ -48,7 +48,7 @@ def _nexus() -> str:
     """This run's own nexus, minted on first use through tree.scratch_nexus()."""
     if not _HELD:
         from cairn.tools.tree.tree import scratch_nexus
-        _HELD.append(_SCRATCH.enter_context(scratch_nexus("verdict")))
+        _HELD.append(_SCRATCH.enter_context(scratch_nexus("verdict", owner="codemother")))
     return _HELD[0]
 
 

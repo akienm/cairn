@@ -52,6 +52,9 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_
 from cairn.devices.codemother.machines.survey.survey import _read_constrain_berth
 from cairn.tools.tree.tree import deposit_learning
 
+# codemother owns her learning (Akien 2026-11-05; ticket 2b3d842bc118): her leaves are codemother_<nexus>_nodes
+OWNER = "codemother"
+
 AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["decompose"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
@@ -320,4 +323,4 @@ def deposit_decompose(packet: dict, vector, *, berth_path: str,
         "survey_ref": packet["survey_ref"],
         "confidence": packet["confidence"],
     }
-    return deposit_learning("decompose", content, vector, provenance, conn=conn)
+    return deposit_learning("decompose", content, vector, provenance, owner=OWNER, conn=conn)

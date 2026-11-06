@@ -49,6 +49,9 @@ from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_roster, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)
 from cairn.tools.tree.tree import deposit_learning
 
+# codemother owns her learning (Akien 2026-11-05; ticket 2b3d842bc118): her leaves are codemother_<nexus>_nodes
+OWNER = "codemother"
+
 AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["constrain"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
@@ -871,4 +874,4 @@ def deposit_constrain(packet: dict, vector, *, berth_path: str, root: str = CAIR
         "intent_ref": packet["intent_ref"],
         "confidence": packet["confidence"],
     }
-    return deposit_learning("constrain", content, vector, provenance, conn=conn)
+    return deposit_learning("constrain", content, vector, provenance, owner=OWNER, conn=conn)

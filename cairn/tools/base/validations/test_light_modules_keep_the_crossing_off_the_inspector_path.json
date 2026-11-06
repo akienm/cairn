@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_light_modules_keep_the_crossing_off_the_inspector_path.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T06:41:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T22:33:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "test_ticket_file_holds_the_one_patch_point"
       ],
       "teeth_red": [],
-      "test": "test-5dfd3b505044",
+      "test": "test-fbd86c923dee",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5dfd3b505044",
-      "source_fingerprint": "bed5b0922cc346e9eb3a1856d3023db878c03c83f79d3c34419c98683b12bb17",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fbd86c923dee",
+      "source_fingerprint": "90598ac5fdbba541109650553a42a2cbbc4ac293be60101abf34b14e39421217",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -65,7 +64,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-89765-l3xj7swy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-298327-7skq7b63/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,32 +73,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 117007919,
-          "disk_bytes": 148992000,
-          "entries": 12568,
+          "bytes": 118204769,
+          "disk_bytes": 151113728,
+          "entries": 12901,
           "builds": 1,
-          "reuses": 0
+          "reuses": 22
         }
-      },
-      "reseal_ruling": "d81baa1b5cb8",
-      "reseal_closed": {
-        "proof_sha256": "4ad411d74412981c1dcea9ee88155a792ed90ba7e6d5c9ec5d67541a0e25da80",
-        "opened": "2026-11-05T06:37:06",
-        "last_red": "2026-11-05T06:37:06",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-light-modules-keep-the-crossing-off-the-inspector-path",
-        "ruling": null,
-        "closed_at": "2026-11-05T06:41:55",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "66b2709bd7323a79f4217c18e3efae877b5dcfdb61716a457aa3c9bb91b9b573"
-      },
-      "conditions_moved": {
-        "notified": "n-60bdc49bc3f1",
-        "changed": [
-          "env",
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

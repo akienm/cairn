@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_cast_refuses_decisions_a_rehearsal_cannot_read.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-05T06:37:32",
+    "date": "2026-11-05T22:33:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_string_decision_is_refused\n        lacks=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: 'D1: a string'\"] landed=[]\n  PASS  an_n_less_or_blank_decision_is_refused\n        n-less=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'text': 'no n'}\"] [] blank=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'n': 1, 'text': '  '}\"] []\n  PASS  a_repeated_n_is_refused\n        lacks=['decisions carries D1 twice'] landed=[]\n  PASS  well_formed_decisions_still_cast\n        [{\"n\": 1, \"text\": \"D1: a\", \"by\": \"cc\", \"source\": \"cast\"}]\n\nGREEN",
+      "stdout_tail": "  PASS  a_string_decision_is_refused\n        lacks=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: 'D1: a string'\"] landed=[]\n  PASS  an_n_less_or_blank_decision_is_refused\n        n-less=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'text': 'no n'}\", 'decisions[0] lacks writes_to', 'decisions[0] lacks reads'] [] blank=[\"decisions[0] is not a line {n: int >= 1, text: non-blank}: {'n': 1, 'text': '  '}\", 'decisions[0] lacks writes_to', 'decisions[0] lacks reads'] []\n  PASS  a_repeated_n_is_refused\n        lacks=['decisions carries D1 twice', 'decisions[0] lacks writes_to', 'decisions[0] lacks reads', 'decisions[1] lacks writes_to', 'decisions[1] lacks reads'] landed=[]\n  PASS  well_formed_decisions_still_cast\n        [{\"n\": 1, \"text\": \"D1: a\", \"by\": \"cc\", \"source\": \"cast\", \"writes_to\": [], \"reads\": []}]\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_string_decision_is_refused",
@@ -16,7 +16,7 @@
         "well_formed_decisions_still_cast"
       ],
       "teeth_red": [],
-      "test": "test-c851b13538f4",
+      "test": "test-a5b1259b960a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "16306b05ef44a1868d73e831f45363c8962e7ed1964260599905cd7eec1e2fc6",
+        "proof": "3e714c491a0e199f1c2f1029b5fa93cf20142f6cbb5fcb26c422099439507836",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c851b13538f4",
-      "source_fingerprint": "8284cb67a107735179fcb50e6d1183b0adddfdccab843bb9aebd4b46da9364e3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a5b1259b960a",
+      "source_fingerprint": "4f799927b4ff8d26a6a36cc0cd3d877120796c98dfd25c18835a680c83a0eab6",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -65,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-77368-pozc82cv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-298327-_qb3049_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 117002550,
-          "disk_bytes": 148983808,
-          "entries": 12566,
+          "bytes": 118204769,
+          "disk_bytes": 151113728,
+          "entries": 12901,
           "builds": 1,
-          "reuses": 30
+          "reuses": 29
         }
       }
     },

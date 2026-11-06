@@ -101,7 +101,13 @@ def _state_keys() -> set:
 def test_the_charter_declares_three_disjoint_field_sets() -> None:
     charter, c = json.loads(LIVE_CHARTER.read_text(encoding="utf-8")), _census()
     got = {k: charter.get(f"{k}_fields") for k in ("plan", "state", "log")}
-    equal = all(got[k] == c[k] for k in got)
+    # A plan field added since the census is admitted only when the charter also SHAPES it in
+    # plan_shapes (ticket e4f02a1ceef5 added 'measured', 2026-11-05) — the door then enforces it,
+    # so it is a design change with physics behind it; any other drift from the census still reds.
+    shaped = set((charter.get("plan_shapes") or {}).keys())
+    plan = got["plan"] or []
+    equal = (plan[:len(c["plan"])] == c["plan"] and set(plan[len(c["plan"]):]) <= shaped
+             and got["state"] == c["state"] and got["log"] == c["log"])
     disjoint = equal and not (set(c["plan"]) & set(c["state"]) or set(c["plan"]) & set(c["log"])
                               or set(c["state"]) & set(c["log"]))
     check(TEETH[0], equal and disjoint,

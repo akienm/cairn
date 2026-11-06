@@ -168,7 +168,7 @@ def test_cast_ticket_refuses_a_field_outside_the_plan(T, t: Path, tmp: Path) -> 
         "workflow": CURSOR, "node_class": "code-seam"}}))
     doc = {"id": "0123456789ab", "title": "a cast", "date": "2026-10-10", "owner": "CC",
            "owning_intention": "x", "intention": "x", "why": "x", "traces_to": "x",
-           "how": "x", "falsifier": "x", "node_class": "code-seam",
+           "how": "x", "falsifier": {"clauses": [{"n": 1, "claim": "x"}]}, "bounds": {"in": ["cairn/tools/base/transitions.py"], "out": []}, "measured": [{"when": "2026-11-05", "saw": "a fixture", "how": "the e4f02a1ceef5 shapes"}], "node_class": "code-seam",
            "workflow_and_state": CURSOR, "watchme": "x", "sorted_berth": str(sorted_b),
            "intent_berth": str(sorted_b), "an_ad_hoc_trail_field": "trail"}
     named = False

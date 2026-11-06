@@ -82,7 +82,9 @@ def _fields(tmp: Path, tid: str = "abc123def456", **over) -> dict:
         "id": tid, "title": "Casting rides a door!!  Proof", "date": "2026-09-18",
         "owner": "codemother", "owning_intention": "skills/sorted/intention+why.json",
         "intention": "a ticket enters the store through one judge", "why": "proof",
-        "traces_to": "Law 4", "how": "cast_ticket", "falsifier": "DONE when the door refuses",
+        "traces_to": "Law 4", "how": "cast_ticket", "falsifier": {"clauses": [{"n": 1, "claim": "DONE when the door refuses"}]},
+        "bounds": {"in": ["cairn/tools/base/transitions.py"], "out": []},
+        "measured": [{"when": "2026-11-05", "saw": "a fixture", "how": "the e4f02a1ceef5 shapes"}],
         "node_class": "code-seam", "workflow_and_state": WORKFLOW,
         "watchme": "none, because cairn/tools/base/transitions.py",
         "sorted_berth": str(sorted_berth), "intent_berth": str(intent_berth),
@@ -241,7 +243,7 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     run = subprocess.run([*bash_script_argv(shim), str(empty), "--actor", "proof"], capture_output=True,
                          text=True, timeout=120, cwd=str(REPO))
     check("bin/cmd/cast refuses an empty cast on stderr with exit 1 and writes nothing",
-          run.returncode == 1 and "15 lacks" in run.stderr and "Nothing was written" in run.stderr
+          run.returncode == 1 and "17 lacks" in run.stderr and "Nothing was written" in run.stderr
           and sorted(p.name for p in tickets.iterdir()) == files_before,
           f"rc={run.returncode} {run.stderr.strip()[-200:]}")
 

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_base_reaches_no_device.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T06:43:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T22:32:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_class_tooth_reads_bases_by_ast"
       ],
       "teeth_red": [],
-      "test": "test-5e69df0a0c16",
+      "test": "test-1193362da287",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,14 +36,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5e69df0a0c16",
-      "source_fingerprint": "fa6c9fdb0ea4145e55a660180982b2f903fa1ef666b1f845d9f44476d34318fc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1193362da287",
+      "source_fingerprint": "c1d33168563f3e90cdb3b383c45727e7c95330e87306301de4d179c2df9eb30b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -66,7 +65,7 @@
       "reached": {
         "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
         "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
-        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
@@ -77,7 +76,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-90572-hw8bzk4u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-298327-koqy8p70/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -86,45 +85,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 117011450,
-          "disk_bytes": 149008384,
-          "entries": 12570,
+          "bytes": 118204769,
+          "disk_bytes": 151113728,
+          "entries": 12901,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "d81baa1b5cb8": {
-          "cairn/tools/base/workflow_grammar.py": [
-            "test_the_four_files_carry_no_breach"
-          ],
-          "cairn/tools/base/external.py": [
-            "test_the_four_files_carry_no_breach"
-          ],
-          "cairn/tools/base/proofs/test_deviceness.py": [
-            "test_the_four_files_carry_no_breach"
-          ],
-          "cairn/tools/base/proofs/test_device_logs_unwired.py": [
-            "test_the_four_files_carry_no_breach",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BaseDevice must carry the emit surface structurally",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice must subclass BaseDevice in cairn/devices/cairn/machines/bus/bus.py; bases ['BaseDevice']",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-05T13:45:02.334508+00:00', 'us': '334508', 'values': {}}]",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::HeartbeatPage must subclass BaseDevice in cairn/devices/cairn/machines/ground_loop/shim.py; bases ['BaseDevice']",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::an unwired device's trail directory must exist at /tmp/tmp4eqonnn3/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-05T13:45:02.334508+00:00', 'us': '334508', 'values': {}}",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-11-05T13:45:02.333743+00:00', 'us': '333743', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-11-05T13:45:02.333892+00:00', 'us': '333892', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-11-05T13:45:02.333980+00:00', 'us': '333980', 'values': {}}]",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the address itself must sit inside the moved world: /tmp/tmpgt5wf8f5/logs/bus/0",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-11-05T13:45:01.652157+00:00', 'us': '652157', 'values': {'pid': 'child'}}",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpwu3851aq/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "d81baa1b5cb8": {
-          "anchor_rule": "journal",
-          "anchor_journal": "0333e4f09f54e0d5603a1a4a42a4c95f74e2842b",
-          "anchor_first_build": "427527714401a192d4f7d8e63b33b600ff6e3ba2",
-          "commit": "0333e4f09f54e0d5603a1a4a42a4c95f74e2842b"
+          "reuses": 13
         }
       }
     },

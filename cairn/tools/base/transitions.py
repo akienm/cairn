@@ -2233,6 +2233,105 @@ def _sorted_builder_check(doc: dict) -> str:
     return check if isinstance(check, str) and check.strip() else ""
 
 
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _paths_ok(v) -> bool:
+    """A list of non-blank strings (an empty list is a claim: this line writes or reads nothing)."""
+    return isinstance(v, list) and all(isinstance(x, str) and x.strip() for x in v)
+
+
+def _resolves(p: str, roots: list[Path]) -> bool:
+    q = Path(p)
+    if q.is_absolute():
+        return q.exists()
+    return any((r / q).exists() for r in roots)
+
+
+def _shape_lacks(doc: dict, charter: Path) -> list[str]:
+    """THE PLAN IS JSON, NOT PROSE (ticket e4f02a1ceef5): every lack of the plan shapes the store
+    charter declares in ``plan_shapes``, and of the shaped fields it names in
+    ``cast_requires_shaped``. Read at call time from ``charter`` — never a second copy here — so a
+    charter with no ``plan_shapes`` yields []. Measured 2026-11-05: falsifier a dict on 248
+    tickets and a string on 384 (39 of the newest 40), writes_to on 17 of 635, bounds on 3 — the
+    structure was tried and decayed while this door checked only non-blank.
+
+    A ``reads`` path resolves against the cairn root, then the commons root, then the commons'
+    parent (paths are written as ``CairnCommons/...``)."""
+    try:
+        c = json.loads(Path(charter).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    shapes = c.get("plan_shapes") if isinstance(c, dict) else None
+    if not isinstance(shapes, dict):
+        return []
+    lacks: list[str] = []
+    for key in c.get("cast_requires_shaped") or []:
+        # a key the required set already names (falsifier) is not named twice; measured's own
+        # lack below says absent-or-empty in one line
+        if key in shapes and _blank(doc.get(key)) and key != "measured" and key not in _CAST_REQUIRED:
+            lacks.append(f"{key} is required")
+
+    if "falsifier" in shapes and not _blank(doc.get("falsifier")):  # blank: (a) names it
+        f = doc.get("falsifier")
+        clauses = f.get("clauses") if isinstance(f, dict) else None
+        if not isinstance(clauses, list) or not clauses:
+            lacks.append("falsifier is not an object with clauses")
+        else:
+            ns = []
+            for i, cl in enumerate(clauses):
+                n = cl.get("n") if isinstance(cl, dict) else None
+                claim = cl.get("claim") if isinstance(cl, dict) else None
+                if not (isinstance(n, int) and not isinstance(n, bool)
+                        and isinstance(claim, str) and claim.strip()):
+                    lacks.append(f"falsifier.clauses[{i}] is not {{n, claim}}: {repr(cl)[:80]}")
+                ns.append(n)
+            if ns != list(range(1, len(ns) + 1)):
+                lacks.append(f"falsifier.clauses numbers {ns}, not 1..k")
+
+    spec = shapes.get("decisions")
+    decisions = doc.get("decisions")
+    if isinstance(spec, dict) and isinstance(decisions, list):
+        here = Path(__file__).resolve().parents[3]
+        commons = Path(charter).resolve().parent.parent
+        roots = [here, commons, commons.parent]
+        for i, d in enumerate(decisions):
+            if not isinstance(d, dict):
+                continue  # (d3) already names a line that is not a dict
+            for k in spec.get("each_requires") or []:
+                if k not in d:
+                    lacks.append(f"decisions[{i}] lacks {k}")
+                elif not _paths_ok(d[k]):
+                    lacks.append(f"decisions[{i}].{k} is not a list of non-blank strings: {repr(d[k])[:80]}")
+            if spec.get("reads_resolve") and _paths_ok(d.get("reads")):
+                lacks.extend(f"decisions[{i}].reads {p!r} resolves to no file"
+                             for p in d["reads"] if not _resolves(p, roots))
+
+    spec = shapes.get("bounds")
+    if isinstance(spec, dict) and not _blank(doc.get("bounds")):  # blank and required: named above
+        b = doc.get("bounds")
+        if not (isinstance(b, dict) and all(_paths_ok(b.get(k)) for k in spec.get("required") or [])):
+            lacks.append(f"bounds is not {{{', '.join(spec.get('required') or [])}}} lists: {repr(b)[:80]}")
+
+    spec = shapes.get("measured")
+    if isinstance(spec, dict) and ("measured" in doc or "measured" in (c.get("cast_requires_shaped") or [])):
+        m = doc.get("measured")
+        if not isinstance(m, list) or len(m) < int(spec.get("min_items") or 1):
+            lacks.append("measured is absent or empty")
+        else:
+            for i, e in enumerate(m):
+                if not isinstance(e, dict):
+                    lacks.append(f"measured[{i}] is not an object: {repr(e)[:80]}")
+                    continue
+                for k in spec.get("each_requires") or []:
+                    if _blank(e.get(k)):
+                        lacks.append(f"measured[{i}] lacks {k}")
+                when = e.get("when")
+                if not _blank(when) and not (isinstance(when, str) and _ISO_DATE.match(when[:10])):
+                    lacks.append(f"measured[{i}].when {when!r} is not an ISO date")
+    return lacks
+
+
 def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Path:
     """Cast ``doc`` into the store as ``<tickets_dir>/<id>-<slug>.json``, or refuse it
     with every lack named. Returns the path written.
@@ -2329,6 +2428,8 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     declared = set(plan_fields(charter)) | set(state_fields(charter)) | to_log
     lacks.extend(f"{key} is not a plan, state or log field"
                  for key in doc if key not in declared)
+    # (e2) the plan is JSON, not prose (ticket e4f02a1ceef5): the shapes the charter declares
+    lacks.extend(_shape_lacks(doc, charter))
 
     if lacks:
         raise CastRefused(lacks)
@@ -2349,7 +2450,8 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
             from datetime import timezone
             doc["decisions"] = [{"n": 1, "text": f"D1 (the /sorted builder_check): {check}",
                                  "by": actor, "step": "cast", "source": "sorted",
-                                 "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}]
+                                 "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                                 "writes_to": [], "reads": []}]
     why = f"cast_ticket: {doc['id']} {doc['title']} by {actor}"
     trail = {k: doc.pop(k) for k in list(doc) if k in to_log}
     from cairn.tools.artifact import artifact as door

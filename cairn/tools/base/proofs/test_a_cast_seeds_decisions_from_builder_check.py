@@ -61,7 +61,9 @@ def _doc(tmp: Path, tid: str, answers_extra: dict, **over) -> dict:
         "id": tid, "title": f"seed fixture {tid}", "date": "2026-10-12",
         "owner": "codemother", "owning_intention": "skills/sorted/intention+why.json",
         "intention": "a cast seeds its decisions", "why": "proof", "traces_to": "Law 1",
-        "how": "cast_ticket", "falsifier": "DONE when the seed lands",
+        "how": "cast_ticket", "falsifier": {"clauses": [{"n": 1, "claim": "DONE when the seed lands"}]},
+        "bounds": {"in": ["cairn/tools/base/transitions.py"], "out": []},
+        "measured": [{"when": "2026-11-05", "saw": "a fixture", "how": "the e4f02a1ceef5 shapes"}],
         "node_class": "code-seam", "workflow_and_state": WORKFLOW,
         "watchme": "none, because cairn/tools/base/transitions.py",
         "sorted_berth": str(sorted_berth), "intent_berth": str(intent_berth),
@@ -93,7 +95,7 @@ def tooth_1(tmp: Path, tickets: Path) -> None:
 def tooth_2(tmp: Path, tickets: Path) -> None:
     name = PROVES["0dbc830e58d2"]["2"]
     try:
-        kept = [{"n": 1, "text": "D1: keep"}]
+        kept = [{"n": 1, "text": "D1: keep", "writes_to": [], "reads": []}]
         got = _cast(tickets, _doc(tmp, "0dbc0000a002", {"builder_check": "WHERE? x.py"},
                                   decisions=[dict(x) for x in kept]))
         check(name, json.dumps(got.get("decisions")) == json.dumps(kept), json.dumps(got.get("decisions")))

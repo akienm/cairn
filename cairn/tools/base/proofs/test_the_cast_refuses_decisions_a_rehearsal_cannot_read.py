@@ -60,7 +60,9 @@ def _doc(tmp: Path, tid: str, **over) -> dict:
         "id": tid, "title": f"testing decisions fixture {tid}", "date": "2026-11-05",
         "owner": "codemother", "owning_intention": "cairn/tools/base/intention+why.json",
         "intention": "testing: a cast's decisions are readable", "why": "proof", "traces_to": "Law 7",
-        "how": "cast_ticket", "falsifier": "DONE when the shape is judged",
+        "how": "cast_ticket", "falsifier": {"clauses": [{"n": 1, "claim": "DONE when the shape is judged"}]},
+        "bounds": {"in": ["cairn/tools/base/transitions.py"], "out": []},
+        "measured": [{"when": "2026-11-05", "saw": "a fixture", "how": "the e4f02a1ceef5 shapes"}],
         "node_class": "code-seam", "workflow_and_state": WORKFLOW,
         "watchme": "none, because cairn/tools/base/transitions.py",
         "sorted_berth": str(sorted_berth), "intent_berth": str(intent_berth),
@@ -118,7 +120,7 @@ def tooth_4(tmp: Path, tickets: Path) -> None:
     name = PROVES["6d81b55be139"]["4"]
     try:
         from cairn.tools.base.transitions import cast_ticket
-        kept = [{"n": 1, "text": "D1: a", "by": "cc", "source": "cast"}]
+        kept = [{"n": 1, "text": "D1: a", "by": "cc", "source": "cast", "writes_to": [], "reads": []}]
         p = cast_ticket(_doc(tmp, "6d810000a005", decisions=[dict(x) for x in kept]),
                         actor="proof-actor", tickets_dir=tickets)
         got = json.loads(p.read_text(encoding="utf-8")).get("decisions")

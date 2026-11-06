@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_wiring_needs_no_loop.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-06T05:26:11",
+    "caller": "cairn test",
+    "date": "2026-11-06T05:30:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "the web server's start holds no heartbeat shim of its own"
       ],
       "teeth_red": [],
-      "test": "test-7e6ec4cbe68c",
+      "test": "test-19b7bfc8fca7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,25 +31,26 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 555298,
+          "pid": 559621,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7e6ec4cbe68c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-19b7bfc8fca7",
       "source_fingerprint": "ce3ee5f27f4b848219fb9e3e7dcf75e33908ae17d59b4ee36d7e8ee8c3c9ca60",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
@@ -81,7 +82,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-554869-fkholl1d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-558064-vqbwo0fd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
@@ -91,26 +92,26 @@
             "devices/ground_loop/0/last_known.json",
             "devices/librarian/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261106.122608.327693.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261106.122608.420523.BusDevice.post.json",
-            "logs/bus/0/20261106.122608.433274.BusDevice.post.json",
-            "logs/bus/0/20261106.122608.433923.BusDevice.post.json",
-            "logs/bus/0/20261106.122608.435237.BusDevice.delivered.json",
-            "logs/bus/0/20261106.122608.437732.BusDevice.delivered.json",
-            "logs/bus/0/20261106.122608.653390.BusDevice.post.json",
-            "logs/ground_loop/0/20261106.122608.433633.HeartbeatPage.liveness_answered.json",
-            "logs/ground_loop/0/20261106.122608.437182.GroundLoopShim.clear_trouble.json",
-            "logs/ground_loop/0/20261106.122608.437566.GroundLoopShim.clear_trouble.json"
+            "logs/bus/0/20261106.123034.960491.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261106.123035.153265.BusDevice.post.json",
+            "logs/bus/0/20261106.123035.177888.BusDevice.post.json",
+            "logs/bus/0/20261106.123035.178959.BusDevice.post.json",
+            "logs/bus/0/20261106.123035.181525.BusDevice.delivered.json",
+            "logs/bus/0/20261106.123035.187640.BusDevice.delivered.json",
+            "logs/bus/0/20261106.123035.566467.BusDevice.post.json",
+            "logs/ground_loop/0/20261106.123035.178483.HeartbeatPage.liveness_answered.json",
+            "logs/ground_loop/0/20261106.123035.185946.GroundLoopShim.clear_trouble.json",
+            "logs/ground_loop/0/20261106.123035.187304.GroundLoopShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119152588,
-          "disk_bytes": 152924160,
-          "entries": 13184,
+          "bytes": 119158941,
+          "disk_bytes": 152944640,
+          "entries": 13189,
           "builds": 1,
-          "reuses": 3
+          "reuses": 9
         }
       }
     },

@@ -170,6 +170,79 @@ _floor() {
   _floor_db
   _floor_instance
 }
+
+# --- HELP IS ANSWERED BEFORE THE FLOOR (ticket 2e6c93cf74c7) ---------------------------------
+# Akien 2026-11-05 (Q#27, outline 8.4): "cairn help lists [all] then [operator] then [cairn] then
+# the rest in alpha order"; [all] is the verbs "defined in the basemost shim. they're part of
+# everything" (open-ae78c6e4700d). Help is what a person types when something is wrong, so it
+# needs no venv, no postgres and no bus: it is read from disk by the base shim's cold_list.
+# THIS FILE HOLDS NO COPY of the verb table or of the bin-reading rule (RULE 1, Law 1) — both
+# are cairn/tools/base/shim.py's, composed here through its public interface. The checks are
+# builtins only, so every other command pays nothing for them (the floor proof's 10 ms).
+_help() {  # all | device <device> <instance>
+  local py="$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY"
+  [[ -x "$py" ]] || py=python3
+  PYTHONPATH="$HERE/..${PYTHONPATH:+:$PYTHONPATH}" CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" \
+    "$py" - "$@" <<'PY'
+import os, sys
+from pathlib import Path
+from cairn.tools.base.shim import ROOT_VERB_SEMANTICS, bin_shortcuts, cold_list
+
+root = Path(os.environ["CAIRN_INSTANCE_ROOT"])
+mode = sys.argv[1]
+
+def shortcuts(dev, n=0):
+    b = root / dev / str(n) / "bin"
+    if not b.is_dir():
+        print(f"  (no bin under {b})")
+        return
+    rows = bin_shortcuts(dev, str(root), n)
+    for s in rows:
+        print(f"  {s['name']}" + (f" — {s['about']}" if s["about"] else ""))
+    if not rows:
+        print(f"  (no executables in {b})")
+
+if mode == "all":
+    print("[all]")
+    for verb, meaning in ROOT_VERB_SEMANTICS.items():
+        print(f"  {verb} — {meaning}")
+    rest = sorted(d.name for d in root.iterdir() if (d / "0" / "bin").is_dir()) if root.is_dir() else []
+    for dev in ["operator", "cairn"] + [d for d in rest if d not in ("operator", "cairn")]:
+        print(f"\n[{dev}]")
+        shortcuts(dev)
+    sys.exit(0)
+
+dev, n = sys.argv[2], int(sys.argv[3])
+if not (root / dev / str(n)).is_dir():
+    print(f"cairn {dev}.{n} help: no such device instance at {root / dev / str(n)}", file=sys.stderr)
+    sys.exit(127)
+print(f"[{dev}]")
+reason = None
+try:  # the device's own shim, over a bus that is already up — help never starts one
+    from cairn.tools.bus_client.remote import exchange
+    reply = exchange({"op": "verbs", "device": dev, "verbs": ["help"]}, timeout=10)
+    if reply.get("ok") and reply.get("exit") == 0:
+        print(reply.get("text", ""))
+        sys.exit(0)
+    reason = ("it answered stale — it runs older code than this class root, and help never "
+              "replaces a bus (the next ordinary command does)" if reply.get("stale")
+              else reply.get("error") or reply.get("text") or f"it answered {reply!r}")
+except (OSError, ValueError, RuntimeError, LookupError, ImportError) as exc:
+    reason = f"{type(exc).__name__}: {exc}"
+print(cold_list(dev, str(root), n)["text"])
+print(f"(the live answer — views and panes — needs the bus: {reason})")
+PY
+}
+case "${1,,}" in
+  help) _help all; exit $? ;;
+esac
+if [[ $# -ge 2 && "${2,,}" == help ]]; then
+  _hd="${1,,}"; _hn=0
+  case "$_hd" in *.*) _hn="${_hd#*.}"; _hd="${_hd%%.*}" ;; esac
+  case "$_hn" in ''|*[!0-9]*) echo "cairn ${1,,}: instance must be a number, got: ${_hn:-<empty>}" >&2; exit 127 ;; esac
+  _help device "$_hd" "$_hn"; exit $?
+fi
+
 _floor
 
 # THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim

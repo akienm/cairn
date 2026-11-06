@@ -57,9 +57,16 @@ def _fhash(falsifier) -> str:
     return hashlib.sha256(json.dumps(falsifier, sort_keys=True).encode()).hexdigest()[:16]
 
 
+def _tickets_dir() -> Path:
+    """The live commons beside this checkout, else the home one — hollow's /tmp worktree has
+    no CairnCommons sibling, and a repo-relative read would red at HEAD there."""
+    beside = _REPO.parent / "CairnCommons" / "tickets"
+    return beside if beside.is_dir() else Path.home() / "dev" / "src" / "CairnCommons" / "tickets"
+
+
 def _standing_tickets():
     from cairn.tools.base import ticket_file
-    for f in ticket_file.plans(ticket_file._TICKETS):
+    for f in ticket_file.plans(_tickets_dir()):
         try:
             t = ticket_file.read_ticket(f)
         except (json.JSONDecodeError, OSError):

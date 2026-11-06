@@ -182,6 +182,11 @@ def _falsifier_clauses(ticket: dict) -> list[str]:
     which is prose reusing the digits, not a clause list.
     """
     fal = ticket.get("falsifier")
+    if isinstance(fal, dict) and isinstance(fal.get("clauses"), list):
+        # The clause-list plan shape (ticket ab32ccdc4504, parent e4f02a1ceef5): the keys ARE
+        # the clauses' numbers, read as data — no regex over claim text, so a '(7)' a claim
+        # cites is not a clause.
+        return [str(c["n"]) for c in fal["clauses"] if isinstance(c, dict) and "n" in c]
     if isinstance(fal, dict):
         text = fal.get("proves_red")
         if isinstance(text, dict):

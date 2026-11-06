@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_clause_a_decide_line_adds_is_covered.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T21:54:00",
+    "date": "2026-11-05T20:57:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_decide_line_that_adds_a_clause_extends_clauses\n.\n  ok   test_lacks_names_the_clause_a_decide_line_added\n.\n  ok   test_a_decision_citing_a_marker_in_prose_adds_nothing\n                                                                      [100%]\n3 passed in 0.21s",
+      "stdout_tail": ".\n  ok   test_a_decide_line_that_adds_a_clause_extends_clauses\n.\n  ok   test_lacks_names_the_clause_a_decide_line_added\n.\n  ok   test_a_decision_citing_a_marker_in_prose_adds_nothing\n                                                                      [100%]\n3 passed in 0.24s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_decide_line_that_adds_a_clause_extends_clauses",
@@ -15,21 +15,18 @@
         "test_a_decision_citing_a_marker_in_prose_adds_nothing"
       ],
       "teeth_red": [],
-      "test": "test-1364deb05353",
+      "test": "test-eb73d341019c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_2029334_2153543556_delivery",
-          "bus_proc_2029334_2153543556"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "f3349a8ad304711af9d2d18a77c005583a5f89fd38127ac9f64b814493705424",
-        "fixtures": "05fead554cb3bbd2677ec3d46b78aedd70242d445604d0a138c62a2dde5958fb",
+        "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
@@ -44,16 +41,26 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1364deb05353",
-      "source_fingerprint": "09cddbc9c55a305b87208428ed2d6cd62437d6219b1ec8fd5776d3820f28cbb5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb73d341019c",
+      "source_fingerprint": "cbf96f4f1aa731b7275db2d94cda6ae95dc0471c04d059f3efb85b96f07ec393",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/proof_coverage/proofs/test_a_clause_a_decide_line_adds_is_covered.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3",
+        "cairn/tools/chain": "f94533483ffa417f3ad35547ad2acc0830afb5cceac5c63a8408809a334933b2",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
+        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1994004-c9tx02e8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-236969-10xza1sk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113428967,
-          "disk_bytes": 143073280,
-          "entries": 11718,
+          "bytes": 118062081,
+          "disk_bytes": 150687744,
+          "entries": 12810,
           "builds": 1,
-          "reuses": 151
+          "reuses": 0
         }
       }
     },

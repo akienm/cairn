@@ -14,7 +14,7 @@ deposit-back — the whole embed cost of the stratum, readable in the yield repo
     # exit 0 = the verb returned; a refusal prints loud and exits 1; exit 3 = learn or
     # counsel SERVED, but an owed verdict failed to deposit in the drain (ticket 4818f7f37e1e)
     # [owner] serves the grafted tenants: `counsel "<text>" corrections orient` walks
-    # orient's correction corpus; default is chart's own nexi.
+    # orient's correction corpus; default is codemother's own nexi (OWNER).
     # moreabout = walk + write-back in ONE act, one embed serving both — the invocation
     # IS the training signal (an opt-in signal would be skipped exactly when the honest
     # datum is least flattering).
@@ -36,6 +36,8 @@ _BUS = None
 _SENDER = "chart"
 DRAIN_FAILED_EXIT = 3  # served, but an owed deposit failed — 1 stays the verb's own refusal
 EMBED_MODEL = "nomic-embed-text"
+# codemother owns her learning (Akien 2026-11-05); ticket 67d446a1a33a
+OWNER = "codemother"
 
 
 def _bus():
@@ -97,11 +99,12 @@ def _counsel(argv: list[str]) -> int:
         print('usage: live counsel "<request>" [nexus] [owner]', file=sys.stderr)
         return 1
     request, nexus = argv[0], (argv[1] if len(argv) > 1 else "orient")
-    kw = {"owner": argv[2]} if len(argv) > 2 else {}
+    owner = argv[2] if len(argv) > 2 else OWNER
     drained = _drain_before_serving()  # pending verdicts land before the walk reads
-    got = counsel(_embed(request), nexus=nexus, **kw)
+    got = counsel(_embed(request), nexus=nexus, owner=owner)
     print(json.dumps({
         "request": request,
+        "owner": owner,
         "drained": drained,
         "counsel": {k: v for k, v in got.items() if k != "walk"},
         "walk": [{"similarity": round(n["similarity"], 4), "content": n["content"],

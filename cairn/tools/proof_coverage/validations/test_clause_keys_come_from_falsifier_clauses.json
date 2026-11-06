@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_clause_keys_come_from_falsifier_clauses.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T21:03:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-05T21:16:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "0 failing"
       ],
       "teeth_red": [],
-      "test": "test-08deb7f2a965",
+      "test": "test-2a5396056714",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-08deb7f2a965",
-      "source_fingerprint": "ea22447697533c0c5f8c2d38bb164c18eff14625a9f10dcd1c407be940a2c9ae",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a5396056714",
+      "source_fingerprint": "5b577073c7647427a0ed0e0dbeafdb70bb5c210026e9cb91eb1640d2173092ce",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -58,7 +57,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-241433-qoi_eqri/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-249422-5knwt7bk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,28 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118070968,
-          "disk_bytes": 150712320,
-          "entries": 12816,
+          "bytes": 118087462,
+          "disk_bytes": 150765568,
+          "entries": 12826,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "ab32ccdc4504": {
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_clause_1_clause_keys_are_read_as_data",
-            "test_clause_2_a_decide_line_still_adds_a_key",
-            "test_clause_4_an_added_key_lands_once_after_the_falsifiers"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ab32ccdc4504": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "176bacc6c5b69049e1553f45c505fc544148123a",
-          "anchor_first_build": "e988a242906990da432095ce9c012aa31896d347",
-          "commit": "9da8a7317350ebd8258d1f7c5288d4e6c658bcab"
+          "reuses": 2
         }
       }
     },

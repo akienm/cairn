@@ -903,7 +903,9 @@ def print_teeth_main(module_file: str, *extra_argv: str) -> int:
     """
     import pytest
 
-    class _Names:
+    from cairn.tools.base.diagnostic import DiagnosticBase
+
+    class _Names(DiagnosticBase):
         def pytest_runtest_logreport(self, report):
             if report.when == "call":
                 marker = "ok  " if report.passed else ("skip" if report.skipped else "FAIL")

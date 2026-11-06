@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_a_clause_shaped_falsifier_is_structured.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-05T20:45:15",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  clause_1: a well-formed clause list yields no falsifier_structure finding  — []\n  PASS  clause_2: empty yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses is empty or not a list', 'evidence': {'field': 'clauses'}}]\n  PASS  clause_2: blank claim yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses malformed: clause n=2 has a blank claim', 'evidence': {'field': 'clauses', 'lacks': ['clause n=2 has a blank claim']}}]\n  PASS  clause_2: numbering [1, 3] yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses malformed: clause 2 carries n=3; clauses are numbered 1..k in order', 'evidence': {'field': 'clauses', 'lacks': ['clause 2 carries n=3; clauses are numbered 1..k in order']}}]\n  PASS  clause_3: a {proves_green, proves_red} falsifier is clean  — []\n  PASS  clause_3: a dict missing proves_red still reds on falsifier.proves_red  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.proves_red is empty or missing', 'evidence': {'field': 'proves_red'}}]\n  PASS  clause_3: a string falsifier yields no falsifier_structure finding  — []\nPASS: 0 failing",
+      "stderr_tail": "",
+      "teeth_green": [
+        "clause_1: a well-formed clause list yields no falsifier_structure finding  — []",
+        "clause_2: empty yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses is empty or not a list', 'evidence': {'field': 'clauses'}}]",
+        "clause_2: blank claim yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses malformed: clause n=2 has a blank claim', 'evidence': {'field': 'clauses', 'lacks': ['clause n=2 has a blank claim']}}]",
+        "clause_2: numbering [1, 3] yields one falsifier_structure finding naming it  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.clauses malformed: clause 2 carries n=3; clauses are numbered 1..k in order', 'evidence': {'field': 'clauses', 'lacks': ['clause 2 carries n=3; clauses are numbered 1..k in order']}}]",
+        "clause_3: a {proves_green, proves_red} falsifier is clean  — []",
+        "clause_3: a dict missing proves_red still reds on falsifier.proves_red  — [{'ticket': 'a1b2c3d4e5f6', 'check': 'falsifier_structure', 'finding': 'falsifier.proves_red is empty or missing', 'evidence': {'field': 'proves_red'}}]",
+        "clause_3: a string falsifier yields no falsifier_structure finding  — []",
+        "0 failing"
+      ],
+      "teeth_red": [],
+      "test": "test-c5d19665f035",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d283919919d47f5d439cdb47e7ab94c2b8a81110abe64fd07c932b89c9183149",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c5d19665f035",
+      "source_fingerprint": "11ca404384954b113c363c21b058d350089414f9387d0dbb6672e21e6705e60b",
+      "fingerprint_closure": [
+        "cairn/tools/ticket_inspector/__init__.py",
+        "cairn/tools/ticket_inspector/inspector.py",
+        "cairn/tools/ticket_inspector/proofs/test_a_clause_shaped_falsifier_is_structured.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-230420-ygu46umm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 118030110,
+          "disk_bytes": 150593536,
+          "entries": 12790,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -209,8 +209,15 @@ def _reached(files: list[str], proof_path) -> dict | None:
     pkg = root / "cairn"
     own = component_of(Path(proof_path).resolve(), pkg_root=pkg)
     dirs = set()
+    # One component_of per DISTINCT real path (ticket aa7a1d7fa671): the reach log repeats each
+    # file once per python process, and component_of re-walks the component tree on every call.
+    # Measured 2026-11-06: 68,388 entries over 278 files made one proof's mapping take minutes.
+    seen: set[Path] = set()
     for f in files:
         full = Path(os.path.realpath(f[:-1] if f.endswith(".pyc") else f))
+        if full in seen:
+            continue
+        seen.add(full)
         if pkg not in full.parents:
             continue
         owner = component_of(full, pkg_root=pkg)

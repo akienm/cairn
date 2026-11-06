@@ -19,9 +19,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 @dataclass
-class ConstraintProof:
+class ConstraintProof(DiagnosticBase):
     """The proof lifecycle for one constraint."""
     constraint_name: str
     founding_incident: dict[str, Any]

@@ -13,6 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 from cairn.devices.codemother.types import PatternType, TypePolarity
 from cairn.devices.codemother.unify import unify, UnificationResult
 from cairn.devices.codemother.project import load_types, load_constraints
@@ -22,7 +24,7 @@ from cairn.devices.codemother.constraint_proof import (
 
 
 @dataclass
-class ChallengeResult:
+class ChallengeResult(DiagnosticBase):
     """The result of challenging a proposed change."""
     violations: list[UnificationResult]
     boundary_warnings: list[UnificationResult]

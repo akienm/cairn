@@ -1,24 +1,23 @@
 [
   {
     "claim": "proof test_every_codemother_class_reaches_the_diagnostic_mixin.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T01:23:53",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-06T13:18:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_the_sieve_reads_codemother_green  — 5 finding(s): cairn/devices/codemother/challenge.py:25 class ChallengeResult has code and does not reach DiagnosticBase; cairn/devices/codemother/constraint_proof.py:24 class ConstraintProof has code and does not reach DiagnosticBase; cairn/devices/codemother/query.py:19 class QueryResult has code and does not reach DiagnosticBase; cairn/devices/codemother/types.py:31 class PatternType has code and does not reach DiagnosticBase; cairn/devices/codemother/unify.py:18 class UnificationResult has code and does not reach DiagnosticBase\n  FAIL  test_the_five_reach_the_mixin  — not a DiagnosticBase: challenge.ChallengeResult, constraint_proof.ConstraintProof, query.QueryResult, types.PatternType, unify.UnificationResult\n  PASS  test_the_modules_import_fresh\n  PASS  test_the_frozen_stay_frozen_and_equal\n  FAIL  test_codemother_holds_every_clause_of_the_falsifier  — 2 tooth/teeth red\n\nRED — 3 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_reads_codemother_green  — 0 finding(s): \n  PASS  test_the_five_reach_the_mixin  — not a DiagnosticBase: \n  PASS  test_the_modules_import_fresh\n  PASS  test_the_frozen_stay_frozen_and_equal\n  PASS  test_codemother_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_modules_import_fresh",
-        "test_the_frozen_stay_frozen_and_equal"
-      ],
-      "teeth_red": [
         "test_the_sieve_reads_codemother_green",
         "test_the_five_reach_the_mixin",
+        "test_the_modules_import_fresh",
+        "test_the_frozen_stay_frozen_and_equal",
         "test_codemother_holds_every_clause_of_the_falsifier"
       ],
-      "test": "test-50ad6d762f0b",
+      "teeth_red": [],
+      "test": "test-aecf4a823e0f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,21 +31,20 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-50ad6d762f0b",
-      "source_fingerprint": "87b8449675ee56d6992f5639f9331dcf865cd8fe739e168fe8304d4b062b804c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aecf4a823e0f",
+      "source_fingerprint": "7baff75f247f545f6b986bce6954255fa3d910b52d4d1a8cc55da85cdf0af48e",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/challenge.py",
@@ -58,9 +56,9 @@
         "cairn/devices/codemother/unify.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
         "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
-        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -70,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-435390-fbku68gj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-640102-32t4qf6_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -79,12 +77,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118852957,
-          "disk_bytes": 152129536,
-          "entries": 13023,
+          "bytes": 119306438,
+          "disk_bytes": 153309184,
+          "entries": 13265,
           "builds": 1,
-          "reuses": 31
+          "reuses": 1
         }
+      },
+      "conditions_moved": {
+        "notified": "n-7699c79dc0bd",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

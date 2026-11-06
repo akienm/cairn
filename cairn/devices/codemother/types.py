@@ -14,6 +14,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 class TypePolarity(str, Enum):
     POSITIVE = "positive"
@@ -28,7 +30,7 @@ class PatternSignal:
 
 
 @dataclass(frozen=True)
-class PatternType:
+class PatternType(DiagnosticBase):
     """A typed pattern entry — the unit the library stores and challenge reads.
 
     Positive types describe what a thing IS (its structural identity).

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# cairn codemother seed — plant cognition questions into the trees
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.seed_trees import seed
+dry = '--dry-run' in sys.argv[1:]
+result = seed(dry_run=dry)
+print(json.dumps(result, indent=2))
+if result['errors']:
+    sys.exit(1)
+" "$@"

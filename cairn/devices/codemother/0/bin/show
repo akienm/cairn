@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# cairn codemother show — show the dashboard, or a root view (status, settings)
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    what="${1:-}"; what="${what,,}"
+    shift 2>/dev/null || true
+    case "$what" in
+      dashboard)
+        exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.dashboard import format_dashboard
+print(format_dashboard())
+" "$@"
+        ;;
+      *)
+        # not the dashboard: a root view (status, settings, or a device view) — the base resolver
+        # (ticket b41b0c0fff0e) takes the whole line; an empty name is its exit 2 naming the views.
+        exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.shim import CodeMotherShim
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(CodeMotherShim, sys.argv[1:]))
+" show "$what" "$@"
+        ;;
+    esac

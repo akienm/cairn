@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# cairn codemother watch — fire spreading activation over an area
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.watch import activate, on_question
+area = sys.argv[1] if len(sys.argv) > 1 else ''
+if not area:
+    print('usage: cairn codemother watch <area> [reason]')
+    sys.exit(1)
+reason = sys.argv[2] if len(sys.argv) > 2 else 'cli activation'
+result = activate(area, reason)
+print(json.dumps(result, indent=2))
+" "$@"

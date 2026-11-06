@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# cairn codemother question — ask codemother about an area
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.codemother.watch import on_question
+q = ' '.join(sys.argv[1:]) if len(sys.argv) > 1 else ''
+if not q:
+    print('usage: cairn codemother question <question>')
+    sys.exit(1)
+result = on_question(q)
+print(json.dumps(result, indent=2))
+" "$@"

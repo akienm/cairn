@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# cairn codemother cross — clear a boat through the harbor door as codemother
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    # The falsifier's clause 1 names this command by name. It is a THIN mouth: it
+    # reaches the two shims and posts one envelope. Every judgement — who the actor is,
+    # whether the boat stands proven — belongs to the door, not to this file.
+    exec python3 -c "
+import sys, json; sys.path.insert(0, '$REPO_ROOT')
+args = sys.argv[1:]
+def _flag(name):
+    if name in args:
+        i = args.index(name)
+        return args[i + 1] if i + 1 < len(args) else None
+    return None
+pos = []
+skip = False
+for i, a in enumerate(args):
+    if skip:
+        skip = False
+        continue
+    if a.startswith('--'):
+        skip = True
+        continue
+    pos.append(a)
+if len(pos) < 2:
+    print('usage: cairn codemother cross <ticket> <target> --proven-by <proof path> [--history <path>] [--state <path>]')
+    sys.exit(1)
+ticket, target = pos[0], pos[1]
+proven_by = _flag('--proven-by')
+if not proven_by:
+    print('cross needs --proven-by <proof path>: Law 8 asks a hand to name the proof that stands, and no ticket field carries one (censused 2026-09-09: 0 of 258).')
+    sys.exit(1)
+from cairn.tools.bus_client import reach
+bus = reach('codemother', 'harbor_master')
+body = {'ticket': ticket, 'target': target, 'proven_by': proven_by}
+for flag, key in (('--history', 'history_path'), ('--state', 'state_path'), ('--workflow', 'workflow')):
+    v = _flag(flag)
+    if v:
+        body[key] = v
+reply = bus.request(sender='cairn-codemother-cli', to='codemother', verb='cross',
+                    why='cairn codemother cross ' + ticket + ' ' + target,
+                    body=body, timeout=float(_flag('--timeout') or 240.0))
+answer = reply.get('body') or {}
+print(json.dumps(answer, indent=2, default=str))
+sys.exit(0 if answer.get('accepted') else 1)
+" "$@"

@@ -33,6 +33,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 # cairn/tools/bus_client/remote.py → three parents up is the class root.
 _CLASS_ROOT = Path(__file__).resolve().parents[3]
 _BUS_MODULE = "cairn.devices.cairn.machines.bus"
@@ -357,7 +359,7 @@ def _replace(home: Path) -> None:
         pass   # no systemd (Windows): nothing holds a unit name
 
 
-class RemoteBus:
+class RemoteBus(DiagnosticBase):
     """A bus handle that is a socket to the instance's one bus process."""
 
     def __init__(self, home: str | Path | None = None, *, scratch: bool = False) -> None:

@@ -19,8 +19,10 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 
-class DeviceRoster:
+
+class DeviceRoster(DiagnosticBase):
     """The fitted devices on disk, and the shims held for them."""
 
     def __init__(self, bus, root=None) -> None:

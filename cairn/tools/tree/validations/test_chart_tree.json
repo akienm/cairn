@@ -1,19 +1,18 @@
 [
   {
     "claim": "proof test_chart_tree.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T01:38:32",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-06T03:56:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_nexus_name_is_identity\n  PASS  test_the_table_is_born_owned_by_chart\n  PASS  test_gate_before_seed\n  PASS  test_deposit_back_lands_and_dedups\n  PASS  test_counsel_keeps_its_floor_visible\n  PASS  test_the_librarians_tools_are_the_only_door\n  PASS  test_the_dial_reads_exact_fractions_in_time_order\n  PASS  test_the_dial_reports_unreadable_never_skips\n  PASS  test_an_absent_berth_is_a_nameable_state\n  PASS  test_the_real_berth_by_invariant\n  PASS  test_tree_is_a_legal_stratum_at_the_packet_gate\ngreen — chart/tree + chart/dial: the table is born chart's, the gate runs before the seed, deposit-back lands honest and dedups, counsel keeps its labeled floor, the librarian's tools are the only door, and the dial reads true — exact on fixtures, by invariant on the live berth",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_nexus_name_is_identity\n  PASS  test_the_table_is_born_owned_by_chart\n  PASS  test_gate_before_seed\n  FAIL  test_deposit_back_lands_and_dedups\n  FAIL  test_the_orient_leaf_is_codemothers_scratch\n  PASS  test_counsel_keeps_its_floor_visible\n  PASS  test_the_librarians_tools_are_the_only_door\n  PASS  test_the_dial_reads_exact_fractions_in_time_order\n  PASS  test_the_dial_reports_unreadable_never_skips\n  PASS  test_an_absent_berth_is_a_nameable_state\n  PASS  test_the_real_berth_by_invariant\n  PASS  test_tree_is_a_legal_stratum_at_the_packet_gate\nRED — 2 failure(s): test_deposit_back_lands_and_dedups, test_the_orient_leaf_is_codemothers_scratch",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 383, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 195, in test_deposit_back_lands_and_dedups\n    assert leaf_rows, \"a leaf must land in the nexus's table\"\n           ^^^^^^^^^\nAssertionError: a leaf must land in the nexus's table\nTraceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 383, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/tree/proofs/test_chart_tree.py\", line 217, in test_the_orient_leaf_is_codemothers_scratch\n    assert store.is_scratch(leaf), \\\n           ~~~~~~~~~~~~~~~~^^^^^^\nAssertionError: deposit_orient's leaf codemother_orient_475034_0356428412_nodes is not a registered scratch table — it outlives the run",
       "teeth_green": [
         "test_a_nexus_name_is_identity",
         "test_the_table_is_born_owned_by_chart",
         "test_gate_before_seed",
-        "test_deposit_back_lands_and_dedups",
         "test_counsel_keeps_its_floor_visible",
         "test_the_librarians_tools_are_the_only_door",
         "test_the_dial_reads_exact_fractions_in_time_order",
@@ -22,8 +21,11 @@
         "test_the_real_berth_by_invariant",
         "test_tree_is_a_legal_stratum_at_the_packet_gate"
       ],
-      "teeth_red": [],
-      "test": "test-0c200240483f",
+      "teeth_red": [
+        "test_deposit_back_lands_and_dedups",
+        "test_the_orient_leaf_is_codemothers_scratch"
+      ],
+      "test": "test-2341b32752b8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,31 +35,46 @@
         "tables": []
       },
       "conditions": {
-        "proof": "45e26fbc7e1ae830c577f4b30156633d7fb44de1ef97fccd52cc579383a8eefb",
+        "proof": "68030e431828d9e82ebad055835ae24021144564ba86ecd2ac5890e3787262d1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c200240483f",
-      "source_fingerprint": "7ab4dae2727bd7732a408c4acadb780d540b624c8e4db29e2ab1cc3fe4fc4351",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2341b32752b8",
+      "source_fingerprint": "b260223d4db96444bd708ac9260d73a67f04d68d679d1c8841a9e633e06f737c",
       "fingerprint_closure": [
         "cairn/tools/tree/__init__.py",
         "cairn/tools/tree/proofs/test_chart_tree.py",
         "cairn/tools/tree/tree.py"
       ],
+      "reached": {
+        "cairn/devices/codemother": "80e7f4addcb9ab0773b6af8eb246abcd4a594d8aad175de519c629f6cbae1f57",
+        "cairn/devices/codemother/machines/orient": "036d783e8ec740807ce39aa68922e4d1e6547f6f96b68bd369c48fa241002ddf",
+        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
+        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
+        "cairn/devices/librarian": "45a4338d30bae41ab041f6aab8d2e05dec83d0c202ba4f731d008accf85a12ef",
+        "cairn/devices/librarian/tools/trees": "b23c78e80dc4bf219388914a87122d193eeb1f1dc5023cda5337cbe5adee7033",
+        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
+        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2356676-gbb831sf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-475010-vqy05zw7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,30 +83,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108513229,
-          "disk_bytes": 133763072,
-          "entries": 10165,
+          "bytes": 118928073,
+          "disk_bytes": 152276992,
+          "entries": 13048,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "9c46e187f2de": {
-          "cairn/tools/tree/proofs/test_chart_tree.py": {
-            "approved": "plan"
-          },
-          "cairn/tools/tree/validations/test_chart_tree.json": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "9c46e187f2de": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6c233e3c5d0ebd933917b2699da242ac2f52ed4f",
-          "anchor_first_build": null,
-          "commit": "6c233e3c5d0ebd933917b2699da242ac2f52ed4f"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "68030e431828d9e82ebad055835ae24021144564ba86ecd2ac5890e3787262d1",
+        "opened": "2026-11-06T03:56:46",
+        "last_red": "2026-11-06T03:56:46",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-tree-proofs-test-chart-tree",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -59,6 +59,8 @@ from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 # The falsifier of 9c46e187f2de is one unnumbered clause, so one composite tooth carries it.
 PROVES = {
     "9c46e187f2de": {"all": "test_gate_before_seed"},
+    "a229f01ed699": {"1": "test_deposit_back_lands_and_dedups",
+                     "2": "test_the_orient_leaf_is_codemothers_scratch"},
 }
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
@@ -196,6 +198,24 @@ def test_deposit_back_lands_and_dedups():
         r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_nexus())
         assert r2["duplicate"] is True
         assert trees.tree_state(_nexus(), table=_table(), owner="chart") == before
+
+
+def test_the_orient_leaf_is_codemothers_scratch():
+    """deposit_orient writes under codemother's owner (2b3d842bc118), so the leaf this proof
+    makes it write must be codemother's AND a registered scratch table — one that cannot
+    outlive the run (ticket a229f01ed699; three unregistered ones leaked 2026-11-06)."""
+    from cairn.devices.codemother.machines.orient import orient as orient_mod
+    with tempfile.TemporaryDirectory() as tmp:
+        packet = _packet(intent=f"the orient leaf ownership probe [{_nexus()}]")
+        berth = _berthed_fixture(tmp, packet)
+        nexus = _orient_nexus() if "_orient_nexus" in globals() else _nexus()
+        r = deposit_orient(packet, [0.7, 0.3, 0.0], berth_path=berth, nexus=nexus)
+        _CREATED_NODES.append(r["node_id"])
+        leaf = nexus_table(nexus, owner=orient_mod.OWNER)
+        assert store.owner_of(leaf) == "codemother", \
+            f"deposit_orient's leaf {leaf} must be codemother's, not {store.owner_of(leaf)!r}"
+        assert store.is_scratch(leaf), \
+            f"deposit_orient's leaf {leaf} is not a registered scratch table — it outlives the run"
 
 
 def test_counsel_keeps_its_floor_visible():
@@ -347,6 +367,7 @@ def _main() -> int:
         test_the_table_is_born_owned_by_chart,
         test_gate_before_seed,
         test_deposit_back_lands_and_dedups,
+        test_the_orient_leaf_is_codemothers_scratch,
         test_counsel_keeps_its_floor_visible,
         test_the_librarians_tools_are_the_only_door,
         test_the_dial_reads_exact_fractions_in_time_order,
@@ -355,14 +376,24 @@ def _main() -> int:
         test_the_real_berth_by_invariant,
         test_tree_is_a_legal_stratum_at_the_packet_gate,
     ]
+    failed = []
     try:
-        for check in checks:
-            check()
-            print(f"  PASS  {check.__name__}")
+        for check in checks:     # every tooth runs and reports: a tooth's failure is its verdict
+            try:
+                check()
+                print(f"  PASS  {check.__name__}", flush=True)
+            except Exception:    # noqa: BLE001 — loud, named, and counted (Law 7)
+                import traceback
+                traceback.print_exc()
+                print(f"  FAIL  {check.__name__}", flush=True)
+                failed.append(check.__name__)
     finally:
         for name in _HELD:            # this run's rows out of the shared tables, then the scratch nexus dropped
             trees.forget_leaf(nexus_table(name))
         _SCRATCH.close()
+    if failed:
+        print(f"RED — {len(failed)} failure(s): {', '.join(failed)}")
+        return 1
     print("green — chart/tree + chart/dial: the table is born chart's, the gate runs "
           "before the seed, deposit-back lands honest and dedups, counsel keeps its "
           "labeled floor, the librarian's tools are the only door, and the dial reads "

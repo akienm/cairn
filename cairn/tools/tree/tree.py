@@ -1,23 +1,30 @@
-"""chart/tree.py — the TREE STRATUM: the orient nexus's own graph tree, between floor and ceiling.
+"""cairn/tools/tree/tree.py — the one graph-tree tool every learning block uses: the nexus's
+graph tree, between floor and ceiling.
 
-Stone 2 of the chart device (ticket: CairnCommons/tickets/chart-tree.json). The ladder
-ruling (held-nexi-everywhere, 2026-07-28) made this stone load-bearing: a nexus's Claude
-CEILING may only stand above a TREE, because the tree is the deposit path that makes
-inference temporary. This module is that rung for chart's nexi.
+ONE TOOL, NOT CHART'S (outline 19.29, Q#54, Akien 2026-11-05: "it's stated as belonging to the
+chart because that was the first time we defined it at that level, but it's the same tool
+everywhere. if learning blocks need a special adaptation of it in some way, then it'd be a
+subclass"). It was first defined at this level for chart's nexi (ticket chart-tree.json), and
+the wording stayed chart's after the tool stopped being; every learning block — chart's stages,
+codemother's machines, the build_inspector's failure corpus, the orient instrument — works the
+trees the librarian delegates to it through these same verbs. A tool has users, not an owner
+(Law 6): ``owner`` is a call parameter, so each user reaches ITS OWN table
+(``<owner>_<nexus>_nodes``). A learning block that needs a special adaptation SUBCLASSES the
+tool; it does not fork it.
 
-THE TOOLS ARE THE LIBRARIAN'S — the ratified unification ("we'll use the same tools with
-the librarian"), landed as an owner parameter, not a fork: chart reaches ITS OWN table
-(``chart_<nexus>_nodes``, owner ``chart``) through cairn.devices.librarian.tools.trees.trees, whose deposit
-door and walks are the only door here. This module never touches db_domain or the network
-directly (the composition lesson from stone 1, applied one layer up; the proof pins it by
-AST allowlist).
+``OWNER = 'chart'`` is only the default ``owner`` — kept because chart was the first user and its
+callers lean on it; codemother's callers pass ``owner='codemother'`` since ticket 2b3d842bc118,
+so no live codemother caller relies on the default.
 
-AND THIS MODULE GENERALIZES THE SAME WAY (the graft tickets, 2026-07-28): every verb
-takes an ``owner`` (default: chart), so a grafted nexus — orient's correction corpus,
-the build_inspector's failure corpus — reaches ITS OWN table (``<owner>_<nexus>_nodes``)
-through these same verbs and db_domain's same gate. One nexus shape, many tenants; the
-same move trees.py made, one rung up. Chart's defaults are untouched and this proof
-staying green is what says so.
+THE LADDER (held-nexi-everywhere, 2026-07-28) made this rung load-bearing: a nexus's Claude
+CEILING may only stand above a TREE, because the tree is the deposit path that makes inference
+temporary.
+
+THE TREES ARE THE LIBRARIAN'S — the ratified unification ("we'll use the same tools with the
+librarian"), landed as an owner parameter, not a fork: each user reaches its own table through
+cairn.devices.librarian.tools.trees.trees, whose deposit door and walks are the only door here.
+This module never touches db_domain or the network directly (the composition lesson from stone
+1, applied one layer up; the proof pins it by AST allowlist).
 
 The verbs:
 

@@ -134,7 +134,32 @@ def inspect_ticket(t: dict) -> list[dict]:
                     {"cursor": cursor})
 
     # --- FALSIFIER STRUCTURE ---
-    if isinstance(falsifier, dict):
+    # A dict carrying 'clauses' is the clause-list plan shape (ticket 660352d41cb7, parent
+    # e4f02a1ceef5): [{n, claim}] numbered 1..k. Any other dict is the standing
+    # {proves_green, proves_red} shape and reads as before.
+    if isinstance(falsifier, dict) and "clauses" in falsifier:
+        clauses = falsifier.get("clauses")
+        if not isinstance(clauses, list) or not clauses:
+            finding("falsifier_structure",
+                    "falsifier.clauses is empty or not a list",
+                    {"field": "clauses"})
+        else:
+            lacks = []
+            for i, c in enumerate(clauses, start=1):
+                if not isinstance(c, dict):
+                    lacks.append(f"clause {i} is not an object {{n, claim}}")
+                    continue
+                n = c.get("n")
+                if not isinstance(n, int) or isinstance(n, bool) or n != i:
+                    lacks.append(f"clause {i} carries n={n!r}; clauses are numbered 1..k in order")
+                claim = c.get("claim")
+                if not isinstance(claim, str) or not claim.strip():
+                    lacks.append(f"clause n={n!r} has a blank claim")
+            if lacks:
+                finding("falsifier_structure",
+                        "falsifier.clauses malformed: " + "; ".join(lacks),
+                        {"field": "clauses", "lacks": lacks})
+    elif isinstance(falsifier, dict):
         for sub in ("proves_green", "proves_red"):
             if not falsifier.get(sub):
                 finding("falsifier_structure",

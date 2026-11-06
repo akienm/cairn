@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_read_folds_what_is_pending.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-29T23:33:09",
+    "caller": "cairn test",
+    "date": "2026-11-06T05:44:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "two_readers_fold_each_emission_once"
       ],
       "teeth_red": [],
-      "test": "test-d2247574667e",
+      "test": "test-38860047c2ec",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,12 +36,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d2247574667e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-38860047c2ec",
       "source_fingerprint": "64e93177484fc6aa65d405fe780bb2cc0c27cef4729c15be77dfce326ef55cc5",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
@@ -49,24 +50,31 @@
         "cairn/devices/trouble/shim.py",
         "cairn/devices/trouble/trouble.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
+        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
+        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2100903-a3czrl8z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-571945-6mldriy7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "logs/ground_loop_nohup.log"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 113677044,
-          "disk_bytes": 143323136,
-          "entries": 11734,
+          "bytes": 119192962,
+          "disk_bytes": 153018368,
+          "entries": 13199,
           "builds": 1,
-          "reuses": 19
+          "reuses": 1
         }
       }
     },

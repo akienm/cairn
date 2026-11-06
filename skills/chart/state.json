@@ -1,29 +1,27 @@
 {
   "cursor": {
-    "from": "FIXME",
-    "to": "RETIRED",
-    "standing": "RETIRED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(deposit-drain) -> PROVED -> [RETIRED]",
-    "direction": "disposition",
-    "entry_gate": "not_applicable",
+    "from": "TICKETME",
+    "to": "BUILDME",
+    "standing": "BUILDME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '67d446a1a33a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'RETIRED' in the code-seam@v2 vocabulary",
-        "actual": "'RETIRED' in the code-seam@v2 vocabulary",
+        "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+        "actual": "'BUILDME' in the code-seam@v2 vocabulary",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "RETIRED",
+          "target": "BUILDME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
-            "FIXME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -37,132 +35,148 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "FIXME -> RETIRED moves the cursor off position 2",
-        "actual": "FIXME -> RETIRED moves the cursor off position 2",
+        "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+        "actual": "TICKETME -> BUILDME moves the cursor off position 1",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "RETIRED",
-          "cursor": 2,
-          "resolved": 7
+          "target": "BUILDME",
+          "cursor": 1,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "FIXME -> RETIRED",
-        "actual": "FIXME -> RETIRED",
+        "expected": "TICKETME -> BUILDME",
+        "actual": "TICKETME -> BUILDME",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "RETIRED",
+          "target": "BUILDME",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME",
-            "TICKETME"
+            "THINKME"
           ],
           "direction": "forward"
         }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "67d446a1a33a",
+          "component": "chart",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket '67d446a1a33a' is cast",
+        "actual": "named ticket '67d446a1a33a' is cast",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "BUILDME",
+          "ticket": "67d446a1a33a",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/67d446a1a33a-chart-s-live-counsel-walks-codemother-s-own-trees-by-default.json"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "67d446a1a33a"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "67d446a1a33a"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "67d446a1a33a"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "67d446a1a33a"
+        }
+      },
+      {
+        "identity": "the_ticket_was_checked_against_the_outline",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "67d446a1a33a"
+        }
       }
     ],
-    "checks_proved": 3,
-    "ticket": "12c293481037",
-    "actor": "cc",
-    "why": "re-triage 2026-10-13 (CC's call, per Akien 2026-10-12 'approved thru PROVED'): the build stands (enqueue transitions.py:2281, drain skills/chart/live.py _drain_before_serving) and its teeth stand sealed (tools/base/proofs/test_transitions.py test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth; codemother/proofs/test_deposit.py), with 2b34b52f80f3 and 637d206be821 PROVED on the same seam since. But its one build commit a3127d21 (2026-07-29) predates the 08-13 move, so a revert-hollow reads UNRAN by construction (builder, measured 2026-10-13) and PROVED's evidence.hollow can never be taken. RETIRED, not PROVED: nothing enters proven-space unhollowed (Law 8); the never-written deposit-drain WATCHME retires with it.",
-    "fingerprint": "ee36c8dbf6f004123c27ae3bf2762f2d70ceab627c0f9de8ed59eb3c610a1867",
-    "at": "2026-10-13T03:18:24",
-    "seq": 51
+    "checks_proved": 10,
+    "certificate": "certificates/67d446a1a33a-BUILDME-20261106T071126Z-3b1d.cert.json",
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "skills/chart/proofs/test_live_counsel_reads_codemothers_tree.py"
+    ],
+    "proven_seal_date": null,
+    "delegated": false,
+    "ticket": "67d446a1a33a",
+    "why": "chart berthed; red-first proof committed; outline check clean",
+    "fingerprint": "41730a32394c9ccdd37a6115b8d5cf30e782cdffdff5d376221f412fbb0f47f0",
+    "at": "2026-11-06T00:11:27",
+    "seq": 52
   },
   "window": [
-    {
-      "from": "WATCHME",
-      "to": "FIXME",
-      "standing": "FIXME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(deposit-drain) -> PROVED",
-      "direction": "back",
-      "severity": 3,
-      "entry_gate": "not_applicable",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'FIXME' in the code-seam@v2 vocabulary",
-          "actual": "'FIXME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "FIXME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "FIXME",
-              "BUILDME",
-              "PROVEME",
-              "WATCHME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> FIXME moves the cursor off position 5",
-          "actual": "WATCHME -> FIXME moves the cursor off position 5",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "FIXME",
-            "cursor": 5,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "WATCHME -> FIXME",
-          "actual": "WATCHME -> FIXME",
-          "fatality": "none",
-          "source": "transitions.inspect_rules",
-          "values": {
-            "target": "FIXME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "FIXME",
-              "PROVED",
-              "PROVEME",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME",
-              "TICKETME"
-            ],
-            "direction": "back"
-          }
-        }
-      ],
-      "checks_proved": 3,
-      "ticket": "12c293481037",
-      "actor": "cc",
-      "missing": [
-        "[watchme] the WATCHME probe this ticket names, cairn/machines/chart/probes/deposit_drain.py, was never written: no file at that path, no cairn/machines/chart directory (the chart machine dissolved 2026-08-13 into skills/chart), and no deposit_drain probe anywhere in the repo (grep, 2026-10-03). The watch has nothing to fire and no receiver can be named; per the answer to open-291189a9766a it comes back for fixing (835b5736bf2b)"
-      ],
-      "why": "a WATCHME finding: the WATCHME probe this ticket names, cairn/machines/chart/probes/deposit_drain.py, was never written: no file at that path, no cairn/machines/chart directory (the chart machine dissolved 2026-08-13 into skills/chart), and no deposit_drain probe anywhere in the repo (grep, 2026-10-03). The watch has nothing to fire and no receiver can be named; per the answer to open-291189a9766a it comes back for fixing (835b5736bf2b)",
-      "fingerprint": "c39e15ce899e91856a51a608a087a119317a1076cf98b28b82db60e796c4415e",
-      "at": "2026-10-03T07:22:21",
-      "seq": 47
-    },
     {
       "from": "TICKETME",
       "to": "BUILDME",
@@ -1329,7 +1343,184 @@
       "fingerprint": "ee36c8dbf6f004123c27ae3bf2762f2d70ceab627c0f9de8ed59eb3c610a1867",
       "at": "2026-10-13T03:18:24",
       "seq": 51
+    },
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket '67d446a1a33a', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'chart' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "67d446a1a33a",
+            "component": "chart",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket '67d446a1a33a' is cast",
+          "actual": "named ticket '67d446a1a33a' is cast",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "67d446a1a33a",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/67d446a1a33a-chart-s-live-counsel-walks-codemother-s-own-trees-by-default.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "67d446a1a33a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "67d446a1a33a"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "67d446a1a33a"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "67d446a1a33a"
+          }
+        },
+        {
+          "identity": "the_ticket_was_checked_against_the_outline",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "67d446a1a33a"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "certificate": "certificates/67d446a1a33a-BUILDME-20261106T071126Z-3b1d.cert.json",
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "skills/chart/proofs/test_live_counsel_reads_codemothers_tree.py"
+      ],
+      "proven_seal_date": null,
+      "delegated": false,
+      "ticket": "67d446a1a33a",
+      "why": "chart berthed; red-first proof committed; outline check clean",
+      "fingerprint": "41730a32394c9ccdd37a6115b8d5cf30e782cdffdff5d376221f412fbb0f47f0",
+      "at": "2026-11-06T00:11:27",
+      "seq": 52
     }
   ],
-  "count": 52
+  "count": 53
 }

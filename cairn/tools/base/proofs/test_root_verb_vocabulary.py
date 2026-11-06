@@ -5,7 +5,7 @@ The falsifier is numbered, so four teeth (PROVES keys follow the falsifier marke
     (``ROOT_VERB_SEMANTICS``), ROOT_VERBS is derived from it, and ``list`` carries the
     table — the vocabulary is data a device answers with, not prose (WRONG INTENT clause);
 (2) every device on the live roster (``cairn/devices/*/shim.py``) inherits the common
-    handlers: none overrides ``resolve``, and a cold ``list`` on each names the six —
+    handlers: none overrides ``resolve``, and a cold ``list`` on each names the seven (help joined by 2d6c1c36f3bd) —
     no device opts in (WRONG INTENT clause);
 (3) a collision is refused AT REGISTRATION: a device declaring a view named after a root
     view, or a bus verb named after a root verb bound to its own handler, is refused with
@@ -54,7 +54,7 @@ PROVES = {"15d6a0ef9c11": {
     "4": "test_get_status_is_uniform_across_the_roster",
 }}
 
-_RULED = ("list", "show", "get", "stop", "start", "settings")
+_RULED = ("list", "show", "get", "stop", "start", "settings", "help")  # help added by 2d6c1c36f3bd
 _GET_SHAPE = ["device", "view", "cached", "timestamp", "data"]
 
 

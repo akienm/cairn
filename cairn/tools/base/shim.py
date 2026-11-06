@@ -58,6 +58,10 @@ ROOT_VERB_SEMANTICS = {
     "stop": "puts the device instance's process down; presence reads OFFLINE",
     "start": "wakes the device instance's process; presence reads ONLINE",
     "settings": "renders the settings view; 'No settings' when the device declares none",
+    # Akien 2026-11-05 (ticket 2d6c1c36f3bd): "help can just call list. help is specifically an
+    # anticipation of the behavior of the other monkeys in my species." Asked from anywhere, so
+    # defined once here; _resolve answers it as list, word for word.
+    "help": "the word people type for list — answers exactly as list does",
 }
 ROOT_VERBS = tuple(ROOT_VERB_SEMANTICS)
 ROOT_VIEWS = ("status", "settings")
@@ -201,6 +205,68 @@ def ensure_ground_loop(now: datetime, *, home: Path | None = None, log: Path | N
         note(f"spawn failed ({type(exc).__name__}: {exc}) — nothing spawned")
         return {"verdict": "DEAD", "spawned": "none", "note": f"spawn failed: {exc}"}
 
+
+
+# --- the cold face of list/help (ticket 2d6c1c36f3bd) ------------------------------------------
+# A device's instance bin holds its shortcuts — the executables `cairn <device> <word>` runs
+# (bin/cairn reads $CAIRN_INSTANCE_ROOT, default ~/.cairn/devices, then <device>/<n>/bin). list
+# shows them beside the verbs, and cold_list answers the same with no shim built and no bus
+# opened, so `cairn <device> help` can answer when nothing else is up.
+
+def _instance_bin(device_id: str, instance_root: str | Path | None, instance: int) -> Path:
+    root = instance_root or os.environ.get("CAIRN_INSTANCE_ROOT")
+    base = Path(root) / device_id / str(instance) if root else instance_path(device_id, instance)
+    return base / "bin"
+
+
+def _first_comment(path: Path) -> str:
+    """The first non-shebang comment line's text, '' when there is none (or the file is binary)."""
+    try:
+        with path.open(encoding="utf-8", errors="replace") as fh:
+            for i, line in enumerate(fh):
+                if i > 40:
+                    break
+                line = line.strip()
+                if not line.startswith("#") or line.startswith("#!"):
+                    continue
+                text = line.lstrip("#").strip()
+                if text:
+                    return text
+    except OSError:
+        pass
+    return ""
+
+
+def bin_shortcuts(device_id: str, instance_root: str | Path | None = None, instance: int = 0) -> list[dict]:
+    """Each executable file in the device's instance bin, sorted, with its first comment line."""
+    b = _instance_bin(device_id, instance_root, instance)
+    if not b.is_dir():
+        return []
+    return [{"name": p.name, "about": _first_comment(p)} for p in sorted(b.iterdir())
+            if p.is_file() and os.access(p, os.X_OK)]
+
+
+def _semantics_and_shortcuts_lines(shortcuts: list[dict]) -> list[str]:
+    lines = ["semantics:"]
+    lines.extend(f"  {verb}: {meaning}" for verb, meaning in ROOT_VERB_SEMANTICS.items())
+    lines.append("shortcuts:")
+    if shortcuts:
+        lines.extend(f"  {s['name']} — {s['about']}" if s["about"] else f"  {s['name']}" for s in shortcuts)
+    else:
+        lines.append("  (none)")
+    return lines
+
+
+def cold_list(device_id: str, instance_root: str | Path | None = None, instance: int = 0) -> dict:
+    """list/help with nothing up: the root verbs with their semantics and the device's bin
+    shortcuts, read from disk alone — no shim constructed, no bus opened, no device woken.
+    ``instance_root`` is the devices root (bin/cairn's ``$CAIRN_INSTANCE_ROOT``); None honours that
+    variable, else the instance address. Returns resolve()'s shape: exit, text, data, cached."""
+    shortcuts = bin_shortcuts(device_id, instance_root, instance)
+    data = {"verbs": list(ROOT_VERBS), "semantics": dict(ROOT_VERB_SEMANTICS), "shortcuts": shortcuts}
+    lines = ["verbs:"] + [f"  {v}" for v in ROOT_VERBS] + _semantics_and_shortcuts_lines(shortcuts)
+    lines.append(f"(cold — read from disk; views and panes need the {device_id}'s shim)")
+    return {"exit": 0, "text": "\n".join(lines), "data": data, "cached": True}
 
 
 class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
@@ -1081,6 +1147,8 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         if verb is None:
             return {"exit": 2, "text": f"cairn {dev}: no such verb {argv[0]!r} — root verbs: {' '.join(ROOT_VERBS)}",
                     "data": None, "cached": None}
+        if verb == "help":  # help IS list (2d6c1c36f3bd): one answer, two words
+            verb = "list"
         rest = [a for a in argv[1:] if canon(a, (HOT,)) is None]
         hot = len(rest) != len(argv) - 1
         # --key value pairs after the view name are the view's arguments (ticket 35b92c5de7ef):
@@ -1133,8 +1201,9 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
                 contract = self.declared_contract()
                 views = list(contract.get("views") or [])
                 panes = list(contract.get("panes") or [])
+            shortcuts = bin_shortcuts(self.device_id, None, self.diagnostic_instance)
             data = {"verbs": list(ROOT_VERBS), "views": list(ROOT_VIEWS) + views, "panes": panes,
-                    "semantics": dict(ROOT_VERB_SEMANTICS)}
+                    "semantics": dict(ROOT_VERB_SEMANTICS), "shortcuts": shortcuts}
             lines = []
             for key in ("verbs", "views", "panes"):
                 lines.append(f"{key}:")
@@ -1142,8 +1211,7 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
                     lines.extend(f"  {name}" for name in data[key])
                 else:
                     lines.append("  (none)")
-            lines.append("semantics:")
-            lines.extend(f"  {verb}: {meaning}" for verb, meaning in ROOT_VERB_SEMANTICS.items())
+            lines.extend(_semantics_and_shortcuts_lines(shortcuts))
             if cached:
                 lines.append(f"(cold — the {dev} is not running; add hot for the device's own list)")
             return {"exit": 0, "text": "\n".join(lines), "data": data, "cached": cached}

@@ -1,0 +1,40 @@
+{
+  "component": "web_operator",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "code-seam",
+  "what": "The general machine a device holds to operate web pages, for reading and other purposes (outline 17.14). WebOperator(holder, instance, roots=None, headless=True) drives a Firefox of the holder's own over WebDriver (geckodriver, plain HTTP) with the verbs ccfox proved: start, stop, go, where, text, find, click, type, secret, key, shot, js. Each holder gets its own geckodriver port and BiDi websocket port (the first free ones, bound and released at start), its own Firefox profile (cairn-<holder>-<n>-profile under $CAIRN_WEB_OPERATOR_PROFILE_ROOT, default ~/snap/firefox/common/), its own session, and its state (port, session id, profile pointer, driver pid) at machine_path(holder, n, 'web_operator')/state.json. Headless unless the holder asks for a window. A secret's value is read from the holder's own .env at instance_path(holder, n)/.env and is never printed or stored. Shell mouth: `python3 -m cairn.machines.web_operator --holder <device>/<n> [--instance-root PATH] <verb> ...`.",
+  "why": "Measured 2026-11-05: the only web-operating code on the box was ~/.local/bin/ccfox (190 lines, outside the class) — one geckodriver on fixed port 4444, one profile, one state directory, CC's alone. Akien 2026-11-05 (Q#28, outline 9.3.8): 'the librarian will get the web interface machine that i don't think exists yet. i believe we built one for you, but we need a general one. i envision a couple of different devices that would use this, the librarian is just the first.' And the name: 'let's change it to web_operator machine. it operates web pages for reading and other purposes.' Several devices hold it, which is why it berths at cairn/machines/ (outline 1.2.2) rather than inside any one device.",
+  "entry": "Built 2026-11-06 under ticket 7a94c34cba52 by porting ccfox's call/driver_up/session_alive/start/stop/matches/nth/type_into/env_value onto a class whose port, profile and state paths derive from the holder. ccfox itself is untouched and stays CC's until a cc ticket moves it onto this machine (outline 12.4.1). MEASURED AT BUILD 2026-11-06: under no_new_privs (every proof runs inside the tester's bwrap seal, which sets it) snap-confine refuses to start any snap, so /snap/bin/geckodriver exits 1. The machine therefore runs the snap's inner binaries directly (/snap/firefox/current/usr/lib/firefox/geckodriver and firefox; overridable by CAIRN_WEB_OPERATOR_GECKODRIVER and CAIRN_WEB_OPERATOR_FIREFOX), one path under NNP and outside it. The price: Firefox runs without the snap's AppArmor confinement.",
+  "invoke": "`from cairn.machines.web_operator import WebOperator`; `op = WebOperator('librarian', 0)`; `op.start(); op.go(url); op.text()`; `op.stop()`. Shell: `python3 -m cairn.machines.web_operator --holder librarian/0 go https://...`. A machine is not its own process: the browser and geckodriver it starts are the holder's.",
+  "state_and_history": "history.json + state.json beside this charter, born at this ticket's BUILDME crossing. A MACHINE KEEPS NO STATE OF ITS OWN HERE (Law 6): each holder's port, session, profile pointer and geckodriver log live at machine_path(holder, n, 'web_operator'), the profile under the profile root.",
+  "learns": "It does not, and keeps no durable state of its own: it is a WebDriver client whose session and profile belong to the holder. What a holder reads through it, and what it learns from that, is the holder's.",
+  "how_it_learns": "It does not, and keeps no durable state of its own: it is a WebDriver client whose session and profile belong to the holder. What a holder reads through it, and what it learns from that, is the holder's.",
+  "gates": "proof gate — proofs/test_web_operator.py drives a real headless Firefox against a scratch http.server fixture under a scratch instance root, seven teeth a hollow build could not pass (the build is the whole package). Import gate — encapsulation_holds in build_inspector reds any reach past a public interface; the machine imports only cairn.tools.base.address. Durability gate — not done until proven AND committed.",
+  "falsifier": "DONE when (1) a holder starts headless and text() returns a fixture page's visible text; (2) type then click drive a fixture form and text(css) reads the result; (3) two holders at once hold different ports, profiles and session ids, each where() its own page; (4) each holder's state lands under its machine_path and nowhere else, and ccfox's state is byte-identical; (5) secret() types an .env value that appears on no stream and no state file; (6) stop() ends one holder's browser and geckodriver while the other still answers; (7) the CLI prints what the class returns. WRONG INTENT if the machine grows a device import or a fixed port: either means it is one device's browser wearing a machine's name.",
+  "proof": "proofs/test_web_operator.py — seven teeth over a real headless Firefox and a localhost fixture; each tooth reports even when an earlier one raises.",
+  "feedback": {
+    "to": "cairn/devices/codemother",
+    "why": "A machine that grows a device import or a fixed port is a care-of-the-code finding — codemother owns the inspectors."
+  },
+  "owner": "A MACHINE HAS A HOLDER (Law 6): the browser, its profile and its state belong to whoever holds it. Akien owns the ruling this address satisfies (Q#28). CC writes the code and the proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "traces_to": [
+    "Law 6 (each holder's browser, profile and state are its own; no shared fixed port)",
+    "Law 1 (the next device that reads the web re-derives none of the WebDriver plumbing)",
+    "RULE 1 (a device reaches the web through this machine's public interface, not through ccfox)"
+  ],
+  "provenance": "Cast 2026-11-05 as ticket 7a94c34cba52 under Akien's Q#28 answer; built 2026-11-06.",
+  "claim_provenance": {
+    "what": "cc-read",
+    "why": "akien-verbatim",
+    "entry": "cc-measured",
+    "owner": "akien-verbatim"
+  },
+  "public_interface": [
+    "cairn.machines.web_operator"
+  ]
+}

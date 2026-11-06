@@ -80,7 +80,19 @@ def clause_1_the_charter_stands_and_the_instance_bin_resolves() -> None:
     if not inst.is_dir():
         lacks.append(f"{inst} is not a directory")
     elif inst.resolve() != _BIN.resolve():
-        unresolved = [p.name for p in scripts if (inst / p.name).resolve() != p.resolve()]
+        # The instance root is one per box, so a second checkout (hollow's worktree) reads wiring
+        # that points at the first: a script counts when it resolves to this same class-bin path
+        # in some checkout and carries the class bin's bytes.
+        rel = ("cairn", "devices", "operator", "0", "bin")
+
+        def wired(p: Path) -> bool:
+            got = (inst / p.name).resolve()
+            if got == p.resolve():
+                return True
+            return got.parent.parts[-len(rel):] == rel and got.is_file() \
+                and got.read_bytes() == p.read_bytes()
+
+        unresolved = [p.name for p in scripts if not wired(p)]
         if unresolved or not scripts:
             lacks.append(f"{inst} neither resolves to {_BIN} nor carries its scripts: {unresolved}")
     check("clause_1_the_charter_stands_and_the_instance_bin_resolves", not lacks, "; ".join(lacks))

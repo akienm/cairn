@@ -188,9 +188,16 @@ def test_dispatcher_folds_the_device_and_verb_tokens_on_the_device_path():
         assert r.returncode == 0, f"uppercase device/verb refused: {r.stderr!r}"
         assert r.stdout == "show:Map Open\n", (
             f"the verb resolves folded, the rest rides verbatim: {r.stdout!r}")
-        r2 = _cairn("Fx_Dev", "Not-A-Verb", "x", CAIRN_INSTANCE_ROOT=d)
-        assert r2.stdout == "self:Not-A-Verb x\n", (
-            f"a non-verb first arg goes to the self-named launcher verbatim: {r2.stdout!r}")
+        # a non-verb first word goes onto the bus (script-else-bus, Q#27, ticket 41a70e789682):
+        # a stub mouth stands in for bus_client and records what it was handed
+        _stub(d, "mouth", f'printf "%s\\n" "$@" > "{d}/mouth.argv"')
+        r2 = _cairn("Fx_Dev", "Not-A-Verb", "x", CAIRN_INSTANCE_ROOT=d,
+                    CAIRN_BUS_MOUTH=os.path.join(d, "mouth"))
+        said = open(os.path.join(d, "mouth.argv")).read().splitlines() \
+            if os.path.exists(os.path.join(d, "mouth.argv")) else None
+        assert said == ["fx_dev", "Not-A-Verb", "x"] and "self:" not in r2.stdout, (
+            f"a non-verb first arg goes to the bus mouth, the device folded and the rest "
+            f"verbatim: said={said!r} out={r2.stdout!r} err={r2.stderr[-300:]!r}")
 
 
 def test_the_real_harbor_master_takes_uppercase_show_map_open():
@@ -214,8 +221,9 @@ def test_the_codemother_launcher_folds_its_subcommand():
     lo = subprocess.run([*bash_script_argv(_CODEMOTHER), "no-such-subcommand-xyz"],
                         capture_output=True, text=True, timeout=60)
     assert r.returncode == lo.returncode and r.stdout == lo.stdout, (r.stderr, lo.stderr)
-    r = subprocess.run([*bash_script_argv(_CODEMOTHER), "SHOW", "NOT-A-VIEW"],
-                       capture_output=True, text=True, timeout=60)
+    # show is a script in codemother's bin since ticket ed3d02b24675, reached through the
+    # dispatcher (script-else-bus, ticket 41a70e789682), so the uppercase SHOW rides bin/cairn
+    r = _cairn("codemother", "SHOW", "NOT-A-VIEW")
     # The show branch hands an unknown view to the base resolver (ticket b41b0c0fff0e), whose
     # refusal names the view it was given, folded, and the views that exist — the default arm
     # prints help and never says "no view".

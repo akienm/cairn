@@ -282,9 +282,22 @@ if [ -d "$device_bin" ]; then
   elif [ -x "$device_bin/${1,,}" ]; then
     # $1 names a real verb in this device's bin (folded: a verb is a system word)
     verb="${1,,}"; shift
-  else
-    # $1 is not a verb — pass everything to the self-named launcher
+  elif [ "${1:0:1}" = "-" ] || [ "$instance" != 0 ]; then
+    # a flag is the self-named launcher's. So is any word at instance n>0: the bus mouth
+    # addresses a device by name, which is instance 0's shim (ticket 41a70e789682, D5).
     verb="$device"
+  else
+    # SCRIPT ELSE BUS (Akien 2026-11-05, Q#27, outline 8.4.2: "if there's a script for it,
+    # run it, else get on the bus"; ticket 41a70e789682). A word that names no script in the
+    # device's bin is said to the device's shim on the bus, through bus_client's command
+    # mouth, and its exit code is this command's. CAIRN_BUS_MOUTH names a stand-in mouth.
+    if [ -n "${CAIRN_BUS_MOUTH:-}" ]; then
+      exec "$CAIRN_BUS_MOUTH" "$device" "$@"
+    fi
+    _mouth_py="$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY"
+    [[ -x "$_mouth_py" ]] || _mouth_py=python3
+    cd "$HERE/.." && PYTHONPATH="$HERE/..${PYTHONPATH:+:$PYTHONPATH}" \
+      exec "$_mouth_py" -m cairn.tools.bus_client "$device" "$@"
   fi
   target="$device_bin/$verb"
   if [ ! -x "$target" ]; then

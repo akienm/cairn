@@ -2,15 +2,14 @@
   {
     "claim": "proof test_web_operator.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T04:14:47",
+    "date": "2026-11-06T04:20:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n  FAIL  tooth_3_two_holders_hold_their_own_browser\n        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n  FAIL  tooth_4_state_berths_under_the_holder_only\n        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n  FAIL  tooth_5_secret_types_without_showing\n        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n  FAIL  tooth_7_the_cli_is_the_class\n        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n  FAIL  tooth_6_stop_ends_one_holder_only\n        ImportError: cannot import name 'WebOperator' from 'cairn.machines.web_operator' (unknown location)\n\nRED — 7 failure(s)\n  - tooth_1_text_reads_the_fixture_page\n  - tooth_2_type_and_click_drive_the_form\n  - tooth_3_two_holders_hold_their_own_browser\n  - tooth_4_state_berths_under_the_holder_only\n  - tooth_5_secret_types_without_showing\n  - tooth_7_the_cli_is_the_class\n  - tooth_6_stop_ends_one_holder_only",
+      "returncode": 0,
+      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 495243, 'headless': True, 'port': 40797, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-495240/cairn-alpha-0-profile', 'session': 'a7cf79ea-f752-44d0-a643-27a3010a5d52', 'websocket_port': 38359} where=('http://127.0.0.1:44767/alpha', 'fixture alpha'); beta={'driver_pid': 495533, 'headless': True, 'port': 39529, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-495240/cairn-beta-0-profile', 'session': '0ca36aee-32b4-4cb3-96cb-047645b3f2b7', 'websocket_port': 54551} where=('http://127.0.0.1:44767/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-495240-aahxbehw/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-495240-aahxbehw/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 40797 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:44767/beta', 'fixture beta')\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "tooth_1_text_reads_the_fixture_page",
         "tooth_2_type_and_click_drive_the_form",
         "tooth_3_two_holders_hold_their_own_browser",
@@ -19,7 +18,8 @@
         "tooth_7_the_cli_is_the_class",
         "tooth_6_stop_ends_one_holder_only"
       ],
-      "test": "test-7d4fbf6cb0aa",
+      "teeth_red": [],
+      "test": "test-73eb5c8c8d22",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -46,19 +46,12 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7d4fbf6cb0aa",
-      "source_fingerprint": "c7be9698966e535f05e93fe5530db359c8e3090d2fa98a5d0393c7e7f46c4efb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-73eb5c8c8d22",
+      "source_fingerprint": "ccb9d7452f6309a1c07b2768a1a117513a1ec290bc52263f4129c0e77847ee8f",
       "fingerprint_closure": [
-        "cairn/__init__.py",
-        "cairn/devices/tester/reach/sitecustomize.py",
-        "cairn/machines/__init__.py",
+        "cairn/machines/web_operator/__init__.py",
         "cairn/machines/web_operator/proofs/test_web_operator.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py"
+        "cairn/machines/web_operator/web_operator.py"
       ],
       "reached": {
         "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
@@ -67,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-489281-43naicyg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-495208-0b5a7e_a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,9 +69,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118980302,
-          "disk_bytes": 152432640,
-          "entries": 13082,
+          "bytes": 119002005,
+          "disk_bytes": 152506368,
+          "entries": 13096,
           "builds": 1,
           "reuses": 0
         }

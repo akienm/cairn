@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_failed_run_is_counted.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-01T19:45:42",
+    "date": "2026-11-05T21:50:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ran:false record ba41f00dfa11-20261102T024537.json, why='read 1: no tree passed the schema in 3 attempts — last lacks'\n  ok   test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal\npasses_since_clean 0 -> 1\n  ok   test_a_failed_pass_counts_toward_the_cap\npointer unmoved; ticket bytes unchanged\n  ok   test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer\nplanted red: \"runner testing-planted's failure (testing: a drive that writes nothing\"; declared green: ['rehearsal', 'tester']\n  ok   test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones\nGREEN — 4/4",
+      "stdout_tail": "ran:false record ba41f00dfa11-20261106T045015.json, why='read 1: no tree passed the schema in 3 attempts — last lacks'\n  ok   test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal\npasses_since_clean 0 -> 1\n  ok   test_a_failed_pass_counts_toward_the_cap\npointer unmoved; ticket bytes unchanged\n  ok   test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer\nplanted red: \"runner testing-planted's failure (testing: a drive that writes nothing\"; declared green: ['rehearsal', 'tester']\n  ok   test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones\nGREEN — 4/4",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_failed_pass_writes_a_ran_false_record_carrying_the_refusal",
@@ -16,7 +16,7 @@
         "test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones"
       ],
       "teeth_red": [],
-      "test": "test-68faf1fcdabb",
+      "test": "test-3fe5475180db",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,32 +42,50 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-68faf1fcdabb",
-      "source_fingerprint": "d1c7894101ea4e945d33e1816d72c4fbcd478098b5bc05e6fe25875bc77cd62c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3fe5475180db",
+      "source_fingerprint": "5358c1013c99ccd05ee2a85a6be851147d7e0efdb042a90545713dbde95e667e",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/__main__.py",
         "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py",
         "cairn/machines/rehearsal/rehearsal.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
+        "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
+        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
+        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
+        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
+        "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
+        "cairn/tools/question": "5c6a0f65f4c37445213496f4c3b0e7a300e2b4b45412ccb92af26a71dde3e530",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
+        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3179831-gbl3pmn4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-267743-mv4po_q1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/runs/test-dde28386c116/stderr.txt",
-            "logs/tester/0/runs/test-dde28386c116/stdout.txt"
+            "logs/tester/0/runs/test-4f5f0b27439f/stderr.txt",
+            "logs/tester/0/runs/test-4f5f0b27439f/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 114925646,
-          "disk_bytes": 145170432,
-          "entries": 11962,
+          "bytes": 118166972,
+          "disk_bytes": 151023616,
+          "entries": 12887,
           "builds": 1,
-          "reuses": 22
+          "reuses": 1
         }
       }
     },

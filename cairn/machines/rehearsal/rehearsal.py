@@ -916,7 +916,8 @@ def _open_the_question(ticket: str, root: Path | str | None) -> dict:
 
 
 def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | None = None,
-           supersedes: list[int] | None = None) -> dict:
+           supersedes: list[int] | None = None, writes_to: list[str] | None = None,
+           reads: list[str] | None = None) -> dict:
     """A gap disposed as a decision line on the ticket, through the door's ``cast`` verb (ticket
     c9897770efe6 D7). At a step ``D<n>`` naming a live, unscoped line n — or at a ``FIXME <k>``
     with a live line at that step — the line is rewritten IN PLACE: the old entry moves whole
@@ -928,7 +929,13 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     by construction.
 
     ``supersedes=[n, ...]`` (ticket c70eeeef73ac) retires each named line INTO the line
-    written in the same act — retire()'s rules and refusals, the plan written once."""
+    written in the same act — retire()'s rules and refusals, the plan written once.
+
+    ``writes_to`` / ``reads`` (ticket 70f91244f3c0, parent e4f02a1ceef5): path lists written
+    onto the new or rewritten entry. On a SHAPED plan — a falsifier dict carrying a clauses
+    list — both are required (an explicit ``[]`` is a claim; ``None`` is silence) and a line
+    without them is refused before anything is written, so amendment cannot reopen the prose
+    leak the cast door closed. On a standing plan, a line without them lands as before."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
@@ -938,6 +945,19 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         raise Refused("--by: who made this decision (D3 — each decision carries who made it)")
     step = (step or "").strip()
     doc = json.loads(tk.read_text(encoding="utf-8"))
+    paths: dict[str, list[str]] = {}
+    for key, val in (("writes_to", writes_to), ("reads", reads)):
+        if val is not None:
+            if not (isinstance(val, (list, tuple)) and all(isinstance(v, str) and v.strip() for v in val)):
+                raise Refused(f"{key} is a list of paths, not {val!r}; nothing written")
+            paths[key] = [v.strip() for v in val]
+    fal = doc.get("falsifier")
+    if isinstance(fal, dict) and isinstance(fal.get("clauses"), list):
+        missing = [k for k in ("writes_to", "reads") if k not in paths]
+        if missing:
+            raise Refused(f"{ticket}'s plan is shaped (its falsifier carries clauses), so a decision "
+                          f"line carries its paths — missing {' and '.join(missing)} (--writes-to/--reads "
+                          f"P, or --no-writes/--no-reads for an explicit empty); nothing written")
     have = doc.get("decisions")
     have = list(have) if isinstance(have, list) else []
     by_n = {d["n"]: d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)}
@@ -962,11 +982,12 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
                       f"not yours to rewrite; nothing written")
     if target is not None:
         n = target["n"]
-        entry = dict(target, text=line.strip(), by=by.strip(), source="rehearsal", at=at)
+        entry = dict(target, text=line.strip(), by=by.strip(), source="rehearsal", at=at, **paths)
         why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n} rewritten in place"
     else:
         n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
-        entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step, "source": "rehearsal", "at": at}
+        entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step, "source": "rehearsal", "at": at,
+                 **paths}
         why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n}"
     if supersedes:
         want = sorted(set(supersedes) - {n})

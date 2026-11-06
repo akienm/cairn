@@ -64,6 +64,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--by", help="who made the decision (required with --decide)")
     p.add_argument("--supersedes", action="append", metavar="D<n>",
                    help="with --decide: retire this line into the new one in the same act (repeatable)")
+    p.add_argument("--writes-to", action="append", metavar="PATH", dest="writes_to",
+                   help="with --decide: a path the line writes (repeatable; ticket 70f91244f3c0)")
+    p.add_argument("--reads", action="append", metavar="PATH",
+                   help="with --decide: a path the line reads (repeatable)")
+    p.add_argument("--no-writes", action="store_true",
+                   help="with --decide: the line writes nothing (an explicit empty writes_to)")
+    p.add_argument("--no-reads", action="store_true",
+                   help="with --decide: the line reads nothing (an explicit empty reads)")
     p.add_argument("--proved", nargs="+", metavar="PROOF",
                    help="after PROVED: diff these proofs' teeth against the converged tree")
     p.add_argument("--standing", action="store_true", help="print what the BUILDME lane reads")
@@ -100,11 +108,19 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.supersedes and not args.decide:
             p.error("--supersedes goes with --decide: the new line is what the old ones retire into")
+        if (args.writes_to or args.reads or args.no_writes or args.no_reads) and not args.decide:
+            p.error("--writes-to, --reads, --no-writes and --no-reads go with --decide")
+        if args.writes_to and args.no_writes:
+            p.error("--writes-to and --no-writes contradict: name the paths or say none")
+        if args.reads and args.no_reads:
+            p.error("--reads and --no-reads contradict: name the paths or say none")
         if args.decide:
             if not args.by:
                 p.error("--decide needs --by <who> (each decision carries who made it)")
             sup = [_decision_id(p, v) for v in args.supersedes] if args.supersedes else None
-            entry = R.decide(args.ticket, args.decide[0], args.decide[1], by=args.by, supersedes=sup)
+            entry = R.decide(args.ticket, args.decide[0], args.decide[1], by=args.by, supersedes=sup,
+                             writes_to=[] if args.no_writes else args.writes_to,
+                             reads=[] if args.no_reads else args.reads)
             # A line the cast wrote carries no step, and an in-place rewrite keeps its keys —
             # so the step reported is the one the caller named (ticket b9be8f2e3e68).
             step = entry.get("step") or args.decide[0]

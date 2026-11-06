@@ -50,7 +50,8 @@ from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 _STAMP = f"{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
 _NEXUS = f"orient_ma_{_STAMP}"          # the near-node corpus
 _NEXUS_FAR = f"orient_far_{_STAMP}"     # the under-floor corpus
-_TABLES = [nexus_table(_NEXUS), nexus_table(_NEXUS_FAR)]
+_TABLES = [nexus_table(_NEXUS, owner=moreabout_mod.OWNER),
+           nexus_table(_NEXUS_FAR, owner=moreabout_mod.OWNER)]
 _PROV = {"source": "proofs/test_chart_moreabout.py", "ground": "fixture"}
 
 
@@ -63,12 +64,13 @@ def _refuses(exc, fn, *args, **kwargs):
 
 
 def _state(nexus):
-    return trees.tree_state(nexus, table=nexus_table(nexus), owner="chart")
+    return trees.tree_state(nexus, table=nexus_table(nexus, owner=moreabout_mod.OWNER),
+                            owner=moreabout_mod.OWNER)
 
 
 def test_the_walk_sees_deposited_state_floor_labeled():
     deposit_learning(_NEXUS, "the orient nexus berths its packet in instance-space",
-                     [1.0, 0.0, 0.0], _PROV)
+                     [1.0, 0.0, 0.0], _PROV, owner=moreabout_mod.OWNER)
     got = expand([1.0, 0.0, 0.0], nexus=_NEXUS)
     assert got["expansions"], "the walk sees the deposited node"
     assert got["expansions"][0]["content"].startswith("the orient nexus")
@@ -81,7 +83,7 @@ def test_the_walk_sees_deposited_state_floor_labeled():
 
 def test_under_floor_is_honest_never_empty():
     deposit_learning(_NEXUS_FAR, "a learning pointing far away from every query",
-                     [0.0, 0.0, 1.0], _PROV)
+                     [0.0, 0.0, 1.0], _PROV, owner=moreabout_mod.OWNER)
     got = expand([1.0, 0.0, 0.0], nexus=_NEXUS_FAR)
     assert got["expansions"], \
         "an under-floor walk still returns the ranked nodes — never empty-handed"
@@ -102,11 +104,12 @@ def test_berthed_state_attaches_only_what_exists():
         with open(broken, "w", encoding="utf-8") as fh:
             fh.write("{not json")
         deposit_learning(_NEXUS, f"a node whose provenance berths on disk [{_STAMP}]",
-                         [0.9, 0.1, 0.0], {"source": path})
+                         [0.9, 0.1, 0.0], {"source": path}, owner=moreabout_mod.OWNER)
         deposit_learning(_NEXUS, f"a node whose provenance names a session, not a file [{_STAMP}]",
-                         [0.8, 0.2, 0.0], {"source": "session scans 2026-07-27"})
+                         [0.8, 0.2, 0.0], {"source": "session scans 2026-07-27"},
+                         owner=moreabout_mod.OWNER)
         deposit_learning(_NEXUS, f"a node whose berth cannot be read [{_STAMP}]",
-                         [0.7, 0.3, 0.0], {"source": broken})
+                         [0.7, 0.3, 0.0], {"source": broken}, owner=moreabout_mod.OWNER)
         got = expand([0.9, 0.1, 0.0], nexus=_NEXUS, k=10)
         by_content = {e["content"]: e for e in got["expansions"]}
         on_disk = by_content[f"a node whose provenance berths on disk [{_STAMP}]"]

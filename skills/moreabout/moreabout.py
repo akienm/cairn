@@ -44,7 +44,8 @@ import os
 
 from cairn.tools.tree.tree import counsel, deposit_learning
 
-OWNER = "chart"
+# codemother owns her learning (Akien 2026-11-05); ticket 99e658a96747
+OWNER = "codemother"
 
 
 class MoreaboutRefused(RuntimeError):

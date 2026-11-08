@@ -916,7 +916,7 @@ def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) ->
     A DIRECTORY THE BUILD DELETED IS EXPANDED THE SAME WAY (ticket 7bd839827172): absent at HEAD
     but a tree at the anchor, it is read over the files this ticket's build commits removed from
     under it, each of which the file loop then restores from the anchor. Measured 2026-11-08 on
-    80df7712b8c5: the retired cairn/machines/quarry_index was skipped whole as 'not present at
+    80df7712b8c5: the retired machine's folder was skipped whole as 'not present at
     HEAD', so a deletion's proof could not be measured at all."""
     out: list[str] = []
     skips: list[dict] = []

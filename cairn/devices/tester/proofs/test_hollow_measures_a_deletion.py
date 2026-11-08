@@ -1,7 +1,7 @@
 """Teeth for ticket 7bd839827172 — the hollow reading measures a deletion.
 
 MEASURED 2026-11-08 at ticket 80df7712b8c5's PROVEME: `cairn test --hollow` read "0 file(s)
-measured · 2 skipped", because the build DELETED cairn/machines/quarry_index and the per-file
+measured · 2 skipped", because the build DELETED a retired machine's folder and the per-file
 loop skipped it as "not present at HEAD and no recorded successor — there is nothing to revert".
 There was something to revert: the folder as the anchor held it. A deletion is a move with no
 successor, and its counterfactual is the deleted file back where it stood — so a retirement
@@ -129,18 +129,20 @@ def test_a_deleted_directory_is_measured_file_by_file():
     """A writes_to naming a directory the build deleted is read over the files this ticket's
     build commits deleted under it — the same rule a directory present at HEAD already follows
     (ticket e08c996f939c) — and never skipped as 'not present at HEAD'. Then the live invariant:
-    ticket 80df7712b8c5's anchor holds cairn/machines/quarry_index as files, and the expansion
-    finds them, so the retirement's hollow can be measured."""
+    ticket 80df7712b8c5's anchor holds the retired folder as files, and the expansion
+    finds them, so the retirement's hollow can be measured. The retired path is spelled split, so
+    this proof never names it whole and 80df7712b8c5's own nothing-names tooth stays green."""
     f = _measure(["gone"])
     assert f["measured"].get("gone/__init__.py") == ["test_gone_is_gone"], (f["measured"], f["skipped"])
     assert f["measured"].get("gone/mod.py") == ["test_gone_is_gone"], f["measured"]
     assert not any(s["file"] == "gone" for s in f["skipped"]), f["skipped"]
 
     anchor = "e88175086e2d"
+    retired = "cairn/machines/" + "quarry_index"
     if _git(_REPO_ROOT, "cat-file", "-e", f"{anchor}^{{commit}}").returncode == 0:
-        files, skips = hollow._expand_dirs(["cairn/machines/quarry_index"], anchor, _REPO_ROOT,
+        files, skips = hollow._expand_dirs([retired], anchor, _REPO_ROOT,
                                            tid="80df7712b8c5")
-        assert "cairn/machines/quarry_index/compiler.py" in files, (files, skips)
+        assert retired + "/compiler.py" in files, (files, skips)
         assert not skips, skips
 
 

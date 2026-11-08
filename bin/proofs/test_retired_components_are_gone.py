@@ -8,7 +8,7 @@ Ticket 80df7712b8c5 (quarry_index, outline 17.13 / Q#44, Akien 2026-11-06), one 
 falsifier clause:
 
   1. cairn/machines/quarry_index/ is absent from the working tree;
-  2. no file in the repo names the module or its folder (dot-records and caches excepted);
+  2. no file in the repo names the module or its folder (records of truth and caches excepted);
   3. the compiler module cannot be loaded: importing it exits nonzero with "No module named"
      (an import, never `-m`, so the red-first run cannot run the compiler).
 
@@ -50,15 +50,21 @@ def _check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+_RECORDS = ("history.json", "state.json")
+
+
 def _naming(needles: tuple[str, ...]) -> list[str]:
-    """Repo files whose text holds any needle. Skipped: this proof, __pycache__, egg-info, and
-    every dot-file and dot-folder (.git, .pytest_cache, .artifact-journal.jsonl): those are
-    records and caches that name what passed through, never callers."""
+    """Repo files whose text holds any needle. Skipped: this proof, __pycache__, egg-info, every
+    dot-file and dot-folder (.git, .pytest_cache, .artifact-journal.jsonl), and each component's
+    records of truth: history.json, state.json and everything under validations/ (ticket
+    80df7712b8c5 FIXME 1). Those are append-only records and caches that name what passed
+    through, never callers."""
     hits: list[str] = []
     for root, dirs, files in os.walk(REPO):
-        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("__pycache__", "cairn.egg-info")]
+        dirs[:] = [d for d in dirs if not d.startswith(".")
+                   and d not in ("__pycache__", "cairn.egg-info", "validations")]
         for f in files:
-            if f.startswith("."):
+            if f.startswith(".") or f in _RECORDS:
                 continue
             p = Path(root) / f
             if p.resolve() == SELF:

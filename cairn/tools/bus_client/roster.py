@@ -7,8 +7,8 @@ the resident one alone (bae622881f03); this object is what a client actually nee
 private one, and nothing else:
 
   * ``roster()`` — the nav: every fitted device (``cairn.tools.base.deviceness``), each with
-    whether its held shim is awake, plus ``beats`` read from the heartbeat's own liveness
-    record. It never counts beats itself; the heartbeat is the only thing that beats.
+    whether its held shim is awake. (The heartbeat's beat count left the nav with the liveness
+    tool, ticket 6208d0a27d6e: the heartbeat's own page shows its record.)
   * ``shim_for(name)`` — a device's shim, loaded from disk the first time it is asked for: the
     concrete ``<device folder>/shim.py`` when there is one, else a ``DiscoveredShim`` fronting
     the rack device's ``probes/`` folder. Every answer found is held.
@@ -16,8 +16,6 @@ private one, and nothing else:
     A pulse wires each shim's delivery; it is not a heartbeat and it has no cadence.
 """
 from __future__ import annotations
-
-from datetime import datetime, timezone
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 
@@ -77,25 +75,15 @@ class DeviceRoster(DiagnosticBase):
     # --- the nav ------------------------------------------------------------
 
     def roster(self) -> dict:
-        """``{"beats", "devices": [{"device", "awake"}]}`` — the shape the web server reads."""
+        """``{"devices": [{"device", "awake"}]}`` — the shape the web server reads."""
         from cairn.tools.base.deviceness import fitted_device_ids
 
         return {
-            "beats": self._beats(),
             "devices": [
                 {"device": d, "awake": bool(getattr(self._held.get(d), "running", False))}
                 for d in sorted(fitted_device_ids(self._root))
             ],
         }
-
-    @staticmethod
-    def _beats() -> int:
-        from cairn.tools.liveness.liveness import read_liveness
-
-        record = read_liveness(datetime.now(timezone.utc)).get("record")
-        if record is None:
-            return 0
-        return (record.get("state") or {}).get("beats", 0)
 
     # --- one pulse of the held shims ----------------------------------------
 

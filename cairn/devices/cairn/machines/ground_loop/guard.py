@@ -1,81 +1,43 @@
 """guard — the atomic single-start claim (ticket an-entry-point-starts-the-loop-only-once).
 
-READ-THEN-ACT IS NOT ATOMIC. Two entry points can both read DEAD inside the same
-5s window and both start a loop — the falsifier's expensive direction (every
-callback fires twice). So starting is decided by ONE syscall, not by a read:
-``claim_singleton`` takes ``fcntl.flock(LOCK_EX | LOCK_NB)`` on a stable lock
-file in the loop's own device space, and exactly one claimant wins.
+READ-THEN-ACT IS NOT ATOMIC. Two entry points can both find no loop inside the same instant
+and both start one — the falsifier's expensive direction (every callback fires twice). So
+starting is decided by ONE syscall, not by a read: ``claim_singleton`` takes an exclusive,
+non-blocking lock on a stable lock file in the loop's own device space, and exactly one
+claimant wins. The lock itself is the base tool ``cairn/tools/base/singleton.py`` (ticket
+6208d0a27d6e), so a shim can ask ``held`` without importing this device (RULE 1).
 
-WHY flock AND NOT O_EXCL: the kernel releases a flock when its holder dies —
-clean exit, SIGKILL, power event, all the same. A bare O_EXCL claim file would
-survive its dead creator as a stale claim, and breaking it would need a second
-staleness protocol — reopening at the break-the-claim step exactly the race
-this module exists to close. flock has no stale state to break.
+WHY A SEPARATE FILE AND NOT THE RECORD: the record (beat.json) is rewritten atomically every
+beat via ``os.replace``, which swaps the inode out from under any held lock. The lock file
+(``run.lock``) is never replaced, so the winner's claim rides one inode for the process's
+whole life.
 
-WHY A SEPARATE FILE AND NOT liveness.json: the record is rewritten atomically
-every beat via ``os.replace``, which swaps the inode out from under any held
-lock. The lock file (``run.lock``) is never replaced, so the winner's claim
-rides one inode for the process's whole life.
-
-The claim DECIDES; the record EXPLAINS. A losing claimant reads
-``read_liveness`` to name what is running (pid, age — the owned answer, Law 6),
-but its refusal never rests on that read: a loop alive-but-slow past the 5s
-threshold still HOLDS ITS LOCK, so no second loop starts beside it.
+THE LOCK DECIDES; THE RECORD EXPLAINS. A losing claimant reads the record only to name what
+is running (its pid); its refusal never rests on that read, and it never signals the holder
+(Q#53: no takeover). A loop alive-but-slow still holds its lock, so no second loop starts.
 """
 
 from __future__ import annotations
 
-import os
-from dataclasses import dataclass
 from pathlib import Path
 
-if os.name == "nt":       # no fcntl on Windows: a 1-byte msvcrt lock plays flock (held by the fd, dies with the process)
-    import msvcrt
-else:
-    import fcntl
+from cairn.tools.base.singleton import Claim, ClaimRefused, claim, held as _held
 
 LOCK_NAME = "run.lock"
 
+SingletonClaim = Claim
 
-class ClaimRefused(RuntimeError):
-    """Another process holds the singleton claim — the loser's LOUD refusal (CP1).
-
-    Deliberately carries no verdict about WHO holds it: that is the record's to
-    say (``read_liveness``), and the door that catches this reads it there."""
+__all__ = ["LOCK_NAME", "ClaimRefused", "SingletonClaim", "claim_singleton", "held"]
 
 
-@dataclass
-class SingletonClaim:
-    """The winner's held claim: an open fd whose flock the kernel keeps until this
-    process exits or dies. Hold the object for the process's whole life — closing
-    the fd IS releasing the claim, so ``release`` exists for proofs, not for the
-    runner (the runner's release is its death, by design: no unlock code path
-    means no way to drop the claim while the loop still beats)."""
-
-    fd: int
-    path: Path
-
-    def release(self) -> None:
-        os.close(self.fd)
-
-
-def claim_singleton(home: Path) -> SingletonClaim:
+def claim_singleton(home: Path) -> Claim:
     """ONE atomic claim on the loop's own device space; win or refuse loudly, never block.
-
-    The lock file is created if absent (its existence means nothing — only the
-    held flock does, so a leftover file from a dead loop is inert, not stale)."""
+    Hold the returned claim for the process's whole life — the runner's release is its death."""
+    home = Path(home)
     home.mkdir(parents=True, exist_ok=True)
-    path = home / LOCK_NAME
-    fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    try:
-        if os.name == "nt":
-            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
-        else:
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
-        os.close(fd)
-        raise ClaimRefused(
-            f"the singleton claim at {path} is already held — a ground loop is running "
-            "(or holding its lock while slow); this claimant must not become a second one"
-        ) from None
-    return SingletonClaim(fd=fd, path=path)
+    return claim(home / LOCK_NAME)
+
+
+def held(home: Path) -> bool:
+    """Is a loop holding the claim in ``home``? Asking creates nothing."""
+    return _held(Path(home) / LOCK_NAME)

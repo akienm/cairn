@@ -43,7 +43,6 @@ def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = Fals
     fleet-wide view is reachable from anywhere, distinct from the per-device pages. (There is no
     special chat entry: the librarian rides the roster like any device — ONE web server, and every
     device's surfaces live on its own page.)"""
-    beats = _esc(roster.get("beats", 0))
     items = []
     if harbor:
         hcls = "dev harbor" + (" selected" if selected == "harbor" else "")
@@ -59,7 +58,7 @@ def render_nav(roster: dict, selected: str | None = None, *, harbor: bool = Fals
             f'title="{state}"><span class="dot">{dot}</span> {_esc(device)}</a>'
         )
     nav = "".join(items) or '<span class="empty">no devices on the heartbeat yet</span>'
-    return f'<nav><span class="beats" title="heartbeats">♥ {beats}</span>{nav}</nav>'
+    return f'<nav>{nav}</nav>'
 
 
 def render_traffic_image(img: dict) -> str:
@@ -379,7 +378,6 @@ body { margin: 0; font: 15px/1.5 system-ui, sans-serif; }
 nav { display: flex; gap: .25rem; align-items: center; flex-wrap: wrap;
       padding: .5rem .75rem; border-bottom: 1px solid #8884; position: sticky; top: 0;
       background: Canvas; }
-nav .beats { margin-right: .5rem; opacity: .7; }
 nav a.dev { text-decoration: none; padding: .2rem .55rem; border-radius: .4rem;
             border: 1px solid #8884; color: inherit; }
 nav a.dev.selected { border-color: #6a9; font-weight: 600; }

@@ -5,7 +5,7 @@ PROVEME -> FIXME and repaired by c2d2fedf. The hollow anchored at c2d2fedf^, so 
 build fell outside the window, and the run then misread what was left:
   - the writes_to entry ``cairn/devices/cairn/machines/ground_loop/`` (a directory, present at
     HEAD, holding the repair) was skipped as "not present at HEAD";
-  - ``ground_loop/liveness.py`` (moved to cairn/tools/liveness earlier, byte-identical at the
+  - the ground loop's old record module (moved to a tool earlier, since retired; byte-identical at the
     anchor) read HOLLOW, because the "moved from" suffix was added before the "unchanged" test;
   - four files the build did write read "unwritten", blaming the chart.
 

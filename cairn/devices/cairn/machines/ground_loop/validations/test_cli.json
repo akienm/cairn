@@ -2,16 +2,24 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:51:38",
+    "date": "2026-11-08T12:03:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py\", line 17, in <module>\n    from cairn.devices.cairn.machines.ground_loop.heartbeat import write_record\nImportError: cannot import name 'write_record' from 'cairn.devices.cairn.machines.ground_loop.heartbeat' (/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/heartbeat.py)",
-      "teeth_green": [],
+      "returncode": 0,
+      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads the record\nPASS: status prints the changed count and no trigger lines\nground_loop: stop signaled (flag copied to instance folder)\n  pid 1013265 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report up/down (the held lock), pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
+      "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report up/down (the held lock), pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
+      "teeth_green": [
+        "status returns 0 and reads the record",
+        "status prints the changed count and no trigger lines",
+        "stop copies COMMAND_EXIT.flag to instance folder",
+        "stop is idempotent (already signaled)",
+        "help returns 0",
+        "unknown command returns 1",
+        "bin/cmd/groundloop exists and is executable"
+      ],
       "teeth_red": [],
-      "test": "test-63f545e23761",
+      "test": "test-2c3dc0566e96",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,26 +46,26 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63f545e23761",
-      "source_fingerprint": "d5294ccce85ec3066fa94c6b8ca7e031b7f3c4bc1836ceb117c6b9d763793169",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c3dc0566e96",
+      "source_fingerprint": "480fe43277912676346655d72cf0c6be60fefcd86c48a13349164154ff388d5f",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/cli.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py"
       ],
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
         "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
+        "cairn/tools/base": "1fb87695e9126423edd82efcb31d5c5d92bb6f61230659d83dbaf344b334115f",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
         "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1008746-dlf59rq_/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1013242-fsructbj/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,21 +74,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119680623,
-          "disk_bytes": 154079232,
-          "entries": 13413,
+          "bytes": 119682244,
+          "disk_bytes": 154087424,
+          "entries": 13416,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "78a0d78ce1114171748af075bb7ba886862ec9fd4ce423942a1d2e4c869a2b95",
         "opened": "2026-11-08T11:51:38",
         "last_red": "2026-11-08T11:51:38",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-cli",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-08T12:03:20",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "78a0d78ce1114171748af075bb7ba886862ec9fd4ce423942a1d2e4c869a2b95"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

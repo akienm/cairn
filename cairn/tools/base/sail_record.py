@@ -17,10 +17,10 @@ never git), and the phase is read back from that record, statelessly, by anyone 
 asks. A session that dies takes its claim with it, which is exactly the property a
 stored phase could not have.
 
-THE DETECTOR, AND WHERE IT DELIBERATELY DIVERGES FROM ITS ANCESTOR. This composes
-``cairn/tools/liveness/liveness.py`` — its atomic temp-then-``os.replace`` write, and its
-read face that names a lack instead of raising. It DIVERGES on the verdict: liveness
-judges by the stamp's AGE against a 300s threshold, because a loop ticks on a cadence
+THE DETECTOR, AND WHERE IT DELIBERATELY DIVERGES FROM ITS ANCESTOR. This composed
+the ground loop's old record tool (retired by ticket 6208d0a27d6e) — its atomic
+temp-then-``os.replace`` write, and its read face that names a lack instead of raising. It
+DIVERGED on the verdict: that tool judged by the stamp's AGE against a 300s threshold, because a loop ticks on a cadence
 and a stopped clock is the whole signal. A sail has no cadence. A build that thinks
 for twenty minutes is healthy, and an age test would call it DEAD. So the verdict here
 is PID LIVENESS: the record names the session's pid AND that pid's ``/proc`` start

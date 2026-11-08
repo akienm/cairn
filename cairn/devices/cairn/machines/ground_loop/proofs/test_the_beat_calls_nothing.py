@@ -153,9 +153,11 @@ def test_the_live_heartbeat_beats_without_triggers():
                             capture_output=True, text=True, timeout=30).stdout.strip()
     assert active == "active", f"cairn-ground-loop.service is {active!r}"
     from cairn.tools.base.address import instance_path
-    from cairn.devices.cairn.machines.ground_loop import guard, heartbeat
+    from cairn.devices.cairn.machines.ground_loop import heartbeat
     live = instance_path("cairn", 0) / "machines" / "ground_loop"
-    assert guard.held(live), f"no loop holds the live lock at {live / guard.LOCK_NAME}"
+    # Not guard.held(live): under the tester's seal ~/.cairn is a copy (a different inode,
+    # measured 2026-11-08), so the live flock cannot be probed from here. The unit being active
+    # and the record's pid being its MainPID is the same fact, read from outside the lock.
     found = heartbeat.read_record(live, datetime.now(timezone.utc).astimezone())
     assert found["record"] is not None and found["age_s"] < 3 * heartbeat.CADENCE_S, \
         f"the live heartbeat's record is absent or not beating: {found}"

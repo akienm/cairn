@@ -1,9 +1,9 @@
 """cairn groundloop stop|start|restart|status — the operator's interface to the heartbeat.
 
 The ground loop's daemon process is managed through presence-based flag files
-(ticket a-stale-loop-restarts-itself, Akien's design 2026-08-19) and the liveness
-record (ticket ground-loop-writes-its-own-liveness). This CLI composes with both:
-stop copies a flag, start spawns the runner, status reads the record. It adds no
+(ticket a-stale-loop-restarts-itself, Akien's design 2026-08-19), its held lock and its
+record (beat.json; ticket 6208d0a27d6e). This CLI composes with them: stop copies a flag,
+start spawns the runner, status says up or down from the lock and reads the record. It adds no
 mechanism — it is the human interface to mechanisms that already exist and are proved.
 
 The missing piece surfaced 2026-08-29 when the trouble ticket
@@ -27,7 +27,8 @@ from shutil import copy2
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.system_word import canon, fold, is_word
-from cairn.tools.liveness.liveness import read_liveness
+from cairn.devices.cairn.machines.ground_loop.guard import held
+from cairn.devices.cairn.machines.ground_loop.heartbeat import read_record
 
 INSTANCE = 0
 COMMAND_EXIT = "COMMAND_EXIT.flag"
@@ -40,9 +41,9 @@ def _home() -> Path:
 def _status() -> int:
     now = datetime.now(timezone.utc).astimezone()
     home = _home()
-    found = read_liveness(now, home)
+    found = read_record(home, now)
     record = found.get("record") or {}
-    verdict = found["verdict"]
+    verdict = "up" if held(home) else "down"
     pid = record.get("pid")
     beats = (record.get("state") or {}).get("beats")
     age_s = found.get("age_s")
@@ -102,10 +103,7 @@ def _stop() -> int:
     copy2(str(source), str(target))
     print("ground_loop: stop signaled (flag copied to instance folder)")
 
-    now = datetime.now(timezone.utc).astimezone()
-    found = read_liveness(now, home)
-    record = found.get("record") or {}
-    pid = record.get("pid")
+    pid = (read_record(home).get("record") or {}).get("pid")
     if pid:
         print(f"  pid {pid} will exit on next beat cycle")
     return 0
@@ -135,12 +133,9 @@ def _start() -> int:
 def _restart() -> int:
     home = _home()
 
-    now = datetime.now(timezone.utc).astimezone()
-    found = read_liveness(now, home)
-    record = found.get("record") or {}
-    old_pid = record.get("pid")
+    old_pid = (read_record(home).get("record") or {}).get("pid")
 
-    if found["verdict"] == "LIVE" and old_pid:
+    if held(home) and old_pid:
         _stop()
         print("ground_loop: waiting for old process to exit...")
         for _ in range(10):
@@ -170,7 +165,7 @@ USAGE = """\
 usage: cairn groundloop <command>
 
 commands:
-  status          report LIVE/DEAD, pid, beats, age
+  status          report up/down (the held lock), pid, beats, age
   stop            signal the loop to exit on next beat
   start           spawn the ground loop daemon
   restart         stop + start

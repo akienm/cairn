@@ -55,8 +55,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))     # cairn/devices
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
-from cairn.tools.liveness import liveness as _gl_liveness  # noqa: E402
-from cairn.tools.liveness.liveness import CADENCE_S as _CADENCE_S  # noqa: E402
 
 # Resolved ONCE, before any arm hands a child a pruned PATH. The prime-directive arm makes
 # systemd-run unreachable to the LAUNCHER, and an early version of that arm made it
@@ -113,11 +111,11 @@ _SCRATCH = scratch_dir("cairn-proof-heartbeat-")
 _UNITS: list[str] = []          # every transient unit this run created, cleaned at the end
 _TAG = f"{os.getpid()}"
 
-# The liveness record's address, taken from its OWNER (ground_loop.liveness) and expressed
-# relative to $HOME so it can be re-rooted onto a fixture home. `instance_home()` resolves
-# against the live tree; only the tail below it is used.
-_LIVENESS_TAIL = (_gl_liveness.instance_home().relative_to(Path.home())
-                  / _gl_liveness.RECORD_NAME)
+# The loop's beat record, relative to $HOME so it can be re-rooted onto a fixture home. Spelled
+# here, not imported: the record is the ground loop's own (ticket 6208d0a27d6e) and this device
+# reaches no other device's code (RULE 1). The ruled cadence is likewise the number, 60 s.
+_LIVENESS_TAIL = Path(".cairn/devices/cairn/0/machines/ground_loop/beat.json")
+_CADENCE_S = 60.0
 
 FAILURES: list[str] = []
 
@@ -307,14 +305,10 @@ class Drive:
 
     @property
     def liveness(self) -> Path:
-        # DERIVED FROM THE OWNER'S OWN READ FACE, never re-spelled here. This property held
-        # `.cairn/devices/ground_loop/0/liveness.json` — the address from before the loop
-        # became a MACHINE of the cairn device — so on 2026-09-08 it reported `None` at a
-        # path nothing writes while the record sat, correct and current, two segments away
-        # at `.cairn/devices/cairn/0/machines/ground_loop/liveness.json`. Two teeth red'd on
-        # a working heartbeat. `instance_home()` is where that shape is decided; taking the
-        # tail from it and re-rooting on the fixture's HOME means the next move of the
-        # address moves this with it.
+        # The beat record under the fixture's HOME. Spelled once, at _LIVENESS_TAIL: on
+        # 2026-09-08 a stale spelling here (the address from before the loop became a machine
+        # of the cairn device) red'd two teeth on a working heartbeat, so the tail lives in
+        # one place and the ground loop's own proofs pin the record's name (beat.json).
         return self.home / _LIVENESS_TAIL
 
     @property

@@ -257,7 +257,7 @@ def test_iv_reach_refuses_a_name_no_shim_answers_to():
 def test_vi_the_ground_loop_fronts_the_loop_it_was_built_in():
     """THE HEARTBEAT'S SHIM LOADS LIKE EVERY OTHER. Since ticket efb670ff1dd8 no client builds
     a loop, so there is no chassis to hand it: ``GroundLoopShim`` is built from ``bus`` alone and
-    starts ``HeartbeatPage``, the read-only page over the resident heartbeat's liveness record.
+    starts ``HeartbeatPage``, the read-only page over the resident heartbeat's lock and beat record.
     (The tooth's name is kept as its address; what it guards is that the shim is there.)
 
     REGRESSION TOOTH, MEASURED 2026-09-13: ``connect_system(devices=["ground_loop", ...])`` is

@@ -2,18 +2,27 @@
   {
     "claim": "proof test_root_verbs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:55:40",
+    "date": "2026-11-08T12:34:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "ok test_resolve_lives_in_the_base_only",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_root_verbs.py\", line 318, in <module>\n    home = _scratch()\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_root_verbs.py\", line 138, in _scratch\n    from cairn.tools.base import singleton\nImportError: cannot import name 'singleton' from 'cairn.tools.base' (/home/akien/dev/src/cairn/cairn/tools/base/__init__.py)",
+      "returncode": 0,
+      "stdout_tail": "ok test_resolve_lives_in_the_base_only\nok test_cold_list_starts_nothing\nok test_cold_show_never_run\nok test_hot_show_starts_and_stamps (2026-11-08T19:34:18.886644+00:00)\nok test_new_process_cold_show_is_cached\nok test_get_is_one_line_one_shape\nok test_settings_literal_and_rendered\nok test_start_then_stop\nok test_refusals_name_the_six\nok test_status_view_collision_refused\ntest_root_verbs: green",
+      "stderr_tail": "",
       "teeth_green": [
-        "test_resolve_lives_in_the_base_only"
+        "test_resolve_lives_in_the_base_only",
+        "test_cold_list_starts_nothing",
+        "test_cold_show_never_run",
+        "test_hot_show_starts_and_stamps",
+        "test_new_process_cold_show_is_cached",
+        "test_get_is_one_line_one_shape",
+        "test_settings_literal_and_rendered",
+        "test_start_then_stop",
+        "test_refusals_name_the_six",
+        "test_status_view_collision_refused"
       ],
       "teeth_red": [],
-      "test": "test-1717b97b0708",
+      "test": "test-aa37e75f6afd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,8 +49,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1717b97b0708",
-      "source_fingerprint": "ba4c0c0664cc02fecc7cc869a1e005a78c76c287b9a275f95ecd30164c3c3d2e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aa37e75f6afd",
+      "source_fingerprint": "7ec02a174db87956346149d60fc852f36170cfdf91cfd41bf0ff199c70654518",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -51,39 +60,45 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_root_verbs.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/base/singleton.py",
         "cairn/tools/base/testing_mark.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
         "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1008746-_2cy5m26/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1013242-j6cn87tv/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119680623,
-          "disk_bytes": 154079232,
-          "entries": 13413,
+          "bytes": 119683992,
+          "disk_bytes": 154091520,
+          "entries": 13417,
           "builds": 1,
-          "reuses": 9
+          "reuses": 44
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "b20ca8183c1f434c6aed2ca4eea57254d980c38a0e8516fda68cca57d0842611",
         "opened": "2026-11-08T11:55:40",
         "last_red": "2026-11-08T11:55:40",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-root-verbs",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-08T12:34:21",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "b20ca8183c1f434c6aed2ca4eea57254d980c38a0e8516fda68cca57d0842611"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,10 +2,12 @@
 
 What it does, all of it (Akien, 2026-09-30):
 
-  - claims the singleton; a second loop exits while one runs and is LIVE;
+  - claims the singleton; a second loop refuses and exits while one holds the lock, and never
+    signals it (ticket 6208d0a27d6e: no age verdict, no takeover);
   - records the mtimes of its own files;
   - each beat: compares them, launches each device's groundloop/pulse.py as a detached
-    child it never waits on (ticket 81eb3e46aed9), and writes one JSON (liveness.json) with
+    child it never waits on (ticket 81eb3e46aed9), and writes one JSON (beat.json, its own record —
+    heartbeat.write_record, ticket 6208d0a27d6e) with
     the recorded and current mtimes, the devices found, the rack's ids (``cairn.tools.rack``,
     ticket a808e21d646f), and what it spawned;
   - COMMAND_EXIT stops it; a changed own file re-execs it in place unless
@@ -36,14 +38,13 @@ import os
 import signal
 import sys
 import threading
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
-from cairn.devices.cairn.machines.ground_loop.heartbeat import changed, mtimes, own_files, spawn_pulses
-from cairn.tools.liveness.liveness import CADENCE_S, read_liveness, write_liveness
+from cairn.devices.cairn.machines.ground_loop.heartbeat import (
+    CADENCE_S, changed, mtimes, own_files, read_record, spawn_pulses, write_record)
 from cairn.tools.rack.rack import rack_ids
 
 EXIT_ALREADY_RUNNING = 3   # the loser's exit: not 1 (a crash), not 2 (argparse)
@@ -57,30 +58,16 @@ def _now() -> datetime:
 
 
 def _claim(home: Path):
-    """The claim, or None when a LIVE loop holds it. A holder whose record is DEAD is hung:
-    it is sent SIGTERM and the claim is taken once more."""
+    """The claim, or None when a loop holds it. The newcomer refuses and exits; it never
+    signals the holder and never judges it by its record's age (ticket 6208d0a27d6e, Q#53:
+    no age verdict, no takeover). The record is read only to name the holder's pid."""
     try:
         return claim_singleton(home)
     except ClaimRefused as refusal:
-        found = read_liveness(_now(), home)
-        pid = (found.get("record") or {}).get("pid")
-        if found["verdict"] == "LIVE" or not pid:
-            print(f"ground_loop: a loop is running (pid {pid}, {found['verdict']}); "
-                  f"refusing to start a second loop — {refusal}", file=sys.stderr)
-            return None
-        print(f"ground_loop: the claim holder pid {pid} is stale, not beating "
-              f"({found.get('age_s')}s); sending SIGTERM", file=sys.stderr)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError:
-            pass
-        time.sleep(2)
-        try:
-            return claim_singleton(home)
-        except ClaimRefused:
-            print(f"ground_loop: the stale holder pid {pid} still holds the claim; "
-                  "refusing to start a second loop", file=sys.stderr)
-            return None
+        pid = (read_record(home).get("record") or {}).get("pid")
+        print(f"ground_loop: a loop is running (pid {pid}); "
+              f"refusing to start a second loop — {refusal}", file=sys.stderr)
+        return None
 
 
 def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class_root=None) -> int:
@@ -100,7 +87,7 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
     state = {"beats": 0, "started": started, "recorded_mtimes": recorded,
              "current_mtimes": recorded, "changed": [],
              "devices": rack_ids(class_root), "spawned": []}
-    write_liveness(_now(), state, os.getpid(), home)
+    write_record(_now(), state, os.getpid(), home)
     held: list = []
 
     stop = threading.Event()
@@ -114,7 +101,7 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
         state = {"beats": state["beats"] + 1, "started": started,
                  "recorded_mtimes": recorded, "current_mtimes": current,
                  "changed": diff, "devices": rack_ids(class_root), "spawned": spawned}
-        write_liveness(_now(), state, os.getpid(), home)
+        write_record(_now(), state, os.getpid(), home)
         if (home / COMMAND_EXIT).exists():
             break
         if diff and not (home / COMMAND_DO_NOT_RESTART).exists():

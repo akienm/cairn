@@ -100,10 +100,10 @@ def tooth_3(T) -> None:
         from cairn.tools.bus_client import reach
         bus = reach("ground_loop")
         reply = bus.request(sender="test_the_wiring_needs_no_loop", to="ground_loop",
-                            verb="liveness", why="proof: the heartbeat's page answers over reach",
+                            verb="beat", why="proof: the heartbeat's page answers over reach",
                             body={}, timeout=20.0)
         body = reply.get("body") or {}
-        ok(T["3"], "verdict" in body, f"body keys={sorted(body)[:8]}")
+        ok(T["3"], "up" in body, f"body keys={sorted(body)[:8]}")
     except Exception as e:  # noqa: BLE001
         ok(T["3"], False, f"{type(e).__name__}: {e}")
 

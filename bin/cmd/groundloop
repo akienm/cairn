@@ -2,10 +2,10 @@
 # cairn groundloop — manage the ground loop daemon (stop/start/restart/status).
 #
 # The operator's interface to the heartbeat. Composes with the flag-file mechanism
-# (COMMAND_EXIT.flag, COMMAND_DO_NOT_RESTART.flag) and the liveness record. Args
+# (COMMAND_EXIT.flag, COMMAND_DO_NOT_RESTART.flag), the held lock and the beat record. Args
 # pass through verbatim:
 #
-#   cairn groundloop status     report LIVE/DEAD, pid, beats, age
+#   cairn groundloop status     report up/down, pid, beats, age
 #   cairn groundloop stop       signal the loop to exit on next beat
 #   cairn groundloop start      spawn the ground loop daemon
 #   cairn groundloop restart    stop + start

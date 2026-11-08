@@ -21,20 +21,79 @@ read as stale after beat 1 and the loop restarted itself 61 times. An mtime comp
 the loop's own folder answers the only question the restart needs: did someone change
 this code since I started?
 
-The runner (__main__.py) owns the clock, the claim, the flags and the exec. Everything here
+THE LOOP OWNS ITS RECORD AND ITS CADENCE (ticket 6208d0a27d6e, Q#53): both lived in a\nseparate tool that also judged the record by its age; that judgement is retired. Whether the\nloop is up is its held lock (guard.py), and the record only says what the last beat did.\n\nThe runner (__main__.py) owns the clock, the claim, the flags and the exec. Everything here
 is callable from a proof with temp trees.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
+import tempfile
+from datetime import datetime
 from pathlib import Path
 
+from cairn.tools.base.address import instance_path
 from cairn.tools.rack.rack import rack
 
 HERE = Path(__file__).resolve().parent
+
+
+# THE CADENCE — RULED by Akien 2026-08-22: the ground loop beats once per minute. Its one
+# definition site is here, beside the beat it paces (ticket 6208d0a27d6e: the loop owns it).
+CADENCE_S = 60.0
+
+# THE RECORD — the loop's one JSON (Akien 2026-09-30, "writes that to one JSON"). It says what
+# the last beat did; it is never judged by its age (Q#53: "Is it up?" is the held lock).
+RECORD_NAME = "beat.json"
+
+
+def write_record(now, state: dict, pid: int, home) -> Path:
+    """Write the record atomically into ``home``, creating it on first write. Temp in the SAME
+    directory so ``os.replace`` is a same-filesystem rename: a reader never sees a torn record."""
+    home = Path(home)
+    home.mkdir(parents=True, exist_ok=True)
+    final = home / RECORD_NAME
+    record = {"last_run": now.isoformat(), "state": state, "pid": pid}
+    fd, tmp = tempfile.mkstemp(prefix=RECORD_NAME + ".", dir=str(home))
+    try:
+        with os.fdopen(fd, "w") as fh:
+            json.dump(record, fh)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, final)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+    return final
+
+
+def default_home() -> Path:
+    return instance_path("cairn", 0) / "machines" / "ground_loop"
+
+
+def read_record(home=None, now=None) -> dict:
+    """``{record, age_s}`` — the record whole, and its age when ``now`` is given. It judges
+    nothing. Absent or unreadable is ``record: None`` with the ``lack`` named, never a raise
+    (Law 7: a diagnostic surface may collapse a lack into a coherent shape)."""
+    home = Path(home) if home is not None else default_home()
+    path = home / RECORD_NAME
+    try:
+        raw = path.read_text()
+    except OSError:
+        return {"record": None, "age_s": None,
+                "lack": f"no record at {path} — the loop has never beat here, or its device space is gone"}
+    try:
+        record = json.loads(raw)
+        age_s = None
+        if now is not None:
+            age_s = (now - datetime.fromisoformat(record["last_run"])).total_seconds()
+    except (ValueError, KeyError, TypeError) as exc:
+        return {"record": None, "age_s": None,
+                "lack": f"unreadable record at {path} ({type(exc).__name__}: {exc})"}
+    return {"record": record, "age_s": age_s}
 
 
 def own_files(folder: Path | None = None) -> list[Path]:

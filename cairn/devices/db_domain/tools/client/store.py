@@ -58,6 +58,12 @@ from psycopg2.extras import RealDictCursor
 # Peer auth over the Unix socket: host is the socket directory, role is the OS user, and
 # the database is Cairn's own. A socket is a file — it crosses a network namespace freely.
 SOCKET_DIR = "/var/run/postgresql"
+# Where there is no socket (Windows) the route is TCP loopback, and Postgres demands a password
+# there. The secret berths in db_domain's instance space (Akien 2026-11-08, open-d0399bd1d6f1:
+# "the answer is in ~/.cairn/devices/<device>"); this module names the PATH and never a secret —
+# libpq reads its own pgpass format from it, and ignores a passfile that is absent.
+_TCP_HOST, _TCP_PORT = "127.0.0.1", 5432
+_SOCKET_FILE = ".s.PGSQL.5432"
 DB_NAME = "cairn"
 _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to create ours
 
@@ -76,13 +82,29 @@ class OwnershipError(Exception):
 # ── connection: the one door to 5432 ─────────────────────────────────────────
 
 
+def _conn_args() -> dict:
+    """Where to dial, chosen by whether the socket FILE exists (ticket 3dc005de27cf).
+
+    The socket dir is CAIRN_PG_SOCKET_DIR (default SOCKET_DIR, the name bin/cairn reads), read
+    at call time. Socket present: peer auth over it, unchanged. Absent: TCP loopback, with the
+    passfile in db_domain's instance space. Pure apart from the one existence check.
+    """
+    sock = os.environ.get("CAIRN_PG_SOCKET_DIR", SOCKET_DIR)
+    if os.path.exists(os.path.join(sock, _SOCKET_FILE)):
+        return {"host": sock}
+    from cairn.tools.base.address import instance_path
+    return {"host": _TCP_HOST, "port": _TCP_PORT,
+            "passfile": str(instance_path("db_domain", 0) / "pgpass")}
+
+
+
 def ensure_database() -> None:
     """Create the `cairn` database if it is absent. Idempotent; needs CREATEDB on the role.
 
     CREATE DATABASE cannot run inside a transaction, so this connects with autocommit to
     the always-present bootstrap database and issues the DDL only when ours is missing.
     """
-    conn = psycopg2.connect(host=SOCKET_DIR, dbname=_BOOTSTRAP_DB)
+    conn = psycopg2.connect(dbname=_BOOTSTRAP_DB, **_conn_args())
     try:
         conn.autocommit = True
         with conn.cursor() as cur:
@@ -100,7 +122,7 @@ def connect():
     working store through this one call.
     """
     ensure_database()
-    conn = psycopg2.connect(host=SOCKET_DIR, dbname=DB_NAME)
+    conn = psycopg2.connect(dbname=DB_NAME, **_conn_args())
     conn.autocommit = True
     _ensure_registry(conn)
     return conn

@@ -12,7 +12,8 @@ falsifier markers):
     fake connection, drops nothing without --drop, never a LIVE name with it, and refuses
     outright when any nonce pid is alive;
 (2) a minter killed with SIGKILL after minting (a forked child that never reaches its
-    ``finally``) leaves its table AND the ``_delivery`` companion the bus registered, and
+    ``finally``) leaves its table AND a ``_delivery`` companion registered beside it
+    (store.register_scratch_companion, the call the bus's _ensure makes), and
     the next ``sweep_scratch()`` drops both — gone from pg_tables and from both registries;
 (3) a normal exit — and an exception exit — leaves neither table nor row;
 (4) no proof under any ``proofs/`` drops a table by hand or mints its own nonce: a grep for
@@ -86,30 +87,27 @@ def _registry_agrees() -> None:
         f"only in pg: {sorted(_pg_tables() - owned)}")
 
 
-def _fork_minter(prefix: str, *, with_bus: bool) -> tuple[int, str]:
-    """Fork a child that mints a scratch table (and, with the bus, its receipt companion),
-    reports the name up a pipe, then sleeps inside the ``with`` — never reaching its
-    ``finally``. Returns (pid, table)."""
+def _fork_minter(prefix: str, *, with_companion: bool) -> tuple[int, str]:
+    """Fork a child that mints a scratch table (and, with_companion, a registered _delivery
+    companion), reports the name up a pipe, then sleeps inside the ``with`` — never reaching
+    its ``finally``. Returns (pid, table)."""
     r, w = os.pipe()
     pid = os.fork()
     if pid == 0:  # the child
         os.close(r)
         try:
-            from cairn.devices.cairn.machines.bus.bus import BusDevice
-            # The bus rides its own door, BusDevice.scratch — the one way a proof gets a bus
-            # table (ticket 48519f4789b1: nothing outside the bus package constructs one).
-            # read() registers the _delivery companion the killed-minter tooth sweeps.
-            if with_bus:
-                with BusDevice.scratch(prefix, device_id=f"{prefix}_rider") as bus:
-                    bus.read()
-                    os.write(w, bus.table.encode())
-                    os.close(w)
-                    signal.pause()
-            else:
-                with store.scratch(_OWNER, prefix, _COLUMNS) as table:
-                    os.write(w, table.encode())
-                    os.close(w)
-                    signal.pause()
+            # The companion is minted through db_domain's own store — create_owned_table, then
+            # register_scratch_companion, the same two calls the bus's _ensure makes for its
+            # receipt table — so this tooth about db_domain's sweep reaches no device (RULE 1,
+            # ticket 7bc784d5a7de).
+            with store.scratch(_OWNER, prefix, _COLUMNS) as table:
+                if with_companion:
+                    companion = f"{table}_delivery"
+                    store.create_owned_table(companion, _OWNER, _COLUMNS)
+                    store.register_scratch_companion(table, companion)
+                os.write(w, table.encode())
+                os.close(w)
+                signal.pause()
         finally:
             os._exit(0)
     os.close(w)
@@ -216,10 +214,10 @@ def test_a_seal_sweeps_first_and_says_so() -> None:
 
 
 def test_a_killed_minter_is_swept_with_its_delivery_companion() -> None:
-    pid, table = _fork_minter("scratch_kill", with_bus=True)
+    pid, table = _fork_minter("scratch_kill", with_companion=True)
     companion = f"{table}_delivery"
     try:
-        assert {table, companion} <= _pg_tables(), "the bus did not create both tables"
+        assert {table, companion} <= _pg_tables(), "the minter did not create both tables"
         rows = {r["table_name"]: r for r in store.scratch_rows()}
         assert table in rows and rows[table]["pid"] == pid and rows[table]["companion_of"] is None
         assert companion in rows and rows[companion]["pid"] == pid and rows[companion]["companion_of"] == table, rows.get(companion)
@@ -290,7 +288,7 @@ def test_the_sweep_never_touches_a_live_table() -> None:
     store.create_owned_table(live, _OWNER, _COLUMNS)
     try:
         assert live in _pg_tables() and not store.is_scratch(live)
-        pid, table = _fork_minter("scratch_beside", with_bus=False)
+        pid, table = _fork_minter("scratch_beside", with_companion=False)
         _kill(pid)
         report: list[str] = []
         store.sweep_scratch(report=report)

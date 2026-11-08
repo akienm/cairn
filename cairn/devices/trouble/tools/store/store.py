@@ -5,7 +5,8 @@ NO ROWS FOR TROUBLE TICKETS." Every reader outside the trouble component (cairn'
 web_server's socket, counting_block, base/transitions.py, the operator inbox, two base probes)
 reads the store through this module and nothing else of trouble's. Until this build three of
 them asked over the bus, and each reply stood as a bus row: 195 `live` replies (~325 KB) and
-372 `clears` replies measured on the day.
+372 `clears` replies measured on the day. counting_block, the one reader of `clears`, was
+retired by ticket 6935a4a71f93 and `clears` with it.
 
 A tool holds no state of its own (Law 6): it READS. It never folds pending emissions — folding
 is the owner's write, done by TroubleDevice in its own process — so what it answers is the
@@ -96,27 +97,4 @@ def live(roots: dict | None = None, *, root=None) -> list[dict]:
         if t.get("unreadable"):
             row["unreadable"] = True
         rows.append(row)
-    return rows
-
-
-def clears(prefix: str = "", roots: dict | None = None, *, root=None) -> list[dict]:
-    """Every clear on the record, one {id, standing, by, hand_class, at} row each, over the
-    top of the store and cleared/ — for the counting block, which learns whose hand cleared
-    what (ticket 1c1b18bac2eb, D4). ``prefix`` narrows by trouble id. A stored class of
-    'unknown' beside a stored cgroup is classed from that cgroup, so a clear recorded before
-    the classifier walked outward is learned (ticket 4f8d11706516)."""
-    from cairn.tools.system_word import fold
-    top = _root(roots, root)
-    rows = []
-    for t in listing(top) + listing(top / CLEARED_DIR):
-        if not str(t.get("id", "")).startswith(prefix or ""):
-            continue
-        for c in t.get("cleared_by") or []:
-            hand = c.get("hand") if isinstance(c.get("hand"), dict) else {}
-            hand_class = fold(hand.get("class")) if hand.get("class") else "unknown"
-            if hand_class == "unknown" and isinstance(hand.get("cgroup"), str):
-                from cairn.tools.artifact import artifact as door
-                hand_class = fold(door.classify(hand["cgroup"])["class"])
-            rows.append({"id": t.get("id"), "standing": t.get("standing"), "by": c.get("by"),
-                         "hand_class": hand_class, "at": c.get("at")})
     return rows

@@ -5,7 +5,7 @@ Akien 2026-10-18: "TROUBLE TICKETS ARE A FILE ARTIFACT IN THE LOGGING TREE" / "T
 NO ROWS FOR TROUBLE TICKETS." Measured the same day: the cairn pane (device.py) and the
 web_server socket (listener.py) asked verb `live`, counting_block asked verb `clears`, and
 the CLI asked `live` and `clear` — 195 live replies (~325 KB) and 372 clears replies standing
-as bus rows. The store is files under ~/.cairn/logs/cairn/0/troubletickets/, so every reader
+as bus rows. Ticket 6935a4a71f93 later retired counting_block, and store.clears with it. The store is files under ~/.cairn/logs/cairn/0/troubletickets/, so every reader
 reads them through the tool trouble publishes (tools/store/), and the CLI, which is trouble's
 own code, clears by emitting and folding in its own process.
 
@@ -16,15 +16,13 @@ by tooth instead of crashing the reader:
   the_tool_reads_the_live_rows          — store.live(roots): the summary rows of the top of the
                                          store, an unreadable file surfaced, cleared/ left out,
                                          an absent store a raise and never []
-  the_tool_reads_the_clears             — store.clears(prefix, roots): one row per clear, top
-                                         and cleared/, an unknown hand classed from its cgroup
-  the_tool_reaches_no_host              — importing the tool and calling both reads loads no
+  the_tool_reaches_no_host              — importing the tool and calling its read loads no
                                          bus client and no device code but its own package
   nothing_asks_trouble_over_the_bus     — no request addressed to trouble anywhere outside proofs
   the_cli_clears_with_no_bus            — `trouble live` and `trouble clear` over a scratch HOME
                                          with every bus dial refused
-  the_three_readers_read_with_no_bus    — the cairn pane, the web_server rows and counting_block's
-                                         clears read a scratch store with the bus refused
+  the_two_readers_read_with_no_bus      — the cairn pane and the web_server rows read a scratch
+                                         store with the bus refused
   the_store_tool_is_published           — the tool's charter publishes its one module, the old
                                          door is gone, and no encapsulation breach names either
   nothing_imports_the_old_door          — no module under cairn/ or bin/ imports
@@ -56,7 +54,6 @@ _TOOL = "cairn.devices.trouble.tools.store.store"
 _OLD = "cairn.devices.trouble.store"
 _CLI = _COMP / "0" / "bin" / "trouble"
 _SUMMARY = {"id", "standing", "why", "count", "first_seen", "last_seen"}
-_CLEAR_ROW = {"id", "standing", "by", "hand_class", "at"}
 APP = "/user.slice/user-1000.slice/user@1000.service/app.slice"
 TAB = f"{APP}/app-org.kde.konsole-78471.scope/tab(3360690).scope"
 
@@ -165,27 +162,6 @@ def test_the_tool_reads_the_live_rows() -> None:
           f"ids={sorted(by_id)} rows={rows} absent={absent!r}")
 
 
-def test_the_tool_reads_the_clears() -> None:
-    tool = importlib.import_module(_TOOL)
-    from cairn.tools.artifact import artifact as door
-    from cairn.tools.system_word import fold
-    with tempfile.TemporaryDirectory(prefix="ee04-clears-") as d:
-        roots, store = _world(Path(d))
-        _seed(store)
-        rows = tool.clears("who-writes-what-", roots)
-        every = tool.clears("", roots)
-    by_id = {r.get("id"): r for r in rows}
-    want_tab = fold(door.classify(TAB)["class"])
-    ok = (sorted(by_id) == ["who-writes-what-proof-cleared", "who-writes-what-proof-top"]
-          and all(set(r) == _CLEAR_ROW for r in rows)
-          and want_tab != "unknown"
-          and by_id["who-writes-what-proof-top"]["hand_class"] == want_tab
-          and by_id["who-writes-what-proof-cleared"]["hand_class"] == "cc"
-          and by_id["who-writes-what-proof-cleared"]["standing"] == "CLEARED"
-          and len(every) == 3)
-    check("the_tool_reads_the_clears", ok, f"rows={rows} every={len(every)} tab={want_tab}")
-
-
 def test_the_tool_reaches_no_host() -> None:
     with tempfile.TemporaryDirectory(prefix="ee04-light-") as d:
         roots, store = _world(Path(d))
@@ -195,7 +171,7 @@ def test_the_tool_reaches_no_host() -> None:
             f"sys.path.insert(0, {str(_REPO)!r})\n"
             f"import {_TOOL} as tool\n"
             f"roots = {{k: __import__('pathlib').Path(v) for k, v in {json.dumps({k: str(v) for k, v in roots.items()})}.items()}}\n"
-            "tool.live(roots); tool.clears('', roots)\n"
+            "tool.live(roots)\n"
             "bad = sorted(m for m in sys.modules if 'bus_client' in m or (m.startswith('cairn.devices.')"
             " and m not in ('cairn.devices.trouble', 'cairn.devices.trouble.tools')"
             " and not m.startswith('cairn.devices.trouble.tools.store')))\n"
@@ -321,10 +297,9 @@ def test_the_cli_clears_with_no_bus() -> None:
           f"out={(nope.stdout + nope.stderr)[-160:]!r} | dials={dialled[:200]!r}")
 
 
-def test_the_three_readers_read_with_no_bus() -> None:
+def test_the_two_readers_read_with_no_bus() -> None:
     from cairn.devices.cairn.device import CairnDevice
     from cairn.devices.web_server import listener
-    from cairn.machines.counting_block import block
     got, errs = {}, []
     undo = _refuse_dials()
     try:
@@ -333,8 +308,7 @@ def test_the_three_readers_read_with_no_bus() -> None:
             _seed(store)
             for name, call in (
                     ("pane", lambda: CairnDevice(bus=_NoBus(), roots=roots)._trouble_pane_data()),
-                    ("web", lambda: listener._trouble_rows(roots)),
-                    ("counting", lambda: block._ask_clears(roots))):
+                    ("web", lambda: listener._trouble_rows(roots))):
                 try:
                     got[name] = call()
                 except Exception as exc:  # noqa: BLE001 — a reader that cannot read is the red
@@ -353,11 +327,8 @@ def test_the_three_readers_read_with_no_bus() -> None:
     pane_ok = sorted(r.get("id") for r in got.get("pane") or []) == want
     web_ok = sorted(r.get("id") for r in got.get("web") or []) == want \
         and all(set(r) == {"id", "standing", "why", "count"} for r in got.get("web") or [])
-    clears = ((got.get("counting") or {}).get("body") or {}).get("clears") or []
-    count_ok = sorted(r.get("id") for r in clears) == ["who-writes-what-proof-cleared",
-                                                        "who-writes-what-proof-top"]
-    check("the_three_readers_read_with_no_bus", pane_ok and web_ok and count_ok and not errs,
-          f"pane={pane_ok} web={web_ok} counting={count_ok} errs={errs}")
+    check("the_two_readers_read_with_no_bus", pane_ok and web_ok and not errs,
+          f"pane={pane_ok} web={web_ok} errs={errs}")
 
 
 def test_the_store_tool_is_published() -> None:
@@ -413,9 +384,9 @@ def test_the_pane_probe_reads_with_no_bus() -> None:
 
 
 TEETH = (test_the_lane_declares_no_trouble_verbs, test_the_tool_reads_the_live_rows,
-         test_the_tool_reads_the_clears, test_the_tool_reaches_no_host,
+         test_the_tool_reaches_no_host,
          test_nothing_asks_trouble_over_the_bus, test_the_cli_clears_with_no_bus,
-         test_the_three_readers_read_with_no_bus, test_the_store_tool_is_published,
+         test_the_two_readers_read_with_no_bus, test_the_store_tool_is_published,
          test_nothing_imports_the_old_door, test_the_pane_probe_reads_with_no_bus)
 
 

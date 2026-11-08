@@ -1,8 +1,9 @@
-"""Proofs for the watcher face — codemother/watch.py, which post_commit.py feeds.
+"""Proofs for the watcher face: codemother/watch.py, reached through her bus verbs.
 
-Tests the core activation logic, file-to-area mapping, and the liveness probe. The commit
-reaching on_commit is proved by test_a_commit_reaches_the_watcher.py (ticket e0f318650123). Does NOT test live inference (that would need
-the embed host up) — tests the shapes and plumbing.
+Tests the core activation logic and file-to-area mapping. The git post-commit feeder, its
+liveness probe and its proof were retired by ticket 6935a4a71f93 (outline 9.4.3.3.2: nothing
+hangs off the git post-commit hook); on_commit stays, reached through the commit verb. Does NOT
+test live inference (that would need the embed host up) — tests the shapes and plumbing.
 """
 
 from __future__ import annotations
@@ -148,37 +149,6 @@ class TestOnQuestion:
             call_args = mock_activate.call_args
             assert call_args[0][0] == "cairn/devices/cairn/machines/bus"
 
-
-class TestLivenessProbe:
-
-    def test_trigger_false_when_no_dir(self):
-        from cairn.devices.codemother.probes.commit_fires_activations import _trigger
-        with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
-                   Path("/nonexistent/path")):
-            assert _trigger(None, {}) is False
-
-    def test_trigger_true_when_activations_exist(self):
-        with tempfile.TemporaryDirectory() as td:
-            td_path = Path(td)
-            (td_path / "activation-test.json").write_text("{}")
-            from cairn.devices.codemother.probes.commit_fires_activations import _trigger
-            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
-                       td_path):
-                assert _trigger(None, {}) is True
-
-    def test_enough_requires_20_activations(self):
-        with tempfile.TemporaryDirectory() as td:
-            td_path = Path(td)
-            for i in range(19):
-                (td_path / f"activation-{i:04d}.json").write_text("{}")
-            from cairn.devices.codemother.probes.commit_fires_activations import _enough
-            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
-                       td_path):
-                assert _enough({}) is False
-            (td_path / "activation-0019.json").write_text("{}")
-            with patch("cairn.devices.codemother.probes.commit_fires_activations._ACTIVATIONS_DIR",
-                       td_path):
-                assert _enough({}) is True
 
 if __name__ == "__main__":
     from cairn.tools.proof_coverage import print_teeth_main

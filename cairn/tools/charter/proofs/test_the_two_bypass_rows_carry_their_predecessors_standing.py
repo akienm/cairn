@@ -11,7 +11,7 @@ stays as written, the exhibit test_append_door_instrument.py keeps. Parent: 471a
 
 One tooth, the falsifier's one clause (PROVES below), over the LIVE histories — history is
 append-only, so a named row's identity is fixed and the assertion is an invariant, not a snapshot:
-  each of the two rows carries a non-empty standing equal to its predecessor's, and
+  each repaired row carries a non-empty standing equal to its predecessor's, and
   diagnostic_inspector seq 4 still lacks it.
 
     bin/cairn test cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py
@@ -30,7 +30,8 @@ PROVES = {"ba8c62b8203e": {
     "all": "test_the_two_bypass_rows_carry_their_predecessors_standing",
 }}
 
-REPAIRED = [("cairn/devices/tester/history.json", 64), ("cairn/machines/counting_block/history.json", 2)]
+# the counting_block row left with its machine (ticket 6935a4a71f93); git keeps it
+REPAIRED = [("cairn/devices/tester/history.json", 64)]
 KEPT = ("diagnostic_inspector", 4)
 
 

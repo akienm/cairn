@@ -11,8 +11,10 @@ each to its receiver and event is 835b5736bf2b's work.
 Clause keys follow the falsifier's (N) markers. Teeth (1), (3) and (4) read the tracked tree
 by ``git ls-files``, a census of the corpus, never an import of another component (RULE 1).
 Tooth (2) runs the loop in a subprocess over a temp instance root, so the live loop and its
-record are never touched. Tooth (5) reads the live heartbeat, and tooth (6) asks the post-commit
-fan-out's own CLI whether codemother's subscriber is installed.
+record are never touched. Tooth (5) reads the live heartbeat. Clause (6), codemother hearing
+the commit through the post-commit fan-out, was retired by ticket 6935a4a71f93 with the fan-out
+itself (outline 9.4.3.3.2: nothing hangs off the git post-commit hook), as 164da559823d D6 did
+for bae622881f03.
 """
 from __future__ import annotations
 
@@ -38,7 +40,6 @@ PROVES = {
         "3": "test_the_build_deleted_no_probe",
         "4": "test_nothing_tracked_reaches_the_pulse_machinery",
         "5": "test_the_live_heartbeat_beats_without_triggers",
-        "6": "test_codemother_hears_the_commit_through_the_fanout",
     },
 }
 
@@ -162,14 +163,6 @@ def test_the_live_heartbeat_beats_without_triggers():
                                "cairn-ground-loop.service"],
                               capture_output=True, text=True, timeout=30).stdout.strip()
     assert str(pid) == main_pid, f"the record's pid {pid} is not the unit's MainPID {main_pid}"
-
-
-def test_codemother_hears_the_commit_through_the_fanout():
-    assert _tracked("cairn/devices/codemother/hooks/post-commit"), \
-        "codemother carries no tracked hooks/post-commit subscriber"
-    got = subprocess.run([sys.executable, "-m", "cairn.tools.post_commit", "verify-hook"],
-                         capture_output=True, text=True, cwd=str(_REPO), timeout=120)
-    assert got.returncode == 0, f"the post-commit fan-out is not installed: {got.stdout}{got.stderr}"
 
 
 if __name__ == "__main__":

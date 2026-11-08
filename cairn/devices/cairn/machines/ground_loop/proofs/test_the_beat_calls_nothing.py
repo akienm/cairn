@@ -41,6 +41,10 @@ PROVES = {
         "4": "test_nothing_tracked_reaches_the_pulse_machinery",
         "5": "test_the_live_heartbeat_beats_without_triggers",
     },
+    # the live record moved to beat.json in the live home (clause 4's other face: what stands
+    # there now); no tooth removed — the live tooth reads beat.json and drops the lock probe,
+    # which the tester's seal cannot reach (its ~/.cairn is a copy).
+    "6208d0a27d6e": {"4": "test_the_live_heartbeat_beats_without_triggers"},
 }
 
 _TICKET = "164da559823d"

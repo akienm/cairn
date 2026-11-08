@@ -1,17 +1,23 @@
 [
   {
     "claim": "proof test_a_view_takes_arguments.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:55:34",
+    "caller": "cairn test",
+    "date": "2026-11-08T12:53:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_a_view_takes_arguments.py\", line 179, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_a_view_takes_arguments.py\", line 163, in main\n    home = _scratch()\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_a_view_takes_arguments.py\", line 116, in _scratch\n    from cairn.tools.base import singleton\nImportError: cannot import name 'singleton' from 'cairn.tools.base' (/home/akien/dev/src/cairn/cairn/tools/base/__init__.py)",
-      "teeth_green": [],
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-11-08T19:53:02.376768+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_get_passes_the_args",
+        "test_show_renders_with_the_args",
+        "test_an_undeclared_key_is_refused",
+        "test_a_view_with_no_params_refuses_args",
+        "test_the_bus_get_passes_args"
+      ],
       "teeth_red": [],
-      "test": "test-ef0ef00d5e6f",
+      "test": "test-2eed66eb7e5d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,24 +39,34 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef0ef00d5e6f",
-      "source_fingerprint": "c527344dd06ed2f92c23bfb5d4250312f3a1fc26082776dc7525700a89e9660d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2eed66eb7e5d",
+      "source_fingerprint": "d4b81c8512c9a6e570c4e4482576ea475d6a7d93354c25a16c925b6d4696dc40",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/proofs/test_a_view_takes_arguments.py"
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_a_view_takes_arguments.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/singleton.py",
+        "cairn/tools/base/testing_mark.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1008746-3d9e54oz/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1041288-8x_dlac9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,21 +75,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119680623,
-          "disk_bytes": 154079232,
-          "entries": 13413,
+          "bytes": 119685657,
+          "disk_bytes": 154107904,
+          "entries": 13420,
           "builds": 1,
-          "reuses": 7
+          "reuses": 16
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "2fee504077e068e86465b69f72838fe8e1df7ae1200f3317e052b6c51eba3385",
-        "opened": "2026-11-08T11:55:34",
-        "last_red": "2026-11-08T11:55:34",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-a-view-takes-arguments",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

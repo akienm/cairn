@@ -2,12 +2,12 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T11:22:35",
+    "date": "2026-11-08T12:47:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\nretired components proofs: all green",
+      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -20,10 +20,14 @@
         "instanceizer_paths_are_absent",
         "nothing_names_the_instanceizer",
         "the_instanceizer_does_not_import",
-        "no_declaration_stands_in_instance_space"
+        "no_declaration_stands_in_instance_space",
+        "liveness_paths_are_absent",
+        "nothing_names_liveness",
+        "liveness_does_not_import",
+        "no_liveness_record_in_the_ground_loop_home"
       ],
       "teeth_red": [],
-      "test": "test-fe7baf63676f",
+      "test": "test-5e98262e37ea",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +37,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3147fdc3adc2dc6ea2b1808cae32b2f0df91ce1adae70597cc0bfc07d75897cf",
+        "proof": "d04354e590ec60ba6ff86e194b18c7285b456fddec7a1a78b1148e37ae2e278c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -46,14 +50,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fe7baf63676f",
-      "source_fingerprint": "93e54ebc377c8b0daaa8c03115839c1ff2e699031381107cb808322f4c0d190d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5e98262e37ea",
+      "source_fingerprint": "b0d54e43ff60247379f932d9e7449c1b14dc1c28e22c8a657fbd7540b8fd6e9d",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
@@ -68,85 +71,25 @@
       ],
       "reached": {
         "cairn/devices/codemother": "71c727f1c4257f19db8616be29cd30c952c58f31699e61f3fb4c09bde28c6f65",
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d"
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/tools/base": "04cb81c0746458d0a509056fb954fe69b623fbd24af7818716498f9e92adfe37"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1041288-qicvnx6r/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-fe7baf63676f/stderr.txt",
-            "logs/tester/0/runs/test-fe7baf63676f/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "7778e24dd82e": {
-          "cairn/tools/instanceizer/__init__.py": [
-            "instanceizer_paths_are_absent"
-          ],
-          "cairn/tools/instanceizer/instanceizer.py": [
-            "instanceizer_paths_are_absent",
-            "nothing_names_the_instanceizer",
-            "the_instanceizer_does_not_import"
-          ],
-          "cairn/tools/instanceizer/intention+why.json": [
-            "instanceizer_paths_are_absent",
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/devices/cairn/machines/bus/bus.py": [
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/tools/base/address.py": [
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/devices/cairn/intention+why.json": {
-            "notified": "n-fee2013cd119"
-          },
-          "cairn/devices/codemother/shim.py": [
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/devices/codemother/probes/charter_feedback_reaches.py": [
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/devices/codemother/0/tools/charter/intention+why.json": [
-            "nothing_names_the_instanceizer"
-          ],
-          "cairn/devices/codemother/proofs/test_charter_held.py": [
-            "nothing_names_the_instanceizer",
-            "cairn/devices/codemother/proofs/test_charter_held.py::test_charter_stays_a_tool",
-            "cairn/devices/codemother/proofs/test_charter_held.py::test_the_instance_exists_under_codemother_in_both_roots"
-          ],
-          "cairn/devices/codemother/proofs/test_feedback_verb.py": [
-            "nothing_names_the_instanceizer",
-            "cairn/devices/codemother/proofs/test_feedback_verb.py::test_the_verb_lands_one_record_in_codemothers_held_backpack"
-          ],
-          "cairn/devices/system_rackmount/proofs/test_system_rackmount.py": [
-            "nothing_names_the_instanceizer",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_it_advertises_a_menu_and_refuses_an_unadvertised_name",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_it_is_a_device_and_its_shim_is_a_shim",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_the_ask_door_answers_the_same_predicate_as_the_subscribe_door",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_the_memory_floor_runs_the_other_direction",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_the_real_host_reading_is_instantaneous",
-            "cairn/devices/system_rackmount/proofs/test_system_rackmount.py::test_the_scheduler_goof_is_gone"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7778e24dd82e": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c4630cbe76a9de23fa2d830b5e0f7881eea4a035",
-          "anchor_first_build": "0a18ae400ed415e5c981ffbc01feaab6385a9f1d",
-          "commit": "c4630cbe76a9de23fa2d830b5e0f7881eea4a035"
+          "measured": true,
+          "bytes": 119685657,
+          "disk_bytes": 154107904,
+          "entries": 13420,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

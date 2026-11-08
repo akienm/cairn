@@ -1,22 +1,22 @@
 [
   {
     "claim": "proof test_a_loop_a_test_run_starts_is_the_runs.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:55:31",
+    "caller": "cairn test",
+    "date": "2026-11-08T12:53:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        runpy.run_path(_proof, run_name=\"__main__\")\n        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n      File \"<frozen runpy>\", line 287, in run_path\n      File \"<frozen runpy>\", line 98, in _run_module_code\n      File \"<frozen runpy>\", line 88, in _run_code\n      File \"/tmp/cairn-proof-loopmark-run-scratch.4026531836-1009447-ird82ild/fixture_component/proofs/test_fixture.py\", line 4, in <module>\n        assert r.returncode == 0 and '\"spawned\": \"unit\"' in r.stdout, r.stdout + r.stderr\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    AssertionError: Traceback (most recent call last):\n      File \"<string>\", line 1, in <module>\n        import json, sys; sys.path.insert(0, '/home/akien/dev/src/cairn'); from cairn.tools.base.shim import ensure_ground_loop; print(json.dumps(ensure_ground_loop()))\n                                                                                                                                                  ~~~~~~~~~~~~~~~~~~^^\n    TypeError: ensure_ground_loop() missing 1 required positional argument: 'now'\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n\n  FAIL test_outside_a_run_the_loop_is_unchanged  — AssertionError: ('', \"port json, sys; sys.path.insert(0, '/home/akien/dev/src/cairn'); from cairn.tools.base.shim import ensure_ground_loop; print(json.dumps(ensure_ground_loop()))\\n                                                                                                                                              ~~~~~~~~~~~~~~~~~~^^\\nTypeError: ensure_ground_loop() missing 1 required positional argument: 'now'\\n\")\n\nRED — 0/4",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_a_loop_started_in_a_run_carries_its_test_id\n  ok   test_a_loop_started_in_a_run_collects_itself\n  ok   test_a_tester_run_that_starts_a_loop_leaves_no_unit\n  ok   test_outside_a_run_the_loop_is_unchanged\n\nGREEN — 4/4",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_a_loop_started_in_a_run_carries_its_test_id",
         "test_a_loop_started_in_a_run_collects_itself",
         "test_a_tester_run_that_starts_a_loop_leaves_no_unit",
         "test_outside_a_run_the_loop_is_unchanged"
       ],
-      "test": "test-3ac59e4e802c",
+      "teeth_red": [],
+      "test": "test-c15ef640966d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,12 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3ac59e4e802c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c15ef640966d",
       "source_fingerprint": "1429a4a5ac891c7aec94944382f01ecdc421d7c00514d233a3322c17f20988cd",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -56,7 +57,7 @@
         "cairn/tools/base/script_argv.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
         "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
@@ -65,34 +66,25 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1008746-b75pj9_z/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1041288-xcxzeoc4/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261108.185530.623590.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-4b90d000d928/stderr.txt",
-            "logs/tester/0/runs/test-4b90d000d928/stdout.txt"
+            "logs/tester/0/20261108.195258.888193.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-05d13778526f/stderr.txt",
+            "logs/tester/0/runs/test-05d13778526f/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119682316,
-          "disk_bytes": 154087424,
-          "entries": 13420,
+          "bytes": 119686272,
+          "disk_bytes": 154116096,
+          "entries": 13427,
           "builds": 1,
-          "reuses": 6
+          "reuses": 15
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "f8d5d10f47295b1d4a5e9699352238961be2f5c320c39b86fed2c58b03214a21",
-        "opened": "2026-11-08T11:55:31",
-        "last_red": "2026-11-08T11:55:31",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-a-loop-a-test-run-starts-is-the-runs",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

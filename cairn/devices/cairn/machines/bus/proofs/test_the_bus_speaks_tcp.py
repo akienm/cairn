@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import socket
 import statistics
 import subprocess
@@ -84,10 +85,14 @@ def _py(home: Path, code: str, timeout: float = 90, **extra) -> subprocess.Compl
                           capture_output=True, text=True, timeout=timeout)
 
 
-_NO_UNIX = "import socket\ndel socket.AF_UNIX\n"
+# On a box that has no AF_UNIX already (Windows, measured by akiendell 2026-11-08: a bare
+# `del` raised there), the deletion is the box's own state, so it is skipped, not repeated.
+_NO_UNIX = "import socket\nif hasattr(socket, 'AF_UNIX'):\n    del socket.AF_UNIX\n"
 
 
 def _bus_pids(home: Path) -> list[int]:
+    if not shutil.which("pgrep"):
+        return []
     r = subprocess.run(["pgrep", "-f", f"{_MODULE} serve --home {home}"],
                        capture_output=True, text=True)
     return sorted(int(p) for p in r.stdout.split() if p.strip() and int(p) != os.getpid())
@@ -98,9 +103,10 @@ def _stop(home: Path, no_unix: bool = False) -> None:
         "from cairn.tools.bus_client.remote import exchange\n"
         "try:\n    exchange({'op': 'shutdown'}, timeout=30)\nexcept Exception:\n    pass\n",
         timeout=60)
-    subprocess.run(["systemctl", "--user", "stop", f"{_UNIT}.service"], capture_output=True)
-    subprocess.run(["systemctl", "--user", "reset-failed", f"{_UNIT}.service"],
-                   capture_output=True)
+    if shutil.which("systemctl"):  # a box with no systemd started no unit to stop
+        subprocess.run(["systemctl", "--user", "stop", f"{_UNIT}.service"], capture_output=True)
+        subprocess.run(["systemctl", "--user", "reset-failed", f"{_UNIT}.service"],
+                       capture_output=True)
     for pid in _bus_pids(home):
         try:
             os.kill(pid, 15)

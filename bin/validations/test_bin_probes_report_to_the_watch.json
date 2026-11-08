@@ -2,7 +2,7 @@
   {
     "claim": "proof test_bin_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T11:27:54",
+    "date": "2026-11-08T15:51:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_bin_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-c3ef1a526388",
+      "test": "test-e40475fea4eb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,7 +29,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 500,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3ef1a526388",
-      "source_fingerprint": "8c429ccef23f70d22476259ad83f23dbaac8c326e5b31e57bbbb4fec13970143",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e40475fea4eb",
+      "source_fingerprint": "1cf3fd29498bb767735fce5bb6409acdd3d960e45ed6423e83e557b949587558",
       "fingerprint_closure": [
         "bin/probes/probescans_device_column_varies_with_the_world.py",
         "bin/probes/retention_window.py",
@@ -94,6 +94,7 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/shim.py",
+        "cairn/tools/base/singleton.py",
         "cairn/tools/base/testing_mark.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/transitions.py",
@@ -107,8 +108,6 @@
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
         "cairn/tools/gate/gate.py",
-        "cairn/tools/liveness/__init__.py",
-        "cairn/tools/liveness/liveness.py",
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/rack/__init__.py",
@@ -122,22 +121,21 @@
       ],
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/cairn/machines/ground_loop": "031a2c9c15c4e809e23f7e4c57bd324b16aad5b3d18d5aa9ebba88caa5953ff6",
+        "cairn/devices/cairn/machines/ground_loop": "d190c1309e6180b0b9d982a2811202e736570d4d02262485c9e33c2355b1bc4c",
         "cairn/devices/cairn/machines/sleep_cycle": "a465888fec57a0cb7c1ede9bc88824948fb0b9bbaa50c3583b8a534625b7cf1e",
-        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
-        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
+        "cairn/devices/db_domain": "853e100ad15ab0538adeb3d517888d83413037a9e5c34ded47ad32ca6a8999a2",
+        "cairn/devices/db_domain/tools/client": "b68ed64a14f4807a93aef94269104795a122d4c0ff0bd7f6826cddbdb9983eaa",
         "cairn/devices/inference_domain": "7fb2358aecdfe132aeb86d0e3dadcc212282d4ed414f2466a16afacc5ac6809a",
         "cairn/devices/librarian": "45a4338d30bae41ab041f6aab8d2e05dec83d0c202ba4f731d008accf85a12ef",
         "cairn/devices/librarian/tools/trees": "b23c78e80dc4bf219388914a87122d193eeb1f1dc5023cda5337cbe5adee7033",
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
         "cairn/devices/trouble": "8982950753863bd8317cdd1254135a5ba1438b16e99e652236fede66ae8b2762",
         "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
-        "cairn/tools/bus_client": "fd556006723fa440746905a9f9346f2e23c28bafab2ec2070249f7f97d83454d",
+        "cairn/tools/base": "021e4d7202a144413103c1c1b40a9495a453dd91e11a876742ce7fa4ce6e8d15",
+        "cairn/tools/bus_client": "41b784abe7dcbd8b3c692f0b1ef9cf38555abf4a57dae0f5a663a9b8fab7c7ed",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
         "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
@@ -146,10 +144,10 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-999487-gtys3imo/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1111409-p0od7txw/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 8,
+          "count": 9,
           "paths": [
             "devices/cairn/0/last_known.json",
             "devices/cairn/0/machines/ground_loop/probes/device_column_history.jsonl",
@@ -158,15 +156,16 @@
             "devices/inference_domain/0/last_known.json",
             "devices/librarian/0/last_known.json",
             "devices/tester/0/last_known.json",
-            "devices/trouble/0/last_known.json"
+            "devices/trouble/0/last_known.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119609762,
-          "disk_bytes": 153972736,
-          "entries": 13398,
+          "bytes": 119762341,
+          "disk_bytes": 154238976,
+          "entries": 13438,
           "builds": 1,
           "reuses": 1
         }

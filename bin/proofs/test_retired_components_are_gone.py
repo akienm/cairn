@@ -22,6 +22,16 @@ also by 17.11.5), one tooth per falsifier clause:
   3. none of the three modules can be imported;
   4. no post-commit hook is installed in the repo's git common dir (a host-seam: git cannot see it).
 
+Ticket 7778e24dd82e (the instance-izer retires and the bus delivers only to devices, outline 19.16),
+one tooth per falsifier clause:
+
+  1. cairn/tools/ + the tool's folder and the bus's folder-mail proof are absent;
+  2. no file in the repo names the module, its folder, its declaration file, the bus's three
+     folder-delivery names or the address function for folders (records and caches excepted);
+  3. the module cannot be imported;
+  4. no declaration file stands under the live instance root and its folders/ does not exist
+     (instance-space: git cannot see it).
+
 Reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -47,6 +57,12 @@ PROVES = {
         "2": "nothing_names_the_post_commit_chain",
         "3": "the_post_commit_chain_does_not_import",
         "4": "no_post_commit_hook_is_installed",
+    },
+    "7778e24dd82e": {
+        "1": "instanceizer_paths_are_absent",
+        "2": "nothing_names_the_instanceizer",
+        "3": "the_instanceizer_does_not_import",
+        "4": "no_declaration_stands_in_instance_space",
     },
 }
 
@@ -145,6 +161,35 @@ def _post_commit_chain() -> None:
            f"installed hook at {hook}" if hook else "git rev-parse --git-common-dir answered nothing")
 
 
+# the instance-izer, spelled split for the same reason
+_IZ = "instance" + "izer"
+_IZ_MODULE = "cairn.tools." + _IZ
+_IZ_PATHS = ("cairn/tools/" + _IZ, "cairn/devices/cairn/machines/bus/proofs/test_folder_mail" + "_lands_late.py")
+_IZ_DECL = _IZ + ".json"
+_IZ_NEEDLES = (_IZ_MODULE, _IZ_PATHS[0], _IZ_DECL, "_try_folder" + "_delivery", "_instance" + "_folder",
+               "_folder" + "_recorders", "address." + "folder_path", "def " + "folder_path")
+
+
+def _instanceizer() -> None:
+    """The four teeth for 7778e24dd82e: only devices are on the bus."""
+    names = PROVES["7778e24dd82e"]
+    standing = [p for p in _IZ_PATHS if (REPO / p).exists()]
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_IZ_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    r = subprocess.run([sys.executable, "-c", f"import {_IZ_MODULE}.{_IZ}"], cwd=REPO,
+                       capture_output=True, text=True, timeout=60)
+    _check(names["3"], r.returncode != 0 and "No module named" in r.stderr,
+           f"rc={r.returncode} stderr={r.stderr[-300:]!r}")
+    sys.path.insert(0, str(REPO))
+    from cairn.tools.base import address
+    inst = Path(address.ROOTS["instance"])
+    decls = [str(Path(root) / f) for root, _d, files in os.walk(inst) for f in files if f == _IZ_DECL]
+    folders = inst / "folders"
+    _check(names["4"], not decls and not folders.exists(),
+           f"declarations={decls[:6]} folders_root_exists={folders.exists()}")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -154,6 +199,7 @@ def check() -> list[str]:
     FAILURES.clear()
     _gone("quarry_index", _QI_PATH, _QI_MODULE, _QI_MODULE + ".compiler")
     _post_commit_chain()
+    _instanceizer()
     return list(FAILURES)
 
 

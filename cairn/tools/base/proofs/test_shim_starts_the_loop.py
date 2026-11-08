@@ -33,7 +33,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
-from cairn.tools.base import singleton  # noqa: E402
+try:  # a hollow revert takes singleton.py away: fail inside the tooth, never crash UNREAD
+    from cairn.tools.base import singleton  # noqa: E402
+except Exception as _exc:  # noqa: BLE001
+    class _Absent:
+        def __init__(self, exc):
+            self._exc = exc
+
+        def __getattr__(self, name):
+            raise self._exc
+    singleton = _Absent(_exc)
 from cairn.tools.scratch.scratch import scratch_dir
 
 # The falsifier's four DONE clauses, one tooth each (the coverage reader's contract:

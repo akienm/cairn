@@ -59,7 +59,33 @@ import tempfile as _tempfile
 import threading as _threading
 from datetime import datetime as _dt, timedelta as _td, timezone as _tz
 
-from cairn.devices.cairn.machines.ground_loop import heartbeat as _hb
+
+
+class _Absent:
+    """A subject the hollow revert took away (ticket 6208d0a27d6e): any use re-raises the import
+    error INSIDE the tooth, so the house runner prints that tooth FAIL instead of the module
+    crashing UNREAD. The error is kept on the instance — an except-name unbinds."""
+
+    def __init__(self, exc: BaseException) -> None:
+        self._exc = exc
+
+    def __getattr__(self, name):
+        raise self._exc
+
+    def __call__(self, *args, **kwargs):
+        raise self._exc
+
+
+def _subject(module: str, *names: str):
+    import importlib
+    try:
+        mod = importlib.import_module(module)
+        return mod if not names else tuple(getattr(mod, n) for n in names)
+    except Exception as exc:  # noqa: BLE001 — a reverted world may break any way at all
+        stand = _Absent(exc)
+        return stand if not names else tuple(stand for _ in names)
+
+_hb = _subject("cairn.devices.cairn.machines.ground_loop.heartbeat")
 
 _T0 = _dt(2026, 8, 9, 12, 0, 0, tzinfo=_tz.utc)
 
@@ -152,7 +178,7 @@ import signal as _signal
 import subprocess as _subprocess
 import time as _time
 
-from cairn.devices.cairn.machines.ground_loop import guard as _guard
+_guard = _subject("cairn.devices.cairn.machines.ground_loop.guard")
 
 _CLAIMANT = (
     "import sys, time\n"
@@ -329,7 +355,8 @@ def test_the_shim_probes_the_guards_lock():
 # A declared pane through the base shim's STANDARD machinery. It renders what the record
 # says plus whether the lock is held — it derives nothing and judges no staleness.
 
-from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim, beat_pane_data
+GroundLoopShim, beat_pane_data = _subject("cairn.devices.cairn.machines.ground_loop.shim",
+                                          "GroundLoopShim", "beat_pane_data")
 
 
 def test_the_pane_renders_what_the_record_and_the_lock_say():
@@ -376,6 +403,7 @@ def test_the_page_assembles_through_the_standard_machinery():
 
 
 def _main() -> int:
+    failed = 0
     for check in (test_the_stamp_advances_across_beats_and_pid_and_state_ride,
                   test_the_instance_dir_is_born_on_first_write,
                   test_an_absent_or_torn_record_is_a_named_lack,
@@ -390,8 +418,15 @@ def _main() -> int:
                   test_the_pane_renders_what_the_record_and_the_lock_say,
                   test_an_absent_record_renders_the_named_lack_never_blank,
                   test_the_page_assembles_through_the_standard_machinery):
-        check()
-        print(f"  PASS  {check.__name__}")
+        try:
+            check()
+            print(f"  PASS  {check.__name__}")
+        except Exception as exc:  # noqa: BLE001 — the house runner: every tooth runs and reads
+            failed += 1
+            print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
+    if failed:
+        print(f"RED — {failed} failure(s)")
+        return 1
     print("green — ground_loop: the beat record, the single-start guard, the cadence and the "
           "heartbeat's page hold")
     return 0

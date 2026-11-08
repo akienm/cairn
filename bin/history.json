@@ -19119,5 +19119,90 @@
     "fingerprint": "80e21ea30ef8845f12aad8e220f885ca3d3de115df5beb9ac2af01c6e5013abc",
     "at": "2026-11-08T13:40:03",
     "seq": 66
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "6208d0a27d6e",
+    "actor": "CC",
+    "missing": [
+      "[hollow_unreadable] reverting cairn/devices/cairn/machines/ground_loop/__main__.py, cairn/devices/cairn/machines/ground_loop/heartbeat.py, cairn/devices/cairn/machines/ground_loop/shim.py, cairn/tools/base/shim.py, cairn/tools/base/singleton.py stopped the proof reaching a check at all — a broken import, a timeout, or a crash — rather than failing a tooth, so the run printed no teeth and nothing measured says whether this file is checked at all: not covered, not hollow, UNREAD. FIX: make the proof survive its subject being taken away (resolve this build's new names at call time, and allow a timeout that outlasts the reverted world's waits), then `cairn test --hollow 6208d0a27d6e --seal` again",
+      "[hollow_unreadable] reverting cairn/devices/cairn/machines/ground_loop/__main__.py, cairn/devices/cairn/machines/ground_loop/heartbeat.py, cairn/devices/cairn/machines/ground_loop/shim.py, cairn/tools/base/shim.py, cairn/tools/base/singleton.py stopped the proof reaching a check at all — a broken import, a timeout, or a crash — rather than failing a tooth, so the run printed no teeth and nothing measured says whether this file is checked at all: not covered, not hollow, UNREAD. FIX: make the proof survive its subject being taken away (resolve this build's new names at call time, and allow a timeout that outlasts the reverted world's waits), then `cairn test --hollow 6208d0a27d6e --seal` again",
+      "[hollow_unreadable] reverting cairn/devices/cairn/machines/ground_loop/__main__.py, cairn/devices/cairn/machines/ground_loop/heartbeat.py, cairn/devices/cairn/machines/ground_loop/shim.py, cairn/tools/base/shim.py, cairn/tools/base/singleton.py stopped the proof reaching a check at all — a broken import, a timeout, or a crash — rather than failing a tooth, so the run printed no teeth and nothing measured says whether this file is checked at all: not covered, not hollow, UNREAD. FIX: make the proof survive its subject being taken away (resolve this build's new names at call time, and allow a timeout that outlasts the reverted world's waits), then `cairn test --hollow 6208d0a27d6e --seal` again"
+    ],
+    "why": "clearance refused at PROVED: 3 lack(s)",
+    "fingerprint": "28ef4a241454c9271d54415189a807cbcbc1a1d0a831b1d117ae9969b94a0b3d",
+    "at": "2026-11-08T14:04:51",
+    "seq": 67
   }
 ]

@@ -2,8 +2,8 @@
   {
     "claim": "proof test_diagnostic_emit.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-06T00:31:47",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-08T11:20:26",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -16,10 +16,10 @@
         "test_law7_a_silenced_device_holds_and_an_unwired_one_reaches_disk"
       ],
       "teeth_red": [],
-      "test": "test-af4d007676db",
+      "test": "test-94c9c261586b",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -29,27 +29,37 @@
         "proof": "4425a229666dbed528ce1c205a5cac313be1c5a28c94c3722bb1406e778de158",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
-        "timeout": 900,
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 500,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-af4d007676db",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-94c9c261586b",
       "source_fingerprint": "5ffc8bf705a94b394760f49f8f4e7d8abc9843c37b374d7f4216168dca7a909a",
       "fingerprint_closure": [
         "cairn/devices/system_rackmount/__init__.py",
         "cairn/devices/system_rackmount/proofs/test_diagnostic_emit.py",
         "cairn/devices/system_rackmount/rackmount.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/machines/diagnostic_inspector": "f5c28cbf0e73149ae09969b3bcd734af872256df910a342f0bf52b65a2b532a7",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3711591-4lpc6nfq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-984152-t1vb2twq/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,13 +68,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 177020541,
-          "disk_bytes": 205127680,
-          "entries": 12049,
+          "bytes": 119591910,
+          "disk_bytes": 153948160,
+          "entries": 13395,
           "builds": 1,
-          "reuses": 74
+          "reuses": 40
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

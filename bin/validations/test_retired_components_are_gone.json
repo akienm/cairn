@@ -2,12 +2,12 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T09:58:35",
+    "date": "2026-11-08T11:12:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\nretired components proofs: all green",
+      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -16,10 +16,14 @@
         "post_commit_chain_paths_are_absent",
         "nothing_names_the_post_commit_chain",
         "the_post_commit_chain_does_not_import",
-        "no_post_commit_hook_is_installed"
+        "no_post_commit_hook_is_installed",
+        "instanceizer_paths_are_absent",
+        "nothing_names_the_instanceizer",
+        "the_instanceizer_does_not_import",
+        "no_declaration_stands_in_instance_space"
       ],
       "teeth_red": [],
-      "test": "test-c3862814940b",
+      "test": "test-1f3df15335c0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,11 +33,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b032fac954a6b9337aeb04abd6e38182e5da8b76bc6cab1924506f91b3198acf",
+        "proof": "3147fdc3adc2dc6ea2b1808cae32b2f0df91ce1adae70597cc0bfc07d75897cf",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 500,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -42,14 +46,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3862814940b",
-      "source_fingerprint": "ff3b704f357f3678bc97331f826969def0916cf5090d0d45f90476f4079f6fa5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1f3df15335c0",
+      "source_fingerprint": "93e54ebc377c8b0daaa8c03115839c1ff2e699031381107cb808322f4c0d190d",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
@@ -57,123 +60,32 @@
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/machines/__init__.py",
-        "cairn/tools/__init__.py"
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/diagnostic.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "0ef5c4264bc1c8c1cf262565e66eef539e3ba2af090f1a0e5a9e24bc038c8a5f",
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3"
+        "cairn/devices/codemother": "bff1ec8287948c8d8dbbf9100602710fd67ca5a687b4fbdd367643eb9866966c",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-984152-pydo0aef/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-c3862814940b/stderr.txt",
-            "logs/tester/0/runs/test-c3862814940b/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "6935a4a71f93": {
-          "cairn/tools/post_commit/__init__.py": [
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/tools/post_commit/__main__.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/tools/post_commit/hooks/post-commit": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/tools/post_commit/intention+why.json": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/tools/post_commit/proofs/test_the_commit_fans_out_to_its_subscribers.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/__init__.py": [
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/__main__.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/hook.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/hooks/post-commit": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/intention+why.json": [
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/probes/raise_rate_falls.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/proofs/test_a_taught_row_stays_taught.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/proofs/test_an_akien_hand_teaches_the_row.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/machines/counting_block/proofs/test_counting_block.py": [
-            "nothing_names_the_post_commit_chain",
-            "post_commit_chain_paths_are_absent"
-          ],
-          "cairn/devices/codemother/proofs/test_watch.py": {
-            "notified": "n-490f045d0bb9"
-          },
-          "cairn/devices/trouble/tools/store/store.py": {
-            "notified": "n-955dc9528dd3"
-          },
-          "cairn/devices/trouble/tools/store/intention+why.json": {
-            "notified": "n-8786458d9606"
-          },
-          "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py": [
-            "nothing_names_the_post_commit_chain",
-            "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py::test_trouble_never_rides_the_bus",
-            "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py::the_tool_reaches_no_host",
-            "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py::the_two_readers_read_with_no_bus"
-          ],
-          "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py": [
-            "nothing_names_the_post_commit_chain",
-            "cairn/tools/charter/proofs/test_the_two_bypass_rows_carry_their_predecessors_standing.py::test_the_two_bypass_rows_carry_their_predecessors_standing"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py": [
-            "nothing_names_the_post_commit_chain"
-          ],
-          "CairnCommons/intentions-congruency-lab/cairn-devices-trouble-tools-store--intention+why.json": {
-            "notified": "n-982f3b7c66ba"
-          },
-          "CairnCommons/intentions-congruency-lab/cairn-machines-counting_block--intention+why.json": {
-            "notified": "n-22c5349bfe0a"
-          },
-          "CairnCommons/intentions-congruency-lab/cairn-tools-post_commit--intention+why.json": {
-            "notified": "n-6cef916fa5bb"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "6935a4a71f93": {
-          "anchor_rule": "journal",
-          "anchor_journal": "e921596b732d3deb2ebc4194c70ee1e9c7acbbf3",
-          "anchor_first_build": "f2b0d8105e0d0e859f3e7fd2da50efdb6fbb5eb0",
-          "commit": "e921596b732d3deb2ebc4194c70ee1e9c7acbbf3"
+          "measured": true,
+          "bytes": 119591910,
+          "disk_bytes": 153948160,
+          "entries": 13395,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

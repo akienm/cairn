@@ -94,22 +94,23 @@
       },
       "hollow": {
         "6208d0a27d6e": {
-          "cairn/tools/base/singleton.py": {
-            "unreadable": [
-              "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py"
-            ]
-          },
+          "cairn/tools/base/singleton.py": [
+            "test_a_held_lock_spawns_nothing",
+            "test_a_second_loop_refuses_with_no_takeover",
+            "test_the_loop_owns_its_cadence",
+            "test_the_shim_probes_the_guards_lock"
+          ],
           "cairn/tools/base/intention+why.json": {
             "notified": "n-4f41eb9ddb90"
           },
           "cairn/tools/base/sail_record.py": [
             "nothing_names_liveness"
           ],
-          "cairn/tools/base/shim.py": {
-            "unreadable": [
-              "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
-            ]
-          },
+          "cairn/tools/base/shim.py": [
+            "nothing_names_liveness",
+            "test_a_held_lock_spawns_nothing",
+            "test_the_shim_probes_the_guards_lock"
+          ],
           "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py": [
             "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_a_loop_started_in_a_run_carries_its_test_id",
             "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_a_loop_started_in_a_run_collects_itself",
@@ -147,25 +148,21 @@
             "nothing_names_liveness",
             "test_the_shim_probes_the_guards_lock"
           ],
-          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": {
-            "unreadable": [
-              "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py",
-              "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
-            ]
-          },
-          "cairn/devices/cairn/machines/ground_loop/__main__.py": {
-            "unreadable": [
-              "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
-            ]
-          },
+          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
+            "test_a_second_loop_refuses_with_no_takeover",
+            "test_the_loop_owns_its_cadence"
+          ],
+          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
+            "nothing_names_liveness",
+            "test_a_second_loop_refuses_with_no_takeover",
+            "test_the_loop_owns_its_cadence"
+          ],
           "cairn/devices/cairn/machines/ground_loop/cli.py": [
             "nothing_names_liveness"
           ],
-          "cairn/devices/cairn/machines/ground_loop/shim.py": {
-            "unreadable": [
-              "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py"
-            ]
-          },
+          "cairn/devices/cairn/machines/ground_loop/shim.py": [
+            "nothing_names_liveness"
+          ],
           "cairn/tools/bus_client/roster.py": [
             "nothing_names_liveness"
           ],
@@ -220,29 +217,29 @@
           "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py": [
             "nothing_names_liveness",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::--dry-run still exits 0, prints its exec line and starts nothing  — rc=0",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a first loop is up so a second can lose to it  — pid 1088191",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a genuinely crashed unit DOES block its own name (why the clear is needed)  — rc=1 err='Failed to start transient service unit: Unit cairn-proof-wedge-b-1087993-2.service was already loaded or has a fragment file.'",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-scratch.4026531836-1087993-9gj15qho/home-1/.cairn/devices/cairn/0/machines/ground_loop/beat.json: {'last_run': '2026-11-08T14:02:38.721313-07:00', 'state': {'beats': 1, 'started': '2026-11-08T14:02:38.718016-07:00', 'recorded_mtimes': {'/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/__init__.py': 1794170416.0802257, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/__main__.py': 1794171352.9848254, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/cli.py': 1794171365.6449041, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/discovered.py': 1794170416.0815513, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/discovery.py': 1794170416.0815513, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/guard.py': 1794170835.4356415, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/heartbeat.py': 1794171093.571217, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/shim.py': 1794171388.4940467}, 'current_mtimes': {'/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/__init__.py': 1794170416.0802257, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/__main__.py': 1794171352.9848254, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/cli.py': 1794171365.6449041, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/discovered.py': 1794170416.0815513, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/discovery.py': 1794170416.0815513, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/guard.py': 1794170835.4356415, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/heartbeat.py': 1794171093.571217, '/tmp/cairn-hollow-scratch.4026531836-1083397-u4oesi9_/worktree/cairn/devices/cairn/machines/ground_loop/shim.py': 1794171388.4940467}, 'changed': [], 'devices': ['aider_shim', 'cairn', 'cc', 'codemother', 'db_domain', 'inference_domain', 'intention_extractor', 'librarian', 'operator', 'recovery', 'sudo_relay', 'system_rackmount', 'tester', 'trouble', 'web_server'], 'spawned': [{'device': 'aider_shim', 'pulse': 'NOT FOUND'}, {'device': 'cairn', 'pulse': 'NOT FOUND'}, {'device': 'cc', 'pulse': 'NOT FOUND'}, {'device': 'codemother', 'pulse': 'NOT FOUND'}, {'device': 'db_domain', 'pulse': 'NOT FOUND'}, {'device': 'inference_domain', 'pulse': 'NOT FOUND'}, {'device': 'intention_extractor', 'pulse': 'NOT FOUND'}, {'device': 'librarian', 'pulse': 'NOT FOUND'}, {'device': 'operator', 'pulse': 'NOT FOUND'}, {'device': 'recovery', 'pulse': 'NOT FOUND'}, {'device': 'sudo_relay', 'pulse': 'NOT FOUND'}, {'device': 'system_rackmount', 'pulse': 'NOT FOUND'}, {'device': 'tester', 'pulse': 'NOT FOUND'}, {'device': 'trouble', 'pulse': 'NOT FOUND'}, {'device': 'web_server', 'pulse': 'NOT FOUND'}]}, 'pid': 1088038}",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a taken unit name also writes its refusal to the nohup log  — 339 -> 898 bytes; tail=\"s already loaded or has a fragment file.\\n2026-11-08T14:03:57-07:00 ground_loop: cairn-proof-loop-1087993-4.service refused the start — nothing was spawned, and NOTHING was spawned another way either, because the name being held means a loop already holds it; the lines above are systemd-run's reason\\n\"",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a first loop is up so a second can lose to it  — pid 1109890",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a genuinely crashed unit DOES block its own name (why the clear is needed)  — rc=1 err='Failed to start transient service unit: Unit cairn-proof-wedge-b-1109696-2.service was already loaded or has a fragment file.'",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a ground loop actually started and wrote its liveness record  — at /tmp/cairn-proof-heartbeat-scratch.4026531836-1109696-q3gr48ah/home-1/.cairn/devices/cairn/0/machines/ground_loop/beat.json: {'last_run': '2026-11-08T15:47:34.431316-07:00', 'state': {'beats': 1, 'started': '2026-11-08T15:47:34.429008-07:00', 'recorded_mtimes': {'/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/__init__.py': 1794175973.6322238, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/__main__.py': 1794177655.6778712, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/cli.py': 1794177668.4379392, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/discovered.py': 1794175973.633362, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/discovery.py': 1794175973.633362, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/guard.py': 1794176434.911783, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/heartbeat.py': 1794177045.39172, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/shim.py': 1794177681.019971}, 'current_mtimes': {'/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/__init__.py': 1794175973.6322238, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/__main__.py': 1794177655.6778712, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/cli.py': 1794177668.4379392, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/discovered.py': 1794175973.633362, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/discovery.py': 1794175973.633362, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/guard.py': 1794176434.911783, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/heartbeat.py': 1794177045.39172, '/tmp/cairn-hollow-scratch.4026531836-1105090-reozybac/worktree/cairn/devices/cairn/machines/ground_loop/shim.py': 1794177681.019971}, 'changed': [], 'devices': ['aider_shim', 'cairn', 'cc', 'codemother', 'db_domain', 'inference_domain', 'intention_extractor', 'librarian', 'operator', 'recovery', 'sudo_relay', 'system_rackmount', 'tester', 'trouble', 'web_server'], 'spawned': [{'device': 'aider_shim', 'pulse': 'NOT FOUND'}, {'device': 'cairn', 'pulse': 'NOT FOUND'}, {'device': 'cc', 'pulse': 'NOT FOUND'}, {'device': 'codemother', 'pulse': 'NOT FOUND'}, {'device': 'db_domain', 'pulse': 'NOT FOUND'}, {'device': 'inference_domain', 'pulse': 'NOT FOUND'}, {'device': 'intention_extractor', 'pulse': 'NOT FOUND'}, {'device': 'librarian', 'pulse': 'NOT FOUND'}, {'device': 'operator', 'pulse': 'NOT FOUND'}, {'device': 'recovery', 'pulse': 'NOT FOUND'}, {'device': 'sudo_relay', 'pulse': 'NOT FOUND'}, {'device': 'system_rackmount', 'pulse': 'NOT FOUND'}, {'device': 'tester', 'pulse': 'NOT FOUND'}, {'device': 'trouble', 'pulse': 'NOT FOUND'}, {'device': 'web_server', 'pulse': 'NOT FOUND'}]}, 'pid': 1109743}",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::a taken unit name also writes its refusal to the nohup log  — 339 -> 898 bytes; tail=\"s already loaded or has a fragment file.\\n2026-11-08T15:48:52-07:00 ground_loop: cairn-proof-loop-1109696-4.service refused the start — nothing was spawned, and NOTHING was spawned another way either, because the name being held means a loop already holds it; the lines above are systemd-run's reason\\n\"",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and a blind reset-failed frees it  — reset rc=0 restart rc=0 err=''",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and every other mention of the path is declared with its reason  — undeclared: []",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20261108.140402.135074.1088363: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and it SAYS which ground-loop path it took (Law 7 at a diagnostic surface)  — 20261108.154857.570856.1110067: ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and its own trail shows beats CONTINUING across the kill  — beats before=1 after=2",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and the boot log carries the exec line  — boot log: '2.164578.1088363: web_server: already listening on port 80\\n20261108.140402.167112.1088363: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and the boot log carries the exec line  — boot log: '7.603094.1110067: web_server: already listening on port 80\\n20261108.154857.605693.1110067: scope: declined by SUPERCLAUDE_NO_SCOPE — launching unbounded (a runaway session can still take the terminal)'",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and the name is free for the next launch  — rc=0 err=''",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and the refusal names the claim, not a crash  — tail: ' 1088191); refusing to start a second loop — the lock at /tmp/cairn-proof-heartbeat-scratch.4026531836-1087993-9gj15qho/home-2/.cairn/devices/cairn/0/machines/ground_loop/run.lock is already held — its singleton is running (or holding its lock while slow); this claimant must not become a second one\\n'",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and the refusal names the claim, not a crash  — tail: ' 1109890); refusing to start a second loop — the lock at /tmp/cairn-proof-heartbeat-scratch.4026531836-1109696-q3gr48ah/home-2/.cairn/devices/cairn/0/machines/ground_loop/run.lock is already held — its singleton is running (or holding its lock while slow); this claimant must not become a second one\\n'",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::and this proof reaches the read by importing the tool, not by re-spelling it",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::exactly one file READS /proc/<pid>/cgroup from python  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::exit 3 under SuccessExitStatus=3 is not a failure  — is-failed rc=4 out='inactive'",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::no declared exemption has gone stale (it would be a licence nothing uses)  — stale: []",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::reset-failed fired blind at a LIVE unit disturbs nothing  — MainPID '1088136' -> '1088136', is-active='active'",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::reset-failed fired blind at a LIVE unit disturbs nothing  — MainPID '1109831' -> '1109831', is-active='active'",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::systemd-run unreachable: the launch still reaches the binary  — pty output: \"/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\\n\"",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the launch left the operator's cairn-web-server unit alone  — live unit now logs to: 'StandardOutput=append\\nStandardError=append'",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the launch reaches the binary at all (the prime directive)  — pty output: \"/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\\n\"",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop is still alive after its caller's entire cgroup was killed  — pid 1088038",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop sits in a unit the user manager OWNS, not a caller's scope  — {'leaf': 'cairn-proof-loop-1087993-1.service', 'kind': 'service', 'lifetime': 'manager', 'under_user_manager': True}",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop's cgroup is NOT the caller's, and not a descendant of it  — loop=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-loop-1087993-1.service caller=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-caller-1087993-1.scope",
-            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the losing claimant's refusal GREW the nohup log  — 0 -> 339 bytes at /tmp/cairn-proof-heartbeat-scratch.4026531836-1087993-9gj15qho/home-2/.cairn/logs/ground_loop_nohup.log",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop is still alive after its caller's entire cgroup was killed  — pid 1109743",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop sits in a unit the user manager OWNS, not a caller's scope  — {'leaf': 'cairn-proof-loop-1109696-1.service', 'kind': 'service', 'lifetime': 'manager', 'under_user_manager': True}",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the loop's cgroup is NOT the caller's, and not a descendant of it  — loop=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-loop-1109696-1.service caller=/user.slice/user-1000.slice/user@1000.service/app.slice/cairn-proof-caller-1109696-1.scope",
+            "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the losing claimant's refusal GREW the nohup log  — 0 -> 339 bytes at /tmp/cairn-proof-heartbeat-scratch.4026531836-1109696-q3gr48ah/home-2/.cairn/logs/ground_loop_nohup.log",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::the tool's own proof still reads the kernel directly (it must not go hollow)  — readers: ['cairn/tools/cgroup/cgroup.py', 'cairn/tools/cgroup/proofs/test_cgroup.py']",
             "cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py::unit name already taken: the launch still reaches the binary  — pty output: \"/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\\n\""
           ],
@@ -254,16 +251,9 @@
       "hollow_anchor": {
         "6208d0a27d6e": {
           "anchor_rule": "first-build-commit",
-          "anchor_journal": "38d9630d7d026825570b7dfb74a20a24b3f5f918",
+          "anchor_journal": "0dec93a993c7861e3669588931a2904aa816a737",
           "anchor_first_build": "fa74e8fd8305e7bc678fd6e8599bc64c97a00456",
-          "commit": "7e8ca0e7310a93869b94d058ba5da50b8ced5084",
-          "revert_mode": {
-            "cairn/tools/base/singleton.py": "hunks",
-            "cairn/tools/base/shim.py": "hunks",
-            "cairn/devices/cairn/machines/ground_loop/heartbeat.py": "hunks",
-            "cairn/devices/cairn/machines/ground_loop/__main__.py": "hunks",
-            "cairn/devices/cairn/machines/ground_loop/shim.py": "hunks"
-          }
+          "commit": "7e8ca0e7310a93869b94d058ba5da50b8ced5084"
         }
       }
     },

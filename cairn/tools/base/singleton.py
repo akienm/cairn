@@ -26,6 +26,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 if os.name == "nt":
     import msvcrt
 else:
@@ -41,7 +43,7 @@ class ClaimRefused(RuntimeError):
 
 
 @dataclass
-class Claim:
+class Claim(DiagnosticBase):
     """The winner's held lock: an open fd the kernel keeps locked until this process exits or
     dies. Closing the fd IS releasing it."""
 

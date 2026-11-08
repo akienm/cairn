@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_anchors_without_a_journaled_buildme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-06T02:59:03",
+    "date": "2026-11-08T08:21:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_journaled_buildme_anchors_at_the_first_build_commits_parent\n.\n  ok   test_a_journaled_buildme_anchors_exactly_as_before\n.\n  ok   test_no_buildme_and_no_build_commit_refuses_naming_both\n                                                                      [100%]\n3 passed in 10.22s",
+      "stdout_tail": ".\n  ok   test_no_journaled_buildme_anchors_at_the_first_build_commits_parent\n.\n  ok   test_a_journaled_buildme_anchors_exactly_as_before\n.\n  ok   test_no_buildme_and_no_build_commit_refuses_naming_both\n                                                                      [100%]\n3 passed in 8.97s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_journaled_buildme_anchors_at_the_first_build_commits_parent",
@@ -15,7 +15,7 @@
         "test_no_buildme_and_no_build_commit_refuses_naming_both"
       ],
       "teeth_red": [],
-      "test": "test-88266c274d47",
+      "test": "test-ecff0610c699",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,6 +32,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -41,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-88266c274d47",
-      "source_fingerprint": "23b1ed4232d1a7752c3e005d3a81340797454b5f39c3dad98531aa40ff1f6906",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ecff0610c699",
+      "source_fingerprint": "2907f83cb1af74be82cb1af7437ff1e58596142dccc83700366956c58191464f",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -55,7 +56,7 @@
       ],
       "reached": {
         "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
-        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -63,38 +64,38 @@
         "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
         "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3",
         "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-449875-z6a5cuc7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-880952-d9vpqqkf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261106.095853.939584.TesterDevice.run_proof.json",
-            "logs/tester/0/20261106.095856.572093.TesterDevice.run_proof.json",
-            "logs/tester/0/20261106.095858.968636.TesterDevice.run_proof.json",
-            "logs/tester/0/20261106.095901.343273.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-5c3996105ee1/stderr.txt",
-            "logs/tester/0/runs/test-5c3996105ee1/stdout.txt",
-            "logs/tester/0/runs/test-5ea7639e8ade/stderr.txt",
-            "logs/tester/0/runs/test-5ea7639e8ade/stdout.txt",
-            "logs/tester/0/runs/test-dbf00b32bb27/stderr.txt",
-            "logs/tester/0/runs/test-dbf00b32bb27/stdout.txt",
-            "logs/tester/0/runs/test-f01fff185d4e/stderr.txt",
-            "logs/tester/0/runs/test-f01fff185d4e/stdout.txt"
+            "logs/tester/0/20261108.152054.851443.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.152057.040101.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.152059.305029.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.152101.493983.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-5aac66fd5de2/stderr.txt",
+            "logs/tester/0/runs/test-5aac66fd5de2/stdout.txt",
+            "logs/tester/0/runs/test-e00758fa8167/stderr.txt",
+            "logs/tester/0/runs/test-e00758fa8167/stdout.txt",
+            "logs/tester/0/runs/test-ea20a05d8b21/stderr.txt",
+            "logs/tester/0/runs/test-ea20a05d8b21/stdout.txt",
+            "logs/tester/0/runs/test-f9c533de39a9/stderr.txt",
+            "logs/tester/0/runs/test-f9c533de39a9/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 118890385,
-          "disk_bytes": 152227840,
-          "entries": 13054,
+          "bytes": 119551754,
+          "disk_bytes": 153833472,
+          "entries": 13375,
           "builds": 1,
-          "reuses": 19
+          "reuses": 6
         }
       }
     },

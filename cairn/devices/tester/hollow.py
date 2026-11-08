@@ -235,6 +235,29 @@ def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, env=git_env())
 
 
+def _at_anchor(repo_root: Path, commit: str, rel: str) -> bool:
+    """True when ``commit`` holds ``rel`` as a file: the build deleted what was there."""
+    return _git_ok(repo_root, "cat-file", "-t", f"{commit}:{rel}").stdout.strip() == "blob"
+
+
+def _unrestore(worktree: Path, rel: str) -> None:
+    """Undo a deletion's restore: the file goes, and so does every folder it brought back.
+
+    Checkout cannot restore an absence, so this is the deletion's half of ``_restore``. The
+    folders matter: an empty ``gone/`` still imports as a namespace package, so leaving one
+    would red the NEXT file's teeth for this file's reason (the corruption ``_restore`` raises
+    to prevent). And it raises like ``_restore`` when the path is still there afterwards."""
+    target = worktree / rel
+    if target.exists():
+        target.unlink()
+    d = target.parent
+    while d != worktree and worktree in d.parents and d.is_dir() and not any(d.iterdir()):
+        d.rmdir()
+        d = d.parent
+    if target.exists():
+        raise HollowUnmeasurable(f"hollow: could not take the restored {rel} away again")
+
+
 def _named_build_commits(ticket: dict, files: list[str], repo_root: Path) -> list[tuple[str, str]]:
     """[(full_sha, committer_iso)] for each sha the ticket's ``build_commits`` names (ticket 217c82fe7b57).
 
@@ -888,17 +911,26 @@ def _expand_dirs(files: list[str], commit: str, repo_root: Path, *, tid: str) ->
     another hand's edit. Measured 2026-10-02 on efb670ff1dd8:
     its chart named cairn/devices/cairn/machines/ground_loop/, a directory present at HEAD and
     holding the repair, and the file loop skipped it as "not present at HEAD" — a reason that
-    was false. A directory the build left unchanged comes back as a skip, never silently."""
+    was false. A directory the build left unchanged comes back as a skip, never silently.
+
+    A DIRECTORY THE BUILD DELETED IS EXPANDED THE SAME WAY (ticket 7bd839827172): absent at HEAD
+    but a tree at the anchor, it is read over the files this ticket's build commits removed from
+    under it, each of which the file loop then restores from the anchor. Measured 2026-11-08 on
+    80df7712b8c5: the retired cairn/machines/quarry_index was skipped whole as 'not present at
+    HEAD', so a deletion's proof could not be measured at all."""
     out: list[str] = []
     skips: list[dict] = []
     for rel in files:
-        if not (Path(repo_root) / rel).is_dir():
+        deleted_dir = (not (Path(repo_root) / rel).exists()
+                       and _git_ok(repo_root, "cat-file", "-t", f"{commit}:{rel}").stdout.strip() == "tree")
+        if not (Path(repo_root) / rel).is_dir() and not deleted_dir:
             out.append(rel)
             continue
         proc = _git_ok(repo_root, "log", "--format=", "--name-only", "-F", f"--grep={tid}",
                        f"{commit}..HEAD", "--", rel)
         changed = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
-        changed = [c for c in dict.fromkeys(changed) if (Path(repo_root) / c).is_file()]
+        changed = [c for c in dict.fromkeys(changed)
+                   if (Path(repo_root) / c).is_file() or _at_anchor(repo_root, commit, c)]
         if changed:
             out.extend(changed)
         else:
@@ -1162,9 +1194,15 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         why = _classify(rel, instrument=instrument if not prefix else frozenset(),
                         read_by=read_by if not prefix else "")
         source = None
+        deleted = False
         if why is None and not (wtree / rel).is_file():
             succ = moved_to(rel, tid, repo_root=root, worktree=wtree)
-            if succ is None:
+            if succ is None and at_commit and _at_anchor(root, at_commit, rel):
+                # A DELETION IS A MOVE WITH NO SUCCESSOR (ticket 7bd839827172): its
+                # counterfactual is the file back as the anchor held it, so it is restored,
+                # read, and taken away again, never skipped as having nothing to revert.
+                deleted = True
+            elif succ is None:
                 why = "not present at HEAD and no recorded successor — there is nothing to revert"
             elif (prefix + succ) in measured or (prefix + succ) in moved \
                     or _classify(succ, instrument=instrument if not prefix else frozenset(),
@@ -1180,6 +1218,8 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             continue
         where[key] = (root, wtree, at_commit, rel)
         how = _revert(wtree, at_commit, rel, repo_root=root)
+        if deleted:
+            how = "restored (deleted by the build)"
         src_noop = True
         if source is not None:
             # THE COUNTERFACTUAL OF A MOVE IS BOTH HALVES: the successor as it was before the
@@ -1206,13 +1246,16 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # text failing against today's code, where its HEAD text passes, is what shows the edit
         # was load-bearing. A proof the build created (absent before) is not read this way:
         # removing a file loses every tooth it holds and would vouch for any proof at all.
-        own = (not prefix and source is None and "proofs" in Path(rel).parts
+        own = (not prefix and source is None and not deleted and "proofs" in Path(rel).parts
                and rel.endswith(".py") and (wtree / rel).is_file())
         try:
             after, after_ran, _ = run_all()
             own_reverted = _own_green(rel) if own else set()
         finally:
-            _restore(wtree, rel)
+            if deleted:
+                _unrestore(wtree, rel)  # absent at HEAD; checkout cannot restore an absence
+            else:
+                _restore(wtree, rel)
             if source is not None and (wtree / source).exists():
                 (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
         own_lost = sorted(f"{rel}::{t}" for t in _own_green(rel) - own_reverted) if own else []
@@ -1222,7 +1265,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         # moved file is retried at the path it lives now: a build commit that wrote it there
         # carries hunks to take away, one that only moved it carries none (None, reading kept).
         # A file whose whole-file revert ran keeps today's reading, untouched.
-        if any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
+        if not deleted and any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
             try:
                 hunks = _revert_hunks(wtree, rel, builds_in.get(Path(root), []), repo_root=root)
                 if hunks is not None:

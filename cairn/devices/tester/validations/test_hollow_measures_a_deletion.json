@@ -2,12 +2,12 @@
   {
     "claim": "proof test_hollow_measures_a_deletion.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T08:59:19",
+    "date": "2026-11-08T09:42:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_deleted_file_is_restored_measured_and_taken_away_again\n.\n  ok   test_a_path_that_never_existed_is_still_skipped_for_its_absence\n.\n  ok   test_a_deleted_directory_is_measured_file_by_file\n                                                                      [100%]\n3 passed in 17.60s",
+      "stdout_tail": ".\n  ok   test_a_deleted_file_is_restored_measured_and_taken_away_again\n.\n  ok   test_a_path_that_never_existed_is_still_skipped_for_its_absence\n.\n  ok   test_a_deleted_directory_is_measured_file_by_file\n                                                                      [100%]\n3 passed in 18.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_deleted_file_is_restored_measured_and_taken_away_again",
@@ -15,7 +15,7 @@
         "test_a_deleted_directory_is_measured_file_by_file"
       ],
       "teeth_red": [],
-      "test": "test-d85f845a5bc4",
+      "test": "test-246afa809b17",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,12 +38,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d85f845a5bc4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-246afa809b17",
       "source_fingerprint": "f5a35a8aa4e28ee58ebbf954f5aa2a9e72f49317320ec99967c207644253a7e8",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
@@ -70,45 +71,43 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-899323-k_qja917/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 24,
+          "count": 26,
           "paths": [
-            "logs/tester/0/20261108.155902.546606.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155904.731348.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155906.884388.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155909.114612.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155911.352478.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155913.575651.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155915.773645.TesterDevice.run_proof.json",
-            "logs/tester/0/20261108.155917.903940.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-0d0ae9d0c928/stderr.txt",
-            "logs/tester/0/runs/test-0d0ae9d0c928/stdout.txt",
-            "logs/tester/0/runs/test-39bfa259b216/stderr.txt",
-            "logs/tester/0/runs/test-39bfa259b216/stdout.txt",
-            "logs/tester/0/runs/test-5a0e153ef907/stderr.txt",
-            "logs/tester/0/runs/test-5a0e153ef907/stdout.txt",
-            "logs/tester/0/runs/test-743a2fcacc45/stderr.txt",
-            "logs/tester/0/runs/test-743a2fcacc45/stdout.txt",
-            "logs/tester/0/runs/test-a83b8dc6ad25/stderr.txt",
-            "logs/tester/0/runs/test-a83b8dc6ad25/stdout.txt",
-            "logs/tester/0/runs/test-a8474531be6d/stderr.txt",
-            "logs/tester/0/runs/test-a8474531be6d/stdout.txt",
-            "logs/tester/0/runs/test-bfc27ad593ce/stderr.txt",
-            "logs/tester/0/runs/test-bfc27ad593ce/stdout.txt",
-            "logs/tester/0/runs/test-ebc40b1d72bb/stderr.txt",
-            "logs/tester/0/runs/test-ebc40b1d72bb/stdout.txt"
+            "logs/tester/0/20261108.164213.162043.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164215.452123.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164217.674268.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164219.944248.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164222.179317.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164224.466684.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164226.663270.TesterDevice.run_proof.json",
+            "logs/tester/0/20261108.164228.874638.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-235e0b894a17/stderr.txt",
+            "logs/tester/0/runs/test-235e0b894a17/stdout.txt",
+            "logs/tester/0/runs/test-246afa809b17/stderr.txt",
+            "logs/tester/0/runs/test-246afa809b17/stdout.txt",
+            "logs/tester/0/runs/test-66ccb668f9a9/stderr.txt",
+            "logs/tester/0/runs/test-66ccb668f9a9/stdout.txt",
+            "logs/tester/0/runs/test-79a9a4508aed/stderr.txt",
+            "logs/tester/0/runs/test-79a9a4508aed/stdout.txt",
+            "logs/tester/0/runs/test-b3b1ce2ee1da/stderr.txt",
+            "logs/tester/0/runs/test-b3b1ce2ee1da/stdout.txt",
+            "logs/tester/0/runs/test-b68999b0f622/stderr.txt",
+            "logs/tester/0/runs/test-b68999b0f622/stdout.txt",
+            "logs/tester/0/runs/test-bc4dfc088262/stderr.txt",
+            "logs/tester/0/runs/test-bc4dfc088262/stdout.txt",
+            "logs/tester/0/runs/test-c23b54855b63/stderr.txt",
+            "logs/tester/0/runs/test-c23b54855b63/stdout.txt",
+            "logs/tester/0/runs/test-de44aa4cef3a/stderr.txt",
+            "logs/tester/0/runs/test-de44aa4cef3a/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 119567295,
-          "disk_bytes": 153907200,
-          "entries": 13399,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {

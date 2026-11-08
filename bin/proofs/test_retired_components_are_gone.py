@@ -12,6 +12,16 @@ falsifier clause:
   3. the compiler module cannot be loaded: importing it exits nonzero with "No module named"
      (an import, never `-m`, so the red-first run cannot run the compiler).
 
+Ticket 6935a4a71f93 (nothing hangs off the git post-commit hook, outline 9.4.3.3.2; counting_block
+also by 17.11.5), one tooth per falsifier clause:
+
+  1. cairn/tools/post_commit/, cairn/machines/counting_block/ and CodeMother's commit feeder
+     (post_commit.py, hooks/post-commit, probes/commit_fires_activations.py and
+     proofs/test_a_commit_reaches_the_watcher.py) are absent, and git tracks no */hooks/post-commit;
+  2. no file in the repo names the three modules or their paths (records and caches excepted);
+  3. none of the three modules can be imported;
+  4. no post-commit hook is installed in the repo's git common dir (a host-seam: git cannot see it).
+
 Reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -31,6 +41,12 @@ PROVES = {
         "1": "quarry_index_folder_is_absent",
         "2": "nothing_names_quarry_index",
         "3": "quarry_index_compiler_does_not_import",
+    },
+    "6935a4a71f93": {
+        "1": "post_commit_chain_paths_are_absent",
+        "2": "nothing_names_the_post_commit_chain",
+        "3": "the_post_commit_chain_does_not_import",
+        "4": "no_post_commit_hook_is_installed",
     },
 }
 
@@ -91,6 +107,44 @@ def _gone(name: str, folder: str, module: str, runnable: str) -> None:
            f"rc={r.returncode} stderr={r.stderr[-300:]!r}")
 
 
+# the post-commit chain, spelled split for the same reason
+_PC_MODULES = ("cairn.tools." + "post_commit", "cairn.machines." + "counting_block",
+               "cairn.devices.codemother." + "post_commit")
+_PC_IMPORTS = (_PC_MODULES[0] + ".fanout", _PC_MODULES[1] + ".block", _PC_MODULES[2])
+_CM = "cairn/devices/" + "codemother/"
+_PC_PATHS = ("cairn/tools/" + "post_commit", "cairn/machines/" + "counting_block",
+             _CM + "post_commit" + ".py", _CM + "hooks/post" + "-commit",
+             _CM + "probes/commit_fires" + "_activations.py",
+             _CM + "proofs/test_a_commit_reaches" + "_the_watcher.py")
+_PC_NEEDLES = _PC_MODULES + _PC_PATHS[:2] + (_CM + "post_commit",)
+
+
+def _git(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True, timeout=60)
+
+
+def _post_commit_chain() -> None:
+    """The four teeth for 6935a4a71f93: nothing hangs off the git post-commit hook."""
+    names = PROVES["6935a4a71f93"]
+    standing = [p for p in _PC_PATHS if (REPO / p).exists()]
+    tracked = [p for p in _git("ls-files", "--", "*/hooks/post-commit").stdout.split() if p]
+    _check(names["1"], not standing and not tracked,
+           f"standing={standing} tracked_hooks={tracked}")
+    hits = _naming(_PC_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    loads = []
+    for mod in _PC_IMPORTS:
+        r = subprocess.run([sys.executable, "-c", f"import {mod}"], cwd=REPO,
+                           capture_output=True, text=True, timeout=60)
+        if not (r.returncode != 0 and "No module named" in r.stderr):
+            loads.append(f"{mod}: rc={r.returncode} {r.stderr[-160:]!r}")
+    _check(names["3"], not loads, "; ".join(loads))
+    common = _git("rev-parse", "--git-common-dir").stdout.strip()
+    hook = (REPO / common / "hooks" / "post-commit") if common else None
+    _check(names["4"], hook is not None and not hook.exists(),
+           f"installed hook at {hook}" if hook else "git rev-parse --git-common-dir answered nothing")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -99,6 +153,7 @@ PROVES_NAME = {
 def check() -> list[str]:
     FAILURES.clear()
     _gone("quarry_index", _QI_PATH, _QI_MODULE, _QI_MODULE + ".compiler")
+    _post_commit_chain()
     return list(FAILURES)
 
 

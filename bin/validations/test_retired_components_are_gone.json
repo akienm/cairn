@@ -2,20 +2,24 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T09:43:09",
+    "date": "2026-11-08T09:54:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\nretired components proofs: all green",
+      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
         "nothing_names_quarry_index",
-        "quarry_index_compiler_does_not_import"
+        "quarry_index_compiler_does_not_import",
+        "post_commit_chain_paths_are_absent",
+        "nothing_names_the_post_commit_chain",
+        "the_post_commit_chain_does_not_import",
+        "no_post_commit_hook_is_installed"
       ],
       "teeth_red": [],
-      "test": "test-4413176acc03",
+      "test": "test-1e2a5f8a1f38",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +29,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f776fd36eb9bcb507a257445ef38f47704fe4cfa90ad4399265d373947e34499",
+        "proof": "b032fac954a6b9337aeb04abd6e38182e5da8b76bc6cab1924506f91b3198acf",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,66 +42,42 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4413176acc03",
-      "source_fingerprint": "f381e44467b6d4e71be308bd9cfe8acf38219b0b68459a467606057fe15577eb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1e2a5f8a1f38",
+      "source_fingerprint": "ff3b704f357f3678bc97331f826969def0916cf5090d0d45f90476f4079f6fa5",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
+        "cairn/devices/__init__.py",
+        "cairn/devices/codemother/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
-        "cairn/machines/__init__.py"
+        "cairn/machines/__init__.py",
+        "cairn/tools/__init__.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "0ef5c4264bc1c8c1cf262565e66eef539e3ba2af090f1a0e5a9e24bc038c8a5f",
         "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-924423-dc6lt0br/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-4413176acc03/stderr.txt",
-            "logs/tester/0/runs/test-4413176acc03/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "80df7712b8c5": {
-          "cairn/machines/quarry_index/__init__.py": [
-            "quarry_index_folder_is_absent"
-          ],
-          "cairn/machines/quarry_index/compiler.py": [
-            "nothing_names_quarry_index",
-            "quarry_index_compiler_does_not_import",
-            "quarry_index_folder_is_absent"
-          ],
-          "cairn/machines/quarry_index/intention+why.json": [
-            "nothing_names_quarry_index",
-            "quarry_index_folder_is_absent"
-          ],
-          "cairn/machines/quarry_index/proofs/test_compiler.py": [
-            "nothing_names_quarry_index",
-            "quarry_index_folder_is_absent"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "80df7712b8c5": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "ffbc5a5a1068fbc72c2b194a6894360be01a78be",
-          "anchor_first_build": "da1f77e94f2af879d2b4f351d543b7cb216999f5",
-          "commit": "e88175086e2d81161bf5d5a8f03ea69e3b6a5894"
+          "measured": true,
+          "bytes": 119646645,
+          "disk_bytes": 153997312,
+          "entries": 13390,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

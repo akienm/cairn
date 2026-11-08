@@ -123,7 +123,6 @@ def test_the_verb_lands_one_record_in_codemothers_held_backpack():
     one record to the held charter backpack under metadata.type feedback, and a silent
     packet is refused at the receiver too."""
     from cairn.devices.codemother import shim as cm
-    from cairn.tools.instanceizer.instanceizer import load
     with _scratch_instance() as root:
         dev = cm.CodeMotherDevice(bus=None)
         assert "feedback" in dev.declared_verbs()
@@ -132,7 +131,7 @@ def test_the_verb_lands_one_record_in_codemothers_held_backpack():
         assert out["accepted"] is True and out["records"] == 1, out
         held = cm.charter_instance()
         assert str(held).startswith(str(root)), (held, root)
-        records = load(held).read()
+        records = cm.charter_backpack().read()
         assert len(records) == 1
         rec = records[0]
         assert rec["metadata"] == {"type": "feedback"}
@@ -142,7 +141,7 @@ def test_the_verb_lands_one_record_in_codemothers_held_backpack():
         bad = dev._handle_feedback({"sender": "sail", "verb": "feedback",
                                     "body": {"reflection": {"ticket": _TICKET}}})
         assert bad["accepted"] is False and "at_par" in bad["why"], bad
-        assert len(load(held).read()) == 1, "a silent packet landed"
+        assert len(cm.charter_backpack().read()) == 1, "a silent packet landed"
     print("ok test_the_verb_lands_one_record_in_codemothers_held_backpack")
 
 

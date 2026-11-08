@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_codemother_probes_report_to_the_watch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T01:23:25",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-08T11:02:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,35 +15,38 @@
         "test_codemother_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-789d75144076",
+      "test": "test-2ac26c1cb34f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_codemother_969340_1102132123_delivery",
+          "bus_codemother_969340_1102132123"
+        ]
       },
       "conditions": {
         "proof": "70ab93af3a1e3352a2fd184be85737c51a700531dca3936f8c547685385b460a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-789d75144076",
-      "source_fingerprint": "7788504c16b0711a8e8451fd874f050ec7f1aaf9c92a621f71141ac680200d64",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ac26c1cb34f",
+      "source_fingerprint": "c23934a726f6ad865696d927fb31cc9366ce21023f6dca97fc58d21a41b02445",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/probes/charter_feedback_reaches.py",
@@ -52,19 +55,18 @@
         "cairn/devices/codemother/shim.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
-        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
         "cairn/tools/data_recorder": "b7bc334d7794d529f21fdf0d782d30dbe360a2cfbab800b5fe268d7e06c60018",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/instanceizer": "9a7ff006213be62d2a2d632de5bd8c3086b387c3c8fcdcafae9777e107168ef7",
         "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-435390-l9fq4ge4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-963711-ofnar8fo/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,35 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118852957,
-          "disk_bytes": 152129536,
-          "entries": 13023,
+          "bytes": 119591910,
+          "disk_bytes": 153948160,
+          "entries": 13395,
           "builds": 1,
-          "reuses": 28
-        }
-      },
-      "hollow": {
-        "337b78c2667d": {
-          "cairn/devices/codemother/probes/known_pattern_missed.py": [
-            "test_codemother_probes_report_to_the_watch"
-          ],
-          "cairn/devices/codemother/probes/charter_feedback_reaches.py": [
-            "test_codemother_probes_report_to_the_watch"
-          ],
-          "CairnCommons/tickets/760149d5fe55-a-device-that-surfaces-what-cc-needs-to-know.state.json": [
-            "test_codemother_probes_report_to_the_watch"
-          ],
-          "CairnCommons/tickets/65b34c57ab71-charter-placed-under-codemother.state.json": [
-            "test_codemother_probes_report_to_the_watch"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "337b78c2667d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ee1af15e3493c94a2e412d86bc51ab84b46c7bb2",
-          "anchor_first_build": "72043e0df595bf792548eb63ada5e1ed16deff65",
-          "commit": "ee1af15e3493c94a2e412d86bc51ab84b46c7bb2"
+          "reuses": 25
         }
       }
     },

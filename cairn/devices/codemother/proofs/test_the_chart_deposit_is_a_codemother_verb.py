@@ -114,11 +114,14 @@ def a_real_deposit_rides_the_bus():
     assert packets, f"no berthed orient packet under {INSTANCE_DIR} to deposit"
     # A real packet, minus only its ticket claim: the claim is checked against the commons
     # at a repo-relative path, and hollow's /tmp worktree has no commons beside it (an absent
-    # claim passes the same rule). The deposit under test is the same either way.
+    # claim passes the same rule). Refs deleted since the packet was berthed go too: a live
+    # packet can name a file a later retirement removed (7778e24dd82e), and the floor rightly
+    # refuses a ref it cannot verify. The deposit under test is the same either way.
     from cairn.tools.scratch.scratch import scratch_dir
     import json
     doc = json.loads(Path(packets[-1]).read_text(encoding="utf-8"))
     doc.pop("ticket", None)
+    doc["refs"] = [r for r in doc.get("refs") or [] if (_REPO_ROOT / r).exists() or Path(r).exists()]
     berth = str(scratch_dir("testing-e8fe361a5b2f-berth-") / Path(packets[-1]).name)
     Path(berth).write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
     bus = reach("codemother", "inference_domain")

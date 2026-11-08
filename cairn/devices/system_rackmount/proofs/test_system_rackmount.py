@@ -31,21 +31,20 @@ Teeth a hollow system device could not pass:
   - IT IS A DEVICE / ITS SHIM IS A SHIM (Law 2 / Form v0 #2).
 
 Rides the instance's live bus through bus_client (RULE 1: a device's interface is the bus), every
-name it puts there marked "testing-20a97889646e-" (ticket 20a97889646e). Self-cleaning: the
-testing inboxes are removed on the way out.
+name it puts there marked "testing-20a97889646e-" (ticket 20a97889646e). The inboxes are marked
+names no device answers to, and every letter this proof sends carries the testing mark, so the
+bus disposes of the bounce as test debris (only devices are on the bus, outline 19.16).
 
     python3 cairn/devices/system_rackmount/proofs/test_system_rackmount.py     # exit 0 = green
 """
 
 from __future__ import annotations
 
-import contextlib
 import json
 import os
 import subprocess
 import sys
 import time
-import shutil
 import uuid
 from pathlib import Path
 
@@ -54,17 +53,14 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base.core_values import CoreValuesMixin
-from cairn.tools.base import address
+from cairn.tools.base import testing_mark
 from cairn.tools.bus_client import bus_client
-from cairn.tools.instanceizer.instanceizer import ensure
 from cairn.tools.bus_client.roster import DeviceRoster
 from cairn.devices.system_rackmount.rackmount import (
     SystemRackmountDevice,
     SystemRackmountShim,
     _default_sampler,
 )
-
-_SCRATCH = contextlib.ExitStack()   # each run's testing inboxes, removed at close
 
 # TEST AGAINST LIVE, MARKED AS TESTING (ruled 2026-09-28, extended 2026-10-04; ticket
 # 20a97889646e): the bus is the instance's live one, reached through bus_client, and every name
@@ -84,18 +80,19 @@ class _TestingBus:
     def wire_delivery(self, device_id, _deliver=None):
         return None
 
+    def post(self, **kw):
+        """Mark every letter this proof sends, so its no-receiver bounce is test debris."""
+        kw["body"] = {**(kw.get("body") or {}), testing_mark.FIELD: testing_mark.mark("20a97889646e")}
+        return self._bus.post(**kw)
+
     def __getattr__(self, name):
         return getattr(self._bus, name)
 
 
 def _inbox(label: str) -> str:
-    """A subscriber address on the live bus: a testing folder unique to this run, carrying a
-    DataRecorder instanceizer so the bus files the poke there instead of bouncing it back."""
-    name = f"{_MARK}{label}-{uuid.uuid4().hex[:8]}"
-    fp = address.folder_path(name)
-    ensure(fp, tool_class="cairn.tools.data_recorder.data_recorder.DataRecorder")
-    _SCRATCH.callback(shutil.rmtree, fp, True)
-    return name
+    """A subscriber address on the live bus: a testing name unique to this run. No device answers
+    to it, so the marked poke bounces and the bus disposes of the bounce as test debris."""
+    return f"{_MARK}{label}-{uuid.uuid4().hex[:8]}"
 
 
 def _rig(reading: dict):
@@ -140,7 +137,8 @@ def test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat():
     # 32-char hex id contains the substring "95" ~12% of the time. Scanning the whole envelope for
     # the reading was this proof's FLAKE: a red decided partly by a coin toss (Law 8), not a real
     # leak — the exact-body check above already proves the payload is clean.
-    assert poke["body"] == {"alert": "cpu_threshold", "crossed": 80}
+    body = {k: v for k, v in poke["body"].items() if k != testing_mark.FIELD}
+    assert body == {"alert": "cpu_threshold", "crossed": 80}, poke["body"]
     # The addressee and sender are this run's testing names, random hex the device never chose.
     authored = {k: v for k, v in poke.items() if k not in ("id", "date", "addressee", "sender")}
     assert "95" not in json.dumps(authored), "the raw reading must never cross the bus (Law 6)"
@@ -275,12 +273,9 @@ def _main() -> int:
         test_the_scheduler_goof_is_gone,
         test_it_is_a_device_and_its_shim_is_a_shim,
     ]
-    try:
-        for check in checks:
-            check()
-            print(f"  PASS  {check.__name__}")
-    finally:
-        _SCRATCH.close()
+    for check in checks:
+        check()
+        print(f"  PASS  {check.__name__}")
     print("green — system_rackmount: the system device advertises resource-threshold probes "
           "and pokes subscribers through the heartbeat + bus, evaluating locally so the reading "
           "never leaves (Law 6); the central-scheduler goof is gone")

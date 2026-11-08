@@ -1,18 +1,20 @@
 """PROOF — the charter tool's instance is held under codemother (ticket 65b34c57ab71).
 
-The falsifier is numbered, so four teeth (PROVES keys follow the falsifier markers):
+The falsifier is numbered (PROVES keys follow the falsifier markers):
 (1) a charter tool instance exists under codemother at ``devices/codemother/0/tools/charter``
     in BOTH roots — class-space carries its charter naming ``cairn/tools/charter`` as the
-    tool class; instance-space is ensured (instanceizer + data_recorder backpack) by
-    ``ensure_charter_instance``, the call ``activate`` and the ``charter`` verb make;
-(2) a bus message addressed to ``charter`` — and to the full ``codemother/0/tools/charter`` —
-    lands in the held instance's inbound backpack, with no device named charter on the bus;
+    tool class; instance-space is ensured (the data_recorder backpack's ``inbound/`` folder)
+    by ``ensure_charter_instance``, the call ``activate`` and the ``charter`` verb make;
+(2) RETIRED by ticket 7778e24dd82e with the bus's held-tool delivery (outline 19.16: only
+    devices are on the bus), as 164da559823d D6 retired a clause before it — the tooth that
+    asserted a post to ``charter`` lands in the held inbound is deleted, and the held instance
+    itself stays;
 (3) the data_recorder instance on charter receives a feedback record through codemother's
     ``charter`` verb over the bus and hands it back on read;
 (4) the placement leaves charter a TOOL: ``cairn/tools/charter`` carries no shim and no device
     (its 2026-09-02 bus presence, which recorded at charter's OWN instance address, is
-    retired), the instance's declaration names the backpack and nothing else, and the held
-    instance gates nothing — the holder's shim is the only glue.
+    retired), the held instance carries no declaration file and nothing but its backpack, and
+    it gates nothing — the holder's shim is the only glue.
 
 THE INSTANCE ROOT IS A SCRATCH DIRECTORY for the whole run: ``address.ROOTS["instance"]`` is
 pointed at it before any tooth and restored after, so nothing here touches the live
@@ -21,9 +23,8 @@ fixture world. The bus is in-process (a nonce table, dropped at exit) with codem
 registered and NO device called charter, which is exactly the live roster since the shim
 was retired.
 
-A hollow build could not pass: tooth 2 is the bus's held-tool resolution itself — reverted,
-``charter`` has no receiver and the post is undelivered; tooth 3 is the verb — reverted,
-codemother bounces it.
+A hollow build could not pass: tooth 1 is the ensure itself — reverted, no inbound folder
+stands; tooth 3 is the verb — reverted, codemother bounces it.
 """
 from __future__ import annotations
 
@@ -55,7 +56,6 @@ def _bind() -> None:
 
 PROVES = {"65b34c57ab71": {
     "1": "test_the_instance_exists_under_codemother_in_both_roots",
-    "2": "test_a_message_to_charter_lands_in_the_held_inbound",
     "3": "test_the_backpack_receives_and_reads_back_feedback",
     "4": "test_charter_stays_a_tool",
 }}
@@ -107,39 +107,15 @@ def test_the_instance_exists_under_codemother_in_both_roots():
     held = _codemother.charter_instance()
     assert str(held).startswith(str(_address.ROOTS["instance"])), held
     assert held == _address.ROOTS["instance"] / "devices/codemother/0/tools/charter", held
-    assert not (held / "instanceizer.json").exists(), "the fixture world already holds it"
+    assert not (held / "inbound").exists(), "the fixture world already holds it"
     out = _codemother.ensure_charter_instance()
-    assert (held / "instanceizer.json").is_file(), out
-    decl = json.loads((held / "instanceizer.json").read_text(encoding="utf-8"))
-    assert decl["tool_class"] == _codemother._CHARTER_BACKPACK and decl["data_path"] == "inbound", decl
+    assert (held / "inbound").is_dir(), out
+    assert out["backpack"] == str(held / "inbound"), out
     assert out["address"] == str(held) and out["records"] == 0, out
     # ensured twice is ensured once
     again = _codemother.ensure_charter_instance()
-    assert again["instanceizer"] == out["instanceizer"], again
+    assert again["backpack"] == out["backpack"], again
     print("ok test_the_instance_exists_under_codemother_in_both_roots")
-
-
-def test_a_message_to_charter_lands_in_the_held_inbound():
-    held = _codemother.charter_instance()
-    _codemother.ensure_charter_instance()
-    before = len(_inbound(held))
-    bus = _fresh_bus()
-    env = bus.post(sender="charter-probe", to="charter", channel="personal",
-                   why=f"proof {_RUN}: a finding addressed to the tool by name")
-    records = _inbound(held)
-    assert len(records) == before + 1, (before, len(records))
-    assert records[-1]["envelope_id"] == env["id"] and records[-1]["probe_source"] == "charter-probe", records[-1]
-    assert env["id"] not in {e["id"] for e in bus.undelivered(to="charter")}, "posted but undelivered"
-    env2 = bus.post(sender="charter-probe", to="codemother/0/tools/charter", channel="personal",
-                    why=f"proof {_RUN}: the same instance by its full address")
-    records = _inbound(held)
-    assert len(records) == before + 2 and records[-1]["envelope_id"] == env2["id"], records[-1:]
-    # a name nothing holds is still undelivered — the resolver did not widen to "anything"
-    env3 = bus.post(sender="charter-probe", to=f"nobody-holds-{_RUN}", channel="personal",
-                    why="proof: an unheld name")
-    assert len(_inbound(held)) == before + 2
-    assert env3["id"] in {e["id"] for e in bus.undelivered(to=f"nobody-holds-{_RUN}")}
-    print("ok test_a_message_to_charter_lands_in_the_held_inbound")
 
 
 def test_the_backpack_receives_and_reads_back_feedback():
@@ -169,8 +145,8 @@ def test_charter_stays_a_tool():
     assert not (_address.ROOTS["instance"] / "devices/charter").exists(), \
         "charter kept state at its own instance address — Law 6's machine test"
     held = _codemother.charter_instance()
-    decl = json.loads((held / "instanceizer.json").read_text(encoding="utf-8"))
-    assert set(decl) == {"tool_class", "data_path", "config"} and decl["config"] == {}, decl
+    assert sorted(p.name for p in held.iterdir()) == ["inbound"], \
+        f"the held instance carries more than its backpack: {sorted(p.name for p in held.iterdir())}"
     # the class-space instance carries a charter and nothing that runs
     inst = _CLASS_CHARTER.parent
     assert sorted(p.name for p in inst.iterdir()) == ["intention+why.json"], sorted(p.name for p in inst.iterdir())

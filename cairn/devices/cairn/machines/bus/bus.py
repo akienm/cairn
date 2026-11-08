@@ -199,6 +199,7 @@ class BusDevice(BaseDevice):
         # bus process installs it to wake the addressee's shim or return the letter; a bare
         # bus (a proof, a CLI read) has none and the envelope waits, as it always did.
         self._no_receiver: "Callable[[dict], Any] | None" = None
+        self._wrap_delivery: "Callable[[str, Callable[[dict], Any]], Callable[[dict], Any]] | None" = None
         # Called on each wait of request()'s reply poll (ticket c2036433beaf): the bus process
         # installs it to serve the mail queued for shims the waiting thread holds. None on a
         # bare bus.
@@ -214,7 +215,6 @@ class BusDevice(BaseDevice):
         self._ring: list[dict] = []
         self._ring_receipts: list[dict] = []
         self._ring_delivered: set[str] = set()
-        self._folder_recorders: dict[str, Any] = {}
         # ONE BUS PER INSTANCE (ticket 48519f4789b1 D3). The bus process is the sole writer of
         # transit, so after ONE db read of an addressee's backlog the undelivered mail is known
         # in memory: ``_pending`` holds every personal envelope not yet receipted (post adds,
@@ -242,6 +242,8 @@ class BusDevice(BaseDevice):
             yield cls(table=table, device_id=device_id)
 
     def wire_delivery(self, device_id: str, deliver: "Callable[[dict], Any]") -> None:
+        if self._wrap_delivery is not None:
+            deliver = self._wrap_delivery(device_id, deliver)
         self._delivery_hooks[device_id] = deliver
         if device_id not in self._channel_toggles:
             self._channel_toggles[device_id] = {ch: True for ch in CHANNELS}
@@ -249,6 +251,13 @@ class BusDevice(BaseDevice):
     def unwire_delivery(self, device_id: str) -> None:
         self._delivery_hooks.pop(device_id, None)
         self._channel_toggles.pop(device_id, None)
+
+    def set_delivery_wrapper(self, wrap: "Callable[[str, Callable[[dict], Any]], Callable[[dict], Any]] | None") -> None:
+        """Name who wraps a delivery hook AT REGISTRATION (ticket 7778e24dd82e). The bus process
+        serializes each shim's mail under that shim's lock; wrapping after a shim's wiring
+        returned left a window — wiring registers the hook, then starts the device — in which a
+        second post called the raw hook and started the device twice."""
+        self._wrap_delivery = wrap
 
     def set_no_receiver(self, callback: "Callable[[dict], Any] | None") -> None:
         """Name who is told when a personal post finds no wired receiver (ticket 7cb1989e7825).
@@ -269,86 +278,6 @@ class BusDevice(BaseDevice):
         The bus process hands this callback over so the wait serves that queue — two handlers
         that ask each other both get answers. Called each poll, no clock of its own."""
         self._while_waiting = callback
-
-    @staticmethod
-    def _instance_folder(addressee: str):
-        """The instance-space folder a non-device addressee names, or None.
-
-        Three spellings, tried in order (ticket 65b34c57ab71 added the last two):
-          - a FOLDER, ``~/.cairn/folders/<addressee>/`` — a component with state but no device;
-          - a HELD TOOL by full address, ``<device>/<instance>/tools/<tool>``;
-          - a HELD TOOL by bare name — ``charter`` finds ``devices/*/*/tools/charter`` under
-            whichever holder assembled it, so a tool's own probes need not know their holder.
-        A bare name that two holders answer to is ambiguous and resolves to nothing: the bus
-        delivers to one addressee or none, never to whichever sorted first.
-        """
-        from cairn.tools.base import address as _address
-        fp = _address.folder_path(addressee)
-        if (fp / "instanceizer.json").is_file():
-            return fp
-        parts = addressee.split("/")
-        if len(parts) == 4 and parts[2] == _address.TOOLS and parts[1].isdigit():
-            tp = _address.tool_path(parts[0], int(parts[1]), parts[3])
-            return tp if (tp / "instanceizer.json").is_file() else None
-        if "/" not in addressee:
-            held = [p for p in _address.held_tool_paths(addressee)
-                    if (p / "instanceizer.json").is_file()]
-            if len(held) == 1:
-                return held[0]
-        return None
-
-    def _try_folder_delivery(self, addressee: str, envelope: dict) -> bool:
-        """Fallback delivery for non-device addressees via an instanceizer.
-
-        If the addressee names an instance-space folder (``_instance_folder``: a folder, a
-        held tool by address, or a held tool by bare name) that carries an instanceizer, load
-        its DataRecorder and write the envelope. Returns True if delivered, False if nothing
-        on disk answers to the name."""
-        # ONLY A LOADED RECORDER IS CACHED (ticket cff5a197b3c4). A cached None outlived the
-        # folder gaining its instanceizer, so the press_office WATCHME and a charter envelope
-        # stood undelivered from 2026-09-30 although both names resolved two days later.
-        recorder = self._folder_recorders.get(addressee)
-        fresh = recorder is None
-        if fresh:
-            try:
-                from cairn.tools.instanceizer.instanceizer import load
-                fp = self._instance_folder(addressee)
-                recorder = load(fp) if fp is not None else None
-            except (FileNotFoundError, Exception):
-                return False
-            if recorder is None:
-                return False
-            self._folder_recorders[addressee] = recorder
-        if not self._folder_write(recorder, addressee, envelope):
-            return False
-        if fresh:
-            # WHAT STOOD BEFORE THE FOLDER ANSWERED lands now, once per bus life: nothing
-            # else ever re-offers a stored envelope to a folder, which has no shim to drain.
-            for standing in self.undelivered(to=addressee, limit=10000):
-                if standing["id"] != envelope["id"]:
-                    self._folder_write(recorder, addressee, standing)
-        return True
-
-    def _folder_write(self, recorder, addressee: str, envelope: dict) -> bool:
-        """Write one envelope into a folder's recorder and RECEIPT it. A bare
-        ``_ring_delivered`` mark is cleared by ``flush()``, after which the envelope read
-        undelivered from the store again — the receipt is what makes the taking durable."""
-        try:
-            recorder.write({
-                "finding": envelope.get("why", "bus message received"),
-                "inspector_target": addressee,
-                "probe_source": envelope.get("sender", "unknown"),
-                "envelope_id": envelope.get("id"),
-                "verb": envelope.get("verb", ""),
-                "body": envelope.get("body", {}),
-            })
-        except Exception as exc:  # noqa: BLE001
-            self.emit("delivery_failed", pointer=envelope["id"], values={
-                "addressee": addressee, "error": f"{type(exc).__name__}: {exc}",
-            })
-            return False
-        self.record_delivery(envelope["id"], to=addressee, by="folder_instanceizer")
-        return True
 
     def list(self) -> dict:
         """Enumerate registered devices and their per-channel toggle standing."""
@@ -472,8 +401,8 @@ class BusDevice(BaseDevice):
                     self.emit("delivery_failed", pointer=envelope["id"], values={
                         "addressee": to, "error": f"{type(exc).__name__}: {exc}",
                     })
-            elif self._try_folder_delivery(to, envelope):
-                pass
+            # ONLY DEVICES ARE ON THE BUS (outline 19.16, ticket 7778e24dd82e): a name no hook
+            # answers goes to the asker-gave-up or no-receiver branch, never to a folder.
             elif gave_up is not None:
                 self.record_delivery(envelope["id"], to=to, by="bus-asker-gave-up")
             elif (hook is None and self._no_receiver is not None

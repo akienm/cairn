@@ -55,12 +55,12 @@ _MAIL_DIR = log_path("codemother", 0) / "mail"
 # on it: charter is a building tool, so build-quality feedback belongs to the builder. The
 # instance berths at ``devices/codemother/0/tools/charter`` in both roots — class-space
 # carries its charter (``cairn/devices/codemother/0/tools/charter/intention+why.json``),
-# instance-space carries its life: an instanceizer naming the data_recorder backpack that
-# collects feedback, and the ``inbound/`` the bus delivers to when mail is addressed to
-# "charter". The instance is ensured on activate and by the ``charter`` verb; the tool class
-# gains no glue of its own, which is what keeps it a tool (the ticket's fourth clause).
+# instance-space carries its life: the data_recorder backpack at ``inbound/`` that collects
+# feedback, reached by codemother's own ``charter`` and ``feedback`` verbs. No declaration
+# file names it, and the bus never delivers to it: only devices are on the bus (outline
+# 19.16, ticket 7778e24dd82e). The instance is ensured on activate and by the ``charter``
+# verb; the tool class gains no glue of its own, which is what keeps it a tool.
 _CHARTER_TOOL = "charter"
-_CHARTER_BACKPACK = "cairn.tools.data_recorder.data_recorder.DataRecorder"
 _CHARTER_DATA = "inbound"
 
 
@@ -69,18 +69,22 @@ def charter_instance(roots: dict | None = None) -> Path:
     return tool_path("codemother", 0, _CHARTER_TOOL, roots)
 
 
-def ensure_charter_instance(roots: dict | None = None) -> dict:
-    """Ensure the held charter instance exists (instanceizer + backpack) and say what it holds.
+def charter_backpack(roots: dict | None = None):
+    """The held charter instance's data_recorder backpack, built directly at its inbound/."""
+    from cairn.tools.data_recorder.data_recorder import DataRecorder
+    return DataRecorder(charter_instance(roots) / _CHARTER_DATA)
 
-    Idempotent: ``instanceizer.ensure`` writes the declaration once and leaves it alone after;
-    the backpack's inbound folder is created by its first write. Returns the address, the
-    declaration path, and how many feedback records the backpack holds right now."""
-    from cairn.tools.instanceizer.instanceizer import ensure, load
+
+def ensure_charter_instance(roots: dict | None = None) -> dict:
+    """Ensure the held charter instance exists (its backpack folder) and say what it holds.
+
+    Idempotent: the inbound folder is made once and left alone after. Returns the address,
+    the backpack path, and how many feedback records the backpack holds right now."""
     home = charter_instance(roots)
-    decl = ensure(home, tool_class=_CHARTER_BACKPACK, data_path=_CHARTER_DATA)
-    recorder = load(home)
-    return {"address": str(home), "instanceizer": str(decl),
-            "tool_class": "cairn/tools/charter", "records": len(recorder.read())}
+    inbound = home / _CHARTER_DATA
+    inbound.mkdir(parents=True, exist_ok=True)
+    return {"address": str(home), "backpack": str(inbound),
+            "tool_class": "cairn/tools/charter", "records": len(charter_backpack(roots).read())}
 
 # The harbor's bus address. A STRING, deliberately: naming the device is not importing
 # it, and this is the only thing codemother needs to know about the harbor.
@@ -446,10 +450,9 @@ class CodeMotherDevice(BaseDevice):
 
         ``body.record`` — a data_recorder record (finding, inspector_target, probe_source);
         ``body.read`` — how many of the newest records to return (default 0)."""
-        from cairn.tools.instanceizer.instanceizer import load
         body = envelope.get("body", {}) or {}
         out = ensure_charter_instance()
-        recorder = load(charter_instance())
+        recorder = charter_backpack()
         record = body.get("record")
         if isinstance(record, dict):
             out["written"] = recorder.write({
@@ -471,7 +474,6 @@ class CodeMotherDevice(BaseDevice):
         ``at_par`` (the sender's door already refused everything else, and a packet that
         skipped that door still cannot land a silent one here). It never re-opens the build
         and never answers the sender with more than the receipt."""
-        from cairn.tools.instanceizer.instanceizer import load
         body = envelope.get("body", {}) or {}
         packet = body.get("reflection")
         if not isinstance(packet, dict):
@@ -481,7 +483,7 @@ class CodeMotherDevice(BaseDevice):
             return {"accepted": False, "verb": "feedback", "device": self.device_id,
                     "why": "reflection.at_par is not an explicit true/false — silence is refused"}
         ensure_charter_instance()
-        recorder = load(charter_instance())
+        recorder = charter_backpack()
         flags = sum(1 for f in (packet.get("findings") or []) if isinstance(f, dict) and f.get("kind") == "flag")
         ticket = packet.get("ticket", "?")
         written = recorder.write({

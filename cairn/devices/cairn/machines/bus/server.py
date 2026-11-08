@@ -150,14 +150,15 @@ class BusProcess(DiagnosticBase):
         # nobody is wired to take wakes its addressee's shim here, in the same call, or comes
         # back to its sender. Installed at construction so no post can slip past it.
         bus.set_no_receiver(self.no_receiver)
+        bus.set_delivery_wrapper(self._locked_hook)
         bus.set_while_waiting(self._serve_held)
 
     # --- holding ----------------------------------------------------------------------
 
     def _wire(self, shim) -> None:
         """Wire a held shim's delivery onto the ring — ``_wire_delivery``, the one step of a
-        first pulse that is about mail — once, then wrap the poke it registered in that
-        shim's own lock. Not a pulse (decision 12): a pulse fires probes and stamps snapshots."""
+        first pulse that is about mail — once; the poke it registers is wrapped in that
+        shim's own lock at registration (``_locked_hook``). Not a pulse (decision 12): a pulse fires probes and stamps snapshots."""
         if self._is_wired(shim.device_id):
             return
         with self._holding(shim.device_id):
@@ -167,15 +168,21 @@ class BusProcess(DiagnosticBase):
                 return
             shim._wire_delivery()
             self._wired.add(shim.device_id)
-            hook = self.bus._delivery_hooks.get(shim.device_id)
-            if hook is not None and not getattr(hook, "_bus_locked", False):
-                self._hooks[shim.device_id] = hook
 
-                def locked(envelope, _id=shim.device_id):
-                    self._queues[_id].append(envelope)
-                    self._drain(_id)
-                locked._bus_locked = True
-                self.bus._delivery_hooks[shim.device_id] = locked
+    def _locked_hook(self, device_id: str, hook):
+        """The bus's delivery wrapper: a shim's poke runs under its own lock, from the moment
+        the shim registers it — never raw, not even while its wiring is still starting the
+        device (ticket 7778e24dd82e)."""
+        if getattr(hook, "_bus_locked", False):
+            return hook
+        self._lock_for(device_id)
+        self._hooks[device_id] = hook
+
+        def locked(envelope, _id=device_id):
+            self._queues[_id].append(envelope)
+            self._drain(_id)
+        locked._bus_locked = True
+        return locked
 
     def _is_wired(self, device_id: str) -> bool:
         return device_id in self._wired and device_id in self.bus._delivery_hooks

@@ -24,14 +24,13 @@ _ENOUGH_RECORDS = 1
 
 
 def survey() -> dict:
-    from cairn.devices.codemother.shim import charter_instance
-    from cairn.tools.instanceizer.instanceizer import load
+    from cairn.devices.codemother.shim import charter_backpack, charter_instance
     held = charter_instance()
-    ensured = (held / "instanceizer.json").is_file()
+    ensured = (held / "inbound").is_dir()
     records: list[dict] = []
     if ensured:
         try:
-            records = load(held).read()
+            records = charter_backpack().read()
         except Exception as exc:  # noqa: BLE001 — a broken backpack is a finding, not a crash
             return {"address": str(held), "ensured": True, "records": 0, "senders": [],
                     "read_back": False, "broken": f"{type(exc).__name__}: {exc}"}
@@ -68,14 +67,14 @@ def _carry(context: dict) -> dict:
     s = once(context, "survey", survey)
     if not s["ensured"]:
         finding = ("UNHELD — codemother has not ensured its charter instance at "
-                   f"{s['address']}; feedback addressed to charter has nowhere to land")
+                   f"{s['address']}; her charter and feedback verbs have nowhere to land")
     elif s.get("broken"):
         finding = f"BROKEN — the held backpack refuses to read: {s['broken']}"
     elif s["records"] >= _ENOUGH_RECORDS:
         finding = (f"REACHES — {s['records']} feedback record(s) written to and read from "
                    f"codemother's held charter inbound, from {', '.join(s['senders']) or 'nobody'}")
     else:
-        finding = "HELD, SILENT — the instance stands and nothing has addressed it yet"
+        finding = "HELD, SILENT — the instance stands and nothing has written to it yet"
     return {"finding": finding, "survey": s, "ticket": owning_ticket(_OWNING_TICKET)}
 
 

@@ -82,10 +82,7 @@ def its_bus_traffic_is_live_and_marked():
     bc.reach = lambda *devices: _Recording(real(*devices), log)
     try:
         mod = importlib.import_module("cairn.devices.system_rackmount.proofs.test_system_rackmount")
-        try:
-            mod.test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat()
-        finally:
-            mod._SCRATCH.close()
+        mod.test_alert_me_at_80_cpu_end_to_end_through_the_heartbeat()
     finally:
         bc.reach = real
     posts = [e for e in log if e[0] == "post"]

@@ -56,7 +56,11 @@ PROVES = {"201a37bf1613": {
     "4": "test_no_proof_drops_a_table_by_hand",
     "5": "test_the_moved_proofs_stay_green",
     "6": "test_the_sweep_never_touches_a_live_table",
-}}
+},
+    # 7bc784d5a7de clause 2: the killed minter mints its companion through the store alone and
+    # this tooth stays green (its reach is red-checked in test_db_domain_proofs_reach_no_device.py)
+    "7bc784d5a7de": {"2": "test_a_killed_minter_is_swept_with_its_delivery_companion"},
+}
 
 _OWNER = "tester"
 _COLUMNS = {"x": "text"}

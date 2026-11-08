@@ -62,6 +62,9 @@ PROVES = {
 # measured 2026-09-07) and the record is written AFTER the beat (loop.py:269), so the bound is
 # five beats.
 LIVE_WITHIN_S = 300.0
+# Two teeth may each wait the whole bound when a hollow revert takes the loop's record away
+# (ticket 6208d0a27d6e: a reverted world never writes beat.json), so the budget outlasts both.
+PROOF_TIMEOUT_S = 1200
 
 CONSTRUCT = (
     "import json, sys; sys.path.insert(0, %r); "
@@ -264,9 +267,9 @@ if __name__ == "__main__":
               test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
         try:
             t()
-            print(f"  PASS  {t.__name__}")
+            print(f"  PASS  {t.__name__}", flush=True)
         except Exception as exc:  # noqa: BLE001
             rc = 1
-            print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
+            print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}", flush=True)
     print("test_shim_starts_the_loop: green" if rc == 0 else "test_shim_starts_the_loop: RED")
     sys.exit(rc)

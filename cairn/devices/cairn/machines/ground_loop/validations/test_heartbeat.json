@@ -2,12 +2,12 @@
   {
     "claim": "proof test_heartbeat.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-26T16:20:40",
+    "date": "2026-11-08T11:52:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 3 while one runs and is LIVE\n         -> rc=3\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=731762 vs 731762\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
+      "returncode": 1,
+      "stdout_tail": "         -> Python 3.14.4: []\n  ok   only .py files are watched\n         -> ['/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/a.py', '/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/b.py']\n  ok   a touched file is named as changed\n         -> ['/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/a.py']\n  ok   an added and a removed file are named too\n         -> ['/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/a.py', '/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/b.py', '/tmp/cairn-proof-heartbeat-pure-24_8s5yo/watch/c.py']\n  RED  the runner beats and writes its record\n         -> beats=None rc=None\n  RED  runner alive for the remaining teeth\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nRED — 2 failure(s):\n  - the runner beats and writes its record: beats=None rc=None\n  - runner alive for the remaining teeth: ",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -15,23 +15,15 @@
         "only .py files are watched",
         "a touched file is named as changed",
         "an added and a removed file are named too",
-        "the runner beats and writes its record",
-        "the record carries pid, last_run, and the heartbeat state",
-        "the beat record's device list is the rack",
-        "recorded and current mtimes name the watched file, unchanged",
-        "a second loop exits 3 while one runs and is LIVE",
-        "the first loop is untouched by the second",
-        "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
-        "a changed own file re-execs the loop in place (same pid, new start)",
-        "the new image records the new mtime as its baseline",
-        "COMMAND_EXIT stops the loop cleanly",
-        "the flag menu is laid out in flags/",
         "the runner reaches no bus, no probe discovery, no bytecode staleness",
         "the loop carries no probes of its own",
         "the charter describes only the heartbeat"
       ],
-      "teeth_red": [],
-      "test": "test-10f21a7fa01b",
+      "teeth_red": [
+        "the runner beats and writes its record",
+        "runner alive for the remaining teeth"
+      ],
+      "test": "test-97227bc2f3b3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,13 +33,14 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c5f9023ee60068d725f0063787bca367867d0ecf25c8162b08d18de76a331d05",
+        "proof": "f21533f4cea155d8462b35918c36f78e896aa372739a1f442288b8a20b8da961",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -57,16 +50,21 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10f21a7fa01b",
-      "source_fingerprint": "7fc2647200f3303b27d3ec190a6f6c95ec7fc89414fd03b357521c0bc79f5e33",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-97227bc2f3b3",
+      "source_fingerprint": "f2bd499ba30167e4ea5edf4319e9a06c8f17850e84029d5420d18c6e925babb6",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-731713-mbi66f30/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-e5185ye3/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,14 +73,22 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111870374,
-          "disk_bytes": 140349440,
-          "entries": 11269,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
-          "reuses": 1
+          "reuses": 2
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "reseal_ladder": {
+        "proof_sha256": "f21533f4cea155d8462b35918c36f78e896aa372739a1f442288b8a20b8da961",
+        "opened": "2026-11-08T11:52:14",
+        "last_red": "2026-11-08T11:52:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-heartbeat",
+        "ruling": null
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

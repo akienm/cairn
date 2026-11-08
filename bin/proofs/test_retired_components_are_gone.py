@@ -32,6 +32,16 @@ one tooth per falsifier clause:
   4. no declaration file stands under the live instance root and its folders/ does not exist
      (instance-space: git cannot see it).
 
+Ticket 6208d0a27d6e (the live-ness tool retires and the ground loop owns its record, Q#53 /
+outline 1.2.7, 5.6.3, 5.7.3.5), one tooth per falsifier clause it owns (5-8 berth with the
+ground loop and base proofs):
+
+  1. the tool's folder and the ground loop's proof that it reads the tool's cadence are absent;
+  2. no file in the repo names the module, its folder, its record read and write, its pane data
+     or its staleness threshold (records and caches excepted);
+  3. the module cannot be imported;
+  4. no record under the tool's name stands in the live ground loop home (instance-space).
+
 Reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -64,6 +74,12 @@ PROVES = {
         "3": "the_instanceizer_does_not_import",
         "4": "no_declaration_stands_in_instance_space",
     },
+    "6208d0a27d6e": {
+        "1": "liveness_paths_are_absent",
+        "2": "nothing_names_liveness",
+        "3": "liveness_does_not_import",
+        "4": "no_liveness_record_in_the_ground_loop_home",
+    },
 }
 
 FAILURES: list[str] = []
@@ -88,15 +104,15 @@ _RECORDS = ("history.json", "state.json")
 def _naming(needles: tuple[str, ...]) -> list[str]:
     """Repo files whose text holds any needle. Skipped: this proof, __pycache__, egg-info, every
     dot-file and dot-folder (.git, .pytest_cache, .artifact-journal.jsonl), and each component's
-    records of truth: history.json, state.json and everything under validations/ (ticket
-    80df7712b8c5 FIXME 1). Those are append-only records and caches that name what passed
+    records of truth: history.json, state.json, everything under validations/ (ticket
+    80df7712b8c5 FIXME 1) and a stored chart verdict (verdict-*.json, ticket 6208d0a27d6e). Those are append-only records and caches that name what passed
     through, never callers."""
     hits: list[str] = []
     for root, dirs, files in os.walk(REPO):
         dirs[:] = [d for d in dirs if not d.startswith(".")
                    and d not in ("__pycache__", "cairn.egg-info", "validations")]
         for f in files:
-            if f.startswith(".") or f in _RECORDS:
+            if f.startswith(".") or f in _RECORDS or (f.startswith("verdict-") and f.endswith(".json")):
                 continue
             p = Path(root) / f
             if p.resolve() == SELF:
@@ -190,6 +206,33 @@ def _instanceizer() -> None:
            f"declarations={decls[:6]} folders_root_exists={folders.exists()}")
 
 
+# the live-ness tool, spelled split for the same reason
+_LV = "live" + "ness"
+_LV_MODULE = "cairn.tools." + _LV
+_LV_PATHS = ("cairn/tools/" + _LV,
+             "cairn/devices/cairn/machines/ground_loop/proofs/test_the_ground_loop_reads" + "_the_tools_cadence.py")
+_LV_NEEDLES = (_LV_MODULE, _LV_PATHS[0], "read_" + _LV, "write_" + _LV, _LV + "_pane_data",
+               "STALENESS" + "_THRESHOLD_S")
+
+
+def _liveness() -> None:
+    """The four teeth for 6208d0a27d6e: the ground loop owns its record; up is its held lock."""
+    names = PROVES["6208d0a27d6e"]
+    standing = [p for p in _LV_PATHS if (REPO / p).exists()]
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_LV_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    r = subprocess.run([sys.executable, "-c", f"import {_LV_MODULE}.{_LV}"], cwd=REPO,
+                       capture_output=True, text=True, timeout=60)
+    _check(names["3"], r.returncode != 0 and "No module named" in r.stderr,
+           f"rc={r.returncode} stderr={r.stderr[-300:]!r}")
+    sys.path.insert(0, str(REPO))
+    from cairn.tools.base import address
+    record = (Path(address.ROOTS["instance"]) / "devices" / "cairn" / "0" / "machines"
+              / "ground_loop" / (_LV + ".json"))
+    _check(names["4"], not record.exists(), f"{record} still stands")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -200,6 +243,7 @@ def check() -> list[str]:
     _gone("quarry_index", _QI_PATH, _QI_MODULE, _QI_MODULE + ".compiler")
     _post_commit_chain()
     _instanceizer()
+    _liveness()
     return list(FAILURES)
 
 

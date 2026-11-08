@@ -106,7 +106,7 @@ def test_the_beat_calls_no_pulse_and_records_no_triggers():
         end = time.monotonic() + 30
         while time.monotonic() < end:
             try:
-                record = json.loads((home / "liveness.json").read_text(encoding="utf-8"))
+                record = json.loads((home / "beat.json").read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 record = {}
             if (record.get("state") or {}).get("beats", 0) >= 3:
@@ -152,9 +152,13 @@ def test_the_live_heartbeat_beats_without_triggers():
     active = subprocess.run(["systemctl", "--user", "is-active", "cairn-ground-loop.service"],
                             capture_output=True, text=True, timeout=30).stdout.strip()
     assert active == "active", f"cairn-ground-loop.service is {active!r}"
-    from cairn.tools.liveness.liveness import read_liveness
-    found = read_liveness(datetime.now(timezone.utc).astimezone())
-    assert found["verdict"] == "LIVE", f"the live heartbeat is {found['verdict']}: {found}"
+    from cairn.tools.base.address import instance_path
+    from cairn.devices.cairn.machines.ground_loop import guard, heartbeat
+    live = instance_path("cairn", 0) / "machines" / "ground_loop"
+    assert guard.held(live), f"no loop holds the live lock at {live / guard.LOCK_NAME}"
+    found = heartbeat.read_record(live, datetime.now(timezone.utc).astimezone())
+    assert found["record"] is not None and found["age_s"] < 3 * heartbeat.CADENCE_S, \
+        f"the live heartbeat's record is absent or not beating: {found}"
     state = (found.get("record") or {}).get("state") or {}
     assert set(state) == _STATE_KEYS, f"the live record's state keys are {sorted(state)} — " \
                                       f"the running loop still lists triggers"

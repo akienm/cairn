@@ -16,7 +16,7 @@ refused as a collision.
 THE SHIM IS DRIVEN IN A SUBPROCESS PER COMMAND UNDER A SCRATCH HOME — the instance root is read
 from HOME at import (address.py), so the snapshot file lands under the scratch and the live
 instance is never touched; a fresh process per command is the model every `cairn <device> ...`
-actually runs under. The scratch carries a LIVE liveness record before any shim constructs, so
+actually runs under. The scratch's loop lock is held before any shim constructs, so
 the d6eb399ab6ad start-the-loop check spawns nothing (that path is that ticket's proof).
 
 A hollow build could not pass: teeth 3, 4 and 7 need a real device to wake, a real snapshot on
@@ -126,12 +126,17 @@ SHIMS = {"weather": WeatherShim, "bare": BareShim, "colliding": CollidingShim}
 
 # --- the harness: one fresh process per command, under a scratch HOME ------------------------
 
+_HELD: list = []  # the scratch loop locks this process holds
+
+
 def _scratch() -> Path:
     home = scratch_dir("b41b-home-")
-    from cairn.tools.liveness.liveness import write_liveness
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)
-    write_liveness(datetime.now(timezone.utc).astimezone(), {"beats": 1, "subscribers": []}, os.getpid(), lh)
+    # the scratch loop's lock is HELD for this proof's life, so no shim it constructs spawns a
+    # ground loop (ticket 6208d0a27d6e: up is the held lock, not a record's age)
+    from cairn.tools.base import singleton
+    _HELD.append(singleton.claim(lh / "run.lock"))
     return home
 
 

@@ -1,18 +1,23 @@
 """The first shim starts the ground loop (ticket d6eb399ab6ad).
 
-PROVES: falsifier clauses (1) with no loop running (liveness DEAD), one shim construction leaves
-liveness LIVE within one beat plus spawn cost; (2) two shims started inside 100ms leave exactly
-one loop; (3) the ground loop package gains no line; (4) the check lives in exactly one place,
-the base — and in no device launcher (D19). Plus the resting case: a LIVE record means no spawn at all.
+PROVES: falsifier clauses (1) with no loop running (its lock free), one shim construction leaves
+a loop holding the lock and beating within one beat plus spawn cost; (2) two shims started inside
+100ms leave exactly one loop; (3) the ground loop package gains no line; (4) the check lives in
+exactly one place, the base — and in no device launcher (D19). Plus the resting case: a held lock
+means no spawn at all (ticket 6208d0a27d6e clause 5).
+
+"IS THE LOOP UP" IS ITS HELD LOCK (ticket 6208d0a27d6e, Q#53). The shim once read the loop's
+record and judged it by its age; that staleness verdict is retired. It now probes the loop's
+run.lock through cairn/tools/base/singleton.py: held means a loop runs, whatever its pace.
 
 THE SHIM IS CONSTRUCTED IN A SUBPROCESS WITH A SCRATCH HOME, because the instance root is read
-from HOME at import (address.py:_INSTANCE) — so the liveness the shim reads, and the liveness
-the loop it spawns writes, both sit under the scratch, and the live instance is never touched.
+from HOME at import (address.py:_INSTANCE) — so the lock the shim probes, and the lock and record
+the loop it spawns writes, all sit under the scratch, and the live instance is never touched.
 The unit name is the proof's own (CAIRN_GROUND_LOOP_UNIT), so the live loop's unit is neither
 claimed nor stopped. Teardown stops the proof's unit and kills any setsid child, always.
 
 A hollow build could not pass: tooth 1 needs a real loop to write a real record under the
-scratch, tooth 5 needs the LIVE branch to spawn nothing (asserted by the unit NOT existing).
+scratch, tooth 5 needs the held branch to spawn nothing (asserted by the unit NOT existing).
 """
 from __future__ import annotations
 
@@ -23,30 +28,30 @@ import subprocess
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
-from cairn.tools.liveness.liveness import read_liveness, write_liveness  # noqa: E402
+from cairn.tools.base import singleton  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir
 
 # The falsifier's four DONE clauses, one tooth each (the coverage reader's contract:
 # {ticket: {clause: tooth}}); the resting case is a fifth tooth beyond the clauses.
 PROVES = {
     "d6eb399ab6ad": {
-        "1": "test_dead_to_live_one_shim",        # DEAD before, one shim, LIVE within one beat plus spawn
+        "1": "test_dead_to_live_one_shim",        # lock free before, one shim, a loop holding it and beating within one beat plus spawn
         "2": "test_two_shims_one_loop",           # two shims inside 100ms leave exactly one loop
         "3": "test_ground_loop_package_untouched",  # the package gains no line
         "4": "test_check_lives_in_the_base_only",  # the check lives in the base, once
-        "resting": "test_live_record_spawns_nothing",  # a LIVE record spawns nothing
+        "resting": "test_a_held_lock_spawns_nothing",  # a held lock spawns nothing
     },
+    "6208d0a27d6e": {"5": "test_a_held_lock_spawns_nothing"},
 }
 
 # The loop's first beat on this machine costs ~90-105s (cairn/tools/bus_client/bus_client.py:86,
 # measured 2026-09-07) and the record is written AFTER the beat (loop.py:269), so the bound is
-# the staleness threshold itself: a loop that cannot beat once inside it is not LIVE by definition.
+# five beats.
 LIVE_WITHIN_S = 300.0
 
 CONSTRUCT = (
@@ -71,8 +76,14 @@ def _construct(home: Path, unit: str) -> dict:
     return json.loads(r.stdout.strip().splitlines()[-1])
 
 
-def _liveness_home(home: Path) -> Path:
+def _loop_home(home: Path) -> Path:
     return home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
+
+
+def _beating(home: Path) -> bool:
+    """A loop is up under the scratch: its lock is held and its first record stands."""
+    lh = _loop_home(home)
+    return singleton.held(lh / "run.lock") and (lh / "beat.json").exists()
 
 
 def _stop(unit: str) -> None:
@@ -106,19 +117,18 @@ def test_dead_to_live_one_shim() -> None:
     home = scratch_dir("d6eb-home-")
     unit = f"cairn-ground-loop-proof-{os.getpid()}"
     try:
-        now = datetime.now(timezone.utc)
-        assert read_liveness(now, _liveness_home(home))["verdict"] == "DEAD"
+        assert not singleton.held(_loop_home(home) / "run.lock")
         out = _construct(home, unit)
-        assert out["verdict"] == "DEAD", out
+        assert out["up"] is False, out
         assert out["spawned"] in ("unit", "setsid"), out
         deadline = time.monotonic() + LIVE_WITHIN_S
-        verdict = "DEAD"
+        up = False
         while time.monotonic() < deadline:
-            verdict = read_liveness(datetime.now(timezone.utc).astimezone(), _liveness_home(home))["verdict"]
-            if verdict == "LIVE":
+            up = _beating(home)
+            if up:
                 break
             time.sleep(1)
-        assert verdict == "LIVE", f"no LIVE record under {home} within {LIVE_WITHIN_S}s after spawn {out}"
+        assert up, f"no loop holds the lock and beats under {home} within {LIVE_WITHIN_S}s after spawn {out}"
         print("ok test_dead_to_live_one_shim")
     finally:
         _stop(unit)
@@ -143,13 +153,13 @@ def test_two_shims_one_loop() -> None:
         # both spawned and the runner's own flock made the loser exit 3 — which the record shows
         # as one pid. Wait for the record, then count.
         deadline = time.monotonic() + LIVE_WITHIN_S
-        found = None
+        up = False
         while time.monotonic() < deadline:
-            found = read_liveness(datetime.now(timezone.utc).astimezone(), _liveness_home(home))
-            if found["verdict"] == "LIVE":
+            up = _beating(home)
+            if up:
                 break
             time.sleep(1)
-        assert found and found["verdict"] == "LIVE", (found, outs)
+        assert up, outs
         pids = _scratch_loops(home, unit)
         assert len(pids) == 1, f"loops alive under {home}: {pids}; attempts {spawned}"
         print(f"ok test_two_shims_one_loop  (attempts {spawned}, one pid)")
@@ -188,18 +198,23 @@ def _is_scratch_loop(p: Path, home: Path) -> bool:
     return f"HOME={home}".encode() in env and b"cairn.devices.cairn.machines.ground_loop" in cmd
 
 
-def test_live_record_spawns_nothing() -> None:
+def test_a_held_lock_spawns_nothing() -> None:
+    # No record is written at all: the held lock alone says the loop is up (6208d0a27d6e clause 5).
     home = scratch_dir("d6eb-home-")
     unit = f"cairn-ground-loop-proof-{os.getpid()}-live"
+    claim = None
     try:
-        lh = _liveness_home(home)
+        lh = _loop_home(home)
         lh.mkdir(parents=True)
-        write_liveness(datetime.now(timezone.utc).astimezone(), {"beats": 1, "subscribers": []}, os.getpid(), lh)
+        claim = singleton.claim(lh / "run.lock")
         out = _construct(home, unit)
-        assert out == {"verdict": "LIVE", "spawned": "none", "note": out["note"]}, out
-        assert not _unit_active(unit), f"{unit} exists though the record was LIVE"
-        print("ok test_live_record_spawns_nothing")
+        assert out == {"up": True, "spawned": "none", "note": out["note"]}, out
+        assert not _unit_active(unit), f"{unit} exists though the lock was held"
+        assert not (lh / "beat.json").exists(), "nothing wrote a record under a held lock"
+        print("ok test_a_held_lock_spawns_nothing")
     finally:
+        if claim is not None:
+            claim.release()
         _stop(unit)
         shutil.rmtree(home, ignore_errors=True)
 
@@ -237,7 +252,7 @@ if __name__ == "__main__":
     # that takes shim.py's build away reads each tooth failing rather than one crash (UNREAD).
     rc = 0
     for t in (test_check_lives_in_the_base_only, test_ground_loop_package_untouched,
-              test_live_record_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
+              test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
         try:
             t()
             print(f"  PASS  {t.__name__}")

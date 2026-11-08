@@ -22,7 +22,7 @@ whatever interpreter runs the proof, which is the interpreter the loop runs on.
 
 EVERYTHING ELSE RUNS AGAINST TEMP TREES. The runner is a subprocess with its instance root,
 its class root, its watched folder and its cadence injected, so the live singleton's claim
-and the live liveness record are never touched. Touching the watched
+and the live beat record are never touched. Touching the watched
 folder of a fixture runner is what drives the restart teeth; the real loop's files are
 never touched by this proof.
 """
@@ -129,7 +129,7 @@ def _home(td: Path) -> Path:
 
 def _record(td: Path) -> dict:
     try:
-        return json.loads((_home(td) / "liveness.json").read_text())
+        return json.loads((_home(td) / "beat.json").read_text())
     except (OSError, json.JSONDecodeError):
         return {}
 

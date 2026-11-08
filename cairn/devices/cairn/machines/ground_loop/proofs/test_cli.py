@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cairn.devices.cairn.machines.ground_loop.cli import _status, _stop, _start, main
-from cairn.tools.liveness.liveness import write_liveness
+from cairn.devices.cairn.machines.ground_loop.heartbeat import write_record
 
 PROVES = {"bae622881f03": {"6": "status prints the changed count and no trigger lines"}}
 
@@ -29,11 +29,11 @@ def _tmp_instance():
     (flags / "COMMAND_EXIT.flag").touch()
     (flags / "COMMAND_DO_NOT_RESTART.flag").touch()
     now = datetime.now(timezone.utc).astimezone()
-    write_liveness(now, {"beats": 42, "subscribers": ["bus"]}, os.getpid(), Path(d))
+    write_record(now, {"beats": 42, "subscribers": ["bus"]}, os.getpid(), Path(d))
     return d
 
 
-def test_status_reads_liveness():
+def test_status_reads_the_record():
     global PASS, FAIL
     d = _tmp_instance()
     try:
@@ -41,7 +41,7 @@ def test_status_reads_liveness():
             rc = _status()
         if rc == 0:
             PASS += 1
-            print("PASS: status returns 0 and reads liveness")
+            print("PASS: status returns 0 and reads the record")
         else:
             FAIL += 1
             print(f"FAIL: status returned {rc}")
@@ -59,7 +59,7 @@ def test_status_prints_the_changed_count():
     d = scratch_dir("gl_cli_changed_")
     now = datetime.now(timezone.utc).astimezone()
     state = {"beats": 3, "changed": ["/x/a.py"]}
-    write_liveness(now, state, os.getpid(), Path(d))
+    write_record(now, state, os.getpid(), Path(d))
     out = io.StringIO()
     try:
         with patch("cairn.devices.cairn.machines.ground_loop.cli._home", return_value=Path(d)), \
@@ -153,7 +153,7 @@ def test_dispatcher_exists_and_is_executable():
 
 
 if __name__ == "__main__":
-    test_status_reads_liveness()
+    test_status_reads_the_record()
     test_status_prints_the_changed_count()
     test_stop_copies_flag()
     test_stop_idempotent()

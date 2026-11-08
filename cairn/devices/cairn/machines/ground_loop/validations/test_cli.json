@@ -2,59 +2,33 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-04T21:05:03",
+    "date": "2026-11-08T11:51:38",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads liveness\nPASS: status prints the changed count and no trigger lines\nground_loop: stop signaled (flag copied to instance folder)\n  pid 3828479 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
-      "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report LIVE/DEAD, pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
-      "teeth_green": [
-        "status returns 0 and reads liveness",
-        "status prints the changed count and no trigger lines",
-        "stop copies COMMAND_EXIT.flag to instance folder",
-        "stop is idempotent (already signaled)",
-        "help returns 0",
-        "unknown command returns 1",
-        "bin/cmd/groundloop exists and is executable"
-      ],
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py\", line 17, in <module>\n    from cairn.devices.cairn.machines.ground_loop.heartbeat import write_record\nImportError: cannot import name 'write_record' from 'cairn.devices.cairn.machines.ground_loop.heartbeat' (/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/heartbeat.py)",
+      "teeth_green": [],
       "teeth_red": [],
-      "test": "test-61d891895d1f",
+      "test": "test-63f545e23761",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 18,
-        "tables": [
-          "bus_proc_3778239_1604359651_delivery",
-          "bus_proc_3778239_1604359651",
-          "bus_proc_3819708_2054422525_delivery",
-          "bus_proc_3819708_2054422525",
-          "bus_proc_3819738_2054425014_delivery",
-          "bus_proc_3819738_2054425014",
-          "bus_proc_3819788_2054438539_delivery",
-          "bus_proc_3819788_2054438539",
-          "bus_proc_3819823_2054453374_delivery",
-          "bus_proc_3819823_2054453374",
-          "bus_proc_3820143_2055148423_delivery",
-          "bus_proc_3820143_2055148423",
-          "bus_proc_3820173_2055151037_delivery",
-          "bus_proc_3820173_2055151037",
-          "bus_proc_3820226_2055164525_delivery",
-          "bus_proc_3820226_2055164525",
-          "bus_proc_3820264_2055179478_delivery",
-          "bus_proc_3820264_2055179478"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "48942c3c6ad388b2c5329a247b79d14f71e0a3ac993a040bbda97624918f0bdb",
+        "proof": "78a0d78ce1114171748af075bb7ba886862ec9fd4ce423942a1d2e4c869a2b95",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -64,24 +38,26 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-61d891895d1f",
-      "source_fingerprint": "e1433a3ec5bdce25082d3f636013efec447533389e046a361571a758b1fd37a2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63f545e23761",
+      "source_fingerprint": "d5294ccce85ec3066fa94c6b8ca7e031b7f3c4bc1836ceb117c6b9d763793169",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/cli.py",
+        "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_cli.py"
       ],
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
         "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
-        "cairn/tools/scratch": "84284c7a59d8fe42b49e7633799bac0ce7cb2d3e44326f41a82f6151e79109f2",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3828458-ilyxr9r2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-dlf59rq_/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,12 +66,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115870325,
-          "disk_bytes": 146833408,
-          "entries": 12212,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "78a0d78ce1114171748af075bb7ba886862ec9fd4ce423942a1d2e4c869a2b95",
+        "opened": "2026-11-08T11:51:38",
+        "last_red": "2026-11-08T11:51:38",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-cli",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

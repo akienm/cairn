@@ -9,7 +9,7 @@ FOUND, the file's mtime, the pid it spawned.
 
 One run of the loop, in a subprocess at cadence 0.5 s, over a scratch class root holding
 four devices: alpha's pulse.py appends its pid to a marker, beta's sleeps 30 s, gamma's
-raises, delta carries no groundloop/pulse.py. Every liveness record the run writes is kept
+raises, delta carries no groundloop/pulse.py. Every beat record the run writes is kept
 by beat number, and each tooth reads that run. Clause keys follow the falsifier's (N)
 markers. Every tooth needs the ``spawned`` key, so a loop that spawns nothing reds them all.
 The run kills the loop and every pid it spawned before the teeth read.
@@ -79,7 +79,7 @@ def run():
         end = time.monotonic() + 30
         while time.monotonic() < end:
             try:
-                state = json.loads((home / "liveness.json").read_text(encoding="utf-8"))["state"]
+                state = json.loads((home / "beat.json").read_text(encoding="utf-8"))["state"]
             except (OSError, ValueError, KeyError, TypeError):
                 state = None
             if state:

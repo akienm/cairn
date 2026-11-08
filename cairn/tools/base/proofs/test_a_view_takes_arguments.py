@@ -16,7 +16,7 @@ Hollow: today's shim.py and device.py red 1, 2, 3 and 5.
 
 THE SHIM IS DRIVEN IN A SUBPROCESS PER COMMAND UNDER A SCRATCH HOME, as test_root_verbs.py
 does: the instance root is read from HOME at import, so the snapshot a hot call writes lands
-under the scratch, and a LIVE liveness record stops the start-the-loop check spawning anything.
+under the scratch, and a held loop lock stops the start-the-loop check spawning anything.
 
     bin/cairn test cairn/tools/base/proofs/test_a_view_takes_arguments.py
 """
@@ -26,7 +26,6 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -104,13 +103,18 @@ def _drive(argv: list[str]) -> None:
 
 # --- the harness ------------------------------------------------------------------------------
 
+_HELD: list = []  # the scratch loop locks this process holds
+
+
 def _scratch() -> Path:
-    from cairn.tools.liveness.liveness import write_liveness
     from cairn.tools.scratch.scratch import scratch_dir
     home = scratch_dir("35b9-home-")
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)
-    write_liveness(datetime.now(timezone.utc).astimezone(), {"beats": 1, "subscribers": []}, os.getpid(), lh)
+    # the scratch loop's lock is HELD for this proof's life, so no shim it constructs spawns a
+    # ground loop (ticket 6208d0a27d6e: up is the held lock, not a record's age)
+    from cairn.tools.base import singleton
+    _HELD.append(singleton.claim(lh / "run.lock"))
     return home
 
 

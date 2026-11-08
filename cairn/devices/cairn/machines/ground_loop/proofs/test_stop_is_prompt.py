@@ -5,7 +5,7 @@ MEASURED, 2026-09-08, from both ends of the same defect:
   - ``systemctl --user restart cairn-ground-loop`` logged
     ``State 'stop-sigterm' timed out. Killing.`` at 90s and SIGKILLed the loop — so a beat
     in flight was torn down mid-write instead of finished, which is exactly what the
-    liveness record's atomic write exists to prevent.
+    beat record's atomic write exists to prevent.
   - ``cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py`` died in its own
     ``finally:`` cleanup on ``systemctl --user stop`` at a 20s subprocess timeout, and the
     TimeoutExpired replaced every tooth's verdict with a traceback.
@@ -21,13 +21,13 @@ WHY THE TOOTH FIRES **AFTER** A BEAT, AND WHY THAT IS THE WHOLE DESIGN. A beat c
 and the cadence is 60s, so a SIGTERM sent during a beat exits under 60s either way — a tooth
 that signalled at once would pass over the broken code. The discriminating instant is the
 one where the process is *asleep*: there, the old code costs the remainder of the cadence and
-the new code costs nothing. So this proof waits for ``liveness.json`` to record a completed
+the new code costs nothing. So this proof waits for ``beat.json`` to record a completed
 beat, signals into the sleep that follows it, and holds the exit to a bound far below the
 cadence. A hollow runner that simply never slept would fail the second tooth, which insists
 the loop was still alive and beating when it was signalled.
 
 IT RUNS AGAINST A FIXTURE TREE (``main(roots=...)``), so the live singleton's claim is
-untouched and the live liveness record is never written. That is the same injection the
+untouched and the live beat record is never written. That is the same injection the
 runner's own docstring names, used for the same reason.
 """
 from __future__ import annotations
@@ -63,8 +63,8 @@ def ok(name: str, passed: bool, detail: str = "") -> None:
         FAILURES.append(f"{name}: {detail}")
 
 
-def _liveness(roots: Path) -> dict | None:
-    p = (roots / "devices" / "cairn" / "0" / "machines" / "ground_loop" / "liveness.json")
+def _record(roots: Path) -> dict | None:
+    p = (roots / "devices" / "cairn" / "0" / "machines" / "ground_loop" / "beat.json")
     if not p.is_file():
         return None
     try:
@@ -79,7 +79,7 @@ def main() -> int:
         roots = Path(td)
         # `roots` is the address TABLE, not a path — the repo and commons stay real (the
         # beat's whole job is walking them), and only `instance` is redirected, which is
-        # exactly the half that would otherwise stamp the live liveness record and take the
+        # exactly the half that would otherwise stamp the live beat record and take the
         # live singleton's claim.
         runner = (
             "import sys; sys.path.insert(0, %r)\n"
@@ -100,7 +100,7 @@ def main() -> int:
             deadline = time.monotonic() + 180
             beats = 0
             while time.monotonic() < deadline:
-                rec = _liveness(roots)
+                rec = _record(roots)
                 beats = (rec or {}).get("state", {}).get("beats", 0)
                 if beats >= 1:
                     break

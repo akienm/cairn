@@ -1,23 +1,24 @@
 [
   {
     "claim": "proof test_the_beat_spawns_each_device_pulse.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-26T17:37:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-08T11:55:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_alphas_pulse_runs_on_every_beat\n.\n  ok   test_the_beat_does_not_wait_on_a_sleeping_pulse\n.\n  ok   test_the_record_lists_each_spawn_with_device_path_mtime_and_pid\n.\n  ok   test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned\n.\n  ok   test_a_raising_pulse_does_not_stop_the_next_beats_spawns\n                                                                    [100%]\n5 passed in 3.67s",
+      "returncode": 1,
+      "stdout_tail": "test_the_beat_spawns_each_device_pulse.py:164: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nrun = {'records': {}, 'pids': ['1009206', '1009209', '1009219', '1009222', '1009225', '1009228', ...], 'class_root': PosixPath('/tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class'), 'advance_s': None, ...}\n\n    def _spawning(run) -> list[tuple[int, list]]:\n        \"\"\"Every beat >= 1 with its ``spawned`` list; asserts the key is there on each.\"\"\"\n        beats = sorted(b for b in run[\"records\"] if b >= 1)\n>       assert beats, f\"the loop wrote no beat: {run['stderr']}\"\nE       AssertionError: the loop wrote no beat: \nE       assert []\n\ntest_the_beat_spawns_each_device_pulse.py:117: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_beat_spawns_each_device_pulse.py::test_alphas_pulse_runs_on_every_beat\nFAILED test_the_beat_spawns_each_device_pulse.py::test_the_beat_does_not_wait_on_a_sleeping_pulse\nFAILED test_the_beat_spawns_each_device_pulse.py::test_the_record_lists_each_spawn_with_device_path_mtime_and_pid\nFAILED test_the_beat_spawns_each_device_pulse.py::test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned\nFAILED test_the_beat_spawns_each_device_pulse.py::test_a_raising_pulse_does_not_stop_the_next_beats_spawns\n5 failed in 31.58s",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_alphas_pulse_runs_on_every_beat",
         "test_the_beat_does_not_wait_on_a_sleeping_pulse",
         "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid",
         "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
-        "test_a_raising_pulse_does_not_stop_the_next_beats_spawns"
+        "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
+        "test_the_beat_spawns_each_device_pulse"
       ],
-      "teeth_red": [],
-      "test": "test-b165640c0643",
+      "test": "test-396f1ab22e97",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,39 +28,327 @@
         "tables": []
       },
       "conditions": {
-        "proof": "7ebb96c9a49a29e3452bf70d1f0229fc3d701e2d8a31bf9b928b7eff043f8be3",
+        "proof": "875147dc6c3a45a56731599156d28098985e54298390d27575b82661b7f77a13",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 745042,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-745022-6lc5gcus/class/cairn/devices/beta/groundloop/pulse.py",
+          "pid": 1009226,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009229,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009232,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009235,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009238,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009241,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009245,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009248,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009251,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009255,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009258,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009261,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009266,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009269,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009272,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009275,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009279,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009282,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009285,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009288,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009291,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009294,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009297,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009300,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009303,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009306,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009309,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009312,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009315,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009319,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009322,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009325,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009328,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009331,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009334,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009337,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009340,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009343,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009346,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009349,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009352,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009355,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009359,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009362,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009365,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009368,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009373,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009376,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009379,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009383,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009386,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009402,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009405,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009420,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009423,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009426,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
+          "signal": "TERM"
+        },
+        {
+          "pid": 1009429,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 /tmp/beat-spawns-each-device-pulse-proof-scratch.4026531836-1009204-refdul8a/class/cairn/devices/beta/groundloop/pulse.py",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b165640c0643",
-      "source_fingerprint": "2e751902f64fb4425a51f3599f084000a2eb423d202c9a63037f9b2935282982",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-396f1ab22e97",
+      "source_fingerprint": "7efbd4fa9e8c1df91e38a05276641f741d7b0d684bb92b26ae2c6eaf1bcd8e29",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_spawns_each_device_pulse.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
+        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-745002-wc5gzdml/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-t0rqv3pg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,45 +357,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 111893396,
-          "disk_bytes": 140390400,
-          "entries": 11276,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
-          "reuses": 0
+          "reuses": 5
         }
       },
-      "hollow": {
-        "81eb3e46aed9": {
-          "cairn/devices/cairn/machines/ground_loop/heartbeat.py": [
-            "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
-            "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
-            "test_alphas_pulse_runs_on_every_beat",
-            "test_the_beat_does_not_wait_on_a_sleeping_pulse",
-            "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/__main__.py": [
-            "test_a_device_without_a_pulse_is_listed_not_found_and_not_spawned",
-            "test_a_raising_pulse_does_not_stop_the_next_beats_spawns",
-            "test_alphas_pulse_runs_on_every_beat",
-            "test_the_beat_does_not_wait_on_a_sleeping_pulse",
-            "test_the_record_lists_each_spawn_with_device_path_mtime_and_pid"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py": [
-            "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py::test_the_beat_calls_no_pulse_and_records_no_triggers",
-            "cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py::test_the_live_heartbeat_beats_without_triggers"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": {
-            "notified": "n-7cb913536043"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "81eb3e46aed9": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "0945266cd76368a730a7a9e089b0ad4487a4d9fe",
-          "anchor_first_build": "e98d279e913f70b223fc5aa176dc334f2bb51f52",
-          "commit": "709b1a4f47ee33a3b11ceb82321c3b7c86f7f531"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "875147dc6c3a45a56731599156d28098985e54298390d27575b82661b7f77a13",
+        "opened": "2026-11-08T11:55:26",
+        "last_red": "2026-11-08T11:55:26",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-the-beat-spawns-each-device-pulse",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

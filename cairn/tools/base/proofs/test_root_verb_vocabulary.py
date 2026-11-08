@@ -17,7 +17,7 @@ The falsifier is numbered, so four teeth (PROVES keys follow the falsifier marke
 
 THE SHIM IS DRIVEN IN A SUBPROCESS PER COMMAND UNDER A SCRATCH HOME (the pattern of
 test_root_verbs, ticket b41b0c0fff0e): the instance root is read from HOME at import, so
-nothing here touches the live instance; the scratch carries a LIVE liveness record so no
+nothing here touches the live instance; the scratch's loop lock is held so no
 shim spawns a ground loop. Cold queries wake nothing, so no bus and no store are reached;
 tooth 3's registration of the live roster wakes each device in-process with no bus and
 asks its declarations directly — the same call ``_ensure_device`` makes.
@@ -36,7 +36,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -148,13 +147,17 @@ def _shim_class(name: str) -> type:
     return classes[0]
 
 
+_HELD: list = []  # the scratch loop locks this process holds
+
+
 def _scratch() -> Path:
     home = scratch_dir("15d6-home-")
-    from cairn.tools.liveness.liveness import write_liveness
     lh = home / ".cairn" / "devices" / "cairn" / "0" / "machines" / "ground_loop"
     lh.mkdir(parents=True)
-    write_liveness(datetime.now(timezone.utc).astimezone(), {"beats": 1, "subscribers": []},
-                   os.getpid(), lh)
+    # the scratch loop's lock is HELD for this proof's life, so no shim it constructs spawns a
+    # ground loop (ticket 6208d0a27d6e: up is the held lock, not a record's age)
+    from cairn.tools.base import singleton
+    _HELD.append(singleton.claim(lh / "run.lock"))
     return home
 
 

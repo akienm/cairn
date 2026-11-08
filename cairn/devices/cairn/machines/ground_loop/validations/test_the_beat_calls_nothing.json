@@ -2,22 +2,24 @@
   {
     "claim": "proof test_the_beat_calls_nothing.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-08T09:54:18",
+    "date": "2026-11-08T11:54:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n                                                                    [100%]\n5 passed in 0.78s",
+      "returncode": 1,
+      "stdout_tail": "\ntest_the_beat_calls_nothing.py:122: AssertionError\n________________ test_the_live_heartbeat_beats_without_triggers ________________\n\n    def test_the_live_heartbeat_beats_without_triggers():\n        active = subprocess.run([\"systemctl\", \"--user\", \"is-active\", \"cairn-ground-loop.service\"],\n                                capture_output=True, text=True, timeout=30).stdout.strip()\n        assert active == \"active\", f\"cairn-ground-loop.service is {active!r}\"\n        from cairn.tools.base.address import instance_path\n        from cairn.devices.cairn.machines.ground_loop import guard, heartbeat\n        live = instance_path(\"cairn\", 0) / \"machines\" / \"ground_loop\"\n>       assert guard.held(live), f\"no loop holds the live lock at {live / guard.LOCK_NAME}\"\n               ^^^^^^^^^^\nE       AttributeError: module 'cairn.devices.cairn.machines.ground_loop.guard' has no attribute 'held'\n\ntest_the_beat_calls_nothing.py:158: AttributeError\n=========================== short test summary info ============================\nFAILED test_the_beat_calls_nothing.py::test_the_beat_calls_no_pulse_and_records_no_triggers\nFAILED test_the_beat_calls_nothing.py::test_the_live_heartbeat_beats_without_triggers\n2 failed, 3 passed in 30.31s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_pulse_file_and_no_beat_probes_are_tracked",
-        "test_the_beat_calls_no_pulse_and_records_no_triggers",
         "test_the_build_deleted_no_probe",
-        "test_nothing_tracked_reaches_the_pulse_machinery",
-        "test_the_live_heartbeat_beats_without_triggers"
+        "test_nothing_tracked_reaches_the_pulse_machinery"
       ],
-      "teeth_red": [],
-      "test": "test-7952b3414c12",
+      "teeth_red": [
+        "test_the_beat_calls_no_pulse_and_records_no_triggers",
+        "test_the_live_heartbeat_beats_without_triggers",
+        "test_the_beat_calls_nothing"
+      ],
+      "test": "test-6d60ceebde4b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +29,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "8950f2e7a99f7f0e630c801263f3a86d1d4d681cc49a176782f627ab03ff6c26",
+        "proof": "fa70815831a9536423a02eba630004fd166d51a9aca132b10f38f4268bb3d64a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7952b3414c12",
-      "source_fingerprint": "f57c5f144c2b505c4df06400cd3ff774d33027391d37fc67bfd906d2dd2c4862",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6d60ceebde4b",
+      "source_fingerprint": "439b11b9f5a47bf4356525236a201a966f7e669f1f14630e1db43e4d32a16d4b",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/__main__.py",
@@ -57,7 +59,7 @@
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
         "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
         "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
         "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
@@ -66,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-923982-5sos618k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-klmx3_e0/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,12 +77,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119646645,
-          "disk_bytes": 153997312,
-          "entries": 13390,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "fa70815831a9536423a02eba630004fd166d51a9aca132b10f38f4268bb3d64a",
+        "opened": "2026-11-08T11:54:51",
+        "last_red": "2026-11-08T11:54:51",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-the-beat-calls-nothing",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

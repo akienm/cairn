@@ -2,21 +2,21 @@
   {
     "claim": "proof test_a_loop_a_test_run_starts_is_the_runs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:04:08",
+    "date": "2026-11-08T11:55:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_loop_started_in_a_run_carries_its_test_id\n  ok   test_a_loop_started_in_a_run_collects_itself\n  ok   test_a_tester_run_that_starts_a_loop_leaves_no_unit\n  ok   test_outside_a_run_the_loop_is_unchanged\n\nGREEN — 4/4",
+      "returncode": 1,
+      "stdout_tail": "        runpy.run_path(_proof, run_name=\"__main__\")\n        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n      File \"<frozen runpy>\", line 287, in run_path\n      File \"<frozen runpy>\", line 98, in _run_module_code\n      File \"<frozen runpy>\", line 88, in _run_code\n      File \"/tmp/cairn-proof-loopmark-run-scratch.4026531836-1009447-ird82ild/fixture_component/proofs/test_fixture.py\", line 4, in <module>\n        assert r.returncode == 0 and '\"spawned\": \"unit\"' in r.stdout, r.stdout + r.stderr\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    AssertionError: Traceback (most recent call last):\n      File \"<string>\", line 1, in <module>\n        import json, sys; sys.path.insert(0, '/home/akien/dev/src/cairn'); from cairn.tools.base.shim import ensure_ground_loop; print(json.dumps(ensure_ground_loop()))\n                                                                                                                                                  ~~~~~~~~~~~~~~~~~~^^\n    TypeError: ensure_ground_loop() missing 1 required positional argument: 'now'\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n\n  FAIL test_outside_a_run_the_loop_is_unchanged  — AssertionError: ('', \"port json, sys; sys.path.insert(0, '/home/akien/dev/src/cairn'); from cairn.tools.base.shim import ensure_ground_loop; print(json.dumps(ensure_ground_loop()))\\n                                                                                                                                              ~~~~~~~~~~~~~~~~~~^^\\nTypeError: ensure_ground_loop() missing 1 required positional argument: 'now'\\n\")\n\nRED — 0/4",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_a_loop_started_in_a_run_carries_its_test_id",
         "test_a_loop_started_in_a_run_collects_itself",
         "test_a_tester_run_that_starts_a_loop_leaves_no_unit",
         "test_outside_a_run_the_loop_is_unchanged"
       ],
-      "teeth_red": [],
-      "test": "test-e95e7a08df65",
+      "test": "test-3ac59e4e802c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "4735d6fd9e911f85459207fc5005f837abc5bac723626c537ca64ccadb6d3f3c",
+        "proof": "f8d5d10f47295b1d4a5e9699352238961be2f5c320c39b86fed2c58b03214a21",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e95e7a08df65",
-      "source_fingerprint": "9aa60c2bf602cef3bb5ee5df230069e096c27b6a212780943d3254594f885a5a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3ac59e4e802c",
+      "source_fingerprint": "1429a4a5ac891c7aec94944382f01ecdc421d7c00514d233a3322c17f20988cd",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -65,25 +65,34 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-963711-xts13bvx/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-b75pj9_z/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261108.180407.569916.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-fc978ce4c8a1/stderr.txt",
-            "logs/tester/0/runs/test-fc978ce4c8a1/stdout.txt"
+            "logs/tester/0/20261108.185530.623590.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-4b90d000d928/stderr.txt",
+            "logs/tester/0/runs/test-4b90d000d928/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119592524,
-          "disk_bytes": 153956352,
-          "entries": 13402,
+          "bytes": 119682316,
+          "disk_bytes": 154087424,
+          "entries": 13420,
           "builds": 1,
-          "reuses": 39
+          "reuses": 6
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f8d5d10f47295b1d4a5e9699352238961be2f5c320c39b86fed2c58b03214a21",
+        "opened": "2026-11-08T11:55:31",
+        "last_red": "2026-11-08T11:55:31",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base-proofs-test-a-loop-a-test-run-starts-is-the-runs",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,28 +2,16 @@
   {
     "claim": "proof test_ground_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-04T21:05:09",
+    "date": "2026-11-08T11:51:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_stamp_advances_across_beats_and_pid_and_state_ride\n  PASS  test_the_instance_dir_is_born_on_first_write\n  PASS  test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn\n  PASS  test_a_reader_never_sees_a_torn_record\n  PASS  test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly\n  PASS  test_a_sigkilled_winner_leaves_no_stale_claim\n  PASS  test_the_held_claim_survives_the_records_churn\n  PASS  test_the_doors_loser_reports_from_the_record_and_exits_distinctly\n  PASS  test_the_pane_renders_what_the_record_says_and_never_derives\n  PASS  test_an_absent_record_renders_the_named_lack_never_blank\n  PASS  test_the_page_assembles_through_the_standard_machinery\ngreen — ground_loop: the liveness record, the single-start guard and the heartbeat's page hold",
-      "stderr_tail": "",
-      "teeth_green": [
-        "test_the_stamp_advances_across_beats_and_pid_and_state_ride",
-        "test_the_instance_dir_is_born_on_first_write",
-        "test_dead_on_stale_live_on_fresh_dead_on_absent_or_torn",
-        "test_a_reader_never_sees_a_torn_record",
-        "test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly",
-        "test_a_sigkilled_winner_leaves_no_stale_claim",
-        "test_the_held_claim_survives_the_records_churn",
-        "test_the_doors_loser_reports_from_the_record_and_exits_distinctly",
-        "test_the_pane_renders_what_the_record_says_and_never_derives",
-        "test_an_absent_record_renders_the_named_lack_never_blank",
-        "test_the_page_assembles_through_the_standard_machinery"
-      ],
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py\", line 332, in <module>\n    from cairn.devices.cairn.machines.ground_loop.shim import GroundLoopShim, beat_pane_data\nImportError: cannot import name 'beat_pane_data' from 'cairn.devices.cairn.machines.ground_loop.shim' (/home/akien/dev/src/cairn/cairn/devices/cairn/machines/ground_loop/shim.py)",
+      "teeth_green": [],
       "teeth_red": [],
-      "test": "test-a4fad5ddcb62",
+      "test": "test-8269c3bef02b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,13 +21,14 @@
         "tables": []
       },
       "conditions": {
-        "proof": "395f3067e152eeb6153b627f0b2b00e445521f4d1f4d0ae096ff5823d5bfedc4",
+        "proof": "55e27dd6695483aa9604a7bf507e1b6bda18f9da8b23124ed062e44808f0d965",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -49,11 +38,10 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a4fad5ddcb62",
-      "source_fingerprint": "acfeae4df3077aff3302c429f322afa982a6a55924ce6280e0caeee1bb6edb35",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8269c3bef02b",
+      "source_fingerprint": "019f5104095da7a25d0dad005cce9214306ff5c930403a5942ca004c333b5fa2",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__main__.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
         "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py",
@@ -61,31 +49,38 @@
       ],
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/base": "0c9f8d081ca9ac5ec2aa2375f383a33b5d83583baa57143a2127144a15cbb193",
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
+        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
         "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3828458-0vgr7aqq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-ht99ho8d/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "devices/ground_loop/0/last_known.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 115870325,
-          "disk_bytes": 146833408,
-          "entries": 12212,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
           "reuses": 1
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "55e27dd6695483aa9604a7bf507e1b6bda18f9da8b23124ed062e44808f0d965",
+        "opened": "2026-11-08T11:51:41",
+        "last_red": "2026-11-08T11:51:41",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-ground-loop",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

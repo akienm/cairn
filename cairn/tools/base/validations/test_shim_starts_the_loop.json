@@ -2,22 +2,16 @@
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-08T11:09:29",
+    "date": "2026-11-08T11:55:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_live_record_spawns_nothing\n  PASS  test_live_record_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
-      "stderr_tail": "",
-      "teeth_green": [
-        "test_check_lives_in_the_base_only",
-        "test_ground_loop_package_untouched",
-        "test_live_record_spawns_nothing",
-        "test_dead_to_live_one_shim",
-        "test_two_shims_one_loop"
-      ],
+      "returncode": 1,
+      "stdout_tail": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 22, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_shim_starts_the_loop.py\", line 36, in <module>\n    from cairn.tools.base import singleton  # noqa: E402\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nImportError: cannot import name 'singleton' from 'cairn.tools.base' (/home/akien/dev/src/cairn/cairn/tools/base/__init__.py)",
+      "teeth_green": [],
       "teeth_red": [],
-      "test": "test-c3d9ccf26fec",
+      "test": "test-e3d7f66db5c9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +21,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f24a6940153fc0bf58fdfb4baa409af9e33488bdd7d0be4f6a53f629d095823a",
+        "proof": "dfca0c62bfca592e6cd234e1dc8f2dfa079f3859ebdf6f1e0dcdc266b5a72324",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,22 +38,18 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3d9ccf26fec",
-      "source_fingerprint": "f8eda292a2814ac43ba8a1d3a9f0937b6ca8ea44a0119d66c006b26f7fa1476f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e3d7f66db5c9",
+      "source_fingerprint": "579d75390045544ea6ebd0e22ed5b119a826b8aebe4af5dde36d858541d27b5d",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/proofs/test_shim_starts_the_loop.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-963711-zjlflrb_/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1008746-rv46dk7n/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,12 +58,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119591910,
-          "disk_bytes": 153948160,
-          "entries": 13395,
+          "bytes": 119680623,
+          "disk_bytes": 154079232,
+          "entries": 13413,
           "builds": 1,
-          "reuses": 87
+          "reuses": 10
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "dfca0c62bfca592e6cd234e1dc8f2dfa079f3859ebdf6f1e0dcdc266b5a72324",
+        "opened": "2026-11-08T11:55:43",
+        "last_red": "2026-11-08T11:55:43",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base-proofs-test-shim-starts-the-loop",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

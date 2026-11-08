@@ -20,8 +20,8 @@ the id is not in it. A loop that fails lingers as a failed unit until somebody r
      manager's default CollectMode (inactive), so the live loop that fails stays where a human
      looks.
 
-ensure_ground_loop is called in a subprocess under a scratch HOME (the liveness it reads is
-DEAD there, and the loop it spawns writes under the scratch, never the live instance), with the
+ensure_ground_loop is called in a subprocess under a scratch HOME (no loop holds the lock
+there, and the loop it spawns writes under the scratch, never the live instance), with the
 proof's own unit name cairn-proof-loopmark-<pid>-<n> (CAIRN_GROUND_LOOP_UNIT), so the live
 loop's unit is neither claimed nor stopped. Every unit is stopped and reset-failed at the end.
 
@@ -54,9 +54,9 @@ _ENV = "CAIRN_TESTER_TEST_ID"
 _TAG = str(os.getpid())
 _UNITS: list[str] = []
 
-_CALL = ("import json, sys; from datetime import datetime, timezone; sys.path.insert(0, %r); "
+_CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.tools.base.shim import ensure_ground_loop; "
-         "print(json.dumps(ensure_ground_loop(datetime.now(timezone.utc))))")
+         "print(json.dumps(ensure_ground_loop()))")
 
 
 def _unit(n: int) -> str:

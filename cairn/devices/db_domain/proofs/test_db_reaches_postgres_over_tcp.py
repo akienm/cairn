@@ -7,6 +7,9 @@ with 'Network is down'. Windows has no socket directory, and store.py knew no ot
 The socket dir is CAIRN_PG_SOCKET_DIR (default /var/run/postgresql, the name bin/cairn already
 reads). Where its .s.PGSQL.5432 exists the connection stays on the Unix socket (peer auth,
 unchanged); where it does not, the connection goes to TCP 127.0.0.1:5432.
+On the TCP branch libpq reads its password from passfile=~/.cairn/devices/db_domain/0/pgpass
+(Akien 2026-11-08, open-d0399bd1d6f1: "the answer is in ~/.cairn/devices/<device>"); store.py
+passes the path, never a secret.
 
 Postgres on both boxes demands a password on 127.0.0.1 (measured 2026-11-04: here
 'fe_sendauth: no password supplied'). So tooth 1 proves the ROUTE, not a login: a TCP attempt
@@ -97,7 +100,12 @@ def test_a_present_socket_stays_on_the_socket() -> None:
 def test_the_choice_has_two_branches() -> None:
     with tempfile.TemporaryDirectory(prefix="cairn-sockdir-") as d:
         with _SocketDir(d):
-            assert _store()._conn_args() == {"host": "127.0.0.1", "port": 5432}, _store()._conn_args()
+            # Akien, open-d0399bd1d6f1: the TCP credential berths "in ~/.cairn/devices/<device>" —
+            # the branch names the passfile there and carries no secret itself.
+            from cairn.tools.base.address import instance_path
+            want = {"host": "127.0.0.1", "port": 5432,
+                    "passfile": str(instance_path("db_domain", 0) / "pgpass")}
+            assert _store()._conn_args() == want, _store()._conn_args()
         Path(d, ".s.PGSQL.5432").touch()
         with _SocketDir(d):
             assert _store()._conn_args() == {"host": d}, _store()._conn_args()

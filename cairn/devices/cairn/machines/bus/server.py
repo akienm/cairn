@@ -751,6 +751,7 @@ def _write_port(home: Path, record: dict) -> None:
 
 
 STOPS_FILE = "stops.jsonl"
+_BACKLOG_JOIN_S = 30.0  # the pass is one read of undelivered; a minute would be wedged
 _STOP_SIGNALS = tuple(getattr(signal, n) for n in ("SIGTERM", "SIGINT", "SIGHUP")
                       if hasattr(signal, n))
 
@@ -896,7 +897,8 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
             print(f"bus: backlog pass failed: {type(exc).__name__}: {exc}",
                   file=sys.stderr, flush=True)
 
-    threading.Thread(target=_backlog, name="bus-backlog", daemon=True).start()
+    backlog = threading.Thread(target=_backlog, name="bus-backlog", daemon=True)
+    backlog.start()
     if lan_server is not None:
         threading.Thread(target=lan_server.serve_forever, name="bus-lan", daemon=True).start()
     try:
@@ -911,6 +913,12 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
                 lan_server.shutdown()
                 lan_server.server_close()
             server.server_close()
+            # The backlog pass reaches the bus's tables (undelivered -> _ensure). A serve that
+            # returned under it let a scratch bus's exit drop the tables while the pass was
+            # re-creating them: measured 2026-11-08, two orphan tables (no registry row) per
+            # run of test_every_stop_records_its_cause.py, 50 standing. Nothing this function
+            # started touches the bus after it returns.
+            backlog.join(timeout=_BACKLOG_JOIN_S)
             final_flush(bus, home)
             if unix:
                 sock.unlink(missing_ok=True)

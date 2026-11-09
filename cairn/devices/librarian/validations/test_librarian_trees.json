@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_librarian_trees.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-13T10:07:32",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-08T18:27:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -52,7 +52,7 @@
         "test_ingest_asks_and_never_imports"
       ],
       "teeth_red": [],
-      "test": "test-708a9fd29b6c",
+      "test": "test-4ef7a0427162",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -62,32 +62,42 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f7bb5794b187c7ba1ac3961dd321240765f39bee3bed679bc4895a844452fb7b",
+        "proof": "07e72024de760cfd38702873c72a3f890b4787a0e847f8e08e0b980d8976e8ae",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-708a9fd29b6c",
-      "source_fingerprint": "e7dcfa360835e4ce61ed0172d7bfa856f135e13e7d322e99220e818746a2a8d3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4ef7a0427162",
+      "source_fingerprint": "a999f7063d9d1e6cece1483067995aca6347aba82ee5cfa40e442342a610b6a2",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/device.py",
         "cairn/devices/librarian/ingest.py",
         "cairn/devices/librarian/proofs/test_librarian_trees.py"
       ],
+      "reached": {
+        "cairn/devices/db_domain": "4175c79349da203fc189912be64c7319d5d0bc372ae2664b1197d6fdb6c28215",
+        "cairn/devices/db_domain/tools/client": "b68ed64a14f4807a93aef94269104795a122d4c0ff0bd7f6826cddbdb9983eaa",
+        "cairn/devices/librarian/tools/trees": "decfd0fa5b352e6bafdcd2edb5c2c48db80c38d8b32751ffd23631058455541a",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2701176-8640cpvo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1275989-wvfblr4u/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -96,32 +106,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108846552,
-          "disk_bytes": 134569984,
-          "entries": 10321,
+          "bytes": 120031549,
+          "disk_bytes": 154689536,
+          "entries": 13516,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "95f8c561e742": {
-          "cairn/devices/librarian/tools/trees/trees.py": [
-            "test_an_inference_call_becomes_one_node"
-          ],
-          "cairn/devices/librarian/migrate_to_three_tables.py": {
-            "notified": "n-52b5d9743805"
-          },
-          "cairn/tools/tree/proofs/test_chart_tree.py": {
-            "notified": "n-4a9233ff4c34"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "95f8c561e742": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "caa8069bbca9b9cad8751cd5ff41f6837a085843",
-          "anchor_first_build": "9bf34b6701d7e09a82fb9465638ca3b295ba50bd",
-          "commit": "d408af961e92fbb42f8e12348bb57065f1dce2a8"
+          "reuses": 9
         }
       }
     },

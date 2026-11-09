@@ -158,8 +158,8 @@ def _present(m: dict) -> dict:
         waiting = ("being cleared through its owner's door — a live trouble stays in the "
                    "session-open inbox until the clearing is measured")
     elif store == "decisions":
-        waiting = (f"cairn ruling verify {m['name']} — the per-packet measure of "
-                   "conformed/confirmed; a ruling is red until his marker lands")
+        waiting = ("nothing — decisions/ is a read-only record since the ruling intake retired "
+                   "(ticket 640a7a48e1c5, Q#43); new decisions are answered questions")
     elif store == "ideas":
         waiting = (f"nothing it owes — it rests in the queue until someone fires /intent {m['name']} "
                    "(where it is traced, challenged, and possibly killed)")

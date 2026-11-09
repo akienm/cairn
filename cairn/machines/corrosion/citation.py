@@ -12,7 +12,7 @@ This implementation checks two things:
 Since 2026-09-14 (ticket 9adc6fddf185) there is a third, and it is the live one: was an
 ANSWERED question (CairnCommons/questions/open-<id>.json, the inbox lane) named in the
 commit that made the change? A decision Akien makes is a question bound to its ticket
-and answered in the inbox; ``cairn ruling open`` is retired and decisions/ is read-only
+and answered in the inbox; the ruling intake's code is deleted (ticket 640a7a48e1c5) and decisions/ is read-only
 record, so the standing rulings keep resolving and new authority arrives as answers.
 """
 from __future__ import annotations

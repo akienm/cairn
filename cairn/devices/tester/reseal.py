@@ -236,15 +236,17 @@ def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str 
     which must be CONFIRMED (ticket 37ddc47686c2). ``question_root`` points the question read
     at a scratch store for a proof; ``None`` is the live one.
 
-    Imported lazily and read-only. The ruling store is Akien's record and this door only
-    ever asks it a question — rung 4 is his, and a door that could write there would be CC
-    declaring the spec changed, which is the one thing the ticket's owner line forbids.
+    Read directly and read-only. The ruling store is Akien's record, frozen since the ruling
+    intake's code was deleted (ticket 640a7a48e1c5, outline Q#43: "decisions/ stays
+    read-only"), and this door only ever asks it a question — rung 4 is his, and a door that
+    could write there would be CC declaring the spec changed, which is the one thing the
+    ticket's owner line forbids. ``CAIRN_ROOTS_PARENT`` points the read at a scratch world
+    for a proof, the seam the intake carried; otherwise the store is the commons beside the
+    repo this file stands in.
 
-    ``confirmed`` is the field the intake door DERIVES from his own RULED marker
-    (``ruling.open_ruling``), never one an author can type — so leaning on it here is
-    leaning on his words, not on a packet's self-report."""
-    from cairn.machines.ruling import ruling as ruling_mod
-
+    ``confirmed`` is the field the retired intake DERIVED from his own RULED marker, never
+    one an author could type — so leaning on it here is leaning on his words, not on a
+    packet's self-report."""
     if not (ruling_id or "").strip():
         return "no ruling id was given"
     if ruling_id.startswith("open-"):
@@ -257,16 +259,37 @@ def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str 
         if not record.get("resolved"):
             return f"question {ruling_id!r} is still open — rung 4 waits on its answer"
         return None
-    for record in ruling_mod.load_all():
+    store = _decisions_dir()
+    for record in _rulings(store):
         if record.get("id") != ruling_id:
             continue
         if not record.get("confirmed"):
             return (f"ruling {ruling_id!r} is on disk but NOT CONFIRMED — it carries no RULED "
                     f"marker in Akien's own words, so it is CC's reading of a ruling and not "
-                    f"the ruling (cairn.machines.ruling.open_ruling derives `confirmed`)")
+                    f"the ruling (the retired intake derived `confirmed` from his marker)")
         return None
-    return (f"no ruling {ruling_id!r} in {ruling_mod.store_dir()} — rung 4 is Akien's, and a "
+    return (f"no ruling {ruling_id!r} in {store} — rung 4 is Akien's, and a "
             f"ruling id that resolves to nothing is a paragraph wearing an id")
+
+
+def _decisions_dir() -> Path:
+    """The frozen decisions/ store: under ``CAIRN_ROOTS_PARENT`` when set, else beside this repo."""
+    parent = os.environ.get("CAIRN_ROOTS_PARENT")
+    base = Path(parent) if parent else Path(__file__).resolve().parents[4]
+    return base / "CairnCommons" / "decisions"
+
+
+def _rulings(store: Path) -> list[dict]:
+    """Every ``kind: "ruling"`` record in the store; an unreadable file is not a ruling."""
+    out = []
+    for p in sorted(store.glob("*.json")) if store.is_dir() else []:
+        try:
+            record = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(record, dict) and record.get("kind") == "ruling":
+            out.append(record)
+    return out
 
 
 def census(root: Path | None = None) -> list[dict]:

@@ -46,7 +46,7 @@ WRITE_VERBS = re.compile(
     r"|write_text\(|write_bytes\(|json\.dump\(|open\([^)]*[\"'][wa][\"']"
 )
 DOOR_FORMS = ("cairn artifact", "cairn.tools.artifact", "artifact.write", "door.write",
-              "skills/", "skill_block", "cairn ruling", "cairn review", "cairn recordverdict")
+              "skills/", "skill_block", "cairn question", "cairn review", "cairn recordverdict")
 
 REFUSAL = """REFUSED — this writes a record of truth around the artifact door.
 
@@ -59,7 +59,7 @@ any record whose staged bytes the journal never saw, so a write here would be ca
 at commit anyway — this refusal saves you the park.
 
 The way through:
-  - the record's own door: the skill door (/sorted, /saveslate, /idea), `cairn ruling`,
+  - the record's own door: the skill door (/sorted, /saveslate, /idea), `cairn question`,
     the trouble device, `set_phase` for a cursor, the validation store for a seal;
   - a record with no door yet:
       cairn artifact write <path> --verb <cast|append|...> --why '...' --from <file>

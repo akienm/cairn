@@ -13,7 +13,7 @@ call, so CC learns at one retype rather than at a park. Teeth a hollow gate coul
     `grep ... tickets/ 2>&1 | head` are the commonest honest shapes.
   - A BASH WRITE INTO A RECORD IS REFUSED: a redirect whose TARGET is a record, sed -i,
     cp/mv/rm, write_text, json.dump, open(..., "w").
-  - THE DOOR IS NOT REFUSED: `cairn artifact ...`, a skill door, `cairn ruling`.
+  - THE DOOR IS NOT REFUSED: `cairn artifact ...`, a skill door, `cairn question`.
   - THE REFUSAL CARRIES THE WAY THROUGH.
   - THE HOOK CONTRACT: exit 2 with the refusal on stderr; exit 0 to allow; unreadable
     stdin allows and says so.
@@ -123,7 +123,7 @@ def _teeth() -> int:
         "bin/cairn artifact write ../CairnCommons/tickets/x.json --verb cast --why x --from /tmp/p",
         "bin/cairn artifact hand-edit cairn/tools/x/state.json --why 'x'",
         "PYTHONPATH=. python3 skills/sorted/door.py /tmp/packet.json",
-        "bin/cairn ruling open /tmp/ruling.json",
+        "bin/cairn question open --ticket abcdef012345 'why?'",
         "ls cairn/tools/x/validations/",
         "python3 - <<EOF\nopen('cairn/tools/x/x.py','w').write('')\nEOF",
     ]

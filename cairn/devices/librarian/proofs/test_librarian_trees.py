@@ -439,7 +439,7 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
 
 
 def test_the_standing_gate_lets_the_signature_through_and_stops_the_guess():
-    """cairn/machines/ruling's supersession rule, BORROWED (cited in the charter's entry, never
+    """The old ruling intake's supersession rule (deleted by ticket 640a7a48e1c5), BORROWED (cited in the charter's entry, never
     imported): a guess does not outvote a signature. The fourth case is Law 9's — no past
     artifact outranks Akien now, and every node is born a hypothesis, so a gate keyed on
     standing ALONE would protect the corpus from its own author."""
@@ -980,7 +980,7 @@ def test_warm_set_is_event_driven_not_daemon():
 
 def test_the_borrow_is_cited_not_grafted():
     """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
-    is the IMPORT, not the word — the module names cairn/machines/ruling in a comment on purpose,
+    is the IMPORT, not the word — the module names the ruling intake in a comment on purpose,
     which is what a citation IS (a grep for the bare word reds on the honest citation)."""
     src = Path(trees.__file__).read_text()
     tree = ast.parse(src)
@@ -990,8 +990,9 @@ def test_the_borrow_is_cited_not_grafted():
             imported.update(a.name for a in node.names)
         elif isinstance(node, ast.ImportFrom):
             imported.add(node.module or "")
-    assert not any("ruling" in m for m in imported), f"cairn/machines/ruling was grafted: {imported}"
-    assert "cairn/machines/ruling" in src, "the borrow must be CITED in the module that composes it"
+    assert not any("ruling" in m for m in imported), f"the ruling intake was grafted: {imported}"
+    assert "supersession rule" in src and "640a7a48e1c5" in src, (
+        "the borrow must be CITED in the module that composes it")
 
 
 

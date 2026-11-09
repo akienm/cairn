@@ -16,8 +16,8 @@ Teeth a hollow build could not pass — three families:
     the unfolded token anyway; only driving the door finds that.
   - WRONG INTENT. Free text after the folded verbs reaches its consumer BYTE-IDENTICAL, at the
     dispatcher and at the review door; the stored ``workflow_and_state`` of a ticket never
-    changes case because a compare folded. The lowercase ``ruled`` marker confirms and
-    ``RULEDX`` still does not.
+    changes case because a compare folded. Clause 7 (the lowercase marker at the ruling
+    intake) retired with the intake's code (ticket 640a7a48e1c5, outline Q#43).
 
 Run bare against the tree BEFORE the seams move, the behavioural teeth are red and the unit
 teeth green — that ordering is recorded in the ticket's history as the proof's own proof.
@@ -70,12 +70,10 @@ PROVES = {
         "4": "test_learning_block_takes_uppercase_recordverdict_and_signal",
         "5": "test_ground_loop_takes_uppercase_help_and_status_word",
         "6": "test_base_device_show_and_shim_verb_fold",
-        "7": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
         "9": "test_bin_cairn_the_file_and_cairn_the_command_are_untouched",
         # The build touched more files than the nine clauses name; each of those is a
         # writes_to the hollow reading reverts, and each names the tooth that reds when it
         # is. proof_coverage.lacks reads only the clause keys; hollow.py reads every value.
-        "ruling_cli": "test_the_real_ruling_list_takes_uppercase",
         "orient_chart_librarian": "test_orient_chart_and_librarian_take_uppercase_verbs",
         "sudo_relay": "test_sudo_relay_takes_uppercase_status_flag",
         "harbor_master_filter": "test_harbor_master_filter_folds_open",
@@ -86,7 +84,6 @@ PROVES = {
         "charters": "test_the_three_charters_say_the_words_fold",
         "clearance": "test_clearance_folds_the_node_class_it_exempts",
         "probe": "test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree",
-        "marker": "test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not",
     },
 }
 _CODEMOTHER = _REPO_ROOT / "cairn" / "devices" / "codemother" / "0" / "bin" / "codemother"
@@ -206,13 +203,6 @@ def test_the_real_harbor_master_takes_uppercase_show_map_open():
     assert lo.returncode == up.returncode == 0, (up.stderr, lo.stderr)
     strip = lambda s: "\n".join(l for l in s.splitlines() if not l.startswith("Cached at:"))
     assert strip(up.stdout) == strip(lo.stdout), "the same view, whichever case he typed"
-
-
-def test_the_real_ruling_list_takes_uppercase():
-    lo = _cairn("ruling", "list")
-    up = _cairn("RULING", "LIST")
-    assert up.returncode == lo.returncode, (up.stderr, lo.stderr)
-    assert up.stdout == lo.stdout
 
 
 def test_the_codemother_launcher_folds_its_subcommand():
@@ -371,11 +361,6 @@ def test_sudo_relay_takes_uppercase_status_flag():
     assert rc == 0 and hits == [1], "--STATUS must reach the status branch, not run() the daemon"
 
 
-def test_ruling_cli_takes_uppercase_list():
-    from cairn.machines.ruling.cli import main
-    _same(main, ["list"], ["LIST"])
-
-
 def test_base_device_show_and_shim_verb_fold():
     from cairn.tools.base.device import BaseDevice
     from cairn.tools.base.shim import BaseShim
@@ -472,17 +457,15 @@ def test_stage_targets_fold_at_render_and_resolve():
 
 def test_the_three_charters_say_the_words_fold():
     """The build wrote three charters: system_word's own (new), bin's (the dispatcher folds
-    its two tokens) and ruling's (the marker folds). A charter is a record of the design;
-    a reverted one describes a dispatcher that compares bytes."""
+    its two tokens) and the ruling intake's (the marker folds). Two stand: the third left with
+    the intake's code (ticket 640a7a48e1c5). A charter is a record of the design; a reverted one
+    describes a dispatcher that compares bytes."""
     own = json.loads((_REPO_ROOT / "cairn/tools/system_word/intention+why.json").read_text("utf-8"))
     assert own["component"] == "system_word" and own["runtime_role"] == "tool", own.keys()
     assert own.get("gated_by") and own.get("falsifier"), "a charter carries its gate and its falsifier"
     bin_ = json.loads((_REPO_ROOT / "bin/intention+why.json").read_text("utf-8"))
     assert "the dispatcher folds the two tokens it resolves" in bin_["what"], (
         "bin's charter must say the dispatcher folds, since 2026-09-07")
-    rul = json.loads((_REPO_ROOT / "cairn/machines/ruling/intention+why.json").read_text("utf-8"))
-    assert "THE MARKER FOLDS SINCE 2026-09-07" in rul["provenance"], (
-        "ruling's charter must record that the marker folds")
 
 
 def test_clearance_folds_the_node_class_it_exempts():
@@ -509,8 +492,9 @@ def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():
     assert isinstance(probe.PROBE, Probe) and probe.PROBE.to == "harbor_master"
     assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough)
     s = probe.survey()
-    assert s["entry_points"] == 10 and s["bites"] == 0 and s["bit"] == [], (
-        "the probe drives its ten cheap entry points and none bites")
+    assert s["entry_points"] == 8 and s["bites"] == 0 and s["bit"] == [], (
+        "the probe drives its eight cheap entry points and none bites "
+        "(two ruling drives left with the intake, ticket 640a7a48e1c5)")
     ctx = {"survey": s}
     assert probe.PROBE.trigger(None, ctx) is False, "no bite, no poke"
     assert probe.PROBE.enough(ctx) is False, "one clean survey is not fourteen"
@@ -521,35 +505,7 @@ def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():
     assert carry["bit"] == ["fx"] and "clause (3)" in carry["against_falsifier"], carry
 
 
-# ── the marker, and wrong intent ───────────────────────────────────────────────
-
-def test_lowercase_ruled_confirms_at_intake_and_ruledx_does_not():
-    from cairn.machines.ruling import ruling
-    hits = ruling.scan_for_ruling_markers("he ruled that the file dies", strong_only=True)
-    assert any(h["match"].lower() == "ruled" for h in hits), hits
-    assert not ruling.scan_for_ruling_markers("RULEDX is not the marker", strong_only=True)
-    with tempfile.TemporaryDirectory() as d:
-        os.makedirs(os.path.join(d, "CairnCommons", "decisions"))
-        os.makedirs(os.path.join(d, "CairnCommons", "intentions-congruency-lab"))
-        os.makedirs(os.path.join(d, "cairn", "cairn", "compiler_thing"))
-        Path(d, "CairnCommons", "intentions-congruency-lab", "_model.json").write_text('{"old": 1}')
-        Path(d, "cairn", "cairn", "compiler_thing", "compiler.py").write_text("# writes\n")
-        packet = {
-            "id": "2026-09-07-fixture-lowercase-marker",
-            "kind": "ruling", "date": "2026-09-07",
-            "ruled_by": "Akien", "recorded_by": "CC",
-            "the_ruling_verbatim": ["a tool has users, not an owner", "ruled"],
-            "now_the_spec_says": "The lab holds copies of every intention+why; there is no "
-                                 "aggregate artifact.",
-            "what_dies": ["CairnCommons/intentions-congruency-lab/_model.json"],
-            "what_conforms": ["cairn/cairn/compiler_thing/compiler.py"],
-        }
-        marked = ruling.open_ruling(packet, d)
-        record = json.loads(Path(marked).read_text(encoding="utf-8"))
-        assert record["confirmed"] is True, record
-        assert record["confirmation_verbatim"] == ["ruled"], (
-            "the verbatim is stored AS HE TYPED IT — folding is a compare, never a rewrite")
-
+# ── wrong intent ───────────────────────────────────────────────
 
 def test_wrong_intent_free_text_lands_byte_identical():
     """The review words, the recordverdict words, and everything the dispatcher hands past

@@ -22,7 +22,7 @@ EVERY DERIVATION TOOTH RUNS AGAINST A SYNTHETIC GIT REPOSITORY built under
 second is the one that bites:
 
   - the instrument IS git, so the proof uses git — the same reasoning
-    ``cairn/machines/ruling/proofs/test_ruling.py:207`` wrote down for ``_git_world``:
+    the old ruling machine's proof (deleted by ticket 640a7a48e1c5) wrote down for ``_git_world``:
     "a stub would be proving the stub".
   - a proof over live data asserts INVARIANTS, never a snapshot, and the tell of that
     defect is a check that goes red at the moment its condition is SATISFIED. "The

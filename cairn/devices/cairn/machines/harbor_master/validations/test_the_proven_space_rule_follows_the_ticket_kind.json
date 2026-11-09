@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_proven_space_rule_follows_the_ticket_kind.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-31T14:47:46",
+    "date": "2026-11-08T18:26:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "test_the_owner_read_carries_the_state_files_kind"
       ],
       "teeth_red": [],
-      "test": "test-db61822cb52c",
+      "test": "test-af1ffd318fbe",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,6 +35,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -44,16 +45,31 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-db61822cb52c",
-      "source_fingerprint": "bfcf5883adfe6310b16ed139ce3e5d7c47653112ee031c03db69d73a599e7037",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-af1ffd318fbe",
+      "source_fingerprint": "2ca7d9710ee6d276f0edc570da0cf49377365ab416b0b957a49e6bc9bbd5ddb3",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_the_proven_space_rule_follows_the_ticket_kind.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
+        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3008885-4o5l5lm8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1275989-a8gd3nby/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -64,28 +80,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114795976,
-          "disk_bytes": 144949248,
-          "entries": 11921,
+          "bytes": 120036511,
+          "disk_bytes": 154693632,
+          "entries": 13516,
           "builds": 1,
           "reuses": 6
-        }
-      },
-      "hollow": {
-        "56280fc01410": {
-          "cairn/devices/cairn/machines/harbor_master/clearance.py": [
-            "test_a_code_seam_clears_buildme_onto_its_own_red_first_proof",
-            "test_a_fixit_clears_buildme_onto_the_red_it_fixes",
-            "test_the_owner_read_carries_the_state_files_kind"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "56280fc01410": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "6645200955adfdfb92c22f57521558619445a8be",
-          "anchor_first_build": "95cb1499a72648a6e62f53a97c7ca78b9075276b",
-          "commit": "bbcf05ee3cf48f420c75e8e1ac1a941948c140e8"
         }
       }
     },

@@ -45,8 +45,8 @@ from cairn.devices.tester.device import GREEN, RED
 from cairn.tools.validation_store.validation_store import (artifact_fingerprint, persist_validation,
                                            read_validations, validations_path_for_artifact)
 
-# Where a ruling lives when it is a ruling: the intake door (`cairn ruling open`) writes
-# nothing anywhere else. Derived from this file's own address, the way the proofs derive
+# Where a ruling lives when it is a ruling: the frozen decisions/ store the old intake wrote
+# (its code deleted, ticket 640a7a48e1c5; decisions/ stays read-only, outline Q#43). Derived from this file's own address, the way the proofs derive
 # the commons — not chosen, and not an environment variable someone forgets to set.
 _DECISIONS = Path(__file__).resolve().parents[4] / "CairnCommons" / "decisions"
 
@@ -77,7 +77,7 @@ def _ruling_on_file(ruling_id: str, decisions: Path | None = None) -> dict:
     if not path.is_file():
         raise QuorumRefused(
             f"no ruling {ruling_id!r} on file at {path} — the different-hands rule is lifted "
-            "by a ruling that went through `cairn ruling open`, not by naming one")
+            "by a confirmed ruling on file in decisions/, not by naming one")
     with open(path, encoding="utf-8") as fh:
         packet = json.load(fh)
     if not packet.get("confirmed"):

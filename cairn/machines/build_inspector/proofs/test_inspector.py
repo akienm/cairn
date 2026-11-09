@@ -1448,7 +1448,7 @@ def main() -> None:
     (fr / "repo" / "bin" / "cmd").mkdir(parents=True)
     (fr / "repo" / "cairn" / "tools").mkdir(parents=True)
     (fr / "repo" / "cairn" / "tools" / "thing.py").write_text("x = 1\n")
-    (fr / "repo" / "bin" / "cmd" / "ruling").write_text("#!/bin/sh\n")
+    (fr / "repo" / "bin" / "cmd" / "review").write_text("#!/bin/sh\n")
     (fr / "commons" / "tickets" / "abcdef012345-a-thing-we-talked-about-it.json").write_text("{}")
     _rr, _cc = fr / "repo", fr / "commons"
 
@@ -1464,7 +1464,7 @@ def main() -> None:
         "a cast ticket's 12-hex id is a referent — the floor must resolve it by id"
     assert _floor("none, because a-thing-we-talked-about-it covers it"), \
         "a WHOLE ticket slug is a referent; only a TAIL of one is not"
-    assert _floor("none, because bin/cmd/ruling reports it"), \
+    assert _floor("none, because bin/cmd/review reports it"), \
         "a roster command written as bin/cmd/<name> is the form the docstring specifies"
 
     # negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real
@@ -1478,13 +1478,13 @@ def main() -> None:
             f"THE TAIL CHANNEL IS OPEN AGAIN: {tail!r} certified a prose reason because "
             "it ends a real ticket slug — the lookup must match the WHOLE slug")
 
-    # negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the
-    # fixture wrote bin/cmd/ruling), and the old code accepted the bare word, so 32
-    # reasons in the live corpus passed on the English word 'ruling' alone. The path
+    # negative 2 — THE BARE-COMMAND CHANNEL. 'review' IS a roster command here (the
+    # fixture wrote bin/cmd/review), and the old code accepted the bare word: measured, 32
+    # reasons in the live corpus passed on the English word 'ruling' alone, back when it was one. The path
     # form above still resolves, so closing this costs a real referent nothing.
-    tooth("negative 2 — THE BARE-COMMAND CHANNEL. 'ruling' IS a roster command here (the")
-    assert not _floor("none, because Akien gave a ruling"), \
-        "THE BARE-COMMAND CHANNEL IS OPEN AGAIN: the word 'ruling' certified prose"
+    tooth("negative 2 — THE BARE-COMMAND CHANNEL. 'review' IS a roster command here (the")
+    assert not _floor("none, because Akien gave a review"), \
+        "THE BARE-COMMAND CHANNEL IS OPEN AGAIN: the word 'review' certified prose"
 
     # negative 3 — the shape the floor was built against in the first place: one
     # plausible sentence, pointing at nothing.

@@ -137,8 +137,8 @@ nobody.
   in the same act, and the inspector's `question_links_agree` sieve reds the
   two ends disagreeing. Physics, not policy: the BUILDME entry
   gate's lane `the_ticket_has_every_answer_it_needs` holds the crossing while any
-  question on the ticket stands open. **Rulings are retired** — `cairn ruling open`
-  refuses; a decision is a question, and its answer is the decision.
+  question on the ticket stands open. **Rulings are retired** — the ruling intake's
+  code is deleted (ticket 640a7a48e1c5); a decision is a question, and its answer is the decision.
 - **exit / disposition** — `routed_forward` + `"cast"`; or `routed_out` +
   `"not-ready"` / `"escalated:<rung>"`. The escalation ladder, cheapest
   first: back up and re-question · `/advisor` · a bounded subagent · review the

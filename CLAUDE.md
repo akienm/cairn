@@ -273,8 +273,8 @@ charter, never from this file.
   (`questions` field, the door refuses an id that does not resolve), standing in his
   inbox; the BUILDME entry lane `the_ticket_has_every_answer_it_needs` holds the
   crossing while one is open; an answer that bears more questions opens them as
-  follow-ups. Rulings retired: `cairn ruling open` and `/ruled` refuse, the Stop-hook
-  pairing detector is gone. The residue: a question raised at `/intent` has no ticket
+  follow-ups. Rulings retired: the ruling intake's code is deleted (Q#43, ticket 640a7a48e1c5),
+  the Stop-hook pairing detector is gone. The residue: a question raised at `/intent` has no ticket
   id yet and nothing rebinds it when `/sorted` casts one (charter edge (a)); and
   "answered" is a field, not a judgement — a deflection resolves as written unless CC
   opens the follow-up (edge (c)). · *ticket 9adc6fddf185*

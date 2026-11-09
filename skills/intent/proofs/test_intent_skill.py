@@ -23,8 +23,9 @@ break without anyone touching the seam.
 
 THE DERIVATION GATE IS RETIRED with the tool that ran it (ticket d547b4859f9a, outline 19.6:
 the help surface is `cairn help`, 2.4.2). Its host-wide tooth and c691e19d5464's clause (1),
-which read the gate's command lane, went with it; clauses (2)-(4) read the charters and the
-install dir themselves, over the tree this file stands in.
+which read the gate's command lane, went with it; clauses (2) and (4) read the charters over
+the tree this file stands in. Clause (3) (the /ruled skill installed) retired with the
+ruling intake's code (ticket 640a7a48e1c5, outline Q#43).
 """
 
 from __future__ import annotations
@@ -87,11 +88,11 @@ GOOD = {
 # ── ticket c691e19d5464 — the five commands the map cannot render ────────────
 # One tooth per MARKED clause of the falsifier (proof_coverage.clauses() reads
 # ['1','2','3','4'] off the DONE-when head). Clause (1) read the derivation gate's
-# command lane and retired with it (ticket d547b4859f9a).
+# command lane and retired with it (ticket d547b4859f9a); clause (3) retired with the
+# ruling intake (ticket 640a7a48e1c5).
 PROVES = {
     "c691e19d5464": {
         "2": "test_clause_2_the_five_are_named_with_real_usage",
-        "3": "test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face",
         "4": "test_clause_4_no_charter_was_minted_under_bin_cmd",
     },
 }
@@ -234,7 +235,6 @@ COMMAND_OWNERS = {
     "operator": "cairn/tools/operator_inbox/intention+why.json",
     "operator_inbox": "cairn/tools/operator_inbox/intention+why.json",
     "review": "cairn/machines/skill_block/intention+why.json",
-    "ruled": "skills/ruled/intention+why.json",
 }
 
 # WHAT COUNTS AS REAL USAGE, and why it is a shape rather than a word list. The gate's
@@ -291,42 +291,6 @@ def test_clause_2_the_five_are_named_with_real_usage():
             f"no explicit 'no arguments'. A bare mention satisfies the gate's lane and "
             f"tells a reader nothing, which is the measured state of `cairn "
             f"operator_inbox` before this ticket.")
-
-
-def test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face():
-    """Falsifier clause (3)'s two halves, and the WRONG INTENT clause that rides it.
-
-    /ruled carries a charter and must have an entry in ~/.claude/skills. A COPY would
-    fork the source; the ticket names that as WRONG INTENT, and all 14 pre-existing
-    entries were symlinks, so the install pattern is not in question.
-
-    The install half is host state and survives a repo reversion by construction; the
-    charter half does not, which is what gives this tooth something to say about the
-    build.
-    """
-    install = Path.home() / ".claude" / "skills"
-    installed = {}
-    for entry in sorted(install.iterdir()) if install.is_dir() else []:
-        if entry.is_symlink() or (entry / "SKILL.md").is_file():
-            try:
-                installed[entry.name] = entry.resolve(strict=True)
-            except OSError:
-                installed[entry.name] = None
-    assert "ruled" in installed, (
-        f"/ruled is chartered and not installed. Installed: {sorted(installed)}")
-    link = Path.home() / ".claude" / "skills" / "ruled"
-    assert link.is_symlink(), (
-        f"{link} exists but is not a symlink — a copied skill forks its own source, and "
-        f"every one of the other {len(installed) - 1} entries is a link")
-    target = installed["ruled"]
-    assert target is not None and (target / "SKILL.md").is_file(), (
-        f"the /ruled link resolves to {target}, which carries no SKILL.md")
-    # The repo half: the charter must record the CLI face beside the slash face. Both
-    # are real — bin/cmd/ruled execs skills.ruled.door directly — and a charter naming
-    # only one of a component's two faces is a charter a reader cannot run from.
-    invoke = _invoke_of(COMMAND_OWNERS["ruled"])
-    assert "/ruled" in invoke and re.search(r"\bcairn ruled\b", invoke), (
-        f"the /ruled charter records only one of its two faces: {invoke!r}")
 
 
 def test_clause_4_no_charter_was_minted_under_bin_cmd():

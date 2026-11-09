@@ -115,7 +115,8 @@ class RefutationRefused(RuntimeError):
     correction gets told the whole truth once (Law 7 at a diagnostic surface)."""
 
 
-# Who may retire an EARNED node. The borrow is cairn/machines/ruling's supersession rule —
+# Who may retire an EARNED node. The borrow is the old ruling intake's supersession rule
+# (ruling.py, deleted by ticket 640a7a48e1c5, outline Q#43; the idea stands here) —
 # "an unconfirmed reading cannot retire a confirmed act; that would be my guess outvoting
 # his signature" — cited in the charter's `entry`, never imported (charter falsifier 7).
 # Read as an ALLOWLIST, not a denylist: an unrecognized source is refused against earned

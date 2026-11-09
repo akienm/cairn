@@ -16,9 +16,10 @@ the live tree and counts bites.
 
 DRIVEN, NOT READ, for the same reason the proof is: a grep for ``fold(`` passes a seam that
 calls it and compares the raw token anyway. What it drives is deliberately the CHEAP subset —
-the dispatcher on a stub tree (subprocess), five python mains by import, the base device's
-view lookup, the map filter and the marker — no bus, no database, nothing that writes to a
-live berth; it reads the ruling list and the harbor master's fleet, which are read-only.
+the dispatcher on a stub tree (subprocess), three python mains by import, the base device's
+view lookup and the map filter — no bus, no database, nothing that writes to a live berth; it
+reads the harbor master's fleet, which is read-only. (The ruling list and the marker drives
+left with the ruling intake's code, ticket 640a7a48e1c5.)
 Cheap enough to sit on a tester seal.
 
 READS THE TREE IT RUNS IN. A bite here is a bite in the working copy, which may be mid-edit;
@@ -117,9 +118,6 @@ def _drive_python() -> list[tuple[str, bool]]:
     from cairn.machines.skill_block.__main__ import main as sb_main
     out.append(("skill_block CONTRACT", _quiet(sb_main, ["CONTRACT", "sorted"]) != 0))
 
-    from cairn.machines.ruling.cli import main as ru_main
-    out.append(("ruling LIST", _quiet(ru_main, ["LIST"]) != _quiet(ru_main, ["list"])))
-
     # THE COMMAND HE TYPES, as a subprocess: the tester is a device and its CLI is reached
     # as `cairn test`, never by importing its code (RULE 1, ticket 67b78ae59c1d).
     with tempfile.TemporaryDirectory() as empty:
@@ -145,9 +143,6 @@ def _drive_python() -> list[tuple[str, bool]]:
     out.append(("harbor_master filter OPEN",
                 len(HarborMasterDevice._filter_fleet(fleet, "OPEN")["open"]) != 1))
 
-    from cairn.machines.ruling import ruling
-    out.append(("ruling marker lowercase",
-                not ruling.scan_for_ruling_markers("he ruled it", strong_only=True)))
     return out
 
 

@@ -13,8 +13,9 @@ that run in a subprocess — the BUILDME entry gate and the CLI):
   3. the entry gate's fourth lane reds a ticket with an open question and ``_entry_gate``
      raises naming ``cairn question answer``; the same ticket crosses once answered. With
      the gate reverted the lane is absent and this tooth reds — the hollow reading;
-  4. ``cairn ruling open`` and ``/ruled`` exit non-zero pointing at ``cairn question``, the
-     Stop hooks carry no ruling hook, and no skill tells CC to open a ruling;
+  4. the Stop hooks carry no ruling hook, no skill tells CC to open a ruling, and CLAUDE.md
+     names decision intake by ``cairn question``; the intake's own refusals left with its
+     code (ticket 640a7a48e1c5), and its absence is measured by the retirement proof in bin;
   5. the two sieves take an answered question id as same-act evidence and refuse an
      unanswered one and a cite of neither.
 
@@ -265,12 +266,6 @@ def teeth_measured(tmp: Path) -> None:
 
 def teeth_retirement() -> None:
     print("THE RETIREMENT — rulings are questions now")
-    r = subprocess.run([str(REPO / "bin" / "cairn"), "ruling", "open", "/dev/null"],
-                       capture_output=True, text=True, timeout=120)
-    ruling_refuses = r.returncode != 0 and "cairn question" in r.stderr
-    r2 = subprocess.run([sys.executable, "-m", "skills.ruled.door"], capture_output=True, text=True,
-                        env=dict(os.environ, PYTHONPATH=str(REPO)), cwd=REPO, timeout=120)
-    ruled_refuses = r2.returncode != 0 and "cairn question" in r2.stderr
     try:
         settings = json.loads((REPO / ".claude" / "settings.json").read_text())
         stop = json.dumps(settings.get("hooks", {}).get("Stop", []))
@@ -281,21 +276,18 @@ def teeth_retirement() -> None:
     for skill in sorted((REPO / "skills").glob("*/SKILL.md")):
         for n, line in enumerate(skill.read_text(encoding="utf-8").splitlines(), 1):
             low = line.lower()
-            if ("cairn ruling open" in low or "open a ruling" in low) and not any(
+            if (("cairn " + "ruling open") in low or "open a ruling" in low) and not any(
                     w in low for w in ("retired", "refuse", "never", "not ")):
                 tellers.append(f"{skill.parent.name}:{n}")
-    # the two prose surfaces that TELL the next mind where a decision goes: /ruled's own
-    # SKILL.md must read as retired and point at the question door, and CLAUDE.md's
-    # residue must name decision intake by `cairn question` rather than `cairn ruling`.
-    ruled_md = (REPO / "skills" / "ruled" / "SKILL.md").read_text(encoding="utf-8").lower()
-    ruled_md_retired = "retired" in ruled_md and "cairn question" in ruled_md
+    # the prose surface that TELLS the next mind where a decision goes: CLAUDE.md's residue
+    # must name decision intake by `cairn question`. The intake's own refusals (and its
+    # skill's SKILL.md) left with its code, ticket 640a7a48e1c5; their absence is measured
+    # by bin/proofs/test_retired_components_are_gone.py.
     claude_md = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
     claude_md_tells = ("cairn question" in claude_md and TICKET in claude_md
-                       and "ruling intake (`cairn ruling`)" not in claude_md)
-    check(PROVES[TICKET]["4"], ruling_refuses and ruled_refuses and hook_gone and not tellers
-          and ruled_md_retired and claude_md_tells,
-          f"ruling open rc={r.returncode} /ruled rc={r2.returncode} hook_gone={hook_gone} tellers={tellers} "
-          f"ruled_md_retired={ruled_md_retired} claude_md_tells={claude_md_tells}")
+                       and "ruling intake (`cairn " + "ruling`)" not in claude_md)
+    check(PROVES[TICKET]["4"], hook_gone and not tellers and claude_md_tells,
+          f"hook_gone={hook_gone} tellers={tellers} claude_md_tells={claude_md_tells}")
 
 
 def teeth_beside() -> None:

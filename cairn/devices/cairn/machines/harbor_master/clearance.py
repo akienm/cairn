@@ -101,7 +101,8 @@ COMMONS_ROOT = os.path.join(os.path.dirname(CAIRN_ROOT), "CairnCommons")
 TICKETS_DIR = os.path.join(COMMONS_ROOT, "tickets")
 
 # THE KEY A CHARTER CARRIES WHEN IT HAS STOPPED BEING THE DESIGN. Named for the verb the
-# corpus already uses at its one existing retirement door — cairn/machines/ruling/ruling.py
+# corpus already used at its one retirement door — the old ruling intake (ruling.py, deleted by
+# ticket 640a7a48e1c5)
 # calls itself "THE RETIREMENT DOOR" and derives a ``retired_ids`` set — so a reader meets
 # one word for one act in both places. ``superseded_by`` is the FIELD inside it rather than
 # the key, because a retirement with no successor is a real state and a key spelled
@@ -391,7 +392,7 @@ class Retirement:
 
     ``superseded_by`` IS NULLABLE ON PURPOSE, and that nullability is the whole reason this
     state lives on the RETIRED charter rather than on its successor. ``ruling.supersede``
-    (cairn/machines/ruling/ruling.py) does it the other way — the successor appends to its
+    (the old ruling intake, deleted by ticket 640a7a48e1c5) did it the other way — the successor appends to its
     own ``supersedes`` list and the retired packet is never touched — because what it
     retires is a packet carrying Akien's signature, and rewriting a signed record is the
     thing that door exists to prevent.

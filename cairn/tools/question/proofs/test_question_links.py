@@ -326,8 +326,8 @@ def teeth_beside() -> None:
     # except a reader of pre-build records that says so on the same line. The librarian's
     # own follow-up questions are another word and out of this scope.
     word = re.compile(r"follow[-_]ups?\b", re.IGNORECASE)
-    surfaces = [REPO / "cairn/tools/question", REPO / "skills/sorted", REPO / "skills/ruled",
-                REPO / "cairn/machines/ruling/cli.py", REPO / "cairn/tools/operator_inbox/inbox.py",
+    surfaces = [REPO / "cairn/tools/question", REPO / "skills/sorted",
+                REPO / "cairn/tools/operator_inbox/inbox.py",
                 REPO / "cairn/machines/build_inspector/inspector.py", REPO / "bin/cmd/question"]
     tellers = []
     for base in surfaces:

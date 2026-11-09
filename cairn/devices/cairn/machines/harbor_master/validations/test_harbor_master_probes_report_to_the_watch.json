@@ -2,7 +2,7 @@
   {
     "claim": "proof test_harbor_master_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-31T14:47:43",
+    "date": "2026-11-08T18:26:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,17 +15,14 @@
         "test_harbor_master_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-9fb79ec6cdda",
+      "test": "test-b391d05ed6dc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_3010050_1447325136_delivery",
-          "bus_proc_3010050_1447325136"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "53e3d0b882ad4ef4ff818f403aa12d011ff579a922b528de0ad51059bbe87343",
@@ -35,6 +32,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -44,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9fb79ec6cdda",
-      "source_fingerprint": "ff72f332196f9703ff3d5a40790bc165fc4cb64382ac925a40ec2bb49892c374",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b391d05ed6dc",
+      "source_fingerprint": "190821e77d126d6d87f6039d2cf6c56bd4e501b6b82168d429b4ea4f4e9df15c",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/clearance.py",
@@ -56,9 +54,21 @@
         "cairn/devices/cairn/machines/harbor_master/probes/clearance_actually_gates.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_master_probes_report_to_the_watch.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3008885-znsnyvmb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1275989-1vscn9lm/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,9 +77,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114791014,
-          "disk_bytes": 144945152,
-          "entries": 11921,
+          "bytes": 120031549,
+          "disk_bytes": 154689536,
+          "entries": 13516,
           "builds": 1,
           "reuses": 5
         }

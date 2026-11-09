@@ -3,8 +3,8 @@
 MEASURED 2026-10-02 at ticket fe1cba85cb12's reseal: test_hollow's live tooth redded when the
 store moved, and the one-line repair to the proof was refused at rung 4 — "no ruling id was
 given". No ruling CAN be given: ``ruling_refusal`` reads only CairnCommons/decisions/, frozen
-at 2026-09-13, and since ticket 9adc6fddf185 a decision is an answered question (`cairn ruling
-open` refuses). Zero seals in the repo had ever carried ``reseal_ruling``. So the door was
+at 2026-09-13, and since ticket 9adc6fddf185 a decision is an answered question (the ruling
+intake's code is deleted, ticket 640a7a48e1c5). Zero seals in the repo had ever carried ``reseal_ruling``. So the door was
 unreachable for every decision made after the store froze.
 
 The question records here are fixtures in a scratch root, written as plain JSON: they are the
@@ -70,8 +70,8 @@ def test_an_open_or_an_unknown_question_does_not():
 
 
 def test_a_confirmed_legacy_ruling_still_lifts_it(monkeypatch):
-    """Over a scratch decisions/ store, through the ruling machine's own ``CAIRN_ROOTS_PARENT``
-    seam, so the tooth reads the same in a worktree with no commons beside it: a confirmed
+    """Over a scratch decisions/ store, through the ``CAIRN_ROOTS_PARENT``
+    seam reseal reads, so the tooth reads the same in a worktree with no commons beside it: a confirmed
     ruling lifts rung 4, an unconfirmed one and an absent one do not."""
     world = scratch_dir("cairn-rung4-world-")
     store = world / "CairnCommons" / "decisions"

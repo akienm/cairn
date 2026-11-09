@@ -2,12 +2,12 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T19:02:52",
+    "date": "2026-11-08T19:32:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\nretired components proofs: all green",
+      "stdout_tail": "  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\n  PASS  recordverdict_paths_are_absent\n  PASS  nothing_names_recordverdict\n  PASS  learning_block_has_no_verdict_organs\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -31,10 +31,13 @@
         "no_node_class_names_cairnmap",
         "ruling_paths_are_absent",
         "nothing_names_ruling",
-        "ruling_does_not_import"
+        "ruling_does_not_import",
+        "recordverdict_paths_are_absent",
+        "nothing_names_recordverdict",
+        "learning_block_has_no_verdict_organs"
       ],
       "teeth_red": [],
-      "test": "test-2a64ecd5bba8",
+      "test": "test-cd6dc0d33dcc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,7 +47,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "189cf255e134c052cc8c6a44ade4a0d06e6ead9514a43e6c01196f5c804459b1",
+        "proof": "ae546949ff0b17aa6b7089b30608703bf8ddac237004dae5a1101a39c4544a70",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -57,14 +60,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a64ecd5bba8",
-      "source_fingerprint": "b43b8bc447c3633bef7aa71fdfda2a52aef9f92b6d5f54e3c774cdcdcd3d9f3f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cd6dc0d33dcc",
+      "source_fingerprint": "eb3c1a4368fa9a45f450cab528761ea73f2349046eb02da84befda275f432b9e",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
@@ -72,201 +74,43 @@
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/__main__.py",
+        "cairn/machines/learning_block/learning_block.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py",
         "skills/__init__.py"
       ],
       "reached": {
         "cairn/devices/codemother": "71c727f1c4257f19db8616be29cd30c952c58f31699e61f3fb4c09bde28c6f65",
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d"
+        "cairn/machines/learning_block": "11504710ac0c65f0e6e55933126af3e85f359949e13d320e545df561aa80cc72",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1331240-lcqkhhfs/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-2a64ecd5bba8/stderr.txt",
-            "logs/tester/0/runs/test-2a64ecd5bba8/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "640a7a48e1c5": {
-          "cairn/devices/tester/reseal.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/devices/tester/quorum.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/tools/system_word/proofs/test_system_word.py": [
-            "nothing_names_ruling",
-            "cairn/tools/system_word/proofs/test_system_word.py::test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree",
-            "cairn/tools/system_word/proofs/test_system_word.py::test_the_three_charters_say_the_words_fold"
-          ],
-          "cairn/tools/system_word/probes/his_case_never_bites.py": [
-            "nothing_names_ruling"
-          ],
-          "skills/intent/proofs/test_intent_skill.py": [
-            "nothing_names_ruling",
-            "skills/intent/proofs/test_intent_skill.py::test_clause_2_the_five_are_named_with_real_usage",
-            "skills/intent/proofs/test_intent_skill.py::test_clause_4_no_charter_was_minted_under_bin_cmd",
-            "skills/intent/proofs/test_intent_skill.py::test_every_contract_field_carries_its_why",
-            "skills/intent/proofs/test_intent_skill.py::test_the_anatomy_is_a_CALL_not_a_paragraph_about_one",
-            "skills/intent/proofs/test_intent_skill.py::test_the_kill_exit_fires_the_same_door",
-            "skills/intent/proofs/test_intent_skill.py::test_the_markdown_and_the_charter_cannot_drift",
-            "skills/intent/proofs/test_intent_skill.py::test_the_two_entrances_cannot_differ_in_strictness"
-          ],
-          "cairn/tools/question/proofs/test_question.py": [
-            "nothing_names_ruling",
-            "cairn/tools/question/proofs/test_question.py::test_a_measurement_answers_under_its_own_name",
-            "cairn/tools/question/proofs/test_question.py::test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
-            "cairn/tools/question/proofs/test_question.py::test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
-            "cairn/tools/question/proofs/test_question.py::test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
-            "cairn/tools/question/proofs/test_question.py::test_an_answered_question_is_same_act_evidence_for_the_sieves",
-            "cairn/tools/question/proofs/test_question.py::test_ruling_open_is_retired_and_no_skill_opens_one",
-            "cairn/tools/question/proofs/test_question.py::test_the_charter_stands_beside_the_code_and_names_this_proof",
-            "cairn/tools/question/proofs/test_question.py::test_the_cli_opens_answers_and_lists",
-            "cairn/tools/question/proofs/test_question.py::test_the_probe_is_armed_with_carry_and_enough"
-          ],
-          "cairn/tools/question/proofs/test_question_links.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/devices/librarian/tools/trees/trees.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/devices/librarian/proofs/test_librarian_trees.py": [
-            "nothing_names_ruling",
-            "cairn/devices/librarian/proofs/test_librarian_trees.py::test_the_borrow_is_cited_not_grafted"
-          ],
-          "cairn/devices/librarian/intention+why.json": [
-            "nothing_names_ruling"
-          ],
-          "cairn/machines/ruling/__init__.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "cairn/machines/ruling/cli.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "cairn/machines/ruling/corpus.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "cairn/machines/ruling/intention+why.json": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "cairn/machines/ruling/proofs/test_ruling.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "cairn/machines/ruling/ruling.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "skills/ruled/SKILL.md": [
-            "nothing_names_ruling",
-            "ruling_paths_are_absent"
-          ],
-          "skills/ruled/door.py": [
-            "nothing_names_ruling",
-            "ruling_does_not_import",
-            "ruling_paths_are_absent"
-          ],
-          "skills/ruled/intention+why.json": [
-            "nothing_names_ruling",
-            "ruling_paths_are_absent"
-          ],
-          "skills/ruled/proofs/test_ruled.py": [
-            "nothing_names_ruling",
-            "ruling_paths_are_absent"
-          ],
-          "bin/cmd/ruling": [
-            "nothing_names_ruling",
-            "ruling_paths_are_absent"
-          ],
-          "bin/cmd/ruled": [
-            "nothing_names_ruling",
-            "ruling_paths_are_absent"
-          ],
-          "bin/cmd/artifactgate": [
-            "nothing_names_ruling"
-          ],
-          "bin/proofs/test_artifact_gate.py": [
-            "nothing_names_ruling",
-            "bin/proofs/test_artifact_gate.py::allowed: \"bin/cairn question open --ticket abcdef012345 'why?'\""
-          ],
-          "skills/tellmeabout/tellmeabout.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/machines/build_inspector/intention+why.json": [
-            "nothing_names_ruling"
-          ],
-          "cairn/tools/artifact/intention+why.json": [
-            "nothing_names_ruling"
-          ],
-          "cairn/tools/import_sieve/intention+why.json": [
-            "nothing_names_ruling"
-          ],
-          "cairn/tools/question/intention+why.json": [
-            "nothing_names_ruling"
-          ],
-          "bin/cairn": [
-            "nothing_names_ruling"
-          ],
-          "bin/cmd/artifact": [
-            "nothing_names_ruling"
-          ],
-          "bin/cmd/determinism": [
-            "nothing_names_ruling"
-          ],
-          "cairn/devices/cairn/machines/harbor_master/clearance.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/machines/corrosion/citation.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/devices/tester/proofs/test_rung_4_lifts_for_an_answered_question.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/machines/build_inspector/proofs/test_forwarding_derivation.py": [
-            "nothing_names_ruling"
-          ],
-          "cairn/machines/build_inspector/proofs/test_inspector.py": [
-            "nothing_names_ruling",
-            "cairn/machines/build_inspector/proofs/test_inspector.py::negative 2 — THE BARE-COMMAND CHANNEL. 'review' IS a roster command here (the"
-          ],
-          "skills/sorted/SKILL.md": [
-            "nothing_names_ruling"
-          ],
-          "CLAUDE.md": [
-            "nothing_names_ruling"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "640a7a48e1c5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "e427658a4d9e59839eebd7ee267056e4f1797886",
-          "anchor_first_build": "95ae4ef7a7e84abb1e5ca49df3a7341444e2abf9",
-          "commit": "e427658a4d9e59839eebd7ee267056e4f1797886"
+          "measured": true,
+          "bytes": 120091085,
+          "disk_bytes": 154775552,
+          "entries": 13529,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

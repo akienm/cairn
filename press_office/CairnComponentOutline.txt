@@ -1526,13 +1526,18 @@ not matter here. The code catches up to this, never the reverse.
         without carrying it, so the repo stays shareable and a private value stays
         in ~/.cairn; and one way of pointing works across every format. USERS:
         anything that reads stored data.
-    17.28.1 The scheme names what comes back; the path finds the record; the part
-            after # finds the item inside it. file:///cairn/devices/foo/x.cfg#blah
-            is a Dataref; secret://...#KEY is a Secret; db:///cairn/table/row#leaf
-            is a Dataref over the database. After #, names separated by /: #key
-            (an env file), #section/key (an ini file), #a/b/c (into json). A node
-            id means the same node on every box (4.3.1.5.1), so a db address names
-            a host only to mean that box's copy.
+    17.28.1 The scheme names the store; the path finds the record; the part after #
+            finds the item inside it. file:///cairn/devices/foo/x.cfg#blah and
+            db:///cairn/table/row#leaf are Datarefs. After #, names separated by /:
+            #key (an env file), #section/key (an ini file), #a/b/c (into json). A
+            node id means the same node on every box (4.3.1.5.1), so a db address
+            names a host only to mean that box's copy.
+    17.28.1.1 secret: wraps any whole address and hands back what it points at as a
+              Secret: secret:file:///cairn/x.cfg#bar/baz, secret:db:///cairn/t/row#token.
+              Take off "secret:" and what is left is a complete address, whose #
+              is its own. One colon, no //: a // says a host comes next, so
+              secret://file://... would read "file" as a host. Precedent: jar:file:,
+              view-source:https:. Akien 2026-11-09: "i like it. make it so".
     17.28.2 Dataref is the base class. Secret is its subclass: its str, repr and
             format are all **********, so a log line or an f-string cannot show it;
             .secret fetches the value at that moment. WHY: printing it by mistake

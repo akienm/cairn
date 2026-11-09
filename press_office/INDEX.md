@@ -24,6 +24,7 @@ says otherwise.
 | checking a number | [`FactSheet.md`](FactSheet.md) — every measurement, with its command |
 | here for one pattern | the pattern series below; each is self-contained |
 | implementing the workflow | [`WorkflowDefinition.md`](WorkflowDefinition.md) — the source of truth |
+| asking what each component is meant to be | [`CairnComponentOutline.txt`](CairnComponentOutline.txt) — Akien's component outline, the source of truth the code is built toward; open questions stand in it as `[Q#n: …]` (edited in place, like this index) |
 | evaluating the research claim | [`NoveltyDrivenGraphTreeExpansion.md`](NoveltyDrivenGraphTreeExpansion.md) |
 
 ---

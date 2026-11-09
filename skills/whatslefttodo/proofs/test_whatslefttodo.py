@@ -30,6 +30,17 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO))
 
+# The live-world teeth read the commons through bin/cmd/slate's repo-relative COMMONS. Inside
+# `cairn test --hollow`'s /tmp worktree there is no CairnCommons sibling, so the slate reader
+# answered "no slates directory" and the entry gate named `slate` twice (measured 2026-11-08,
+# ticket e5a8e8059296). Resolve the commons the way hollow does: the sibling, else the home one.
+if not (_REPO.parent / "CairnCommons").is_dir():
+    import os
+    _home_commons = Path.home() / "dev" / "src" / "CairnCommons"
+    os.environ.setdefault("CAIRN_SLATES_DIR", str(_home_commons / "slates"))
+    os.environ.setdefault("CAIRN_QUESTIONS_DIR", str(_home_commons / "questions"))
+    os.environ.setdefault("CAIRN_ROOTS_PARENT", str(_home_commons.parent))   # edges' commons discovery
+
 from cairn.machines.learning_block.learning_block import DoorRefused, read_trace   # noqa: E402
 from cairn.machines.skill_block.skill_block import fire, judge_for, read_berth     # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir                             # noqa: E402

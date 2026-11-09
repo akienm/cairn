@@ -110,7 +110,12 @@ def test_the_choice_has_two_branches() -> None:
         with _SocketDir(d):
             assert _store()._conn_args() == {"host": d}, _store()._conn_args()
     with _SocketDir(None):
-        assert _store()._conn_args() == {"host": _REAL}, _store()._conn_args()
+        # the default dir follows the box: the socket where it exists, else the TCP branch
+        # (a Windows box has no /var/run/postgresql at all — follow-up of 3dc005de27cf)
+        if os.path.exists(os.path.join(_REAL, ".s.PGSQL.5432")):
+            assert _store()._conn_args() == {"host": _REAL}, _store()._conn_args()
+        else:
+            assert _store()._conn_args()["host"] == "127.0.0.1", _store()._conn_args()
     print("ok test_the_choice_has_two_branches")
 
 

@@ -47,6 +47,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from cairn.tools.base.address import ROOTS, resolve
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 MASK = "**********"
 SECRET_PREFIX = "secret:"
@@ -57,7 +58,7 @@ INI = {".ini", ".cfg", ".conf"}
 _DRIVE = re.compile(r"^/[A-Za-z]:")
 
 
-class DatarefMiss(LookupError):
+class DatarefMiss(DiagnosticBase, LookupError):
     """An address that does not resolve to a value. The message names the address, never a value."""
 
     def __init__(self, address: str, why: str) -> None:
@@ -151,7 +152,7 @@ def _read(address: str, path: Path) -> tuple[str, tuple[int, int, int]]:
         raise DatarefMiss(address, f"cannot read {path}: {type(e).__name__}") from None
 
 
-class Dataref:
+class Dataref(DiagnosticBase):
     """A read-only pointer to a stored value. ``str()`` and ``.value`` give the value."""
 
     def __init__(self, address: str, roots: dict[str, Path] | None = None) -> None:

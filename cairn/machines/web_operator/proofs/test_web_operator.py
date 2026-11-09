@@ -23,6 +23,9 @@ space (a snap Firefox cannot reach hidden folders in home, nor the host /tmp):
      beta's session still answers.
   7. `python3 -m cairn.machines.web_operator --holder alpha/0 text` prints what text() returns.
 
+Ticket 060d2146618c clause 6 (outline 17.28): secret() reads its value through a dataref Secret at
+secret:instance:///devices/<holder>/<n>/.env#KEY, and the hand-rolled _env_value is gone.
+
     python3 cairn/machines/web_operator/proofs/test_web_operator.py
 """
 from __future__ import annotations
@@ -54,6 +57,9 @@ PROVES = {
         "5": "tooth_5_secret_types_without_showing",
         "6": "tooth_6_stop_ends_one_holder_only",
         "7": "tooth_7_the_cli_is_the_class",
+    },
+    "060d2146618c": {
+        "6": "tooth_6_web_operator_reads_through_a_secret",
     },
 }
 
@@ -251,21 +257,50 @@ def tooth_6(w: World) -> None:
     check(name, ok, f"alpha port {port} refused={_refused(port)}; alpha browser pids={browsers}; beta where={wb}")
 
 
+def _name(t) -> str:
+    if t is tooth_dataref:
+        return PROVES["060d2146618c"]["6"]
+    return PROVES["7a94c34cba52"][t.__name__.split("_")[1]]
+
+
+def tooth_dataref(w: World) -> None:
+    name = PROVES["060d2146618c"]["6"]
+    from cairn.machines.web_operator.web_operator import WebOperator
+    from cairn.tools.dataref import Secret
+    seen: list[str] = []
+    real = Secret.secret
+
+    def spy(self):
+        seen.append(self.address)
+        return real.fget(self)
+    Secret.secret = property(spy)
+    try:
+        op = WebOperator("alpha", 0, roots=w.roots)
+        typed: list[str] = []
+        op.type = lambda css, text, n=0: typed.append(text)
+        op.secret("#pw", "WEB_OPERATOR_TEST_KEY")
+    finally:
+        Secret.secret = real
+    gone = not hasattr(WebOperator, "_env_value")
+    ok = typed == [w.secret] and seen == ["secret:instance:///devices/alpha/0/.env#WEB_OPERATOR_TEST_KEY"] and gone
+    check(name, ok, f"typed_right={typed == [w.secret]} read_through_secret={seen} env_value_gone={gone}")
+
+
 def main() -> int:
     w = None
-    teeth = (tooth_1, tooth_2, tooth_3, tooth_4, tooth_5, tooth_7, tooth_6)
+    teeth = (tooth_1, tooth_2, tooth_3, tooth_4, tooth_5, tooth_7, tooth_6, tooth_dataref)
     try:
         try:
             w = World()
         except Exception as exc:  # noqa: BLE001
             for t in teeth:
-                check(PROVES["7a94c34cba52"][t.__name__.split("_")[1]], False, f"world: {type(exc).__name__}: {exc}")
+                check(_name(t), False, f"world: {type(exc).__name__}: {exc}")
         else:
             for t in teeth:
                 try:
                     t(w)
                 except Exception as exc:  # noqa: BLE001 — a tooth's failure is its verdict
-                    check(PROVES["7a94c34cba52"][t.__name__.split("_")[1]], False, f"{type(exc).__name__}: {exc}")
+                    check(_name(t), False, f"{type(exc).__name__}: {exc}")
     finally:
         if w is not None:
             w.close()

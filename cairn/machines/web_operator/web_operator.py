@@ -37,6 +37,7 @@ import urllib.request
 from pathlib import Path
 
 from cairn.tools.base.address import machine_path
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.dataref import Secret
 
 MACHINE = "web_operator"
@@ -83,11 +84,12 @@ def _alive(pid: int | None) -> bool:
         return False
 
 
-class WebOperator:
+class WebOperator(DiagnosticBase):
     """One holder's browser: ``WebOperator('librarian', 0).start()``."""
 
     def __init__(self, holder: str, instance: int = 0, roots: dict[str, Path] | None = None,
                  headless: bool = True, profile_root: Path | str | None = None) -> None:
+        super().__init__()
         self.holder = str(holder)
         self.instance = int(instance)
         self.roots = roots

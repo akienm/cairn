@@ -16,7 +16,8 @@ scratch roots table; no live secret is read.
   5. a missing file, a missing key, an unknown scheme, a relative file:, a db: address, a host, and
      a secret: address handed to plain Dataref each raise DatarefMiss naming the address, with
      no value from the file in the message, and no chained exception carrying one.
-  6. web_operator.secret types the value it reads through a Secret, and _env_value is gone.
+Clause 6 (web_operator reads through a Secret) is web_operator's own tooth, in its own proof
+(RULE 1: a proof measures only its component).
 
     python3 cairn/tools/dataref/proofs/test_dataref.py
 """
@@ -43,7 +44,6 @@ PROVES = {
         "3": "tooth_3_a_secret_never_shows_itself",
         "4": "tooth_4_a_file_is_reread_only_when_it_changed",
         "5": "tooth_5_a_miss_is_loud_and_names_the_address",
-        "6": "tooth_6_web_operator_reads_through_a_secret",
     },
 }
 
@@ -200,31 +200,8 @@ def tooth_5(w: World) -> None:
     check(PROVES["060d2146618c"]["5"], not bad, f"{bad}")
 
 
-def tooth_6(w: World) -> None:
-    from cairn.machines.web_operator.web_operator import WebOperator
-    from cairn.tools.dataref import dataref as dr
-    seen: list[str] = []
-    real = dr.Secret.secret
-
-    def spy(self):
-        seen.append(self.address)
-        return real.fget(self)
-    dr.Secret.secret = property(spy)
-    try:
-        op = WebOperator("alpha", 0, roots=w.roots)
-        typed: list[str] = []
-        op.type = lambda css, text, n=0: typed.append(text)
-        op.secret("#pw", "TOKEN")
-    finally:
-        dr.Secret.secret = real
-    gone = not hasattr(WebOperator, "_env_value")
-    ok = typed == [w.value] and seen == ["secret:instance:///devices/alpha/0/.env#TOKEN"] and gone
-    check(PROVES["060d2146618c"]["6"], ok,
-          f"typed_right={typed == [w.value]} read_through_secret={seen} env_value_gone={gone}")
-
-
 def main() -> int:
-    teeth = (tooth_1, tooth_2, tooth_3, tooth_4, tooth_5, tooth_6)
+    teeth = (tooth_1, tooth_2, tooth_3, tooth_4, tooth_5)
     w = World()
     for t in teeth:
         try:
@@ -234,7 +211,7 @@ def main() -> int:
             check(PROVES["060d2146618c"][t.__name__.split("_")[1]], False,
                   msg.replace(w.value, "<THE VALUE LEAKED>"))
     w._d.cleanup()
-    print(f"{6 - len(FAILURES)} passed, {len(FAILURES)} failed")
+    print(f"{5 - len(FAILURES)} passed, {len(FAILURES)} failed")
     return 1 if FAILURES else 0
 
 

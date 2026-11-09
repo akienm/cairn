@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_web_operator.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-09T16:37:27",
+    "caller": "cairn test",
+    "date": "2026-11-09T16:41:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 1480512, 'headless': True, 'port': 56523, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1480509/cairn-alpha-0-profile', 'session': '12d1edfc-71c5-4861-8846-1951d3795326', 'websocket_port': 59207} where=('http://127.0.0.1:41565/alpha', 'fixture alpha'); beta={'driver_pid': 1480789, 'headless': True, 'port': 36287, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1480509/cairn-beta-0-profile', 'session': 'fbffcd12-3299-48cd-9c30-9b7eb080c2bd', 'websocket_port': 33675} where=('http://127.0.0.1:41565/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-1480509-srxp5xb5/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-1480509-srxp5xb5/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 56523 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:41565/beta', 'fixture beta')\n\nGREEN",
+      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 1484395, 'headless': True, 'port': 38643, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1484392/cairn-alpha-0-profile', 'session': '9c587ead-a3b4-4ef1-8a38-8cf91506a1b3', 'websocket_port': 37461} where=('http://127.0.0.1:43447/alpha', 'fixture alpha'); beta={'driver_pid': 1484653, 'headless': True, 'port': 54333, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1484392/cairn-beta-0-profile', 'session': 'ab60d898-f721-497b-9dc7-f3bb2a9cf438', 'websocket_port': 36499} where=('http://127.0.0.1:43447/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-1484392-aoenkftw/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-1484392-aoenkftw/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 38643 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:43447/beta', 'fixture beta')\n  PASS  tooth_6_web_operator_reads_through_a_secret\n        typed_right=True read_through_secret=['secret:instance:///devices/alpha/0/.env#WEB_OPERATOR_TEST_KEY'] env_value_gone=True\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_text_reads_the_fixture_page",
@@ -16,10 +16,11 @@
         "tooth_4_state_berths_under_the_holder_only",
         "tooth_5_secret_types_without_showing",
         "tooth_7_the_cli_is_the_class",
-        "tooth_6_stop_ends_one_holder_only"
+        "tooth_6_stop_ends_one_holder_only",
+        "tooth_6_web_operator_reads_through_a_secret"
       ],
       "teeth_red": [],
-      "test": "test-4c05fb98fe07",
+      "test": "test-ee97308a192c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,11 +30,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "dd7dabf918ed6e22a3dea6d536029dab95491b14ad447f3e4d469a270b218b1f",
+        "proof": "eed85530e57cca4efe25500f721fecc52ddad5e7dca12bfb8610c0986a4dc97d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 300,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -41,13 +42,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c05fb98fe07",
-      "source_fingerprint": "cdbd427ea0d9773120fa2173b08fe8253da6bea74c6afe6f9732c10a6ac8cc7e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee97308a192c",
+      "source_fingerprint": "aab354aa48a2d3cfdc472a257b1e3d70c926c2d9804b2d108afa20e397bfeb17",
       "fingerprint_closure": [
         "cairn/machines/web_operator/__init__.py",
         "cairn/machines/web_operator/proofs/test_web_operator.py",
@@ -61,7 +63,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1480485-v26a23hg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1484353-xzybes11/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

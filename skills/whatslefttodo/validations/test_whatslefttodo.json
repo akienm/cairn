@@ -2,7 +2,7 @@
   {
     "claim": "proof test_whatslefttodo.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T19:36:19",
+    "date": "2026-11-08T19:41:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -45,7 +45,7 @@
         "live trace untouched by this proof"
       ],
       "teeth_red": [],
-      "test": "test-ccd0558354ab",
+      "test": "test-ca94a65c09a6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -68,12 +68,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ccd0558354ab",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca94a65c09a6",
       "source_fingerprint": "51f94a4ac8703cd0adbb02a0ac02fe62407866df4a56a69a344d516b95264006",
       "fingerprint_closure": [
         "cairn/__init__.py",
@@ -131,22 +132,20 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1333553-tbnyyz3g/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 3,
           "paths": [
-            "logs/ground_loop_nohup.log"
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/runs/test-ca94a65c09a6/stderr.txt",
+            "logs/tester/0/runs/test-ca94a65c09a6/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120098857,
-          "disk_bytes": 154791936,
-          "entries": 13531,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {

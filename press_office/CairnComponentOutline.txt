@@ -529,16 +529,11 @@ not matter here. The code catches up to this, never the reverse.
               they serve (RULE 1). `cairn foo` whose first word is not a device
               means `cairn cairn foo`: top-level shortcuts are the cairn device's
               bin/.
-        5.4.3.3.1 [Q#75: Ticket f0ffa0db0952 (a new shortcut in a device's bin/ is
-                  reachable from its instance) was cast with a watch that fires
-                  on the heartbeat, before the ruling that probes fire on events
-                  (5.9). Measured 2026-11-05: 7 of the 9 instance bins are links
-                  to their class bin, so a new shortcut there needs no wiring at
-                  all. CC recommends (a): no watch, and the ticket's four-part
-                  proof is the whole guarantee. Or (b): a watch fired by the
-                  launcher when `cairn <device> <word>` finds nothing while the
-                  class bin has that word, filing a trouble. Which? (Holds
-                  f0ffa0db0952's build.)]
+        5.4.3.3.1 A new shortcut needs no watch. Most instance bins are links to
+                  their class bin, so the shortcut is reachable the moment its
+                  file lands; the build's proof is the whole guarantee. Akien
+                  2026-11-09, answering Q#75: "why the hell would it need a
+                  heartbeat?"
       5.4.3.4 Scripts are Python wherever possible, run by Cairn's own interpreter,
               so one file works on every platform. Platform-specific ones match
               their platform: executable or .sh on Linux; .bat, .cmd or .ps1 on

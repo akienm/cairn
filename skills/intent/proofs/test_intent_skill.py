@@ -21,23 +21,10 @@ same act as the berth — and pinned in the seam's proof; the tooth below re-che
 composition end to end through /intent's OWN charter, which is the part that could
 break without anyone touching the seam.
 
-THE DERIVATION GATE IOU IS DISCHARGED, and this docstring carried the opposite claim
-until 2026-09-11. `cairn cairnmap --gate` has been built and runnable since 2026-08-13;
-the ninth tooth below says so in its own docstring and has been reading it for weeks.
-Two sentences in one file disagreeing about whether a thing exists is the drift Law 5
-is made of, and the tooth is the half with an instrument behind it.
-
-TWO KINDS OF TOOTH LIVE HERE, and the difference is which tree they can read. The
-HERMETIC ones (clause_1 .. clause_4, added 2026-09-11 under ticket c691e19d5464) call
-``cairnmap.inspect(repo=REPO)`` with REPO derived from ``__file__``, so they read the
-tree they are standing in. The HOST-WIDE one shells out to ``bin/cairn cairnmap --gate``
-and reads whatever the host resolves. That is not a style choice: ``cairnmap.repo_root()``
-is NAME-based (``roots_parent() / "cairn"``), so inside a git worktree — which is where
-``cairn test --hollow`` measures — the CLI lands outside the worktree and reports 0
-charters, and every lane passes vacuously. Measured 2026-09-11 in a real worktree: 15
-findings, 6 checks proved, 0 charters. So only the hermetic four are DECLARED to hollow;
-the host-wide one stays because the live fire against the real host is worth having, and
-is deliberately undeclared because it cannot answer a reversion question.
+THE DERIVATION GATE IS RETIRED with the tool that ran it (ticket d547b4859f9a, outline 19.6:
+the help surface is `cairn help`, 2.4.2). Its host-wide tooth and c691e19d5464's clause (1),
+which read the gate's command lane, went with it; clauses (2)-(4) read the charters and the
+install dir themselves, over the tree this file stands in.
 """
 
 from __future__ import annotations
@@ -99,12 +86,10 @@ GOOD = {
 
 # ── ticket c691e19d5464 — the five commands the map cannot render ────────────
 # One tooth per MARKED clause of the falsifier (proof_coverage.clauses() reads
-# ['1','2','3','4'] off the DONE-when head). Only the hermetic teeth are here: the
-# host-wide subprocess tooth below cannot run where hollow measures, and declaring a
-# tooth that reds at HEAD in a worktree makes every reversion unreadable.
+# ['1','2','3','4'] off the DONE-when head). Clause (1) read the derivation gate's
+# command lane and retired with it (ticket d547b4859f9a).
 PROVES = {
     "c691e19d5464": {
-        "1": "test_clause_1_the_command_lane_carries_no_reds",
         "2": "test_clause_2_the_five_are_named_with_real_usage",
         "3": "test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face",
         "4": "test_clause_4_no_charter_was_minted_under_bin_cmd",
@@ -237,27 +222,7 @@ def test_an_incomplete_firing_is_refused_by_the_REAL_contract():
         raise AssertionError("the real /intent contract admitted a one-field firing")
 
 
-def test_the_skill_class_derivation_gate_is_green():
-    """THE IOU IS DISCHARGED, and this tooth is how that was found out. It was first
-    written as 'cairnmap is unbuilt, so this debt stands' — and it RED immediately,
-    because cairnmap has been built since. PROOF.md had been carrying a stale IOU: the
-    gate the ticket names as this node's prove_gate was runnable the whole time.
-
-    Its first real run then caught a live defect — cairn/machines/skill_block/ had no charter,
-    which by CLAUDE.md means it doesn't run. Fixed at the point of discovery, which is
-    why this tooth is worth more than the note it replaced."""
-    import subprocess
-    run = subprocess.run([str(REPO / "bin" / "cairn"), "cairnmap", "--gate"],
-                         capture_output=True, text=True, cwd=REPO)
-    assert run.returncode == 0, (
-        "the skill class's derivation gate reds — /intent renders from its charter only "
-        f"if every component has one:\n{run.stdout}{run.stderr}")
-    # Non-vacuity: the gate must have actually walked a corpus, not exited 0 on nothing.
-    assert re.search(r"\d+ charters", run.stdout), f"the gate reported no census: {run.stdout}"
-
-
-
-# ── ticket c691e19d5464: the command lane, read hermetically ─────────────────
+# ── ticket c691e19d5464: the commands' owners, read hermetically ─────────────
 # THE FIVE, and where each is owned. The owner is the charter of the component the
 # dispatcher in bin/cmd actually execs — never a charter minted under bin/cmd, which is
 # the ticket's WRONG INTENT clause. Measured 2026-09-11 across 22 existing ownership
@@ -291,44 +256,11 @@ _USAGE_SHAPE = re.compile(r"<[^>\n]+>|\w+\|\w+|no arguments")
 def _invoke_of(rel: str) -> str:
     """The component's OWN top-level invoke — not a facility block's.
 
-    The lane accepts either (cairnmap.units() yields the charter itself plus any
-    top-level dict carrying both `what` and `invoke`), and for these six the owner is
-    the component itself. Reading only the top-level string is what makes the tooth
-    stricter than the lane it checks, which is the point of a clause (2) at all.
+    For these six the owner is the component itself, so only the top-level string is
+    read: a facility block naming the command would not tell a reader where to go.
     """
     charter = json.loads((REPO / rel).read_text(encoding="utf-8"))
     return charter.get("invoke") or ""
-
-
-def test_clause_1_the_command_lane_carries_no_reds():
-    """Falsifier clause (1), read against THIS tree rather than against the host.
-
-    `cairnmap.inspect(repo=REPO)` runs the same predicate the CLI gate runs — for each
-    executable in bin/cmd, a `\bcairn <name>\b` search across every charter'd unit's
-    invoke — but over the repo this file is standing in. That is what lets the tooth run
-    inside `cairn test --hollow`'s worktree, where the CLI reads a repo that isn't there.
-
-    Only the command lane is read. The commons-reading lanes beside it legitimately red
-    in a worktree (commons_root() is name-based too), and collapsing 'this lane is
-    clean' into 'the gate is green' would make the tooth unreadable exactly where it is
-    needed most (Law 7 — a diagnostic surface may not collapse an error).
-    """
-    from cairn.tools.cairnmap import cairnmap
-    entry = [e for e in cairnmap.inspect(repo=REPO)
-             if e["identity"] == "every_command_is_named_by_a_charter"]
-    assert len(entry) == 1, f"the command lane did not run at all: {entry}"
-    reds = entry[0]["values"]["reds"]
-    assert reds == [], "commands no charter's invoke names:\n  " + "\n  ".join(reds)
-    # NON-VACUITY, and it is the whole reason this tooth can be trusted inside a
-    # worktree. A lane that found no commands reds nothing and looks identical to a lane
-    # that found twenty-five and owned them all. The CLI's worktree run failed exactly
-    # this way: 0 charters, command lane 'pass'.
-    expected = entry[0]["expected"]
-    assert len(expected) >= 20, (
-        f"the lane walked {len(expected)} command(s) — it found no corpus, so its green "
-        f"says nothing: {expected}")
-    assert set(COMMAND_OWNERS) <= set(expected), (
-        f"the six this ticket is about are not among the commands walked: {expected}")
 
 
 def test_clause_2_the_five_are_named_with_real_usage():
@@ -364,21 +296,24 @@ def test_clause_2_the_five_are_named_with_real_usage():
 def test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face():
     """Falsifier clause (3)'s two halves, and the WRONG INTENT clause that rides it.
 
-    The gate's sixth red is not a command-lane red at all — /ruled carries a charter and
-    has no entry in ~/.claude/skills — but the host-wide tooth below reads the WHOLE
-    gate, so it cannot go green until this clears. A COPY would clear the gate and fork
-    the source; the ticket names that as WRONG INTENT, and all 14 pre-existing entries
-    are symlinks, so the install pattern is not in question.
+    /ruled carries a charter and must have an entry in ~/.claude/skills. A COPY would
+    fork the source; the ticket names that as WRONG INTENT, and all 14 pre-existing
+    entries were symlinks, so the install pattern is not in question.
 
     The install half is host state and survives a repo reversion by construction; the
     charter half does not, which is what gives this tooth something to say about the
     build.
     """
-    from cairn.tools.cairnmap import cairnmap
-    installed = cairnmap.installed_skills()
+    install = Path.home() / ".claude" / "skills"
+    installed = {}
+    for entry in sorted(install.iterdir()) if install.is_dir() else []:
+        if entry.is_symlink() or (entry / "SKILL.md").is_file():
+            try:
+                installed[entry.name] = entry.resolve(strict=True)
+            except OSError:
+                installed[entry.name] = None
     assert "ruled" in installed, (
-        f"/ruled is chartered and not installed — the derivation gate's sixth finding. "
-        f"Installed: {sorted(installed)}")
+        f"/ruled is chartered and not installed. Installed: {sorted(installed)}")
     link = Path.home() / ".claude" / "skills" / "ruled"
     assert link.is_symlink(), (
         f"{link} exists but is not a symlink — a copied skill forks its own source, and "

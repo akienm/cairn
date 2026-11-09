@@ -2,7 +2,8 @@
 
 **Cognition Apparatus for Investigation of Reasoning Networks**
 
-**Measured 2026-08-19.** Every number below was produced by a command run that day, and
+**Measured 2026-08-19.** (The old help map these rows once cited retired on 2026-11-08,
+ticket d547b4859f9a; its rows are gone, the rest stand as measured.) Every number below was produced by a command run that day, and
 the command is printed beside it. Nothing here is asserted from a record, a memory, or a
 previous document.
 
@@ -39,7 +40,6 @@ Read the numbers as evidence about the **method**, not as a claim about the **ar
 | Commits, `cairn` (code) | 417 | `git log --oneline \| wc -l` |
 | Commits, `CairnCommons` (knowledge) | 604 | same, in the sibling repo |
 | Charters (`intention+why.json`) in the tree | 56 | `find . -name "intention+why.json" \| wc -l` |
-| Charters compiled into the help surface | 56 | `cairn cairnmap` (footer) |
 | Chartered components under `cairn/` | 39 | `find cairn -name "intention+why.json" \| wc -l` |
 | Python, whole tree | 85,690 lines | `find cairn bin skills learning -name "*.py" \| xargs wc -l` |
 | Python living in `proofs/` | 43,444 lines | `find . -path "*proofs*" -name "*.py" \| xargs wc -l` |
@@ -54,10 +54,9 @@ hollow build couldn't pass* — showing up as a line count.
 
 ## 2. What the census says
 
-56 charters compile into the help surface. Each chartered component co-locates its
+56 charters stood. Each chartered component co-locates its
 charter (`intention+why.json`), code, compiled `state`, append-only `history`, `proofs/`,
-and `validations/`. A component without a charter does not render in cairnmap and does not
-pass the build inspector.
+and `validations/`. A component without a charter does not pass the build inspector.
 
 | Fact | Value |
 |---|---|
@@ -66,9 +65,8 @@ pass the build inspector.
 | Validation records | 110 |
 | Validations green | 110 |
 | Validations red | 0 |
-| `cairnmap` completeness verdict | **red** — one installed skill (`cairnhelp`) has no charter |
 
-Instrument: `cairn cairnmap` and `find . -name "test_*.py" -path "*proofs*" \| wc -l`.
+Instrument: `find . -name "intention+why.json" \| wc -l` and `find . -name "test_*.py" -path "*proofs*" \| wc -l`.
 
 **Do not read "0 red" as health.** A validation carries a horizon and expires; a green
 seal means the proof passed when it was sealed against a source fingerprint that has since
@@ -246,9 +244,6 @@ the thing indexing it and carries the address `database.tree.leaf` — is reflec
 design documents and **not** in the running schema. There are no per-tree leaf tables.
 Calving and the shear are specified and unbuilt.
 
-**`cairnmap` completeness is red.** One installed skill (`cairnhelp`) has no charter. A
-skill without a charter renders a `→` with no help text and reds the completeness gate.
-
 **231 findings await Akien's verdict.** The single-human bottleneck is a measured property
 of the system, not an incidental backlog. But zero tickets currently stand at his gate —
 the 12 that were there at the last measurement have been cleared.
@@ -266,7 +261,7 @@ Everything above is reproducible from a checkout plus a live Postgres. The instr
 named in each row. The two that give the broadest picture in one call:
 
 ```bash
-cairn cairnmap                                   # help surface + completeness verdict
+cairn help                                       # the verb list with help strings, readable cold
 PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient census   # per-component measured state
 PYTHONPATH=$PWD python3 -m cairn.tools.orient.orient git      # heads, upstream, dirty paths
 ```

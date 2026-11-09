@@ -320,7 +320,7 @@ def test_import_allowlist(root, triage_berth, hypothesize_berth):
              # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
              # its-own-inspector-and-gate): this stage now holds its own gate, and
              # gate-ness is a DIRECT-import fact — which is how `cairn determinism`
-             # and `cairnmap --gate` see it from outside without being told.
+             # sees it from outside without being told.
              "cairn.tools.gate.gate",
              # 4661ca005242 (open-3f6ba5f047ed): the clause-coverage entry reads PROVES via proof_coverage.
              "cairn.tools.proof_coverage",

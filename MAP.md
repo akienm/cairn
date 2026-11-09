@@ -760,7 +760,7 @@ Each surviving skill enters with its own charter. (Supersedes the earlier 10.)
 
 **Skills are links into the repo, not copies.** One source of truth per skill —
 wherever a skill is installed, it points back at the file in `cairn/`. Nothing to
-sync, nothing to drift: the same no-copy reflex as cairnmap and co-located charters.
+sync, nothing to drift: the same no-copy reflex as co-located charters.
 
 | Axis | Skill | Role |
 |---|---|---|
@@ -804,7 +804,7 @@ Not crossing (for now): sprint family (returns when a dispatcher needs it), day-
 
 ## Gates, not supervisors — the workflow is gated transitions on the node
 
-The tester's prove-gate and cairnmap's recompile-gate are one pattern: a **gate**
+The tester's prove-gate and the lab's recompile-gate are one pattern: a **gate**
 is a *mandatory post-condition on a state transition, enforced by physics* (Law 4)
 — not a person who remembers to check. A node cannot advance past a gate until the
 gate's condition holds.
@@ -825,7 +825,7 @@ does not build with — deleted.)
 So *"the state of the tickets is the state of all things, always"* (Akien): no
 orchestrator holds a second copy of position to drift from the truth. The global
 "what's in which phase, consumed by which next" view is a **zero-inference query
-over node states** — the cairnmap move — derived on demand, never stored.
+over node states** — derived on demand, never stored.
 
 **Ownership stays put; the baton of action passes (Law 6).** A node keeps its one
 owner (who gates writes). What moves phase-to-phase is *which peer is invited to
@@ -837,8 +837,8 @@ into ambient write-access.
 **Every wall is a gate; gates differ only in check-type — none is a person with
 authority:**
 - **proof gate** — the tester: a hollow build couldn't pass (build → done).
-- **derivation gate** — cairnmap recompiles and its completeness proof is green
-  (skill → done): a skill does not ship until the help that indexes it is current.
+- **derivation gate** — retired 2026-11-08 with the old help map (ticket d547b4859f9a,
+  outline 19.6); a skill node now rides the code-seam gates.
 - **signature gate** — a named owner/ratifier signed (Akien on a map stone;
   `/sorted`'s surviving intentions). Judgment, still physics — the transition
   refuses without the signature.
@@ -870,65 +870,17 @@ reviewers`). Consequences:
   property, not universal; the tester stays notary-for-all but mechanism-for-code-only.
 - **two-walls reconciles:** Wall 1 (challenge-at-intent) is universal and identical;
   Wall 2 (prove-at-close) is universal in existence, per-class in check-type; a class
-  may hang extra gates between them (a skill node adds the cairnmap recompile-gate).
+  may hang extra gates between them (none does since the derivation gate retired).
 - **node-class definitions are themselves owned charters** — a grep-able library
   (`code-seam`, `concept-piece`, `skill`…); a class cannot exist without writing down
   what it is for. Discovered as tickets demand them, not pre-seeded.
 
-## cairnmap — the help surface, compiled from charters
+## The old help map — retired
 
-**BUILT 2026-07-31** (`cairn/tools/cairnmap/`, proof 14/14, ratified that night): `cairn
-cairnmap` renders the map, contextual by cwd; `cairn cairnmap --gate` is the
-derivation gate below — green on its first live run after its first four reds
-(uncharted commands: compile, slate, sudorelay, turnscan) were fixed at source, in
-the charters. Filed edges: the web-UI surface, and the PROVEME-crossing wiring that
-fires the gate automatically. The section below is the design it was built to.
-
-The system's reference: the main source of help, the answer to *"what can I do here,
-and how."* Others will use it; the query-commands built later (list open tickets, …)
-list themselves here too. Three rulings (Akien, 2026-07-15) fix what it is — **a view,
-contextual, reference-only.**
-
-**Compiled, not authored — zero inference.** cairnmap is a deterministic projection
-`render(charters, context) → surface`, no model in the loop. Law 5 already makes every
-command co-locate its charter (what it is for, why, how to invoke, state); cairnmap
-renders those. It cannot drift, because it is derived: regenerate → current. A
-hand-written help page is the exact schema-apart-from-data rot that killed the quarry's
-docs. This is also Telos 1 on the surface people most reflexively hand to an LLM —
-"explain what I can do," with the inference compiled out.
-
-- **A view, not a device (ruling).** Emitted by the same presentation surface the web
-  UI and tester render through ("the same protocol the tester probes and the web UI
-  renders", above). Inherits that seam; nothing new to own (Law 6).
-- **Contextual — v0 scopes by *where*, not *who* (ruling).** It renders what is
-  available *here* — surface / location / state — the runtime twin of Cairn's founding
-  move: a mind is briefed by standing in a directory and reading its `intention+why.json`;
-  a caller is briefed by standing in a context and asking cairnmap. The next scope-key
-  axis is *who* (the asker's ownership, Law 6 — you see only what you may invoke):
-  designed-in, and lands when the "others" arrive. v0 is single-user.
-- **Reference only (ruling).** A pure presentation surface (Law 7): it describes
-  commands, it does not run them. Invocation stays with the commands. The web UI may
-  add navigation later without changing what cairnmap *is*.
-- **One source, many surfaces.** Chat command *here* (v0); a key web-UI concept
-  *there* (design-only until the web server lands on the spine). Same charter truth,
-  different renders.
-
-**Its proof is the derivation gate — completeness both ways.** Falsifier: every
-charter'd command appears, and nothing without a charter appears. An undocumented
-command is *impossible* — a command with no charter can't run (the tester refuses it)
-and can't render (cairnmap won't show it). So a `skill` node does not reach `done`
-until cairnmap recompiles green; that recompile-gate is the `skill` node-class's extra
-gate (per the gates stone). cairnmap is thus not a doc you trust but a live check that
-the command-set and the help-set are the same set.
-
-**The charter is the help.** Zero inference means cairnmap can only show what the
-charter already says plainly — so a confusing help entry is a bug *in the charter*,
-fixed at source. The learning loop closes on the help surface: help quality ≡ charter
-quality, by construction, feedback landing at the point of creation.
-
-**Relation to MAP.md.** As this map dissolves into intentions + tickets, cairnmap is
-the rendered projection of those same records — the reader-side destination of that
-dissolution. The name kinship is deliberate.
+Built 2026-07-31 as a help surface compiled from every charter, with a derivation gate
+over it. Retired 2026-11-08 (ticket d547b4859f9a, outline 19.6: "an old version of help"):
+`cairn help` is the one help surface (2.4.2), defined once in the base shim and readable
+cold. Its charter walk lives on in the edges tool; git history keeps the rest.
 
 ## The node state-machine — states as summons
 

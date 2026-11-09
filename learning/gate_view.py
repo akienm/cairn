@@ -8,7 +8,7 @@ evidence on demand instead of the whole scroll (sparse-on-demand: the finite
 context window is spent on the relevant gate, not the corpus).
 
 Pure projection, zero-inference: the output is a deterministic fold of records/,
-the same shape as cairnmap over charters. Provable by inspection — run it and the
+the same shape as edges over charters. Provable by inspection — run it and the
 view is exactly the records grouped by gate. No tester needed for that claim.
 
 Usage:

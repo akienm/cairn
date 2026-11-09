@@ -1,6 +1,6 @@
 """Proof for cairn/tools/edges — the frontier projector.
 
-Synthetic world via CAIRN_ROOTS_PARENT (the cairnmap seam). Two lanes: filed
+Synthetic world via CAIRN_ROOTS_PARENT (edges' own roots seam). Two lanes: filed
 edges from charters, open questions from CairnCommons/questions/. The render
 mutates nothing, the lanes never mix, and the surface is compiled.
 """
@@ -74,15 +74,6 @@ def _build_world(tmp: Path) -> tuple[Path, Path]:
         "raised_by": "CC",
         "resolved": {"date": "2026-01-02", "answer": "No."},
     }))
-
-    # skill roster (cairnmap.gather needs it for the walk, but edges doesn't
-    # care about it — still, the world needs to be valid for gather)
-    nc = commons / "node_classes"
-    nc.mkdir(parents=True)
-    # THE RULE, NOT THE RETIRED LIST (2026-08-28). edges does not read membership, but
-    # cairnmap.gather runs over this world, so the world has to be one that still exists.
-    (nc / "skill.json").write_text(json.dumps(
-        {"members_derived_by": "ls -d ~/dev/src/cairn/skills/*/ | grep -v __pycache__"}))
 
     return repo, commons
 

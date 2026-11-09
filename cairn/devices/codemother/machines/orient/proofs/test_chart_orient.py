@@ -53,7 +53,7 @@ ALLOWED_IMPORTS = {"__future__", "hashlib", "json", "os", "re", "time",
                    # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
                    # its-own-inspector-and-gate): stage 1 now holds its own gate, and
                    # gate-ness is a DIRECT-import fact — which is how `cairn determinism`
-                   # and `cairnmap --gate` see it from outside without being told.
+                   # sees it from outside without being told.
                    "cairn.tools.gate.gate"}
 
 

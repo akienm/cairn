@@ -365,7 +365,7 @@ the graph trees. If you want to look around:
 ```bash
 source cairn/devices/recovery/bootstrap.sh && cairn_bootstrap_apply   # venv at ~/.cairn/venv
 bin/cairn                                                # the devices and verbs
-bin/cairn cairnmap                                       # the help surface, compiled from every charter
+bin/cairn help                                           # the verb list with help strings, readable cold
 ```
 
 ---

@@ -18,19 +18,13 @@ to nothing is routed out, not massaged into belonging" is the kill-exit tooth �
 which is stronger than the hand-run version, because the kill now leaves a berth
 behind instead of leaving the conversation.
 
-## What this file used to say, and why that matters
+## The derivation gate retired
 
-Until 2026-08-01 it recorded an IOU: *"cairnmap is not built yet… until then this
-obligation is recorded, not enforced."* That was **stale** — `cairn cairnmap
---gate` had been built and runnable, and nothing here noticed, because a hand-run
-obligation note has no way to notice anything.
-
-Writing the tooth is what found it: the tooth was authored asserting the debt
-still stood, and it went red on its first run. Its first *real* run then caught a
-live defect — `cairn/machines/skill_block/` had been built with no charter, which by
-CLAUDE.md means it does not run. Fixed at the point of discovery.
-
-That is the whole argument for an executable proof over a recorded obligation: a
-note cannot go stale loudly.
+The skill class's derivation gate, and the tooth here that ran it, retired with the tool
+that compiled the old help map (ticket `d547b4859f9a`, outline 19.6): `cairn help` is
+the one help surface (2.4.2). Before it went, that tooth earned its keep: written
+asserting a stale IOU, it went red on its first run, and its first real run caught
+`cairn/machines/skill_block/` standing with no charter. An executable proof can go
+stale loudly; a recorded obligation cannot.
 
 Ticket: `intent-becomes-a-learning-block` (child b of `skills-migrate-one-blow`).

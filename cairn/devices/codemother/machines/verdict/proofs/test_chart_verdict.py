@@ -542,7 +542,7 @@ def test_import_allowlist_tree_free(root, berths, val):
     # tree-free claim and the claim is MEASURED, not asserted: gate.py's own
     # import_map reads ['__future__', 'json'] — stdlib, no db, no embed host, no
     # inference. Gate-ness is a DIRECT-import fact, which is how `cairn determinism`
-    # and `cairnmap --gate` see this stage from outside without being told.
+    # sees this stage from outside without being told.
     # cairn.tools.chain.chain joined 2026-09-02 (device isolation): chain
     # resolution functions (claiming_packets, chain_for_ticket, verdict_error
     # et al.) factored from verdict.py to the chain tool. Still tree-free:

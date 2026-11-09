@@ -1,19 +1,57 @@
 """cairn/tools/edges/edges.py — the frontier projector, compiled from charters and questions.
 
-The cairnmap move applied to the frontier: gather every charter's ``filed_edges``
-plus the open-*.json questions from CairnCommons, compile one surface. Zero
-inference, mutates nothing.
+Gather every charter's ``filed_edges`` plus the open-*.json questions from
+CairnCommons, compile one surface. Zero inference, mutates nothing. The charter walk
+and the roots are edges' own (ticket d547b4859f9a moved them here when the tool it
+borrowed them from retired).
 """
 
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
-from cairn.tools.cairnmap import cairnmap
-
 WIDTH = 78
+CHARTER = "intention+why.json"
+
+
+# ── the world ────────────────────────────────────────────────────────────────
+# Override the parent of the two roots and the whole module runs against a temp world,
+# never the live tree (the seam its proofs stand on).
+
+def roots_parent() -> Path:
+    override = os.environ.get("CAIRN_ROOTS_PARENT")
+    if override:
+        return Path(override)
+    return Path(__file__).resolve().parents[4]        # cairn/tools/edges/ -> cairn/ -> repo -> parent
+
+
+def repo_root() -> Path:
+    return roots_parent() / "cairn"
+
+
+def commons_root() -> Path:
+    return roots_parent() / "CairnCommons"
+
+
+def _charters(repo: Path | None = None) -> tuple[list[dict], list[str]]:
+    """Every charter under the repo, sorted by path. An unparseable one is a RED, never a
+    skip (Law 7), and still gets a stub entry so the frontier shows the wreck's address."""
+    repo = repo or repo_root()
+    charters, reds = [], []
+    for path in sorted(repo.rglob(CHARTER)):
+        if any(part.startswith(".") or part == "__pycache__" for part in path.parts):
+            continue
+        rel = path.relative_to(repo)
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            reds.append(f"unreadable charter: {rel} — {type(exc).__name__}: {exc}")
+            data = {}
+        charters.append({"path": path, "rel": str(rel), "dir": str(rel.parent), "data": data})
+    return charters, reds
 
 
 def gather_edges(repo: Path | None = None) -> tuple[list[dict], list[str]]:
@@ -23,7 +61,7 @@ def gather_edges(repo: Path | None = None) -> tuple[list[dict], list[str]]:
     "text": str}`` where *label* is the ``(a)``-style prefix if present and
     *text* is the full edge string.
     """
-    charters, reds = cairnmap.gather(repo)
+    charters, reds = _charters(repo)
     edges: list[dict] = []
     for c in charters:
         filed = c["data"].get("filed_edges", [])
@@ -47,7 +85,7 @@ def gather_questions(commons: Path | None = None) -> tuple[list[dict], list[str]
     Returns ``(questions, reds)``.  Each question carries its parsed data plus
     a ``"resolved"`` key (truthy when the question has a resolution).
     """
-    root = commons or cairnmap.commons_root()
+    root = commons or commons_root()
     qdir = root / "questions"
     questions: list[dict] = []
     reds: list[str] = []

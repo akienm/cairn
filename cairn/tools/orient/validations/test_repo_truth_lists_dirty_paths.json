@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_repo_truth_lists_dirty_paths.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-07T14:50:04",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-08T17:44:50",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_dirty_lists_modified_untracked_and_rename_destination\n.\n  ok   test_dirty_paths_still_counts_porcelain_lines\n.\n  ok   test_a_clean_repo_lists_nothing\n                                                                      [100%]\n3 passed in 0.06s",
+      "stdout_tail": ".\n  ok   test_dirty_lists_modified_untracked_and_rename_destination\n.\n  ok   test_dirty_paths_still_counts_porcelain_lines\n.\n  ok   test_a_clean_repo_lists_nothing\n                                                                      [100%]\n3 passed in 0.07s",
       "stderr_tail": "",
       "teeth_green": [
         "test_dirty_lists_modified_untracked_and_rename_destination",
@@ -15,10 +15,10 @@
         "test_a_clean_repo_lists_nothing"
       ],
       "teeth_red": [],
-      "test": "test-86f279ed7f2b",
+      "test": "test-9ed8c8cde3b4",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
@@ -28,28 +28,36 @@
         "proof": "30df8a6a731e87187c4c8a5bce83c05b9add74d3d291ab6853a21ecc84a10b7d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-86f279ed7f2b",
-      "source_fingerprint": "a292c0b66f8b6831e3632159aa9fe4bbab772475c47027273244724c4eb96943",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9ed8c8cde3b4",
+      "source_fingerprint": "bafaf6a4be32614b87620e835ca72b0e78020b00168bfed313f5451235d2b6e2",
       "fingerprint_closure": [
         "cairn/tools/orient/__init__.py",
         "cairn/tools/orient/orient.py",
         "cairn/tools/orient/proofs/test_repo_truth_lists_dirty_paths.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
+        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-110463-7b1r018c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1236177-hv767tze/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,30 +66,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 103748508,
-          "disk_bytes": 125243392,
-          "entries": 8821,
+          "bytes": 119924310,
+          "disk_bytes": 154529792,
+          "entries": 13492,
           "builds": 1,
-          "reuses": 0
+          "reuses": 81
         }
       },
-      "hollow": {
-        "5ea592dc82ca": {
-          "cairn/tools/orient/orient.py": [
-            "test_a_clean_repo_lists_nothing",
-            "test_dirty_lists_modified_untracked_and_rename_destination",
-            "test_dirty_paths_still_counts_porcelain_lines"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5ea592dc82ca": {
-          "anchor_rule": "journal",
-          "anchor_journal": "19a3cc776fc5042482dd26e84e8fc82482cd1f5b",
-          "anchor_first_build": "79a43b19637ccede7942d334dee2a62ba58d3029",
-          "commit": "19a3cc776fc5042482dd26e84e8fc82482cd1f5b"
-        }
-      }
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

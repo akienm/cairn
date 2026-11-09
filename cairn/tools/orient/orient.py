@@ -162,7 +162,7 @@ def _census_of(root: Path) -> dict:
     # two tests select the SAME 23 directories (no row added, none dropped), and under
     # skills/ the charter test finds the 9 that were invisible. Kept as a UNION, not a
     # swap — a directory with .py and no charter must stay visible, because
-    # charter_on_disk=False on a real row is exactly the finding cairnmap --gate reads.
+    # charter_on_disk=False on a real row is the finding: a component standing with no charter.
     # AN UNREADABLE DIRECTORY IS MEASURED, NOT FATAL — and never silently skipped.
     # Measured 2026-08-03: ``Path.is_file()`` PROPAGATES PermissionError here, so a single
     # unreadable sibling (systemd's per-service private dirs under /tmp) crashed the whole

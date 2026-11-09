@@ -376,7 +376,7 @@ def component_dir(name: str, pkg_root: Path | str | None = None) -> Path | None:
     THE RUNG IS NOT PART OF THE NAME, and this is the function that keeps it that way.
     Before 2026-08-13 a caller holding a component NAME could build its path by
     concatenation — ``cairn/<name>/`` — and several did (``chart/constrain`` reading a
-    ref's charter, ``cairnmap/cli`` resolving a bare argument). After the move that
+    ref's charter, the old help map's CLI resolving a bare argument). After the move that
     concatenation is a guess about which rung, and a wrong guess reads as "no charter
     there", which is a red about the component rather than about the caller.
 

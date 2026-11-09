@@ -157,7 +157,7 @@ def main() -> None:
     #      empty and the build gate refused an address it could not measure. Both halves
     #      are pinned here because the union is the point: the charter admits the
     #      markdown-implemented component, AND the charterless .py directory stays
-    #      visible (dropping it would blind cairnmap --gate to exactly the row it reads).
+    #      visible (dropping it would hide exactly a component standing with no charter).
     tooth('7b — A COMPONENT IS NOT A PYTHON PACKAGE. Widened 2026-08-01 at the first skill to')
     markdowncomp = root / "zz_markdown_only"
     (markdowncomp / "proofs").mkdir(parents=True)

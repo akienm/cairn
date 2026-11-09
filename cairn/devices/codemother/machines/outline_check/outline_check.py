@@ -32,6 +32,7 @@ HERE = Path(__file__).resolve().parent
 PROMPT_PATH = HERE / "prompt.md"
 SCHEMA_PATH = HERE / "schema.json"
 OUTLINE_NAME = "CairnComponentOutline.txt"
+OUTLINE_HOME = "press_office"  # moved from the commons root, Akien 2026-11-09
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
 SOURCE = "outline_check"
 READS = 2       # D6: a read that fails the schema is read once more, then the run is ran:false
@@ -175,12 +176,18 @@ def _open_q(ticket: str, o: dict) -> str:
             f'open: "{o["text"]}" What is the answer?')
 
 
+def outline_file() -> Path:
+    """The outline: ``<cairn>/press_office/CairnComponentOutline.txt`` in the world the door
+    is pointed at (Akien moved it out of the commons root, 2026-11-09)."""
+    return door.roots()["cairn"] / OUTLINE_HOME / OUTLINE_NAME
+
+
 def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | None = None) -> dict:
     """Read ``ticket`` beside the outline, open what stands, write the record. Returns
     ``{'path', 'record', 'qids'}`` — ``qids`` is each conflict's then each open question's
     question id, in record order (the record keeps D11's fields only)."""
     base = commons(root)
-    outline_path = base / OUTLINE_NAME
+    outline_path = outline_file()
     tk = ticket_file(ticket, root)
     if tk is None:
         raise door.Refused(f"no ticket {ticket!r} under {base / 'tickets'}")

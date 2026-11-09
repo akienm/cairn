@@ -251,7 +251,7 @@ that is neither a file nor a `none, because <X>` with a resolvable referent. On 
 prints the path it wrote (`CairnCommons/tickets/<id>-<slug>.json`, the slug derived
 from the title) and stamps `cast` with today's date.
 
-**Check it against the outline** (ticket c66b25d122e6; outline 10.3.5.1). Right after `cairn cast` prints the path, run `cairn outlinecheck <id>`. The cheapest reader reads the ticket beside `CairnCommons/CairnComponentOutline.txt` as it stands; each outline line the ticket contradicts, and each open `[Q#n]` in a section it touches, opens a question on the ticket. The BUILDME lane `the_ticket_was_checked_against_the_outline` refuses a ticket no check has read, and `the_ticket_has_every_answer_it_needs` holds it while those questions stand.
+**Check it against the outline** (ticket c66b25d122e6; outline 10.3.5.1). Right after `cairn cast` prints the path, run `cairn outlinecheck <id>`. The cheapest reader reads the ticket beside `press_office/CairnComponentOutline.txt` as it stands; each outline line the ticket contradicts, and each open `[Q#n]` in a section it touches, opens a question on the ticket. The BUILDME lane `the_ticket_was_checked_against_the_outline` refuses a ticket no check has read, and `the_ticket_has_every_answer_it_needs` holds it while those questions stand.
 
 The artifact door's journal line —
 verb `cast`, `sha_before` absent, this function's own frame in the stack — IS the

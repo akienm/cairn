@@ -74,6 +74,46 @@
           "builds": 1,
           "reuses": 20
         }
+      },
+      "hollow": {
+        "5183005fa134": {
+          "cairn/tools/bus_client/remote.py": [
+            "the LAN port answers only a pinned box and refuses plain TCP",
+            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
+            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
+          ],
+          "cairn/devices/cairn/machines/bus/server.py": [
+            "the LAN port answers only a pinned box and refuses plain TCP",
+            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
+            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
+          ],
+          "cairn/tools/bus_client/tls.py": [
+            "test_a_box_pins_its_peers",
+            "the LAN port answers only a pinned box and refuses plain TCP",
+            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
+            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
+          ],
+          "cairn/machines/installer/installer.py": {
+            "notified": "n-03fccecfe830"
+          },
+          "cairn/machines/installer/proofs/test_installer.py": [
+            "cairn/machines/installer/proofs/test_installer.py::test_box_identity_step"
+          ],
+          "cairn/machines/build_inspector/inspector.py": {
+            "notified": "n-ad563a7c17e0"
+          },
+          "cairn/devices/inference_domain/proofs/test_host.py": {
+            "notified": "n-b708eaabdd00"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "5183005fa134": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "0e9f98afa9a889f5805aef10b333dee14fd8be94",
+          "anchor_first_build": "8d54f46e76ca16891315f45e681fb0b680a06f74",
+          "commit": "a12fa122ddf3722b08169ea058cbc13d259e2cdf"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

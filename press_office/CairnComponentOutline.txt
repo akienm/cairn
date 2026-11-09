@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 79. An answered question disappears:
+      takes the next unused number, which is 80. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1518,6 +1518,30 @@ not matter here. The code catches up to this, never the reverse.
     17.27.4 Each metric name is declared, with its consumer, in the charter of
             the component that records it. A name with no consumer is a red.
     17.27.5 Rows are kept forever: they are small, and the table is the history.
+  17.28 reference: points at a value instead of holding it. [Q#79: is this THE way
+        Cairn refers to config data, everywhere? Proposed below (CC and Akien
+        2026-11-09, grown from CC0AC-Weather 1.4.8's secrets.env).] WHY: a config
+        in class-space can then say WHERE a private value lives without carrying
+        it, so the repo stays shareable and the value stays in ~/.cairn: the split
+        between the roots, written as a value. USERS: anything that reads config.
+    17.28.1 A value may be written file:<path>#<item>. #KEY names a NAME=value line
+            (an .env file); #/a/b is a JSON Pointer into a .json file (the
+            standard meaning of a fragment on JSON). A path that is not absolute
+            starts beside the file holding the reference; on Windows,
+            file:///C:/...
+    17.28.2 One resolver reads it, when the value is used, and never stores what it
+            read. A reference that does not resolve is loud and names the
+            reference, never a value.
+    17.28.3 A secret comes back as a Secret: its str is ********** (and so are its
+            repr and format, so a log line or an f-string cannot show it); .secret
+            fetches the value from the file at that moment. WHY: printing it by
+            mistake shows stars, and every place that unmasks a secret is a
+            .secret anyone can grep for. Akien 2026-11-09. Prior art: pydantic's
+            SecretStr (cited, not grafted).
+    17.28.4 Required only where the value is private, lives in instance-space, or
+            has several readers that need one source; a plain value stays plain.
+            A sieve reds a class-space config holding a plain value under a key
+            that names a secret.
 
 18 PRESS OFFICE (press_office/, a top-level folder in the repo)
   18.1 PURPOSE: Talking to the world: how we explain to others how to use Cairn.

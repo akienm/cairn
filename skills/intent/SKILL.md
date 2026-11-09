@@ -142,7 +142,7 @@ The packet is a JSON object carrying, exactly:
 - **bullets** — a list of `{"text": ..., "stratum": "code"|"tree"}`: what this
   firing learned that Akien should see. **Forced at BOTH exits** — a node killed
   at /intent with no record of why teaches nobody. It stands at his gate until
-  `cairn recordverdict` names it.
+  `cairn review` names it.
 
 The contract is read from this skill's own charter (`intention+why.json`,
 `input_contract`), not from code — run `python3 -m cairn.machines.skill_block contract

@@ -47,20 +47,21 @@ report from memory or from the session-open scrollback**, which may be hours sta
 ### 1. RULINGS — first, because this is the bulk of the answer
 
 ```bash
-bin/cmd/recordverdict
+bin/cmd/review
 ```
 
-Bare = list the gate: every finding awaiting Akien's approve / disprove / question.
+Bare = list the gate: every artifact awaiting Akien's review (`cairn review <id> "<words>"`).
 Report the **count and the age of the oldest**, not the whole list — the list is what
 the one-question-at-a-time loop is for.
 
 These are **not backlog**. Akien, same ruling: he wants to be rid of rulings *"thru
-learning not removal"* — so each verdict he gives is a training pair for whatever
+learning not removal"* — so each review he gives is a training pair for whatever
 eventually stands at that gate for him. Draining this queue **is** the build, not
 bookkeeping around it.
 
-Read the dial too (`bin/cmd/skilldial`, or `learning_block.dial(block)`), and read it
-**skeptically**: a `match_rate` of 1.0 computed with zero disproves is a rate that has
+Read the dial too (`bin/cmd/skilldial`, or `learning_block.dial(block)`) — it reads the
+approve/disprove records the retired intake left (ticket e5a8e8059296), frozen since
+2026-08-28 — and read it **skeptically**: a `match_rate` of 1.0 computed with zero disproves is a rate that has
 never seen its other outcome. Say so when it happens.
 
 ### 2. ALARMS — second
@@ -122,7 +123,7 @@ The packet carries, exactly:
 
 ```json
 {
-  "rulings":   {"ran": "bin/cmd/recordverdict", "count": 0, "oldest_id": "<id>"},
+  "rulings":   {"ran": "bin/cmd/review", "count": 0, "oldest_id": "<id>"},
   "alarms":    {"ran": ["bin/cmd/slate", "bin/cmd/probescan", "bin/cmd/test -q"],
                 "live_troubles": ["<id>", "..."],
                 "probes": "<what probescan reported>",
@@ -161,8 +162,8 @@ format he asked for by name.
 
 Pick the question whose answer is most valuable **if it is the only one you get.**
 
-If the honest next move is a ruling rather than a design question, present the finding
-and take the verdict — that is still one question at a time, and it is the one he asked
+If the honest next move is a ruling rather than a design question, present the artifact
+and take his review — that is still one question at a time, and it is the one he asked
 for first.
 
 ## Stay honest

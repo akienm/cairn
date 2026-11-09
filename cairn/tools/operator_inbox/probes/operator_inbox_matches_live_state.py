@@ -53,7 +53,7 @@ def _check_all() -> dict:
 
     # the "adjudications" section IS the review lane now (pending_reviews, since ticket
     # slate-compiles-from-the-world's successor made findings berths); the old
-    # learning_block.pending_findings read 0 against the lane's 34 on 2026-09-15. The
+    # learning block's findings reader (retired, ticket e5a8e8059296) read 0 against the lane's 34 on 2026-09-15. The
     # independent read walks the berth root by hand: every berth doc not in his reviewed
     # log, not under an auto-drain skill, and not named by a terminal ticket (ticket
     # fb988505c5cb: measurement drains the lane).

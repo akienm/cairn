@@ -2,7 +2,7 @@
 
 The system hands its one human reader ids and slugs it never taught him to open —
 the 2026-08-15 curated review handed him 17 finding ids and itself recorded that
-``cairn recordverdict <id>`` alone won't show their bullets (the lived symptom;
+the approve/disprove command (retired since, ticket e5a8e8059296) alone won't show their bullets (the lived symptom;
 ticket tellmeabout). This floor answers the token: it searches the record stores,
 and returns exactly one of three shapes —
 
@@ -10,7 +10,7 @@ and returns exactly one of three shapes —
                summary), at its address, with the act it is waiting on
   refused    — the token names more than one record: refuse by LISTING every match
                with its store and address, never guess (one discipline, third
-               tenant — recordverdict's multi-match refusal and the orient floor's
+               tenant — the retired approve/disprove intake's multi-match refusal and the orient floor's
                two-rungs refusal are the precedents)
   not_found  — nothing answers: name EVERY store searched, so a store this
                resolver misses is visible, never silent
@@ -80,18 +80,12 @@ def _find_findings(token: str) -> list[dict]:
     base = lb.trace_root()
     if not base.is_dir():
         return []
-    matches, answered = [], set()
+    matches = []
     for path in sorted(base.glob("*.jsonl")):
         for rec in lb.read_trace(path.stem, root=base):
-            if rec.get("event") == "verdict":
-                data = rec.get("data") or {}
-                if data.get("signal") in ("approve", "disprove") and data.get("finding_id"):
-                    answered.add(data["finding_id"])
-            elif rec.get("event") == "finding" and str(rec.get("id", "")).startswith(token):
+            if rec.get("event") == "finding" and str(rec.get("id", "")).startswith(token):
                 matches.append({"store": "findings", "name": rec.get("id"),
                                 "address": str(path), "record": rec})
-    for m in matches:
-        m["pending"] = m["name"] not in answered
     return matches
 
 
@@ -139,10 +133,8 @@ def _present(m: dict) -> dict:
     store = m["store"]
     if store == "findings":
         rec = m["record"]
-        waiting = (
-            'Akien\'s verdict — answer with: cairn recordverdict %s <approve|disprove|question> "<your words>"'
-            % m["name"] if m["pending"]
-            else "nothing — an approve/disprove has answered it (the verdict record lives under CairnCommons/learning/records)")
+        waiting = ("nothing — the approve/disprove intake retired (ticket e5a8e8059296); any answer "
+                   "it took is in the verdict records under CairnCommons/learning/records")
         return {"found": {"store": store, "id": m["name"], "address": m["address"],
                           "record": rec, "waiting_on": waiting}}
     if store == "tickets":

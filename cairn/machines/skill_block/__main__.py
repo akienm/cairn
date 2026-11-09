@@ -21,7 +21,7 @@ import json
 import sys
 from pathlib import Path
 
-from cairn.machines.learning_block.learning_block import DoorRefused, FindingRefused
+from cairn.machines.learning_block.learning_block import DoorRefused
 from cairn.tools.system_word import fold, is_word
 from cairn.machines.skill_block.skill_block import (
     SkillBlockRefused, fire, load_contract,
@@ -120,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
                 + "\n".join(lines)
                 + "\n(the refusal is recorded; fix the packet and fire again)"
             )
-        except (SkillBlockRefused, FindingRefused) as exc:
+        except SkillBlockRefused as exc:
             return _refuse(str(exc))
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0

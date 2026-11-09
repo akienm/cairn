@@ -1,7 +1,7 @@
 """Proof for cairn/machines/learning_block — teeth a hollow block could not pass.
 
 Runs against injected roots (CAIRN_LB_TRACE_ROOT never set here — every call
-passes root=/records_dir= explicitly into a temp world); the live trace berth
+passes root= explicitly into a temp world); the live trace berth
 and the real learning store are never read or written. NON-VACUITY is
 structural: green paths are asserted before each refusal tooth, so a gate that
 refuses everything fails the first half and one that passes everything fails
@@ -127,48 +127,7 @@ def test_hollow_contract_is_refused():
         assert "WHY" in str(e.lacks[0]["why"]) or e.lacks[0]["field"] == "field"
 
 
-# ── finding teeth ────────────────────────────────────────────────────────────
-
-def test_finding_round_trips_with_closed_strata():
-    root = world()
-    rec = lb.emit_finding("blk", [{"text": "the door refused twice", "stratum": "code"},
-                                  {"text": "kin to needs.mark", "stratum": "tree"}],
-                          now=NOW, root=root)
-    got = lb.read_trace("blk", root=root)[-1]
-    assert got["data"]["bullets"] == rec["data"]["bullets"], "emit-retrieve equality"
-    assert all(b["stratum"] in lb.STRATA for b in got["data"]["bullets"])
-
-
-def test_untagged_and_invented_strata_are_refused_naming_the_bullet():
-    for bad, needle in (({"text": "naked"}, "stratum"),
-                        ({"text": "vibes", "stratum": "gut"}, "gut"),
-                        ({"stratum": "code"}, "no text")):
-        try:
-            lb.emit_finding("blk", [{"text": "fine", "stratum": "code"}, bad],
-                            now=NOW, root=world())
-            raise AssertionError(f"bullet {bad} must be refused")
-        except lb.FindingRefused as e:
-            assert "bullet 1" in str(e), f"the refusal must NAME the bullet: {e}"
-            assert needle in str(e) or "text" in str(e)
-
-
-def test_hex_only_via_the_seam():
-    root = world()
-    try:
-        lb.emit_finding("blk", [{"text": "i asked an llm, trust me", "stratum": "hex"}],
-                        now=NOW, root=root)
-        raise AssertionError("a hand-authored hex bullet is invented provenance")
-    except lb.FindingRefused as e:
-        assert "hex" in str(e)
-    rec = lb.emit_finding("blk", [{"text": "floor says fine", "stratum": "code"}],
-                          hex_source=lambda: ["the llm noticed a smell"], now=NOW, root=root)
-    strata = [b["stratum"] for b in rec["data"]["bullets"]]
-    assert strata == ["code", "hex"], f"stub seam bullets land tagged hex: {strata}"
-    rec2 = lb.emit_finding("blk", [{"text": "no seam today", "stratum": "code"}],
-                           now=NOW, root=root)
-    assert all(b["stratum"] != "hex" for b in rec2["data"]["bullets"]), \
-        "no injected callable -> zero hex bullets, ever"
-
+# ── seam teeth ───────────────────────────────────────────────────────────────
 
 def test_module_imports_no_inference_client():
     """Scoped to IMPORT LINES, not prose — the docstring rightly NAMES
@@ -182,68 +141,10 @@ def test_module_imports_no_inference_client():
             f"the seam POINTS at inference_domain; the wiring stays behind that door: {hit}"
 
 
-# ── verdict teeth ────────────────────────────────────────────────────────────
-
-def _finding(root):
-    return lb.emit_finding("blk", [{"text": "b1", "stratum": "code"}], now=NOW, root=root)
-
-
-def test_verdict_conforms_to_the_stores_v0_shape():
-    root, records = world(), world()
-    path = lb.record_verdict("blk", _finding(root), "approve", "CC++ looks right",
-                             session="proof", now=NOW, records_dir=records, trace_dir=root)
-    doc = json.loads(Path(path).read_text())
-    assert set(doc) == {"session", "note", "records"}, "the store's nesting, exactly"
-    rec = doc["records"][0]
-    for field in ("id", "date", "session", "gate", "decision", "signal", "evidence",
-                  "ceiling", "confidence_move", "note", "provenance"):
-        assert field in rec, f"v0 field missing from the gate-record: {field}"
-    assert rec["evidence"] == "confirmation" and rec["signal"]["kind"] == "approve"
-    assert rec["decision"]["bullets"], "the verdict carries the bullets it judged"
-
-
-def test_approve_and_disprove_recorded_with_equal_fidelity():
-    root, records = world(), world()
-    lb.record_verdict("blk", _finding(root), "approve", "yes", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
-    lb.record_verdict("blk", _finding(root), "disprove", "no — wrong layer", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
-    doc = json.loads((records / f"{NOW.date().isoformat()}-learning-block.json").read_text())
-    kinds = [r["signal"]["kind"] for r in doc["records"]]
-    assert kinds == ["approve", "disprove"], f"greens recorded like reds: {kinds}"
-    assert doc["records"][0]["evidence"] == "confirmation"
-    assert doc["records"][1]["evidence"] == "correction"
-    assert "- fast" in doc["records"][1]["confidence_move"] and \
-           "+ slow" in doc["records"][0]["confidence_move"], \
-        "asymmetric by the store's own guardrail"
-
-
-def test_verdict_without_finding_or_words_is_refused():
-    root, records = world(), world()
-    try:
-        lb.record_verdict("blk", {}, "approve", "yes", session="p",
-                          now=NOW, records_dir=records, trace_dir=root)
-        raise AssertionError("a verdict with no finding context teaches nothing")
-    except lb.VerdictRefused as e:
-        assert "finding" in str(e)
-    try:
-        lb.record_verdict("blk", _finding(root), "approve", "   ", session="p",
-                          now=NOW, records_dir=records, trace_dir=root)
-        raise AssertionError("a verdict without Akien's words is CC's keystroke")
-    except lb.VerdictRefused as e:
-        assert "verbatim" in str(e) or "words" in str(e)
-    try:
-        lb.record_verdict("blk", _finding(root), "maybe", "hmm", session="p",
-                          now=NOW, records_dir=records, trace_dir=root)
-        raise AssertionError("an invented signal must be refused")
-    except lb.VerdictRefused as e:
-        assert "maybe" in str(e)
-
-
 # ── dial teeth ───────────────────────────────────────────────────────────────
 
 def test_dial_equals_a_hand_count_and_updates_on_new_evidence():
-    root, records = world(), world()
+    root = world()
     c = _contract()
     lb.fire_door(c, {"intent": "a", "source": "b"}, now=NOW, root=root)
     lb.fire_door(c, {"intent": "a", "source": "b"}, now=NOW, root=root)
@@ -251,18 +152,18 @@ def test_dial_equals_a_hand_count_and_updates_on_new_evidence():
         lb.fire_door(c, {}, now=NOW, root=root)
     except lb.DoorRefused:
         pass
-    lb.record_verdict("blk", _finding(root), "approve", "yes", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
-    lb.record_verdict("blk", _finding(root), "disprove", "no", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
-    lb.record_verdict("blk", _finding(root), "question", "what is this?", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
+    # the FINDING and VERDICT writers retired (ticket e5a8e8059296); dial counts the
+    # trace events they left, so the fixture writes those events directly
+    for signal in ("approve", "disprove", "question"):
+        f = lb.write_trace("blk", "finding", "training",
+                           {"bullets": [{"text": "b1", "stratum": "code"}]}, now=NOW, root=root)
+        lb.write_trace("blk", "verdict", "training", {"signal": signal, "finding_id": f["id"]},
+                       now=NOW, root=root)
     d = lb.dial("blk", root=root)
     hand = {"firings": 3, "send_backs": 1, "door_passes": 2, "findings": 3,
             "approvals": 1, "disproves": 1, "questions": 1, "match_rate": 0.5}
     assert d == hand, f"the dial must equal the hand-count: {d}"
-    lb.record_verdict("blk", _finding(root), "approve", "yes again", session="p",
-                      now=NOW, records_dir=records, trace_dir=root)
+    lb.write_trace("blk", "verdict", "training", {"signal": "approve"}, now=NOW, root=root)
     d2 = lb.dial("blk", root=root)
     assert d2["approvals"] == 2 and abs(d2["match_rate"] - 2 / 3) < 1e-9, \
         "one more verdict moves exactly the affected numbers"
@@ -320,83 +221,6 @@ def test_shell_door_traces_and_refuses():
     assert d["firings"] == 2 and d["send_backs"] == 1, f"the shell door feeds the dial: {d}"
 
 
-
-def test_pending_findings_rule():
-    """A finding stands at the gate until an approve or disprove names it —
-    a QUESTION does not clear it (a question is asking, not disposing)."""
-    root = world()
-    records = world()
-    a = lb.emit_finding("b1", [{"stratum": "code", "text": "alpha"}], now=NOW, root=root)
-    b = lb.emit_finding("b2", [{"stratum": "code", "text": "beta"}],
-                        now=NOW + timedelta(seconds=1), root=root)
-    c = lb.emit_finding("b2", [{"stratum": "tree", "text": "gamma"}],
-                        now=NOW + timedelta(seconds=2), root=root)
-    lb.record_verdict("b1", a, "approve", "Approved - alpha is right", session="proof",
-                      now=NOW + timedelta(seconds=3), records_dir=records, trace_dir=root)
-    lb.record_verdict("b2", b, "question", "question: why beta?", session="proof",
-                      now=NOW + timedelta(seconds=4), records_dir=records, trace_dir=root)
-    pend = lb.pending_findings(root=root)
-    assert [f["id"] for f in pend] == [b["id"], c["id"]], (
-        f"approve clears, question keeps, unanswered stays — got {[f['id'] for f in pend]}")
-    assert all(f["block"] == "b2" for f in lb.pending_findings("b2", root=root))
-    assert lb.pending_findings("b1", root=root) == [], "b1 was approved — nothing pends"
-
-
-def test_recordverdict_shell_door():
-    """The gate owner's own hand: bare lists, ambiguity refuses LISTING candidates,
-    an invented target refuses against the berth, empty/unparseable words refuse
-    with the lack named, and a recorded verdict derives its gate from the
-    finding's block (the lb-20260801-f4f21cbb mislabel, killed)."""
-    import os as _os
-    import subprocess
-    root = world()
-    parent = world()                      # CAIRN_ROOTS_PARENT -> parent/CairnCommons/learning/records
-    env = dict(_os.environ, CAIRN_LB_TRACE_ROOT=str(root),
-               CAIRN_ROOTS_PARENT=str(parent), PYTHONPATH=str(REPO))
-    run = lambda *args: subprocess.run(  # noqa: E731
-        [sys.executable, "-m", "cairn.machines.learning_block", "recordverdict", *args],
-        env=env, capture_output=True, text=True)
-
-    lb.emit_finding("b1", [{"stratum": "code", "text": "alpha"}], now=NOW, root=root)
-    lb.emit_finding("b2", [{"stratum": "code", "text": "beta"}],
-                    now=NOW + timedelta(seconds=1), root=root)
-
-    r = run()                                            # bare = the gate, listed
-    assert r.returncode == 0 and "2 finding(s)" in r.stdout and "[b1]" in r.stdout
-
-    r = run("Approved - looks right")                    # two pending, no target
-    assert r.returncode == 2 and "[b1]" in r.stderr and "[b2]" in r.stderr, (
-        "an ambiguous act is refused LISTING the candidates")
-
-    r = run("nope-such-finding", "Approved - x")         # invented target
-    assert r.returncode == 2 and "matches nothing pending" in r.stderr
-
-    r = run("")                                          # empty words
-    assert r.returncode == 2 and "empty" in r.stderr
-
-    r = run("b1", "hmm interesting")                     # words say no signal
-    assert r.returncode == 2 and "no signal" in r.stderr
-
-    r = run("b1", "Approved - alpha holds")              # the act, from the shell
-    assert r.returncode == 0 and "approve" in r.stdout, r.stderr
-    store = parent / "CairnCommons" / "learning" / "records"
-    docs = list(store.glob("*.json"))
-    assert len(docs) == 1, f"one store file: {docs}"
-    rec = json.loads(docs[0].read_text())["records"][-1]
-    assert rec["gate"] == "b1", "the gate is DERIVED from the finding's block, never typed"
-    assert rec["signal"]["verbatim"] == "Approved - alpha holds"
-    assert rec["session"].startswith("shell:"), "a shell act says it came from the shell"
-
-    r = run("b2", "question", "question or not, why beta?")   # explicit signal
-    assert r.returncode == 0
-    r = run()
-    assert "1 finding(s)" in r.stdout and "[b2]" in r.stdout, (
-        "a question keeps the finding at the gate")
-
-    r = run("b2", "disprove", "no - beta is wrong")
-    assert r.returncode == 0
-    r = run()
-    assert "nothing stands at the gate" in r.stdout
 
 
 # ── engine teeth (ticket engine-runs-one-block, 2026-08-02) ──────────────────

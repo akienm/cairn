@@ -32,12 +32,12 @@ returns exactly one of three shapes.
   as the store holds them — quote, never paraphrase: the moment it is summarized
   it becomes a translation wearing the source's clothes, for the one reader who
   most needs the source), its **address**, and the **act it is waiting on**
-  (for a pending finding that is the ready-to-paste `cairn recordverdict …`
-  command). You MAY add orientation *around* the record — what was happening
+  (for a finding, nothing: the approve/disprove intake retired with ticket
+  e5a8e8059296, and `cairn review` is the one gate act). You MAY add orientation *around* the record — what was happening
   that day, what neighbors it — clearly separated from the quoted record.
 - **refused** — more than one record answers. Show the listing as-is (store +
   name + address per match) and let him pick the fuller token. Never guess —
-  one discipline, third tenant (recordverdict's multi-match refusal and the
+  one discipline, third tenant (the retired approve/disprove intake's multi-match refusal and the
   orient floor's two-rungs refusal are the precedents).
 - **not_found** — nothing answers. Show the stores searched, all six. If the
   token *should* exist somewhere, that is a finding about the stores — say so

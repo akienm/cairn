@@ -18,8 +18,9 @@ both numbers named.
 **IT COMPOSES THE READERS, IT DOES NOT RE-DERIVE THEM** (Law 1, Law 6). Three of the
 four gathers already have an owner:
 
-  - RULINGS → ``learning_block.pending_findings`` — the primitive owns pendingness (a
-    question keeps a finding at the gate; only approve/disprove clear it).
+  - RULINGS → ``skill_block.pending_reviews`` — the review lane owns pendingness (an
+    artifact stands until ``cairn review`` names it or its ticket drains it). The
+    approve/disprove intake it replaced retired with ticket e5a8e8059296 (outline 5.10.8).
   - ALARMS (the trouble half) → ``TroubleDevice.live`` — the lane owns what LIVE means,
     and counts a missing or malformed standing as live on purpose.
   - THE SLATE and the OPEN QUESTIONS → ``bin/cmd/slate``'s own ``_newest_slate`` and
@@ -65,7 +66,7 @@ JUDGE_NAME = "whatslefttodo-door"
 # The four gathers in Akien's ruled order, each bound to the instrument SKILL.md names.
 # The order is HIS (charter `owner`): CC may not re-order, add a fifth, or drop one.
 INSTRUMENTS = {
-    "rulings": ("recordverdict",),
+    "rulings": ("review",),
     "alarms": ("slate", "probescan", "test"),
     "questions": ("questions",),
     "slate": ("slate",),
@@ -101,10 +102,10 @@ def measure_the_world() -> dict:
     out: dict = {}
 
     try:
-        from cairn.machines.learning_block.learning_block import pending_findings
-        pend = pending_findings()
+        from cairn.machines.skill_block.skill_block import pending_reviews
+        pend = pending_reviews()
         out["rulings_count"] = len(pend)
-        out["rulings_oldest_id"] = pend[0]["id"] if pend else None
+        out["rulings_oldest_id"] = pend[0]["berth_id"] if pend else None
     except Exception as exc:                          # noqa: BLE001 — loud, never silent
         out["rulings_unreachable"] = f"the gate could not be read — {exc!r}"
 
@@ -196,14 +197,14 @@ def judge_packet(payload: dict, *, world: dict | None = None) -> list[dict]:
                 if gather.get("count") != w["rulings_count"]:
                     lacks.append({"field": "rulings",
                                   "why": f"reports count={gather.get('count')!r}; the gate "
-                                         f"holds {w['rulings_count']} findings at this "
+                                         f"holds {w['rulings_count']} artifacts awaiting review at this "
                                          "instant. A stale count is the half of this "
                                          "skill's tracked debt that presence alone cannot "
-                                         "catch — re-run recordverdict and refire."})
+                                         "catch — re-run bin/cmd/review and refire."})
                 if gather.get("oldest_id") != w["rulings_oldest_id"]:
                     lacks.append({"field": "rulings",
                                   "why": f"reports oldest_id={gather.get('oldest_id')!r}; the "
-                                         f"oldest finding standing at the gate is "
+                                         f"oldest artifact awaiting review is "
                                          f"{w['rulings_oldest_id']!r}. The id is asked for "
                                          "rather than the age because a count can be copied "
                                          "off a banner and an id cannot: it is only in the "

@@ -364,20 +364,6 @@ def test_no_akien_in_headers():
                 f"Header uses 'Akien' instead of 'Operator': {line}"
 
 
-def test_emit_finding_subject_kwarg():
-    from cairn.machines.learning_block.learning_block import emit_finding
-    import tempfile
-    with tempfile.TemporaryDirectory() as td:
-        root = Path(td)
-        rec_with = emit_finding('test:subj', [{'text': 'b', 'stratum': 'code'}],
-                                subject='the aim in plain words', root=root)
-        assert rec_with['data']['subject'] == 'the aim in plain words'
-
-        rec_without = emit_finding('test:nosubj', [{'text': 'b', 'stratum': 'code'}],
-                                   root=root)
-        assert 'subject' not in rec_without['data']
-
-
 def test_adjudication_shows_berth_and_skill():
     finding_a = {
         'berth_id': 'aabbccddee00',

@@ -75,20 +75,13 @@ def main() -> int:
     before = snapshot_stores()
 
     # ── verbatim-or-nothing over a finding, picked dynamically ──
-    # PENDING IS A PREFERENCE, NOT THE POPULATION. This block used to red outright when
-    # `pending_findings()` came back empty — but "no finding is awaiting a verdict" is
-    # the store's HEALTHY state, not a broken resolver. Measured 2026-09-08: 0 pending
-    # against 351 findings total, so the tooth was reading Akien's inbox being clear as
-    # a defect in tellmeabout. What the tooth is actually for is the verbatim contract —
-    # the record the resolver hands back must EQUAL the store's own — and any of the 351
-    # exercises that. The only honest red here is a store holding NO findings at all.
+    # What the tooth is for is the verbatim contract — the record the resolver hands back
+    # must EQUAL the store's own — and any finding exercises that. The only honest red
+    # here is a store holding NO findings at all. Nothing can be pending any more: the
+    # approve/disprove intake retired (ticket e5a8e8059296), so every finding is owed nothing.
     all_finding_recs = [r for path in sorted(lb.trace_root().glob("*.jsonl"))
                         for r in lb.read_trace(path.stem) if r.get("event") == "finding"]
-    pend = lb.pending_findings()
-    pending_ids = {p["id"] for p in pend}
-    pick = (pend[0]["id"] if pend
-            else next((r.get("id") for r in all_finding_recs
-                       if isinstance(r.get("id"), str)), None))
+    pick = next((r.get("id") for r in all_finding_recs if isinstance(r.get("id"), str)), None)
     if pick:
         fid = pick
         got = resolve(fid)
@@ -98,19 +91,11 @@ def main() -> int:
             store_rec = next((r for r in all_finding_recs if r.get("id") == fid), None)
             tooth("finding record EQUAL to the store's own record (verbatim tooth)",
                   got["found"]["record"] == store_rec)
-            # The waiting act SPLITS on pendency, so the tooth splits with it — asserting
-            # the recordverdict call on an already-answered finding would be asserting the
-            # resolver lies about what is owed.
-            if fid in pending_ids:
-                tooth("pending finding carries its waiting act (recordverdict named with the id)",
-                      fid in got["found"]["waiting_on"]
-                      and "recordverdict" in got["found"]["waiting_on"],
-                      got["found"]["waiting_on"])
-            else:
-                tooth("answered finding says nothing is owed, and says why",
-                      "nothing" in got["found"]["waiting_on"]
-                      and "verdict record" in got["found"]["waiting_on"],
-                      got["found"]["waiting_on"])
+            tooth("a finding says nothing is owed, and says why",
+                  "nothing" in got["found"]["waiting_on"]
+                  and "e5a8e8059296" in got["found"]["waiting_on"]
+                  and "verdict records" in got["found"]["waiting_on"],
+                  got["found"]["waiting_on"])
             tooth("finding carries its address (a real file)",
                   os.path.isfile(got["found"]["address"]))
     else:

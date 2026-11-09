@@ -77,7 +77,7 @@ BULLETS = [{"text": "the gather ran; nothing surprised it", "stratum": "code"}]
 def packet_for(world: dict) -> dict:
     """The packet an honest firing would carry against ``world``."""
     return {
-        "rulings": {"ran": "bin/cmd/recordverdict",
+        "rulings": {"ran": "bin/cmd/review",
                     "count": world["rulings_count"],
                     "oldest_id": world["rulings_oldest_id"]},
         "alarms": {"ran": ["bin/cmd/slate", "bin/cmd/probescan", "bin/cmd/test -q"],
@@ -133,7 +133,7 @@ def main() -> int:
     lacks = door.judge_packet(p, world=WORLD)
     ok("a gather with no 'ran' is refused", any(l["field"] == "rulings" for l in lacks))
     ok("and the refusal names the missing instrument",
-       "recordverdict" in whys(lacks, "rulings"), whys(lacks, "rulings"))
+       "review" in whys(lacks, "rulings"), whys(lacks, "rulings"))
 
     p = packet_for(WORLD)
     p["alarms"]["ran"] = ["bin/cmd/slate"]                        # two of three run
@@ -237,7 +237,7 @@ def main() -> int:
            and not w["newest_slate"].startswith("_"))
 
     live_packet = {
-        "rulings": {"ran": "bin/cmd/recordverdict", "count": w.get("rulings_count"),
+        "rulings": {"ran": "bin/cmd/review", "count": w.get("rulings_count"),
                     "oldest_id": w.get("rulings_oldest_id")},
         "alarms": {"ran": ["bin/cmd/slate", "bin/cmd/probescan", "bin/cmd/test -q"],
                    "live_troubles": list(w.get("live_troubles") or []),

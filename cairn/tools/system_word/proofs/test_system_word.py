@@ -67,7 +67,8 @@ PROVES = {
         "1": "test_the_real_harbor_master_takes_uppercase_show_map_open",
         "2": "test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag",
         "3": "test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix",
-        "4": "test_learning_block_takes_uppercase_recordverdict_and_signal",
+        # clause 4 (the learning block's approve/disprove verb) retired with that verb,
+        # ticket e5a8e8059296 (outline 5.10.8); the fold it measured stands in clause 3's review tooth.
         "5": "test_ground_loop_takes_uppercase_help_and_status_word",
         "6": "test_base_device_show_and_shim_verb_fold",
         "9": "test_bin_cairn_the_file_and_cairn_the_command_are_untouched",
@@ -307,19 +308,6 @@ def test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix():
             f"an uppercase id prefix must resolve the lowercase berth: rc={rc} {err!r}")
 
 
-def test_learning_block_takes_uppercase_recordverdict_and_signal():
-    from cairn.machines.learning_block.__main__ import main
-    with tempfile.TemporaryDirectory() as d:
-        env = {"CAIRN_LB_TRACE_ROOT": os.path.join(d, "traces"),
-               "CAIRN_ROOTS_PARENT": d}
-        _same(main, ["recordverdict"], ["RECORDVERDICT"], **env)
-        # bare 'approve' with an explicit uppercase signal and words: nothing pending, so the
-        # refusal must be about the TARGET/berth, never 'no signal' — proof the signal folded.
-        rc, out, err = _drive(main, ["RECORDVERDICT", "APPROVE", "these are his words"], **env)
-        assert rc == 2 and "no signal" not in err, err
-        _same(main, ["dial", "sorted"], ["DIAL", "sorted"], **env)
-
-
 def test_orient_chart_and_librarian_take_uppercase_verbs():
     from cairn.tools.orient import orient
     # the imports verb answers from one file; the git verb reads the commons beside the
@@ -508,7 +496,7 @@ def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():
 # ── wrong intent ───────────────────────────────────────────────
 
 def test_wrong_intent_free_text_lands_byte_identical():
-    """The review words, the recordverdict words, and everything the dispatcher hands past
+    """The review words, and everything the dispatcher hands past
     the verb are HIS BYTES. Any fold here is the wrong intent, ruled out in the ticket."""
     words = "Approve — THIS is Fine, Ship It ß"
     with tempfile.TemporaryDirectory() as d:
@@ -523,7 +511,7 @@ def test_wrong_intent_free_text_lands_byte_identical():
         recs = [json.loads(l) for l in sc.sb._REVIEWED_LOG.read_text().splitlines() if l]
         assert recs and recs[-1]["words"] == words, (
             f"his review words landed changed: {recs[-1]['words']!r}")
-    assert fold_head(["recordverdict", "APPROVE", words], 2)[2] is words
+    assert fold_head(["review", "FEED", words], 2)[2] is words
 
 
 def test_wrong_intent_a_stored_ticket_string_keeps_its_case():

@@ -7,14 +7,14 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 75. An answered question disappears:
+      takes the next unused number, which is 79. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
   0.4 Every entry has a why. [why?] marks one still to be written.
   0.5 Names here are the names we keep. Where the code still says otherwise, the
       code changes.
-  0.6 This file lives at CairnCommons/CairnComponentOutline.txt. It is the map of
+  0.6 This file lives at cairn/press_office/CairnComponentOutline.txt. It is the map of
       the system; there is no other. Git keeps every version.
   0.7 HYPOTHESIS marks a mechanism written as a first draft so that experiments
       have something to be wrong about. It is not a decision; what the experiments
@@ -529,6 +529,16 @@ not matter here. The code catches up to this, never the reverse.
               they serve (RULE 1). `cairn foo` whose first word is not a device
               means `cairn cairn foo`: top-level shortcuts are the cairn device's
               bin/.
+        5.4.3.3.1 [Q#75: Ticket f0ffa0db0952 (a new shortcut in a device's bin/ is
+                  reachable from its instance) was cast with a watch that fires
+                  on the heartbeat, before the ruling that probes fire on events
+                  (5.9). Measured 2026-11-05: 7 of the 9 instance bins are links
+                  to their class bin, so a new shortcut there needs no wiring at
+                  all. CC recommends (a): no watch, and the ticket's four-part
+                  proof is the whole guarantee. Or (b): a watch fired by the
+                  launcher when `cairn <device> <word>` finds nothing while the
+                  class bin has that word, filing a trouble. Which? (Holds
+                  f0ffa0db0952's build.)]
       5.4.3.4 Scripts are Python wherever possible, run by Cairn's own interpreter,
               so one file works on every platform. Platform-specific ones match
               their platform: executable or .sh on Linux; .bat, .cmd or .ps1 on
@@ -628,6 +638,15 @@ not matter here. The code catches up to this, never the reverse.
                    to the database or a file and the message carries the id.
                    Database access stays an import in each process, one connection
                    each.
+        5.5.3.11.3 [Q#76: Ticket 5183005fa134 (the bus speaks TCP) has been built
+                   and is green twice on all three of its proofs, but its fourth
+                   rehearsal was not clean. The reader found two gaps in the
+                   ticket's text: the build step for bus_client's charter doesn't
+                   say where its public interface is written or what the artifact
+                   door (17.2) is; and the reader can't confirm the commit the
+                   build started from (9b327b6a) exists. Neither changes the
+                   design. Write the two into the ticket and rehearse again, or
+                   let the record stand unclean? (CC would write them in.)]
     5.5.4 TOOLS: base, public_feed. VERBS: none.
   5.6 ground_loop (machine): the heartbeat
     5.6.1 PURPOSE: The one timed thing in an event driven system.
@@ -973,6 +992,15 @@ not matter here. The code catches up to this, never the reverse.
   8.5 TOOLS: trees (its own, published as a client tool); base, question,
       bus_client, system_word, gate; machines learning_block, web_operator; db
       client.
+    8.5.1 [Q#77: What does the trees tool's charter list as its public interface?
+          Ticket e62f40f35f59 wants it to name deposit_keyed, find and the keyed leaf's
+          shape there. Ticket 883abe55d04c's proof checks the interface is
+          exactly the one module, so adding them reds that proof. (a) The proof
+          checks only that the module is listed, and the three are listed beside
+          it (5 charters already list more than a module); or (b) the interface
+          stays the module alone and the charter's `what` names the three.
+          Which? (CC leans (b): the module is the door, and the three are what's
+          behind it.)]
   8.6 COMMANDS: cairn librarian ask <question> (or just cairn librarian
       <question>); cairn librarian read <file|url|book> [for <device>/<question>];
       cairn librarian research "<topic>" [for <device>/<question>].
@@ -1199,6 +1227,14 @@ not matter here. The code catches up to this, never the reverse.
                carries no embedding (4.3.1.6). The meter (every call, its verdict
                and cost) is not learning: it is the inference ticket, a file in the
                logs tree on the 30 day clock.
+      11.4.4.2 [Q#78: The yield report (tokens spent against tokens saved, the
+               meter for Telos 1) counts every call since the proxy began. Read
+               from inference tickets, it would see only the last 30 days. Is 30
+               days enough? If not, an all-time running total: as learning (a
+               tree), or as a count in the proxy's own state file under
+               ~/.cairn/devices/inference_domain/0/? (CC's draft: the state file,
+               because a total is a count, not something learned. Holds
+               98ab0e9db57f.)]
     11.4.5 Routes from authored stacks beside the code: providers (cost,
            connection), models (names, parameters, scores), combos (which pairs
            route).

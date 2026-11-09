@@ -635,15 +635,11 @@ not matter here. The code catches up to this, never the reverse.
                    to the database or a file and the message carries the id.
                    Database access stays an import in each process, one connection
                    each.
-        5.5.3.11.3 [Q#76: Ticket 5183005fa134 (the bus speaks TCP) has been built
-                   and is green twice on all three of its proofs, but its fourth
-                   rehearsal was not clean. The reader found two gaps in the
-                   ticket's text: the build step for bus_client's charter doesn't
-                   say where its public interface is written or what the artifact
-                   door (17.2) is; and the reader can't confirm the commit the
-                   build started from (9b327b6a) exists. Neither changes the
-                   design. Write the two into the ticket and rehearse again, or
-                   let the record stand unclean? (CC would write them in.)]
+        5.5.3.11.3 A rehearsal's reader gaps are written into the ticket and it is
+                   rehearsed again; the record does not stand unclean. Akien
+                   2026-11-09, answering Q#76 (ticket 5183005fa134's two gaps: where
+                   bus_client's public interface is written and what the artifact
+                   door is; the build's starting commit 9b327b6a): "yes write them in".
     5.5.4 TOOLS: base, public_feed. VERBS: none.
   5.6 ground_loop (machine): the heartbeat
     5.6.1 PURPOSE: The one timed thing in an event driven system.
@@ -1344,13 +1340,12 @@ not matter here. The code catches up to this, never the reverse.
     16.4.3 Each holder keeps its own data under
            ~/.cairn/devices/<holder>/<n>/machines/web_operator/. The librarian is
            the first holder (8.3.7).
-    16.4.4 [Q#74: web_operator's code dials only its holder's own geckodriver
-           on 127.0.0.1 (WebDriver over plain HTTP, on a port it picks free at start),
-           never the inference host. The rule that only the inference proxy may dial
-           (11.4.1) reds on it, because it imports socket and urllib. May it be
-           listed as allowed, with that reason? Yes / no + what instead? (This
-           blocks 7a94c34cba52's PROVED and reds one check in every ticket that
-           runs the inference proxy's proofs.)]
+    16.4.4 web_operator may talk on the web by any means: direct HTTP, a browser
+           driven over WebDriver (selenium or similar), or anything like them. So it
+           is on the inference sole-path rule's allowed list (11.4.1). Akien
+           2026-11-09, answering Q#74: "the web_operator may use direct http calls,
+           browser based calls (via selenium or similar), or any similar mechanism
+           to talk on the web. it is allowed."
 
 17 TOOLS (cairn/tools/: the general collection; tools have users, not owners)
   17.1 base

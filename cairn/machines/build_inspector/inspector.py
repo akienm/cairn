@@ -3123,8 +3123,10 @@ _SOLE_PATH = {
                 "aiohttp", "socket", "ftplib", "telnetlib"),
     # bus_client/tls.py joins it (ticket 5183005fa134, question open-06cfefbe745e): the bus's box-to-box door, pinned TLS to another box's bus, never the inference host.
     # and the bus TCP proof, which dials raw only the loopback and LAN doors of a bus it started, to show they refuse plain TCP and a wrong key.
+    # web_operator talks on the web by any means (direct HTTP, WebDriver to its own geckodriver);
+    # Akien 2026-11-09, answering Q#74 (open-52b86b71a12d): "it is allowed." Outline 16.4.4.
     "only": ("inference_domain/", "bus_client/remote.py", "bus_client/tls.py",
-             "bus/proofs/test_the_bus_speaks_tcp.py"),
+             "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/"),
 }
 
 

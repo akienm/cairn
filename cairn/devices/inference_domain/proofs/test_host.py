@@ -45,7 +45,9 @@ _SOLE_PATH = {
              "cairn/tools/bus_client/tls.py",
              # the bus TCP proof dials, raw, only the loopback and LAN doors of a bus it started
              # itself, to show they refuse plain TCP and a wrong key (ticket 5183005fa134).
-             "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py"),
+             "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py",
+             # web_operator talks on the web by any means: Akien 2026-11-09, Q#74 (outline 16.4.4).
+             "cairn/machines/web_operator/"),
 }
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single

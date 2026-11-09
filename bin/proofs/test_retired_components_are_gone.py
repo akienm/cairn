@@ -61,6 +61,14 @@ outline 17.12 / Q#43, Akien 2026-11-06), one tooth per falsifier clause:
      (records and caches excepted);
   3. neither the machine nor the skill's door can be imported.
 
+Ticket e5a8e8059296 (the approve/disprove verdict intake retires; cairn review is the one gate
+act, outline 5.10.8), one tooth per falsifier clause here (clause 4 lives in whatslefttodo's proof):
+
+  1. the retired command under bin/cmd/ is absent;
+  2. no file in the repo names the command, its CLI spelling, or a definition or call of the four
+     learning-block organs that took and read verdicts (records and caches excepted);
+  3. learning_block has none of those organs, and its CLI refuses the retired verb.
+
 Apart from tooth 4 of d547b4859f9a, reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -109,6 +117,11 @@ PROVES = {
         "1": "ruling_paths_are_absent",
         "2": "nothing_names_ruling",
         "3": "ruling_does_not_import",
+    },
+    "e5a8e8059296": {
+        "1": "recordverdict_paths_are_absent",
+        "2": "nothing_names_recordverdict",
+        "3": "learning_block_has_no_verdict_organs",
     },
 }
 
@@ -317,6 +330,30 @@ def _ruling() -> None:
     _check(names["3"], not importable, f"importable={importable}")
 
 
+_RV = "record" + "verdict"
+_RV_PATHS = ("bin/cmd/" + _RV,)
+_RV_ORGANS = ("record_" + "verdict", "pending_" + "findings", "answered_" + "finding_ids", "emit_" + "finding")
+_RV_NEEDLES = ("cairn " + _RV, "bin/cmd/" + _RV, "def " + "record_" + "verdict", "." + "record_" + "verdict(",
+               "pending_" + "findings", "answered_" + "finding_ids", "emit_" + "finding")
+
+
+def _recordverdict() -> None:
+    """The three teeth for e5a8e8059296: review is the one gate act; learning/records is a record."""
+    names = PROVES["e5a8e8059296"]
+    standing = [p for p in _RV_PATHS if (REPO / p).exists()]
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_RV_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    probe = ("import cairn.machines.learning_block.learning_block as m; "
+             f"print(','.join(n for n in {_RV_ORGANS!r} if hasattr(m, n)))")
+    r = subprocess.run([sys.executable, "-c", probe], cwd=REPO, capture_output=True, text=True, timeout=60)
+    still = r.stdout.strip()
+    v = subprocess.run([sys.executable, "-m", "cairn.machines.learning_block", _RV], cwd=REPO,
+                       capture_output=True, text=True, timeout=60)
+    _check(names["3"], r.returncode == 0 and not still and v.returncode != 0,
+           f"import rc={r.returncode} still={still!r} err={r.stderr[-200:]!r}; verb rc={v.returncode}")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -330,6 +367,7 @@ def check() -> list[str]:
     _liveness()
     _cairnmap()
     _ruling()
+    _recordverdict()
     return list(FAILURES)
 
 

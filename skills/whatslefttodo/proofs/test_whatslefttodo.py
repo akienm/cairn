@@ -39,6 +39,10 @@ import door  # noqa: E402
 
 PASSES = 0
 
+# Clause 4 of e5a8e8059296 (clauses 1-3 live in bin/proofs/test_retired_components_are_gone.py):
+# the rulings gather measures the review queue, the one gate act (outline 5.10.8).
+PROVES = {"e5a8e8059296": {"4": "the_rulings_gather_reads_the_review_queue"}}
+
 
 def ok(name: str, cond: bool, detail: str = ""):
     global PASSES
@@ -216,6 +220,13 @@ def main() -> int:
     if "rulings_count" in w:
         ok("the live gate count is an int (invariant, not a number this tooth remembers)",
            isinstance(w["rulings_count"], int))
+    from cairn.machines.skill_block.skill_block import pending_reviews
+    queue = pending_reviews()
+    ok("the_rulings_gather_reads_the_review_queue",
+       w.get("rulings_count") == len(queue)
+       and w.get("rulings_oldest_id") == (queue[0]["berth_id"] if queue else None),
+       f"gather count={w.get('rulings_count')!r} oldest={w.get('rulings_oldest_id')!r}; "
+       f"review queue={len(queue)} oldest={queue[0]['berth_id'] if queue else None!r}")
     if "live_troubles" in w:
         ok("the live trouble set is a sorted list of ids",
            isinstance(w["live_troubles"], list)

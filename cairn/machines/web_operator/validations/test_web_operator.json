@@ -2,12 +2,12 @@
   {
     "claim": "proof test_web_operator.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T16:41:59",
+    "date": "2026-11-09T16:44:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 1484395, 'headless': True, 'port': 38643, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1484392/cairn-alpha-0-profile', 'session': '9c587ead-a3b4-4ef1-8a38-8cf91506a1b3', 'websocket_port': 37461} where=('http://127.0.0.1:43447/alpha', 'fixture alpha'); beta={'driver_pid': 1484653, 'headless': True, 'port': 54333, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1484392/cairn-beta-0-profile', 'session': 'ab60d898-f721-497b-9dc7-f3bb2a9cf438', 'websocket_port': 36499} where=('http://127.0.0.1:43447/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-1484392-aoenkftw/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-1484392-aoenkftw/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 38643 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:43447/beta', 'fixture beta')\n  PASS  tooth_6_web_operator_reads_through_a_secret\n        typed_right=True read_through_secret=['secret:instance:///devices/alpha/0/.env#WEB_OPERATOR_TEST_KEY'] env_value_gone=True\n\nGREEN",
+      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 1489877, 'headless': True, 'port': 54223, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1489874/cairn-alpha-0-profile', 'session': '7a147c15-1363-440f-9002-f67502fd587c', 'websocket_port': 59885} where=('http://127.0.0.1:37391/alpha', 'fixture alpha'); beta={'driver_pid': 1490147, 'headless': True, 'port': 45409, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1489874/cairn-beta-0-profile', 'session': 'b214d1b1-329c-4eb6-99b0-ed81f7219225', 'websocket_port': 39115} where=('http://127.0.0.1:37391/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-1489874-6oxtxatq/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-1489874-6oxtxatq/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 54223 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:37391/beta', 'fixture beta')\n  PASS  tooth_6_web_operator_reads_through_a_secret\n        typed_right=True read_through_secret=['secret:instance:///devices/alpha/0/.env#WEB_OPERATOR_TEST_KEY'] env_value_gone=True\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_text_reads_the_fixture_page",
@@ -20,7 +20,7 @@
         "tooth_6_web_operator_reads_through_a_secret"
       ],
       "teeth_red": [],
-      "test": "test-ee97308a192c",
+      "test": "test-6b07e26437b8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,7 +34,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -43,12 +43,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee97308a192c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6b07e26437b8",
       "source_fingerprint": "aab354aa48a2d3cfdc472a257b1e3d70c926c2d9804b2d108afa20e397bfeb17",
       "fingerprint_closure": [
         "cairn/machines/web_operator/__init__.py",
@@ -58,25 +59,24 @@
       "reached": {
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
         "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
-        "cairn/tools/dataref": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "cairn/tools/dataref": "67fda3f83e387b7da56590c369c8d80be99613b5a5bbd57e94db2f51bee08f91",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1484353-xzybes11/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-6b07e26437b8/stderr.txt",
+            "logs/tester/0/runs/test-6b07e26437b8/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120178677,
-          "disk_bytes": 154910720,
-          "entries": 13546,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {

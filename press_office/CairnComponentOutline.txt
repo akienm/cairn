@@ -987,15 +987,9 @@ not matter here. The code catches up to this, never the reverse.
   8.5 TOOLS: trees (its own, published as a client tool); base, question,
       bus_client, system_word, gate; machines learning_block, web_operator; db
       client.
-    8.5.1 [Q#77: What does the trees tool's charter list as its public interface?
-          Ticket e62f40f35f59 wants it to name deposit_keyed, find and the keyed leaf's
-          shape there. Ticket 883abe55d04c's proof checks the interface is
-          exactly the one module, so adding them reds that proof. (a) The proof
-          checks only that the module is listed, and the three are listed beside
-          it (5 charters already list more than a module); or (b) the interface
-          stays the module alone and the charter's `what` names the three.
-          Which? (CC leans (b): the module is the door, and the three are what's
-          behind it.)]
+    8.5.1 The trees tool's charter lists in its public interface what it offers:
+          the module, and deposit_keyed, find and the keyed leaf's shape beside it.
+          Akien 2026-11-09, answering Q#77.
   8.6 COMMANDS: cairn librarian ask <question> (or just cairn librarian
       <question>); cairn librarian read <file|url|book> [for <device>/<question>];
       cairn librarian research "<topic>" [for <device>/<question>].
@@ -1454,6 +1448,15 @@ not matter here. The code catches up to this, never the reverse.
   17.13 import_sieve: one parse of every .py into an import graph; what reaches what.
         WHY: enforces "only the proxy reaches the host/database" and RULE 1 by
         physics. USERS: CodeMother, the inference proxy.
+    17.13.1 The RULE 1 check is a path check: code inside device bar may not
+            import cairn.devices.foo (anything not under cairn.devices.bar),
+            except a tool foo publishes (cairn.devices.foo.tools.<x>, its charter
+            saying published_by_device). Inside one device there is one owner, so
+            nothing is checked there. A charter's public_interface describes what
+            the component offers (modules, functions, bus verbs, commands); the
+            check does not read it. Akien 2026-11-09 (Q#77): "wouldn't it be easier
+            (for the python code anyway) to see if the imports do not include
+            other device paths?"
   17.14 operator_inbox: builds the operator's to-do list from live state, storing
         nothing (7.3.7). USERS: Operator.
   17.15 orient: the measuring scans before a build (where is X called, what's in

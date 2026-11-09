@@ -502,6 +502,8 @@ not matter here. The code catches up to this, never the reverse.
               crash loop cannot spin.
       5.3.5.5 Nobody sends to the ground loop, so the cairn command (and login)
               wake it; its pulse then wakes the shims (5.8.3.4).
+    5.3.6 Holds the metrics table (17.27) until Recovery exists (6.6.3.4). Akien
+          2026-11-09: "the cairn device holds it until recovery exists".
   5.4 launcher (machine)
     5.4.1 PURPOSE: The operator's ramp onto the bus: the cairn command.
     5.4.2 WHY: One command reaches every verb in the system with no central list
@@ -899,8 +901,8 @@ not matter here. The code catches up to this, never the reverse.
               subscribes; Recovery pokes it when it crosses. The reading stays in
               Recovery.
       6.6.3.3 It owns app probes related to the hardware and network.
-      6.6.3.4 It owns all system metrics, which are stored in relevant graph
-              tree(s).
+      6.6.3.4 It owns all system metrics: the metrics table (17.27). Until Recovery
+              exists the cairn device holds it (5.3.6).
       6.6.3.5 Cross system communication belongs to the bus (5.5.3.8).
       6.6.3.6 The host readings Recovery needs to diagnose (disk full? is postgres
               running?) work when the bus is down, like the rest of Recovery.
@@ -1214,16 +1216,15 @@ not matter here. The code catches up to this, never the reverse.
                tree the proxy holds by the librarian's delegation, asking "what did
                this request answer?". An answer is found by its exact request and
                carries no embedding (4.3.1.6). The meter (every call, its verdict
-               and cost) is not learning: it is the inference ticket, a file in the
-               logs tree on the 30 day clock.
-      11.4.4.2 [Q#78: The yield report (tokens spent against tokens saved, the
-               meter for Telos 1) counts every call since the proxy began. Read
-               from inference tickets, it would see only the last 30 days. Is 30
-               days enough? If not, an all-time running total: as learning (a
-               tree), or as a count in the proxy's own state file under
-               ~/.cairn/devices/inference_domain/0/? (CC's draft: the state file,
-               because a total is a count, not something learned. Holds
-               98ab0e9db57f.)]
+               and cost) is not learning: it is metrics (17.27). The inference
+               ticket, a file in the logs tree on the 30 day clock, is only for
+               debugging.
+      11.4.4.2 The yield report (tokens spent against tokens saved, the meter for
+               Telos 1) reads the metrics table (17.27): each call records its
+               spent, saved and latency rows under the call as subject, kept
+               forever, so the all-time total is a sum. Akien 2026-11-09, answering
+               Q#78: "inference tickets are only for debugging, so we can't use
+               that as a metric."
     11.4.5 Routes from authored stacks beside the code: providers (cost,
            connection), models (names, parameters, scores), combos (which pairs
            route).
@@ -1506,6 +1507,22 @@ not matter here. The code catches up to this, never the reverse.
         golf from the 80s, and nothing else in the universe has a farfignator, then
         it can go with the car." If there is any chance somebody else might want it,
         it goes in the general collection.
+  17.27 metric: records a measurement of anything. WHY: a metric is a primitive;
+        its job is to measure whatever it is, and like feedback (which a metric
+        strictly is) it must eventually have a consumer. USERS: any probe or tool.
+    17.27.1 A metric is recorded into its holder's data recorder (17.7): no bus, no
+            database. A probe that records and does not send is recording metrics.
+    17.27.2 Metrics land in one table so any metric can be reported fast from one
+            place: at, name, source (the device/tool that recorded it), start,
+            end, value, unit, subject (the thing measured), info (json). Fields
+            not relevant to a source stay blank. Indexed on name and source by
+            time. One thing (eg an inference call) may record several metrics in
+            its short life, sharing one subject.
+    17.27.3 The table picks up what waits in the recorders when a consumer asks
+            for a report, then answers (the read is the event; nothing polls).
+    17.27.4 Each metric name is declared, with its consumer, in the charter of
+            the component that records it. A name with no consumer is a red.
+    17.27.5 Rows are kept forever: they are small, and the table is the history.
 
 18 PRESS OFFICE (press_office/, a top-level folder in the repo)
   18.1 PURPOSE: Talking to the world: how we explain to others how to use Cairn.

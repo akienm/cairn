@@ -42,7 +42,17 @@ ground loop and base proofs):
   3. the module cannot be imported;
   4. no record under the tool's name stands in the live ground loop home (instance-space).
 
-Reads only the repo, never CairnCommons (the hollow worktree has none beside it).
+Ticket d547b4859f9a (the cairn-map tool retires and help is the one help surface, outline 19.6 /
+2.4.2), one tooth per falsifier clause:
+
+  1. the tool's folder and its command under bin/cmd/ are absent;
+  2. no file in the repo names the module, its folder, its command, its CLI spelling or its gate
+     flag (records and caches excepted);
+  3. the module cannot be imported;
+  4. the commons node classes skill.json and code-seam.json name no cairn-map. This tooth alone
+     reads the commons; where none stands beside the repo (a hollow worktree) it reads red.
+
+Apart from tooth 4 of d547b4859f9a, reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
 """
@@ -80,6 +90,12 @@ PROVES = {
         "3": "liveness_does_not_import",
         "4": "no_liveness_record_in_the_ground_loop_home",
     },
+    "d547b4859f9a": {
+        "1": "cairnmap_paths_are_absent",
+        "2": "nothing_names_cairnmap",
+        "3": "cairnmap_does_not_import",
+        "4": "no_node_class_names_cairnmap",
+    },
 }
 
 FAILURES: list[str] = []
@@ -98,7 +114,10 @@ def _check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
-_RECORDS = ("history.json", "state.json")
+_RECORDS = ("history.json", "state.json",
+            # the present-tense sweep's record of past judgments: it names what it judged
+            # (ticket d547b4859f9a), the same append-only shape as a history
+            "dated_append_judgments.json")
 
 
 def _naming(needles: tuple[str, ...]) -> list[str]:
@@ -233,6 +252,32 @@ def _liveness() -> None:
     _check(names["4"], not record.exists(), f"{record} still stands")
 
 
+_CM = "cairn" + "map"
+_CM_PATHS = ("cairn/tools/" + _CM, "bin/cmd/" + _CM)
+_CM_NEEDLES = ("cairn.tools." + _CM, "cairn/tools/" + _CM, "bin/cmd/" + _CM,
+               "cairn " + _CM, _CM + " --gate")
+
+
+def _cairnmap() -> None:
+    """The four teeth for d547b4859f9a: help is the one help surface."""
+    names = PROVES["d547b4859f9a"]
+    standing = [p for p in _CM_PATHS if (REPO / p).exists()]
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_CM_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    r = subprocess.run([sys.executable, "-c", f"import cairn.tools.{_CM}"], cwd=REPO,
+                       capture_output=True, text=True, timeout=60)
+    _check(names["3"], r.returncode != 0 and "No module named" in r.stderr,
+           f"rc={r.returncode} stderr={r.stderr[-300:]!r}")
+    sys.path.insert(0, str(REPO))
+    from cairn.tools.base import address
+    classes = Path(address.ROOTS["commons"]) / "node_classes"
+    files = [classes / "skill.json", classes / "code-seam.json"]
+    missing = [str(f) for f in files if not f.exists()]
+    naming = [f.name for f in files if f.exists() and _CM in f.read_text(errors="ignore").lower()]
+    _check(names["4"], not missing and not naming, f"missing={missing} naming={naming}")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -244,6 +289,7 @@ def check() -> list[str]:
     _post_commit_chain()
     _instanceizer()
     _liveness()
+    _cairnmap()
     return list(FAILURES)
 
 

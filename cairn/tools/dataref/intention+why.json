@@ -1,0 +1,47 @@
+{
+  "component": "dataref",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape",
+  "what": "One address for any stored value, and the thin read-only class that reads it. The scheme names the root (cairn: the repo, cairncommons: the commons, instance: ~/.cairn, claude: ~/.claude, file: a real path); the path finds the record; # walks inside it (#KEY env, #section/key ini, #a/b/c json). `ref(address)` hands back a Dataref, or a Secret for a secret:<address>. A Dataref caches its file until the stat stamp (inode, size, mtime_ns) moves. A Secret's str, repr, format and .value are **********; .secret reads fresh and keeps nothing; it cannot be pickled or json-dumped. A miss raises DatarefMiss naming the address, never a value.",
+  "why": "Akien, 2026-11-09, on CC0AC-Weather's file:secrets.env#KEY: 'it looks like the perfect way to do file pointers for everything', and 'a class. it's __str__ would return ********** but it's .secret would return the value fetched from the file.' Measured the same day: one .env line parse written three times (web_operator._env_value, ccfox env_value, CC0AC private.py), the Law 1 defect address.py was born to stop, and a secret held as a plain str prints wherever it is passed.",
+  "invoke": "`from cairn.tools.dataref import ref, Dataref, Secret, DatarefMiss`; `ref('secret:instance:///devices/cc/0/.env#githubtoken').secret`. No CLI door. Prove: `python3 cairn/tools/dataref/proofs/test_dataref.py`.",
+  "node_class": "tool",
+  "entry": "FRESH build, 2026-11-09, ticket 060d2146618c. Stands on cairn/tools/base/address.py (ROOTS, resolve) rather than a second root table. Prior art cited, not grafted: pydantic SecretStr (masked str), fsspec (one interface over many stores), jar:file: and view-source: (one-colon wrapping), RFC 6901 (a json path after #).",
+  "state_and_history": "state.json + history.json beside this charter, born at the ticket's BUILDME crossing through harbor_master.clearance.clear.",
+  "how_it_learns": "It does not; it is a pure reader. Its reads counter is the instrument the metric at outline 17.27 will count to test the cache HYPOTHESIS (17.28.4).",
+  "learns": "It does not; it is a pure reader.",
+  "filed_edges": [
+    "(a) db: and host addresses refuse as not built: db: waits for db_domain's client (17.28.3), a host for a bus read (17.28.1.2).",
+    "(b) A same-size, same-mtime_ns rewrite in place is not seen by the cache. Accepted: an atomic replace gets a new inode, and a Secret never caches.",
+    "(c) Masking covers str/repr/format/.value/pickle/json; it cannot stop a caller writing s.secret into a log. Every unmasking is a greppable .secret.",
+    "(d) ccfox and ccgoogle (~/.local/bin, outside git) still read CC's .env by hand; they are host tools, not yet users."
+  ],
+  "gates": "proof gate — proofs/test_dataref.py, six teeth, one per falsifier clause of ticket 060d2146618c, over a scratch roots table. Durability gate: committed + pushed.",
+  "falsifier": "RED on any of: (1) a built scheme resolves to the wrong file, or cairn:/// / instance:/// differ from address.resolve's repo/ and instance/; (2) the # walk misreads env, ini or json; (3) any printing of a Secret shows its value, or pickle/json.dumps of one succeeds; (4) a changed file is not re-read, or an unchanged one is; or a Secret keeps its value; (5) a miss does not raise DatarefMiss naming the address, or its message or chain carries a value; (6) web_operator.secret reads anywhere but through a Secret. WRONG-SHAPE SIGNAL: a write method here, or a second root table.",
+  "proof": "proofs/test_dataref.py",
+  "feedback": {
+    "to": "cairn/devices/codemother",
+    "why": "a miss in the field is a care-of-the-code finding: an address someone wrote that no longer resolves."
+  },
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Akien owns the definition (outline 17.28). CC writes the code and the proofs.",
+  "traces_to": [
+    "Law 1 (one address system instead of a path and a parse re-derived per reader)",
+    "Law 4 (masking is the class's physics, not a habit of care)",
+    "Law 7 (a miss is loud and names its address)",
+    "Law 6 (it reads only; a tool has users)",
+    "the three-roots rule (credentials stay in ~/.cairn; class-space points at them)"
+  ],
+  "provenance": "Shaped by Akien and CC 2026-11-09 into outline 17.28 (Q#79 answered at 17.28.1). Ticket 060d2146618c.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-verbatim"
+  },
+  "gated_by": [
+    "CC"
+  ],
+  "public_interface": [
+    "cairn.tools.dataref"
+  ]
+}

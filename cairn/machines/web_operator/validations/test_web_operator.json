@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_web_operator.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T04:20:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-09T16:37:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 495243, 'headless': True, 'port': 40797, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-495240/cairn-alpha-0-profile', 'session': 'a7cf79ea-f752-44d0-a643-27a3010a5d52', 'websocket_port': 38359} where=('http://127.0.0.1:44767/alpha', 'fixture alpha'); beta={'driver_pid': 495533, 'headless': True, 'port': 39529, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-495240/cairn-beta-0-profile', 'session': '0ca36aee-32b4-4cb3-96cb-047645b3f2b7', 'websocket_port': 54551} where=('http://127.0.0.1:44767/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-495240-aahxbehw/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-495240-aahxbehw/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 40797 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:44767/beta', 'fixture beta')\n\nGREEN",
+      "stdout_tail": "  PASS  tooth_1_text_reads_the_fixture_page\n        text()='fixture page for alpha\\ngo' headless=True\n  PASS  tooth_2_type_and_click_drive_the_form\n        text('#out')='got hello'\n  PASS  tooth_3_two_holders_hold_their_own_browser\n        alpha={'driver_pid': 1480512, 'headless': True, 'port': 56523, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1480509/cairn-alpha-0-profile', 'session': '12d1edfc-71c5-4861-8846-1951d3795326', 'websocket_port': 59207} where=('http://127.0.0.1:41565/alpha', 'fixture alpha'); beta={'driver_pid': 1480789, 'headless': True, 'port': 36287, 'profile': '/home/akien/snap/firefox/common/cairn-testing-7a94c34cba52-1480509/cairn-beta-0-profile', 'session': 'fbffcd12-3299-48cd-9c30-9b7eb080c2bd', 'websocket_port': 33675} where=('http://127.0.0.1:41565/beta', 'fixture beta')\n  PASS  tooth_4_state_berths_under_the_holder_only\n        homes=['/tmp/testing-7a94c34cba52-scratch.4026531836-1480509-srxp5xb5/devices/alpha/0/machines/web_operator', '/tmp/testing-7a94c34cba52-scratch.4026531836-1480509-srxp5xb5/devices/beta/0/machines/web_operator']\n  PASS  tooth_5_secret_types_without_showing\n        typed; value on no stream and no state file\n  PASS  tooth_7_the_cli_is_the_class\n        rc=0 cli='fixture page for alpha\\ngo\\n' class='fixture page for alpha\\ngo' err=''\n  PASS  tooth_6_stop_ends_one_holder_only\n        alpha port 56523 refused=True; alpha browser pids=[]; beta where=('http://127.0.0.1:41565/beta', 'fixture beta')\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_text_reads_the_fixture_page",
@@ -19,7 +19,7 @@
         "tooth_6_stop_ends_one_holder_only"
       ],
       "teeth_red": [],
-      "test": "test-73eb5c8c8d22",
+      "test": "test-4c05fb98fe07",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,31 +36,32 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-73eb5c8c8d22",
-      "source_fingerprint": "ccb9d7452f6309a1c07b2768a1a117513a1ec290bc52263f4129c0e77847ee8f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c05fb98fe07",
+      "source_fingerprint": "cdbd427ea0d9773120fa2173b08fe8253da6bea74c6afe6f9732c10a6ac8cc7e",
       "fingerprint_closure": [
         "cairn/machines/web_operator/__init__.py",
         "cairn/machines/web_operator/proofs/test_web_operator.py",
         "cairn/machines/web_operator/web_operator.py"
       ],
       "reached": {
-        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
-        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/dataref": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-495208-0b5a7e_a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1480485-v26a23hg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,47 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119002005,
-          "disk_bytes": 152506368,
-          "entries": 13096,
+          "bytes": 120178677,
+          "disk_bytes": 154910720,
+          "entries": 13546,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "7a94c34cba52": {
-          "cairn/machines/web_operator/web_operator.py": [
-            "tooth_1_text_reads_the_fixture_page",
-            "tooth_2_type_and_click_drive_the_form",
-            "tooth_3_two_holders_hold_their_own_browser",
-            "tooth_4_state_berths_under_the_holder_only",
-            "tooth_5_secret_types_without_showing",
-            "tooth_6_stop_ends_one_holder_only",
-            "tooth_7_the_cli_is_the_class"
-          ],
-          "cairn/machines/web_operator/__init__.py": [
-            "tooth_1_text_reads_the_fixture_page",
-            "tooth_2_type_and_click_drive_the_form",
-            "tooth_3_two_holders_hold_their_own_browser",
-            "tooth_4_state_berths_under_the_holder_only",
-            "tooth_5_secret_types_without_showing",
-            "tooth_6_stop_ends_one_holder_only",
-            "tooth_7_the_cli_is_the_class"
-          ],
-          "cairn/machines/web_operator/__main__.py": [
-            "tooth_7_the_cli_is_the_class"
-          ],
-          "cairn/machines/web_operator/intention+why.json": {
-            "notified": "n-2bfdadcbe9eb"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "7a94c34cba52": {
-          "anchor_rule": "journal",
-          "anchor_journal": "c820609dffc9473bf08496d186b052735915a6cb",
-          "anchor_first_build": "7f29aabaede1976e515b443ea96ed8e02ded271c",
-          "commit": "c820609dffc9473bf08496d186b052735915a6cb"
         }
       }
     },

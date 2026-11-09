@@ -15,7 +15,8 @@ address derives from the HOLDER, so two holders never share a port, a profile or
                          Firefox cannot reach hidden folders in home, nor the host /tmp
   state                  machine_path(holder, n, 'web_operator')/state.json — the holder's to own
                          (Law 6); the geckodriver log beside it
-  secrets                read from the holder's own .env at instance_path(holder, n)/.env, typed
+  secrets                read from the holder's own .env as a Secret
+                         (secret:instance:///devices/<holder>/<n>/.env#KEY, cairn/tools/dataref), typed
                          into the page, never printed and never stored
 
 Headless unless the holder asks for a window. The verbs are ccfox's: start, stop, go, where,
@@ -35,7 +36,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from cairn.tools.base.address import instance_path, machine_path
+from cairn.tools.base.address import machine_path
+from cairn.tools.dataref import Secret
 
 MACHINE = "web_operator"
 PROFILE_ROOT_ENV = "CAIRN_WEB_OPERATOR_PROFILE_ROOT"
@@ -93,7 +95,6 @@ class WebOperator:
         self.home = machine_path(self.holder, self.instance, MACHINE, roots=roots)
         root = Path(profile_root or os.environ.get(PROFILE_ROOT_ENV) or DEFAULT_PROFILE_ROOT)
         self.profile = root / f"cairn-{self.holder}-{self.instance}-profile"
-        self.env_file = instance_path(self.holder, self.instance, roots) / ".env"
 
     # -- state: the holder's, at its machine_path ---------------------------------------------
     def state(self) -> dict:
@@ -249,18 +250,10 @@ class WebOperator:
         self._call("POST", f"/session/{s}/element/{e}/clear", {})
         self._call("POST", f"/session/{s}/element/{e}/value", {"text": text})
 
-    def _env_value(self, key: str) -> str:
-        if not self.env_file.is_file():
-            raise WebOperatorError(f"no .env at {self.env_file}")
-        for line in self.env_file.read_text().splitlines():
-            k, _, v = line.partition("=")
-            if k.strip() == key:
-                return v.strip().strip('"').strip("'")
-        raise WebOperatorError(f"no key {key!r} in {self.env_file}")
-
     def secret(self, css: str, key: str, n: int = 0) -> None:
         """Type KEY's value from the holder's .env. The value is never returned, printed or stored."""
-        self.type(css, self._env_value(key), n)
+        ref = Secret(f"secret:instance:///devices/{self.holder}/{self.instance}/.env#{key}", self.roots)
+        self.type(css, ref.secret, n)
 
     def key(self, name: str) -> None:
         k = KEYS[name.lower()]

@@ -52,6 +52,15 @@ Ticket d547b4859f9a (the cairn-map tool retires and help is the one help surface
   4. the commons node classes skill.json and code-seam.json name no cairn-map. This tooth alone
      reads the commons; where none stands beside the repo (a hollow worktree) it reads red.
 
+Ticket 640a7a48e1c5 (the old ruling intake retires and decisions/ stays a read-only record,
+outline 17.12 / Q#43, Akien 2026-11-06), one tooth per falsifier clause:
+
+  1. the ruling machine, the /ruled skill, both bin/cmd/ commands and the host link under
+     ~/.claude/skills are absent;
+  2. no file in the repo names the machine, the skill, either command or either CLI spelling
+     (records and caches excepted);
+  3. neither the machine nor the skill's door can be imported.
+
 Apart from tooth 4 of d547b4859f9a, reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -95,6 +104,11 @@ PROVES = {
         "2": "nothing_names_cairnmap",
         "3": "cairnmap_does_not_import",
         "4": "no_node_class_names_cairnmap",
+    },
+    "640a7a48e1c5": {
+        "1": "ruling_paths_are_absent",
+        "2": "nothing_names_ruling",
+        "3": "ruling_does_not_import",
     },
 }
 
@@ -278,6 +292,31 @@ def _cairnmap() -> None:
     _check(names["4"], not missing and not naming, f"missing={missing} naming={naming}")
 
 
+_RU, _RD = "ruling", "ruled"
+_RU_PATHS = ("cairn/machines/" + _RU, "skills/" + _RD, "bin/cmd/" + _RU, "bin/cmd/" + _RD)
+_RU_NEEDLES = ("cairn.machines." + _RU, "cairn/machines/" + _RU, "bin/cmd/" + _RU, "bin/cmd/" + _RD,
+               "skills." + _RD, "skills/" + _RD, "cairn " + _RU, "cairn " + _RD)
+
+
+def _ruling() -> None:
+    """The three teeth for 640a7a48e1c5: decisions are questions, decisions/ is a record."""
+    names = PROVES["640a7a48e1c5"]
+    standing = [p for p in _RU_PATHS if (REPO / p).exists()]
+    link = Path.home() / ".claude" / "skills" / _RD
+    if link.exists() or link.is_symlink():
+        standing.append(str(link))
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_RU_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    importable = []
+    for mod in ("cairn.machines." + _RU, "skills." + _RD + ".door"):
+        r = subprocess.run([sys.executable, "-c", f"import {mod}"], cwd=REPO,
+                           capture_output=True, text=True, timeout=60)
+        if not (r.returncode != 0 and "No module named" in r.stderr):
+            importable.append(f"{mod} rc={r.returncode} {r.stderr[-200:]!r}")
+    _check(names["3"], not importable, f"importable={importable}")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -290,6 +329,7 @@ def check() -> list[str]:
     _instanceizer()
     _liveness()
     _cairnmap()
+    _ruling()
     return list(FAILURES)
 
 

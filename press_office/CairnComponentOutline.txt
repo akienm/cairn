@@ -1519,25 +1519,38 @@ not matter here. The code catches up to this, never the reverse.
             the component that records it. A name with no consumer is a red.
     17.27.5 Rows are kept forever: they are small, and the table is the history.
   17.28 dataref: one address for any stored record, in any format, and the thin
-        class that reads it. [Q#79: is /cairn/ in file:///cairn/... a named root
-        of Cairn's (resolved on each box) or the filesystem root? Proposed: a named
-        root. Shaped by Akien and CC 2026-11-09, grown from CC0AC-Weather 1.4.8's
-        secrets.env.] WHY: a config, a ticket or a node can say WHERE a value lives
-        without carrying it, so the repo stays shareable and a private value stays
-        in ~/.cairn; and one way of pointing works across every format. USERS:
-        anything that reads stored data.
-    17.28.1 The scheme names the store; the path finds the record; the part after #
-            finds the item inside it. file:///cairn/devices/foo/x.cfg#blah and
-            db:///cairn/table/row#leaf are Datarefs. After #, names separated by /:
-            #key (an env file), #section/key (an ini file), #a/b/c (into json). A
-            node id means the same node on every box (4.3.1.5.1), so a db address
-            names a host only to mean that box's copy.
-    17.28.1.1 secret: wraps any whole address and hands back what it points at as a
-              Secret: secret:file:///cairn/x.cfg#bar/baz, secret:db:///cairn/t/row#token.
-              Take off "secret:" and what is left is a complete address, whose #
-              is its own. One colon, no //: a // says a host comes next, so
-              secret://file://... would read "file" as a host. Precedent: jar:file:,
-              view-source:https:. Akien 2026-11-09: "i like it. make it so".
+        class that reads it. Shaped by Akien and CC 2026-11-09, grown from
+        CC0AC-Weather 1.4.8's secrets.env. WHY: a config, a ticket or a node can say
+        WHERE a value lives without carrying it, so the repo stays shareable and a
+        private value stays in ~/.cairn; and one way of pointing works across every
+        format and every box. USERS: anything that reads stored data.
+    17.28.1 The scheme names the root; the path finds the record; the part after #
+            finds the item inside it. Each root is found on the box it runs on, so
+            one address works on Linux, on Windows and on a fresh machine. Akien
+            2026-11-09, answering Q#79: "cairn:/// cairncommons:/// and
+            runtime:///" ... "instance is fine".
+      17.28.1.1 cairn:/// is the repo (from the environment, or from where bin/cairn
+                itself lives); cairncommons:/// is the commons repo beside it;
+                instance:/// is ~/.cairn; claude:/// is ~/.claude (the project's
+                own .claude/ is already cairn:///.claude/, so it gets no second
+                name); db:///cairn/table/row is the database; file:/// keeps its
+                usual meaning, a real path on the filesystem, for what no root
+                holds. claude: is also the Claude app's link scheme on this box:
+                the resolver never hands an address to the system, so only a click
+                on one opens the app.
+      17.28.1.2 A host names that box's copy: cairn://akiendell/devices/... is the
+                Windows box's repo, read over the bus. A node id means the same node
+                on every box (4.3.1.5.1), so a db address names a host only to mean
+                that box's copy.
+      17.28.1.3 After #, names separated by /: #key (an env file), #section/key (an
+                ini file), #a/b/c (into json).
+      17.28.1.4 secret: wraps any whole address and hands back what it points at as a
+                Secret: secret:instance:///devices/cc/0/.env#githubtoken,
+                secret:db:///cairn/t/row#token.
+                Take off "secret:" and what is left is a complete address, whose #
+                is its own. One colon, no //: a // says a host comes next, so
+                secret://file://... would read "file" as a host. Precedent: jar:file:,
+                view-source:https:. Akien 2026-11-09: "i like it. make it so".
     17.28.2 Dataref is the base class. Secret is its subclass: its str, repr and
             format are all **********, so a log line or an f-string cannot show it;
             .secret fetches the value at that moment. WHY: printing it by mistake

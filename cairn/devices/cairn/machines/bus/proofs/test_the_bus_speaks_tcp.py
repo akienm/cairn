@@ -307,6 +307,18 @@ def _trees(base: Path) -> tuple[Path, Path]:
 
 
 def tooth_c_latency(base: Path) -> None:
+    if not hasattr(socket, "AF_UNIX"):
+        # Clause (c) reads "on Linux": the Unix-socket half has no socket to regress where
+        # there is no AF_UNIX (and its tree copy needs tar + rsync, absent on Windows —
+        # measured on akiendell 2026-11-08, WinError 2). TCP loopback is still measured.
+        thome = base / "tcp"
+        try:
+            tcp = _bench(thome, True)
+        finally:
+            _stop(thome, no_unix=True)
+        print(f"         no AF_UNIX: unix half is Linux's; tcp loopback p50 {tcp:.0f} us")
+        ok(PROVES["5183005fa134"]["c"], tcp == tcp, f"tcp={tcp:.0f}us")
+        return
     pre_tree, now_tree = _trees(base / "c-trees")
     pre, now = [], []
     for rnd in range(_ROUNDS):

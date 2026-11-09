@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_question.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-08T18:42:13",
+    "caller": "cairn test",
+    "date": "2026-11-08T18:50:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-25891f5c81ab'] child_born_of=open-f74f25a71f09\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-11c520e13bf3 is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-95255af2484b' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-s_4p3tp7/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — hook_gone=True tellers=[] claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
+      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-61045ebe9ef9'] child_born_of=open-64c54635b89a\n  PASS  a second answer is refused — it is a new question\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=False \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-79d989b57699 is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-ea782b9cde62' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-7y94713a/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — hook_gone=True tellers=[] claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=harbor_master horizon=1000\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
@@ -22,7 +22,7 @@
         "test_the_probe_is_armed_with_carry_and_enough"
       ],
       "teeth_red": [],
-      "test": "test-0e1b2381cebd",
+      "test": "test-2b49c45f3212",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,18 +44,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1289844,
+          "pid": 1301879,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e1b2381cebd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2b49c45f3212",
       "source_fingerprint": "309af8ea5e83fa7535ee876baff2f80ed28c444dfa9129debc5af67ed103b67c",
       "fingerprint_closure": [
         "cairn/tools/question/__init__.py",
@@ -85,12 +86,12 @@
         "cairn/tools/operator_inbox": "2c904f9b1131a62fb7e198f64f2d832bc098931674eb978b0119c3a4cd2992ef",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3",
+        "cairn/tools/system_word": "df555b4367ab8aaf5a2a90b2e94204bb45448465f075ad5c185e10d31575a77a",
         "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1275989-f02hmhfr/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1291850-kf3hr45n/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
@@ -99,25 +100,25 @@
             "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261109.014208.768412.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261109.014209.112946.BusDevice.post.json",
-            "logs/bus/0/20261109.014209.123699.BusDevice.post.json",
-            "logs/bus/0/20261109.014209.251677.BusDevice.post.json",
-            "logs/bus/0/20261109.014209.251890.BusDevice.delivered.json",
-            "logs/bus/0/20261109.014209.255862.BusDevice.delivered.json",
+            "logs/bus/0/20261109.014959.023937.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261109.014959.373863.BusDevice.post.json",
+            "logs/bus/0/20261109.014959.385538.BusDevice.post.json",
+            "logs/bus/0/20261109.014959.507197.BusDevice.post.json",
+            "logs/bus/0/20261109.014959.507474.BusDevice.delivered.json",
+            "logs/bus/0/20261109.014959.511735.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261109.014209.254185.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261109.014209.255132.TesterShim.clear_trouble.json"
+            "logs/tester/0/20261109.014959.510235.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261109.014959.511061.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 120037292,
+          "bytes": 120037148,
           "disk_bytes": 154726400,
           "entries": 13529,
           "builds": 1,
-          "reuses": 31
+          "reuses": 8
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T17:52:07",
+    "date": "2026-11-08T18:42:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  quarry_index_folder_is_absent\n  PASS  nothing_names_quarry_index\n  PASS  quarry_index_compiler_does_not_import\n  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\nretired components proofs: all green",
+      "stdout_tail": "  PASS  post_commit_chain_paths_are_absent\n  PASS  nothing_names_the_post_commit_chain\n  PASS  the_post_commit_chain_does_not_import\n  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -28,10 +28,13 @@
         "cairnmap_paths_are_absent",
         "nothing_names_cairnmap",
         "cairnmap_does_not_import",
-        "no_node_class_names_cairnmap"
+        "no_node_class_names_cairnmap",
+        "ruling_paths_are_absent",
+        "nothing_names_ruling",
+        "ruling_does_not_import"
       ],
       "teeth_red": [],
-      "test": "test-6e9857d1eccb",
+      "test": "test-c2cf3dfe8026",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,7 +44,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "05e608263bd87278da1c92b9ce02a2f3cdcce5f059bca23500082d555c23ae0e",
+        "proof": "189cf255e134c052cc8c6a44ade4a0d06e6ead9514a43e6c01196f5c804459b1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -54,14 +57,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6e9857d1eccb",
-      "source_fingerprint": "b721b7fa691985c05c1dbb8d10da6bbd0182ef65f091ebeb2cf8fcecf40ff793",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2cf3dfe8026",
+      "source_fingerprint": "b43b8bc447c3633bef7aa71fdfda2a52aef9f92b6d5f54e3c774cdcdcd3d9f3f",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
@@ -72,225 +74,30 @@
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/diagnostic.py"
+        "cairn/tools/base/diagnostic.py",
+        "skills/__init__.py"
       ],
       "reached": {
         "cairn/devices/codemother": "71c727f1c4257f19db8616be29cd30c952c58f31699e61f3fb4c09bde28c6f65",
-        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
         "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1291850-ndbx7s84/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-6e9857d1eccb/stderr.txt",
-            "logs/tester/0/runs/test-6e9857d1eccb/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "d547b4859f9a": {
-          "cairn/tools/edges/edges.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/edges/proofs/test_edges.py": {
-            "notified": "n-7573e534297a"
-          },
-          "cairn/tools/edges/intention+why.json": {
-            "notified": "n-49254158591d"
-          },
-          "skills/intent/proofs/test_intent_skill.py": [
-            "nothing_names_cairnmap",
-            "skills/intent/proofs/test_intent_skill.py::test_clause_2_the_five_are_named_with_real_usage",
-            "skills/intent/proofs/test_intent_skill.py::test_clause_3_ruled_is_installed_as_a_symlink_and_names_its_cli_face",
-            "skills/intent/proofs/test_intent_skill.py::test_clause_4_no_charter_was_minted_under_bin_cmd",
-            "skills/intent/proofs/test_intent_skill.py::test_every_contract_field_carries_its_why",
-            "skills/intent/proofs/test_intent_skill.py::test_the_anatomy_is_a_CALL_not_a_paragraph_about_one",
-            "skills/intent/proofs/test_intent_skill.py::test_the_kill_exit_fires_the_same_door",
-            "skills/intent/proofs/test_intent_skill.py::test_the_markdown_and_the_charter_cannot_drift",
-            "skills/intent/proofs/test_intent_skill.py::test_the_two_entrances_cannot_differ_in_strictness"
-          ],
-          "skills/intent/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/__init__.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent"
-          ],
-          "cairn/tools/cairnmap/cairnmap.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/cli.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/intention+why.json": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/probes/__init__.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent"
-          ],
-          "cairn/tools/cairnmap/probes/the_roster_fault_is_one_finding.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/proofs/test_cairnmap.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/cairnmap/proofs/test_cairnmap_probes_report_to_the_watch.py": [
-            "cairnmap_does_not_import",
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "bin/cmd/cairnmap": [
-            "cairnmap_paths_are_absent",
-            "nothing_names_cairnmap"
-          ],
-          "skills/challenge/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/commit/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/idea/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/intent/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/note/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/saveslate/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/sorted/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/design/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/moreabout/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/chart/intention+why.json": {
-            "notified": "n-284860d5b475"
-          },
-          "skills/tellmeabout/intention+why.json": {
-            "notified": "n-a274bbf9a424"
-          },
-          "skills/challenge/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/commit/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/design/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/idea/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/note/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/saveslate/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/sorted/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "skills/whatslefttodo/proofs/PROOF.md": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/constrain/proofs/test_chart_constrain.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/decompose/proofs/test_chart_decompose.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/hypothesize/proofs/test_chart_hypothesize.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/orient/proofs/test_chart_orient.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/survey/proofs/test_chart_survey.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/triage/proofs/test_chart_triage.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/validate/proofs/test_chart_validate.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/orient/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/orient/orient.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/orient/proofs/test_orient.py": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/tools/base/address.py": {
-            "notified": "n-6b2b9a7a4735"
-          },
-          "learning/gate_view.py": {
-            "notified": "n-6054e88d947a"
-          },
-          "bin/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "cairn/machines/build_inspector/intention+why.json": [
-            "nothing_names_cairnmap"
-          ],
-          "press_office/FactSheet.md": [
-            "nothing_names_cairnmap"
-          ],
-          "press_office/intention+why.json": {
-            "notified": "n-8578f1a4c09a"
-          },
-          "MAP.md": [
-            "nothing_names_cairnmap"
-          ],
-          "README.md": [
-            "nothing_names_cairnmap"
-          ],
-          "CairnCommons/node_classes/skill.json": [
-            "no_node_class_names_cairnmap"
-          ],
-          "CairnCommons/node_classes/code-seam.json": [
-            "no_node_class_names_cairnmap"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "d547b4859f9a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5d3df16807d8dff51c43ad4cc01649d0c3303038",
-          "anchor_first_build": "3882dac1ce35ed1fed63beddea55156c05f78d06",
-          "commit": "5d3df16807d8dff51c43ad4cc01649d0c3303038"
+          "measured": true,
+          "bytes": 120031549,
+          "disk_bytes": 154689536,
+          "entries": 13516,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

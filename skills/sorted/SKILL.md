@@ -27,11 +27,11 @@ is the packet's live field list (`python3 -m cairn.machines.skill_block contract
 When ARGUMENTS carries a ticket id (hex), **run this first, before reasoning**:
 
 ```bash
-cairn operator show artifact <id>
+cairn codemother show artifact <id>
 ```
 
-This loads the ticket through the artifact surface — the one that already exists
-for this purpose. Do not search for the ticket file with grep/find; the command
+This asks CodeMother, who answers every command about the code, for the ticket
+(her show verb hands it to the operator_inbox tool's deep view). Do not search for the ticket file with grep/find; the command
 resolves it. The output is the briefing the rest of the sequence works from.
 
 ### 1. Assert — "all points wrapped"

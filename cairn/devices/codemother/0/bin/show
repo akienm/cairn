@@ -13,6 +13,13 @@ from cairn.devices.codemother.dashboard import format_dashboard
 print(format_dashboard())
 " "$@"
         ;;
+      artifact)
+        # one artifact's deep view (ticket 2faf52fb34ca): CodeMother answers every command about
+        # the code; this one she answers through the operator_inbox tool's CLI, copying nothing.
+        export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+        cd "$REPO_ROOT"
+        exec python3 -m cairn.tools.operator_inbox.inbox show artifact "$@"
+        ;;
       *)
         # not the dashboard: a root view (status, settings, or a device view) — the base resolver
         # (ticket b41b0c0fff0e) takes the whole line; an empty name is its exit 2 naming the views.

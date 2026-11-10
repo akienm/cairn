@@ -2,7 +2,7 @@
   {
     "claim": "proof test_launcher_words_are_scripts.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T11:19:47",
+    "date": "2026-11-10T06:55:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,21 +15,24 @@
         "clause_3_the_launcher_keeps_no_arm_for_the_five"
       ],
       "teeth_red": [],
-      "test": "test-f41d4fdd2285",
+      "test": "test-df8602400789",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2042555_0654544336_delivery",
+          "bus_proc_2042555_0654544336"
+        ]
       },
       "conditions": {
         "proof": "bd7b54847c7659f9181e8a47c6b35dafbbef1b24fdef9616b2c3e57b019e9c5a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 500,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -43,28 +46,27 @@
       },
       "killed": [
         {
-          "pid": 991555,
+          "pid": 2042888,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f41d4fdd2285",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-df8602400789",
       "source_fingerprint": "30ab0ae95c7f468046a2f7e493addf11f8e631f201ad2d8f9e81562ab71febdc",
       "fingerprint_closure": [
         "cairn/devices/codemother/proofs/test_launcher_words_are_scripts.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/machines/learning_block": "11504710ac0c65f0e6e55933126af3e85f359949e13d320e545df561aa80cc72",
+        "cairn/tools/base": "c41d01326e34e3300e979b7ee9181decb1ac363b8b878f05d73fb9159183287d",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-984152-ik1fj8t5/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2042743-rqneajez/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
@@ -74,18 +76,18 @@
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261108.181945.707273.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261110.135518.454296.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119593957,
-          "disk_bytes": 153964544,
-          "entries": 13401,
+          "bytes": 524713170,
+          "disk_bytes": 560619520,
+          "entries": 13998,
           "builds": 1,
-          "reuses": 35
+          "reuses": 0
         }
       },
       "hollow": {

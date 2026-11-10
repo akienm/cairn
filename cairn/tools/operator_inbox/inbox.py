@@ -725,7 +725,7 @@ def format_inbox(data: dict) -> str:
                 for b in bullets[:2]:
                     lines.append(f"        {b.get('text', '')[:90]}")
         lines.append(f"  review with: cairn review <id> \"your words\"")
-        lines.append(f"  deep view:   cairn operator show artifact <id>")
+        lines.append(f"  deep view:   cairn codemother show artifact <id>")
         lines.append("")
 
     # THE LAP
@@ -1264,7 +1264,8 @@ USAGE = """usage: cairn operator <command>
 commands:
   show inbox              full operator inbox
   show inbox --summary    one-line summary only
-  show artifact <id>      deep view of a pending artifact or ticket (id prefix match)
+  show artifact <id>      deep view of a pending artifact or ticket (id prefix match),
+                          asked as cairn codemother show artifact <id>
   show <slug|id>          any item the inbox lists — idea, question, trouble, ticket,
                           intention, adjudication, artifact — by the id or slug it printed;
                           exits 1 when nothing (or more than one thing) matches
@@ -1296,7 +1297,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if target == "artifact":
             if len(args) < 3:
-                print("usage: cairn operator show artifact <id-prefix>",
+                print("usage: cairn codemother show artifact <id-prefix>",
                       file=sys.stderr)
                 return 2
             result = show_artifact(args[2])

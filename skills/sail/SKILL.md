@@ -20,11 +20,11 @@ load the ticket first (step 0a below) — the ticket's fields are the request.
 When ARGUMENTS carries a ticket id (hex), **run this first, before charting**:
 
 ```bash
-cairn operator show artifact <id>
+cairn codemother show artifact <id>
 ```
 
-This loads the ticket through the artifact surface — the one that already exists
-for this purpose. Do not search for the ticket file with grep/find; the command
+This asks CodeMother, who answers every command about the code, for the ticket
+(her show verb hands it to the operator_inbox tool's deep view). Do not search for the ticket file with grep/find; the command
 resolves it. The output is the briefing the chart and the build work from.
 
 Then sweep the tree: run `PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.sail.sweep <id>`

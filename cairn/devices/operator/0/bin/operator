@@ -6,6 +6,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
 export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
 cd "$REPO_ROOT"
+# an artifact is a code question, so CodeMother answers it (outline 7.4, 9.6).
+w1="${1:-}"; w2="${2:-}"
+if [ "${w1,,}" = "show" ] && [ "${w2,,}" = "artifact" ]; then
+  echo "cairn operator show artifact moved: ask cairn codemother show artifact <id> (ticket 2faf52fb34ca)" >&2
+  exit 2
+fi
 if [ $# -eq 0 ]; then
   exec python3 -m cairn.tools.operator_inbox.inbox show inbox
 fi

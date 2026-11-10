@@ -43,6 +43,8 @@ INSTANCE_ROOT="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
 
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 LEGACY_CMD_DIR="${CAIRN_CMD_DIR:-$HERE/cmd}"
+# Class-space devices: the bin/ beside a device's code lives at $CLASS_ROOT/<device>/bin/ (outline 5.4.3.3).
+CLASS_ROOT="${CAIRN_CLASS_ROOT:-$HERE/../cairn/devices}"
 
 _usage() {
   echo "cairn: usage: cairn <device> [verb] [args...]" >&2
@@ -272,6 +274,19 @@ case "$instance" in
     ;;
 esac
 
+# --- top-level shortcuts: the cairn device's bin beside its code (ticket 30366e99655a) ---
+# Outline 5.4.3.3: "`cairn foo` whose first word is not a device means `cairn cairn foo`:
+# top-level shortcuts are the cairn device's bin/" (Akien, open-8c01545a26d8: they live at
+# cairn/devices/cairn/bin/). 5.4.3.5: a shortcut named like a device warns "x hides y" and
+# then runs x — the warning is the diagnostic surface, the run is the rule.
+if [[ "$typed" == "$device" && "$device" != cairn && -x "$CLASS_ROOT/cairn/bin/$device" \
+      && ! -d "$CLASS_ROOT/cairn/bin/$device" ]]; then
+  if [[ -d "$INSTANCE_ROOT/$device" || -d "$CLASS_ROOT/$device" ]]; then
+    echo "cairn: $device hides the $device device (cairn/devices/cairn/bin/$device runs)" >&2
+  fi
+  exec "$CLASS_ROOT/cairn/bin/$device" "$@"
+fi
+
 # --- device dispatch: ~/.cairn/devices/<device>/<instance>/bin/<verb> ---
 device_bin="$INSTANCE_ROOT/$device/$instance/bin"
 
@@ -290,6 +305,15 @@ if [[ -d "$HERE/../cairn/devices/$device/$instance" && -d "$_class_bin" ]]; then
       CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances "$device" "$instance" >/dev/null 2>&1 || true
     fi
   fi
+fi
+
+# --- a device's word from the bin beside its code (ticket 30366e99655a, outline 5.4.3.3) ---
+# The instance bin wins (its script is this instance's); a word only the class bin holds runs
+# from there; a word in neither goes on to the bus below. `cairn cairn greet` lands here too.
+if [[ "$instance" == 0 && $# -ge 1 && "${1:0:1}" != "-" && ! -x "$device_bin/${1,,}" \
+      && -x "$CLASS_ROOT/$device/bin/${1,,}" && ! -d "$CLASS_ROOT/$device/bin/${1,,}" ]]; then
+  _word="${1,,}"; shift
+  exec "$CLASS_ROOT/$device/bin/$_word" "$@"
 fi
 
 if [ -d "$device_bin" ]; then

@@ -103,7 +103,10 @@ def tooth_2() -> None:
 
 def tooth_3() -> None:
     name = PROVES["6548996bd5c0"]["3"]
-    text, _, _ = _R().render("5183005fa134")
+    # the live commons by its absolute address: a hollow worktree has none beside it
+    live = REPO.parent / "CairnCommons"
+    live = live if live.is_dir() else Path.home() / "dev" / "src" / "CairnCommons"
+    text, _, _ = _R().render("5183005fa134", root=live)
     exists = text[text.index("# WHAT EXISTS"):]
     line = next((ln for ln in exists.splitlines() if ln.startswith("present path __main__.py")), "")
     check(name, BUS_MAIN in line, f"line={line!r}")

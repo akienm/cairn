@@ -105,7 +105,7 @@ def _tree() -> str:
 @contextlib.contextmanager
 def _isolated():
     from cairn.tools.base import address
-    from cairn.tools.base.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     tmp = scratch_dir("testing-98ab0e9db57f-")
     domain = _domain()
     domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
@@ -277,7 +277,7 @@ def the_migration_carries_and_meters_once():
     def record(name, value, **kw):
         recorded.append({"name": name, "value": value, **kw})
 
-    from cairn.tools.base.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import scratch_dir
     tmp = scratch_dir("testing-98ab0e9db57f-dump-")
     tree = _tree()
     with _old_shape("oldcalls") as src:

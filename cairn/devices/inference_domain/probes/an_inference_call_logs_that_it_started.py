@@ -4,7 +4,7 @@ Berth for the WATCHME that ticket ``an-inference-call-logs-that-it-started`` car
 beside ``cairn/devices/inference_domain`` because that is WHAT IT WATCHES: as of 2026-08-18
 ``domain.resolve`` writes one emission file per call into ``~/.cairn/logs/inference_domain/0/``
 at each of its three branches, pointer carried as a canonical digest, beside the row it has
-always written into ``inference_calls``.
+always written into its task ticket.
 
 WHY AGREEMENT IS THE QUESTION, AND NOT "IS THERE A LOG". The store has recorded every call at
 this door since long before the trail existed, so the trail is a SECOND record of the same
@@ -62,6 +62,14 @@ from collections import Counter
 from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
 
 _TICKET_ID = "fd5331d3879a"
 
@@ -145,7 +153,6 @@ def survey_the_corpus() -> dict:
     raises rather than reporting a clean zero, because a silent 0/0 reads as both "no finding"
     and "not yet enough".
     """
-    from cairn.devices.db_domain.tools.client import store            # late: imports clean without a DB
     from cairn.devices.inference_domain import domain
     from cairn.tools.base.breadcrumb_log import LogUnreadable
 
@@ -157,7 +164,7 @@ def survey_the_corpus() -> dict:
             records = domain.diagnostic_records()
         except LogUnreadable:
             records.append({"ts": None, "gate": "(unparseable)", "pointer": None})
-    return judge(records, store.read("inference_calls"), trail_exists=exists)
+    return judge(records, _live_rows(), trail_exists=exists)
 
 
 def _corpus(context: dict) -> dict:

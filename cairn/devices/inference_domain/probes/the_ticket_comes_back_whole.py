@@ -1,6 +1,6 @@
 """Watchme probe: the inference ticket comes back whole.
 
-Reads the standing `inference_calls` log and judges each row's wholeness:
+Reads the task tickets in the logs tree and judges each row's wholeness:
 does the answer carry the host's raw response body?
 
 Rows predating the build (no body on the answer) are UNKNOWABLE with a per-row
@@ -24,11 +24,19 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.devices.inference_domain import domain
 from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
+
 _TICKET_ID = "d6d20400441f"
 
 
 def judge_rows(rows: list[dict]) -> dict:
-    """Judge a population of inference_calls rows for wholeness.
+    """Judge a population of calls for wholeness.
 
     Returns a summary with per-row readings so the watch can count and classify.
     """
@@ -71,15 +79,15 @@ def judge_rows(rows: list[dict]) -> dict:
 
 def main() -> int:
     try:
-        tickets = domain.read_ticket(table=domain.CACHE)
+        tickets = _live_rows()
     except Exception as e:
         print(f"cannot read the standing log: {e}")
-        print("FINDING — the reader cannot reach inference_calls")
+        print("FINDING — the reader cannot reach the task tickets")
         return 1
 
     result = judge_rows(tickets)
 
-    print(f"inference_calls population: {result['total']}")
+    print(f"calls population: {result['total']}")
     print(f"  whole:       {result['whole']}")
     print(f"  unknowable:  {result['unknowable']}")
     print(f"  broken:      {result['broken']}")
@@ -114,7 +122,7 @@ _HORIZON = 1000
 
 def _read_population():
     try:
-        return domain.read_ticket(table=domain.CACHE)
+        return _live_rows()
     except Exception:
         return []
 
@@ -132,7 +140,7 @@ def _enough(context: dict) -> bool:
 def _carry(context: dict) -> dict:
     result = judge_rows(_read_population())
     return {
-        "finding": f"{result['broken']} broken row(s) in inference_calls",
+        "finding": f"{result['broken']} broken row(s) in the task tickets",
         "total": result["total"],
         "whole": result["whole"],
         "unknowable": result["unknowable"],

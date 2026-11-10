@@ -6,10 +6,10 @@ bus verb ``calls`` (b905340f8162); declared_views held yield and models, so ``sh
 answered 'no view'. A view takes arguments since 35b92c5de7ef, so ``calls`` becomes one,
 delegating to the verb's own handler, and the verb stays for the librarian.
 
-``domain.read_ticket`` is monkeypatched to record its kwargs and return two rows, so the live
-cache is never read. Teeth, one per falsifier clause (PROVES below):
+``domain.call_rows`` is monkeypatched to record its kwargs and return two rows, so the live
+task tickets are never read (ticket 98ab0e9db57f moved the reader there). Teeth, one per falsifier clause (PROVES below):
   (1) 'calls' is in InferenceDomainDevice().declared_views();
-  (2) _calls_view(limit='2', since='2026-10-01T00:00:00') calls read_ticket with limit=2 and
+  (2) _calls_view(limit='2', since='2026-10-01T00:00:00') calls call_rows with limit=2 and
       that since, and returns {'calls': [...]} that json.dumps accepts;
   (3) _render_view('calls', data) has one line per row carrying its verdict and its created
       second, and ends with '2 calls'.
@@ -56,16 +56,16 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _device():
-    """The device with read_ticket recording its kwargs — bound at call time, so a hollow
+    """The device with call_rows recording its kwargs — bound at call time, so a hollow
     device.py reds the tooth rather than the reader."""
     from cairn.devices.inference_domain import domain
     from cairn.devices.inference_domain.device import InferenceDomainDevice
 
-    def fake_read_ticket(**kw):
+    def fake_call_rows(**kw):
         CALLS.append(kw)
         return [dict(r) for r in ROWS]
 
-    domain.read_ticket = fake_read_ticket
+    domain.call_rows = fake_call_rows
     return InferenceDomainDevice()
 
 

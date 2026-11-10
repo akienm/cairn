@@ -6,7 +6,7 @@ Berthed beside ``cairn/devices/inference_domain`` because that is WHAT IT WATCHE
 sieve enforces it at the shake, and the proofs enforce it on fixtures — but the one
 place the rule can still fail is LIVE: a caller that pins an endpoint by hand, a code
 path the routed default missed, a future edit that quietly re-teaches a literal. The
-proxy's own cache (``inference_calls``, read through db_domain — the one door) records
+proxy's own cache (the task tickets in the logs tree, one per call) records
 every miss with its provenance, so the record of truth already carries the answer;
 this probe reads it instead of instrumenting anything new (Law 1).
 
@@ -39,6 +39,14 @@ import json
 from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
 
 _TICKET_ID = "6bcfb70c6f57"
 
@@ -87,8 +95,7 @@ def survey_the_corpus() -> dict:
     """The live read, THROUGH the one door (db_domain.tools.client.store). A DB this probe cannot
     reach raises rather than reporting a clean zero — a silent 0/0 would read as both
     'no finding' and 'not yet enough', which is the quiet the watch exists to end."""
-    from cairn.devices.db_domain.tools.client import store  # late: the probe module imports clean without a DB
-    rows = store.read("inference_calls", where="verdict = 'miss'", params=())
+    rows = [r for r in _live_rows() if r.get("verdict") == "miss"]
     return judge_rows(rows)
 
 

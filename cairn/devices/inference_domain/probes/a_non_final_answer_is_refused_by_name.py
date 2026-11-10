@@ -12,7 +12,7 @@ three more checks and die at ``metered_cost`` complaining about token counters.
 
 WHAT THIS PROBE ACTUALLY MEASURES, AND WHAT IT CANNOT — say the second part first, because it
 is the honest half. **A REFUSAL LEAVES NO ROW.** ``domain.resolve`` writes to
-``inference_calls`` only after ``resolver(request)`` returns; a raise means no write. So the
+the answer tree only after ``resolver(request)`` returns; a raise means no write. So the
 ticket's own ``enough`` — "the refusal has fired at least once on live traffic AND no successful
 ask was ever refused by it" — is not readable from the ask log, and pretending otherwise would
 be a watch that cannot bite dressed as one that can.
@@ -57,6 +57,14 @@ import json
 from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
 
 _TICKET_ID = "7397b8442b85"
 
@@ -118,7 +126,7 @@ def survey_the_corpus() -> dict:
     raises rather than reporting a clean zero — a silent 0/0 reads as both 'no finding' and
     'not yet enough', which is exactly the quiet a watch exists to end."""
     from cairn.devices.db_domain.tools.client import store  # late: the module imports clean without a DB
-    return judge_rows(store.read("inference_calls"))
+    return judge_rows(_live_rows())
 
 
 def _corpus(context: dict) -> dict:
@@ -144,7 +152,7 @@ def _enough(context: dict) -> bool:
 
 def _carry(context: dict) -> dict:
     s = _corpus(context)
-    return {"finding": "a chat answer with no text and no cost is STORED in inference_calls — a "
+    return {"finding": "a chat answer with no text and no cost is STORED in the answer tree — a "
                        "non-final frame got past the _post guard and has been cached, which "
                        "means every future asker of that canonical question is served an empty "
                        "answer until its horizon expires",
@@ -159,7 +167,7 @@ def _carry(context: dict) -> dict:
             "suggests": "two candidates, and they are told apart by the row's own timestamp "
                         "against the era: a process started before 2026-08-18T00:50:47-06:00 "
                         "still holding the pre-predicate host.py (check ps lstart of whatever "
-                        "wrote it), or a real hole — a path into inference_calls that does not "
+                        "wrote it), or a real hole — a path into the answer tree that does not "
                         "cross _post. The provenance names the host and path; start there."}
 
 

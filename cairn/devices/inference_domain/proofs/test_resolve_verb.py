@@ -168,8 +168,14 @@ def test_yield_view_via_get_verb():
     """The yield view is reachable through the base get verb on the bus."""
     rig = _Rig()
     rig.ask("resolve", {"kind": "embed", "prompt": "test", "model": "nomic-embed-text"})
-    reply = rig.ask("get", {"what": "yield"})
+    # the yield is the cairn device's metrics totals (ticket 98ab0e9db57f); a fake reply keeps
+    # this tooth on the get verb's wiring, off the live bus
+    fake = {"totals": [{"name": "inference.spent", "by": "miss", "count": 1, "sum": 3.0},
+                       {"name": "inference.latency", "by": "miss", "count": 1, "sum": 0.1}]}
+    with patch("cairn.devices.inference_domain.domain._ask_metrics", return_value=fake):
+        reply = rig.ask("get", {"what": "yield"})
     data = reply["body"]["data"]
+    assert data.get("spent") == 3.0 and data.get("misses") == 1, f"yield view must read the totals, got {data}"
     assert "spent" in data, f"yield view must report spent, got {sorted(data)}"
     assert "avoided" in data, f"yield view must report avoided, got {sorted(data)}"
 

@@ -1,9 +1,10 @@
 """Proof for ticket ``b905340f8162`` — the inference domain answers who asks for its calls.
 
 A consumer that honours RULE 1 (the librarian first, ticket 95f8c561e742) cannot import
-``domain.read_ticket``; it asks over the bus. These four teeth measure the ``calls`` verb over
-a scratch ``inference_calls`` table seeded with three rows at known ``created`` times, so the
-live cache is never read and the order and the since-bound are checkable to the row:
+the domain's reader; it asks over the bus. These four teeth measure the ``calls`` verb over
+a scratch world holding three task tickets at known start times (the calls live in the logs
+tree since ticket 98ab0e9db57f), so the live tickets are never read and the order and the
+since-bound are checkable to the row:
 
   1. ``calls`` is a declared verb, and the charter's ``public_interface`` names it.
   2. ``{'limit': 2}`` returns the two NEWEST rows, newest first.
@@ -43,24 +44,35 @@ _T0 = datetime(2026, 10, 13, 12, 0, 0, tzinfo=timezone.utc)
 _CREATED = [_T0, _T0 + timedelta(minutes=1), _T0 + timedelta(minutes=2)]
 
 
-def _table() -> str:
-    """The proof's one table: three rows, one minute apart, minted on first use."""
+def _world() -> dict:
+    """The proof's one world: three task tickets, one minute apart, written on first use into
+    a scratch instance root the domain is pointed at."""
     if not _HELD:
         from cairn.devices.inference_domain import domain
-        from cairn.devices.db_domain.tools.client import store
-        table = _SCRATCH.enter_context(domain.scratch_cache("calls_verb"))
+        from cairn.tools.base import address
+        from cairn.tools.scratch.scratch import scratch_dir
+        roots = {**address.ROOTS, "instance": scratch_dir("cairn_calls_verb_")}
+        folder = domain.tickets_dir(roots)
         for i, created in enumerate(_CREATED):
-            store.write(table, domain.CACHE_OWNER,
-                        {"canonical": json.dumps({"kind": "generate", "prompt": f"row {i}"}),
-                         "verdict": "miss", "answer": {"text": f"answer {i}"},
-                         "provenance": {"model": "fixture"}, "cost": i, "created": created})
-        _HELD.append(table)
+            request = {"kind": "generate", "prompt": f"row {i}"}
+            canonical = json.dumps(request, sort_keys=True)
+            digest = domain.canonical_digest(canonical)
+            stamp = created.strftime("%Y%m%dT%H%M%S%f")
+            domain._write_task_ticket(
+                {"request": request, "canonical": canonical, "canonical_digest": digest,
+                 "verdict": "miss", "response": {"text": f"answer {i}"},
+                 "provenance": {"model": "fixture"}, "cost": i,
+                 "timings": {"started": created.isoformat(), "finished": created.isoformat()}},
+                path=folder / f"{stamp}-{digest[:12]}-0-{i}.json")
+        domain.set_diagnostic_roots(roots)
+        _HELD.append(roots)
     return _HELD[0]
 
 
 def _ask(body: dict) -> dict:
     from cairn.devices.inference_domain.device import InferenceDomainDevice
-    return InferenceDomainDevice()._handle_calls({"body": body}, table=_table())
+    _world()
+    return InferenceDomainDevice()._handle_calls({"body": body})
 
 
 def _prompts(reply: dict) -> list[str]:
@@ -109,6 +121,9 @@ def _main() -> int:
                 failed += 1
                 print(f"  FAIL  {tooth.__name__}: {type(e).__name__}: {e}")
     finally:
+        if _HELD:
+            from cairn.devices.inference_domain import domain
+            domain.set_diagnostic_roots(None)
         _SCRATCH.close()
     print("green — the calls verb answers limit and since" if not failed else f"red — {failed} tooth/teeth failed")
     return 1 if failed else 0

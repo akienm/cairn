@@ -59,18 +59,17 @@ class InferenceDomainDevice(BaseDevice):
                 "embed": self._handle_embed, "infer": self._handle_infer,
                 "calls": self._handle_calls}
 
-    def _handle_calls(self, envelope: dict, *, table: str | None = None) -> dict:
-        """Who asks for the domain's calls gets them (ticket b905340f8162): stored
-        inference_calls rows, most recent first, bounded by ``limit`` (default 100, capped
-        at 1000) and ``since`` (ISO; rows created at or before it are dropped). A verb, not a
-        view, because a view takes no arguments. The domain does not know who asks or why.
-        ``table`` is a proof seam for a scratch table; the bus never passes it."""
+    def _handle_calls(self, envelope: dict) -> dict:
+        """Who asks for the domain's calls gets them (ticket b905340f8162): the task tickets in
+        the logs tree (ticket 98ab0e9db57f, outline 11.4.4.1), most recent first, bounded by
+        ``limit`` (default 100, capped at 1000) and ``since`` (ISO; calls at or before it are
+        dropped). A verb, not a view, because a view takes no arguments. The domain does not
+        know who asks or why."""
         from cairn.devices.inference_domain import domain
 
         body = envelope.get("body") or {}
         limit = max(1, min(int(body.get("limit") or 100), 1000))
-        kw = {"table": table} if table else {}
-        rows = domain.read_ticket(limit=limit, since=body.get("since"), **kw)
+        rows = domain.call_rows(limit=limit, since=body.get("since"))
         return {"calls": [_json_safe(r) for r in rows]}
 
     def _handle_embed(self, envelope: dict) -> dict:
@@ -188,8 +187,8 @@ class InferenceDomainDevice(BaseDevice):
         return {
             "what": "The one path to the inference host, and the compile-once gate.",
             "why": "A resource with exactly one owner, reached only through the "
-                    "owner's gate (Law 6 + Law 4). The cache is the point: an answered "
-                    "question becomes structure (Law 1).",
+                    "owner's gate (Law 6 + Law 4). The compiled answers are the point: an "
+                    "answered question becomes structure (Law 1).",
         }
 
     def state(self) -> dict:

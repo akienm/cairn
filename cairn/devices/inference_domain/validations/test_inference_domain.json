@@ -2,12 +2,12 @@
   {
     "claim": "proof test_inference_domain.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-09T23:12:06",
+    "date": "2026-11-10T01:14:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_the_owner_gates_the_cache\n  ok    test_the_meter_measures_spent_against_avoided\n  ok    test_a_bare_call_and_the_explicit_default_are_one_question\n  ok    test_two_domains_are_never_one_question\n  ok    test_the_provenance_carries_the_domain_marker_on_both_paths\n  ok    test_editing_a_rows_prompt_is_a_new_question\n  ok    test_an_unknown_domain_is_refused_before_any_spend\n  ok    test_a_malformed_domains_stack_is_refused\n  ok    test_a_refused_ask_leaves_a_row\n  ok    test_the_standing_readers_are_unmoved_by_a_refused_row\n  ok    test_the_watch_reads_a_row_the_real_writer_made\n  ok    test_the_ticket_comes_back_whole\n  ok    test_an_out_of_vocabulary_verdict_is_refused_at_the_database\n  ok    test_the_verdict_constraint_exists_on_the_table\n  ok    test_the_standing_table_refuses_an_out_of_vocabulary_write\n  ok    test_the_probes_row_read_agrees_with_an_actual_write_refusal\n  ok    test_a_differing_toolset_is_a_different_question\n  ok    test_an_agent_retry_gets_a_fresh_sample\n  ok    test_a_tool_carrying_call_lands_both_records_joined_by_the_digest\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held",
+      "stdout_tail": "  ok    test_compile_once_a_repeat_does_not_touch_the_host\n  ok    test_key_order_is_the_same_question\n  ok    test_verify_before_answer_a_stale_entry_re_resolves\n  ok    test_the_owner_gates_the_cache\n  ok    test_the_meter_measures_spent_against_avoided\n  ok    test_a_bare_call_and_the_explicit_default_are_one_question\n  ok    test_two_domains_are_never_one_question\n  ok    test_the_provenance_carries_the_domain_marker_on_both_paths\n  ok    test_editing_a_rows_prompt_is_a_new_question\n  ok    test_an_unknown_domain_is_refused_before_any_spend\n  ok    test_a_malformed_domains_stack_is_refused\n  ok    test_a_refused_ask_leaves_a_row\n  ok    test_the_standing_readers_are_unmoved_by_a_refused_row\n  ok    test_the_watch_reads_a_row_the_real_writer_made\n  ok    test_the_ticket_comes_back_whole\n  ok    test_a_differing_toolset_is_a_different_question\n  ok    test_an_agent_retry_gets_a_fresh_sample\n  ok    test_a_tool_carrying_call_lands_both_records_joined_by_the_digest\ngreen — inference_domain: compile-once, verified-before-served, owner-gated, fully recorded, ticket comes back whole",
       "stderr_tail": "",
       "teeth_green": [
         "test_compile_once_a_repeat_does_not_touch_the_host",
@@ -25,16 +25,12 @@
         "test_the_standing_readers_are_unmoved_by_a_refused_row",
         "test_the_watch_reads_a_row_the_real_writer_made",
         "test_the_ticket_comes_back_whole",
-        "test_an_out_of_vocabulary_verdict_is_refused_at_the_database",
-        "test_the_verdict_constraint_exists_on_the_table",
-        "test_the_standing_table_refuses_an_out_of_vocabulary_write",
-        "test_the_probes_row_read_agrees_with_an_actual_write_refusal",
         "test_a_differing_toolset_is_a_different_question",
         "test_an_agent_retry_gets_a_fresh_sample",
         "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest"
       ],
       "teeth_red": [],
-      "test": "test-2cde08b064b1",
+      "test": "test-2ce2d7bfe421",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,7 +40,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "08867d57cb104466edc608b760b940b62e5dc31634dda4b9f82016ef64a65882",
+        "proof": "a511f34d9d9497607fa9de4b34e7b335c179e5288970c73b502da8bebc838d7d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -61,8 +57,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2cde08b064b1",
-      "source_fingerprint": "8c56a5462d459df57ad0f6a102fddfd803c722ce741acd8aeab5509b9028f174",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ce2d7bfe421",
+      "source_fingerprint": "5115aa3d3a678919bac346b5d6db25d219f89e74a595eea1c965392045dbe393",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/domain.py",
@@ -79,6 +75,8 @@
         "cairn/devices/db_domain": "64ce870ff74abb5b554036e44ca34c9ad05a299c00abc9f2510ad710ce5e647f",
         "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
         "cairn/devices/inference_domain/machines/route": "c7fba49368e801796b8446c2c33890faf9813743ff14c3a1cb4a46011a5e158e",
+        "cairn/devices/librarian": "ee3c39db59a21e400f08deeb4ccbdcda3c10e93de9bc810bf4d69c5e6f6fd6b0",
+        "cairn/devices/librarian/tools/trees": "1945e7dc7a4c750a00e03c28910be7caf671b289dddd42a2a783cd6bdbacab47",
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
         "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
         "cairn/tools/data_recorder": "977acf767a86b253a583c929bc2e5468b9ccac313103f1cc4349867e0329793f",
@@ -90,7 +88,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1700936-1xdmqrn8/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1746945-gwuqtdap/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -99,9 +97,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 120938406,
-          "disk_bytes": 156225536,
-          "entries": 13755,
+          "bytes": 121060738,
+          "disk_bytes": 156471296,
+          "entries": 13804,
           "builds": 1,
           "reuses": 5
         }

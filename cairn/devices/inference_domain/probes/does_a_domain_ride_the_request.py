@@ -6,7 +6,7 @@ build says every resolved row's provenance carries a domain marker (the default 
 silently for bare callers), and the seam's proofs enforce it on fixtures — but the one
 place it can still fail is LIVE: a code path that bypasses the dressing, a future edit
 that writes provenance without the stamp, a consumer reaching the cache some other way.
-The proxy's own cache (``inference_calls``, read through db_domain — the one door) records
+The proxy's own cache (the task tickets in the logs tree, one per call) records
 every call with its provenance, so the record of truth already carries the answer; this
 probe reads it instead of instrumenting anything new (Law 1).
 
@@ -41,6 +41,14 @@ import json
 from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
 
 _TICKET_ID = "2ff6113705be"
 
@@ -91,8 +99,7 @@ def survey_the_corpus() -> dict:
     """The live read, THROUGH the one door (db_domain.tools.client.store). A DB this probe cannot
     reach raises rather than reporting a clean zero — a silent 0/0 would read as both
     'no finding' and 'not yet enough', which is the quiet the watch exists to end."""
-    from cairn.devices.db_domain.tools.client import store  # late: the probe module imports clean without a DB
-    rows = store.read("inference_calls")
+    rows = _live_rows()
     return judge_rows(rows)
 
 
@@ -130,7 +137,7 @@ def _carry(context: dict) -> dict:
                                  "request arrives without it applied' and on the vertical "
                                  "not being real — an unmarked row is the seam not riding",
             "suggests": "the provenance names the host and path; find the writer that "
-                        "reached inference_calls without domain.resolve's dressing — the "
+                        "reached the task tickets without domain.resolve's dressing — the "
                         "seam stamps every path it owns, so an unmarked row means a "
                         "second door"}
 

@@ -3,13 +3,13 @@
 Berth for the WATCHME that ticket ``yield-report-names-its-refusals`` carries. Berthed beside
 ``cairn/devices/inference_domain`` because that is WHAT IT WATCHES: ``domain.yield_report`` is
 the meter six live print sites read, and the one way this design fails silently is a new verdict
-value appearing in ``inference_calls`` that the meter does not count — the identity
+value appearing in the task tickets that the meter does not count — the identity
 ``calls == hits + misses + refused`` breaks quietly and a reader sees numbers that no longer sum.
 
 THE EFFICACY QUESTION: does yield_report survive the next verdict value? The build proved the
 identity holds over the three values that exist today. Whether it holds over a fourth is a fact
 about the fourth, and the ticket's own falsifier names it: "the next verdict value added to
-inference_calls SHOULD RED this tooth rather than pass it — an identity that survives a fourth
+the task tickets SHOULD RED this tooth rather than pass it — an identity that survives a fourth
 value is an identity that stopped checking anything."
 
 TWO INVARIANTS:
@@ -35,6 +35,14 @@ import json
 from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
 
 _TICKET_ID = "042b131b7d6c"
 
@@ -86,9 +94,8 @@ def judge(rows: list[dict], meter: dict) -> dict:
 
 def survey_the_corpus() -> dict:
     """The live read — the store and the meter through their own doors."""
-    from cairn.devices.db_domain.tools.client import store
     from cairn.devices.inference_domain.domain import yield_report
-    rows = store.read("inference_calls")
+    rows = _live_rows()
     meter = yield_report()
     return judge(rows, meter)
 

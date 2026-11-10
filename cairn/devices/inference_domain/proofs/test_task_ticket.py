@@ -55,14 +55,14 @@ from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.base import address
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
-_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_SCRATCH = contextlib.ExitStack()   # the one answer tree this proof owns: a scratch leaf, forgotten and dropped at close
 _HELD: list[str] = []
 
 
 def _table() -> str:
     """The proof's one table, minted on first use as scratch."""
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_answers("probe_infer")))
     return _HELD[0]
 
 PROVES = {
@@ -355,7 +355,7 @@ def test_every_inference_call_produces_a_complete_task_ticket():
 
 def _main() -> int:
     # A failing tooth PRINTS its FAIL line and the run exits 1, never raises out: a hollow
-    # reading that reverts domain.py (no scratch_cache, no ticket writer) must read a RED
+    # reading that reverts domain.py (no scratch_answers, no ticket writer) must read a RED
     # tooth, not a proof that "printed no teeth at all" (measured 2026-10-13, UNRAN).
     try:
         try:

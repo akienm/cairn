@@ -59,7 +59,7 @@ def _domain():
 
 def _table() -> str:
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(_domain().scratch_cache("metered")))
+        _HELD.append(_SCRATCH.enter_context(_domain().scratch_answers("metered")))
     return _HELD[0]
 
 

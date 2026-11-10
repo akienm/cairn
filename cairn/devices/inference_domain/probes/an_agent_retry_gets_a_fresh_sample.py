@@ -44,6 +44,14 @@ from datetime import datetime
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
 
+
+def _live_rows() -> list[dict]:
+    """The calls, read from the task tickets in the logs tree (ticket 98ab0e9db57f), each with
+    ``created`` as an aware datetime so the era checks place it."""
+    from datetime import datetime as _dt
+    from cairn.devices.inference_domain import domain as _domain
+    return [dict(r, created=_dt.fromisoformat(r["created"])) for r in _domain.call_rows()]
+
 _OWNING_TICKET = "548dd13fb4db"
 
 # The moment the chat branch learned to carry a toolset (this ticket's build).
@@ -110,9 +118,8 @@ def survey_the_corpus() -> dict:
     A DB this probe cannot reach RAISES rather than reporting a clean zero — a silent 0/0 reads
     as both "no finding" and "not yet enough", and those are different states (Law 7).
     """
-    from cairn.devices.db_domain.tools.client import store            # late: imports clean without a DB
 
-    return judge(store.read("inference_calls"))
+    return judge(_live_rows())
 
 
 def _corpus(context: dict) -> dict:

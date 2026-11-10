@@ -45,7 +45,7 @@ the ticket's acceptance criterion, and it deliberately does not live here.
 
 Requires the db_domain provisioning (an OS-named LOGIN CREATEDB role); uses an ephemeral table
 dropped on the way out and a fresh temp instance-root per tooth, so neither the real
-``inference_calls`` store nor the live logs tree is touched.
+answer tree nor the live logs tree is touched.
 
     python3 cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py
 """
@@ -64,20 +64,19 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.db_domain.tools.client import store
 from cairn.devices.inference_domain import domain
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.base import address
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
-_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_SCRATCH = contextlib.ExitStack()   # the one answer tree this proof owns: a scratch leaf, forgotten and dropped at close
 _HELD: list[str] = []
 
 
 def _table() -> str:
     """The proof's one table, minted on first use as scratch."""
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_answers("probe_infer")))
     return _HELD[0]
 
 
@@ -279,9 +278,9 @@ def test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null():
 
 
 def test_the_trail_and_the_meter_agree():
-    """Miss lines on the trail == verdict='miss' rows in the store, over the same window.
+    """Miss lines on the trail == answer leaves in the tree, over the same window.
 
-    THE COUNT IS OF ROWS, never of ``yield_report``'s ``calls`` — that reader has counted
+    THE COUNT IS OF LEAVES, never of ``yield_report``'s ``calls`` — that reader has counted
     refusals as calls since 2026-08-17 and is a different number by a known unclosed defect
     (the device charter's own clause-10 residue). Counting it here would make the tooth agree
     with a bug.
@@ -313,16 +312,18 @@ def test_the_trail_and_the_meter_agree():
             return sum(1 for rec in _lines(trail) if rec["gate"] == "miss")
 
         def row_misses() -> int:
-            rows = store.read(_table(), where="canonical LIKE %s AND verdict = 'miss'",
-                              params=(f"%{tag}%",))
-            return len(rows)
+            # one answer leaf per host call: a hit and a refusal deposit nothing (ticket 98ab0e9db57f)
+            from cairn.devices.librarian.tools.trees import trees
+            return sum(len(trees.find(domain.canonical_digest(domain.canonicalize({"q": f"{tag}_{n}"})),
+                                      table=_table()))
+                       for n in ("0", "1", "2", "9", "bad"))
 
         assert trail_misses() == 3, f"the trail must carry one line per host call: {_lines(trail)}"
-        assert row_misses() == 3, "and the store must carry one row per host call"
+        assert row_misses() == 3, "and the answer tree must carry one leaf per host call"
         assert trail_misses() == row_misses(), "the trail and the meter must agree"
 
         # THE WITNESS. Send the next crossing's line to a different world; the row still lands
-        # in the same table. The equality above must now be false — which is what makes it a
+        # in the same tree. The equality above must now be false — which is what makes it a
         # measurement rather than a tautology.
         elsewhere = scratch_dir("cairn_trail_elsewhere_")
         try:
@@ -331,7 +332,7 @@ def test_the_trail_and_the_meter_agree():
         finally:
             domain.set_diagnostic_roots({**address.ROOTS, "instance": tmp})
 
-        assert row_misses() == 4, "the store recorded the fourth host call"
+        assert row_misses() == 4, "the tree holds the fourth host call's answer"
         assert trail_misses() == 3, "the trail did not — its line went to the other world"
         assert trail_misses() != row_misses(), (
             "the agreement tooth must be capable of failing; if this passes trivially the "

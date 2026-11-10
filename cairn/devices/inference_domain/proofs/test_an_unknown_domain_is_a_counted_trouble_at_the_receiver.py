@@ -55,7 +55,7 @@ _HELD: list[str] = []
 
 def _table() -> str:
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("unknown_domain_trouble")))
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_answers("unknown_domain_trouble")))
     return _HELD[0]
 
 

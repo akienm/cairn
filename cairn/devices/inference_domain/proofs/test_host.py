@@ -871,9 +871,9 @@ def test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite():
     from datetime import datetime, timezone
     from cairn.devices.inference_domain import domain
     now = datetime.now(timezone.utc)
-    assert domain._valid({"horizon": host.EXPIRED}, now) is False, \
+    assert domain._valid(host.EXPIRED, now) is False, \
         f"EXPIRED must read as EXPIRED to the real validator, not merely look expired: {host.EXPIRED}"
-    assert domain._valid({"horizon": ""}, now) is True, "the default horizon still means no expiry"
+    assert domain._valid("", now) is True, "the default horizon still means no expiry"
 
 
 def _main() -> int:

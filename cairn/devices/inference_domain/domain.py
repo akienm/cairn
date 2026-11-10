@@ -84,7 +84,7 @@ import re
 from contextlib import contextmanager
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.devices.db_domain.tools.client import store
@@ -92,23 +92,13 @@ from cairn.tools.base import address
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.metric import metric as _metric
 
-# inference_domain owns its cache. One append-only table is both the compiled answers
-# (verdict='miss' rows carry the resolved answer) and the meter (every call is a row).
-CACHE = "inference_calls"
-CACHE_OWNER = "inference_domain"
-_CACHE_COLUMNS = {
-    "canonical": "text NOT NULL",
-    # 'miss' (the host was touched) | 'hit' (a prior answer served) | 'refused' (the ask
-    # reached the seam and the seam RAISED). Three values, held by CHECK constraint
-    # verdict_vocabulary (ticket 6890cf7e4053).
-    "verdict": "text NOT NULL",
-    "answer": "jsonb",           # structured, so it survives round-trip as structure (Law 7)
-    "falsifier": "text",         # carried for T1.4 active invalidation (a filed edge)
-    "horizon": "text",           # ISO-8601 expiry; '' = no expiry (first cut)
-    "provenance": "jsonb",       # a miss: where it came from; a hit: which stored answer it served
-    "cost": "numeric",           # a miss: tokens SPENT; a hit: tokens AVOIDED
-    "created": "timestamptz NOT NULL DEFAULT now()",
-}
+# inference_domain owns its compiled answers (ticket 98ab0e9db57f, outline 11.4.4, Akien
+# 2026-11-05/09). They live in a KEYED TREE — the trees tool's leaf with no embedding, found
+# by the request's canonical digest (ticket e62f40f35f59) — because an answer is looked up by
+# its exact request, never walked by proximity. The meter is not here: every call records its
+# spent/saved/latency as metrics (below), and every call is a task ticket in the logs tree.
+ANSWERS = "inference_domain_answers_nodes"
+OWNER = "inference_domain"
 
 
 # ── the trail: this door's crossings, written down ───────────────────────────
@@ -447,35 +437,61 @@ def _domain_dressed(request: dict, *, stacks: dict | None = None) -> tuple[dict,
 
 VERDICT_VOCABULARY = ("hit", "miss", "refused")
 
-def ensure_cache(*, table: str = CACHE, conn=None) -> None:
-    """The cache table, owned by inference_domain — created through the one door (db_domain)."""
-    store.create_owned_table(table, CACHE_OWNER, _CACHE_COLUMNS, conn=conn)
-    store.add_owned_constraint(
-        table, CACHE_OWNER, "verdict_vocabulary",
-        "verdict IN ('hit', 'miss', 'refused')",
-        conn=conn,
-    )
+
+def _trees():
+    from cairn.devices.librarian.tools.trees import trees   # the librarian's published tool
+    return trees
+
+
+def ensure_answers(*, table: str = ANSWERS, conn=None) -> None:
+    """The answer tree, held by inference_domain: a keyed leaf (no embedding) made through the
+    trees tool, and an index on its key, since every lookup is by key."""
+    _trees().ensure_trees(table=table, owner=OWNER, keyed=True, conn=conn)
+    store.add_owned_index(table, OWNER, f"{table}_key", ["key"], conn=conn)
 
 
 @contextmanager
-def scratch_cache(prefix: str = "infer_cache"):
-    """A cache table that cannot outlive this process (ticket 201a37bf1613): minted through
-    ``store.scratch()`` under the cache's owner and columns, constrained like the standing
-    cache, yielded by name, dropped at exit — swept by pid if the process never gets there.
-    For proofs; the standing cache is ``ensure_cache``."""
-    with store.scratch(CACHE_OWNER, prefix, _CACHE_COLUMNS) as table:
-        store.add_owned_constraint(table, CACHE_OWNER, "verdict_vocabulary",
-                                   "verdict IN ('hit', 'miss', 'refused')")
-        yield table
+def scratch_answers(prefix: str = "answers"):
+    """An answer tree that cannot outlive this process: a scratch keyed leaf, its nodes
+    forgotten from the shared node list before it drops. For proofs; the standing tree is
+    ``ensure_answers``."""
+    trees = _trees()
+    with trees.scratch_leaf(prefix, owner=OWNER, keyed=True) as table:
+        try:
+            ensure_answers(table=table)
+            yield table
+        finally:
+            trees.forget_leaf(table)
 
 
-def _valid(row: dict, now: datetime) -> bool:
+def _content(answer, horizon: str) -> str:
+    """The node a stored answer is: its answer and its horizon as canonical JSON. Always past
+    the trees tool's content floor, and an answer re-resolved after its horizon is a new node
+    (a leaf's meta is never updated, so the horizon must be part of what is stored)."""
+    return json.dumps({"answer": answer, "horizon": horizon or ""}, sort_keys=True,
+                      separators=(",", ":"), ensure_ascii=False, default=str)
+
+
+def store_answer(canonical: str, answer, *, table: str = ANSWERS, meta: dict | None = None,
+                 domain: str | None = None, conn=None) -> dict:
+    """Deposit one resolved answer under its request's digest. ``meta`` carries horizon,
+    falsifier, cost and provenance; the deposit is the trees tool's keyed door."""
+    meta = dict(meta or {})
+    key = canonical_digest(canonical)
+    prov = {"source": OWNER, "key": key}
+    if domain:
+        prov["domain"] = domain
+    return _trees().deposit_keyed(_content(answer, meta.get("horizon") or ""), key, prov,
+                                  table=table, owner=OWNER, meta=meta, conn=conn)
+
+
+def _valid(horizon: str, now: datetime) -> bool:
     """Does a stored answer still hold? (state VERIFY.) Horizon check — the mechanical one.
 
     An empty/absent horizon means no expiry (first cut). A stored answer past its horizon is
     NOT served — verification, not blind replay: a cache hit verifies before it answers (T1.3).
     """
-    horizon = (row.get("horizon") or "").strip()
+    horizon = (horizon or "").strip()
     if not horizon:
         return True
     try:
@@ -489,22 +505,22 @@ def _valid(row: dict, now: datetime) -> bool:
     return now <= deadline
 
 
-def _latest_valid_answer(canonical: str, now: datetime, *, table: str, conn) -> dict | None:
-    """The most recent still-valid stored answer for `canonical`, or None (a genuine miss).
+def stored_answer(canonical: str, now: datetime, *, table: str = ANSWERS, conn=None) -> dict | None:
+    """The newest still-valid stored answer for ``canonical``, or None (a genuine miss):
+    ``{"answer", "horizon", "falsifier", "cost", "provenance", "created"}``. An expired one is
+    skipped, so a later re-resolve out-votes it without anything being mutated."""
+    for leaf in _trees().find(canonical_digest(canonical), table=table, conn=conn):
+        body = json.loads(leaf["content"])
+        if not _valid(body.get("horizon") or "", now):
+            continue
+        meta = leaf.get("meta") or {}
+        return {"answer": body.get("answer"), "horizon": body.get("horizon") or "",
+                "falsifier": meta.get("falsifier") or "", "cost": meta.get("cost", 0),
+                "provenance": meta.get("provenance") or {}, "created": leaf["created"]}
+    return None
 
-    Reads the append-only log; a stale (expired) answer is skipped, so a later re-resolve
-    out-votes it without anything being mutated or deleted.
-    """
-    rows = store.read(
-        table, where="canonical = %s AND verdict = 'miss'", params=(canonical,), conn=conn
-    )
-    valid = [r for r in rows if _valid(r, now)]
-    if not valid:
-        return None
-    return max(valid, key=lambda r: r["created"])
 
-
-def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = CACHE,
+def resolve(request: dict, *, resolver, now: datetime | None = None, table: str = ANSWERS,
             conn=None, stacks: dict | None = None, sink=None, caller: str | None = None) -> dict:
     """Run the inference-ticket workflow and return the answer.
 
@@ -557,7 +573,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
     }
 
     def _close(verdict: str, *, outcome: dict, selected: dict, response, cost, trouble,
-               path: Path | None = None) -> Path | None:
+               provenance: dict, path: Path | None = None) -> Path | None:
         """Finish and write the ticket. In its own try: a ticket that cannot be written is
         said loudly on stderr and the ANSWER (or the refusal) still reaches the caller."""
         finished = datetime.now(timezone.utc)
@@ -570,6 +586,7 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             "response": response,
             "cost": cost,
             "trouble": trouble,
+            "provenance": provenance,
             "timings": {"started": started.isoformat(), "finished": finished.isoformat(),
                         "elapsed_ms": elapsed_ms},
         })
@@ -583,28 +600,14 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             return None
     own = conn or store.connect()
     try:
-        ensure_cache(table=table, conn=own)
+        ensure_answers(table=table, conn=own)
         moment = now or datetime.now(timezone.utc)
 
-        prior = _latest_valid_answer(canonical, moment, table=table, conn=own)
+        prior = stored_answer(canonical, moment, table=table, conn=own)
         if prior is not None:
-            # HIT — verified (horizon holds). Serve the stored answer UNCHANGED (Law 7: a cache
-            # that mutated the answer would be worse than none). Append the reuse as a metered row
-            # whose `cost` is the spend AVOIDED.
-            store.write(
-                table,
-                CACHE_OWNER,
-                {
-                    "canonical": canonical,
-                    "verdict": "hit",
-                    "answer": prior["answer"],
-                    "falsifier": prior.get("falsifier") or "",
-                    "horizon": prior.get("horizon") or "",
-                    "provenance": {"served_from": str(prior["created"]), "domain": domain_name},
-                    "cost": prior["cost"],
-                },
-                conn=own,
-            )
+            # HIT — verified (horizon holds). Serve the stored answer UNCHANGED (Law 7: a cache that
+            # mutated the answer would be worse than none). No row: the meter records the spend
+            # AVOIDED as metrics, and the call is its task ticket.
             # `cost` and `provenance` ride back ADDITIVELY (2026-07-29, ticket
             # a-node-holds-one-claim): the host reports real counters
             # (prompt_eval_count) and this door has always RECORDED them in the row
@@ -627,7 +630,8 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             served = {"served_from": str(prior["created"]), "domain": domain_name}
             path = _close("hit", outcome={"kind": "answered", "served_from": str(prior["created"])},
                           selected=_selected(dict(prior.get("provenance") or {})),
-                          response=prior["answer"], cost=prior["cost"], trouble=None)
+                          response=prior["answer"], cost=prior["cost"], trouble=None,
+                          provenance=served)
             return {"answer": prior["answer"], "hit": True, "canonical": canonical,
                     "cost": prior["cost"], "provenance": served,
                     "ticket": str(path) if path else None}
@@ -638,36 +642,10 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
         try:
             result = resolver(request)
         except Exception as refusal:
-            # A REFUSED ASK LEAVES A ROW (Law 3 — an unrecorded refusal is an unmeasured one).
-            # The row records what THIS door knows: which vertical rode, what was raised, and
-            # what it said. No `path`/`host` — the resolver raised before it returned a
-            # provenance, so there is none to record, and inventing one would be manufacturing
-            # a measurement.
-            try:
-                store.write(
-                    table,
-                    CACHE_OWNER,
-                    {
-                        "canonical": canonical,
-                        "verdict": "refused",
-                        "answer": None,
-                        "falsifier": "",
-                        "horizon": "",
-                        "provenance": {
-                            "domain": domain_name,
-                            "refused": type(refusal).__name__,
-                            "detail": str(refusal)[:2000],
-                        },
-                        "cost": 0,
-                    },
-                    conn=own,
-                )
-            except Exception as unrecorded:      # pragma: no cover — the store being down
-                # The refusal is the caller's answer and must reach them UNCHANGED (a
-                # bookkeeping failure may not impersonate a host failure). Loud where it can
-                # be, on stderr, and then out of the way.
-                print(f"inference_domain: a refusal went UNRECORDED ({unrecorded!r}); "
-                      f"the refusal itself follows", file=sys.stderr)
+            # A REFUSED ASK IS RECORDED (Law 3 — an unrecorded refusal is an unmeasured one): its
+            # task ticket, its trail line, its trouble and its meter. No provenance path/host —
+            # the resolver raised before it returned one, and inventing one would be
+            # manufacturing a measurement.
             # THE TRAIL: the crossing attempted and failed. In its OWN try, and after the
             # row rather than inside its try, for two separate reasons. (1) The refusal is
             # the caller's answer: nothing here may replace it, so a trail failure is caught
@@ -716,26 +694,19 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
                           outcome={"kind": "refused", "refused": type(refusal).__name__,
                                    "detail": str(refusal)[:2000]},
                           selected={}, response=None, cost=0, trouble=trouble,
+                          provenance={"domain": domain_name, "refused": type(refusal).__name__,
+                                      "detail": str(refusal)[:2000]},
                           path=ticket_path)
             if path is not None:
                 refusal.task_ticket = str(path)
             raise
         provenance = dict(result.get("provenance") or {})
         provenance["domain"] = domain_name    # which vertical rode — the watch reads this
-        store.write(
-            table,
-            CACHE_OWNER,
-            {
-                "canonical": canonical,
-                "verdict": "miss",
-                "answer": result["answer"],
-                "falsifier": result.get("falsifier") or "",
-                "horizon": result.get("horizon") or "",
-                "provenance": provenance,
-                "cost": result.get("cost", 0),
-            },
-            conn=own,
-        )
+        store_answer(canonical, result["answer"], table=table, domain=domain_name, conn=own,
+                     meta={"horizon": result.get("horizon") or "",
+                           "falsifier": result.get("falsifier") or "",
+                           "cost": float(result.get("cost", 0) or 0),
+                           "provenance": provenance})
         # THE TRAIL: the crossing that actually happened — "starting an inference call sure
         # should" log (Akien, 2026-08-18). The endpoint keys are the ones the resolver's own
         # provenance carries (`host`, `path`, `model` from ollama_resolver; `provider` and
@@ -751,7 +722,8 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             now=moment,
         )
         path = _close("miss", outcome={"kind": "answered"}, selected=_selected(provenance),
-                      response=result["answer"], cost=result.get("cost", 0), trouble=None)
+                      response=result["answer"], cost=result.get("cost", 0), trouble=None,
+                      provenance=provenance)
         return {"answer": result["answer"], "hit": False, "canonical": canonical,
                 "cost": result.get("cost", 0),
                 "provenance": provenance,
@@ -769,71 +741,87 @@ def _as_utc(when):
     return when if when.tzinfo else when.replace(tzinfo=timezone.utc)
 
 
-def read_ticket(*, canonical: str | None = None, limit: int | None = None,
-                since: str | None = None, table: str = CACHE, conn=None) -> list[dict]:
-    """The reader face: inference_calls rows themselves, not an aggregate (yield_report) but
-    the individual tickets — request and answer.
+def call_rows(*, roots: dict | None = None, limit: int | None = None,
+              since: str | None = None) -> list[dict]:
+    """The calls, newest first, read from the task tickets in the logs tree (outline 11.4.4.1:
+    a debugging view, on the 30-day clock). Each is ``{id, canonical, created, verdict,
+    answer, cost, provenance, caller, request, body_status}``; ``created`` is the call's start. ``since``
+    (ISO) drops every call at or before it, BEFORE the limit, so an asker that remembers the
+    newest call it has read gets only what is new."""
+    folder = tickets_dir(roots)
+    if not folder.is_dir():
+        return []
+    floor = _as_utc(since) if since is not None else None
+    names = sorted(folder.glob("*.json"), reverse=True)
+    if floor is not None:
+        # the filename leads with its UTC stamp — a cheap pre-filter, re-checked below
+        stamp = (floor - timedelta(seconds=1)).strftime("%Y%m%dT%H%M%S%f")
+        names = [p for p in names if p.name[:len(stamp)] >= stamp]
+    out = []
+    for p in names:
+        try:
+            t = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        created = (t.get("timings") or {}).get("started")
+        if not created:
+            continue
+        if floor is not None and _as_utc(created) <= floor:
+            continue
+        prov = t.get("provenance")
+        if prov is None:     # a ticket written before the tickets carried it
+            prov = dict(t.get("selected") or {})
+            prov["domain"] = (t.get("specified") or {}).get("domain")
+            outcome = t.get("outcome") or {}
+            for k in ("refused", "detail", "served_from"):
+                if outcome.get(k):
+                    prov[k] = outcome[k]
+        try:
+            cost = float(t.get("cost") or 0)
+        except (TypeError, ValueError):
+            cost = 0.0
+        answer = t.get("response")
+        try:     # the question as asked: the canonical decoded, as the table's reader did
+            request = json.loads(t.get("canonical") or "")
+        except (json.JSONDecodeError, TypeError):
+            request = None
+        out.append({"id": t.get("id") or p.stem, "canonical": t.get("canonical"),
+                    "created": created, "verdict": t.get("verdict"), "answer": answer,
+                    "cost": cost, "provenance": prov, "caller": t.get("caller"),
+                    "request": request,
+                    # "whole" when the answer carries the host's raw body; a call with no
+                    # answer, or one from before the body rode, is UNKNOWABLE — never empty
+                    "body_status": "whole" if isinstance(answer, dict) and "body" in answer
+                                   else "unknowable"})
+    out.sort(key=lambda c: _as_utc(c["created"]), reverse=True)
+    return out[:limit] if limit is not None else out
 
-    By canonical (exact match), or by recency (most recent first). Each returned row carries:
-      - ``request``: the decoded request dict (canonical round-tripped through json.loads)
-      - ``body_status``: ``"whole"`` if the answer carries the host's raw body,
-        ``"unknowable"`` if the row predates the build that carries it (pre-build rows are
-        never "empty" — absent-not-empty, which is where a hollow green would hide)
-      - everything else the row already has
 
-    ``since`` (ISO, ticket b905340f8162) drops every row created at or before it, BEFORE
-    the limit — so an asker that remembers the newest row it has read gets only what is new.
-    """
-    own_conn = conn or store.connect()
-    try:
-        if canonical is not None:
-            rows = store.read(table, where="canonical = %s", params=(canonical,), conn=own_conn)
-        else:
-            rows = store.read(table, conn=own_conn)
-        rows.sort(key=lambda r: r["created"], reverse=True)
-        if since is not None:
-            floor = _as_utc(since)
-            rows = [r for r in rows if _as_utc(r["created"]) > floor]
-        if limit is not None:
-            rows = rows[:limit]
-        result = []
-        for row in rows:
-            enriched = dict(row)
-            try:
-                enriched["request"] = json.loads(row["canonical"])
-            except (json.JSONDecodeError, TypeError):
-                enriched["request"] = None
-            answer = row.get("answer")
-            if answer is None:
-                enriched["body_status"] = "unknowable"
-            elif isinstance(answer, dict) and "body" in answer:
-                enriched["body_status"] = "whole"
-            else:
-                enriched["body_status"] = "unknowable"
-            result.append(enriched)
-        return result
-    finally:
-        if conn is None:
-            own_conn.close()
+def _ask_metrics(body: dict) -> dict:
+    """The cairn device's ``metrics`` verb, over the bus (RULE 1: never an import of it)."""
+    from cairn.tools.bus_client import reach
+    return reach("cairn").request(sender=OWNER, to="cairn", verb="metrics",
+                                  why="inference_domain's yield report", body=body)["body"]
 
 
-def yield_report(*, table: str = CACHE, conn=None) -> dict:
+def yield_report(*, ask=None) -> dict:
     """The meter read back (how_it_learns): tokens SPENT vs AVOIDED — is compilation paying off?
 
-    Spent = the cost of misses (real host calls). Avoided = the cost hits did not have to pay.
-    Avoided climbing against spent IS the evidence the cache earns its keep (Telos 1, Law 3).
-    """
-    rows = store.read(table, conn=conn)
-    hits = [r for r in rows if r["verdict"] == "hit"]
-    misses = [r for r in rows if r["verdict"] == "miss"]
-    refused = [r for r in rows if r["verdict"] == "refused"]
-    spent = float(sum((r["cost"] or 0) for r in misses))
-    avoided = float(sum((r["cost"] or 0) for r in hits))
+    The cairn device's metrics verb answers the totals (outline 11.4.4.2, ticket f4dbcea5a117):
+    one count and sum per metric name and verdict over every call this device ever metered, so
+    the answer stays a handful of rows however long the history grows. Spent is inference.spent,
+    avoided inference.saved, and the calls are the inference.latency rows (one per call) counted
+    by verdict. Avoided climbing against spent IS the evidence the compiled answers earn their keep."""
+    totals = (ask or _ask_metrics)({"source": METRIC_SOURCE, "totals": True,
+                                    "by": "verdict"}).get("totals") or []
+    count = {t.get("by"): int(t.get("count") or 0) for t in totals if t.get("name") == LATENCY}
+    spent = float(sum(t.get("sum") or 0 for t in totals if t.get("name") == SPENT))
+    avoided = float(sum(t.get("sum") or 0 for t in totals if t.get("name") == SAVED))
     return {
-        "calls": len(rows),
-        "hits": len(hits),
-        "misses": len(misses),
-        "refused": len(refused),
+        "calls": sum(count.values()),
+        "hits": count.get("hit", 0),
+        "misses": count.get("miss", 0),
+        "refused": count.get("refused", 0),
         "spent": spent,
         "avoided": avoided,
     }

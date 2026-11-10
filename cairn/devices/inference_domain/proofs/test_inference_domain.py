@@ -12,19 +12,22 @@ could not pass:
     re-resolve. A hollow cache that replays blindly (ignores the horizon) trips this.
   - THE ANSWER IS SERVED UNCHANGED (Law 7). A hit returns byte-for-byte what the miss stored;
     a cache that mangles the record it serves is worse than none.
-  - THE OWNER GATES THE CACHE (Law 6). Only inference_domain may write the cache table; a
+  - THE OWNER GATES THE ANSWERS (Law 6). Only inference_domain may write its answer tree; a
     non-owner write is refused by db_domain's gate.
-  - A REFUSED ASK LEAVES A ROW (Law 3). A resolver that RAISES still lands a row naming the
-    exception's type; the refusal propagates unchanged, spends nothing, and is never served as
-    a hit. A hollow build writes only on success and the refusal rate stays unreadable.
+  - A REFUSED ASK LEAVES A RECORD (Law 3). A resolver that RAISES still lands a task ticket
+    naming the exception's type; the refusal propagates unchanged, spends nothing, deposits no
+    answer, and is never served as a hit.
   - THE STANDING READERS ARE UNMOVED. The third verdict is fed to each of the three probes'
     own judgements as a REAL row, not reasoned about — the one that fires on (no text, no cost)
     included.
-  - THE METER IS COMPLETE (Law 3). Every call lands a row; yield_report separates tokens SPENT
-    (misses) from tokens AVOIDED (hits), so the saving is measured, not asserted.
+  - EVERY CALL IS RECORDED (Law 3). Every call lands a task ticket; misses carry the spend and
+    hits the spend avoided, so the saving is measured, not asserted. (The meter's metrics rows
+    are proved at test_the_proxy_records_its_meter_as_metrics.py.)
 
-Requires the db_domain provisioning (an OS-named LOGIN CREATEDB role); uses an ephemeral table
-dropped on the way out, so the real `inference_calls` store is never touched by fixtures.
+Requires the db_domain provisioning (an OS-named LOGIN CREATEDB role); the answers go to a
+scratch keyed leaf forgotten on the way out and the task tickets to a scratch instance root, so
+the standing answer tree and the live logs tree are never touched by fixtures (ticket
+98ab0e9db57f).
 
     python3 cairn/devices/inference_domain/proofs/test_inference_domain.py     # exit 0 = green
 """
@@ -47,15 +50,39 @@ from cairn.devices.inference_domain import domain, host
 
 # Ephemeral table + a per-run tag on every canonical, so cleanup is exact and re-runs never collide.
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
-_SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
+_SCRATCH = contextlib.ExitStack()   # the one answer tree this proof owns: a scratch leaf, forgotten and dropped at close
 _HELD: list[str] = []
 
 
 def _table() -> str:
-    """The proof's one table, minted on first use as scratch."""
+    """The proof's one answer tree, minted on first use as scratch."""
     if not _HELD:
-        _HELD.append(_SCRATCH.enter_context(domain.scratch_cache("probe_infer")))
+        _HELD.append(_SCRATCH.enter_context(domain.scratch_answers("probe_infer")))
     return _HELD[0]
+
+
+def _calls(fragment: str = "") -> list[dict]:
+    """The calls this run made, read from the task tickets in the fixture world (``_main``
+    moves the roots), newest first, ``created`` as a datetime so the probes' era checks place
+    each one."""
+    return [dict(r, created=datetime.fromisoformat(r["created"])) for r in domain.call_rows()
+            if fragment in (r.get("canonical") or "")]
+
+
+def _tally(fragment: str = "") -> dict:
+    """What the calls say about spend: misses carry what was spent, hits what was avoided."""
+    rows = _calls(fragment)
+    v = [r["verdict"] for r in rows]
+    return {"calls": len(rows), "hits": v.count("hit"), "misses": v.count("miss"),
+            "refused": v.count("refused"),
+            "spent": sum(r["cost"] for r in rows if r["verdict"] == "miss"),
+            "avoided": sum(r["cost"] for r in rows if r["verdict"] == "hit")}
+
+
+def _leaves(canonical: str) -> list[dict]:
+    """The answers the tree holds for one request."""
+    from cairn.devices.librarian.tools.trees import trees
+    return trees.find(domain.canonical_digest(canonical), table=_table())
 
 
 class _CountingResolver:
@@ -90,24 +117,12 @@ class _CountingResolver:
 # for the store and another for the trail would leave two true records nobody can join.
 # (e) is the clause the WATCHME probe watches in the wild — an agent re-asks a byte-identical
 # question ON PURPOSE, and serving that from the store is not a saved call, it is a hang.
-#
-# 6890cf7e4053 (the verdict vocabulary is held by postgres) — three numbered clauses:
-# (1) the STANDING table carries the constraint, decided by an actual write it refuses;
-# (2) the vocabulary is physics at the database, not a Python check at the writer — a raw
-#     INSERT that bypasses every writer is refused with postgres' own 23514;
-# (3) the deciding observation is a write refusal, never DDL text or a pg_constraint row —
-#     the probe's row-read is held against the refusal, so a probe that reports "present"
-#     over a table that accepts the write reds here.
+
 PROVES = {
     "548dd13fb4db": {
         "b": "test_a_differing_toolset_is_a_different_question",
         "d": "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest",
         "e": "test_an_agent_retry_gets_a_fresh_sample",
-    },
-    "6890cf7e4053": {
-        "1": "test_the_standing_table_refuses_an_out_of_vocabulary_write",
-        "2": "test_an_out_of_vocabulary_verdict_is_refused_at_the_database",
-        "3": "test_the_probes_row_read_agrees_with_an_actual_write_refusal",
     },
 }
 
@@ -145,10 +160,10 @@ def test_verify_before_answer_a_stale_entry_re_resolves():
 
 
 def test_the_owner_gates_the_cache():
-    domain.ensure_cache(table=_table())
+    domain.ensure_answers(table=_table())
     try:
-        store.write(_table(), "impostor", {"canonical": "x", "verdict": "miss"})
-        raise AssertionError("a non-owner write to the cache must be REFUSED (Law 6)")
+        store.write(_table(), "impostor", {"key": "x", "node_id": "x"})
+        raise AssertionError("a non-owner write to the answer tree must be REFUSED (Law 6)")
     except OwnershipError:
         pass
 
@@ -160,8 +175,8 @@ def test_the_meter_measures_spent_against_avoided():
     domain.resolve(tag, resolver=r, table=_table())       # hit   -> avoids 100
     domain.resolve(tag, resolver=r, table=_table())       # hit   -> avoids 100
 
-    report = domain.yield_report(table=_table())
-    assert report["misses"] >= 1 and report["hits"] >= 2, f"every call must land a row: {report}"
+    report = _tally(f"meter_{_RUN}")
+    assert report["misses"] == 1 and report["hits"] == 2, f"every call must land a record: {report}"
     assert report["spent"] >= 100.0, f"a miss must be metered as spend: {report}"
     assert report["avoided"] >= 200.0, f"hits must be metered as avoided spend: {report}"
 
@@ -306,7 +321,7 @@ def test_a_refused_ask_leaves_a_row():
     boom = RuntimeError("the host refused this ask")
     r = _RefusingResolver(boom)
 
-    before = domain.yield_report(table=_table())
+    before = _tally()
 
     # (a) the exception propagates — the SAME object, not a wrapper.
     try:
@@ -319,12 +334,12 @@ def test_a_refused_ask_leaves_a_row():
     assert r.calls == 1, "the ask must have reached the seam"
 
     # (b) THE TOOTH THE TICKET EXISTS FOR. Red on HEAD: no row is written today.
-    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%refused_{_RUN}%",))
+    rows = _calls(f"refused_{_RUN}")
     assert len(rows) == 1, (
-        f"a refused ask must leave exactly one row; found {len(rows)}. "
-        "On unmodified HEAD this is red because NO ROW WAS WRITTEN — resolve() writes only "
-        "after the resolver returns, so every refusal is invisible to the meter."
+        f"a refused ask must leave exactly one record; found {len(rows)} — a build that writes "
+        "only after the resolver returns leaves every refusal invisible to the meter."
     )
+    assert _leaves(rows[0]["canonical"]) == [], "a refusal deposits no answer in the tree"
     row = rows[0]
     prov = row["provenance"] or {}
     assert prov.get("refused") == "RuntimeError", (
@@ -334,7 +349,7 @@ def test_a_refused_ask_leaves_a_row():
         f"the row must carry the refusal's own words: {prov}"
     )
     assert prov.get("domain"), "the refused row must still say which vertical rode (the watch reads this)"
-    assert row["answer"] is None, "a refusal has no answer; a row claiming one would be a lie (Law 7)"
+    assert row["answer"] is None, "a refusal has no answer; a record claiming one would be a lie (Law 7)"
     assert float(row["cost"] or 0) == 0.0, "a refusal spends nothing"
 
     # (c) the refusal must NEVER be served as a hit — the host is touched again.
@@ -349,7 +364,7 @@ def test_a_refused_ask_leaves_a_row():
     assert again.calls == 1, "a refused row must not satisfy a later ask (it is not an answer)"
 
     # (d) the meter is untouched by refusals — constrain's hard bound.
-    after = domain.yield_report(table=_table())
+    after = _tally()
     assert after["spent"] == before["spent"], f"a refusal must not move SPENT: {before} -> {after}"
     assert after["avoided"] == before["avoided"], f"a refusal must not move AVOIDED: {before} -> {after}"
     assert after["hits"] == before["hits"] and after["misses"] == before["misses"], (
@@ -399,8 +414,8 @@ def test_the_standing_readers_are_unmoved_by_a_refused_row():
     except RuntimeError:
         pass
 
-    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%readers_{_RUN}%",))
-    assert len(rows) == 1 and rows[0]["verdict"] == "refused", f"fixture must be a real refused row: {rows}"
+    rows = _calls(f"readers_{_RUN}")
+    assert len(rows) == 1 and rows[0]["verdict"] == "refused", f"fixture must be a real refused record: {rows}"
 
     nf = nonfinal.judge_rows(rows)
     assert nf["got_through"] == [], (
@@ -441,7 +456,7 @@ def test_the_watch_reads_a_row_the_real_writer_made():
     except RuntimeError:
         pass
 
-    rows = store.read(_table(), where="canonical LIKE %s", params=(f"%watchfix_%{_RUN}%",))
+    rows = [r for r in _calls("watchfix_") if _RUN in r["canonical"]]
     assert len(rows) == 2, f"expected one answered and one refused row from the real writer: {rows}"
 
     s = watch.judge_rows(rows)
@@ -505,7 +520,7 @@ def test_the_ticket_comes_back_whole():
     assert r.calls == 1
 
     canonical = domain.canonicalize(request_dict)
-    tickets = domain.read_ticket(canonical=canonical, table=_table())
+    tickets = [r for r in _calls() if r["canonical"] == canonical]
     assert len(tickets) >= 1, f"the reader must find the row by canonical: {tickets}"
     ticket = tickets[0]
 
@@ -526,7 +541,7 @@ def test_the_ticket_comes_back_whole():
 
     # (c) The pre-build row reads UNKNOWABLE, not empty.
     pre_canonical = domain.canonicalize({"q": f"prebuild_{_RUN}"})
-    pre_tickets = domain.read_ticket(canonical=pre_canonical, table=_table())
+    pre_tickets = [r for r in _calls() if r["canonical"] == pre_canonical]
     assert len(pre_tickets) >= 1
     assert pre_tickets[0]["body_status"] == "unknowable", (
         f"a pre-build row lacking the body must read UNKNOWABLE, never empty: "
@@ -550,10 +565,10 @@ def test_the_ticket_comes_back_whole():
     )
 
     # Recency: read_ticket with limit returns newest first.
-    all_tickets = domain.read_ticket(limit=5, table=_table())
+    all_tickets = domain.call_rows(limit=5)
     assert len(all_tickets) >= 2, "the reader must see both rows"
     assert all_tickets[0]["created"] >= all_tickets[1]["created"], \
-        "read_ticket must return rows newest first"
+        "call_rows must return calls newest first"
 
     # A refused row is also UNKNOWABLE (answer is None).
     bad = _RefusingResolver(RuntimeError("for wholeness"))
@@ -562,117 +577,11 @@ def test_the_ticket_comes_back_whole():
     except RuntimeError:
         pass
     refused_canonical = domain.canonicalize({"q": f"refused_whole_{_RUN}"})
-    refused_tickets = domain.read_ticket(canonical=refused_canonical, table=_table())
+    refused_tickets = [r for r in _calls() if r["canonical"] == refused_canonical]
     assert len(refused_tickets) >= 1
     assert refused_tickets[0]["body_status"] == "unknowable", \
         "a refused row (answer=None) must read UNKNOWABLE"
 
-
-def test_an_out_of_vocabulary_verdict_is_refused_at_the_database():
-    domain.ensure_cache(table=_table())
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            for good in domain.VERDICT_VOCABULARY:
-                cur.execute(
-                    f'INSERT INTO "{_table()}" (canonical, verdict, cost) '
-                    f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_{good}_{_RUN}", good),
-                )
-            conn.commit()
-            try:
-                cur.execute(
-                    f'INSERT INTO "{_table()}" (canonical, verdict, cost) '
-                    f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_invalid_{_RUN}", "invalid"),
-                )
-                conn.commit()
-                raise AssertionError(
-                    "an out-of-vocabulary verdict must be refused by the CHECK constraint"
-                )
-            except Exception as _exc:
-                if getattr(_exc, "pgcode", None) != "23514":
-                    raise
-                conn.rollback()
-    finally:
-        conn.close()
-
-
-def test_the_verdict_constraint_exists_on_the_table():
-    domain.ensure_cache(table=_table())
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT constraint_name FROM information_schema.table_constraints "
-                "WHERE table_name = %s AND constraint_type = 'CHECK' "
-                "AND constraint_name = 'verdict_vocabulary'",
-                (_table(),),
-            )
-            row = cur.fetchone()
-            assert row is not None, (
-                f"CHECK constraint 'verdict_vocabulary' must exist on {_table()} "
-                f"after ensure_cache()"
-            )
-    finally:
-        conn.close()
-
-
-def _standing_table_refuses(verdict: str) -> str | None:
-    """Try ONE out-of-vocabulary write against the STANDING cache table and return the
-    pgcode postgres refused it with (None when the write was accepted). The transaction is
-    rolled back either way, so the live table is read for an invariant and left as found —
-    the one shape a proof may touch live data in."""
-    conn = store.connect()
-    try:
-        with conn.cursor() as cur:
-            try:
-                cur.execute(
-                    f'INSERT INTO "{domain.CACHE}" (canonical, verdict, cost) '
-                    f"VALUES (%s, %s, 0)",
-                    (f"vocab_check_standing_{_RUN}", verdict),
-                )
-            except Exception as exc:
-                conn.rollback()
-                return getattr(exc, "pgcode", None) or type(exc).__name__
-            conn.rollback()
-            return None
-    finally:
-        conn.close()
-
-
-def test_the_standing_table_refuses_an_out_of_vocabulary_write():
-    """6890cf7e4053 clause (1): production and a fresh install agree — the STANDING table
-    ``inference_calls`` refuses the write, decided by the write itself."""
-    code = _standing_table_refuses("invalid")
-    assert code == "23514", (
-        f"the standing table {domain.CACHE} must refuse an out-of-vocabulary verdict with "
-        f"postgres' check_violation (23514); got {code!r}"
-        + (" — the write was ACCEPTED" if code is None else "")
-    )
-
-
-def test_the_probes_row_read_agrees_with_an_actual_write_refusal():
-    """6890cf7e4053 clause (3): the WATCHME probe reads a pg_constraint row; this tooth holds
-    that read against the refusal of an actual write, so a row that says "present" over a
-    table that accepts the write is red. The probe is bound at call time (hollow reverts it)."""
-    import importlib.util
-    probe_path = (_REPO_ROOT / "cairn" / "devices" / "inference_domain" / "probes"
-                  / "the_verdict_vocabulary_is_refused_at_the_database.py")
-    spec = importlib.util.spec_from_file_location("_verdict_vocab_probe", probe_path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    assert mod.PROBE.carry is not None and mod.PROBE.enough is not None, "the probe is armed"
-    corpus = mod.survey_the_corpus()
-    refused = _standing_table_refuses("invalid") == "23514"
-    assert corpus["constraint_exists"] == refused, (
-        f"the probe's row-read says constraint_exists={corpus['constraint_exists']} but an "
-        f"actual write was {'refused' if refused else 'ACCEPTED'} — the row is not the physics"
-    )
-    assert refused, "the deciding observation is the refusal, and it must be a refusal"
-    assert mod._enough({"corpus": corpus}) and not mod._trigger(None, {"corpus": corpus}), (
-        "with the constraint biting, the probe is at enough and does not trigger"
-    )
 
 
 def test_a_differing_toolset_is_a_different_question():
@@ -727,7 +636,7 @@ def test_an_agent_retry_gets_a_fresh_sample():
 def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
     """Clause (d) FOR THE NEW LANE: one tool-using call, two records, joinable.
 
-    The meter row and the trail line already existed and are proved at their own addresses —
+    The stored answer and the trail line already existed and are proved at their own addresses —
     what is unproved before this tooth is that the AGENT lane lands both. It is the lane where
     they could most easily come apart: the toolset is a request key, so it moves the canonical
     and therefore the digest, and a build that canonicalized the request for the store but
@@ -762,9 +671,9 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
                              resolver=r, table=_table())
         assert out["hit"] is False and r.calls == 1, "the first agent ask is a miss"
 
-        rows = store.read(_table(), where="canonical = %s", params=(out["canonical"],))
+        rows = _leaves(out["canonical"])
         assert len(rows) == 1, \
-            f"a tool-carrying call must land exactly one row in the meter, got {len(rows)}"
+            f"a tool-carrying call must deposit exactly one answer, got {len(rows)}"
 
         # BOTH SHAPES THE RECEIVER CAN WRITE — one JSONL file, or one .json per record. Which
         # one lands is the receiver's business and not this tooth's claim; reading only the
@@ -782,10 +691,9 @@ def test_a_tool_carrying_call_lands_both_records_joined_by_the_digest():
         # THE JOIN, MADE RATHER THAN ASSUMED. This is the whole clause: the pointer on the
         # line is the digest of the canonical on the row, so a reader holding either record
         # can find the other. A toolset that moved one and not the other reds here.
-        assert misses[0]["pointer"] == domain.canonical_digest(rows[0]["canonical"]), (
-            f"the trail line and the meter row do not join: line pointer "
-            f"{misses[0]['pointer']!r} vs digest of the row's canonical "
-            f"{domain.canonical_digest(rows[0]['canonical'])!r}")
+        assert misses[0]["pointer"] == rows[0]["key"] == domain.canonical_digest(out["canonical"]), (
+            f"the trail line and the stored answer do not join: line pointer "
+            f"{misses[0]['pointer']!r} vs the answer's key {rows[0]['key']!r}")
 
         # NON-VACUITY: the digest must actually depend on the toolset, or the join above would
         # hold for a build that dropped tools before hashing and the tooth would prove nothing
@@ -815,10 +723,6 @@ def _main() -> int:
         test_the_standing_readers_are_unmoved_by_a_refused_row,
         test_the_watch_reads_a_row_the_real_writer_made,
         test_the_ticket_comes_back_whole,
-        test_an_out_of_vocabulary_verdict_is_refused_at_the_database,
-        test_the_verdict_constraint_exists_on_the_table,
-        test_the_standing_table_refuses_an_out_of_vocabulary_write,
-        test_the_probes_row_read_agrees_with_an_actual_write_refusal,
         test_a_differing_toolset_is_a_different_question,
         test_an_agent_retry_gets_a_fresh_sample,
         test_a_tool_carrying_call_lands_both_records_joined_by_the_digest,
@@ -846,7 +750,7 @@ def _main() -> int:
         _SCRATCH.close()
     if code:
         return code
-    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully metered, ticket comes back whole, verdict vocabulary held")
+    print("green — inference_domain: compile-once, verified-before-served, owner-gated, fully recorded, ticket comes back whole")
     return 0
 
 

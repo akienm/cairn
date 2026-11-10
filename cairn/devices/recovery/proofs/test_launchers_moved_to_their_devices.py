@@ -120,7 +120,9 @@ def tooth_no_live_reference():
     # the path-joined spelling (REPO / "launchers" / "superclaude") names the folder without a slash
     r = subprocess.run(["git", "-C", str(ROOT), "grep", "-n", "-E", r"""["']launchers["']""", "--", "*.py"],
                        capture_output=True, text=True)
-    hits += [l for l in r.stdout.splitlines() if "test_launchers_moved_to_their_devices.py" not in l]
+    # ... except instance-space spelled path-joined (home / ".cairn" / "launchers"), which never moved
+    hits += [l for l in r.stdout.splitlines() if "test_launchers_moved_to_their_devices.py" not in l
+             and not re.search(r"""["']\.cairn["']\s*/\s*["']launchers["']""", l)]
     assert not hits, f"{len(hits)} live reference(s) to launchers/:\n" + "\n".join(hits[:20])
 
 
@@ -140,8 +142,12 @@ def tooth_instance_space_did_not_move():
                        timeout=120, cwd=_outside_the_repo())
     m = re.search(r"flags home: (\S+)", r.stdout + r.stderr)
     assert m, f"superclaude --dry-run printed no flags home: {(r.stdout + r.stderr)[-400:]}"
-    want = Path.home() / ".cairn" / "launchers" / "superclaude" / "0"
-    assert Path(m.group(1)) == want, f"superclaude's flags home is {m.group(1)}, want {want}"
+    # the instance is whichever is free (ticket ae4d581be071 moves a launch off a held one);
+    # what must not move is the instance-space address the number hangs off
+    want = Path.home() / ".cairn" / "launchers" / "superclaude"
+    got = Path(m.group(1))
+    assert got.parent == want and got.name.isdigit(), \
+        f"superclaude's flags home is {got}, want {want}/<N>"
     restart = (CC / "0" / "bin" / "restart").read_text()
     assert '$HOME/.cairn/launchers/superclaude/' in restart, \
         "cairn cc restart no longer reads the flags home superclaude writes"

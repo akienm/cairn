@@ -2,7 +2,7 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T03:40:31",
+    "date": "2026-11-10T03:45:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -40,7 +40,7 @@
         "the_ground_loop_faces_do_not_import"
       ],
       "teeth_red": [],
-      "test": "test-1410e7169334",
+      "test": "test-48ad837adf37",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -63,12 +63,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1410e7169334",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-48ad837adf37",
       "source_fingerprint": "c631a22c09695159d221efa57cf5fe418b3a56ac343b9cfa72dcb03045551881",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
@@ -105,20 +106,19 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1866154-hial86ji/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-48ad837adf37/stderr.txt",
+            "logs/tester/0/runs/test-48ad837adf37/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524091986,
-          "disk_bytes": 559628288,
-          "entries": 13855,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {
@@ -154,38 +154,38 @@
             "nothing_names_the_ground_loop_faces",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::(population: 70 components, both derivations agreeing)",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::BaseDevice must carry the emit surface structurally",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice derives 'bus' but its file lives in /tmp/cairn-hollow-scratch.4026531836-1857647-9arrnrjb/worktree/cairn/devices/cairn/machines/bus",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice derives 'bus' but its file lives in /tmp/cairn-hollow-scratch.4026531836-1866608-bwyn6t8g/worktree/cairn/devices/cairn/machines/bus",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice must subclass BaseDevice in cairn/devices/cairn/machines/bus/bus.py; bases ['BaseDevice']",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:26:01.702991+00:00', 'us': '702991', 'values': {}}]",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678864+00:00', 'us': '678864', 'values': {}}]",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::a class defined outside the rungs must not be given a component name",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::a device that never emitted has no records",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::a silenced device holds; got held",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::an already-written emission file is never rewritten",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::an overridden receiver receives",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::an unwired device's trail directory must exist at /tmp/tmprmd_pui2/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:26:01.702991+00:00', 'us': '702991', 'values': {}}",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::an unwired device's trail directory must exist at /tmp/tmpfkri6nk8/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678864+00:00', 'us': '678864', 'values': {}}",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::and it lands under its own derived name",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::and no records — never a guess at somebody else's trail: []",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::and reading them created nothing: []",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::and the default trail is NOT also written — an override replaces, it does not tee",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::and the record is retrievable, not dropped",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-11-10T10:26:01.702229+00:00', 'us': '702229', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-11-10T10:26:01.702370+00:00', 'us': '702370', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-11-10T10:26:01.702458+00:00', 'us': '702458', 'values': {}}]",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678192+00:00', 'us': '678192', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678320+00:00', 'us': '678320', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678397+00:00', 'us': '678397', 'values': {}}]",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::exactly one emission file, got 1",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::log_path resolves instance/logs/<device>/<instance>; got /nowhere-this-proof-never-touches-disk/logs/some_device/3",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::neither the device nor the log may create anything before the first write",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::no rung, no address",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::one emission, one file",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the address itself must sit inside the moved world: /tmp/tmp1tlti80b/logs/bus/0",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::the address itself must sit inside the moved world: /tmp/tmpfev78euf/logs/bus/0",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the census must actually see the tree — HollowScan's lesson; found 70",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the child process must emit cleanly; stderr:",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the component walk hit unreadable entries: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-11-10T10:26:01.126005+00:00', 'us': '126005', 'values': {'pid': 'child'}}",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-11-10T10:42:42.117762+00:00', 'us': '117762', 'values': {'pid': 'child'}}",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the instance segment is never optional — a singleton is 0, not an omission",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the name resolves without touching disk",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the record read back must be the one the dead process wrote, byte for byte",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpl1yn5x9k/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect",
+            "cairn/tools/base/proofs/test_device_logs_unwired.py::the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpail3in9v/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the same class NOT silenced must write — else the sentinel proves nothing",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::the string derivation and the tree walk must name every component identically; 0 disagree: []",
             "cairn/tools/base/proofs/test_device_logs_unwired.py::two emissions, two files"
@@ -224,8 +224,8 @@
       },
       "hollow_anchor": {
         "229ee25ff6f0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "45033f9dd6bdd4684a9f4fb9261d5a87788b108a",
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "b9f524323ddc8bbe31620729606e18b0f06fc6e0",
           "anchor_first_build": "c9e7ce6b23fc8b8880bc3215337757d7235407d0",
           "commit": "45033f9dd6bdd4684a9f4fb9261d5a87788b108a"
         }

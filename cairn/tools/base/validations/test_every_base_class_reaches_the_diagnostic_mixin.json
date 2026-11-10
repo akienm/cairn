@@ -1,26 +1,25 @@
 [
   {
     "claim": "proof test_every_base_class_reaches_the_diagnostic_mixin.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-10T03:19:20",
+    "caller": "cairn test",
+    "date": "2026-11-10T03:39:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_the_sieve_reads_base_green  — 1 finding(s): cairn/tools/base/discovered.py:83 class _FeedbackDevice has code and does not reach DiagnosticBase\n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  FAIL  test_base_holds_every_clause_of_the_falsifier  — 1 tooth/teeth red\n\nRED — 2 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_reads_base_green  — 0 finding(s): \n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  PASS  test_base_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "test_the_sieve_reads_base_green",
         "test_diagnostic_loads_only_the_standard_library",
         "test_every_touched_module_imports_fresh",
         "test_the_exceptions_keep_their_shape",
         "test_the_workflow_stays_frozen_and_can_emit",
-        "test_the_shim_orders_core_values_first"
-      ],
-      "teeth_red": [
-        "test_the_sieve_reads_base_green",
+        "test_the_shim_orders_core_values_first",
         "test_base_holds_every_clause_of_the_falsifier"
       ],
-      "test": "test-609a5f3d11fb",
+      "teeth_red": [],
+      "test": "test-2a352c1a5785",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,12 +41,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-609a5f3d11fb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a352c1a5785",
       "source_fingerprint": "2147d32154ab7ffc25dca6265720feb6db373787f736238d6003726c4cb1beeb",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -81,7 +81,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1841761-snepzki1/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1864951-jpd3t9b9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,21 +90,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 524081945,
-          "disk_bytes": 559611904,
-          "entries": 13852,
+          "bytes": 524090940,
+          "disk_bytes": 559628288,
+          "entries": 13855,
           "builds": 1,
-          "reuses": 40
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705",
         "opened": "2026-11-10T03:19:20",
         "last_red": "2026-11-10T03:19:20",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-every-base-class-reaches-the-diagnostic-mixin",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-10T03:39:39",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705"
+      },
+      "conditions_moved": {
+        "notified": "n-eb27b14a66ed",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

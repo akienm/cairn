@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_an_owned_index_is_owner_gated.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-09T21:46:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_owner_indexes_its_table_once  — {'idx_1676783_2146378911_name_at': 'CREATE INDEX idx_1676783_2146378911_name_at ON public.idx_1676783_2146378911 USING btree (name, at)'}\n  PASS  test_no_one_else_indexes_it\n  PASS  test_a_column_is_a_name_never_sql\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_owner_indexes_its_table_once",
+        "test_no_one_else_indexes_it",
+        "test_a_column_is_a_name_never_sql"
+      ],
+      "teeth_red": [],
+      "test": "test-b66a087c1594",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4c78f2699974f6be68c2e7f79f0e36659a6951c637b6e027c5a00107dc61f7d0",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b66a087c1594",
+      "source_fingerprint": "3bccae5ac386b01059a11130c7726235f9322e4c9c5c164029ec2c368a55c06a",
+      "fingerprint_closure": [
+        "cairn/devices/db_domain/__init__.py",
+        "cairn/devices/db_domain/proofs/test_an_owned_index_is_owner_gated.py",
+        "cairn/devices/db_domain/tools/__init__.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1676747-b4apj_sv/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 120747576,
+          "disk_bytes": 155869184,
+          "entries": 13698,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

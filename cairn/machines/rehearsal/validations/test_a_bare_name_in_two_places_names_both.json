@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_bare_name_in_two_places_names_both.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T17:28:38",
+    "date": "2026-11-09T17:29:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "tooth_4_the_standing_what_exists_proofs_stay_green"
       ],
       "teeth_red": [],
-      "test": "test-2bc1825c15c7",
+      "test": "test-7703b4f84f5c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +39,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2bc1825c15c7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7703b4f84f5c",
       "source_fingerprint": "3a6ac0d55b87f2f8cad69a4dd36101076ef02b4bc5ffb64e1fa41c0169d8a0dd",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
@@ -73,20 +74,35 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1505016-3oef8zkt/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-7703b4f84f5c/stderr.txt",
+            "logs/tester/0/runs/test-7703b4f84f5c/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120250893,
-          "disk_bytes": 155041792,
-          "entries": 13568,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "6548996bd5c0": {
+          "cairn/machines/rehearsal/rehearsal.py": [
+            "tooth_1_a_bare_name_in_two_places_names_both",
+            "tooth_3_the_bus_main_is_named_for_5183005fa134"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "6548996bd5c0": {
+          "anchor_rule": "journal",
+          "anchor_journal": "929927656e8d08f076bcfc9fc6e01897896cf3d7",
+          "anchor_first_build": "b9595a82f6d359f406e442ca31768189ddead592",
+          "commit": "929927656e8d08f076bcfc9fc6e01897896cf3d7"
         }
       }
     },

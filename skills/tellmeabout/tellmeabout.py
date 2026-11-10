@@ -55,7 +55,7 @@ CURSOR = re.compile(r"\[([A-Za-z:()<>_-]+)\]")
 
 def _trouble_store() -> Path:
     """The trouble store as the trouble device names it (ticket 4ddc9df3369e)."""
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.tools.store.store import store_root
     return store_root()
 
 

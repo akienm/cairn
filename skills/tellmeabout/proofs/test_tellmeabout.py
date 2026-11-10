@@ -54,7 +54,7 @@ def tooth(name: str, ok: bool, detail: str = "") -> None:
 def snapshot_stores() -> dict:
     """(path -> (mtime_ns, size)) over every file in every presented store."""
     snap = {}
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.tools.store.store import store_root
     roots = [lb.trace_root(), COMMONS / "tickets", store_root(),
              COMMONS / "decisions", COMMONS / "ideas", LAB]
     for root in roots:

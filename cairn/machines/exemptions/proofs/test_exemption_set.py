@@ -304,13 +304,16 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
     # 2026-11-05 (ticket 5183005fa134): Akien's answer to open-06cfefbe745e (box to box is
     # pinned TLS in the bus) admitted cairn/tools/bus_client/tls.py and the bus TCP proof at
     # the same three seats: six entries, two per seat, at sites the set already names.
-    _check("the live set carries 17 entries — 16 measured sites plus itself",
-           len(ex) == 17, len(ex))
+    # 2026-11-10 (ticket 3751ba501581): 3ff3ae16b2b9's depth proof is a fourth seat of the same
+    # rule, and its three file admissions are entered there under the same two questions.
+    _check("the live set carries 20 entries — 19 measured sites plus itself",
+           len(ex) == 20, len(ex))
     want = {
         "cairn/machines/exemptions/exemption_set.json",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/devices/inference_domain/proofs/test_host.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
+        "cairn/tools/import_sieve/proofs/test_an_admission_holds_at_any_depth.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/watchme_spec.py",

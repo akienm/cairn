@@ -58,11 +58,12 @@ def _caught_paths(graph, rule) -> list[str]:
 
 
 def test_an_admitted_file_is_admitted_under_leading_segments() -> None:
-    graph = {"cairn/machines/bus/proofs/test_x.py": {"socket"},
-             "cairn/machines/bus/other.py": {"socket"},
-             "cairn/machines/xbus/proofs/test_x.py": {"socket"}}
-    rule = {"kind": "sole_path", "capability": "the host", "modules": DIALS,
-            "only": ("bus/proofs/test_x.py",)}
+    import importlib.util  # the world berths under fixtures/ (ticket 3751ba501581)
+    spec = importlib.util.spec_from_file_location(
+        "a_file_admitted_at_depth", Path(__file__).parent / "fixtures" / "a_file_admitted_at_depth.py")
+    fx = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fx)
+    graph, rule = fx.GRAPH, fx.RULE
     got = _caught_paths(graph, rule)
     want = ["cairn/machines/bus/other.py", "cairn/machines/xbus/proofs/test_x.py"]
     check("test_an_admitted_file_is_admitted_under_leading_segments", got == want, f"caught {got}, wanted {want}")

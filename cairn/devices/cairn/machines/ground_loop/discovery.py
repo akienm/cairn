@@ -49,6 +49,7 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.probe import Probe
 
 # The directory that holds a device's watchers. One name, here, so "where do probes live"
@@ -109,7 +110,7 @@ def load_module(path: Path):
     return module
 
 
-class ProbeCache:
+class ProbeCache(DiagnosticBase):
     """The imported probes, held against their files' mtimes.
 
     Stateful ON PURPOSE and owned by the loop that holds it: re-importing 17 modules once a
@@ -118,6 +119,7 @@ class ProbeCache:
     """
 
     def __init__(self) -> None:
+        super().__init__()
         self._by_path: dict[Path, tuple[float, Probe]] = {}
 
     def probes_for(self, folder: Path) -> tuple[list[Probe], list[dict]]:

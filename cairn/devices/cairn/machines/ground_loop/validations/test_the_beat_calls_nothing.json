@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_beat_calls_nothing.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T12:55:23",
+    "date": "2026-11-09T21:26:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n                                                                    [100%]\n5 passed in 0.79s",
+      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n                                                                    [100%]\n5 passed in 0.83s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_pulse_file_and_no_beat_probes_are_tracked",
@@ -17,7 +17,7 @@
         "test_the_live_heartbeat_beats_without_triggers"
       ],
       "teeth_red": [],
-      "test": "test-54b53d26370e",
+      "test": "test-0da8255642f4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,7 +45,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-54b53d26370e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0da8255642f4",
       "source_fingerprint": "cb0522dba3e64cf8c73f8d7bb4777bde80a1ad958926c525a59eddd8d4e26b9a",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
@@ -57,16 +57,16 @@
       ],
       "reached": {
         "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/tester": "4dabef4323dde37a479d855ddc60d13630a1d92e2e474def012a35ce24666901",
-        "cairn/tools/base": "04cb81c0746458d0a509056fb954fe69b623fbd24af7818716498f9e92adfe37",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
         "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
         "cairn/tools/rack": "8a4edbb7b00bb556f41b5449149b48fc8fd09276f96eb50cb7787172876a2330",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1045214-wskhyvqs/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1668182-2t3uc3dg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,32 +75,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119686461,
-          "disk_bytes": 154107904,
-          "entries": 13420,
+          "bytes": 120663777,
+          "disk_bytes": 155750400,
+          "entries": 13682,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "reseal_ruling": "6208d0a27d6e",
-      "reseal_closed": {
-        "proof_sha256": "fa70815831a9536423a02eba630004fd166d51a9aca132b10f38f4268bb3d64a",
-        "opened": "2026-11-08T11:54:51",
-        "last_red": "2026-11-08T11:54:51",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cairn-machines-ground-loop-proofs-test-the-beat-calls-nothing",
-        "ruling": null,
-        "closed_at": "2026-11-08T12:55:23",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "bab29326344dba03310c8c3e7dac095b1510f93bcf302e7b98112b67e2528e3b"
-      },
-      "conditions_moved": {
-        "notified": "n-1a60a246868f",
-        "changed": [
-          "env",
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

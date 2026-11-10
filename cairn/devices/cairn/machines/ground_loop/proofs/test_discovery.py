@@ -138,7 +138,7 @@ def test_a_broken_probe_does_not_prevent_healthy_probes_from_firing():
     """One broken file in a folder does not take the whole device down. The probes that
     load fine still fire — benching per-device for a per-file failure was the 29-hour
     outage's mechanism."""
-    from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
+    from cairn.tools.base.discovered import DiscoveredShim
 
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)

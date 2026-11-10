@@ -1,7 +1,7 @@
 """mail_probe.py — a probe that answers a device's mail: three lines on the device's side.
 
 WHAT IT COMPOSES (ticket bf146e9e3967, D5). A discovered device already has a mailbox —
-``_FeedbackDevice.receive`` (ground_loop/discovered.py) lands every verb-less envelope in
+``_FeedbackDevice.receive`` (tools/base/discovered.py) lands every verb-less envelope in
 ``instance_path(<device>, 0)/tools/data_recorder/inbound`` — and a beat that already pulses
 its probes (``BaseShim.on_pulse``). What was missing is the piece between: something that
 reads that inbox, does the device's own work on a message, and pokes the sender with the

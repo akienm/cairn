@@ -64,7 +64,7 @@ class DeviceRoster(DiagnosticBase):
 
         if name not in fitted_device_ids(self._root):
             return None
-        from cairn.devices.cairn.machines.ground_loop.discovered import DiscoveredShim
+        from cairn.tools.base.discovered import DiscoveredShim
         from cairn.tools.rack.rack import rack
 
         for device_id, folder, _shim in rack(self._root):

@@ -15,7 +15,7 @@ import importlib
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from cairn.tools.scratch.scratch import scratch_dir    # noqa: E402
 
@@ -31,7 +31,7 @@ ENVELOPE = {"id": "env-fixture-1", "sender": "proof", "why": "fixture mail", "ve
 
 
 def _fire(declared: bool):
-    D = importlib.import_module("cairn.devices.cairn.machines.ground_loop.discovered")
+    D = importlib.import_module("cairn.tools.base.discovered")
     DataRecorder = importlib.import_module("cairn.tools.data_recorder.data_recorder").DataRecorder
     cls = D._FeedbackDevice
     if declared:

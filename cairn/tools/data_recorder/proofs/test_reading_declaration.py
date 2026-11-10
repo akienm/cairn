@@ -190,7 +190,7 @@ def test_the_holders_pass_through_what_they_declare():
     declaration, as declared — None/None when a holder declares nothing. Construction
     touches no disk, so the live instance address is named, never written."""
     from cairn.tools.base.device import BaseDevice
-    from cairn.devices.cairn.machines.ground_loop.discovered import _FeedbackDevice
+    from cairn.tools.base.discovered import _FeedbackDevice
 
     class _Holder(BaseDevice):
         device_id = "proof-holder-a4c2"

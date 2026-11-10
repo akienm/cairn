@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_finding_baseline_reconcile.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-09T19:14:48",
+    "caller": "cairn test",
+    "date": "2026-11-09T19:24:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "the_reconcile_hands_trouble_only_what_still_stands_above_baseline"
       ],
       "teeth_red": [],
-      "test": "test-78e93181dc5e",
+      "test": "test-ba1d5a66076c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,12 +37,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-78e93181dc5e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ba1d5a66076c",
       "source_fingerprint": "17e73c17257232c19317dad4a07caeaf2947205fc7fd875607775ed9bc378463",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
@@ -62,20 +64,19 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1606879-obocegft/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-ba1d5a66076c/stderr.txt",
+            "logs/tester/0/runs/test-ba1d5a66076c/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120368018,
-          "disk_bytes": 155246592,
-          "entries": 13601,
-          "builds": 1,
-          "reuses": 12
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       }
     },

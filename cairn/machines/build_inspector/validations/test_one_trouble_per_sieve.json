@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_one_trouble_per_sieve.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-09T19:22:03",
+    "caller": "cairn test",
+    "date": "2026-11-09T19:24:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "one_trouble_per_sieve"
       ],
       "teeth_red": [],
-      "test": "test-faeea19a162b",
+      "test": "test-fcb7a3d943f9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-faeea19a162b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fcb7a3d943f9",
       "source_fingerprint": "d00ea9286b80c073daf1f4f21efc8008f5a5e0a352b77bafa9b97f7e1c40f07c",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
@@ -65,20 +67,19 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1606879-w6ifao_l/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-fcb7a3d943f9/stderr.txt",
+            "logs/tester/0/runs/test-fcb7a3d943f9/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120368018,
-          "disk_bytes": 155246592,
-          "entries": 13601,
-          "builds": 1,
-          "reuses": 19
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       }
     },

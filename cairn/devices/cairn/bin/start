@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""cairn start — bring the system up: ground loop, then bus. Outline 5.3.4; ticket 3264ef726e35; the work is cycle.start()."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+from cairn.devices.cairn.cycle import start  # noqa: E402
+
+sys.exit(start())

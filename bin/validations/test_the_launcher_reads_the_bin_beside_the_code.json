@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_launcher_reads_the_bin_beside_the_code.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T05:00:54",
+    "date": "2026-11-10T05:20:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-c76348c5ff48",
+      "test": "test-7aca5b8415df",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,19 +42,18 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1926162,
+          "pid": 1939708,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c76348c5ff48",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7aca5b8415df",
       "source_fingerprint": "840fc663b68a321a9b896c0315e72c9106be42fcc0d50158ce83d097a3c48197",
       "fingerprint_closure": [
         "bin/proofs/test_a_word_with_no_script_goes_onto_the_bus.py",
@@ -156,10 +155,10 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1938679-w2w63pjq/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 17,
+          "count": 15,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cairn/machines/bus/0/stops.jsonl",
@@ -167,23 +166,25 @@
             "devices/tester/0/last_known.json",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261110.120047.016931.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261110.120047.405399.BusDevice.post.json",
-            "logs/bus/0/20261110.120047.416059.BusDevice.post.json",
-            "logs/bus/0/20261110.120047.536719.BusDevice.post.json",
-            "logs/bus/0/20261110.120047.536926.BusDevice.delivered.json",
-            "logs/bus/0/20261110.120047.541459.BusDevice.delivered.json",
+            "logs/bus/0/20261110.122009.088946.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261110.122009.457712.BusDevice.post.json",
+            "logs/bus/0/20261110.122009.469366.BusDevice.post.json",
+            "logs/bus/0/20261110.122009.589692.BusDevice.post.json",
+            "logs/bus/0/20261110.122009.589899.BusDevice.delivered.json",
+            "logs/bus/0/20261110.122009.594049.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261110.120047.539528.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261110.120047.540756.TesterShim.clear_trouble.json",
-            "logs/tester/0/runs/test-c76348c5ff48/stderr.txt",
-            "logs/tester/0/runs/test-c76348c5ff48/stdout.txt"
+            "logs/tester/0/20261110.122009.592283.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261110.122009.593356.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 524391581,
+          "disk_bytes": 560119808,
+          "entries": 13933,
+          "builds": 1,
+          "reuses": 0
         }
       },
       "hollow": {

@@ -4447,60 +4447,64 @@ def _components(repo_root: str) -> list[str]:
     return sorted(out)
 
 
-def _device_of(comp: str) -> str | None:
-    if not comp.startswith(_DEVICE_PREFIX):
+def _device_of(path: str) -> str | None:
+    """The cairn/devices/<x> a repo-relative posix path sits under, or None. The package's own
+    cairn/devices/__init__.py sits in no device."""
+    if not path.startswith(_DEVICE_PREFIX):
         return None
-    return _DEVICE_PREFIX + comp[len(_DEVICE_PREFIX):].split("/", 1)[0]
+    head, sep, _ = path[len(_DEVICE_PREFIX):].partition("/")
+    return _DEVICE_PREFIX + head if sep else None
+
+
+def _published_tool(target: str, repo_root: str) -> bool:
+    """Does the target sit under cairn/devices/<y>/tools/<t>/ whose charter says
+    published_by_device true? Only that one key of that one charter is read."""
+    parts = target.split("/")
+    if len(parts) < 6 or parts[3] != "tools":
+        return False
+    charter = Path(repo_root, *parts[:5], "intention+why.json")
+    try:
+        return json.loads(charter.read_text()).get("published_by_device") is True
+    except (OSError, ValueError, AttributeError):
+        return False
 
 
 def encapsulation_breaches(repo_root: str) -> list[dict]:
-    """Every import that crosses a component boundary off the target's public interface.
+    """Every import that reaches into a device from outside it, read off the paths alone.
 
-    Component = the innermost directory holding intention+why.json; proofs and probes are
-    inside their component and are NOT skipped. A site in S landing on module M in T (S != T)
-    holds iff M is in T's ``public_interface`` AND, when T sits inside device D and S does
-    not, T is a tool nested in D whose charter says ``published_by_device: true``. A charter
-    without ``public_interface`` as a list of str is itself a breach (reason missing_field).
-    Each breach is {source, target, reason, file, line, module}, reason one of
-    'into_device' | 'undeclared' | 'missing_field'. Opaque (computed) imports are not
-    returned here — ``encapsulation_opaque`` counts them.
+    Outline 17.13.1 (Akien, Q#77, 2026-11-09): code inside device bar may not import
+    cairn.devices.foo, except a tool foo publishes (cairn.devices.foo.tools.<x>, its charter
+    saying published_by_device). Inside one device nothing is checked, and no charter's
+    public_interface is read. Code outside every device (tools/, machines/, skills/, bin/)
+    reaching into one is red the same way (ticket 124c0312c2d8). A site counts iff its target
+    sits under cairn/devices/<y>/, its file does not, and the target is not under a tool of y
+    that y publishes. Each row is {source, target, reason, file, line, module}: reason is
+    'into_device'; source is the innermost component holding the file (None if none), target
+    the innermost holding the target, else cairn/devices/<y>. Opaque (computed) imports are
+    not returned here — ``encapsulation_opaque`` counts them.
     """
     comps = _components(repo_root)
-    charters: dict[str, dict] = {}
-    for c in comps:
-        try:
-            charters[c] = json.loads((Path(repo_root) / c / "intention+why.json").read_text())
-        except (OSError, ValueError):
-            charters[c] = {}
     by_len = sorted(comps, key=len, reverse=True)
 
     def comp_of(path: str) -> str | None:
-        path = path.replace(os.sep, "/")
         return next((c for c in by_len if path == c or path.startswith(c + "/")), None)
 
+    def rel(path: str) -> str:
+        path = str(path)
+        if os.path.isabs(path):
+            path = os.path.relpath(path, repo_root)
+        return path.replace(os.sep, "/")
+
     out = []
-    for c in comps:
-        pi = charters[c].get("public_interface")
-        if not (isinstance(pi, list) and all(isinstance(x, str) for x in pi)):
-            out.append({"source": c, "target": c, "reason": "missing_field",
-                        "file": c + "/intention+why.json", "line": 0, "module": None})
     for site in import_sieve.import_sites(repo_root):
         if not site.get("target"):
             continue
-        s, t = comp_of(site["file"]), comp_of(site["target"])
-        if s is None or t is None or s == t:
-            continue
-        m = import_sieve.module_name(site["target"])
+        f, t = rel(site["file"]), rel(site["target"])
         dev = _device_of(t)
-        if dev and dev != _device_of(s) and not (
-                t != dev and charters[t].get("published_by_device") is True):
-            reason = "into_device"
-        elif m not in (charters[t].get("public_interface") or []):
-            reason = "undeclared"
-        else:
+        if dev is None or f.startswith(dev + "/") or _published_tool(t, repo_root):
             continue
-        out.append({"source": s, "target": t, "reason": reason,
-                    "file": site["file"].replace(os.sep, "/"), "line": site["line"], "module": m})
+        out.append({"source": comp_of(f), "target": comp_of(t) or dev, "reason": "into_device",
+                    "file": f, "line": site["line"], "module": import_sieve.module_name(site["target"])})
     return out
 
 
@@ -4521,6 +4525,11 @@ def _breaches(repo_root: str) -> list[dict]:
 def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
     """RULE 1 at one census row: the row's own breaches, plus breaches whose reacher sits
     outside the census (skills/, bin/) landing on this row.
+
+    Provenance: 2026-11-09, ticket 124c0312c2d8 under outline 17.13.1 (Akien, Q#77): the check
+    is a device-path check. Measured that day: 76 of the sieve's 79 rows were cross-device
+    reaches; the other 3 were reaches inside one device, which has one owner, and every charter's
+    public_interface was read for a check the outline says does not read it.
 
     Provenance: 2026-10-01, ticket 56d1aff4455e under RULE 1 (agreed with Akien that day:
     every component talks to every other only through its public interface). Measured

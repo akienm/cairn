@@ -2,24 +2,23 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-09T19:04:40",
+    "date": "2026-11-09T19:14:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green every_source_reaching_another_device_reads_one_row\n  RED   a_reach_inside_one_device_reads_no_row: AssertionError: [{'source': 'cairn/devices/d/machines/m1', 'target': 'cairn/devices/d/machines/m2', 'reason': 'undeclared', 'file': 'cairn/devices/d/machines/m1/m1.py', 'line': 1, 'module': 'cairn.devices.d.machines.m2.private'}, {'source': 'cairn/devices/d', 'target': 'cairn/devices/d/machines/m2', 'reason': 'undeclared', 'file': 'cairn/devices/d/proofs/test_d.py', 'line': 1, 'module': 'cairn.devices.d.machines.m2.private'}]\n  RED   a_published_tool_is_reachable_by_any_module_under_it: AssertionError: a published tool's module read red: [{'source': 'cairn/tools/t', 'target': 'cairn/devices/d/tools/client', 'reason': 'undeclared', 'file': 'cairn/tools/t/t.py', 'line': 2, 'module': 'cairn.devices.d.tools.client.other'}]\n  RED   an_undeclared_module_and_a_missing_public_interface_hold: AssertionError: the check read a public_interface: [{'source': 'cairn/tools/u', 'target': 'cairn/tools/u', 'reason': 'missing_field', 'file': 'cairn/tools/u/intention+why.json', 'line': 0, 'module': None}, {'source': 'skills/s', 'target': 'cairn/tools/t', 'reason': 'undeclared', 'file': 'skills/s/door.py', 'line': 1, 'module': 'cairn.tools.t.priv'}, {'source': 'skills/s', 'target': 'cairn/tools/u', 'reason': 'undeclared', 'file': 'skills/s/door.py', 'line': 2, 'module': 'cairn.tools.u.u'}]\n  RED   the_live_rows_equal_an_independent_path_census: AssertionError: inspector 75 vs census 72; census-only []; inspector-only [('cairn/devices/cairn/__main__.py', 20, 'cairn.devices.cairn.machines.sleep_cycle.idle'), ('cairn/devices/cairn/device.py', 46, 'cairn.devices.cairn.machines.sleep_cycle.idle'), ('cairn/devices/cairn/device.py', 60, 'cairn.devices.cairn.machines.sleep_cycle.idle')]\n  RED   the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired: AssertionError: encapsulation_holds carries no provenance naming outline 17.13.1\n1 passed, 5 failed out of 6",
+      "returncode": 0,
+      "stdout_tail": "  green every_source_reaching_another_device_reads_one_row\n  green a_reach_inside_one_device_reads_no_row\n  green a_published_tool_is_reachable_by_any_module_under_it\n  green an_undeclared_module_and_a_missing_public_interface_hold\n  green the_live_rows_equal_an_independent_path_census\n  green the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired\n6 passed, 0 failed out of 6",
       "stderr_tail": "",
       "teeth_green": [
-        "every_source_reaching_another_device_reads_one_row"
+        "every_source_reaching_another_device_reads_one_row",
+        "a_reach_inside_one_device_reads_no_row",
+        "a_published_tool_is_reachable_by_any_module_under_it",
+        "an_undeclared_module_and_a_missing_public_interface_hold",
+        "the_live_rows_equal_an_independent_path_census",
+        "the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired"
       ],
-      "teeth_red": [
-        "a_reach_inside_one_device_reads_no_row: AssertionError: [{'source': 'cairn/devices/d/machines/m1', 'target': 'cairn/devices/d/machines/m2', 'reason': 'undeclared', 'file': 'cairn/devices/d/machines/m1/m1.py', 'line': 1, 'module': 'cairn.devices.d.machines.m2.private'}, {'source': 'cairn/devices/d', 'target': 'cairn/devices/d/machines/m2', 'reason': 'undeclared', 'file': 'cairn/devices/d/proofs/test_d.py', 'line': 1, 'module': 'cairn.devices.d.machines.m2.private'}]",
-        "a_published_tool_is_reachable_by_any_module_under_it: AssertionError: a published tool's module read red: [{'source': 'cairn/tools/t', 'target': 'cairn/devices/d/tools/client', 'reason': 'undeclared', 'file': 'cairn/tools/t/t.py', 'line': 2, 'module': 'cairn.devices.d.tools.client.other'}]",
-        "an_undeclared_module_and_a_missing_public_interface_hold: AssertionError: the check read a public_interface: [{'source': 'cairn/tools/u', 'target': 'cairn/tools/u', 'reason': 'missing_field', 'file': 'cairn/tools/u/intention+why.json', 'line': 0, 'module': None}, {'source': 'skills/s', 'target': 'cairn/tools/t', 'reason': 'undeclared', 'file': 'skills/s/door.py', 'line': 1, 'module': 'cairn.tools.t.priv'}, {'source': 'skills/s', 'target': 'cairn/tools/u', 'reason': 'undeclared', 'file': 'skills/s/door.py', 'line': 2, 'module': 'cairn.tools.u.u'}]",
-        "the_live_rows_equal_an_independent_path_census: AssertionError: inspector 75 vs census 72; census-only []; inspector-only [('cairn/devices/cairn/__main__.py', 20, 'cairn.devices.cairn.machines.sleep_cycle.idle'), ('cairn/devices/cairn/device.py', 46, 'cairn.devices.cairn.machines.sleep_cycle.idle'), ('cairn/devices/cairn/device.py', 60, 'cairn.devices.cairn.machines.sleep_cycle.idle')]",
-        "the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired: AssertionError: encapsulation_holds carries no provenance naming outline 17.13.1"
-      ],
-      "test": "test-62fb8e49c28b",
+      "teeth_red": [],
+      "test": "test-5712438c3019",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -46,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-62fb8e49c28b",
-      "source_fingerprint": "76591fddadae91ab8c0d33233a4e79c28dbb87fe959215e8bd9e3f34152f0671",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5712438c3019",
+      "source_fingerprint": "fd0093ae0d281354af7b3c68482a174befe537234bcd0160b4cd4cc86880bd6e",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -66,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1605038-ducolkqw/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1606879-6m6z52aa/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,21 +74,24 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 120365918,
-          "disk_bytes": 155234304,
-          "entries": 13599,
+          "bytes": 120368018,
+          "disk_bytes": 155246592,
+          "entries": 13601,
           "builds": 1,
-          "reuses": 0
+          "reuses": 10
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "24f99206e37124a74a4155704d9b9db32b7e498fe9f811ca116de636af0a8b5f",
         "opened": "2026-11-09T19:04:40",
         "last_red": "2026-11-09T19:04:40",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-encapsulation-holds",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-09T19:14:31",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "24f99206e37124a74a4155704d9b9db32b7e498fe9f811ca116de636af0a8b5f"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

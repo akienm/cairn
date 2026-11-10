@@ -11,7 +11,12 @@ commit_all() {
   (cd $C && git push -q 2>&1 | tail -1); (cd $CC && git push -q 2>&1 | tail -1)
 }
 commit_all "hollow sealed, verdict"
-cd $C && PYTHONPATH=. python3 $X $ID PROVED "$NOTE" "$@" 2>&1 | tail -2
+# The commit is named for what the harbor did, never for what was asked: a refused PROVED
+# crossing sends the boat to FIXME, and a commit saying "PROVED" over it is a false record (2026-11-09).
+cd $C && OUT=$(PYTHONPATH=. python3 $X $ID PROVED "$NOTE" "$@" 2>&1); RC=$?; echo "$OUT" | tail -2
+if [ $RC -ne 0 ] || ! echo "$OUT" | grep -q -- '-> \[PROVED\]'; then
+  commit_all "PROVED refused, sent to FIXME"; echo "--- PROVED REFUSED"; exit 1
+fi
 cd $C && bin/cairn cleanup 2>&1 | tail -1
 commit_all "PROVED"
 echo "--- status"; (cd $C && git status --short); (cd $CC && git status --short | head -5)

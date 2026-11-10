@@ -1,0 +1,39 @@
+{
+  "component": "metric",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape",
+  "what": "Records a measurement of anything (outline 17.27). Metric(holder_dir, charter_path, source=...).record(name, value, unit=, subject=, start=, end=, info=, at=) writes one record into the holder's data recorder at <holder>/tools/data_recorder/metrics/ — no bus, no database (17.27.1). A name the recording component's charter does not declare under \"metrics\": {name: {consumer, unit}} raises UndeclaredMetric and nothing is written (17.27.4). take(holder_dir, sink) hands what waits to sink(rows), each row exactly the one table's COLUMNS (at, name, source, start, end, value, unit, subject, info; 17.27.2), and clears them only after the sink returns (17.27.3).",
+  "why": "Akien, 2026-11-09, outline 17.27: 'a metric is a primitive; its job is to measure whatever it is, and like feedback (which a metric strictly is) it must eventually have a consumer.' Answering Q#78 he ruled that the inference proxy's spent, saved and latency are metrics, not learning, and 'inference tickets are only for debugging' — so the yield report (11.4.4.2) needs one table every source records into the same way.",
+  "invoke": "`from cairn.tools.metric.metric import Metric, take, COLUMNS, UndeclaredMetric`. No CLI door. Prove: `python3 cairn/tools/metric/proofs/test_metric.py`.",
+  "node_class": "tool",
+  "entry": "FRESH build, 2026-11-10. Stands on cairn/tools/data_recorder (the holder's mailbox) rather than a second store. The table itself is its holder's: the cairn device creates and owns it through db_domain's store until Recovery exists (5.3.6, 6.6.3.4).",
+  "state_and_history": "state.json + history.json beside this charter, born at the ticket's BUILDME crossing. The tool's ongoing state (records waiting) lives under each holder in instance-space.",
+  "how_it_learns": "It does not; it records. Its READ_FREQUENCY_SECONDS is a HYPOTHESIS (a day) until the first consumer measures how often a report is asked for.",
+  "learns": "It does not; it records.",
+  "filed_edges": [
+    "(a) The declaration is checked at record time, against the charter as it reads then; nothing yet reds a charter that declares a name nothing records.",
+    "(b) take clears after the sink returns; a sink that commits and then the process dies before the clear re-hands those rows next time (at-least-once). The table's consumer tolerates a duplicate row; a lost row it could not see."
+  ],
+  "gates": "proof gate — proofs/test_metric.py, one tooth per falsifier clause. Durability gate: committed + pushed.",
+  "falsifier": "RED on any of: (1) a declared name does not land in the holder's metrics recorder with its name, source, value and declared unit, or the tool imports a bus or a database; (2) an undeclared name, or one with a blank consumer, writes anything; (3) take hands rows not exactly COLUMNS, or clears before the sink returns, or clears when the sink raises; (4) the recorder's read frequency is undeclared. WRONG-SHAPE SIGNAL: a table created here, or a poll.",
+  "proof": "proofs/test_metric.py",
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Akien owns the definition (outline 17.27). CC writes the code and the proofs.",
+  "traces_to": [
+    "outline 17.27 (metric)",
+    "Law 3 (nothing is known until measured; a metric is the measurement recorded)",
+    "Law 6 (a tool has users; the recorder's state is the holder's)"
+  ],
+  "provenance": "Shaped by Akien and CC 2026-11-09 into outline 17.27 (Q#78 answered at 11.4.4.2).",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-verbatim"
+  },
+  "gated_by": [
+    "CC"
+  ],
+  "public_interface": [
+    "cairn.tools.metric.metric"
+  ]
+}

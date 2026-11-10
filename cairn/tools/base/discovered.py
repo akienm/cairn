@@ -37,6 +37,7 @@ preferred when both exist — see ``DeviceRoster.shim_for`` (cairn/tools/bus_cli
 
 from __future__ import annotations
 
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.probe import Probe
 from cairn.tools.base.shim import BaseShim, ONLINE
 
@@ -80,7 +81,7 @@ class DiscoveredShim(BaseShim):
         return _FeedbackDevice(self._device_id)
 
 
-class _FeedbackDevice:
+class _FeedbackDevice(DiagnosticBase):
     """Minimal device for mail receipt by discovered devices.
 
     Not a BaseDevice subclass — it has no intention/state/settings to report and
@@ -89,6 +90,7 @@ class _FeedbackDevice:
     """
 
     def __init__(self, device_id: str) -> None:
+        super().__init__()
         self._device_id = device_id
         self._recorder = None
 

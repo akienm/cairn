@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 83. An answered question disappears:
+      takes the next unused number, which is 84. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1241,13 +1241,17 @@ not matter here. The code catches up to this, never the reverse.
     11.4.6 Machine: route, the sieves (enabled, never_routed, serves_kind, keyed,
            addressed) built with the nest machine (16.2), cheapest survivor first.
            Nests are how the inference proxy resolves its routing questions.
-           [Q#82: The nest shakes once and scores 0 or 1 (16.2), so one shake can
-           pick the cheapest survivor but cannot order the rest; the walk that
-           dials the next rung when a host is unreachable needs that order, and
-           today route sorts it after the shake. Should the cheapest postprocess
-           sieve pick one rung, and a host that does not answer send the walk
-           back to route for a fresh shake with that rung left out by a
-           sieve? (CC's recommendation: yes.)]
+           The shake ranks instead of cutting for the pick: the survivors stay
+           the set the measure band lets out, a postprocess sieve stamps each one
+           with its rank, and route reads the walk order from those stamps, so
+           the walk still falls over to the next rung. WHY: the walk dials the
+           next rung when a host does not answer, so it needs the whole order,
+           and the compare belongs inside the nest (Akien, 2026-09-29: "i really
+           like option c").
+           [Q#83: Route also moves a domain's preferred models ahead of cheaper
+           ones (route.py:301, since 2026-08-28), and nothing here names that.
+           Does the walk order read "a domain's preferred models first, then
+           cheapest", or does the preference go?]
     11.4.7 Hosts: the cloud, and the local GPU box.
     11.4.8 TOOLS: base, import_sieve; database client. MACHINES: route, nest.
     11.4.9 VERBS: infer, embed, resolve, calls. COMMANDS: cairn inference show.
@@ -1341,7 +1345,8 @@ not matter here. The code catches up to this, never the reverse.
     16.2.3 INTENTION:
       16.2.3.1 A machine made of sieve tools. Each question is a sieve; sieves can
                come after others. Bands are phases: preprocess, measure,
-               postprocess.
+               postprocess. A postprocess sieve stamps a rank rather than a cut,
+               and the shake hands back the survivors in rank order (11.4.6).
       16.2.3.2 Sieves measure, never judge: deterministic Python.
     16.2.4 USERS: the inference proxy, through its route machine (11.4.6);
            build_inspector (9.4.3).

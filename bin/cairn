@@ -185,30 +185,31 @@ _help() {  # all | device <device> <instance>
   local py="$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY"
   [[ -x "$py" ]] || py=python3
   PYTHONPATH="$HERE/..${PYTHONPATH:+:$PYTHONPATH}" CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" \
-    "$py" - "$@" <<'PY'
+    CAIRN_CLASS_ROOT="$CLASS_ROOT" "$py" - "$@" <<'PY'
 import os, sys
 from pathlib import Path
 from cairn.tools.base.shim import ROOT_VERB_SEMANTICS, bin_shortcuts, cold_list
 
 root = Path(os.environ["CAIRN_INSTANCE_ROOT"])
+cls = Path(os.environ["CAIRN_CLASS_ROOT"])
 mode = sys.argv[1]
 
-def shortcuts(dev, n=0):
-    b = root / dev / str(n) / "bin"
-    if not b.is_dir():
-        print(f"  (no bin under {b})")
-        return
-    rows = bin_shortcuts(dev, str(root), n)
+def shortcuts(dev, n=0):  # both bins are bin_shortcuts' to read (ticket ba777080011b, 211facd306d7)
+    rows = bin_shortcuts(dev, str(root), n, class_root=str(cls))
     for s in rows:
         print(f"  {s['name']}" + (f" — {s['about']}" if s["about"] else ""))
     if not rows:
-        print(f"  (no executables in {b})")
+        print("  (none)")
+
+def _subdirs(top):
+    return [d for d in top.iterdir() if d.is_dir()] if top.is_dir() else []
 
 if mode == "all":
     print("[all]")
     for verb, meaning in ROOT_VERB_SEMANTICS.items():
         print(f"  {verb} — {meaning}")
-    rest = sorted(d.name for d in root.iterdir() if (d / "0" / "bin").is_dir()) if root.is_dir() else []
+    rest = sorted({d.name for d in _subdirs(root) if (d / "0" / "bin").is_dir()}
+                  | {d.name for d in _subdirs(cls) if (d / "bin").is_dir()})
     for dev in ["operator", "cairn"] + [d for d in rest if d not in ("operator", "cairn")]:
         print(f"\n[{dev}]")
         shortcuts(dev)

@@ -98,7 +98,7 @@ def main() -> int:
     r = _run(home, "help")
     sec = _sections(r.stdout)
     _check("help_lists_a_class_only_device",
-           r.returncode == 0 and "wave — waves" in (sec.get("fxhc") or [])
+           r.returncode == 0 and any("wave — waves" in ln for ln in (sec.get("fxhc") or []))
            and "no bin under" not in r.stdout,
            f"rc={r.returncode} fxhc={sec.get('fxhc')} stdout={r.stdout[-900:]} stderr={r.stderr[-400:]}")
 

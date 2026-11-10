@@ -2,7 +2,7 @@
   {
     "claim": "proof test_an_admission_holds_at_any_depth.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T22:37:04",
+    "date": "2026-11-09T22:37:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_old_shape_holds"
       ],
       "teeth_red": [],
-      "test": "test-9049b90f7b94",
+      "test": "test-8a10869e4f25",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,12 +38,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9049b90f7b94",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a10869e4f25",
       "source_fingerprint": "608113a77fbcf5571844bdee6e8302f470d43038e965aa188b3276a2e3d6a5df",
       "fingerprint_closure": [
         "cairn/tools/import_sieve/__init__.py",
@@ -55,20 +56,64 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1692688-y0os6mj2/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-8a10869e4f25/stderr.txt",
+            "logs/tester/0/runs/test-8a10869e4f25/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120891227,
-          "disk_bytes": 156135424,
-          "entries": 13740,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "3ff3ae16b2b9": {
+          "cairn/tools/import_sieve/sieve.py": [
+            "test_an_admitted_file_is_admitted_under_leading_segments",
+            "test_the_inference_rule_is_clean_over_the_devices_graph"
+          ],
+          "cairn/tools/import_sieve/proofs/test_import_sieve.py": [
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_a_module_is_not_its_own_importer",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_an_import_of_nothing_is_a_dead_end_not_an_error",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_an_unknown_sieve_kind_is_refused_not_silently_clean",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_catches_cross_device_import",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_spares_self_import",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_spares_the_exempt_device",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_dynamic_import_of_guarded_module_reds",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_dynamic_import_of_unguarded_module_passes",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_forbidden_catches_a_fork_breach_and_spares_everyone_else",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_importers_of_finds_the_live_carriers_of_a_primitive",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_importers_of_is_empty_for_a_module_nobody_imports",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_module_name_folds_a_package_init",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_classifies_by_what_the_sieve_reads",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_is_transitive_through_an_in_module_helper",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_on_unparseable_source_is_empty",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_reaches_refuses_a_start_it_never_read",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_sole_path_is_clean_on_the_real_corpus_for_both_domains",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_of_guarded_binary_reds",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_of_unguarded_binary_passes",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_with_computed_argument_is_opaque",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_the_hollow_floor_guards_the_new_kind_too",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_the_real_inspector_sieves_are_all_record",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_catches_a_breach_at_the_start_itself",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_catches_a_breach_two_hops_down",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_is_clean_on_the_real_corpus",
+            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_spares_a_breacher_the_fire_path_cannot_reach"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "3ff3ae16b2b9": {
+          "anchor_rule": "journal",
+          "anchor_journal": "a1d8ee6a8d2f4ece596e433605bbd489ae22d608",
+          "anchor_first_build": "96793dab4c309ad1d87509244e6f2274ca4c1596",
+          "commit": "a1d8ee6a8d2f4ece596e433605bbd489ae22d608"
         }
       }
     },

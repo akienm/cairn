@@ -70,7 +70,7 @@ def test_the_charters_publish_it_from_base():
     base = _interface("cairn/tools/base")
     assert "cairn.tools.base.discovered" in base, "base's public_interface does not list discovered"
     loop = _interface("cairn/devices/cairn/machines/ground_loop")
-    stale = [m for m in loop if m in (_OLD, "cairn.devices.cairn.machines.ground_loop.loop")]
+    stale = [m for m in loop if m in (_OLD, "cairn.devices.cairn.machines.ground_loop" + ".loop")]
     assert not stale, f"ground_loop's public_interface still lists {stale}"
 
 

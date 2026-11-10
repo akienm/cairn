@@ -14,6 +14,8 @@ from pathlib import Path
 
 from cairn.tools.scratch.scratch import scratch_dir
 
+PROOF_TIMEOUT_S = 900  # measured 169 s on 2026-11-09, over the 120 s default (ticket 8383a32d20c5)
+
 def _seal(proof) -> dict:
     """Seal a fixture proof: the tester's verdict asked over its ``run`` bus verb (RULE 1,
     ticket 67b78ae59c1d), landed through the store's one write door."""

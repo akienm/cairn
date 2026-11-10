@@ -2,12 +2,12 @@
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T19:41:26",
+    "date": "2026-11-10T03:23:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  no_post_commit_hook_is_installed\n  PASS  instanceizer_paths_are_absent\n  PASS  nothing_names_the_instanceizer\n  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\n  PASS  recordverdict_paths_are_absent\n  PASS  nothing_names_recordverdict\n  PASS  learning_block_has_no_verdict_organs\nretired components proofs: all green",
+      "stdout_tail": "  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\n  PASS  recordverdict_paths_are_absent\n  PASS  nothing_names_recordverdict\n  PASS  learning_block_has_no_verdict_organs\n  PASS  ground_loop_faces_paths_are_absent\n  PASS  nothing_names_the_ground_loop_faces\n  PASS  the_ground_loop_faces_do_not_import\nretired components proofs: all green",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -34,23 +34,23 @@
         "ruling_does_not_import",
         "recordverdict_paths_are_absent",
         "nothing_names_recordverdict",
-        "learning_block_has_no_verdict_organs"
+        "learning_block_has_no_verdict_organs",
+        "ground_loop_faces_paths_are_absent",
+        "nothing_names_the_ground_loop_faces",
+        "the_ground_loop_faces_do_not_import"
       ],
       "teeth_red": [],
-      "test": "test-feeeab9efd6d",
+      "test": "test-e17112c911ea",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_1335898_1939064932_delivery",
-          "bus_proc_1335898_1939064932"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
-        "proof": "ae546949ff0b17aa6b7089b30608703bf8ddac237004dae5a1101a39c4544a70",
+        "proof": "c9e912a9deb1eb3dd806f21b48c24bae5b2bce7acc03571682920b34fd28facb",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -63,18 +63,20 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-feeeab9efd6d",
-      "source_fingerprint": "eb3c1a4368fa9a45f450cab528761ea73f2349046eb02da84befda275f432b9e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e17112c911ea",
+      "source_fingerprint": "c631a22c09695159d221efa57cf5fe418b3a56ac343b9cfa72dcb03045551881",
       "fingerprint_closure": [
         "bin/proofs/test_retired_components_are_gone.py",
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
+        "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/machines/__init__.py",
@@ -92,116 +94,31 @@
         "skills/__init__.py"
       ],
       "reached": {
+        "cairn/devices/cairn": "4a5540ac4bc4c24be318557960d31be20642872c06328d801349dab2c385ff1a",
+        "cairn/devices/cairn/machines/ground_loop": "b81ec2d893a4dda25b94a53830b7b23badf7b77c526508b7afaea8d1f1f40b4d",
         "cairn/devices/codemother": "71c727f1c4257f19db8616be29cd30c952c58f31699e61f3fb4c09bde28c6f65",
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
         "cairn/machines/learning_block": "11504710ac0c65f0e6e55933126af3e85f359949e13d320e545df561aa80cc72",
-        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/base": "18f1ebfb30bca9f9246966deb375bcb97245b9d07a6e178d3a325b62398b61da",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1857161-kyv_76b_/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-feeeab9efd6d/stderr.txt",
-            "logs/tester/0/runs/test-feeeab9efd6d/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "e5a8e8059296": {
-          "skills/whatslefttodo/door.py": [
-            "nothing_names_recordverdict",
-            "the_rulings_gather_reads_the_review_queue"
-          ],
-          "skills/whatslefttodo/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/whatslefttodo/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/cmd/recordverdict": [
-            "nothing_names_recordverdict",
-            "recordverdict_paths_are_absent"
-          ],
-          "cairn/machines/learning_block/__main__.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/learning_block/learning_block.py": [
-            "learning_block_has_no_verdict_organs",
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/skill_block/__main__.py": {
-            "notified": "n-e1c185342630"
-          },
-          "cairn/machines/learning_block/proofs/test_learning_block.py": [
-            "nothing_names_recordverdict",
-            "cairn/machines/learning_block/proofs/test_learning_block.py::test_dial_equals_a_hand_count_and_updates_on_new_evidence"
-          ],
-          "skills/tellmeabout/proofs/test_tellmeabout.py": [
-            "nothing_names_recordverdict",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a finding resolves as found",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a finding says nothing is owed, and says why",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a unique 8-char prefix resolves",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::all six stores named in the search report",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::every resolve returns exactly one of found/refused/not_found",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::finding carries its address (a real file)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::finding record EQUAL to the store's own record (verbatim tooth)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::no store file changed under the whole battery (read-only measured)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::nonsense token is not_found"
-          ],
-          "cairn/tools/system_word/proofs/test_system_word.py": {
-            "notified": "n-856aefe6859a"
-          },
-          "bin/proofs/test_cairn_command.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/tools/operator_inbox/probes/operator_inbox_matches_live_state.py": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/tellmeabout.py": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/cmd/artifactgate": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/intent/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/learning_block/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/intention+why.json": {
-            "notified": "n-c538fe8885ac"
-          },
-          "cairn/machines/skill_block/intention+why.json": [
-            "nothing_names_recordverdict"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e5a8e8059296": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ae748587e4c7dd6fb8c44d0cae84fadc13b30692",
-          "anchor_first_build": "c0ce0a1dd9130a9f71ff39c92277c33f0baf40f5",
-          "commit": "ae748587e4c7dd6fb8c44d0cae84fadc13b30692"
+          "measured": true,
+          "bytes": 524082898,
+          "disk_bytes": 559611904,
+          "entries": 13851,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

@@ -1,0 +1,281 @@
+{
+ "id": "98ab0e9db57f",
+ "title": "the inference proxy keeps its answers in a tree and its meter in metrics",
+ "owning_intention": "cairn/devices/inference_domain/intention+why.json",
+ "intention": "The inference proxy's stored answers live in a tree it holds by the librarian's delegation (outline 11.4.4.1, 4.3.1.6); its yield report reads the metrics table through the cairn device's `metrics` bus verb (11.4.4.2), with every historical meter row carried in as metrics; and the inference_calls table that did both jobs is retired, every stored answer carried into the tree.",
+ "why": "Measured 2026-11-05: inference_calls (owner inference_domain, domain.py:96) does two jobs. 11,395 'miss' rows (11,366 distinct requests) carry the stored answers resolve() serves from (_latest_valid_answer, domain.py:453); 9,416 'hit' and 58 'refused' rows are meter only. yield_report (domain.py:777) and the calls verb (device.py:62) read every row. The logs tree already holds every call as an inference ticket with verdict and cost (11,942 files under ~/.cairn/logs/inference_domain/0/tickets, written by _write_task_ticket, domain.py:305). The librarian separately copies answers into its nodes (librarian/ingest.py, 250 so far), so answers are kept twice and the meter twice. Akien 2026-11-05 (outline 4.3.1.8): 'it's saying anything we're going to store LEARNING in database memory'; on inference_calls: 'that's a file in the logging tree i think? or did you mean the learning blocks inside of the inference proxy?'; on the split into a tree for answers and the log for the meter: 'yes i think so'. Re-scoped 2026-11-10: Akien 2026-11-09, answering Q#78 (CairnCommons/questions/open-c9e699e669e2.json): \"inference tickets are only for debugging, so we can't use that as a metric\" (outline 11.4.4.1, 11.4.4.2). The per-call recording of spent, saved and latency landed first, as ticket 0615d8cdc998.",
+ "traces_to": "Law 1 (a compiled answer is learning and belongs where the librarian can see it), outline 4.3.1.8 and 13.3.4.1 (Akien 2026-11-05), Law 5 (one home per thing), RULE 1 (inference_domain's own code; the trees tool through its public interface).",
+ "how": "resolve() stores each new answer in a keyed tree the proxy owns, inference_domain_answers_nodes, through the trees tool's deposit_keyed (key = the request's canonical digest, meta = horizon, falsifier, cost, provenance), and looks a request up with find(key), keeping today's horizon check. Answers carry no embedding (Akien, open-029c5ae100a9; outline 4.3.1.8.1.1); the keyed leaf shape is child ticket e62f40f35f59, which proves first. yield_report asks the cairn device's `metrics` verb over the bus (RULE 1: no import of the cairn device) for inference.spent, inference.saved and inference.latency, source inference_domain, and sums them: spent, avoided, and hits/misses/refused counted from the latency rows' info.verdict, the same output keys as today. The calls verb reads the inference tickets in the logs tree (a debugging view, 11.4.4.1). New one-shot cairn/devices/inference_domain/migrate_answers_to_their_tree.py: for each distinct canonical among miss rows, carry its latest still-valid answer into the tree, compare the carried set with the distinct-canonical set, and only on a match (after pg_dump -t inference_calls to ~/.cairn/devices/inference_domain/0/temp/) drop inference_calls; exit non-zero on any mismatch. An answer shorter than the deposit floor (8 normalized chars) is carried with its canonical JSON form as content, never dropped. The migration also records each inference_calls row as its metric rows through cairn.tools.metric (spent or saved by verdict, latency blank, info.migrated true, at = the row's created), once, so the all-time total is a sum over the metrics table (Q#78 answered 2026-11-09). Shaped at build (CC, 2026-11-10): the node content is the canonical JSON of {answer, horizon}, so every answer clears the 8-char floor and a re-resolve after expiry lands a new leaf (a leaf's meta is never updated); lookup takes find(key)'s newest leaf whose horizon is still valid. A hit and a refusal write no row; the task ticket carries the call's provenance. The dump is taken by hand before the run (pg_dump -t inference_calls, PGPASSFILE the db_domain pgpass) and named by --dump; no dump, no drop. The migration meters only rows created before the first live inference.* record, so a call already metered live is never counted twice, and meters nothing when migrated rows already exist.",
+ "falsifier": {
+  "clauses": [
+   {
+    "n": 1,
+    "claim": "no non-proof module under cairn/devices/inference_domain names inference_calls except the one-shot migration migrate_answers_to_their_tree.py, which exists"
+   },
+   {
+    "n": 2,
+    "claim": "in a scratch answer tree, resolve() of a new request with a counting fake resolver stores its answer, and a second identical resolve() returns the same answer with verdict 'hit' and the resolver still called once"
+   },
+   {
+    "n": 3,
+    "claim": "a stored answer past its horizon is not served and the resolver is called again"
+   },
+   {
+    "n": 4,
+    "claim": "yield_report over a metrics totals reply of known inference.* totals by verdict returns exactly their spent and avoided sums and their hit, miss and refused counts, and it reaches them only through the cairn device's metrics verb, asking totals by verdict for source inference_domain"
+   },
+   {
+    "n": 5,
+    "claim": "the calls verb over a scratch logs tree returns tickets newest first, bounded by limit, carrying the keys librarian/ingest.py reads"
+   },
+   {
+    "n": 6,
+    "claim": "the migration over a scratch table of miss, hit, refused and expired rows carries one answer per distinct canonical and records each row's meter as metrics once; a second run writes nothing, and a forced mismatch drops nothing and exits non-zero"
+   },
+   {
+    "n": 7,
+    "claim": "live, read-only, after the migration has run: inference_calls does not exist, store.owner_of('inference_domain_answers_nodes') is 'inference_domain', its leaf count is at least 11,366, the pg_dump file exists under ~/.cairn/devices/inference_domain/0/temp/, and the metrics verb's inference.spent and inference.saved totals until the dump's newest row (plus one second) equal the dumped table's spent and avoided"
+   },
+   {
+    "n": 8,
+    "claim": "over 1,000 rows in a scratch old-shape table and a scratch answer tree, the median of 100 tree lookups is recorded beside the median of 100 table reads, and the tree's is no more than 3x"
+   },
+   {
+    "n": 9,
+    "claim": "every other proof under cairn/devices/inference_domain stays green"
+   }
+  ]
+ },
+ "bounds": {
+  "in": [
+   "cairn/devices/inference_domain/domain.py",
+   "cairn/devices/inference_domain/device.py",
+   "cairn/devices/inference_domain/migrate_answers_to_their_tree.py",
+   "cairn/devices/inference_domain/probes/the_meter_accounts_for_every_verdict.py",
+   "cairn/devices/inference_domain/probes/the_ticket_comes_back_whole.py",
+   "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
+   "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
+   "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py",
+   "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
+   "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py",
+   "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py",
+   "cairn/devices/inference_domain/probes/the_verdict_vocabulary_is_refused_at_the_database.py",
+   "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+   "cairn/devices/inference_domain/proofs/test_task_ticket.py",
+   "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py",
+   "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py",
+   "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py",
+   "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py",
+   "cairn/devices/inference_domain/proofs/test_host.py",
+   "cairn/devices/inference_domain/proofs/test_inference_probes_report_to_the_watch.py",
+   "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py",
+   "cairn/devices/inference_domain/proofs/test_resolve_verb.py",
+   "cairn/devices/inference_domain/intention+why.json",
+   "cairn/devices/inference_domain/proofs/test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py"
+  ],
+  "out": [
+   "cairn/devices/librarian/ingest.py (the librarian's own follow-up: its copy of the answers becomes redundant)",
+   "cairn/devices/db_domain/migrate_scratch_sweep.py (db_domain's list of known tables)",
+   "the logs tree's 30-day sweep (not running: oldest ticket 2026-09-17)",
+   "cairn/devices/librarian/tools/trees/trees.py (used through its public interface only)"
+  ]
+ },
+ "decisions": [
+  {
+   "n": 1,
+   "text": "D1 (the /sorted builder_check): A Haiku builder needs: the owner and table name (inference_domain, inference_domain_answers_nodes), the trees tool's public functions to use (ensure_trees, deposit, a lookup by node id), that the horizon check moves with the answer, the log ticket path and keys, the migration's verify-before-drop rule with the pg_dump path, the proof path with one tooth per clause; and the two answers (vectors, yield total), which are opened as questions and hold BUILDME.",
+   "by": "cc",
+   "step": "cast",
+   "source": "sorted",
+   "at": "2026-11-05T21:59:15+00:00",
+   "writes_to": [],
+   "reads": []
+  },
+  {
+   "n": 2,
+   "text": "D2: the answers live in a keyed tree: ANSWERS = 'inference_domain_answers_nodes'; ensure_answers() makes it through trees.ensure_trees(keyed=True) plus a key index (store.add_owned_index); scratch_answers(prefix) wraps trees.scratch_leaf(keyed=True) and forgets its nodes on exit; store_answer(canonical, answer, *, table, meta) deposits the {answer, horizon} content under canonical_digest(canonical); stored_answer(canonical, now, *, table) returns the newest leaf whose horizon holds. CACHE, _CACHE_COLUMNS, ensure_cache, scratch_cache, _valid and _latest_valid_answer (domain.py:97-111, :450-505) go.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/domain.py"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/domain.py",
+    "cairn/devices/librarian/tools/trees/trees.py",
+    "cairn/devices/db_domain/tools/client/store.py"
+   ]
+  },
+  {
+   "n": 3,
+   "text": "D3: resolve (domain.py:507) looks up and stores through D2; a hit (:600) and a refusal (:643) write no row; a miss (:720) stores the answer; _close (:559) passes the call's provenance onto the task ticket, and the ticket's cache key names the answer tree.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/domain.py"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/domain.py"
+   ]
+  },
+  {
+   "n": 4,
+   "text": "D4: call_rows(*, roots, limit, since) reads the task tickets newest first (filename stamp pre-filter, then timings.started > since) as {id, canonical, created, verdict, answer, cost, provenance, caller}; read_ticket (domain.py:772) goes; the calls verb (device.py:61) and the calls view read call_rows.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/domain.py",
+    "cairn/devices/inference_domain/device.py"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/domain.py",
+    "cairn/devices/inference_domain/device.py"
+   ]
+  },
+  {
+   "n": 5,
+   "text": "D5: yield_report(*, ask=None) (domain.py:820) reads the metrics verb's totals: ask defaults to bus_client.reach('cairn').request(to='cairn', verb='metrics', body=...), and the body is {'source': 'inference_domain', 'totals': True, 'by': 'verdict'} (the totals shape is ticket f4dbcea5a117, built first, because ~66k migrated rows over the raw-rows verb would be ~23 MB a report); spent and avoided are the inference.spent and inference.saved sums; calls/hits/misses/refused are the inference.latency counts by verdict. device.py:175 and :196 keep calling it.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/domain.py",
+    "cairn/devices/inference_domain/device.py"
+   ],
+   "reads": [
+    "cairn/devices/cairn/device.py",
+    "cairn/devices/cairn/metrics.py",
+    "cairn/devices/inference_domain/domain.py"
+   ]
+  },
+  {
+   "n": 6,
+   "text": "D6: migrate_answers_to_their_tree.py holds SOURCE and SOURCE_COLUMNS and migrate(*, source, table, ask, record, dump, carry) -> {exit, ...}: refuses without a non-empty dump naming the source; absent source writes nothing; carries each distinct miss canonical's newest still-valid answer, skipping keys already found; verifies every expected key by find; meters every row the live meter does not already hold, a live call with the row's verdict, within 2 s of its time and spent plus saved equal to its cost being claimed once (measured 2026-11-10: no cutoff time divides metered from unmetered rows) (spent or saved by verdict, latency None, info {verdict, migrated: true}, at = created) through cairn.tools.metric; drops the source only on a full match; reads in batches. A __main__ takes --dump.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/migrate_answers_to_their_tree.py"
+   ],
+   "reads": [
+    "cairn/tools/metric/metric.py",
+    "cairn/devices/db_domain/tools/client/store.py",
+    "cairn/devices/librarian/tools/trees/trees.py"
+   ]
+  },
+  {
+   "n": 7,
+   "text": "D7: the probes that read the old table read call_rows or the answer tree; the vocabulary probe (WATCHME object of PROVED 6890cf7e4053) is deleted with the CHECK it watched, as are 6890cf7e4053's teeth in test_inference_domain.py; its PROVES forwarding is recorded at PROVED.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/probes/the_meter_accounts_for_every_verdict.py",
+    "cairn/devices/inference_domain/probes/the_ticket_comes_back_whole.py",
+    "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
+    "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
+    "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py",
+    "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
+    "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py",
+    "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py",
+    "cairn/devices/inference_domain/probes/the_verdict_vocabulary_is_refused_at_the_database.py"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/probes/the_meter_accounts_for_every_verdict.py",
+    "cairn/devices/inference_domain/probes/the_ticket_comes_back_whole.py",
+    "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py",
+    "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py",
+    "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py",
+    "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py",
+    "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py",
+    "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py"
+   ]
+  },
+  {
+   "n": 8,
+   "text": "D8: the proofs that built scratch_cache tables build scratch_answers trees, and those that read rows read call_rows.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+    "cairn/devices/inference_domain/proofs/test_task_ticket.py",
+    "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py",
+    "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py",
+    "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py",
+    "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py",
+    "cairn/devices/inference_domain/proofs/test_host.py",
+    "cairn/devices/inference_domain/proofs/test_inference_probes_report_to_the_watch.py",
+    "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py",
+    "cairn/devices/inference_domain/proofs/test_resolve_verb.py"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/proofs/test_inference_domain.py",
+    "cairn/devices/inference_domain/proofs/test_task_ticket.py",
+    "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py",
+    "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py",
+    "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py",
+    "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py",
+    "cairn/devices/inference_domain/proofs/test_host.py",
+    "cairn/devices/inference_domain/proofs/test_inference_probes_report_to_the_watch.py",
+    "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py",
+    "cairn/devices/inference_domain/proofs/test_resolve_verb.py"
+   ]
+  },
+  {
+   "n": 9,
+   "text": "D9: the inference_domain charter gains claim_provenance and a falsifier sentence naming the answer tree, call_rows, the metrics verb and the migration (the PROVED gate reads it).",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/intention+why.json"
+   ],
+   "reads": [
+    "cairn/devices/inference_domain/intention+why.json"
+   ]
+  },
+  {
+   "n": 10,
+   "text": "D10: the red-first proof, one tooth per clause, every table scratch, tooth 7 read-only over the live store.",
+   "by": "CC",
+   "step": "cast",
+   "source": "build",
+   "at": "2026-11-10T07:05:42+00:00",
+   "writes_to": [
+    "cairn/devices/inference_domain/proofs/test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py"
+   ],
+   "reads": [
+    "cairn/devices/librarian/tools/trees/trees.py",
+    "cairn/devices/db_domain/tools/client/store.py"
+   ]
+  }
+ ],
+ "measured": [
+  {
+   "when": "2026-11-10",
+   "saw": "inference_calls: 9,973 hit rows (cost 1,049,671), 12,061 miss (4,636,680), 58 refused; 12,032 distinct miss canonicals; 20 misses carry a horizon; 235 MB",
+   "how": "store.query count/sum by verdict over inference_calls"
+  },
+  {
+   "when": "2026-11-10",
+   "saw": "the metrics table does not exist yet; the inference_domain recorder holds 63 records (21 calls), the first at 2026-11-10T06:16:18Z",
+   "how": "store.query on metrics (relation does not exist); wc -l of ~/.cairn/devices/inference_domain/0/tools/data_recorder/metrics/records.jsonl"
+  },
+  {
+   "when": "2026-11-10",
+   "saw": "13,048 task tickets in ~/.cairn/logs/inference_domain/0/tickets, oldest 2026-09-17",
+   "how": "ls | wc -l, ls | head -1"
+  }
+ ]
+}

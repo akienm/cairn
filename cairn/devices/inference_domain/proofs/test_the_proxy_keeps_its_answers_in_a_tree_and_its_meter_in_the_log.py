@@ -19,7 +19,7 @@ One tooth per numbered falsifier clause:
   5. The calls verb over a scratch logs tree returns tickets newest first, bounded by limit,
      carrying canonical, created, verdict and answer; ``since`` drops the older.
   6. The migration over a scratch table carries one answer per still-valid canonical, meters
-     each pre-meter row once; a second run writes nothing; a forced mismatch drops nothing and
+     each row the live meter does not already hold, once; a second run writes nothing; a forced mismatch drops nothing and
      exits non-zero; no dump, no drop.
   7. LIVE, read-only, after the migration: the old table is gone, the answer tree is owned by
      inference_domain with at least 11,366 leaves, the dump exists, and the metrics totals until
@@ -253,7 +253,8 @@ def _fill(table: str, base: datetime) -> None:
         ("B", "miss", {"text": "an answer to B, expired"}, past, 6, 3),
         ("C", "refused", None, "", 0, 4),
         ("D", "miss", {"t": 1}, "", 2, 5),
-        ("E", "hit", {"t": 1}, "", 2, 60),           # after the live meter began: not metered
+        ("F", "miss", {"t": 1}, "", 3, 30),          # the live meter already holds this call
+        ("E", "hit", {"t": 1}, "", 2, 60),           # after the live meter began, never metered
     ]
     for canon, verdict, answer, horizon, cost, minute in rows:
         store.write(table, "inference_domain", {
@@ -270,8 +271,11 @@ def the_migration_carries_and_meters_once():
     recorded: list[dict] = []
 
     def ask(body):
-        live = [{"name": "inference.latency", "source": "inference_domain", "value": 3.0,
-                 "info": {"verdict": "miss"}, "at": live_start}]
+        held = {"source": "inference_domain", "subject": "testing-live-F", "at": live_start,
+                "info": {"verdict": "miss"}}
+        live = [dict(held, name="inference.latency", value=3.0),
+                dict(held, name="inference.spent", value=3.0),
+                dict(held, name="inference.saved", value=0.0)]
         return {"rows": live + [dict(r, source="inference_domain") for r in recorded]}
 
     def record(name, value, **kw):
@@ -297,11 +301,12 @@ def the_migration_carries_and_meters_once():
         assert len(trees.find(key("D"), table=tree)) == 1, "a short answer was dropped"
         assert trees.find(key("C"), table=tree) == [], "a refusal was carried as an answer"
         names = sorted((r["name"], r["info"]["verdict"]) for r in recorded)
-        assert len(recorded) == 6 * 3, f"{len(recorded)} metric records for 6 pre-meter rows"
+        assert len(recorded) == 7 * 3, f"{len(recorded)} metric records for the 7 rows the live meter lacks"
+        assert report.get("held") == 1, f"the live meter's one call was not claimed: {report}"
         assert all(r["info"].get("migrated") is True for r in recorded), recorded[:2]
         spent = sum(r["value"] or 0 for r in recorded if r["name"] == "inference.spent")
         saved = sum(r["value"] or 0 for r in recorded if r["name"] == "inference.saved")
-        assert (spent, saved) == (3 + 4 + 6 + 2, 4), (spent, saved, names)
+        assert (spent, saved) == (3 + 4 + 6 + 2, 4 + 2), (spent, saved, names)
         lat = [r for r in recorded if r["name"] == "inference.latency"]
         assert all(r["value"] is None for r in lat), lat
         ats = sorted({r["at"] for r in recorded})

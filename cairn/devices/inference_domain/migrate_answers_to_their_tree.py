@@ -4,10 +4,10 @@ its two new homes, then drop it.
 The table was both the compiled answers and the meter. The answers go to the proxy's keyed
 answer tree (``domain.ANSWERS``): each distinct request's newest still-valid answer, deposited
 under its digest exactly as ``resolve`` deposits a new one. The meter goes to metrics: every row
-written before the live meter began (ticket 0615d8cdc998) records its spent, saved and latency
+the live meter (ticket 0615d8cdc998) does not already hold records its spent, saved and latency
 rows, ``info.migrated`` true and ``at`` the row's own time, so the all-time total is one sum
-over the metrics table (Q#78, answered 2026-11-09). A call the live meter already recorded is
-never counted twice.
+over the metrics table (Q#78, answered 2026-11-09). A call the live meter already recorded (its
+verdict, its cost, within two seconds) is never counted twice.
 
 THE DROP IS THE LAST THING AND IT IS EARNED. Nothing is dropped without a dump that exists and
 names the table (taken by hand first: ``pg_dump -t inference_calls`` into
@@ -30,6 +30,7 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.inference_domain import domain
 
 SOURCE = "inference_calls"
+HELD_S = 2.0  # how near a live call's time a row must be to be the same call
 SOURCE_COLUMNS = {
     "canonical": "text NOT NULL",
     "verdict": "text NOT NULL",
@@ -141,20 +142,36 @@ def migrate(*, source: str = SOURCE, table: str = domain.ANSWERS, ask=None, reco
         if missing:
             return {"exit": 1, "expected": len(newest), "carried": carried, "skipped": skipped,
                     "missing": len(missing), "missing_sample": missing[:5], "dropped": False}
-        # 4. meter the rows the live meter never saw, once
+        # 4. meter every row the live meter does not already hold, once. The live meter began
+        #    while the table still wrote (ticket 0615d8cdc998), and proofs wrote to the live
+        #    table without metering, so no cutoff time divides the two (measured 2026-11-10:
+        #    51 metered rows, 65 unmetered ones after the first metered call). A row is already
+        #    held when a live call with its verdict, within HELD_S of its time, spent plus saved
+        #    equal to its cost, is still unclaimed; each live call is claimed once.
         rows = (ask({"source": domain.METRIC_SOURCE}) or {}).get("rows") or []
         mine = [m for m in rows if str(m.get("name") or "").startswith("inference.")]
-        metered = 0
+        metered = held = 0
         if any((m.get("info") or {}).get("migrated") for m in mine):
             meter_note = "already metered"
         else:
-            live = [_utc(m["at"]) for m in mine if m.get("at")]
-            cutoff = min(live) if live else None
+            calls: dict = {}
+            for m in mine:
+                if not m.get("at"):
+                    continue
+                c = calls.setdefault(m.get("subject") or m["at"], {"at": _utc(m["at"]), "verdict": None, "cost": 0.0})
+                c["verdict"] = c["verdict"] or (m.get("info") or {}).get("verdict")
+                if m["name"] in (domain.SPENT, domain.SAVED) and m.get("value") is not None:
+                    c["cost"] = max(c["cost"], float(m["value"]))
+            live = list(calls.values())
             for r in _batches("SELECT canonical, verdict, cost, created FROM {t}", source, conn):
                 at = _utc(r["created"])
-                if cutoff is not None and at >= cutoff:
-                    continue
                 v, cost = r["verdict"], float(r.get("cost") or 0)
+                match = next((c for c in live if c["verdict"] == v and abs(c["cost"] - cost) < 1e-6
+                              and abs((c["at"] - at).total_seconds()) <= HELD_S), None)
+                if match is not None:
+                    live.remove(match)
+                    held += 1
+                    continue
                 stamp = at.astimezone(timezone.utc).isoformat()
                 kw = {"subject": f"migrated-{domain.canonical_digest(r['canonical'])[:12]}-{stamp}",
                       "start": stamp, "end": stamp, "at": stamp,
@@ -163,11 +180,12 @@ def migrate(*, source: str = SOURCE, table: str = domain.ANSWERS, ask=None, reco
                 record(domain.SAVED, cost if v == "hit" else 0.0, **kw)
                 record(domain.LATENCY, None, **kw)
                 metered += 1
-            meter_note = f"metered before {cutoff.isoformat() if cutoff else 'the end'}"
+            meter_note = f"metered {metered}, {held} already held by the live meter"
         # 5. drop, earned
         dropped = store.drop_table(source, domain.OWNER, conn=conn)
         return {"exit": 0 if dropped else 1, "expected": len(newest), "carried": carried,
-                "skipped": skipped, "metered": metered, "meter": meter_note, "dropped": dropped}
+                "skipped": skipped, "metered": metered, "held": held, "meter": meter_note,
+                "dropped": dropped}
     finally:
         conn.close()
 

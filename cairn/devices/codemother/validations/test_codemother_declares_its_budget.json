@@ -2,7 +2,7 @@
   {
     "claim": "proof test_codemother_declares_its_budget.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T07:08:11",
+    "date": "2026-11-10T07:13:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,14 +14,17 @@
         "test_the_budget_fits_the_measured_run"
       ],
       "teeth_red": [],
-      "test": "test-7e0abb4daa3d",
+      "test": "test-1c8367b876fe",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_codemother_2050056_0710032650_delivery",
+          "bus_codemother_2050056_0710032650"
+        ]
       },
       "conditions": {
         "proof": "fd9da2d0fac20cdff577ed51ef2c28c79bfc211a2c663827814137dc1594868a",
@@ -37,12 +40,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7e0abb4daa3d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1c8367b876fe",
       "source_fingerprint": "237f882ab601d957417b83b05732c25ec0b6f576373e091531d34590ec01377b",
       "fingerprint_closure": [
         "cairn/devices/codemother/proofs/test_codemother_declares_its_budget.py"
@@ -52,20 +56,68 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2049418-sr1zovpb/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-1c8367b876fe/stderr.txt",
+            "logs/tester/0/runs/test-1c8367b876fe/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524730843,
-          "disk_bytes": 560664576,
-          "entries": 14006,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "c42e4e436d6c": {
+          "cairn/devices/codemother/proofs/test_codemother.py": [
+            "test_the_budget_fits_the_measured_run",
+            "test_the_proof_declares_an_integer_budget",
+            "cairn/devices/codemother/proofs/test_codemother.py::3 incidents with same why compiled to 1 constraint with count=3",
+            "cairn/devices/codemother/proofs/test_codemother.py::all 14 vocabulary entries validate against the type schema",
+            "cairn/devices/codemother/proofs/test_codemother.py::all vocabulary entries are project-agnostic",
+            "cairn/devices/codemother/proofs/test_codemother.py::challenge caught violation, clean change passed — 1 violation(s), clean=True",
+            "cairn/devices/codemother/proofs/test_codemother.py::charter exists, component='codemother', has falsifier and why",
+            "cairn/devices/codemother/proofs/test_codemother.py::constraint proof lifecycle — create, catch x2, retire, save, load",
+            "cairn/devices/codemother/proofs/test_codemother.py::digest consolidated 3 -> 1, reduction=2",
+            "cairn/devices/codemother/proofs/test_codemother.py::ingested 109 negative types from memory files, all have whys",
+            "cairn/devices/codemother/proofs/test_codemother.py::mine found 330 observations, derived 5 types: ['charter-pattern', 'proof-pattern', 'validation-pattern', 'history-pattern', 'state-pattern']",
+            "cairn/devices/codemother/proofs/test_codemother.py::positive and negative types are distinct",
+            "cairn/devices/codemother/proofs/test_codemother.py::probe loads, has why, trigger is callable",
+            "cairn/devices/codemother/proofs/test_codemother.py::projects are isolated — writing to alpha did not affect beta",
+            "cairn/devices/codemother/proofs/test_codemother.py::query returned 1 positive, 1 negative matches for ground_loop",
+            "cairn/devices/codemother/proofs/test_codemother.py::schema has no cairn-specific field names",
+            "cairn/devices/codemother/proofs/test_codemother.py::shim imports, device_id='codemother', probes() returns list",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_RED_seal_crosses_nothing_at_all",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_crossing_codemother_admits_names_her_in_the_record",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_handler_that_posts_does_not_re_enter_its_own_mailbox",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_history_that_is_not_a_list_is_refused_by_name",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_seal_whose_hollow_reading_COVERS_crosses",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_codemother_never_imports_the_harbor",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_cross_is_a_declared_verb_on_a_real_device",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_the_actor_is_the_envelopes_sender_not_the_bodys_claim",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_the_door_still_refuses_an_unproven_boat_through_her",
+            "cairn/devices/codemother/proofs/test_codemother.py::test_the_harbor_shim_is_reachable_by_its_own_name",
+            "cairn/devices/codemother/proofs/test_codemother.py::type serializes and deserializes correctly",
+            "cairn/devices/codemother/proofs/test_codemother.py::unify found 1 negative, 0 positive matches",
+            "cairn/devices/codemother/proofs/test_codemother.py::vocabulary catalog loads with 14 entries, all have name+why"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "c42e4e436d6c": {
+          "anchor_rule": "journal",
+          "anchor_journal": "fb21301f0663fe2d16cfb85809b07b8dfc1d076b",
+          "anchor_first_build": "595d6ada56cad8f3fbc5addb89fd78a023ae88ad",
+          "commit": "fb21301f0663fe2d16cfb85809b07b8dfc1d076b"
         }
       }
     },

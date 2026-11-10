@@ -9,6 +9,10 @@ deleted here (17.27.5): the table is the history.
 """
 from __future__ import annotations
 
+import fcntl
+import re
+import threading
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 
@@ -19,6 +23,8 @@ from cairn.tools.metric import metric
 TABLE = "metrics"
 OWNER = "cairn"
 INDEXES = {"name_at": ["name", "at"], "source_at": ["source", "at"]}
+LOCK = "instance/devices/cairn/0/metrics.lock"
+_FLIGHT = threading.Lock()
 
 
 def ensure_table(table: str = TABLE) -> None:
@@ -37,17 +43,47 @@ def holders(roots: dict | None = None) -> list[Path]:
             if (h / "tools" / "data_recorder" / metric.RECORDER / "records.jsonl").is_file()]
 
 
+@contextmanager
+def _single_flight(roots: dict | None):
+    """One collector at a time (ticket a0016627c71e): a thread lock within the process and an
+    exclusive flock on the cairn instance's lock file across processes. take reads a recorder
+    whole and clears it only after the sink returns, so two collectors at once each land every
+    record (measured 2026-11-10: eight threads landed 1600 rows for 200 records)."""
+    path = resolve(LOCK, roots)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with _FLIGHT, open(path, "a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
+
+
 def collect(table: str = TABLE, roots: dict | None = None) -> int:
-    """Move what waits in every holder's recorder into the table. Returns the rows added."""
-    ensure_table(table)
-    conn = store.connect()
-    try:
-        def sink(rows: list[dict]) -> None:
-            for row in rows:
-                store.write(table, OWNER, row, conn=conn)
-        return sum(metric.take(h, sink) for h in holders(roots))
-    finally:
-        conn.close()
+    """Move what waits in every holder's recorder into the table. Returns the rows added.
+    Single-flight: a second collector waits, then finds the recorders already drained."""
+    with _single_flight(roots):
+        ensure_table(table)
+        conn = store.connect()
+        try:
+            def sink(rows: list[dict]) -> None:
+                for row in rows:
+                    store.write(table, OWNER, row, conn=conn)
+            return sum(metric.take(h, sink) for h in holders(roots))
+        finally:
+            conn.close()
+
+
+def dedupe(table: str = TABLE) -> int:
+    """Delete all but one of each set of rows equal in every column: the copies concurrent
+    collects wrote before collect was single-flight (ticket a0016627c71e). A copy is not a
+    measurement, so no history is lost (17.27.5). Returns the rows deleted."""
+    if not re.fullmatch(r"[a-z0-9_]+", table):
+        raise ValueError(f"not a table name: {table!r}")
+    cols = ", ".join(f'"{c}"' for c in metric.COLUMNS)
+    return store.delete(table, OWNER, where=(
+        f'ctid IN (SELECT ctid FROM (SELECT ctid, row_number() OVER (PARTITION BY {cols} '
+        f'ORDER BY ctid) AS rn FROM "{table}") d WHERE rn > 1)'))
 
 
 def _where(name, source, since, until) -> tuple[list[str], list]:

@@ -12,13 +12,16 @@ from cairn.tools.base.device import BaseDevice
 
 class CairnDevice(BaseDevice):
 
-    def __init__(self, bus=None, roots=None, roster_root=None) -> None:
+    def __init__(self, bus=None, roots=None, roster_root=None, metrics_table=None) -> None:
         super().__init__()
         self._device_id = "cairn"
         # Where the sleep cycle's standing state and roster are read (ticket bf146e9e3967,
         # D4/D7): None live, a fixture's roots and roster folder under a proof.
         self._roots = roots
         self._roster_root = roster_root
+        # The one metrics table (ticket 3721d82be75c, outline 17.27, 5.3.6): None live, a scratch
+        # table under a proof.
+        self._metrics_table = metrics_table
         # INJECTED, never imported (ticket 9579a6f9cec6). This device held a
         # ``TroubleDevice()`` until 2026-09-07 and the isolation sieve was red about it
         # every run: no device may import another device (db_domain is the sole
@@ -54,7 +57,16 @@ class CairnDevice(BaseDevice):
         return {**super().declared_verbs(),
                 "sleep-token": self._handle_sleep_token,
                 "sleep-cycle": self._handle_sleep_cycle,
-                "away": self._handle_away}
+                "away": self._handle_away,
+                "metrics": self._handle_metrics}
+
+    def _handle_metrics(self, envelope: dict) -> dict:
+        """Fill the metrics table from every holder's recorder, then answer the rows matching
+        the body's name / source / since (ticket 3721d82be75c, outline 17.27.3)."""
+        from cairn.devices.cairn import metrics
+        body = envelope.get("body") or {}
+        return metrics.report(self._metrics_table or metrics.TABLE, name=body.get("name"),
+                              source=body.get("source"), since=body.get("since"), roots=self._roots)
 
     def _handle_away(self, envelope: dict) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import idle

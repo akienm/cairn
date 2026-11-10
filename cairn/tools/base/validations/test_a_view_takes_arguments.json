@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_view_takes_arguments.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-10T03:15:56",
+    "date": "2026-11-10T04:40:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-11-10T10:15:54.804227+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
+      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-11-10T11:40:28.615476+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_get_passes_the_args",
@@ -17,7 +17,7 @@
         "test_the_bus_get_passes_args"
       ],
       "teeth_red": [],
-      "test": "test-611600de3ddf",
+      "test": "test-61a1be7eb142",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-611600de3ddf",
-      "source_fingerprint": "cb9d311068dff1f0c202e0f051b6b2a0aad5324dcbf02129df1adb938d6a8b15",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-61a1be7eb142",
+      "source_fingerprint": "bbd6f1f09873f5c1156d5065564ad7f2ef8e1e0f3a7f9619bb4fb88399730ccc",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -65,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1841761-yxsbeos4/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1892366-37ux4ih5/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 524081945,
-          "disk_bytes": 559611904,
-          "entries": 13852,
+          "bytes": 524289504,
+          "disk_bytes": 559869952,
+          "entries": 13879,
           "builds": 1,
-          "reuses": 23
+          "reuses": 3
         }
       }
     },

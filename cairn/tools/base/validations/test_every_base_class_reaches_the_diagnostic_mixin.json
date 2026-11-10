@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_every_base_class_reaches_the_diagnostic_mixin.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-10T03:39:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-10T04:41:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "test_base_holds_every_clause_of_the_falsifier"
       ],
       "teeth_red": [],
-      "test": "test-2a352c1a5785",
+      "test": "test-baf5cebfcb46",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,14 +41,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a352c1a5785",
-      "source_fingerprint": "2147d32154ab7ffc25dca6265720feb6db373787f736238d6003726c4cb1beeb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-baf5cebfcb46",
+      "source_fingerprint": "f6cbcdc2fa49e2b2d560b869eb5640c6e06168e9c9d8dcf6eb45d0a4c88a0502",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -81,7 +80,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1864951-jpd3t9b9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1892366-s9yxfshx/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,30 +89,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 524090940,
-          "disk_bytes": 559628288,
-          "entries": 13855,
+          "bytes": 524289504,
+          "disk_bytes": 559869952,
+          "entries": 13879,
           "builds": 1,
-          "reuses": 0
+          "reuses": 11
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705",
-        "opened": "2026-11-10T03:19:20",
-        "last_red": "2026-11-10T03:19:20",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-every-base-class-reaches-the-diagnostic-mixin",
-        "ruling": null,
-        "closed_at": "2026-11-10T03:39:39",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705"
-      },
-      "conditions_moved": {
-        "notified": "n-eb27b14a66ed",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

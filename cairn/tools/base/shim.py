@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
@@ -971,14 +972,36 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
             raise NotImplementedError(
                 f"{reason}. Cannot bounce: "
                 f"{'no sender on envelope' if not sender else 'no bus on shim'}")
+        identity = trouble or f"mail-{self.device_id}-bounced"
+        mark = testing_mark.mark_of(envelope.get("body") or {})
+        # THE RECEIVER RAISES (ticket eff2fb9810de; Akien, open-b9037ca75019): the component
+        # that cannot fill the request issues the trouble at its own address, and the bounce
+        # tells the sender which one, so the sender's raise under it is an addition. Guarded:
+        # a trouble lane that is down never stops the bounce, and the failure is loud (Law 7).
+        # Mail born of a test raises no live trouble, and its bounce inherits the mark so the
+        # sender disposes of it too (ticket b3386f431ae3's ruling, carried to the shim).
+        if mark is not None:
+            self.emit("test_bounce_disposed", pointer=envelope.get("id"),
+                      values={"trouble": identity, "test": mark["test"], "to": sender})
+        else:
+            try:
+                self.raise_trouble(identity, why=reason, detail={
+                    "sender": sender, "original_verb": envelope.get("verb", ""),
+                    "envelope": envelope.get("id")})
+            except Exception as exc:  # noqa: BLE001 — the bounce must still go
+                print(f"{self.device_id}: could not raise trouble {identity!r}: "
+                      f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        body = {"is_bounce": True, "reason": reason,
+                "original_verb": envelope.get("verb", ""),
+                "original_addressee": envelope.get("addressee", ""),
+                # the trouble this shim raised, named for the sender to add to
+                "trouble": identity}
+        if mark is not None:
+            body[testing_mark.FIELD] = mark
         self._bus.post(
             sender=self.device_id, to=sender, channel="personal",
             why=f"bounced: {reason}",
-            body={"is_bounce": True, "reason": reason,
-                  "original_verb": envelope.get("verb", ""),
-                  "original_addressee": envelope.get("addressee", ""),
-                  # the addressee's defect, named for the sender to raise (ticket 7cb1989e7825)
-                  "trouble": trouble or f"mail-{self.device_id}-bounced"},
+            body=body,
             # THE BOUNCE ANSWERS THE REQUEST THAT BORE IT (ticket 60cc220da787): Bus.request
             # correlates by reply_to alone, so without it a synchronous asker sat out its whole
             # timeout and was told the target "did not reply" when it had.
@@ -997,10 +1020,16 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         self.emit("bounced_mail", pointer=bounce_envelope.get("id"),
                   values={"reason": reason, "original_verb": original_verb,
                           "from": bounce_envelope.get("sender", "?")})
-        # THE SENDER RAISES (Akien 2026-08-11, ticket 7cb1989e7825): *"the trouble ticket
-        # comes from the device that received the return to sender"*. The identity names the
-        # ADDRESSEE's defect, so every sender's returned letter folds into one trouble.
+        # THE SENDER ADDS (ticket 7cb1989e7825; Akien, open-b9037ca75019: "writing is not safe,
+        # but appending is"). The receiving shim has already raised this identity (ticket
+        # eff2fb9810de); the sender's raise under it folds into that same trouble, and still
+        # lands if the receiver's own raise failed.
         receiver = body.get("original_addressee") or ""
+        mark = testing_mark.mark_of(body)
+        if mark is not None:
+            self.emit("test_bounce_disposed", pointer=bounce_envelope.get("id"),
+                      values={"trouble": body.get("trouble"), "test": mark["test"]})
+            return {"handled": False, "reason": reason, "disposed": True}
         self.raise_trouble(
             body.get("trouble") or f"mail-{receiver}-bounced",
             why=bounce_envelope.get("why") or f"bounced: {reason}",

@@ -14,7 +14,10 @@ the trouble lane folds the two on the identity.
      handler's own exception still propagates;
   3. no verb, no receive(): the receiving shim raises mail-<device>-has-no-receive;
   4. a raise_trouble that itself raises does not stop or change the bounce, and stderr says so;
-  5. answered mail raises nothing, and test_bounce_raises_the_mail_trouble.py passes unchanged.
+  5. answered mail raises nothing, and test_bounce_raises_the_mail_trouble.py passes unchanged;
+  6. mail carrying a testing mark that bounces raises nothing at the receiver, its bounce carries
+     the mark, and the sender's handle_bounce raises nothing for it (b3386f431ae3's ruling: what
+     a flagged input bears inherits the flag).
 
 Diagnostics go to a list receiver; the bus is a spy. Every name is ``testing-eff2-...``.
 
@@ -40,6 +43,7 @@ PROVES = {"eff2fb9810de": {
     "3": "no_receive_raises_at_the_receiver",
     "4": "a_failed_raise_still_bounces",
     "5": "answered_mail_raises_nothing",
+    "6": "test_mail_raises_nothing_at_either_end",
 }}
 
 PASS = 0
@@ -198,11 +202,33 @@ def answered_mail_raises_nothing():
     assert r.returncode == 0, r.stdout[-1500:] + r.stderr[-800:]
 
 
+def test_mail_raises_nothing_at_either_end():
+    from cairn.tools.base import testing_mark
+    bus = _SpyBus()
+    shim = _Shim(bus)
+    mark = testing_mark.mark("testing-eff2-t1", testing_mark.PERFORM)
+    letter = _letter(1, verb="no_such_verb")
+    letter["body"] = {testing_mark.FIELD: mark}
+    shim.deliver(letter)
+    assert _raised(shim) == [], _raised(shim)
+    bounces = bus.bounces()
+    assert len(bounces) == 1 and testing_mark.mark_of(bounces[0]["body"]) == mark, bounces
+    assert shim.inbox.lane("test_bounce_disposed"), shim.inbox.records
+    sender_bus = _SpyBus()
+    sender = _Shim(sender_bus)
+    sender.deliver({"id": "testing-eff2-bounce-1", "sender": _ME, "addressee": _ME,
+                    "channel": "personal", "body": bounces[0]["body"],
+                    "reply_to": letter["id"]})
+    assert _raised(sender) == [], _raised(sender)
+    assert sender.inbox.lane("test_bounce_disposed"), sender.inbox.records
+
+
 TEETH = [the_undeclared_verb_raises_at_the_receiver,
          the_raising_handler_raises_at_the_receiver,
          no_receive_raises_at_the_receiver,
          a_failed_raise_still_bounces,
-         answered_mail_raises_nothing]
+         answered_mail_raises_nothing,
+         test_mail_raises_nothing_at_either_end]
 
 
 def _tooth(fn):

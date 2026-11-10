@@ -2,7 +2,7 @@
   {
     "claim": "proof test_dataref.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T16:44:43",
+    "date": "2026-11-10T07:23:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "tooth_5_a_miss_is_loud_and_names_the_address"
       ],
       "teeth_red": [],
-      "test": "test-1625b346b49c",
+      "test": "test-c7e4c0a57460",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,72 +40,40 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1625b346b49c",
-      "source_fingerprint": "ba28102d3803d0e102e2fe8505943d09ff65ddf8add30ebf114c88d1d8f06559",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c7e4c0a57460",
+      "source_fingerprint": "6853573a8081e08a29098225a466abcb53fdb9575b3a3f808841ba297cda272b",
       "fingerprint_closure": [
         "cairn/tools/dataref/__init__.py",
         "cairn/tools/dataref/dataref.py",
         "cairn/tools/dataref/proofs/test_dataref.py"
       ],
       "reached": {
+        "cairn/devices/db_domain": "64ce870ff74abb5b554036e44ca34c9ad05a299c00abc9f2510ad710ce5e647f",
+        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d"
+        "cairn/tools/base": "c41d01326e34e3300e979b7ee9181decb1ac363b8b878f05d73fb9159183287d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-2055961-ud2931cr/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-1625b346b49c/stderr.txt",
-            "logs/tester/0/runs/test-1625b346b49c/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "060d2146618c": {
-          "cairn/tools/dataref/__init__.py": [
-            "tooth_1_each_scheme_names_its_root",
-            "tooth_2_the_hash_walks_inside_the_record",
-            "tooth_3_a_secret_never_shows_itself",
-            "tooth_4_a_file_is_reread_only_when_it_changed",
-            "tooth_5_a_miss_is_loud_and_names_the_address",
-            "tooth_6_web_operator_reads_through_a_secret"
-          ],
-          "cairn/tools/dataref/dataref.py": [
-            "tooth_1_each_scheme_names_its_root",
-            "tooth_2_the_hash_walks_inside_the_record",
-            "tooth_3_a_secret_never_shows_itself",
-            "tooth_4_a_file_is_reread_only_when_it_changed",
-            "tooth_5_a_miss_is_loud_and_names_the_address",
-            "tooth_6_web_operator_reads_through_a_secret"
-          ],
-          "cairn/tools/dataref/intention+why.json": {
-            "notified": "n-c5bfe9155b47"
-          },
-          "cairn/machines/web_operator/web_operator.py": [
-            "tooth_6_web_operator_reads_through_a_secret"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "060d2146618c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "07003d41ce448734a3afdb60c164b89cae5922f6",
-          "anchor_first_build": "6f321cc36dfbc9ad6739e43d41b784f29502d3d4",
-          "commit": "07003d41ce448734a3afdb60c164b89cae5922f6"
+          "measured": true,
+          "bytes": 524799801,
+          "disk_bytes": 560771072,
+          "entries": 14021,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

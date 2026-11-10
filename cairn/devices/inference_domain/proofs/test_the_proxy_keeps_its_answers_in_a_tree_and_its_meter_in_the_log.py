@@ -13,16 +13,17 @@ One tooth per numbered falsifier clause:
   1. No non-proof module under the device, other than the migration, names the old table.
   2. A repeat is served from the scratch answer tree: verdict hit, same answer, resolver once.
   3. An answer past its horizon is not served; the resolver is called again.
-  4. yield_report over a known metrics reply returns its spent/avoided sums and its
-     hit/miss/refused counts, asking the cairn device's metrics verb (never importing it).
+  4. yield_report over a known metrics totals reply returns its spent/avoided sums and its
+     hit/miss/refused counts, asking the cairn device's metrics verb for totals by verdict
+     (ticket f4dbcea5a117), never importing it.
   5. The calls verb over a scratch logs tree returns tickets newest first, bounded by limit,
      carrying canonical, created, verdict and answer; ``since`` drops the older.
   6. The migration over a scratch table carries one answer per still-valid canonical, meters
      each pre-meter row once; a second run writes nothing; a forced mismatch drops nothing and
      exits non-zero; no dump, no drop.
   7. LIVE, read-only, after the migration: the old table is gone, the answer tree is owned by
-     inference_domain with at least 11,366 leaves, the dump exists, and the metrics rows up to
-     the dump's newest row sum to the dump's spent and avoided.
+     inference_domain with at least 11,366 leaves, the dump exists, and the metrics totals until
+     the dump's newest row equal the dump's spent and avoided.
   8. The median of 100 tree lookups is no more than 3x the median of 100 old-shape table reads.
   9. Every other proof under cairn/devices/inference_domain stays green.
 
@@ -181,26 +182,22 @@ def an_expired_answer_is_not_served():
 def the_yield_report_sums_the_metrics_reply():
     domain = _domain()
 
-    def row(name, value, verdict, **info):
-        return {"name": name, "source": "inference_domain", "value": value,
-                "info": {"verdict": verdict, **info}, "at": "2026-11-09T00:00:00+00:00"}
-    rows = [row("inference.spent", 10.0, "miss"), row("inference.saved", 0.0, "miss"),
-            row("inference.latency", 4.0, "miss"),
-            row("inference.spent", 20.0, "miss"), row("inference.latency", 5.0, "miss"),
-            row("inference.spent", 5.0, "miss", migrated=True),
-            row("inference.latency", None, "miss", migrated=True),
-            row("inference.saved", 7.0, "hit"), row("inference.spent", 0.0, "hit"),
-            row("inference.latency", 1.0, "hit"),
-            row("inference.latency", 2.0, "refused"), row("inference.spent", 0.0, "refused")]
+    def tot(name, verdict, count, total):
+        return {"name": name, "by": verdict, "count": count, "sum": total}
+    totals = [tot("inference.latency", "hit", 1, 1.0), tot("inference.latency", "miss", 3, 9.0),
+              tot("inference.latency", "refused", 1, 2.0),
+              tot("inference.saved", "hit", 1, 7.0), tot("inference.saved", "miss", 1, 0.0),
+              tot("inference.spent", "hit", 1, 0.0), tot("inference.spent", "miss", 3, 35.0),
+              tot("inference.spent", "refused", 1, 0.0)]
     asked = []
 
     def ask(body):
         asked.append(dict(body))
-        return {"rows": rows, "collected": 0}
+        return {"totals": totals, "collected": 0}
     got = domain.yield_report(ask=ask)
     want = {"calls": 5, "hits": 1, "misses": 3, "refused": 1, "spent": 35.0, "avoided": 7.0}
     assert {k: got.get(k) for k in want} == want, got
-    assert asked and asked[0].get("source") == "inference_domain", asked
+    assert asked and asked[0] == {"source": "inference_domain", "totals": True, "by": "verdict"}, asked
     src = (DEVICE / "domain.py").read_text(encoding="utf-8")
     for node in ast.walk(ast.parse(src)):
         if isinstance(node, ast.ImportFrom):
@@ -375,13 +372,13 @@ def live_the_table_is_gone_and_the_meter_carried():
     assert dumps, "no dump of the old table"
     spent, avoided, newest = _dump_sums(dumps[-1])
     from cairn.tools.bus_client import reach
-    rows = reach("cairn").request(sender="inference_domain", to="cairn", verb="metrics",
-                                  why="98ab0e9db57f tooth 7 (testing)",
-                                  body={"source": "inference_domain"})["body"]["rows"]
     bound = newest + timedelta(seconds=1)
-    upto = [r for r in rows if datetime.fromisoformat(r["at"]) <= bound]
-    m_spent = sum(r["value"] or 0 for r in upto if r["name"] == "inference.spent")
-    m_saved = sum(r["value"] or 0 for r in upto if r["name"] == "inference.saved")
+    totals = reach("cairn").request(sender="inference_domain", to="cairn", verb="metrics",
+                                    why="98ab0e9db57f tooth 7 (testing)",
+                                    body={"source": "inference_domain", "totals": True,
+                                          "until": bound.isoformat()})["body"]["totals"]
+    m_spent = sum(t["sum"] for t in totals if t["name"] == "inference.spent")
+    m_saved = sum(t["sum"] for t in totals if t["name"] == "inference.saved")
     print(f"    dump spent {spent} avoided {avoided}; metrics spent {m_spent} saved {m_saved}; leaves {n}")
     assert (round(m_spent, 3), round(m_saved, 3)) == (round(spent, 3), round(avoided, 3)), (
         m_spent, m_saved, spent, avoided)

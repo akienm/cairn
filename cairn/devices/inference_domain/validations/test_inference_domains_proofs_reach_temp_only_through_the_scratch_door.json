@@ -2,7 +2,7 @@
   {
     "claim": "proof test_inference_domains_proofs_reach_temp_only_through_the_scratch_door.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-01T22:46:21",
+    "date": "2026-11-10T02:12:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,7 +13,7 @@
         "test_no_proof_in_inference_domain_reaches_temp_bare"
       ],
       "teeth_red": [],
-      "test": "test-3c3377cf8f1b",
+      "test": "test-bfdca174adb1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,6 +30,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -40,14 +41,18 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3c3377cf8f1b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bfdca174adb1",
       "source_fingerprint": "24b6aa7b6e701b72606aa077f67a502498f1b40c925a65b8292c5a52b8170747",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/proofs/test_inference_domains_proofs_reach_temp_only_through_the_scratch_door.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3287436-_q9c5lye/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1783075-okrjyixq/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,9 +61,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115174354,
-          "disk_bytes": 145666048,
-          "entries": 12036,
+          "bytes": 523963519,
+          "disk_bytes": 559448064,
+          "entries": 13832,
           "builds": 1,
           "reuses": 0
         }

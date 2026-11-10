@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_one_caller_at_a_time_holds_an_inference_slot.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-01T23:04:13",
+    "caller": "cairn test",
+    "date": "2026-11-10T02:13:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,17 +15,14 @@
         "test_two_endpoints_do_overlap"
       ],
       "teeth_red": [],
-      "test": "test-4fafb8953fc3",
+      "test": "test-716212ca306f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_3297860_2303467963_delivery",
-          "bus_proc_3297860_2303467963"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "f69e9bd3fda9d48f56eb1c608df946b9a7bf57b4ead6292688552a81f1f1e81d",
@@ -35,25 +32,32 @@
         "timeout": 180,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4fafb8953fc3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-716212ca306f",
       "source_fingerprint": "f075e645db68fcc27fbf59d369e62dba7826a87bb1a8a5bbbb055d4487f96e41",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/host.py",
         "cairn/devices/inference_domain/proofs/test_one_caller_at_a_time_holds_an_inference_slot.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3297258-9v6xpf_1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1783221-pshnfg81/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,14 +66,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 115225836,
-          "disk_bytes": 145784832,
-          "entries": 12057,
+          "bytes": 523963519,
+          "disk_bytes": 559448064,
+          "entries": 13832,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

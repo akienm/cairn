@@ -226,13 +226,20 @@ def _instance_bin(device_id: str, instance_root: str | Path | None, instance: in
 
 
 def _first_comment(path: Path) -> str:
-    """The first non-shebang comment line's text, '' when there is none (or the file is binary)."""
+    """The first non-shebang comment line's text, or the first line of a docstring that comes
+    before any such comment (a Python shortcut's about, 5.4.3.4); '' when there is none (or the
+    file is binary)."""
     try:
         with path.open(encoding="utf-8", errors="replace") as fh:
             for i, line in enumerate(fh):
                 if i > 40:
                     break
                 line = line.strip()
+                if line[:3] in ('"""', "'''"):
+                    text = line[3:].split(line[:3])[0].strip()
+                    if text:
+                        return text
+                    continue
                 if not line.startswith("#") or line.startswith("#!"):
                     continue
                 text = line.lstrip("#").strip()
@@ -243,13 +250,21 @@ def _first_comment(path: Path) -> str:
     return ""
 
 
-def bin_shortcuts(device_id: str, instance_root: str | Path | None = None, instance: int = 0) -> list[dict]:
-    """Each executable file in the device's instance bin, sorted, with its first comment line."""
-    b = _instance_bin(device_id, instance_root, instance)
-    if not b.is_dir():
-        return []
-    return [{"name": p.name, "about": _first_comment(p)} for p in sorted(b.iterdir())
-            if p.is_file() and os.access(p, os.X_OK)]
+def _executables(b: Path) -> list[Path]:
+    return [p for p in sorted(b.iterdir()) if p.is_file() and os.access(p, os.X_OK)] if b.is_dir() else []
+
+
+def bin_shortcuts(device_id: str, instance_root: str | Path | None = None, instance: int = 0,
+                  class_root: str | Path | None = None) -> list[dict]:
+    """The device's shortcuts: each executable in its instance bin and in the bin/ beside its code
+    (``class_root``/<device>/bin, outline 5.4.3.3: "That folder IS its list of shortcuts"), the
+    same two folders the launcher runs (ticket 30366e99655a). A name both hold is the instance
+    bin's, as the launcher runs it. Sorted by name, each with its about (ticket ba777080011b).
+    ``class_root`` defaults to $CAIRN_CLASS_ROOT, else the devices folder beside cairn/tools."""
+    root = class_root or os.environ.get("CAIRN_CLASS_ROOT") or Path(__file__).resolve().parents[2] / "devices"
+    rows = {p.name: p for p in _executables(Path(root) / device_id / "bin")}
+    rows.update({p.name: p for p in _executables(_instance_bin(device_id, instance_root, instance))})
+    return [{"name": n, "about": _first_comment(rows[n])} for n in sorted(rows)]
 
 
 def _semantics_and_shortcuts_lines(shortcuts: list[dict]) -> list[str]:

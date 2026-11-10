@@ -67,6 +67,17 @@ _LEAF_COLUMNS = {
     "embedding_id": "text NOT NULL",
 }
 
+# The keyed leaf (ticket e62f40f35f59, outline 4.3.1.6, Akien 2026-11-05): "Not every node gets
+# one ... A node without an embedding is found by its key (eg an exact request)." Its shape is
+# declared when the table is made, and recognised afterwards from the table's own columns.
+_KEYED_LEAF_COLUMNS = {
+    "leaf_id": "text PRIMARY KEY",
+    "key": "text NOT NULL",
+    "node_id": "text NOT NULL",
+    "meta": "jsonb NOT NULL DEFAULT '{}'",
+    "created": "timestamptz NOT NULL DEFAULT now()",
+}
+
 LINKS_TABLE = "cairn_links"
 
 _LINK_COLUMNS = {
@@ -183,22 +194,35 @@ def cosine(a: list[float], b: list[float]) -> float:
     return dot / (math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b)))
 
 
-def ensure_trees(*, table: str = NODES, owner: str = OWNER, conn=None) -> None:
-    """The shared tables + the caller's leaf table, owner-gated into existence."""
+def ensure_trees(*, table: str = NODES, owner: str = OWNER, keyed: bool = False,
+                 conn=None) -> None:
+    """The shared tables + the caller's leaf table, owner-gated into existence.
+
+    ``keyed=True`` makes the leaf a keyed one (no embedding; found by its key)."""
     store.create_owned_table(NODES_TABLE, OWNER, _NODE_COLUMNS, conn=conn)
     store.create_owned_table(EMBEDDINGS_TABLE, OWNER, _EMBEDDING_COLUMNS, conn=conn)
-    store.create_owned_table(table, owner, _LEAF_COLUMNS, conn=conn)
+    store.create_owned_table(table, owner, _KEYED_LEAF_COLUMNS if keyed else _LEAF_COLUMNS,
+                             conn=conn)
+
+
+def _is_keyed(table: str, *, conn) -> bool:
+    """A keyed leaf is recognised by its columns: a key, and no embedding_id."""
+    cols = {r["column_name"] for r in store.query(
+        "SELECT column_name FROM information_schema.columns WHERE table_name = %s",
+        tables={}, params=(table,), conn=conn)}
+    return "key" in cols and "embedding_id" not in cols
 
 
 @contextmanager
-def scratch_leaf(prefix: str, *, owner: str = OWNER, suffix: str = ""):
+def scratch_leaf(prefix: str, *, owner: str = OWNER, suffix: str = "", keyed: bool = False):
     """A leaf table that cannot outlive this process (ticket 201a37bf1613): minted through
     ``store.scratch()`` with the leaf columns, the shared tables ensured beside it, yielded
     by name, dropped at exit — swept by pid if the process never gets there. Children a
     calve mints under it ride as companions (see ``calve``). For proofs and one-shot
     drains; a standing leaf is ``ensure_trees``."""
-    with store.scratch(owner, prefix, _LEAF_COLUMNS, suffix=suffix) as table:
-        ensure_trees(table=table, owner=owner)
+    columns = _KEYED_LEAF_COLUMNS if keyed else _LEAF_COLUMNS
+    with store.scratch(owner, prefix, columns, suffix=suffix) as table:
+        ensure_trees(table=table, owner=owner, keyed=keyed)
         yield table
 
 
@@ -230,7 +254,13 @@ def _leaf_rows(*, table: str, conn,
     """All rows in a leaf table, joined through embedding->node.
 
     When time_window is (start, end), restricts to nodes created in that window.
+    A keyed leaf has no embedding to join through, so it is refused, never read as empty.
     """
+    if _is_keyed(table, conn=conn):
+        raise WalkRefused(
+            f"{table!r} is a keyed leaf table — its nodes carry no embedding, so there is no "
+            "proximity to walk; find it by its key (find)."
+        )
     sql = (
         "SELECT l.leaf_id, n.node_id, n.content, e.vector, n.provenance, "
         "n.standing, n.created, e.embedding_id, e.render_method "
@@ -248,6 +278,45 @@ def _leaf_rows(*, table: str, conn,
     )
 
 
+def _judge_content(content, *, who: str) -> None:
+    if not isinstance(content, str) or len(_norm(content)) < _MIN_CONTENT_CHARS:
+        raise DepositRefused(
+            f"{who}: content is "
+            f"{len(_norm(content)) if isinstance(content, str) else 'not a string'} "
+            f"normalized chars — floor is {_MIN_CONTENT_CHARS}. A node distilled from "
+            "near-nothing is invention; nothing landed."
+        )
+
+
+def _judge_provenance(provenance, *, who: str) -> None:
+    if not isinstance(provenance, dict) or not str(provenance.get("source", "")).strip():
+        raise DepositRefused(
+            f"{who}: provenance must be a dict naming a non-empty 'source', got "
+            f"{provenance!r}. A node nobody can trace is fabricated attribution as a "
+            "permanent resident; nothing landed."
+        )
+
+
+def _write_node(nid: str, content: str, provenance: dict, *, conn) -> bool:
+    """The node write both deposit doors share: a new node is born a hypothesis; a duplicate
+    (same content, ANY tree) appends the provenance as an attestation. True on a duplicate."""
+    existing = store.read(NODES_TABLE, where="node_id = %s", params=(nid,), conn=conn)
+    if existing:
+        prior = existing[0]["provenance"] or {}
+        attests = list(prior.get("attestations") or [])
+        attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
+        store.update(NODES_TABLE, OWNER, {"provenance": {**prior, "attestations": attests}},
+                     where="node_id = %s", params=(nid,), conn=conn)
+        return True
+    store.write(NODES_TABLE, OWNER, {
+        "node_id": nid,
+        "content": content,
+        "provenance": provenance,
+        "standing": "hypothesis",
+    }, conn=conn)
+    return False
+
+
 def deposit(content: str, vector, provenance: dict, *,
             tree: str = "commons", table: str = NODES, owner: str = OWNER,
             render_method: str = "embed:default",
@@ -258,45 +327,22 @@ def deposit(content: str, vector, provenance: dict, *,
     leaf -> the caller's leaf table. A duplicate node (same content, ANY tree) appends
     provenance as an attestation; a new leaf is still written for this tree.
     """
-    if not isinstance(content, str) or len(_norm(content)) < _MIN_CONTENT_CHARS:
-        raise DepositRefused(
-            f"deposit: content is "
-            f"{len(_norm(content)) if isinstance(content, str) else 'not a string'} "
-            f"normalized chars — floor is {_MIN_CONTENT_CHARS}. A node distilled from "
-            "near-nothing is invention; nothing landed."
-        )
+    _judge_content(content, who="deposit")
     v = _check_vector(vector, who="deposit")
-    if not isinstance(provenance, dict) or not str(provenance.get("source", "")).strip():
-        raise DepositRefused(
-            f"deposit: provenance must be a dict naming a non-empty 'source', got "
-            f"{provenance!r}. A node nobody can trace is fabricated attribution as a "
-            "permanent resident; nothing landed."
-        )
+    _judge_provenance(provenance, who="deposit")
 
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
+        if _is_keyed(table, conn=own):
+            raise DepositRefused(
+                f"deposit: {table!r} is a keyed leaf table — it holds no embedding, so a "
+                "vectored deposit cannot land there; use deposit_keyed. Nothing landed."
+            )
         nid = node_id_for(content)
         eid = embedding_id_for(nid, render_method)
         lid = leaf_id_for(nid, eid)
-
-        existing_node = store.read(NODES_TABLE, where="node_id = %s", params=(nid,), conn=own)
-        node_is_dup = bool(existing_node)
-
-        if node_is_dup:
-            prior = existing_node[0]["provenance"] or {}
-            attests = list(prior.get("attestations") or [])
-            attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
-            merged = {**prior, "attestations": attests}
-            store.update(NODES_TABLE, OWNER, {"provenance": merged},
-                         where="node_id = %s", params=(nid,), conn=own)
-        else:
-            store.write(NODES_TABLE, OWNER, {
-                "node_id": nid,
-                "content": content,
-                "provenance": provenance,
-                "standing": "hypothesis",
-            }, conn=own)
+        node_is_dup = _write_node(nid, content, provenance, conn=own)
 
         existing_emb = store.read(EMBEDDINGS_TABLE, where="embedding_id = %s", params=(eid,), conn=own)
         if not existing_emb:
@@ -327,6 +373,67 @@ def deposit(content: str, vector, provenance: dict, *,
 
         return {"node_id": nid, "duplicate": node_is_dup and leaf_is_dup,
                 "dim": len(v), "provenance_appended": node_is_dup}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def deposit_keyed(content: str, key: str, provenance: dict, *, table: str,
+                  owner: str = OWNER, meta: dict | None = None, conn=None) -> dict:
+    """The keyed deposit door (ticket e62f40f35f59, outline 4.3.1.6): one node in, with no
+    embedding, under ``key`` in a keyed leaf table. Judged as ``deposit`` judges (content
+    floor, provenance), plus a non-blank key; the node write is deposit's own. The same
+    content under the same key is one leaf (its provenance attested); under a second key, a
+    second leaf over the one node. ``meta`` rides the leaf (eg a stored answer's verdict)."""
+    _judge_content(content, who="deposit_keyed")
+    _judge_provenance(provenance, who="deposit_keyed")
+    if not isinstance(key, str) or not key.strip():
+        raise DepositRefused(
+            f"deposit_keyed: key must be a non-blank string, got {key!r} — a node filed under "
+            "nothing can never be found by its key; nothing landed."
+        )
+    if meta is not None and not isinstance(meta, dict):
+        raise DepositRefused(f"deposit_keyed: meta must be a dict or None, got {type(meta).__name__}")
+    own = conn or store.connect()
+    try:
+        ensure_trees(table=table, owner=owner, keyed=True, conn=own)
+        if not _is_keyed(table, conn=own):
+            raise DepositRefused(
+                f"deposit_keyed: {table!r} is a vectored leaf table — its leaves need an "
+                "embedding; use deposit with a vector. Nothing landed."
+            )
+        nid = node_id_for(content)
+        lid = leaf_id_for(nid, key)
+        node_is_dup = _write_node(nid, content, provenance, conn=own)
+        leaf_is_dup = bool(store.read(table, where="leaf_id = %s", params=(lid,), conn=own))
+        if not leaf_is_dup:
+            store.write(table, owner, {"leaf_id": lid, "key": key, "node_id": nid,
+                                       "meta": meta or {}}, conn=own)
+        return {"node_id": nid, "duplicate": node_is_dup and leaf_is_dup,
+                "provenance_appended": node_is_dup}
+    finally:
+        if conn is None:
+            own.close()
+
+
+def find(key: str, *, table: str, conn=None) -> list[dict]:
+    """The nodes under ``key`` in a keyed leaf table, newest leaf first: node_id, key,
+    content, provenance, standing, meta, created. [] for an unknown key or an absent table;
+    a vectored table is refused (it is walked by proximity, not found by key)."""
+    own = conn or store.connect()
+    try:
+        if store.owner_of(table, conn=own) is None:
+            return []
+        if not _is_keyed(table, conn=own):
+            raise WalkRefused(
+                f"find: {table!r} is a vectored leaf table — it is walked by proximity "
+                "(nearest), not found by key."
+            )
+        return store.query(
+            "SELECT n.node_id, l.key, n.content, n.provenance, n.standing, l.meta, l.created "
+            "FROM {leaf} l JOIN {node} n ON l.node_id = n.node_id "
+            "WHERE l.key = %s ORDER BY l.created DESC",
+            tables={"leaf": table, "node": NODES_TABLE}, params=(key,), conn=own)
     finally:
         if conn is None:
             own.close()
@@ -1226,6 +1333,11 @@ def neighbors(node_id: str, *, k: int = 5, tree: str = "commons",
     own = conn or store.connect()
     try:
         ensure_trees(table=table, owner=owner, conn=own)
+        if _is_keyed(table, conn=own):
+            raise WalkRefused(
+                f"neighbors: {table!r} is a keyed leaf table — its nodes carry no embedding, "
+                "so they have no neighborhood; find them by their key (find)."
+            )
         emb = store.read(EMBEDDINGS_TABLE, where="node_id = %s",
                          params=(node_id,), conn=own)
         if not emb:

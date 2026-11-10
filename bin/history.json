@@ -25813,5 +25813,109 @@
     "fingerprint": "0a1e458630b2aa3a4f8e36990032c347fb3bbf12f89592aca704e45d92daa278",
     "at": "2026-11-10T03:23:57",
     "seq": 87
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "bin/proofs/test_retired_components_are_gone.py"
+    ],
+    "proven_seal_date": "2026-11-10T03:28:21",
+    "delegated": false,
+    "ticket": "229ee25ff6f0",
+    "why": "PROVED refused: cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py seal predates the build (component_color); cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py seal predates the build (component_color); cairn/tools/base/proofs/test_device_logs_unwired.py seal predates the build (component_color); cairn/tools/base/proofs/test_base_reaches_no_device.py seal predates the build (component_color); cairn/tools/rack/proofs/test_the_roster_is_the_rack.py seal predates the build (component_color); cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py seal predates the build (component_color); cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py seal predates the build (component_color); cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py seal predates the build (component_color); cairn/devices/cairn/proofs/test_trouble_panel.py seal predates the build (component_color); bin/proofs/test_probescan.py seal predates the build (component_color); cairn/tools/base/proofs/test_every_base_class_reaches_the_diagnostic_mixin.py seal predates the build (component_color); bin/proofs/test_slate.py seal predates the build (component_color); bin/proofs/test_slate_reaches_trouble_through_its_tool.py seal predates the build (component_color); cairn/tools/base/proofs/test_the_discovered_shim_is_a_base_tool.py seal predates the build (component_color); cairn/tools/base/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py seal predates the build (component_color); cairn/tools/data_recorder/proofs/test_reading_declaration.py seal predates the build (component_color)",
+    "missing": [
+      "cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py seal predates the build (component_color)",
+      "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py seal predates the build (component_color)",
+      "cairn/tools/base/proofs/test_device_logs_unwired.py seal predates the build (component_color)",
+      "cairn/tools/base/proofs/test_base_reaches_no_device.py seal predates the build (component_color)",
+      "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py seal predates the build (component_color)",
+      "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py seal predates the build (component_color)",
+      "cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py seal predates the build (component_color)",
+      "cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py seal predates the build (component_color)",
+      "cairn/devices/cairn/proofs/test_trouble_panel.py seal predates the build (component_color)",
+      "bin/proofs/test_probescan.py seal predates the build (component_color)",
+      "cairn/tools/base/proofs/test_every_base_class_reaches_the_diagnostic_mixin.py seal predates the build (component_color)",
+      "bin/proofs/test_slate.py seal predates the build (component_color)",
+      "bin/proofs/test_slate_reaches_trouble_through_its_tool.py seal predates the build (component_color)",
+      "cairn/tools/base/proofs/test_the_discovered_shim_is_a_base_tool.py seal predates the build (component_color)",
+      "cairn/tools/base/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py seal predates the build (component_color)",
+      "cairn/tools/data_recorder/proofs/test_reading_declaration.py seal predates the build (component_color)"
+    ],
+    "fingerprint": "20255be4a169d5b3b754ee57d664b1370184a0ba04822fe33dfeb6129449be2d",
+    "at": "2026-11-10T03:33:06",
+    "seq": 88
   }
 ]

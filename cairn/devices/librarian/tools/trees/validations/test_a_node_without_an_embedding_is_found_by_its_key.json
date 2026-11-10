@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_node_without_an_embedding_is_found_by_its_key.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T23:53:53",
+    "date": "2026-11-09T23:54:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "the_charter_names_the_keyed_shape"
       ],
       "teeth_red": [],
-      "test": "test-44e1002772de",
+      "test": "test-973a63d6aa28",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,12 +42,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-44e1002772de",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-973a63d6aa28",
       "source_fingerprint": "74e3d669d8996920e153150fc4a86ccdeaac89a34395bbcbf6f40dafbedade2a",
       "fingerprint_closure": [
         "cairn/devices/librarian/tools/trees/proofs/test_a_node_without_an_embedding_is_found_by_its_key.py",
@@ -61,20 +62,19 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1719313-c55ymjfn/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-973a63d6aa28/stderr.txt",
+            "logs/tester/0/runs/test-973a63d6aa28/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120987431,
-          "disk_bytes": 156323840,
-          "entries": 13773,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {
@@ -93,8 +93,8 @@
       },
       "hollow_anchor": {
         "e62f40f35f59": {
-          "anchor_rule": "journal",
-          "anchor_journal": "0ad2d826e199f4c01eba7b8657aaf3a109c5b232",
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "5f1aabc59900c67fe5edc9d6c1a2b140889b467a",
           "anchor_first_build": "e134bc631588c69a05c3525b9e7b9d953d833e64",
           "commit": "0ad2d826e199f4c01eba7b8657aaf3a109c5b232"
         }

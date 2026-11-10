@@ -205,12 +205,24 @@ def ensure_trees(*, table: str = NODES, owner: str = OWNER, keyed: bool = False,
                              conn=conn)
 
 
+# The tables this process found keyed (ticket fe263b21cece): a leaf's shape is fixed when
+# ensure_trees makes it, so the catalog is asked once per table, not on every find. Only a True
+# is remembered, so the memory can never refuse a table wrongly; scratch_leaf forgets its table
+# as it drops.
+_KEYED: set[str] = set()
+
+
 def _is_keyed(table: str, *, conn) -> bool:
     """A keyed leaf is recognised by its columns: a key, and no embedding_id."""
+    if table in _KEYED:
+        return True
     cols = {r["column_name"] for r in store.query(
         "SELECT column_name FROM information_schema.columns WHERE table_name = %s",
         tables={}, params=(table,), conn=conn)}
-    return "key" in cols and "embedding_id" not in cols
+    keyed = "key" in cols and "embedding_id" not in cols
+    if keyed:
+        _KEYED.add(table)
+    return keyed
 
 
 @contextmanager
@@ -222,8 +234,11 @@ def scratch_leaf(prefix: str, *, owner: str = OWNER, suffix: str = "", keyed: bo
     drains; a standing leaf is ``ensure_trees``."""
     columns = _KEYED_LEAF_COLUMNS if keyed else _LEAF_COLUMNS
     with store.scratch(owner, prefix, columns, suffix=suffix) as table:
-        ensure_trees(table=table, owner=owner, keyed=keyed)
-        yield table
+        try:
+            ensure_trees(table=table, owner=owner, keyed=keyed)
+            yield table
+        finally:
+            _KEYED.discard(table)
 
 
 def forget_leaf(table: str, *, conn=None) -> int:

@@ -77,7 +77,7 @@ from cairn.tools.import_sieve import sieve as import_sieve  # noqa: E402
 # the-nest-is-block-general, ticket banding-berths-at-the-general-level): derivation
 # is import_sieve's domain, banding is block-general, and this inspector is the
 # nest's first TENANT, not its owner.
-from cairn.tools.base import nest as base_nest  # noqa: E402
+from cairn.machines.nest import nest as base_nest  # noqa: E402
 # cairn.tools.base.address joined 2026-08-17 (the-instance-address-is-resolved-never-spelled):
 # _CHART_BERTHS below used to spell ~/.cairn by hand, and was held back at the parent ticket
 # for two stated reasons that have both expired — the import allowlist (retired 2026-08-12
@@ -4949,7 +4949,7 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
                 "that silently inspects nothing passes everything (Law 8)."
             )
     nest = the_nest()
-    # The shake is the general half (cairn.tools.base.nest, since 2026-08-07); what stays
+    # The shake is the general half (cairn.machines.nest.nest; in base 2026-08-07 to 2026-11-10); what stays
     # here is the tenant's convention — which sieve meets which subject, and how:
     # SIEVES[name](row, comp_dir). Binary scores, absence-not-a-third-value, and the
     # min() roll-up are the general side's contract now, stated at its berth.

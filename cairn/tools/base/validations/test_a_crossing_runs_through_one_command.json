@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_crossing_runs_through_one_command.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-10T03:14:54",
+    "date": "2026-11-10T06:17:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: tried /tmp/cross-command-fixture-scratch.4026531836-1842260-hsrol8vt/cairn/nowhere/intention+why.json, /tmp/cross-command-fixture-scratch.4026531836-1842260-hsrol8vt/CairnCommons/nowhere/intention+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_crossing_moves_the_cursor_and_journals_at_the_component  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' cursor='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' history=1 main rc=0\n  PASS  test_an_illegal_target_writes_nothing  — exc=IllegalTransition(\"'NOTASTAGE' is not in the code-seam@v2 vocabulary ['THINKME', 'TICKETME', 'BUILDME', 'PROVEME', 'PROVED']\") unchanged=True main rc=1\n  PASS  test_proved_is_refused_naming_clearance  — exc=ValueError('PROVED is a rest: the crossing into it is cleared by cairn.devices.cairn.machines.harbor_master.clearance.clear, not by this command') unchanged=True main rc=1\n  PASS  test_an_owning_intention_with_no_charter_is_refused  — exc=ValueError(\"owning_intention 'nowhere/intention+why.json' names no charter: tried /tmp/cross-command-fixture-scratch.4026531836-2013640-i1n72535/cairn/nowhere/intention+why.json, /tmp/cross-command-fixture-scratch.4026531836-2013640-i1n72535/CairnCommons/nowhere/intention+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True main rc=1\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crossing_moves_the_cursor_and_journals_at_the_component",
@@ -17,7 +17,7 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-8bce82b6e505",
+      "test": "test-d5ee88a0a014",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8bce82b6e505",
-      "source_fingerprint": "0b0e8fd14223ebb97cdb9ebdb23fde4deb13ddcea3bfa117ebb4ac38d7f1cb85",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d5ee88a0a014",
+      "source_fingerprint": "d889115a78db708e476cac6e5fb78bbab6709445ecbc408b111e45c0710992e8",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,7 +55,6 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
-        "cairn/tools/base/nest.py",
         "cairn/tools/base/proofs/test_a_crossing_runs_through_one_command.py",
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/settled.py",
@@ -66,7 +65,8 @@
       ],
       "reached": {
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/machines/build_inspector": "cea99b7378223cb7d6a4e84ebe6f21079beb2e4bc23e6b3b92f3d7439463f332",
+        "cairn/machines/build_inspector": "557ee5ab1b60e837b86b5818706d7df5503d05f358d4155601a2647def809860",
+        "cairn/machines/nest": "f5967af484e6da6c26d9ed99a04bbf51c0c43e98b0cc0d9e4ae7ca5f25bd3022",
         "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
@@ -79,24 +79,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1841761-lp2s4a2h/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1999117-3xv9mr88/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261110.101452.709876.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261110.101452.721251.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261110.131743.063911.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261110.131743.078182.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 524083039,
-          "disk_bytes": 559620096,
-          "entries": 13856,
+          "bytes": 524521439,
+          "disk_bytes": 560332800,
+          "entries": 13963,
           "builds": 1,
-          "reuses": 9
+          "reuses": 25
         }
       }
     },

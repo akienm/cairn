@@ -4,7 +4,7 @@ Teeth a hollow lift could not pass:
   - THE TOY SECOND TENANT (the load-bearing row, ticket banding-berths-at-the-
     general-level): a tenant that is not build_inspector assembles and shakes a nest
     with its OWN firing convention, and this file's only cairn import is
-    cairn.tools.base.nest. If the "general" berth needed tenant internals — the census, the
+    cairn.machines.nest.nest. If the "general" berth needed tenant internals — the census, the
     sieve registry, the reach ladder — the lift was a relabel, and this row is where
     that fails first.
   - THE ASSEMBLY IS COARSEST-FIRST AND OMITS EMPTY BANDS (migrated here from
@@ -14,7 +14,7 @@ Teeth a hollow lift could not pass:
     subject; a pile of passes cannot buy past a catch; absence is not a third value.
 
 Runnable bare (no DB, no framework):
-    python3 cairn/tools/base/proofs/test_nest.py     # exit 0 = green
+    python3 cairn/machines/nest/proofs/test_nest.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.nest import BAND_NAMES, nest, shake
+from cairn.machines.nest.nest import BAND_NAMES, nest, shake
 
 
 def test_a_nest_is_coarsest_first_and_omits_empty_bands():
@@ -36,7 +36,7 @@ def test_a_nest_is_coarsest_first_and_omits_empty_bands():
 
 
 def test_band_names_are_phases_and_extensible():
-    assert BAND_NAMES == {0: "preprocess", 1: "record", 2: "postprocess"}
+    assert BAND_NAMES == {0: "preprocess", 1: "measure", 2: "postprocess"}
     widened = {**BAND_NAMES, 3: "cleanup"}
     n = nest({"late": 3, "early": 0})
     assert [widened[b] for b, _ in n] == ["preprocess", "cleanup"], (
@@ -58,7 +58,7 @@ def test_a_toy_second_tenant_shakes_importing_only_the_general_berth():
         return [] if len(subject) <= 5 else [f"{subject} is long"]
 
     tenant_sieves = {"no_vowels": no_vowels, "short_enough": short_enough}
-    tenant_reaches = {"no_vowels": 0, "short_enough": 2}   # derived by the tenant's own rule
+    tenant_reaches = {"no_vowels": 1, "short_enough": 3}   # two measure bands, by the tenant's own rule
 
     def fire(name: str, subject: object) -> list:
         fired.append(name)
@@ -66,8 +66,8 @@ def test_a_toy_second_tenant_shakes_importing_only_the_general_berth():
 
     out = shake(nest(tenant_reaches), {"xyz": "xyz", "audacious": "audacious"}, fire)
 
-    # Coarse first, once per subject — the shake's only ordering, observed not asserted.
-    assert fired == ["no_vowels", "short_enough"] * 2, fired
+    # Coarse first and band-outer (ticket 71cd4a62e8c5): band 1 over every subject, then band 3.
+    assert fired == ["no_vowels", "no_vowels", "short_enough", "short_enough"], fired
     # The gradation covers every sieve for every subject; scores drawn from {0.0, 1.0}.
     assert set(out["gradation"]) == {"xyz", "audacious"}
     for scores in out["gradation"].values():
@@ -83,7 +83,7 @@ def test_scores_are_binary_and_the_rollup_is_min_never_mean():
     # Nineteen passes cannot buy past one catch — min(), deliberately not a mean.
     many = {f"s{i}": (lambda s: []) for i in range(19)}
     many["catches"] = lambda s: ["caught"]
-    reaches = {name: 0 for name in many}
+    reaches = {name: 1 for name in many}
     out = shake(nest(reaches), {"comp": "comp"},
                 lambda name, subject: many[name](subject))
     assert out["roll_up"]["comp"] == 0.0, (
@@ -102,7 +102,7 @@ def _main() -> int:
         print(f"  PASS  {check.__name__}")
     print("green — nest: the assembly is coarsest-first with empty bands omitted, the "
           "band names ride as data, a toy second tenant shakes on its own convention "
-          "importing ONLY cairn.tools.base.nest, and the roll-up is min() — one zero sinks "
+          "importing ONLY cairn.machines.nest.nest, and the roll-up is min() — one zero sinks "
           "the subject")
     return 0
 

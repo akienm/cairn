@@ -175,17 +175,17 @@ def test_a_request_for_an_unserved_kind_or_foreign_model_routes_nothing():
 
 
 def test_the_nest_is_the_general_nest_not_a_private_copy():
-    """The route is the SECOND CARRIER of cairn.tools.base.nest (build_inspector is the first) — read
-    from the AST, the same way the does_the_gradation_find_a_reader probe counts carriers, so
-    this tooth going green is that watch's cleared condition made physics here."""
+    """The route is the SECOND CARRIER of cairn.machines.nest.nest (build_inspector is the first) — read
+    from the AST; this tooth is the physics that retired the does_the_gradation_find_a_reader
+    watch (ticket 71cd4a62e8c5)."""
     tree = ast.parse((Path(route.__file__)).read_text(encoding="utf-8"))
     carried = any(
-        (isinstance(n, ast.ImportFrom) and n.module == "cairn.tools.base"
+        (isinstance(n, ast.ImportFrom) and n.module == "cairn.machines.nest"
          and any(a.name == "nest" for a in n.names))
-        or (isinstance(n, ast.ImportFrom) and n.module == "cairn.tools.base.nest")
-        or (isinstance(n, ast.Import) and any(a.name == "cairn.tools.base.nest" for a in n.names))
+        or (isinstance(n, ast.ImportFrom) and n.module == "cairn.machines.nest.nest")
+        or (isinstance(n, ast.Import) and any(a.name == "cairn.machines.nest.nest" for a in n.names))
         for n in ast.walk(tree))
-    assert carried, "route.py must IMPORT cairn.tools.base.nest — a private shake would be the reified copy"
+    assert carried, "route.py must IMPORT cairn.machines.nest.nest — a private shake would be the reified copy"
     bands = route.the_nest()
     assert sorted(n for _, names in bands for n in names) == sorted(route.SIEVES), \
         "every sieve is in the assembled nest — a sieve authored but not nested never fires"
@@ -403,7 +403,7 @@ def test_the_mesh_holds_no_seam_of_its_own():
             imported.add(node.module or "")
     assert imported == {
         "__future__", "json", "pathlib",
-        "cairn.tools.base", "cairn.tools.base.address", "cairn.tools.import_sieve",
+        "cairn.machines.nest", "cairn.tools.base.address", "cairn.tools.import_sieve",
     }, f"import surface widened beyond pure dependencies: {sorted(imported)}"
 
 

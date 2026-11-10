@@ -10,7 +10,7 @@ provider/model pairings and their specifics). The machine half — THIS LAN's en
 keys — lives in ``~/.cairn/devices/inference_domain/0/hosts.json`` (instance-space, never git;
 moved there 2026-08-17 on Akien's ruling — a device's own state lives in that device's own
 space, and the address is now resolved rather than spelled; the edge
-host.py filed 2026-07-26 closes here). This module composes ``cairn.tools.base.nest`` over the
+host.py filed 2026-07-26 closes here). This module composes ``cairn.machines.nest.nest`` over the
 combos: every sieve is a rule a combo must pass, the shake is one pass coarse-first, and
 what survives is ordered cheapest-first for the resolver to dial — the second carrier of
 the block-general nest (build_inspector is the first).
@@ -26,7 +26,7 @@ BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
 based on whatever it's inspecting. it's specific to the device being inspected and
 provides a true false ruling." The sentence above about a sieve CUTTING with a
 self-naming finding is the part that matters; the banding is CC's, kept only by leave
-to remain and not to be grown. See cairn/tools/base/nest.py's header.
+to remain and not to be grown. See cairn/machines/nest/nest.py's header.
 
 Bands are PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21), derived from what
 each sieve reads (import_sieve.phase_of) — a hand-set phase would be a learned value
@@ -39,7 +39,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base import nest as base_nest
+from cairn.machines.nest import nest as base_nest
 from cairn.tools.base.address import instance_path
 from cairn.tools.import_sieve import sieve as import_sieve
 

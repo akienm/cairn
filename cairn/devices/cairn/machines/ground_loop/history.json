@@ -12110,5 +12110,94 @@
     "fingerprint": "fab5092c76f78ec6420208a3dc1d5c78e736ad96bfe2e9dcf68c70ff962828bb",
     "at": "2026-11-09T21:04:32",
     "seq": 66
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/tools/base/proofs/test_the_discovered_shim_is_a_base_tool.py"
+    ],
+    "proven_seal_date": "2026-11-09T21:07:06",
+    "delegated": false,
+    "ticket": "2438292fae7c",
+    "why": "PROVED refused: [every_class_reaches_the_diagnostic_mixin] cairn/devices/cairn/machines/ground_loop/discovery.py:112 class ProbeCache has code and does not reach DiagnosticBase",
+    "missing": [
+      "[every_class_reaches_the_diagnostic_mixin] cairn/devices/cairn/machines/ground_loop/discovery.py:112 class ProbeCache has code and does not reach DiagnosticBase"
+    ],
+    "fingerprint": "5926d7cf5fec6b1aa5797becb33703da8a37c5674db1935a788fb8118d935828",
+    "at": "2026-11-09T21:08:32",
+    "seq": 67
   }
 ]

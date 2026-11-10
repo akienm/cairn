@@ -234,7 +234,7 @@ def main() -> int:
                       count=1, why="WHY-MARKER-TWO")
         # A trouble's LOCATION is its liveness (ticket 4ddc9df3369e): a clear moves the file
         # into cleared/, and the top of the store is the live list whatever a field says.
-        from cairn.devices.trouble.trouble import CLEARED_DIR
+        from cairn.devices.trouble.tools.store.store import CLEARED_DIR
         write_trouble(t_live / CLEARED_DIR, "already-cleared.json", id="already-cleared",
                       standing="CLEARED", count=9, why="WHY-MARKER-CLEARED")
         r = run(s1, t_live)

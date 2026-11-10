@@ -90,6 +90,7 @@ from pathlib import Path
 from cairn.devices.db_domain.tools.client import store
 from cairn.tools.base import address
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.metric import metric as _metric
 
 # inference_domain owns its cache. One append-only table is both the compiled answers
 # (verdict='miss' rows carry the resolved answer) and the meter (every call is a row).
@@ -300,6 +301,44 @@ def _ticket_path(ticket: dict, *, roots: dict | None = None) -> Path:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
     name = f"{stamp}-{ticket['canonical_digest'][:12]}-{os.getpid()}-{_counter}.json"
     return tickets_dir(roots) / name
+
+
+# ── the meter: every call's spent, saved and latency, as metrics ─────────────
+#
+# TICKET 0615d8cdc998, outline 11.4.4.2 (Akien 2026-11-09, answering Q#78: "inference tickets are
+# only for debugging, so we can't use that as a metric"). Each call records three rows into
+# this device's own metrics recorder (17.27.1), all under the call's task ticket id as
+# subject: spent (tokens a miss paid), saved (tokens a hit avoided) and latency (ms). A call
+# records all three, zeros included, so the all-time total is a plain sum and the latency
+# rows count the calls. The names are declared in this device's charter under "metrics".
+METRIC_SOURCE = "inference_domain"
+SPENT, SAVED, LATENCY = "inference.spent", "inference.saved", "inference.latency"
+_CHARTER = _HERE.parent / "intention+why.json"
+
+
+def metrics_holder(roots: dict | None = None) -> Path:
+    """The holder the meter records under: ``<instance>/devices/inference_domain/0``. Follows
+    the trail's roots, so a proof that moved the device into a temp world meters there."""
+    table = roots if roots is not None else getattr(_trail, "_diagnostic_roots", None)
+    return address.instance_path("inference_domain", 0, table)
+
+
+def _record_meter(verdict: str, cost, *, subject: str, started: str, finished: str,
+                  elapsed_ms: float) -> None:
+    """Record one call's three rows. A meter that cannot record is said loudly on stderr and
+    the answer (or the refusal) still reaches the caller."""
+    try:
+        meter = _metric.Metric(metrics_holder(), _CHARTER, source=METRIC_SOURCE)
+        paid = float(cost or 0)
+        values = ((SPENT, paid if verdict == "miss" else 0.0),
+                  (SAVED, paid if verdict == "hit" else 0.0),
+                  (LATENCY, float(elapsed_ms)))
+        for name, value in values:
+            meter.record(name, value, subject=subject, start=started, end=finished,
+                         info={"verdict": verdict})
+    except Exception as unmetered:      # pragma: no cover — the recorder unwritable
+        print(f"inference_domain: a call went UNMETERED ({unmetered!r}); "
+              f"the answer itself follows", file=sys.stderr)
 
 
 def _write_task_ticket(ticket: dict, *, roots: dict | None = None,
@@ -522,6 +561,8 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
         """Finish and write the ticket. In its own try: a ticket that cannot be written is
         said loudly on stderr and the ANSWER (or the refusal) still reaches the caller."""
         finished = datetime.now(timezone.utc)
+        elapsed_ms = round((time.perf_counter() - tick) * 1000, 3)
+        path = path or _ticket_path(ticket)   # named first: the call's id is the meter's subject
         ticket.update({
             "verdict": verdict,
             "outcome": outcome,
@@ -530,8 +571,10 @@ def resolve(request: dict, *, resolver, now: datetime | None = None, table: str 
             "cost": cost,
             "trouble": trouble,
             "timings": {"started": started.isoformat(), "finished": finished.isoformat(),
-                        "elapsed_ms": round((time.perf_counter() - tick) * 1000, 3)},
+                        "elapsed_ms": elapsed_ms},
         })
+        _record_meter(verdict, cost, subject=path.stem, started=started.isoformat(),
+                      finished=finished.isoformat(), elapsed_ms=elapsed_ms)
         try:
             return _write_task_ticket(ticket, path=path)
         except Exception as unwritten:      # pragma: no cover — instance-space unwritable

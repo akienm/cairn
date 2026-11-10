@@ -326,7 +326,9 @@ def what_exists(texts: list[str], roots) -> list[dict]:
     like ``bin/cairn``, rides only when it is found, since a bare word pair is not a path), or a
     bare file name with a known extension. A relative path not found at a root is looked for
     under every directory the plan's found paths sit in (a ticket says ``proofs/x.py`` beside
-    ``cairn/machines/m/...``); a hit rides as ``at``, the spelling from its root. A module is a
+    ``cairn/machines/m/...``); a hit rides as ``at``, the spelling from its root, and when more
+    than one directory holds it the rest ride as ``also``, never dropped (ticket 6548996bd5c0:
+    a bare ``__main__.py`` told the reader it was another component's). A module is a
     dotted name under ``cairn.`` or ``skills.``, measured on its longest prefix of two or more
     segments that ``look`` finds, and that prefix rides as ``module`` when it is shorter than
     the name (the rest is a name inside it). An absent file whose directory is present names
@@ -377,15 +379,23 @@ def what_exists(texts: list[str], roots) -> list[dict]:
         for e in out:
             if e["kind"] != "path" or e["found"] or os.path.isabs(os.path.expanduser(e["name"])):
                 continue
-            for d, spell in list(bases):
-                where = d / e["name"]
-                if where.exists():
-                    e["found"], e["at"] = True, f"{spell}/{e['name']}"
-                    up = (where, e["at"]) if where.is_dir() else (where.parent, e["at"].rsplit("/", 1)[0])
+            # every base holding the name rides, never only the first: a bare __main__.py named
+            # bus_client's when the step meant the bus's, and three reads stopped on a file
+            # that exists (ticket 6548996bd5c0)
+            hits = [(d / e["name"], f"{spell}/{e['name']}") for d, spell in list(bases)
+                    if (d / e["name"]).exists()]
+            hits = [h for i, h in enumerate(hits) if h[1] not in {x[1] for x in hits[:i]}]
+            if hits:
+                e["found"], e["at"] = True, hits[0][1]
+                if len(hits) > 1:
+                    e["also"] = [at for _, at in hits[1:]]
+                for where, at in hits:
+                    up = (where, at) if where.is_dir() else (where.parent, at.rsplit("/", 1)[0])
                     if up not in bases:
                         bases.append(up)
-                    grew = True
-                    break
+                grew = True
+                continue
+            for d, spell in list(bases):
                 # an absent file still names its directory, and a bare name may sit there
                 parent = Path(e["name"]).parent
                 if str(parent) not in ("", ".") and (d / parent).is_dir():
@@ -425,6 +435,8 @@ def _what_exists_lines(entries: list[dict]) -> str:
                          f"inside it, not measured)")
         else:
             at = f" (at {e['at']})" if e.get("at") else ""
+            if e.get("also"):
+                at = f" (at {e['at']}; also at {', '.join(e['also'])})"
             lines.append(f"{'present' if e['found'] else 'absent'} {e['kind']} {e['name']}{at}")
     return "\n".join(lines)
 

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_metrics_table_fills_when_asked.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T22:25:00",
+    "date": "2026-11-09T22:25:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_table_has_its_columns_and_indexes\n  PASS  test_a_report_picks_up_what_waits\n  PASS  test_a_report_filters\n  PASS  test_rows_are_kept  — first 3, second 3 (collected 0)\n  PASS  test_the_device_answers_the_verb  — {\"collected\": 3, \"rows\": [{\"at\": \"2026-11-09T22:24:58.885635-07:00\", \"name\": \"latency\", \"source\": \"inference_domain\", \"start\": null, \"end\": null, \"value\": 0.5, \"unit\": \"s\", \"subject\": \"call-1\", \"info\": null}]}\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_table_has_its_columns_and_indexes\n  PASS  test_a_report_picks_up_what_waits\n  PASS  test_a_report_filters\n  PASS  test_rows_are_kept  — first 3, second 3 (collected 0)\n  PASS  test_the_device_answers_the_verb  — {\"collected\": 3, \"rows\": [{\"at\": \"2026-11-09T22:25:31.820013-07:00\", \"name\": \"latency\", \"source\": \"inference_domain\", \"start\": null, \"end\": null, \"value\": 0.5, \"unit\": \"s\", \"subject\": \"call-1\", \"info\": null}]}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_table_has_its_columns_and_indexes",
@@ -17,7 +17,7 @@
         "test_the_device_answers_the_verb"
       ],
       "teeth_red": [],
-      "test": "test-a8e0dba8444d",
+      "test": "test-39df7409acd3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a8e0dba8444d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39df7409acd3",
       "source_fingerprint": "5487b87066376bcbea8f5b0da897c1952632b737f67a635a686a99ccd76d803b",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
@@ -64,20 +65,44 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1687972-1ciwv_zz/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-39df7409acd3/stderr.txt",
+            "logs/tester/0/runs/test-39df7409acd3/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120829791,
-          "disk_bytes": 156037120,
-          "entries": 13726,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "3721d82be75c": {
+          "cairn/devices/cairn/metrics.py": [
+            "test_a_report_filters",
+            "test_a_report_picks_up_what_waits",
+            "test_rows_are_kept",
+            "test_the_device_answers_the_verb",
+            "test_the_table_has_its_columns_and_indexes"
+          ],
+          "cairn/devices/cairn/device.py": [
+            "test_the_device_answers_the_verb"
+          ],
+          "cairn/devices/cairn/intention+why.json": {
+            "notified": "n-28494c19399d"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "3721d82be75c": {
+          "anchor_rule": "journal",
+          "anchor_journal": "4ca45d095778939956f4ea09692d9fb28bf50215",
+          "anchor_first_build": "34cf2bae73790356d9bdbaa488fd5a20cb5dd341",
+          "commit": "4ca45d095778939956f4ea09692d9fb28bf50215"
         }
       }
     },

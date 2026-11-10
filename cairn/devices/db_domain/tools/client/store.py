@@ -259,6 +259,38 @@ def add_owned_constraint(table: str, owner: str, name: str, expression: str, *, 
             own_conn.close()
 
 
+def add_owned_index(table: str, owner: str, name: str, columns, *, conn=None) -> None:
+    """Add a btree index over ``columns`` to an already-created, owned table — owner-gated (Law 6).
+
+    Idempotent (CREATE INDEX IF NOT EXISTS): a startup path can call it beside
+    create_owned_table on a table that may already carry it. Takes a NAME and column NAMES,
+    each quoted as an identifier — never a statement, never an expression.
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is None:
+        raise OwnershipError(f"{table!r} was not created through db_domain — it has no owner to gate an index")
+    if recorded != owner:
+        raise OwnershipError(f"{owner!r} may not index {table!r} — its owner is {recorded!r} (Law 6)")
+    if not name or not name.strip():
+        raise ValueError("an index needs a name")
+    columns = list(columns)
+    if not columns or any(not c or not str(c).strip() for c in columns):
+        raise ValueError("an index needs at least one named column")
+
+    own_conn = conn or connect()
+    try:
+        with own_conn.cursor() as cur:
+            cur.execute(
+                sql.SQL("CREATE INDEX IF NOT EXISTS {iname} ON {tbl} ({cols})").format(
+                    iname=sql.Identifier(name),
+                    tbl=sql.Identifier(table),
+                    cols=sql.SQL(", ").join(sql.Identifier(c) for c in columns),
+                )
+            )
+    finally:
+        if conn is None:
+            own_conn.close()
+
 def write(table: str, owner: str, row: dict, *, conn=None) -> None:
     """Insert `row` into `table` — but only if `owner` is the table's recorded owner.
 

@@ -305,65 +305,95 @@ json.dump({
 
 # ── wire — instance-space bins from class-space, sourceable, exits never ─────
 # Lifted whole from bootstrap_first_run.sh's step 3 on 2026-09-16 (ticket 0853294fe972) so
-# the one wiring recipe has two callers — the first run and bin/cairn's floor check — and no
-# copy. Uses CAIRN_INSTANCE_ROOT (default $HOME/.cairn/devices). Prints "wired N skipped M".
-# A device is wired when its class-space 0/bin exists and its instance bin does not: every
-# executable in the class bin gets a symlink. superclaude is wired by hand (its launcher
-# lives at cairn/devices/cc/superclaude, not a device bin). Nothing here is fatal — a link that cannot be
-# made is a finding the first run prints, not an abort.
+# the one wiring recipe has its callers — the first run, bin/cairn's floor check, and bin/cairn's
+# dispatch for one addressed instance — and no copy. Uses CAIRN_INSTANCE_ROOT (default
+# $HOME/.cairn/devices). Prints "linked N already M left K", counting class VERBS:
+#   linked   symlinks made or repointed this pass
+#   already  class verbs whose instance link already resolved to them (every verb under an
+#            instance bin that IS its class bin counts here)
+#   left     class verbs not linked because a hand-placed real file stands at the address
+# THE UNIT IS THE FILE, NOT THE DIRECTORY (ticket f0ffa0db0952): a verb added to a class bin is
+# linked into an instance bin that already exists. An instance bin that resolves to its class
+# bin (a whole-directory symlink into the repo) is never written under: a per-file link there
+# would commit a self-pointing link into class-space. A real file is never overwritten and a
+# stale link is never pruned (instance-space has no undo, bin/cmd/deletegate).
+#
+#   cairn_wire_instances                       the full walk: superclaude, then every device's
+#                                              class bin into instance 0
+#   cairn_wire_instances <device> <instance>   that device's class bin into that instance only
+#
+# Nothing here is fatal except a refused argument (return 1, nothing created): a link that
+# cannot be made is a finding the first run prints, not an abort.
 cairn_wire_instances() {
   local instance_root="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
-  local wired=0 skipped=0
+  local linked=0 already=0 left=0
+
+  _cairn_wire_link() {  # class_script inst_bin — one verb, the per-file rule
+    local script="$1" inst_bin="$2" name
+    name="$(basename "$script")"
+    local at="$inst_bin/$name"
+    if [[ -L "$at" ]]; then
+      if [[ "$(readlink -f "$at" 2>/dev/null)" == "$(readlink -f "$script")" ]]; then
+        already=$((already + 1))
+      else
+        ln -sfn "$script" "$at" 2>/dev/null || echo "cairn wire: could not repoint $at" >&2
+        linked=$((linked + 1))
+      fi
+    elif [[ -e "$at" ]]; then
+      echo "cairn wire: hand-placed file stands where class verb $name would link: $at" >&2
+      left=$((left + 1))
+    else
+      mkdir -p "$inst_bin" 2>/dev/null || true
+      ln -s "$script" "$at" 2>/dev/null || echo "cairn wire: could not link $at" >&2
+      linked=$((linked + 1))
+    fi
+  }
 
   _cairn_wire_device() {
     local device="$1" instance="${2:-0}" class_bin="$3"
     local inst_bin="$instance_root/$device/$instance/bin"
-    if [[ -d "$inst_bin" ]]; then
-      skipped=$((skipped + 1))
-      return 0
-    fi
-    mkdir -p "$inst_bin" 2>/dev/null || true
-    if [[ -d "$class_bin" ]]; then
-      local script name
+    [[ -d "$class_bin" ]] || return 0
+    local script
+    local cls_real
+    cls_real="$(readlink -f "$class_bin" 2>/dev/null)"
+    if [[ -n "$cls_real" && "$(readlink -f "$inst_bin" 2>/dev/null)" == "$cls_real" ]]; then
       for script in "$class_bin"/*; do
-        [[ -f "$script" && -x "$script" ]] || continue
-        name="$(basename "$script")"
-        ln -sf "$script" "$inst_bin/$name" 2>/dev/null || true
+        [[ -f "$script" && -x "$script" ]] && already=$((already + 1))
       done
-      wired=$((wired + 1))
-    fi
-  }
-
-  _cairn_wire_single() {
-    local device="$1" instance="$2" script_path="$3"
-    local inst_bin="$instance_root/$device/$instance/bin"
-    local name
-    name="$(basename "$script_path")"
-    # A link that already points here, or a real file, is left alone. A link pointing
-    # anywhere else (a box wired when superclaude lived in the old launchers folder, now dangling) is
-    # repointed: skipping it would leave that box's instance bin broken (ticket 38125c3ada38).
-    if [[ -L "$inst_bin/$name" && "$(readlink -f "$inst_bin/$name" 2>/dev/null)" != "$(readlink -f "$script_path")" ]]; then
-      ln -sfn "$script_path" "$inst_bin/$name" 2>/dev/null || true
-      wired=$((wired + 1))
       return 0
     fi
-    if [[ -L "$inst_bin/$name" || -f "$inst_bin/$name" ]]; then
-      skipped=$((skipped + 1))
-      return 0
-    fi
-    mkdir -p "$inst_bin" 2>/dev/null || true
-    ln -sf "$script_path" "$inst_bin/$name" 2>/dev/null || true
-    wired=$((wired + 1))
+    for script in "$class_bin"/*; do
+      [[ -f "$script" && -x "$script" ]] || continue
+      _cairn_wire_link "$script" "$inst_bin"
+    done
   }
 
-  _cairn_wire_single "superclaude" "0" "$CAIRN_REPO_ROOT/cairn/devices/cc/superclaude"
-  local dev_dir dev
-  for dev_dir in "$CAIRN_REPO_ROOT"/cairn/devices/*/; do
-    [[ -d "$dev_dir" ]] || continue
-    dev="$(basename "$dev_dir")"
-    [[ -d "$dev_dir/0/bin" ]] && _cairn_wire_device "$dev" "0" "$dev_dir/0/bin"
-  done
-  _cairn_boot_log "wire: wired=$wired skipped=$skipped root=$instance_root"
-  echo "wired $wired skipped $skipped"
+  if [[ $# -gt 0 ]]; then
+    local device="${1:-}" instance="${2:-}"
+    if [[ $# -ne 2 ]]; then
+      echo "cairn_wire_instances: takes no arguments or <device> <instance>, got $# argument(s)" >&2
+      return 1
+    fi
+    if [[ ! "$instance" =~ ^[0-9]+$ ]]; then
+      echo "cairn_wire_instances: instance must be a non-negative integer, got '$instance'" >&2
+      return 1
+    fi
+    if [[ -z "$device" || "$device" == */* || ! -d "$CAIRN_REPO_ROOT/cairn/devices/$device/0/bin" ]]; then
+      echo "cairn_wire_instances: no class bin for device '$device' at $CAIRN_REPO_ROOT/cairn/devices/$device/0/bin" >&2
+      return 1
+    fi
+    _cairn_wire_device "$device" "$instance" "$CAIRN_REPO_ROOT/cairn/devices/$device/0/bin"
+  else
+    local sc="$CAIRN_REPO_ROOT/cairn/devices/cc/superclaude"
+    [[ -f "$sc" && -x "$sc" ]] && _cairn_wire_link "$sc" "$instance_root/superclaude/0/bin"
+    local dev_dir dev
+    for dev_dir in "$CAIRN_REPO_ROOT"/cairn/devices/*/; do
+      [[ -d "$dev_dir" ]] || continue
+      dev="$(basename "$dev_dir")"
+      [[ -d "$dev_dir/0/bin" ]] && _cairn_wire_device "$dev" "0" "$dev_dir/0/bin"
+    done
+  fi
+  _cairn_boot_log "wire: linked=$linked already=$already left=$left root=$instance_root"
+  echo "linked $linked already $already left $left"
   return 0
 }

@@ -69,7 +69,7 @@ echo "[3/5] instance-space device wiring..."
 # The recipe lives in bootstrap.sh as cairn_wire_instances (lifted 2026-09-16, ticket
 # 0853294fe972) so bin/cairn's floor check and this first run share it rather than copy it.
 if declare -F cairn_wire_instances >/dev/null 2>&1; then
-  echo "  $(CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances) device(s)."
+  echo "  $(CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances)"
 else
   echo "  WARNING: bootstrap.sh did not load — nothing wired." >&2
 fi

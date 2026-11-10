@@ -275,6 +275,23 @@ esac
 # --- device dispatch: ~/.cairn/devices/<device>/<instance>/bin/<verb> ---
 device_bin="$INSTANCE_ROOT/$device/$instance/bin"
 
+# --- the command wires the declared instance it addresses (ticket f0ffa0db0952) ---
+# An instance is declared by its folder in class-space (outline 5.7.3.4), and any cairn command
+# brings up whatever it needs (5.3.4.1). So when a declared instance has no bin, or its bin lacks
+# a word its class bin offers, the wiring runs for that one instance before dispatch. The happy
+# path is two directory tests; an undeclared instance meets none of this and is refused below.
+_class_bin="$HERE/../cairn/devices/$device/0/bin"
+if [[ -d "$HERE/../cairn/devices/$device/$instance" && -d "$_class_bin" ]]; then
+  _want="${1:-$device}"; [[ "${_want:0:1}" == "-" ]] && _want="$device"; _want="${_want,,}"
+  if [[ ! -d "$device_bin" ]] || [[ -x "$_class_bin/$_want" && ! -e "$device_bin/$_want" ]]; then
+    # shellcheck source=/dev/null
+    if source "$HERE/../cairn/devices/recovery/bootstrap.sh" >/dev/null 2>&1 \
+        && declare -F cairn_wire_instances >/dev/null 2>&1; then
+      CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances "$device" "$instance" >/dev/null 2>&1 || true
+    fi
+  fi
+fi
+
 if [ -d "$device_bin" ]; then
   if [ $# -eq 0 ]; then
     # no verb: self-named launcher

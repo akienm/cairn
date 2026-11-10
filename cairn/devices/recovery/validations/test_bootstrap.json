@@ -2,7 +2,7 @@
   {
     "claim": "proof test_bootstrap.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T18:31:11",
+    "date": "2026-11-09T18:31:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -27,7 +27,7 @@
         "test_this_proof_wrote_nothing_into_the_real_flight_recorder"
       ],
       "teeth_red": [],
-      "test": "test-fa850088597e",
+      "test": "test-200e36e435ea",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -50,12 +50,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fa850088597e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-200e36e435ea",
       "source_fingerprint": "b171f9e778792ea478f4da71e4ff68a00069d79f225df17c73f7fefcd1a548fc",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_bootstrap.py"
@@ -71,26 +72,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1579250-18togjfn/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 7,
           "paths": [
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
-            "logs/preflight.json"
+            "logs/preflight.json",
+            "logs/tester/0/runs/test-200e36e435ea/stderr.txt",
+            "logs/tester/0/runs/test-200e36e435ea/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 120312387,
-          "disk_bytes": 155156480,
-          "entries": 13586,
-          "builds": 1,
-          "reuses": 3
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       }
     },

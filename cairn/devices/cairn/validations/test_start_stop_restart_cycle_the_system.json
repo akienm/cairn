@@ -2,7 +2,7 @@
   {
     "claim": "proof test_start_stop_restart_cycle_the_system.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T05:20:31",
+    "date": "2026-11-10T05:21:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-560fe88143b5",
+      "test": "test-0c7269b5636b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,12 +41,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-560fe88143b5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c7269b5636b",
       "source_fingerprint": "8b0c01ae288b2a5c73a683bb502eedd77141fca48fd778748432a47f4ef0d5bf",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
@@ -70,20 +71,50 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1941286-20cht_aq/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-0c7269b5636b/stderr.txt",
+            "logs/tester/0/runs/test-0c7269b5636b/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524384070,
-          "disk_bytes": 560078848,
-          "entries": 13919,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "3264ef726e35": {
+          "cairn/devices/cairn/cycle.py": [
+            "restart_brings_both_back_with_new_pids",
+            "start_brings_the_loop_and_the_bus_up",
+            "stop_takes_both_down_and_says_so_when_already_down",
+            "the_shortcuts_are_python_in_the_cairn_bin_and_import_no_other_device"
+          ],
+          "cairn/devices/cairn/bin/start": [
+            "restart_brings_both_back_with_new_pids",
+            "start_brings_the_loop_and_the_bus_up",
+            "the_shortcuts_are_python_in_the_cairn_bin_and_import_no_other_device"
+          ],
+          "cairn/devices/cairn/bin/stop": [
+            "stop_takes_both_down_and_says_so_when_already_down",
+            "the_shortcuts_are_python_in_the_cairn_bin_and_import_no_other_device"
+          ],
+          "cairn/devices/cairn/bin/restart": [
+            "restart_brings_both_back_with_new_pids",
+            "the_shortcuts_are_python_in_the_cairn_bin_and_import_no_other_device"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "3264ef726e35": {
+          "anchor_rule": "journal",
+          "anchor_journal": "65c5c53d4e162fd287f1ff0e1c777b882d3841ee",
+          "anchor_first_build": "979fc4f4a8a283016cb341aefa1e5695dfc6cc46",
+          "commit": "65c5c53d4e162fd287f1ff0e1c777b882d3841ee"
         }
       }
     },

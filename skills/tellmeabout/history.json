@@ -1013,5 +1013,95 @@
     "fingerprint": "718983dc2451382283e50e00e04e006b699ba95a07cf05ccedc7b14268af0b58",
     "at": "2026-11-09T19:50:57",
     "seq": 4
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "skills/tellmeabout/proofs/test_tellmeabout_reaches_trouble_through_its_tool.py"
+    ],
+    "proven_seal_date": "2026-11-09T19:51:57",
+    "delegated": false,
+    "ticket": "def08e6af7cb",
+    "why": "PROVED refused: runtime_role undeclared in the charter, test_tellmeabout seal stale; answered FIXME 1-2",
+    "missing": [
+      "skills/tellmeabout/intention+why.json declares no runtime_role (runtime_role_declared)",
+      "skills/tellmeabout/proofs/test_tellmeabout.py seal predates the build (component_color)"
+    ],
+    "fingerprint": "fd6d12b9accb6fa50bfd298966b8085bc8e6c49a7463aca8c3d3a70494dd09db",
+    "at": "2026-11-09T19:53:21",
+    "seq": 5
   }
 ]

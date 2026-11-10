@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_metrics_verb_answers_totals.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T00:31:56",
+    "date": "2026-11-10T00:32:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_device_answers_totals"
       ],
       "teeth_red": [],
-      "test": "test-e00766a396d5",
+      "test": "test-510decad5f31",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +39,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e00766a396d5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-510decad5f31",
       "source_fingerprint": "c3c4fe28ace33ffa054682dfc72334f9579e7c73ac1686400ee9444379375dfc",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
@@ -63,20 +64,43 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1731688-7f_gbq30/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-510decad5f31/stderr.txt",
+            "logs/tester/0/runs/test-510decad5f31/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 121053851,
-          "disk_bytes": 156438528,
-          "entries": 13789,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "f4dbcea5a117": {
+          "cairn/devices/cairn/metrics.py": [
+            "test_since_and_until_bound_the_answer",
+            "test_the_device_answers_totals",
+            "test_totals_count_and_sum_per_name",
+            "test_totals_split_by_an_info_key"
+          ],
+          "cairn/devices/cairn/device.py": [
+            "test_the_device_answers_totals"
+          ],
+          "cairn/devices/cairn/intention+why.json": {
+            "notified": "n-7015a99f0c55"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "f4dbcea5a117": {
+          "anchor_rule": "journal",
+          "anchor_journal": "2b956685d5b6fdc53462a3bb522717c594cbb89d",
+          "anchor_first_build": "01fe8d41ce6d6a02f30e151add643745faa9e317",
+          "commit": "2b956685d5b6fdc53462a3bb522717c594cbb89d"
         }
       }
     },

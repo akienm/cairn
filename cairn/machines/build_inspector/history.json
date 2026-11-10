@@ -29452,5 +29452,90 @@
     "fingerprint": "8e8cf3f67a610c89dfc4c2edf74e4f874829808b912fcbc683659bdab8f053f4",
     "at": "2026-11-09T19:22:55",
     "seq": 145
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "124c0312c2d8",
+    "actor": "CC",
+    "missing": [
+      "[proof_declares_the_ticket] the proof declares nothing for this ticket, so a green seal on it says nothing about whether THIS ticket is proven — the exact shape measured on four of twelve tickets, 2026-09-07",
+      "[proof_declares_the_ticket] the proof declares nothing for this ticket, so a green seal on it says nothing about whether THIS ticket is proven — the exact shape measured on four of twelve tickets, 2026-09-07",
+      "[proof_declares_the_ticket] the proof declares nothing for this ticket, so a green seal on it says nothing about whether THIS ticket is proven — the exact shape measured on four of twelve tickets, 2026-09-07"
+    ],
+    "why": "clearance refused at PROVED: 3 lack(s)",
+    "fingerprint": "223b4a8d0c4988e56094cade8ca6958d9f282bd97b6237182a868521aba6b4a6",
+    "at": "2026-11-09T19:25:14",
+    "seq": 146
   }
 ]

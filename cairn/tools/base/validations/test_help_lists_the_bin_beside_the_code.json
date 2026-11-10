@@ -2,7 +2,7 @@
   {
     "claim": "proof test_help_lists_the_bin_beside_the_code.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T05:38:43",
+    "date": "2026-11-10T05:39:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-8ec5100d6e4f",
+      "test": "test-ac697eecda0a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,12 +42,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8ec5100d6e4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ac697eecda0a",
       "source_fingerprint": "bb4dea42c99e0fba26977e56f744cfdcc3455a682d4b751ed40ad1a89cd7065e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -67,22 +68,39 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1953849-8ya7y7zd/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 3,
           "paths": [
-            "logs/ground_loop_nohup.log"
+            "logs/ground_loop_nohup.log",
+            "logs/tester/0/runs/test-ac697eecda0a/stderr.txt",
+            "logs/tester/0/runs/test-ac697eecda0a/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524456388,
-          "disk_bytes": 560197632,
-          "entries": 13936,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "ba777080011b": {
+          "cairn/tools/base/shim.py": [
+            "both_bins_are_listed_in_order",
+            "cold_list_carries_the_class_bin",
+            "non_executables_and_empty_devices_list_nothing",
+            "the_default_class_root_is_the_repos_devices",
+            "the_instance_bin_wins_a_shared_name"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "ba777080011b": {
+          "anchor_rule": "journal",
+          "anchor_journal": "86877dfe4749885ebf0dbc3a5eb6fd8560a72df8",
+          "anchor_first_build": "5aca0031700f8d7cb63b2f61615d6c03b215b0e9",
+          "commit": "86877dfe4749885ebf0dbc3a5eb6fd8560a72df8"
         }
       }
     },

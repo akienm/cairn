@@ -132,12 +132,14 @@ def test_sole_path_is_clean_on_the_real_corpus_for_both_domains():
     g = _corpus()
     # remote.py's socket is the local bus socket (open-10941757e6b7, ticket f5a344e6c629);
     # tls.py's is the bus's pinned box-to-box door, and the bus TCP proof dials raw only the
-    # doors of a bus it started itself (open-06cfefbe745e, ticket 5183005fa134).
+    # doors of a bus it started itself (open-06cfefbe745e, ticket 5183005fa134); web_operator
+    # talks on the web by any means (Akien 2026-11-09, Q#74, open-52b86b71a12d).
     host = sieve.catches(g, {"kind": "sole_path", "capability": "the inference host",
                              "modules": DIALS,
                              "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py",
                                       "cairn/tools/bus_client/tls.py",
-                                      "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py")})
+                                      "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py",
+                                      "cairn/machines/web_operator/")})
     assert host == [], f"a second door to the inference host: {host}"
     db = sieve.catches(g, {"kind": "sole_path", "capability": "port 5432",
                            "modules": ("psycopg2", "psycopg", "asyncpg", "pg8000", "sqlalchemy"),

@@ -261,6 +261,13 @@ def import_sites(repo_root: str) -> list[dict]:
     return sorted(sites, key=lambda s: (s["file"], s["line"]))
 
 
+def _admitted(path: str, only) -> bool:
+    """``path`` lies inside an ``only`` entry at some segment boundary (ticket 3ff3ae16b2b9)."""
+    entries = (only,) if isinstance(only, str) else tuple(only)
+    parts = path.split("/")
+    return any("/".join(parts[i:]).startswith(e) for i in range(len(parts)) for e in entries)
+
+
 def _matches(imported: str, target: str) -> bool:
     """Dotted-prefix match. `urllib.request` catches `urllib.request.urlopen` and NOT
     `urllib.parse.parse_qs` — the whole dial/parse distinction is this one line."""
@@ -434,6 +441,12 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
       sole_path — `modules` may be imported ONLY from inside `only`. This is the domain
                   chokepoint: one door to 5432, one door to the inference host. A second
                   importer is a second door, and the whole claim is that there is one.
+                  An `only` entry is a path relative to SOME directory, so it admits at
+                  every segment boundary: a graph taken over a wider root sees the same
+                  file under more leading segments, and it is still the admitted file
+                  (measured 2026-11-10: the bus TCP proof, admitted as
+                  bus/proofs/test_the_bus_speaks_tcp.py, red under a graph taken at
+                  cairn/devices/; ticket 3ff3ae16b2b9).
 
       forbidden — `within` may not import `modules` at all. This is a fork: two things
                   that must not share an implementation, so that one can survive the
@@ -489,7 +502,7 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
     if kind == "sole_path":
         only = rule["only"]
         for path, imported in sorted(graph.items()):
-            if path.startswith(only):
+            if _admitted(path, only):
                 continue
             found = sorted(m for m in imported if any(_matches(m, t) for t in modules))
             if found:

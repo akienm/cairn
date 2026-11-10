@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_launcher_reads_the_bin_beside_the_code.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T05:00:00",
+    "date": "2026-11-10T05:00:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-9d0dbea7e0db",
+      "test": "test-c76348c5ff48",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,18 +42,19 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1918465,
+          "pid": 1926162,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9d0dbea7e0db",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c76348c5ff48",
       "source_fingerprint": "840fc663b68a321a9b896c0315e72c9106be42fcc0d50158ce83d097a3c48197",
       "fingerprint_closure": [
         "bin/proofs/test_a_word_with_no_script_goes_onto_the_bus.py",
@@ -155,10 +156,10 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1917433-tfzn59yu/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
+          "count": 17,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cairn/machines/bus/0/stops.jsonl",
@@ -166,25 +167,41 @@
             "devices/tester/0/last_known.json",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261110.115953.919146.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261110.115954.309012.BusDevice.post.json",
-            "logs/bus/0/20261110.115954.319808.BusDevice.post.json",
-            "logs/bus/0/20261110.115954.447253.BusDevice.post.json",
-            "logs/bus/0/20261110.115954.447462.BusDevice.delivered.json",
-            "logs/bus/0/20261110.115954.452146.BusDevice.delivered.json",
+            "logs/bus/0/20261110.120047.016931.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261110.120047.405399.BusDevice.post.json",
+            "logs/bus/0/20261110.120047.416059.BusDevice.post.json",
+            "logs/bus/0/20261110.120047.536719.BusDevice.post.json",
+            "logs/bus/0/20261110.120047.536926.BusDevice.delivered.json",
+            "logs/bus/0/20261110.120047.541459.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261110.115954.450013.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261110.115954.451207.TesterShim.clear_trouble.json"
+            "logs/tester/0/20261110.120047.539528.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261110.120047.540756.TesterShim.clear_trouble.json",
+            "logs/tester/0/runs/test-c76348c5ff48/stderr.txt",
+            "logs/tester/0/runs/test-c76348c5ff48/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524363384,
-          "disk_bytes": 560058368,
-          "entries": 13921,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "30366e99655a": {
+          "bin/cairn": [
+            "a_device_word_runs_its_class_bin",
+            "a_shortcut_hides_a_device_and_says_so",
+            "a_top_level_word_runs_the_cairn_bin",
+            "the_long_form_runs_the_same_script"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "30366e99655a": {
+          "anchor_rule": "journal",
+          "anchor_journal": "f7233661ba1da9c6a6838cc57ca1bc9865056201",
+          "anchor_first_build": "cd15b0c111c9e4f476ea0808922d7727e1fa0305",
+          "commit": "f7233661ba1da9c6a6838cc57ca1bc9865056201"
         }
       }
     },

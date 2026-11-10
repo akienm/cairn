@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T02:14:57",
+    "date": "2026-11-10T02:34:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 12320\n  green live_the_table_is_gone_and_the_meter_carried\n    median table read 0.190 ms, median tree lookup 0.272 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n9 passed, 0 failed out of 9",
+      "returncode": 1,
+      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n  RED   live_the_table_is_gone_and_the_meter_carried: AssertionError: inference_calls is still registered\n    median table read 0.234 ms, median tree lookup 0.381 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n8 passed, 1 failed out of 9",
       "stderr_tail": "",
       "teeth_green": [
         "no_module_names_the_old_table",
@@ -16,12 +16,13 @@
         "the_yield_report_sums_the_metrics_reply",
         "the_calls_verb_reads_the_logs_tree",
         "the_migration_carries_and_meters_once",
-        "live_the_table_is_gone_and_the_meter_carried",
         "a_tree_lookup_is_no_slower_than_three_table_reads",
         "every_other_proof_under_the_device_stays_green"
       ],
-      "teeth_red": [],
-      "test": "test-4c07d8df2bb3",
+      "teeth_red": [
+        "live_the_table_is_gone_and_the_meter_carried: AssertionError: inference_calls is still registered"
+      ],
+      "test": "test-7535996478d8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,18 +45,19 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1784525,
+          "pid": 1821127,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c07d8df2bb3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7535996478d8",
       "source_fingerprint": "0ed2f8edeed36369f0b620985f9c5ce42bfffa46a15113c7fabbcc737a1f63bd",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
@@ -126,10 +128,10 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1784277-9xk2s5ba/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 220,
+          "count": 218,
           "paths": [
             "devices/cairn/0/last_known.json",
             "devices/cairn/machines/bus/0/bus.lock",
@@ -137,50 +139,207 @@
             "devices/inference_domain/0/last_known.json",
             "devices/inference_domain/0/tools/data_recorder/metrics/reading.json",
             "logs/bus.log",
-            "logs/bus/0/20261110.091411.243458.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261110.091411.268270.BusDevice.post.json",
-            "logs/bus/0/20261110.091411.283479.BusDevice.post.json",
-            "logs/bus/0/20261110.091411.345057.BusDevice.post.json",
-            "logs/bus/0/20261110.091411.345270.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091411.349030.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.260259.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.336593.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.336787.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.336917.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.375093.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.404267.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.460096.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.532280.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.532481.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.532607.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.553405.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.580015.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.633656.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.703815.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.704017.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.704160.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.725155.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.751689.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.825181.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.895683.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.895881.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.896005.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.916631.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.943354.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091427.954031.BusDevice.post.json",
-            "logs/bus/0/20261110.091427.980519.BusDevice.delivered.json",
-            "logs/bus/0/20261110.091428.038497.BusDevice.post.json",
-            "logs/bus/0/20261110.091428.120746.BusDevice.post.json"
+            "logs/bus/0/20261110.093423.637625.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261110.093423.706074.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.716776.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.789466.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.789663.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093423.793837.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093423.831705.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.859422.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093423.914875.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.986996.BusDevice.post.json",
+            "logs/bus/0/20261110.093423.987199.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093423.987322.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.008296.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.037204.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.109922.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.190974.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.191170.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.191293.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.215294.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.242963.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.309463.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.384262.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.384451.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.384570.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.405694.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.432543.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.443131.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.469506.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.523109.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.593175.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.593374.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.593494.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093424.627243.BusDevice.post.json",
+            "logs/bus/0/20261110.093424.653988.BusDevice.delivered.json"
           ],
-          "elided": 180
+          "elided": 178
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524042066,
-          "disk_bytes": 560340992,
-          "entries": 14053,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "98ab0e9db57f": {
+          "cairn/devices/inference_domain/domain.py": [
+            "a_repeat_is_served_from_the_tree",
+            "a_tree_lookup_is_no_slower_than_three_table_reads",
+            "an_expired_answer_is_not_served",
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table",
+            "the_calls_verb_reads_the_logs_tree",
+            "the_migration_carries_and_meters_once",
+            "the_yield_report_sums_the_metrics_reply"
+          ],
+          "cairn/devices/inference_domain/device.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table",
+            "the_calls_verb_reads_the_logs_tree"
+          ],
+          "cairn/devices/inference_domain/migrate_answers_to_their_tree.py": [
+            "a_tree_lookup_is_no_slower_than_three_table_reads",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table",
+            "the_migration_carries_and_meters_once"
+          ],
+          "cairn/devices/inference_domain/intention+why.json": [
+            "live_the_table_is_gone_and_the_meter_carried"
+          ],
+          "cairn/devices/inference_domain/probes/the_meter_accounts_for_every_verdict.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/the_ticket_comes_back_whole.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/a_refused_ask_leaves_a_row.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/an_agent_retry_gets_a_fresh_sample.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/an_inference_call_logs_that_it_started.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/a_non_final_answer_is_refused_by_name.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/does_a_domain_ride_the_request.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/does_the_route_leave_loopback.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/probes/the_verdict_vocabulary_is_refused_at_the_database.py": [
+            "live_the_table_is_gone_and_the_meter_carried",
+            "no_module_names_the_old_table"
+          ],
+          "cairn/devices/inference_domain/proofs/test_inference_domain.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_a_bare_call_and_the_explicit_default_are_one_question",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_a_differing_toolset_is_a_different_question",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_a_refused_ask_leaves_a_row",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_a_tool_carrying_call_lands_both_records_joined_by_the_digest",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_an_agent_retry_gets_a_fresh_sample",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_an_unknown_domain_is_refused_before_any_spend",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_compile_once_a_repeat_does_not_touch_the_host",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_editing_a_rows_prompt_is_a_new_question",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_key_order_is_the_same_question",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_meter_measures_spent_against_avoided",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_owner_gates_the_cache",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_provenance_carries_the_domain_marker_on_both_paths",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_standing_readers_are_unmoved_by_a_refused_row",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_ticket_comes_back_whole",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_the_watch_reads_a_row_the_real_writer_made",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_two_domains_are_never_one_question",
+            "cairn/devices/inference_domain/proofs/test_inference_domain.py::test_verify_before_answer_a_stale_entry_re_resolves"
+          ],
+          "cairn/devices/inference_domain/proofs/test_task_ticket.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_a_direct_call_is_named_off_the_call_chain_and_nothing_records_unknown",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_a_refusal_raises_a_trouble_naming_the_ticket_and_the_shim_returns_a_value",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_every_inference_call_produces_a_complete_task_ticket",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_one_call_writes_one_ticket_naming_the_canonical",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_specified_and_selected_are_both_carried_and_may_disagree",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_the_caller_rides_the_bus_envelope_through_the_shim",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_the_probe_shares_the_predicate_and_fires_on_a_lacking_ticket",
+            "cairn/devices/inference_domain/proofs/test_task_ticket.py::test_the_ticket_is_not_a_parallel_store_and_costs_bounded_latency"
+          ],
+          "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py::test_show_prints_one_line_per_call_and_a_count",
+            "cairn/devices/inference_domain/proofs/test_the_calls_are_a_view.py::test_the_view_passes_limit_and_since_and_is_json"
+          ],
+          "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py::test_a_limit_returns_the_newest_rows_newest_first",
+            "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py::test_since_returns_only_the_rows_after_it",
+            "cairn/devices/inference_domain/proofs/test_the_domain_answers_for_its_calls.py::test_the_reply_is_json_safe"
+          ],
+          "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_a_hit_records_the_crossing_that_did_not_happen",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_a_miss_lands_a_line_that_names_the_far_end",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_a_refusal_leaves_a_line_and_the_exception_reaches_the_caller_unchanged",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_an_endpoint_key_the_resolver_did_not_report_is_absent_not_null",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_cannot_clear_before_it_can_fire",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_counts_repeats_rather_than_comparing_sets",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_fires_on_a_call_the_trail_missed",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_fires_on_a_trail_line_the_store_never_got",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_ignores_everything_before_its_era",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_reads_the_address_the_device_declares",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_probe_sees_the_absence_that_looks_like_nothing",
+            "cairn/devices/inference_domain/proofs/test_an_inference_call_logs_that_it_started.py::test_the_trail_and_the_meter_agree"
+          ],
+          "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py::test_a_domain_that_exists_raises_NO_trouble",
+            "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py::test_a_raiser_that_explodes_does_not_change_the_callers_answer",
+            "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py::test_a_repeat_raises_the_SAME_identity_and_another_name_a_DIFFERENT_one",
+            "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py::test_an_unknown_domain_raises_ONE_trouble_at_the_receiver_and_still_refuses",
+            "cairn/devices/inference_domain/proofs/test_an_unknown_domain_is_a_counted_trouble_at_the_receiver.py::test_the_whole_falsifier_holds_end_to_end"
+          ],
+          "cairn/devices/inference_domain/proofs/test_host.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_host.py::test_a_non_final_answer_is_refused_by_its_own_name",
+            "cairn/devices/inference_domain/proofs/test_host.py::test_a_response_carrying_no_done_key_at_all_is_left_alone",
+            "cairn/devices/inference_domain/proofs/test_host.py::test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite"
+          ],
+          "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py": [
+            "every_other_proof_under_the_device_stays_green",
+            "live_the_table_is_gone_and_the_meter_carried",
+            "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py::a_hit_saves_and_a_refusal_spends_nothing",
+            "cairn/devices/inference_domain/proofs/test_the_proxy_records_its_meter_as_metrics.py::a_miss_records_spent_saved_and_latency_under_the_call"
+          ],
+          "cairn/devices/inference_domain/proofs/test_resolve_verb.py": [
+            "live_the_table_is_gone_and_the_meter_carried"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "98ab0e9db57f": {
+          "anchor_rule": "journal",
+          "anchor_journal": "79a5b01596da7ba85161ae1d3044b34330e03af5",
+          "anchor_first_build": "beec1c906840a1894034b248bc5e6dac28a8706c",
+          "commit": "79a5b01596da7ba85161ae1d3044b34330e03af5"
         }
       }
     },

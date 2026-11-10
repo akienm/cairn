@@ -4,7 +4,7 @@ RULE 1: every component talks to every other only through its public interface. 
 2026-11-05 ``encapsulation_breaches`` listed ten rows under cairn/tools/base/; six sat in four
 files with mechanical fixes. external.py imported the bus device for a type hint;
 workflow_grammar.py reached system_word's module instead of its package; two proofs imported
-device classes (the ground loop's discover(), BusDevice, HeartbeatPage) to check base's own
+device classes (the ground loop's device walk, BusDevice, the heartbeat's page) to check base's own
 claims. This proof holds that those four files carry no breach, and that the two rewritten
 teeth still JUDGE: base's own probe loader reds a broken probe file, and the device-class
 tooth reads its classes' bases by AST, importing no device.

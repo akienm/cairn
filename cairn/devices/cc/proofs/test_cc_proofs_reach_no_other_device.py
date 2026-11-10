@@ -1,7 +1,7 @@
 """cc's proofs reach no other device (ticket f5c334da752a) — teeth a hollow build could not pass.
 
 RULE 1: a device's public interface is the bus. Three cc proofs reached into the cairn device's
-ground_loop.discovery to load cc's own probes and to ask whether cc is on the roster; this
+ground loop's device-folder module to load cc's own probes and to ask whether cc is on the roster; this
 proof holds that no cc file imports another device, and that the loader each of those three
 proofs now carries still JUDGES (a PROBE-less file and a raising file are failures, a private
 file is never read) and still loads every cc probe.

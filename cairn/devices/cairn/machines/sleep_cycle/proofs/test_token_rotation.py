@@ -26,8 +26,8 @@ poke BOUNCES and (2) stalls); an ``_answer`` that takes any cycle_id ((5)).
 
 THE WORLD IS A FIXTURE (D6/D7). No live device carries a sleep probe and this proof berths
 none: three fixture devices live under a tmp root, their probes are the three-line
-``answers_mail`` declaration written to disk and imported with ``discovery.load_module`` —
-the same door the ground loop uses — and their mailboxes record at ``instance_path(id, 0,
+``answers_mail`` declaration written to disk and imported off their paths by this file's own
+``_load_module`` — and their mailboxes record at ``instance_path(id, 0,
 fixture_roots)`` rather than at ``~/.cairn`` (``_FeedbackDevice`` has no roots seam, so the
 shims here are hand-held). The bus is ``BusDevice.scratch`` (Postgres; drops at close).
 
@@ -162,15 +162,28 @@ def _announces(bus, cycle_id: str) -> list[dict]:
             if (e.get("body") or {}).get("cycle_id") == cycle_id]
 
 
+def _load_module(path: Path):
+    """Import a probe or shim module OFF ITS PATH, under a unique synthetic name, so two devices
+    may each hold a ``probes/x.py`` and a re-read after an edit re-executes the file. The ground
+    loop carried this loader until ticket 229ee25ff6f0 retired its device-folder module."""
+    import importlib.util
+    name = "cairn._probes." + "_".join(path.with_suffix("").parts[-3:])
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"no import spec for {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _rig(bus, roots: dict, roster_root: Path):
-    from cairn.devices.cairn.machines.ground_loop.discovery import load_module
     loop = DeviceRoster(bus)
     cairn_shim = FixtureCairnShim(bus, roots, roster_root)
     loop.hold(cairn_shim)
     boxes = {}
     for dev in reversed(FIXTURE_DEVICES):        # c, b, a — see the module docstring
         probe_file = roster_root / "cairn" / "devices" / dev / "probes" / "sleeps_when_the_token_arrives.py"
-        probe = load_module(probe_file).PROBE
+        probe = _load_module(probe_file).PROBE
         boxes[dev] = FixtureMailbox(dev, roots)
         loop.hold(FixtureShim(dev, boxes[dev], probe, bus=bus))
     return loop, cairn_shim, boxes

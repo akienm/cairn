@@ -31,7 +31,7 @@ already poked (``BaseShim._was_true`` / ``_cleared`` / ``_first_seen``).
 
 NO PAGE. This shim deliberately does not implement ``_start_device``: it fronts a device
 for the BEAT, not for the web surface. A device that wants a page has a real shim of its
-own with a real device behind it (``LibrarianShim``, ``GroundLoopShim``), and that one is
+own with a real device behind it (``LibrarianShim``, ``CairnShim``), and that one is
 preferred when both exist — see ``DeviceRoster.shim_for`` (cairn/tools/bus_client/roster.py).
 """
 

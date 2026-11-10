@@ -17,7 +17,7 @@ Exactly one component, ``librarian``, is on both axes and carries a shim class a
 
 WHERE THE ANSWER LIVES NOW, so this file points instead of asserting: the predicate is
 ``cairn/tools/base/deviceness.py`` (``is_device`` / ``fitted_device_ids`` / ``divergence``), and
-the membership it composes is ``cairn/devices/cairn/machines/ground_loop/discovery.py``'s, which is the mechanism
+the membership it composes is the rack tool's (``cairn/tools/rack``), which is the mechanism
 the ruling created and the one a running loop actually fits shims to
 (``DeviceRoster.shim_for`` in ``cairn/tools/bus_client/roster.py``). The divergence is watched by
 ``cairn/tools/base/probes/device_claims_match_shims.py``.

@@ -9,8 +9,9 @@ proof holds the four clauses of the ticket's falsifier:
   (1) calling reach / connect_bus / connect_system never imports the old loop module
       (checked in a fresh subprocess, so nothing this runner imported can hide it);
   (2) connect_system returns a roster whose device list equals deviceness membership;
-  (3) reach('ground_loop') wires delivery so a request answers, not a timeout: the heartbeat's
-      page loads from disk like every other device's shim, with no loop handed to it;
+  (3) reach('cairn') wires delivery so a request answers, not a timeout: the cairn device, whose
+      shim loads from disk like every other device's, answers the heartbeat's ``beat`` (the
+      ground loop's own shim retired, ticket 229ee25ff6f0);
   (4) loop.py and staleness.py do not exist, and the ticket's grep over cairn/, bin/ and
       skills/ *.py is empty;
   (5) the web server's start (listener.main) holds no ground_loop shim in its own roster — a
@@ -98,9 +99,9 @@ def tooth_2(T) -> None:
 def tooth_3(T) -> None:
     try:
         from cairn.tools.bus_client import reach
-        bus = reach("ground_loop")
-        reply = bus.request(sender="test_the_wiring_needs_no_loop", to="ground_loop",
-                            verb="beat", why="proof: the heartbeat's page answers over reach",
+        bus = reach("cairn")
+        reply = bus.request(sender="test_the_wiring_needs_no_loop", to="cairn",
+                            verb="beat", why="proof: the cairn device answers the heartbeat's beat over reach",
                             body={}, timeout=20.0)
         body = reply.get("body") or {}
         ok(T["3"], "up" in body, f"body keys={sorted(body)[:8]}")

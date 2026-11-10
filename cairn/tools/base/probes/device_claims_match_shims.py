@@ -10,7 +10,7 @@ follow it there.
 
 THE EFFICACY QUESTION. Akien ruled device-ness twice on 2026-08-11 — "a shim fits TO the
 device" and "the unit is the folder, not the registration" — and the second ruling SHIPPED
-the same day (``cairn/devices/cairn/machines/ground_loop/discovery.py``, commit 2081efa). So the mechanism is not
+the same day (the ground loop's device-folder walk, commit 2081efa; the rack tool's since). So the mechanism is not
 what is missing. What is missing is anything LOUD: the old axis (subclass ``BaseDevice``)
 and the ruled axis (a ``probes/`` directory) disagree about NINETEEN of a twenty-member
 union, and nothing anywhere says so. An empty disagreement and an unmeasured disagreement

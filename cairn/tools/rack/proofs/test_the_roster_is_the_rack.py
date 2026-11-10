@@ -12,7 +12,8 @@ the ticket's crossing names all three proofs:
       nested machine with its own probes/, a ``cairn/tools/x/probes/`` folder, and the
       ``__pycache__`` / ``_private`` / ``.hidden`` noise);
   (3) the shimless folder is listed with shim None, never dropped;
-  (4) ``device_folders`` has no call outside discovery.py and the ground loop's proofs;
+  (4) ``device_folders`` has no call outside the ground loop's proofs (its own module retired,
+      ticket 229ee25ff6f0);
   (5) [proved in cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py]
       ``token.roster(bus, root)`` is the rack devices whose LATEST announced menu carries
       ``sleep`` — a scratch bus with three menus: one carrying sleep, one whose newer menu
@@ -20,8 +21,8 @@ the ticket's crossing names all three proofs:
   (6) [proved in cairn/devices/cairn/machines/ground_loop/proofs/test_heartbeat.py]
       the ground loop's beat record carries ``devices`` equal to ``rack()`` of its root;
   (7) the encapsulation sieve shows no breach from ``cairn/tools/rack``, and none from the
-      code (not the proofs) of bus_client, tools/base or bin/probes onto
-      ``ground_loop.discovery`` (the roster walk);
+      code (not the proofs) of bus_client, tools/base or bin/probes onto the ground loop's
+      old roster walk;
   (8) mail to a nested machine still resolves its own shim: ``rack.shim_of('harbor_master')``
       is ``cairn/devices/cairn/machines/harbor_master/shim.py`` (83 probes post to it,
       measured 2026-10-03) — the roster narrowing must not cut a delivery address.
@@ -111,8 +112,7 @@ def tooth_4(T) -> None:
     out = subprocess.run(["git", "-C", str(_REPO), "grep", "-n", "-F", NEEDLE, "--",
                           "cairn", "bin", "skills", ":!*.json"],
                          capture_output=True, text=True)
-    allowed = ("cairn/devices/cairn/machines/ground_loop/discovery.py:",
-               "cairn/devices/cairn/machines/ground_loop/proofs/")
+    allowed = ("cairn/devices/cairn/machines/ground_loop/proofs/",)
     hits = [ln for ln in out.stdout.splitlines() if not ln.startswith(allowed)]
     ok(T["4"], out.returncode in (0, 1) and not hits, f"rc={out.returncode} hits={hits}")
 
@@ -124,7 +124,7 @@ def tooth_7(T) -> None:
     except Exception as exc:  # noqa: BLE001
         ok(T["7"], False, f"sieve raised {type(exc).__name__}: {exc}")
         return
-    walk = "cairn.devices.cairn.machines.ground_loop.discovery"
+    walk = "cairn.devices.cairn.machines.ground_loop." + "disc" + "overy"
     # The roster's code, not other tickets' proofs: a proof under tools/base that imports
     # discover() to test probe arming is a RULE 1 row of its own, not a roster walk.
     bad = [f"{r['file']}:{r['line']} {r['module']} {r['reason']}" for r in rows

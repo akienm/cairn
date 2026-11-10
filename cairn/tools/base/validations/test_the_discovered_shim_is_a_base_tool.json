@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_discovered_shim_is_a_base_tool.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-09T21:30:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-10T03:21:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_charters_publish_it_from_base"
       ],
       "teeth_red": [],
-      "test": "test-e9ff927840da",
+      "test": "test-5c57e18b8412",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,15 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e9ff927840da",
-      "source_fingerprint": "af37146730f2a2208b74d5800da36de22d097807284b051042289a9224c71854",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5c57e18b8412",
+      "source_fingerprint": "44be526df952bf368980ce157d71ae860bc1c4682c36883b6b609d4e29bd33a9",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -64,74 +62,26 @@
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
+        "cairn/tools/import_sieve": "dca320912a1bc943fdab85979cdc790ddc4897342afa2cf594db7d0f2d9d97b8",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
         "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1841761-3agaib01/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-e9ff927840da/stderr.txt",
-            "logs/tester/0/runs/test-e9ff927840da/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "2438292fae7c": {
-          "cairn/tools/base/discovered.py": [
-            "test_the_shim_stands_in_base_and_not_in_the_heartbeat"
-          ],
-          "cairn/tools/base/mail_probe.py": {
-            "notified": "n-32725d2b6d90"
-          },
-          "cairn/tools/bus_client/roster.py": [
-            "test_nothing_names_the_old_address"
-          ],
-          "cairn/tools/data_recorder/proofs/test_reading_declaration.py": [
-            "test_nothing_names_the_old_address",
-            "cairn/tools/data_recorder/proofs/test_reading_declaration.py::test_the_declaration_and_the_probe_end_to_end",
-            "cairn/tools/data_recorder/proofs/test_reading_declaration.py::test_the_holders_pass_through_what_they_declare"
-          ],
-          "cairn/devices/cairn/machines/bus/proofs/test_delivery.py": [
-            "test_nothing_names_the_old_address",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_a_dead_store_does_not_stop_the_heartbeat",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_a_delivered_envelope_never_comes_back",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_a_discovered_shim_receives_to_feedback",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_a_receipt_appends_and_never_rewrites_the_envelope",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_a_receiver_that_raises_leaves_the_mail_in_the_inbox",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_mail_for_a_device_not_on_the_roster_sits",
-            "cairn/devices/cairn/machines/bus/proofs/test_delivery.py::test_the_device_actually_receives_the_body"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_discovery.py": [
-            "test_nothing_names_the_old_address",
-            "cairn/devices/cairn/machines/ground_loop/proofs/test_discovery.py::test_a_broken_probe_does_not_prevent_healthy_probes_from_firing"
-          ],
-          "cairn/tools/base/proofs/test_a_mailbox_nobody_reads_keeps_nothing.py": {
-            "notified": "n-bc685601977a"
-          },
-          "cairn/tools/base/intention+why.json": [
-            "test_the_charters_publish_it_from_base"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": [
-            "test_the_charters_publish_it_from_base"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "2438292fae7c": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "8b1bcc2d0d591a73eebabdba7917e0359e43a555",
-          "anchor_first_build": "784669a79b08513b5c12e104af873aaa99ba22fa",
-          "commit": "87340c55304ab0d52f55b91ec631b2c3deb52df7"
+          "measured": true,
+          "bytes": 524081945,
+          "disk_bytes": 559611904,
+          "entries": 13852,
+          "builds": 1,
+          "reuses": 63
         }
       }
     },

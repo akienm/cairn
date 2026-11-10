@@ -126,12 +126,12 @@ def test_derivation_agrees_with_the_tree_walk_corpus_wide() -> None:
 
 
 def test_real_device_classes_name_their_own_component() -> None:
-    """The two devices that HAD hand-spelled names now derive them, and the derived name is
+    """The device that HAD a hand-spelled name now derives it (the heartbeat's page was the
+    other until ticket 229ee25ff6f0 retired it), and the derived name is
     checked against where the class's file actually lives — not against the string that used
     to be in the runner, which is gone precisely because this works. The classes are read by
     path and AST, so base imports no device (RULE 1, ticket d81baa1b5cb8)."""
-    for name, rel in (("BusDevice", "cairn/devices/cairn/machines/bus/bus.py"),
-                      ("HeartbeatPage", "cairn/devices/cairn/machines/ground_loop/shim.py")):
+    for name, rel in (("BusDevice", "cairn/devices/cairn/machines/bus/bus.py"),):
         path = _REPO_ROOT / rel
         derived = component_of_module(rel[:-3].replace("/", "."))
         home = component_of(path)

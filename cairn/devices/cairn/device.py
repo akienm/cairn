@@ -7,7 +7,27 @@ DataRecorder for later evaluation.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from cairn.tools.base.device import BaseDevice
+
+
+def beat_pane_data(home=None, now=None) -> dict:
+    """The heartbeat's page: the ground loop's lock (``up``) and its beat record, read at request
+    time through the loop's two public faces, ``guard.held`` and ``heartbeat.read_record`` —
+    rendered, never derived. The ground loop has no shim and no verbs of its own (outline 5.6.3,
+    5.6.5); a machine's panel is reached through its host device (2.3.8.5), so this is the cairn
+    device's (ticket 229ee25ff6f0)."""
+    from cairn.devices.cairn.machines.ground_loop import guard
+    from cairn.devices.cairn.machines.ground_loop.heartbeat import default_home, read_record
+    home = home if home is not None else default_home()
+    now = now if now is not None else datetime.now(timezone.utc).astimezone()
+    return {
+        "reports": "the resident singleton's lock and beat record (instance 0), read from disk "
+        "at request time — whatever process serves this page",
+        "up": guard.held(home),
+        **read_record(home, now),
+    }
 
 
 class CairnDevice(BaseDevice):
@@ -37,7 +57,7 @@ class CairnDevice(BaseDevice):
     def intention(self) -> dict:
         return {
             "what": "The cairn system device — top-level holder of ground_loop, "
-                    "harbor_master, and bus.",
+                    "harbor_master, and bus; it carries the heartbeat's page.",
             "why": "Every device has a presence on the bus (Akien, 2026-08-11). "
                     "The system itself is a device and answers its own mail.",
         }
@@ -58,7 +78,16 @@ class CairnDevice(BaseDevice):
                 "sleep-token": self._handle_sleep_token,
                 "sleep-cycle": self._handle_sleep_cycle,
                 "away": self._handle_away,
-                "metrics": self._handle_metrics}
+                "metrics": self._handle_metrics,
+                "beat": self._handle_beat}
+
+    def _handle_beat(self, envelope: dict) -> dict:
+        """The heartbeat's page over the bus: a ``beat`` ask answered from the ground loop's lock
+        and record (ticket 229ee25ff6f0). The answer leaves a breadcrumb on this device's own
+        trail (emit, never the bus)."""
+        data = beat_pane_data()
+        self.emit("beat_answered", pointer=(envelope or {}).get("id"))
+        return data
 
     def _handle_metrics(self, envelope: dict) -> dict:
         """Fill the metrics table from every holder's recorder, then answer the rows matching
@@ -129,6 +158,11 @@ class CairnDevice(BaseDevice):
                 "kind": "trouble",
                 "label": "troubles",
                 "handler": self._trouble_pane_data,
+            },
+            {
+                "kind": "beat",
+                "label": "Heartbeat",
+                "handler": beat_pane_data,
             },
         ]
 

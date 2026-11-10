@@ -52,7 +52,7 @@ owner.
 
 **IT TAKES NO POSITION ON WHETHER A NAME IS A DEVICE.** It computes an address for whatever
 name it is handed. Which names are devices is answered elsewhere and by someone else —
-``cairn/devices/cairn/machines/ground_loop/discovery.device_folders`` for class-space, ``cairn/tools/base/deviceness.py`` for
+the rack tool (``cairn/tools/rack``, ``rack_ids``) for class-space, ``cairn/tools/base/deviceness.py`` for
 the predicate — and a path resolver that quietly became the roster would be a second answer to
 a question that already has one.
 
@@ -66,8 +66,8 @@ re-exported at its own address — the token face did not move, only the table b
 
 THE ROOT VALUES ARE DERIVED, NEVER CONFIGURED — repo from this module's own address, commons as
 its sibling, instance from the home directory. That is house style with a proof behind it
-(``ground_loop.discovery.repo_root``: "derived from this file's own address, never
-configured"). The ``roots`` parameter is the ONE seam at which they can be pointed elsewhere,
+(the rack tool's ``repo_root``: derived from its file's own address, never
+configured). The ``roots`` parameter is the ONE seam at which they can be pointed elsewhere,
 which is what makes the packaged-app claim testable at all — and what lets a proof run against
 a temp directory instead of polluting the live tree it will be read against.
 
@@ -91,7 +91,7 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 # cairn/tools/chain/grammar.py both admit it by name, each with the measurement in the comment;
 # the grammar's seat was orient's until 2026-08-13, when the chain grammar was carved out and
 # took the address with it — the admitters change, the reason does not). Note what is NOT claimed: cairn/tools/base as a PACKAGE is not import-clean —
-# deviceness.py reaches cairn.devices.cairn.machines.ground_loop.discovery and transitions.py reaches four
+# deviceness.py reaches cairn.tools.rack.rack and transitions.py reaches four
 # components. The floor is this FILE, and the package __init__ is empty by the boot-order law
 # written into it, so importing this leaf pulls none of that in.
 _REPO = Path(__file__).resolve().parents[3]

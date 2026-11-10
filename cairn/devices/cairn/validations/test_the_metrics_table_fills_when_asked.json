@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_metrics_table_fills_when_asked.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-10T01:35:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-10T03:14:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_table_has_its_columns_and_indexes\n  PASS  test_a_report_picks_up_what_waits\n  PASS  test_a_report_filters\n  PASS  test_rows_are_kept  — first 3, second 3 (collected 0)\n  PASS  test_the_device_answers_the_verb  — {\"collected\": 3, \"rows\": [{\"at\": \"2026-11-10T01:35:35.118552-07:00\", \"name\": \"latency\", \"source\": \"inference_domain\", \"start\": null, \"end\": null, \"value\": 0.5, \"unit\": \"s\", \"subject\": \"call-1\", \"info\": null}]}\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_table_has_its_columns_and_indexes\n  PASS  test_a_report_picks_up_what_waits\n  PASS  test_a_report_filters\n  PASS  test_rows_are_kept  — first 3, second 3 (collected 0)\n  PASS  test_the_device_answers_the_verb  — {\"collected\": 3, \"rows\": [{\"at\": \"2026-11-10T03:14:24.897849-07:00\", \"name\": \"latency\", \"source\": \"inference_domain\", \"start\": null, \"end\": null, \"value\": 0.5, \"unit\": \"s\", \"subject\": \"call-1\", \"info\": null}]}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_table_has_its_columns_and_indexes",
@@ -17,7 +17,7 @@
         "test_the_device_answers_the_verb"
       ],
       "teeth_red": [],
-      "test": "test-c381781e0385",
+      "test": "test-0cabbd948d3a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c381781e0385",
-      "source_fingerprint": "8c13e5edd9d94b30a0f12cb6d8cf8b4b55234ac3551f93cf891b0b45f8a3c05a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0cabbd948d3a",
+      "source_fingerprint": "fa66011361f11588521461ead90ebd3f214a2ba1f6b37df0cb149a0b0cfc1a41",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/device.py",
@@ -57,14 +56,14 @@
         "cairn/devices/db_domain": "64ce870ff74abb5b554036e44ca34c9ad05a299c00abc9f2510ad710ce5e647f",
         "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
         "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
+        "cairn/tools/base": "8a09d0d633ab07f0cbe78a5552df7639e70f9134cbe33286a7dbed6aee5bc233",
         "cairn/tools/data_recorder": "977acf767a86b253a583c929bc2e5468b9ccac313103f1cc4349867e0329793f",
         "cairn/tools/metric": "f147a90153fc49da831da9ff90e7db16623d8a98e81528c1d289eb3149c1418a",
         "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1764257-9zbb573_/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1841761-mstai5pc/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,11 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 121148718,
-          "disk_bytes": 156631040,
-          "entries": 13829,
+          "bytes": 524081945,
+          "disk_bytes": 559611904,
+          "entries": 13852,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       }
     },

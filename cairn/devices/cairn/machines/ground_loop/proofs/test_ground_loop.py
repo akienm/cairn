@@ -1,11 +1,11 @@
 """Proof for ground_loop — THE HEARTBEAT's records: its beat record, its single-start guard,
-its cadence, and its page.
+and its cadence.
 
 The beat itself is ``__main__.py`` (proved in test_heartbeat.py). These teeth write the beat
 record through the loop's own write face (``heartbeat.write_record``), read it back through
-its read face (``heartbeat.read_record``), contend for the singleton, and assemble the
-heartbeat's page — a template over that record and the held lock — through the standard shim
-machinery.
+its read face (``heartbeat.read_record``) and contend for the singleton. The heartbeat's
+page is the cairn device's since ticket 229ee25ff6f0 (the ground loop has no shim, outline 5.6.3);
+its teeth berth at cairn/devices/cairn/proofs/test_the_cairn_page_carries_the_heartbeat.py.
 
 THE STALENESS VERDICT IS RETIRED (ticket 6208d0a27d6e, Q#53; outline 5.6.3 "what it must never
 grow back: ... staleness, managers"). The record no longer answers LIVE/DEAD by its age, and a
@@ -20,8 +20,6 @@ Teeth a hollow build could not pass:
   - A SECOND LOOP REFUSES WITH NO TAKEOVER, whatever the record's age (6208d0a27d6e clause 6).
   - THE LOOP OWNS ITS CADENCE, 60 s, at its own address (clause 7).
   - THE BASE SHIM PROBES THE SAME LOCK FILE THE GUARD CLAIMS (clause 8).
-  - THE PANE RENDERS WHAT THE RECORD AND THE LOCK SAY; the page assembles through
-    the real ``BaseShim.active_page``.
 
 Runnable bare (NO DB, NO framework):
     python3 cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py     # exit 0 = green
@@ -351,57 +349,6 @@ def test_the_shim_probes_the_guards_lock():
             winner.wait(timeout=5)
 
 
-# --- the heartbeat PANE -------------------------------------------------------
-# A declared pane through the base shim's STANDARD machinery. It renders what the record
-# says plus whether the lock is held — it derives nothing and judges no staleness.
-
-GroundLoopShim, beat_pane_data = _subject("cairn.devices.cairn.machines.ground_loop.shim",
-                                          "GroundLoopShim", "beat_pane_data")
-
-
-def test_the_pane_renders_what_the_record_and_the_lock_say():
-    with _tempfile.TemporaryDirectory() as td:
-        home = Path(td) / "0"
-        _hb.write_record(_T0, {"beats": 1}, _os.getpid(), home)
-        claim = _guard.claim_singleton(home)
-        try:
-            pane = beat_pane_data(home=home)
-            assert pane["up"] is True and pane["record"]["state"] == {"beats": 1}
-            assert {k: v for k, v in pane.items() if k not in ("reports", "up", "age_s")} == \
-                {k: v for k, v in _hb.read_record(home).items() if k != "age_s"}, \
-                "the pane's record IS the read face's own output — render, never derive"
-            assert "resident singleton" in pane["reports"]
-        finally:
-            claim.release()
-        assert beat_pane_data(home=home)["up"] is False, "released → the pane says down"
-
-
-def test_an_absent_record_renders_the_named_lack_never_blank():
-    with _tempfile.TemporaryDirectory() as td:
-        home = Path(td) / "0"
-        pane = beat_pane_data(home=home)
-        assert pane["up"] is False and pane["record"] is None
-        assert "no record at" in pane["lack"], "absent is a NAMED lack — never blank"
-
-
-def test_the_page_assembles_through_the_standard_machinery():
-    shim = GroundLoopShim()
-    assert type(shim.device()).__name__ == "HeartbeatPage", \
-        "the shim starts the heartbeat's read-only page — never a second loop"
-    page = shim.active_page()
-    assert page["device"] == "ground_loop"
-    kinds = [p["kind"] for p in page["panes"]]
-    assert kinds[:2] == ["status", "settings"], "the STATUS/SETTINGS floor first"
-    assert kinds[-1] == "beat", "the device's declared pane appended last"
-    pane = next(p for p in page["panes"] if p["kind"] == "beat")
-    assert pane["label"] == "Heartbeat" and "absent" not in pane, \
-        "the handler answered — read_record never raises"
-    data = pane["data"]
-    assert data["up"] in (True, False)
-    assert data["record"] is not None or "no record at" in data["lack"]
-    assert "resident singleton" in data["reports"]
-
-
 def _main() -> int:
     failed = 0
     for check in (test_the_stamp_advances_across_beats_and_pid_and_state_ride,
@@ -414,10 +361,7 @@ def _main() -> int:
                   test_the_doors_loser_reports_from_the_record_and_exits_distinctly,
                   test_a_second_loop_refuses_with_no_takeover,
                   test_the_loop_owns_its_cadence,
-                  test_the_shim_probes_the_guards_lock,
-                  test_the_pane_renders_what_the_record_and_the_lock_say,
-                  test_an_absent_record_renders_the_named_lack_never_blank,
-                  test_the_page_assembles_through_the_standard_machinery):
+                  test_the_shim_probes_the_guards_lock):
         try:
             check()
             print(f"  PASS  {check.__name__}")
@@ -427,8 +371,7 @@ def _main() -> int:
     if failed:
         print(f"RED — {failed} failure(s)")
         return 1
-    print("green — ground_loop: the beat record, the single-start guard, the cadence and the "
-          "heartbeat's page hold")
+    print("green — ground_loop: the beat record, the single-start guard and the cadence hold")
     return 0
 
 

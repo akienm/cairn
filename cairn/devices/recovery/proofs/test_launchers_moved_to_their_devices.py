@@ -154,7 +154,7 @@ def tooth_instance_space_did_not_move():
 
 
 def tooth_discover_loads_recovery():
-    # Through the rack tool (public, cairn/tools/rack), never ground_loop.discovery: that is a
+    # Through the rack tool (public, cairn/tools/rack), never the ground loop's own modules: that is a
     # machine held inside the cairn device, and recovery reaching it is a RULE 1 breach
     # (measured: test_launchers_reach_into_no_device redded on the first draft of this tooth).
     import importlib

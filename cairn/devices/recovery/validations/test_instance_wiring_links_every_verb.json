@@ -2,12 +2,12 @@
   {
     "claim": "proof test_instance_wiring_links_every_verb.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T18:29:52",
+    "date": "2026-11-09T18:31:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept\n        listing=['alpha', 'beta'] rc=0 out='linked 2 already 1 left 0\\n' err=''\n  PASS  tooth_2_a_bin_that_is_its_class_bin_is_left_alone\n        before=['alpha', 'beta', 'notes.txt'] after=['alpha', 'beta', 'notes.txt'] self_links=[] out='linked 1 already 2 left 0\\n'\n  PASS  tooth_3_a_hand_placed_file_is_left_and_named\n        out='linked 1 already 0 left 1\\n' err='cairn wire: hand-placed file stands where class verb alpha would link: /tmp/testing-f0ffa0db0952-scratch.4026531836-1577567-e5f9uiii/instance/fixture_wiring/0/bin/alpha\\n'\n  PASS  tooth_4_one_device_and_instance_is_wired_alone\n        rc=0 linked=['alpha', 'beta'] alone=True refusals={} err=''\n  PASS  tooth_5_the_counts_name_their_unit\n        out='linked 1 already 1 left 1\\n' first_run_says_devices=False\n5 passed, 0 failed",
+      "stdout_tail": "  PASS  tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept\n        listing=['alpha', 'beta'] rc=0 out='linked 2 already 1 left 0\\n' err=''\n  PASS  tooth_2_a_bin_that_is_its_class_bin_is_left_alone\n        before=['alpha', 'beta', 'notes.txt'] after=['alpha', 'beta', 'notes.txt'] self_links=[] out='linked 1 already 2 left 0\\n'\n  PASS  tooth_3_a_hand_placed_file_is_left_and_named\n        out='linked 1 already 0 left 1\\n' err='cairn wire: hand-placed file stands where class verb alpha would link: /tmp/testing-f0ffa0db0952-scratch.4026531836-1581463-qq4j0gwy/instance/fixture_wiring/0/bin/alpha\\n'\n  PASS  tooth_4_one_device_and_instance_is_wired_alone\n        rc=0 linked=['alpha', 'beta'] alone=True refusals={} err=''\n  PASS  tooth_5_the_counts_name_their_unit\n        out='linked 1 already 1 left 1\\n' first_run_says_devices=False\n5 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept",
@@ -17,7 +17,7 @@
         "tooth_5_the_counts_name_their_unit"
       ],
       "teeth_red": [],
-      "test": "test-5bf44771df16",
+      "test": "test-39979467ddc8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,7 +45,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5bf44771df16",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39979467ddc8",
       "source_fingerprint": "cb95108cb7182f1c4a2feb815f8881b539c59f77ca6718f458b7fa50e723a635",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_instance_wiring_links_every_verb.py"
@@ -56,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1577536-uyw0en5k/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1579250-e9s536ez/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,11 +65,39 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 120307852,
-          "disk_bytes": 155148288,
-          "entries": 13584,
+          "bytes": 120310604,
+          "disk_bytes": 155152384,
+          "entries": 13585,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
+        }
+      },
+      "hollow": {
+        "f0ffa0db0952": {
+          "cairn/devices/recovery/bootstrap.sh": [
+            "tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept",
+            "tooth_3_a_hand_placed_file_is_left_and_named",
+            "tooth_4_one_device_and_instance_is_wired_alone",
+            "tooth_5_the_counts_name_their_unit",
+            "tooth_6_the_command_wires_the_declared_instance"
+          ],
+          "cairn/devices/recovery/bootstrap_first_run.sh": [
+            "tooth_5_the_counts_name_their_unit"
+          ],
+          "cairn/devices/recovery/intention+why.json": {
+            "notified": "n-c4d378f6b31b"
+          },
+          "bin/cairn": [
+            "tooth_6_the_command_wires_the_declared_instance"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "f0ffa0db0952": {
+          "anchor_rule": "journal",
+          "anchor_journal": "3549d7e5c9dd88bb0e2bfbfd4f85b6506fee9e9d",
+          "anchor_first_build": "9dd1006a3914988c76e60e67df3ada6ec4f719a0",
+          "commit": "3549d7e5c9dd88bb0e2bfbfd4f85b6506fee9e9d"
         }
       }
     },

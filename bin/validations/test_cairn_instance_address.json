@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cairn_instance_address.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T04:59:56",
+    "date": "2026-11-09T18:31:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 40 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 40 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
+      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 41 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 41 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "(a) a dotted address reaches the named instance, 0 and 1 alike",
@@ -18,7 +18,7 @@
         "test_an_absent_instance_names_the_instances_that_exist",
         "args after the two resolved tokens ride verbatim and unfolded",
         "test_args_after_the_address_ride_verbatim",
-        "(b) all 40 mirrored devices still resolve instance 0, byte for byte",
+        "(b) all 41 mirrored devices still resolve instance 0, byte for byte",
         "test_every_bare_address_still_resolves_instance_zero",
         "the token folds BEFORE it splits, so CC.1 and cc.1 are one address",
         "test_the_address_folds_before_it_splits",
@@ -27,7 +27,7 @@
         "test_the_instance_is_part_of_the_address"
       ],
       "teeth_red": [],
-      "test": "test-3dc912b51ce8",
+      "test": "test-75eb2ac1895e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,9 +41,10 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -54,18 +55,18 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3dc912b51ce8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-75eb2ac1895e",
       "source_fingerprint": "ad785cfdac81c8329084a1e68af2a5f7ce16d9d7479d33ff160acaede2bc818a",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_instance_address.py",
         "cairn/devices/tester/reach/sitecustomize.py"
       ],
       "reached": {
-        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f"
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-531670-sxzibest/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1579250-5jmqaj5z/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119089340,
-          "disk_bytes": 152715264,
-          "entries": 13138,
+          "bytes": 120310604,
+          "disk_bytes": 155152384,
+          "entries": 13585,
           "builds": 1,
-          "reuses": 8
+          "reuses": 2
         }
       }
     },

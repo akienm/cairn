@@ -357,5 +357,95 @@
     "fingerprint": "c0f8b42d0e06d6effdf68c5a659d68f1371ff96a42647e731f4f370f11493c51",
     "at": "2026-11-09T23:40:07",
     "seq": 1
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/librarian/tools/trees/proofs/test_a_node_without_an_embedding_is_found_by_its_key.py"
+    ],
+    "proven_seal_date": "2026-11-09T23:40:29",
+    "delegated": false,
+    "ticket": "e62f40f35f59",
+    "why": "PROVED refused: claim_provenance: the trees charter carries no per-claim attribution; intention_fidelity: the charter's falsifier covers 0.06 of the ticket's, floor 0.07",
+    "missing": [
+      "claim_provenance: the trees charter carries no per-claim attribution",
+      "intention_fidelity: the charter's falsifier covers 0.06 of the ticket's, floor 0.07"
+    ],
+    "fingerprint": "72379ada5ab128de8e5e79a6973dbae4ded95ef36437a1b2598d52baf11b117f",
+    "at": "2026-11-09T23:42:28",
+    "seq": 2
   }
 ]

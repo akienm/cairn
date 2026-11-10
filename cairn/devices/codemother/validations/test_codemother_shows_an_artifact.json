@@ -2,7 +2,7 @@
   {
     "claim": "proof test_codemother_shows_an_artifact.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T06:56:50",
+    "date": "2026-11-10T06:58:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-9b7d25e9eaad",
+      "test": "test-9902244a849a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9b7d25e9eaad",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9902244a849a",
       "source_fingerprint": "947012f5d7664b8e512809ed74b243cbb12f84e07b2e8ea88f34c3700da05737",
       "fingerprint_closure": [
         "cairn/devices/codemother/proofs/test_codemother_shows_an_artifact.py"
@@ -55,20 +56,64 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2044118-260do19k/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-9902244a849a/stderr.txt",
+            "logs/tester/0/runs/test-9902244a849a/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524711664,
-          "disk_bytes": 560607232,
-          "entries": 13993,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "2faf52fb34ca": {
+          "cairn/devices/codemother/0/bin/show": {
+            "notified": "n-58d95eb183c3"
+          },
+          "cairn/devices/operator/0/bin/operator": {
+            "notified": "n-29f44f02d6ab"
+          },
+          "cairn/devices/operator/0/bin/show": {
+            "notified": "n-79a7b11fad26"
+          },
+          "cairn/devices/operator/intention+why.json": [
+            "no_reader_is_told_the_old_verb"
+          ],
+          "cairn/tools/operator_inbox/inbox.py": [
+            "no_reader_is_told_the_old_verb"
+          ],
+          "cairn/tools/operator_inbox/intention+why.json": [
+            "no_reader_is_told_the_old_verb"
+          ],
+          "cairn/tools/question/intention+why.json": [
+            "no_reader_is_told_the_old_verb"
+          ],
+          "skills/chart/SKILL.md": [
+            "the_skills_ask_codemother"
+          ],
+          "skills/sail/SKILL.md": [
+            "the_skills_ask_codemother"
+          ],
+          "skills/sail/intention+why.json": [
+            "no_reader_is_told_the_old_verb"
+          ],
+          "skills/sorted/SKILL.md": [
+            "the_skills_ask_codemother"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "2faf52fb34ca": {
+          "anchor_rule": "journal",
+          "anchor_journal": "a591e31be28250ecde6ef62747fb8d88322874bc",
+          "anchor_first_build": "a0e252bdc3bda83c2d61013f22feb1693fb70cfd",
+          "commit": "a591e31be28250ecde6ef62747fb8d88322874bc"
         }
       }
     },

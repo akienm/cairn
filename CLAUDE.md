@@ -39,7 +39,11 @@ inside its own component, and its proofs measure only that component. *Why: it
 limits a change to the component that made it* (Akien, agreed 2026-10-01). Stands
 above the Laws without renumbering them. The rule and its verbatim source:
 `CairnCommons/intentions-not-beside-code/I-rule-1-encapsulation.md`; its physics is
-ticket 56d1aff4455e (one `build_inspector` sieve over every component boundary).
+the `encapsulation_holds` sieve in `build_inspector`, a **device-path check** (outline
+17.13.1, ticket 124c0312c2d8): code in device `bar` may not import `cairn.devices.foo`
+except a tool `foo` publishes (`published_by_device`). Inside one device nothing is
+checked, and the check does not read `public_interface` — that field describes, it
+does not gate.
 
 ## The Laws
 

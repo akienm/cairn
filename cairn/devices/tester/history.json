@@ -79186,5 +79186,86 @@
     "fingerprint": "90b594f66e685786ca0e9e1114d5a252fbdbc1e7e6b836341b68ade3dac5de1f",
     "at": "2026-11-08T09:46:07",
     "seq": 277
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/tools/base/proofs/test_the_testing_mark_carries_a_kind.py"
+    ],
+    "proven_seal_date": "2026-11-05T07:27:55",
+    "delegated": false,
+    "ticket": "71d1bbfa98b0",
+    "why": "outline 5.8.3.2.3 stands (Q answer open-e8819af60459): a shim answers or wakes its device, never disposes; the testing-mark family built the outline's version and is PROVED: be4a7b3c7caa (the mark, kinds return/perform), 3bf728e5328d (a marked envelope goes back), d0c8c4b4283e (perform), 6357c2eeff7c and b3386f431ae3 (the bus disposes standing or untakeable marked mail), bf3c16162827 (a run owns what it started)",
+    "fingerprint": "03fcea4bbe9ca27501a22175435cf9a4e22bd0a79d3f5919aefb18c49d313a68",
+    "at": "2026-11-10T04:08:02",
+    "seq": 278
   }
 ]

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_shake_runs_band_outer.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T06:21:55",
+    "date": "2026-11-10T06:23:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,7 +20,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-b9ea53098ff6",
+      "test": "test-0ba7018a9849",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,12 +43,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b9ea53098ff6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0ba7018a9849",
       "source_fingerprint": "fa3cb059bfb16efff896d1fe459cdacc50db1a3cefd1e68855a6f12a5a7108e5",
       "fingerprint_closure": [
         "cairn/machines/nest/__init__.py",
@@ -60,20 +61,70 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2015705-o544xqd2/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-0ba7018a9849/stderr.txt",
+            "logs/tester/0/runs/test-0ba7018a9849/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 524520860,
-          "disk_bytes": 560328704,
-          "entries": 13959,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "hollow": {
+        "71cd4a62e8c5": {
+          "cairn/machines/nest/__init__.py": {
+            "notified": "n-24426b203f56"
+          },
+          "cairn/machines/nest/nest.py": [
+            "a_measure_only_shake_is_unchanged",
+            "band_one_is_measure",
+            "measure_fires_over_every_subject_first",
+            "order_follows_the_ranks",
+            "postprocess_receives_every_stamp",
+            "preprocess_picks_the_subjects"
+          ],
+          "cairn/machines/nest/proofs/test_nest.py": {
+            "notified": "n-123b013ef3a1"
+          },
+          "cairn/machines/build_inspector/inspector.py": [
+            "the_base_copy_is_gone"
+          ],
+          "cairn/devices/inference_domain/machines/route/route.py": [
+            "the_base_copy_is_gone"
+          ],
+          "cairn/machines/build_inspector/probes/does_the_denied_set_stay_put.py": {
+            "notified": "n-3216257f1081"
+          },
+          "cairn/devices/inference_domain/machines/route/proofs/test_route.py": [
+            "cairn/devices/inference_domain/machines/route/proofs/test_route.py::test_the_mesh_holds_no_seam_of_its_own",
+            "cairn/devices/inference_domain/machines/route/proofs/test_route.py::test_the_nest_is_the_general_nest_not_a_private_copy",
+            "cairn/devices/inference_domain/machines/route/proofs/test_route.py::test_the_overlay_berths_at_the_resolved_instance_address_never_a_hand_path",
+            "cairn/devices/inference_domain/machines/route/proofs/test_route.py::test_the_three_stacks_carry_the_ruled_rows_by_content",
+            "cairn/devices/inference_domain/machines/route/proofs/test_route.py::test_the_walk_dials_the_second_rung_when_the_first_is_unreachable"
+          ],
+          "cairn/tools/base/nest.py": [
+            "the_base_copy_is_gone"
+          ],
+          "cairn/tools/base/probes/does_the_gradation_find_a_reader.py": {
+            "notified": "n-f219cf288baa"
+          },
+          "cairn/tools/base/intention+why.json": {
+            "notified": "n-a11b9d52aff4"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "71cd4a62e8c5": {
+          "anchor_rule": "journal",
+          "anchor_journal": "948d9dfe6169a4bb3cc32f058ef0afc545c1d7aa",
+          "anchor_first_build": "966af04a8f00d9ae0b48901f9e9b9d4c1580604b",
+          "commit": "948d9dfe6169a4bb3cc32f058ef0afc545c1d7aa"
         }
       }
     },

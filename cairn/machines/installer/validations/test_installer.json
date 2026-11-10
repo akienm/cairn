@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_installer.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-04T23:08:45",
+    "caller": "cairn test",
+    "date": "2026-11-09T17:49:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_y61qpwvh/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 13 teeth, all pass",
+      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_t778xmau/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 13 teeth, all pass",
       "stderr_tail": "",
       "teeth_green": [
         "test_cairn_home_question",
@@ -25,27 +25,14 @@
         "test_run_verify_no_command"
       ],
       "teeth_red": [],
-      "test": "test-6c0d078a0439",
+      "test": "test-1cfa195f1a7e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 12,
-        "tables": [
-          "bus_proc_4002794_2308074055_delivery",
-          "bus_proc_4002794_2308074055",
-          "bus_proc_4003327_2308127982_delivery",
-          "bus_proc_4003327_2308127982",
-          "bus_proc_4003809_2308172481_delivery",
-          "bus_proc_4003809_2308172481",
-          "bus_proc_4004290_2308216010_delivery",
-          "bus_proc_4004290_2308216010",
-          "bus_proc_4004784_2308260533_delivery",
-          "bus_proc_4004784_2308260533",
-          "bus_proc_4005266_2308304268_delivery",
-          "bus_proc_4005266_2308304268"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "eee1a582f8279bf4fc0e4d249c54da9b803d74ee1fc05c67c707212a24c02fe4",
@@ -55,16 +42,18 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6c0d078a0439",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1cfa195f1a7e",
       "source_fingerprint": "f4b8f4fb3c4f96ec7fb8a6da311df51ebb973e24a902becdecac45419712d519",
       "fingerprint_closure": [
         "cairn/machines/installer/__init__.py",
@@ -72,12 +61,13 @@
         "cairn/machines/installer/proofs/test_installer.py"
       ],
       "reached": {
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/tools/bus_client": "f1874cfae649302d8b88a2eeb6ada23f1b765e0820469dae070a0bb690455796"
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
+        "cairn/tools/bus_client": "41b784abe7dcbd8b3c692f0b1ef9cf38555abf4a57dae0f5a663a9b8fab7c7ed"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4002738-mlxycg6n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1538785-9jkfbewm/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -86,11 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116158621,
-          "disk_bytes": 147275776,
-          "entries": 12264,
+          "bytes": 120270389,
+          "disk_bytes": 155074560,
+          "entries": 13573,
           "builds": 1,
-          "reuses": 1
+          "reuses": 2
         }
       },
       "hollow": {

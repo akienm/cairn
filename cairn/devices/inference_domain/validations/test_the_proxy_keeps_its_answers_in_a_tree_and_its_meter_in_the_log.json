@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T02:34:54",
+    "date": "2026-11-10T02:40:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n  RED   live_the_table_is_gone_and_the_meter_carried: AssertionError: inference_calls is still registered\n    median table read 0.234 ms, median tree lookup 0.381 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n8 passed, 1 failed out of 9",
+      "returncode": 0,
+      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 12766\n  green live_the_table_is_gone_and_the_meter_carried\n    median table read 0.216 ms, median tree lookup 0.304 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n9 passed, 0 failed out of 9",
       "stderr_tail": "",
       "teeth_green": [
         "no_module_names_the_old_table",
@@ -16,13 +16,12 @@
         "the_yield_report_sums_the_metrics_reply",
         "the_calls_verb_reads_the_logs_tree",
         "the_migration_carries_and_meters_once",
+        "live_the_table_is_gone_and_the_meter_carried",
         "a_tree_lookup_is_no_slower_than_three_table_reads",
         "every_other_proof_under_the_device_stays_green"
       ],
-      "teeth_red": [
-        "live_the_table_is_gone_and_the_meter_carried: AssertionError: inference_calls is still registered"
-      ],
-      "test": "test-7535996478d8",
+      "teeth_red": [],
+      "test": "test-682686e99bac",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,19 +44,18 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1821127,
+          "pid": 1826857,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7535996478d8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-682686e99bac",
       "source_fingerprint": "0ed2f8edeed36369f0b620985f9c5ce42bfffa46a15113c7fabbcc737a1f63bd",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
@@ -128,10 +126,10 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1826611-ru57yw7z/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 218,
+          "count": 220,
           "paths": [
             "devices/cairn/0/last_known.json",
             "devices/cairn/machines/bus/0/bus.lock",
@@ -139,46 +137,50 @@
             "devices/inference_domain/0/last_known.json",
             "devices/inference_domain/0/tools/data_recorder/metrics/reading.json",
             "logs/bus.log",
-            "logs/bus/0/20261110.093423.637625.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261110.093423.706074.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.716776.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.789466.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.789663.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093423.793837.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093423.831705.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.859422.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093423.914875.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.986996.BusDevice.post.json",
-            "logs/bus/0/20261110.093423.987199.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093423.987322.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.008296.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.037204.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.109922.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.190974.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.191170.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.191293.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.215294.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.242963.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.309463.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.384262.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.384451.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.384570.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.405694.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.432543.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.443131.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.469506.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.523109.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.593175.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.593374.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.593494.BusDevice.delivered.json",
-            "logs/bus/0/20261110.093424.627243.BusDevice.post.json",
-            "logs/bus/0/20261110.093424.653988.BusDevice.delivered.json"
+            "logs/bus/0/20261110.093913.331363.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261110.093913.352375.BusDevice.post.json",
+            "logs/bus/0/20261110.093913.363096.BusDevice.post.json",
+            "logs/bus/0/20261110.093913.427490.BusDevice.post.json",
+            "logs/bus/0/20261110.093913.427719.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093913.431277.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093929.891527.BusDevice.post.json",
+            "logs/bus/0/20261110.093929.964622.BusDevice.post.json",
+            "logs/bus/0/20261110.093929.964900.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093929.965072.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.003375.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.033859.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.097625.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.177312.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.177525.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.177654.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.204026.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.233578.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.290205.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.363811.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.363999.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.364129.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.385576.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.412485.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.478323.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.548190.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.548386.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.548508.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.570357.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.597343.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.608117.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.634982.BusDevice.delivered.json",
+            "logs/bus/0/20261110.093930.690873.BusDevice.post.json",
+            "logs/bus/0/20261110.093930.760847.BusDevice.post.json"
           ],
-          "elided": 178
+          "elided": 180
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 524054560,
+          "disk_bytes": 560365568,
+          "entries": 14056,
+          "builds": 1,
+          "reuses": 0
         }
       },
       "hollow": {

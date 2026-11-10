@@ -69,6 +69,15 @@ act, outline 5.10.8), one tooth per falsifier clause here (clause 4 lives in wha
      learning-block organs that took and read verdicts (records and caches excepted);
   3. learning_block has none of those organs, and its CLI refuses the retired verb.
 
+Ticket 229ee25ff6f0 (the ground loop's device-folder module and its shim retire; the heartbeat's
+page is the cairn device's, outline 5.6.3 / 5.6.5 / 2.3.8.5), one tooth per falsifier clause here
+(clauses 4-7 live in cairn/devices/cairn/proofs/test_the_cairn_page_carries_the_heartbeat.py):
+
+  1. the two modules and the device-folder module's proof are absent;
+  2. no file in the repo names either module, its path, or the shim's two classes (records and
+     caches excepted);
+  3. neither module can be imported.
+
 Apart from tooth 4 of d547b4859f9a, reads only the repo, never CairnCommons (the hollow worktree has none beside it).
 
     python3 bin/proofs/test_retired_components_are_gone.py   # exit 0 = green
@@ -122,6 +131,11 @@ PROVES = {
         "1": "recordverdict_paths_are_absent",
         "2": "nothing_names_recordverdict",
         "3": "learning_block_has_no_verdict_organs",
+    },
+    "229ee25ff6f0": {
+        "1": "ground_loop_faces_paths_are_absent",
+        "2": "nothing_names_the_ground_loop_faces",
+        "3": "the_ground_loop_faces_do_not_import",
     },
 }
 
@@ -354,6 +368,29 @@ def _recordverdict() -> None:
            f"import rc={r.returncode} still={still!r} err={r.stderr[-200:]!r}; verb rc={v.returncode}")
 
 
+_GLM = "cairn.devices.cairn.machines.ground_loop."
+_GLP = "cairn/devices/cairn/machines/ground_loop/"
+_GL_PATHS = (_GLP + "disc" + "overy.py", _GLP + "sh" + "im.py", _GLP + "proofs/test_disc" + "overy.py")
+_GL_NEEDLES = ("ground_loop." + "discovery", "ground_loop/" + "discovery", "ground_loop." + "shim",
+               "ground_loop/" + "shim", "GroundLoop" + "Shim", "Heartbeat" + "Page")
+
+
+def _ground_loop_faces() -> None:
+    """The three teeth for 229ee25ff6f0: the ground loop is the heartbeat and nothing else."""
+    names = PROVES["229ee25ff6f0"]
+    standing = [p for p in _GL_PATHS if (REPO / p).exists()]
+    _check(names["1"], not standing, f"standing={standing}")
+    hits = _naming(_GL_NEEDLES)
+    _check(names["2"], not hits, "named by: " + ", ".join(hits[:12]))
+    importable = []
+    for mod in (_GLM + "disc" + "overy", _GLM + "sh" + "im"):
+        r = subprocess.run([sys.executable, "-c", f"import {mod}"], cwd=REPO,
+                           capture_output=True, text=True, timeout=60)
+        if not (r.returncode != 0 and "No module named" in r.stderr):
+            importable.append(f"{mod} rc={r.returncode} {r.stderr[-200:]!r}")
+    _check(names["3"], not importable, f"importable={importable}")
+
+
 PROVES_NAME = {
     "quarry_index": [PROVES["80df7712b8c5"][k] for k in ("1", "2", "3")],
 }
@@ -368,6 +405,7 @@ def check() -> list[str]:
     _cairnmap()
     _ruling()
     _recordverdict()
+    _ground_loop_faces()
     return list(FAILURES)
 
 

@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 82. An answered question disappears:
+      takes the next unused number, which is 83. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1241,6 +1241,13 @@ not matter here. The code catches up to this, never the reverse.
     11.4.6 Machine: route, the sieves (enabled, never_routed, serves_kind, keyed,
            addressed) built with the nest machine (16.2), cheapest survivor first.
            Nests are how the inference proxy resolves its routing questions.
+           [Q#82: The nest shakes once and scores 0 or 1 (16.2), so one shake can
+           pick the cheapest survivor but cannot order the rest; the walk that
+           dials the next rung when a host is unreachable needs that order, and
+           today route sorts it after the shake. Should the cheapest postprocess
+           sieve pick one rung, and a host that does not answer send the walk
+           back to route for a fresh shake with that rung left out by a
+           preprocess sieve? (CC's recommendation: yes.)]
     11.4.7 Hosts: the cloud, and the local GPU box.
     11.4.8 TOOLS: base, import_sieve; database client. MACHINES: route, nest.
     11.4.9 VERBS: infer, embed, resolve, calls. COMMANDS: cairn inference show.

@@ -50,10 +50,7 @@ def collect(table: str = TABLE, roots: dict | None = None) -> int:
         conn.close()
 
 
-def report(table: str = TABLE, *, name: str | None = None, source: str | None = None,
-           since: str | None = None, roots: dict | None = None) -> dict:
-    """Collect, then answer the rows matching name / source / since, oldest first."""
-    collected = collect(table, roots)
+def _where(name, source, since, until) -> tuple[list[str], list]:
     where, params = [], []
     for col, val in (("name", name), ("source", source)):
         if val:
@@ -62,7 +59,39 @@ def report(table: str = TABLE, *, name: str | None = None, source: str | None = 
     if since:
         where.append("at >= %s")
         params.append(since)
+    if until:
+        where.append("at <= %s")
+        params.append(until)
+    return where, params
+
+
+def report(table: str = TABLE, *, name: str | None = None, source: str | None = None,
+           since: str | None = None, until: str | None = None, roots: dict | None = None) -> dict:
+    """Collect, then answer the rows matching name / source / since / until, oldest first."""
+    collected = collect(table, roots)
+    where, params = _where(name, source, since, until)
     rows = store.read(table, where=(" AND ".join(where) + " ORDER BY at") if where else "true ORDER BY at",
                       params=tuple(params))
     return {"collected": collected,
             "rows": [{k: (v.isoformat() if isinstance(v, datetime) else v) for k, v in r.items()} for r in rows]}
+
+
+def totals(table: str = TABLE, *, name: str | None = None, source: str | None = None,
+           since: str | None = None, until: str | None = None, by: str | None = None,
+           roots: dict | None = None) -> dict:
+    """Collect, then answer one total per metric name (and per ``info[by]`` when ``by`` is given):
+    ``count`` every matching row, ``sum`` their values (a row with no value counts but adds
+    nothing). The table answers the sum, so a report over every call ever made stays small
+    (outline 17.27.2: "so any metric can be reported fast")."""
+    collected = collect(table, roots)
+    where, params = _where(name, source, since, until)
+    group, cols = "1", "name"
+    if by:
+        group, cols = "1, 2", 'name, info ->> %s AS "by"'
+        params = [by] + params
+    stmt = (f"SELECT {cols}, count(*) AS count, coalesce(sum(value), 0) AS sum FROM {{t}}"
+            + (" WHERE " + " AND ".join(where) if where else "")
+            + f" GROUP BY {group} ORDER BY {group}")
+    rows = store.query(stmt, tables={"t": table}, params=tuple(params))
+    return {"collected": collected,
+            "totals": [dict(r, count=int(r["count"]), sum=float(r["sum"])) for r in rows]}

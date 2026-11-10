@@ -62,11 +62,16 @@ class CairnDevice(BaseDevice):
 
     def _handle_metrics(self, envelope: dict) -> dict:
         """Fill the metrics table from every holder's recorder, then answer the rows matching
-        the body's name / source / since (ticket 3721d82be75c, outline 17.27.3)."""
+        the body's name / source / since / until (ticket 3721d82be75c, outline 17.27.3); with
+        ``totals`` true, answer one count and sum per name instead (ticket f4dbcea5a117)."""
         from cairn.devices.cairn import metrics
         body = envelope.get("body") or {}
-        return metrics.report(self._metrics_table or metrics.TABLE, name=body.get("name"),
-                              source=body.get("source"), since=body.get("since"), roots=self._roots)
+        table = self._metrics_table or metrics.TABLE
+        kw = {"name": body.get("name"), "source": body.get("source"), "since": body.get("since"),
+              "until": body.get("until"), "roots": self._roots}
+        if body.get("totals"):   # one count and sum per name (and per info[by]), ticket f4dbcea5a117
+            return metrics.totals(table, by=body.get("by"), **kw)
+        return metrics.report(table, **kw)
 
     def _handle_away(self, envelope: dict) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import idle

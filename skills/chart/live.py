@@ -33,6 +33,7 @@ from skills.moreabout.moreabout import expand, signal
 from cairn.tools.tree.tree import counsel
 from cairn.tools.bus_client import reach
 from cairn.tools.system_word import fold_head
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 _BUS = None
 _SENDER = "chart"
@@ -177,7 +178,7 @@ def _chain(argv: list[str]) -> int:
     return 0
 
 
-class _Gates:
+class _Gates(DiagnosticBase):
     """The participant the ticket is handed: a bus asking codemother, sent as chart. The ticket
     asks the gate itself (outline 9.6: each stage is a gate answering queueme <fileref>); this
     skill only drafts and hands it a hand to ask with."""

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_sail_queues_the_ticket_at_codemothers_gates.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T10:41:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T10:48:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
+      "returncode": 1,
+      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nFAIL test_a_refused_cross_raises_into_the_scratch_world_only: AssertionError: the refused cross raised nothing into the scratch world's ticket trail\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
       "stderr_tail": "",
       "teeth_green": [
         "test_sail_imports_no_device_and_the_old_helpers_are_gone",
@@ -18,8 +18,10 @@
         "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
         "test_close_and_prove_cross_only_at_the_clearance_gate"
       ],
-      "teeth_red": [],
-      "test": "test-0fdd9532eb2f",
+      "teeth_red": [
+        "test_a_refused_cross_raises_into_the_scratch_world_only"
+      ],
+      "test": "test-71a9f84dd742",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,7 +31,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "7e34a093ff91087f9540103327e4c4d1c44a79565149c916c67ea38d6a82b2e6",
+        "proof": "518ac1cfb8360ba396347a94c84049bb66632aeecca31f5a6cf955f7abbed610",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -41,14 +43,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0fdd9532eb2f",
-      "source_fingerprint": "11ba7622aa882705873670667072d93516f437d0afee25af2d5dbf2a06d060cb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-71a9f84dd742",
+      "source_fingerprint": "4043a934a98d713fafa2ec6cd5ad464c128b9fef7d757f0fe3a7e8be3fbed86a",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_sail_queues_the_ticket_at_codemothers_gates.py"
       ],
@@ -64,61 +65,33 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-462792-ui95_t77/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-465810-_2p5bgs8/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 2,
           "paths": [
-            "logs/ticket/0/20261111.174121.270232.Ticket.raise_trouble.json"
+            "logs/ticket/0/20261111.174828.068883.Ticket.raise_trouble.json",
+            "logs/ticket/0/20261111.174828.074232.Ticket.raise_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 525911568,
-          "disk_bytes": 562450432,
-          "entries": 14279,
+          "bytes": 525974249,
+          "disk_bytes": 562524160,
+          "entries": 14286,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "91a27edfdd81": {
-          "cairn/devices/cc/scripts/sail.py": [
-            "test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail",
-            "test_cross_by_name_is_a_back_edge_or_a_disposition_only",
-            "test_cross_with_no_target_queues_at_clearance",
-            "test_draft_writes_each_stage_without_claim_or_refs",
-            "test_sail_imports_no_device_and_the_old_helpers_are_gone",
-            "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate"
-          ],
-          "cairn/devices/cc/scripts/close.sh": [
-            "test_close_and_prove_cross_only_at_the_clearance_gate"
-          ],
-          "cairn/devices/cc/scripts/prove.sh": [
-            "test_close_and_prove_cross_only_at_the_clearance_gate"
-          ],
-          "cairn/devices/cc/scripts/cross.py": [
-            "test_sail_imports_no_device_and_the_old_helpers_are_gone"
-          ],
-          "cairn/devices/cc/scripts/chart_ticket.py": [
-            "test_sail_imports_no_device_and_the_old_helpers_are_gone"
-          ],
-          "cairn/devices/cc/scripts/verdict_ticket.py": [
-            "test_sail_imports_no_device_and_the_old_helpers_are_gone"
-          ],
-          "cairn/devices/cc/proofs/test_cross_asks_the_harbor_over_the_bus.py": [
-            "test_close_and_prove_cross_only_at_the_clearance_gate"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "91a27edfdd81": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "1f2b794a49a2a1cb11ac5807dee215b997f40899",
-          "anchor_first_build": "35bdad3ba20b1174633da40b1e18b58687a0cd81",
-          "commit": "7b6eb6e7ddf1a71495e4dc9fa3893ab4a9b497c1"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "518ac1cfb8360ba396347a94c84049bb66632aeecca31f5a6cf955f7abbed610",
+        "opened": "2026-11-11T10:48:29",
+        "last_red": "2026-11-11T10:48:29",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cc-proofs-test-sail-queues-the-ticket-at-codemothers-gates",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

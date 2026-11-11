@@ -37,6 +37,9 @@ PROVES = {
         "6": "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
         "7": "test_close_and_prove_cross_only_at_the_clearance_gate",
     },
+    "9ffa5a154a7d": {
+        "1": "test_a_refused_cross_raises_into_the_scratch_world_only",
+    },
 }
 
 _SCRIPTS = _REPO_ROOT / "cairn" / "devices" / "cc" / "scripts"
@@ -101,10 +104,11 @@ def _world(cursor: str = "TICKETME", plan_extra: dict | None = None):
                                 **(plan_extra or {})}, indent=2) + "\n")
     tf.state_path(plan).write_text(json.dumps({"workflow_and_state": _wf(cursor),
                                                "node_class": "code-seam"}, indent=2) + "\n")
+    roots = {k: tmp / k for k in ("repo", "commons", "instance")}
     was = tf._TICKETS
     tf._TICKETS = store
     try:
-        yield {"tmp": tmp, "store": store, "plan": plan}
+        yield {"tmp": tmp, "store": store, "plan": plan, "roots": roots}
     finally:
         tf._TICKETS = was
         shutil.rmtree(tmp, ignore_errors=True)
@@ -211,6 +215,31 @@ def test_cross_with_no_target_queues_at_clearance():
                           out=out, err=out) == 1
         assert len(bus.requests) == 1
         assert any("ExitGateRed: no verdict" in s for s in said), said
+
+
+def _naming_fixture(trail) -> list[str]:
+    """Raise records in ``trail`` whose pointer names the fixture ticket."""
+    trail = Path(trail)
+    if not trail.is_dir():
+        return []
+    return sorted(p.name for p in trail.glob("*.raise_trouble.json")
+                  if _TID in json.loads(p.read_text(encoding="utf-8")).get("pointer", ""))
+
+
+def test_a_refused_cross_raises_into_the_scratch_world_only():
+    from cairn.tools.base.diagnostic import ModuleRaiser
+    sail = _sail()
+    live = ModuleRaiser("ticket").diagnostic_trail()
+    before = _naming_fixture(live)
+    with _world("BUILDME") as w:
+        bus = _Bus([{"body": {"accepted": False, "reason": "ExitGateRed: no verdict"}}])
+        said, out = _quiet()
+        assert sail.cross(_TID, participant=sail.Asker(bus), tickets_dir=w["store"],
+                          out=out, err=out) == 1, said
+        scratch = _naming_fixture(ModuleRaiser("ticket", roots=w["roots"]).diagnostic_trail())
+        assert scratch, "the refused cross raised nothing into the scratch world's ticket trail"
+    after = _naming_fixture(live)
+    assert after == before, f"the refused cross raised into the live trail {live}: {sorted(set(after) - set(before))}"
 
 
 def test_cross_by_name_is_a_back_edge_or_a_disposition_only():

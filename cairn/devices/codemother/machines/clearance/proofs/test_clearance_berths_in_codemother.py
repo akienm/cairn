@@ -58,6 +58,10 @@ _H = "harbor" + "_master"
 OLD_DIR = "cairn/devices/cairn/machines/" + _H
 PROBE_TICKETS = ("0354c0269ff7", "0cde908b8fbe", "2b16d2d8b056", "faa51bcfbdfc")
 BREACH_CEILING = 71
+# Moved by 0be964512fb0 and retired since, each by the ticket named: a retired file stands at
+# NEITHER berth. test_clearance_asks_the_real_host reached into system_rackmount, which has no
+# public interface (RULE 1; ticket b546c6efabfb).
+_RETIRED = {"proofs/test_clearance_asks_the_real_host.py": "b546c6efabfb"}
 _MOVED_PROOFS = ("test_clearance", "test_a_notified_file_is_covered", "test_" + "harbor_asks_the_real_host",
                  "test_the_proven_space_rule_follows_the_ticket_kind",
                  "test_" + _H + "_probes_report_to_the_watch")
@@ -109,7 +113,10 @@ def test_the_module_berths_in_codemother() -> None:
     # holder's charter says it holds the machine. Hollow measured each of these HOLLOW when
     # the tooth read only clearance.py (2026-11-11).
     for old, new in _MOVED_FILES:
-        if not (_REPO / NEW / new).is_file():
+        if new in _RETIRED:
+            if (_REPO / NEW / new).exists():
+                bad.append(f"{new} was retired by {_RETIRED[new]} and still stands at {NEW}/")
+        elif not (_REPO / NEW / new).is_file():
             bad.append(f"{new} is not at {NEW}/")
         if (_REPO / OLD_DIR / old).exists():
             bad.append(f"{OLD_DIR}/{old} still stands")

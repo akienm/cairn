@@ -175,7 +175,7 @@ def _probe_is_armed():
     assert "WATCHME" in (pkg.__doc__ or ""), pkg.__doc__
     mod = importlib.import_module("cairn.tools.proof_coverage.probes.sieve_predicts_unran")
     probe = mod.PROBE
-    assert probe.to == "harbor_master" and callable(probe.carry) and callable(probe.enough)
+    assert probe.to == "codemother" and callable(probe.carry) and callable(probe.enough)
     carried = probe.carry({})
     assert "finding" in carried and "unpredicted" in carried, carried
     assert isinstance(carried["readings_since_build"], int)

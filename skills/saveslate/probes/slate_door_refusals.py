@@ -98,9 +98,9 @@ PROBE = Probe(
     why="does the slate door ever actually RED — and does a refused close come back as "
         "a written slate? Cleared only when both edges are live.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "saveslate", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

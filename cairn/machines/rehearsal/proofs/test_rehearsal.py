@@ -491,7 +491,7 @@ def test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_sev
     import importlib
     m = importlib.import_module("cairn.machines.rehearsal.probes.the_rehearsal_predicts_the_build")
     p = m.PROBE
-    assert p.carry is not None and p.enough is not None and p.to == "harbor_master", p
+    assert p.carry is not None and p.enough is not None and p.to == "codemother", p
     w = World()
     try:
         def seed(n_total, n_empty):

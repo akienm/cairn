@@ -189,9 +189,9 @@ PROBE = Probe(
         "tickets on 2026-09-10 with no writer anywhere, and four gate-reading sites believed "
         "them",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

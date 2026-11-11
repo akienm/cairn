@@ -2,7 +2,7 @@
 (ticket 8e37bf2be2dc).
 
 MEASURED RED 2026-10-06, the reason this file exists. The cairn device's proof that "every
-standing cairn probe reports to harbor_master's watch verb" (ticket f1da5944464e) decided
+standing cairn probe reports to CodeMother's WATCHME gate (codemother machines/watchme/watch)" (ticket f1da5944464e) decided
 "standing" by hand: a ticket at PROVED or WATCHME, nothing else. 7a1265439f54 — the only
 ticket naming a probe under ``cairn/devices/cairn/probes/`` — was sent to FIXME BY ITS OWN
 WATCH, fixed forward, and now sits at PROVEME with the probe installed and firing. The
@@ -55,13 +55,13 @@ _TICKETS = ws._TICKETS if ws._TICKETS.is_dir() else \
 
 _ARMED = '''
 from cairn.tools.base.probe import Probe
-PROBE = Probe(why="a fixture probe, armed", trigger=lambda *a: False, to="harbor_master",
-              verb="watch", carry=lambda ctx: {}, enough=lambda ctx: True)
+PROBE = Probe(why="a fixture probe, armed", trigger=lambda *a: False, to="codemother",
+              verb="machines/watchme/watch", carry=lambda ctx: {}, enough=lambda ctx: True)
 '''
 _UNARMED = '''
 from cairn.tools.base.probe import Probe
 PROBE = Probe(why="a fixture probe with no carry and no enough", trigger=lambda *a: False,
-              to="harbor_master", verb="watch")
+              to="codemother", verb="machines/watchme/watch")
 '''
 
 

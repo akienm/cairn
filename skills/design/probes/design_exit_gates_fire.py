@@ -111,9 +111,9 @@ PROBE = Probe(
         "enforces the fields but enforcement is not efficacy; a gate that always passes "
         "the exemption is a gate that fires without gating.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

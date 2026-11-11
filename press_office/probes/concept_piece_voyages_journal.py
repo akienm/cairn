@@ -49,9 +49,9 @@ PROBE = Probe(
     why="a concept-piece revision that journals automatically proves the voyage machinery works "
         "for press_office documents — the question this WATCHME carries",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"watch": "concept-piece-voyages-journal"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET, _carry, holds=_holds),
     enough=_enough,
 )

@@ -97,7 +97,7 @@ def the_carry_names_the_holders_and_the_bar():
 
 def the_probe_is_frozen_and_declared():
     assert isinstance(probe.PROBE, Probe)
-    assert probe.PROBE.to == "harbor_master" and probe.PROBE.horizon == 1000
+    assert probe.PROBE.to == "codemother" and probe.PROBE.horizon == 1000
 
 
 def the_live_walk_reads_the_tree():

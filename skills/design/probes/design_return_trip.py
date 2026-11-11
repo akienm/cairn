@@ -161,9 +161,9 @@ PROBE = Probe(
         "arrival is witnessed the claim is unfalsified. Fires when a season of design "
         "work shows zero returns; cleared by the first witnessed arrival.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

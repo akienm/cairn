@@ -318,9 +318,9 @@ PROBE = Probe(
         "An escape past a retirement, a retirement no reader can parse, or a refusal on a "
         "boat the scan never saw are the three ways it lands built and hollow",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

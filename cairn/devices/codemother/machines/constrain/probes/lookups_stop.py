@@ -237,9 +237,9 @@ PROBE = Probe(
         "checks AND at least one of those checks has been reported RED — the existence "
         "claim a report that only ever says green cannot make about itself.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_HEX, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

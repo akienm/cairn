@@ -226,9 +226,9 @@ PROBE = Probe(
         "running through it is a fact about live traffic, and this system has already watched "
         "a sealed door with green proofs get routed around by six voyages in two days",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

@@ -236,9 +236,9 @@ PROBE = Probe(
         "the proof settles it on the day it ships, and whether the NEXT writer carries "
         "the grain is a fact about the next writer",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

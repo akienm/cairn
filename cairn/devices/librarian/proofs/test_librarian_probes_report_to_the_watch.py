@@ -1,8 +1,8 @@
-"""PROOF — every standing librarian probe reports to harbor_master's watch verb (ticket 90354d32aa72).
+"""PROOF — every standing librarian probe reports to CodeMother's WATCHME gate (codemother machines/watchme/watch) (ticket 90354d32aa72).
 
 835b5736bf2b's decision D2 names the receiver for every standing WATCHME probe: harbor_master's
 ``watch`` verb (a88d6a368cfb), which reads ``{ticket, holds, finding}`` and sends a red ticket to
-FIXME. This proof measures the cairn/devices/librarian child: every standing librarian probe under probes/ posting through watch_carry to harbor_master's watch verb, and every such spec naming the receiver.
+FIXME. This proof measures the cairn/devices/librarian child: every standing librarian probe under probes/ posting through watch_carry to CodeMother's WATCHME gate (codemother machines/watchme/watch), and every such spec naming the receiver.
 
 What a hollow build cannot pass (Law 8):
   - A probe left verbless, or carrying its ticket's PATH as
@@ -38,7 +38,7 @@ PROVES = {
 }
 
 BERTH = "cairn/devices/librarian/probes/"
-RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
+RECEIVER = {"what": "codemother watchme gate", "in": "cairn/devices/codemother/machines/watchme"}
 
 
 def _main_tree() -> Path:
@@ -62,9 +62,10 @@ def _specs(doc: dict) -> list[dict]:
 def _standing() -> list[tuple[str, dict, dict]]:
     """(id, ticket, spec) for every ticket at a rest whose watchme probe berths in librarian."""
     out = []
-    for path in sorted(_tickets().glob("*.json")):
+    from cairn.tools.base.ticket_file import plans, read_ticket  # 284798998ab0: plan + state
+    for path in plans(_tickets()):
         try:
-            doc = json.loads(path.read_text("utf-8"))
+            doc = read_ticket(path)
             here = parse_workflow(doc["workflow_and_state"]).here
         except Exception:  # noqa: BLE001 — not a standing ticket this proof can read
             continue
@@ -83,8 +84,8 @@ def test_every_standing_librarian_probe_posts_watch():
     for tid, _doc, spec in _standing():
         mod = spec["probe"][:-3].replace("/", ".")
         probe = importlib.import_module(mod).PROBE
-        assert probe.verb == "watch", f"{tid}: {spec['probe']} posts verb {probe.verb!r}"
-        assert probe.to == "harbor_master", f"{tid}: {spec['probe']} posts to {probe.to!r}"
+        assert probe.verb == "machines/watchme/watch", f"{tid}: {spec['probe']} posts verb {probe.verb!r}"
+        assert probe.to == "codemother", f"{tid}: {spec['probe']} posts to {probe.to!r}"
         payload = probe.payload({})
         assert payload.get("ticket") == tid, \
             f"{tid}: {spec['probe']}'s payload names ticket {payload.get('ticket')!r}"

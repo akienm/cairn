@@ -477,7 +477,7 @@ def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():
     invariant, never a snapshot. Patience and enough are read against a fixture context."""
     from cairn.tools.base.probe import Probe
     from cairn.tools.system_word.probes import his_case_never_bites as probe
-    assert isinstance(probe.PROBE, Probe) and probe.PROBE.to == "harbor_master"
+    assert isinstance(probe.PROBE, Probe) and probe.PROBE.to == "codemother"
     assert callable(probe.PROBE.carry) and callable(probe.PROBE.enough)
     s = probe.survey()
     assert s["entry_points"] == 8 and s["bites"] == 0 and s["bit"] == [], (

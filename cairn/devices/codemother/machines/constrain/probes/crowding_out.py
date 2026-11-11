@@ -226,9 +226,9 @@ PROBE = Probe(
         "while the dial reads the loss as a rising floor fraction. Cleared when the "
         "ceiling's own contribution holds at or above what the pre-build corpus shows.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

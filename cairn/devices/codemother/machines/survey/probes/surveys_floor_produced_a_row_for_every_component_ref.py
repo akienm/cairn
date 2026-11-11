@@ -176,11 +176,11 @@ PROBE = Probe(
         "the fix is component_of, and this probe watches whether every "
         "component ref still produces a census row in the floor's output",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "survey", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "surveys_floor_produced_a_row_for_every_component_ref"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

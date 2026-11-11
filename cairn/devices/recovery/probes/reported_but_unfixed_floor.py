@@ -210,9 +210,9 @@ PROBE = Probe(
         "same finding ride in on --append-system-prompt launch after launch until 'the tool "
         "is invisible' has quietly become 'the tool is ignored'?",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

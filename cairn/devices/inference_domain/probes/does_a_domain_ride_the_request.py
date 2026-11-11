@@ -152,9 +152,9 @@ PROBE = Probe(
         "one unmarked post-era row is the seam failing live, and enough marked traffic "
         "with a real non-default vertical is the domains proven real",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

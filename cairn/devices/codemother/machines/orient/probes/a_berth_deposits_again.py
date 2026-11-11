@@ -299,9 +299,9 @@ PROBE = Probe(
         "write door had stamped. Cleared by two consecutive beats of zero "
         "provenance-refusals over a corpus the floor has actually moved under.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "orient", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

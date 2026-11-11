@@ -26,7 +26,7 @@ Two readings:
      still happening, so a quiet tree is not mistaken for a proven hook.
 
 AUTHORITY: none, by construction. This probe deposits and pokes; reopening the ticket is the
-owner's act (Law 6). It reports to harbor_master's ``watch`` verb, whose receiver reads
+owner's act (Law 6). It reports to CodeMother's WATCHME gate (``machines/watchme/watch``), whose receiver reads
 ``{ticket, holds, finding}`` (835b5736bf2b D2): built 2026-10-18 in the older shape, addressed to
 tester, whose receive() uses nothing, and test_tester_probes_report_to_the_watch red it on
 2026-11-01.
@@ -152,9 +152,9 @@ PROBE = Probe(
         "real commit ever again leaves a hook-written seal unstaged behind it is a fact about live "
         "commits, and the falsifier asks for a clean tree after every one",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

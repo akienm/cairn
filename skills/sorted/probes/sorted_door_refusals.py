@@ -122,9 +122,9 @@ PROBE = Probe(
         "as a berthed one? A gate that cannot refuse is ceremony; a gate that refuses "
         "without rescue is worse than prose. Cleared only when both edges are live.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "sorted", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

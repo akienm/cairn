@@ -164,11 +164,11 @@ PROBE = Probe(
         "had to re-raise is the wrong intent (Akien 2026-09-15: buried in things he has "
         "to look at again)",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "fb988505c5cb (5) + WRONG INTENT: terminal-ticket berths in "
                              "the lane must be 0; drained decisions re-raised must be 0"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,

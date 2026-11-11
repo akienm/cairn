@@ -173,9 +173,9 @@ PROBE = Probe(
         "lands as a red validation is a fact about live traffic, and the falsifier asks for zero "
         "WHILE timeouts keep being reported, so stillness cannot clear it",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

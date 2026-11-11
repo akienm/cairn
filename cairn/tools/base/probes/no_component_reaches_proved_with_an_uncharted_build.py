@@ -147,11 +147,11 @@ PROBE = Probe(
         "tracks refusals (a gate that has never refused is indistinguishable "
         "from a gate that cannot)",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "no_component_reaches_proved_with_an_uncharted_build"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

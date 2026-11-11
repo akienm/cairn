@@ -132,9 +132,9 @@ PROBE = Probe(
         "it; the world confirms that word by a count of distinct holders, and two is the number "
         "that says the generality paid — one forever is the finding",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "decompose", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,

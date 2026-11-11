@@ -227,11 +227,11 @@ PROBE = Probe(
         "needle back — variance across runs is the live measure that the "
         "resolution is tracking the world, not reciting a static answer",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "ground_loop", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "probescans_device_column_varies_with_the_world"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,

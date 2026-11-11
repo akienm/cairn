@@ -49,9 +49,9 @@ PROBE = Probe(
         "piled up and nobody has acted on a comparison finding — the exact "
         "shape the ticket's falsifier clause (1) describes.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

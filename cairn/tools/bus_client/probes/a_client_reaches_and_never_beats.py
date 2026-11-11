@@ -181,9 +181,9 @@ PROBE = Probe(
     why="does any client still pay the 23.5s heartbeat to ask one question? — five did on "
         "2026-09-09 while reach() sat two functions below with the explanation already written",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

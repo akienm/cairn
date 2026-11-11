@@ -264,9 +264,9 @@ PROBE = Probe(
         "standing gate not holding, and a refutation nobody adjudicates is a claim nobody "
         "checked — the ticket's own falsifier, all three ways",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

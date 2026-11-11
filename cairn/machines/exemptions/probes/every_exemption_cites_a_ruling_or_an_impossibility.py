@@ -138,9 +138,9 @@ PROBE = Probe(
         "declines to run. This fires when the corpus holds an exemption-shaped "
         "construct that is neither declared nor acknowledged.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

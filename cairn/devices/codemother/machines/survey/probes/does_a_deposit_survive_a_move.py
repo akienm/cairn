@@ -240,9 +240,9 @@ PROBE = Probe(
         "disposition is wired or reverted. So this watch reports the two counts and "
         "asks the wire the question directly.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "survey", "kind": "efficacy", "ticket": _TICKET},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

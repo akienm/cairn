@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_feedback_verb.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-08T11:19:43",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-10T22:15:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_praise_and_at_par_ingest_as_positive_types"
       ],
       "teeth_red": [],
-      "test": "test-318f8322229f",
+      "test": "test-25c26d741158",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 500,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -39,32 +39,33 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-318f8322229f",
-      "source_fingerprint": "53ffb4297a48bbf966f388b215971883fb672e946bd6609ef93e184247060ef9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-25c26d741158",
+      "source_fingerprint": "faaef8788ee7549dfa210c2ce07385f00f715c132753e0f74afaf80ee8b369b8",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/ingest.py",
+        "cairn/devices/codemother/machines/__init__.py",
         "cairn/devices/codemother/project.py",
         "cairn/devices/codemother/proofs/test_feedback_verb.py",
         "cairn/devices/codemother/shim.py",
         "cairn/devices/codemother/types.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
-        "cairn/tools/data_recorder": "b7bc334d7794d529f21fdf0d782d30dbe360a2cfbab800b5fe268d7e06c60018",
+        "cairn/devices/codemother/machines/watchme": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "a37b0565718377e99942549b148b17a89c255a46f760200370a9d866be8473f3",
+        "cairn/tools/data_recorder": "977acf767a86b253a583c929bc2e5468b9ccac313103f1cc4349867e0329793f",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-984152-itikvixm/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-238587-jzqx_jxt/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 119591910,
-          "disk_bytes": 153948160,
-          "entries": 13395,
+          "bytes": 525112031,
+          "disk_bytes": 560885760,
+          "entries": 13985,
           "builds": 1,
-          "reuses": 34
+          "reuses": 22
         }
       }
     },

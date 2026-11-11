@@ -293,11 +293,11 @@ PROBE = Probe(
         "treats one laundered forward as strong falsification: a green tolerance is "
         "leaned on, which is worse than the red it replaced",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the_derivation_keeps_up_with_the_corpus"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

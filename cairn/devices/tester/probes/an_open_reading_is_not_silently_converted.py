@@ -240,9 +240,9 @@ PROBE = Probe(
         "about live traffic, and the 54 readings this ticket was cast against sat convertible "
         "by one sweep while every proof in the corpus was green",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

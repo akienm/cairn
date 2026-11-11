@@ -226,9 +226,9 @@ PROBE = Probe(
         "slip past it? — this address has twice built a door that took a handful of records "
         "and then sat with no caller, reading green off a historical fact",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

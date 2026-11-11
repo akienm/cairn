@@ -266,7 +266,7 @@ def teeth_door(tmp: Path) -> None:
         from cairn.tools.question.probes import both_ends_agree as probe_mod
         probe = probe_mod.PROBE
         armed = callable(probe.carry) and callable(probe.enough) and callable(probe.trigger) \
-            and probe.to == "harbor_master"
+            and probe.to == "codemother"
         ctx = probe_mod._measure({}, commons=commons)
         # trigger/enough read the LIVE commons; here the carry over the scratch reading is the tooth
         carried = probe_mod._carry(dict(ctx))

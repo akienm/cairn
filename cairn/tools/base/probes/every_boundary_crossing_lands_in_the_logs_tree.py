@@ -221,9 +221,9 @@ PROBE = Probe(
         "it on the day it ships, and whether the NEXT device carries the invariant "
         "is a fact about the next device, not about the ticket",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

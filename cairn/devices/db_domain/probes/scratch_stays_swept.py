@@ -123,11 +123,11 @@ PROBE = Probe(
         "the sweep on the tester's seal path is what keeps it true, and this probe watches "
         "that it does — seven days of the invariant holding, or the first leaker by name",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "scratch-stays-swept"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

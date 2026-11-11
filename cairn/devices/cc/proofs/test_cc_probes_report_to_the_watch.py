@@ -1,8 +1,8 @@
-"""PROOF — every standing cc probe reports to harbor_master's watch verb (ticket 802b3e49ae70).
+"""PROOF — every standing cc probe reports to CodeMother's WATCHME gate (codemother machines/watchme/watch) (ticket 802b3e49ae70).
 
 835b5736bf2b's decision D2 names the receiver for every standing WATCHME probe: harbor_master's
 ``watch`` verb (a88d6a368cfb), which reads ``{ticket, holds, finding}`` and sends a red ticket to
-FIXME. This proof measures the cairn/devices/cc child: every standing cc probe posting through watch_carry to harbor_master's watch verb with a holds predicate (none of cc's triggers means 'something is wrong'), and every such spec naming the receiver. 078476729bca, whose probe reads a context key nothing sets, stands at FIXME and so is outside the population.
+FIXME. This proof measures the cairn/devices/cc child: every standing cc probe posting through watch_carry to CodeMother's WATCHME gate (codemother machines/watchme/watch) with a holds predicate (none of cc's triggers means 'something is wrong'), and every such spec naming the receiver. 078476729bca, whose probe reads a context key nothing sets, stands at FIXME and so is outside the population.
 
 What a hollow build cannot pass (Law 8):
   - An unreceivable ticket (078476729bca) not at FIXME, or at FIXME with no watchme
@@ -41,7 +41,7 @@ PROVES = {
 
 BERTH = "cairn/devices/cc/probes/"
 UNRECEIVABLE = ('078476729bca',)
-RECEIVER = {"what": "harbor_master watch verb", "in": "cairn/devices/cairn/machines/harbor_master"}
+RECEIVER = {"what": "codemother watchme gate", "in": "cairn/devices/codemother/machines/watchme"}
 
 
 def _main_tree() -> Path:
@@ -87,8 +87,8 @@ def test_every_standing_cc_probe_posts_watch():
     for tid, _doc, spec in _standing():
         mod = spec["probe"][:-3].replace("/", ".")
         probe = importlib.import_module(mod).PROBE
-        assert probe.verb == "watch", f"{tid}: {spec['probe']} posts verb {probe.verb!r}"
-        assert probe.to == "harbor_master", f"{tid}: {spec['probe']} posts to {probe.to!r}"
+        assert probe.verb == "machines/watchme/watch", f"{tid}: {spec['probe']} posts verb {probe.verb!r}"
+        assert probe.to == "codemother", f"{tid}: {spec['probe']} posts to {probe.to!r}"
         payload = probe.payload({})
         assert payload.get("ticket") == tid, \
             f"{tid}: {spec['probe']}'s payload names ticket {payload.get('ticket')!r}"

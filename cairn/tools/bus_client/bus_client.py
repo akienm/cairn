@@ -142,7 +142,9 @@ def _device_shim_module(device_name: str) -> str | None:
 
     The mail address is NOT the roster (ticket a808e21d646f): a held machine is not a rack
     device, yet 83 probes post to it (measured 2026-10-03), so the address book is wider than
-    the rack on purpose and narrowing the roster must not cut a delivery address.
+    the rack on purpose and narrowing the roster must not cut a delivery address. (Since ticket
+    386ea8131006 the WATCHME probes post to codemother's ``machines/watchme/watch``; the harbor
+    keeps ``crossing``.)
     """
     from cairn.tools.rack.rack import shim_of
 

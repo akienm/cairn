@@ -2,20 +2,20 @@
   {
     "claim": "proof test_librarian_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-13T09:02:09",
+    "date": "2026-11-10T22:17:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_every_standing_librarian_probe_posts_watch\n  PASS  test_every_standing_librarian_spec_names_the_receiver\n  PASS  test_librarian_probes_report_to_the_watch\ngreen — every standing librarian probe reports {ticket, holds, finding} to the watch verb",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_every_standing_librarian_probe_posts_watch: AssertionError: 72e8e3509287: cairn/devices/librarian/probes/web_server_serves_dynamic_panes.py posts verb ''\n  FAIL  test_every_standing_librarian_spec_names_the_receiver: AssertionError: 72e8e3509287: receiver is None\n  FAIL  test_librarian_probes_report_to_the_watch: AssertionError: 72e8e3509287: cairn/devices/librarian/probes/web_server_serves_dynamic_panes.py posts verb ''\nRED — 3 tooth/teeth bit",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_every_standing_librarian_probe_posts_watch",
         "test_every_standing_librarian_spec_names_the_receiver",
         "test_librarian_probes_report_to_the_watch"
       ],
-      "teeth_red": [],
-      "test": "test-a3e984e1c86f",
+      "test": "test-59112746ada4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,33 +25,40 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3559e8a80b7ed2ce7d96fb539944b39bc29fa501ad29b342f1dcafc2fd13c784",
+        "proof": "09f04a5cc3d11029f4d3dce085919773e29e26560c54aff81880a4db68dc9b10",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a3e984e1c86f",
-      "source_fingerprint": "7d3fc6a09bc35031b944a4a1bca59b2eb5b877cf2c94053ad7fe69eebfddf3f6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-59112746ada4",
+      "source_fingerprint": "d294aee0fbf6e961112be31b9035c1c13d73d958f67c29a6226a735020b64fed",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
-        "cairn/devices/librarian/device.py",
-        "cairn/devices/librarian/loop.py",
-        "cairn/devices/librarian/probes/revisions_hold_under_live_use.py",
-        "cairn/devices/librarian/probes/standing_moves_under_live_use.py",
+        "cairn/devices/librarian/probes/web_server_serves_dynamic_panes.py",
         "cairn/devices/librarian/proofs/test_librarian_probes_report_to_the_watch.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "a37b0565718377e99942549b148b17a89c255a46f760200370a9d866be8473f3",
+        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2674761-252jy5i1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-238587-1o9wn9nn/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,14 +67,22 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108784200,
-          "disk_bytes": 134488064,
-          "entries": 10313,
+          "bytes": 525112031,
+          "disk_bytes": 560885760,
+          "entries": 13985,
           "builds": 1,
-          "reuses": 5
+          "reuses": 34
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "reseal_ladder": {
+        "proof_sha256": "09f04a5cc3d11029f4d3dce085919773e29e26560c54aff81880a4db68dc9b10",
+        "opened": "2026-11-10T22:17:19",
+        "last_red": "2026-11-10T22:17:19",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-librarian-proofs-test-librarian-probes-report-to-the-watch",
+        "ruling": null
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

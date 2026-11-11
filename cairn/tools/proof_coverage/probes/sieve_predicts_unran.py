@@ -123,9 +123,9 @@ PROBE = Probe(
         "a claim about what one instrument catches before another is measured by running "
         "both and counting what only the second saw.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

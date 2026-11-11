@@ -167,9 +167,9 @@ PROBE = Probe(
         "carry five words while the corpus wears two, and every deterministic check stays "
         "green while the reader still cannot tell 'needs Akien' from 'CC has not got to it'",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

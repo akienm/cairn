@@ -20,7 +20,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
-from cairn.tools.base.transitions import BUILD_GATE, verify_crossing_fingerprint
+from cairn.tools.base.transitions import verify_crossing_fingerprint
 from cairn.tools.charter import projector
 
 _TICKET_ID = "fb7e5b78b99b"
@@ -79,9 +79,9 @@ PROBE = Probe(
     why="are crossing fingerprints actually verified in practice? — a fingerprint "
         "nobody checks is a hash nobody has, which is the ticket's own falsifier",
     trigger=_trigger,
-    to=BUILD_GATE.notifies,
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

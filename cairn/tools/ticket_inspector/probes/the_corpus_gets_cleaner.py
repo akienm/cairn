@@ -95,9 +95,9 @@ PROBE = Probe(
         "surfaces gaps, and a gap that stays surfaced but never fixed is a tool "
         "answering a question nobody acts on",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

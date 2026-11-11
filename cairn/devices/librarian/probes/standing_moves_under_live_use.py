@@ -192,9 +192,9 @@ PROBE = Probe(
         "fire; twenty live crossings with an all-hypothesis tree (or hollow promotions) is "
         "the tenure loop standing decorative, which is the ticket's own falsifier clause 2",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

@@ -130,9 +130,9 @@ PROBE = Probe(
         "refusal that raised no trouble, is the build failing where the stub could not show "
         "it; ten named callers beside one real trouble is it proven real",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

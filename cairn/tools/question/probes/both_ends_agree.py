@@ -97,9 +97,9 @@ PROBE = Probe(
         "writes both in one act; this runs the inspector's predicate over the live corpus "
         "and counts the door's own question events so the claim is measured, not assumed.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

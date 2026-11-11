@@ -253,7 +253,7 @@ def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A,
     from cairn.tools.base.probe import Probe
     check("PROBE is a frozen Probe with carry and enough",
           isinstance(P.PROBE, Probe) and callable(P.PROBE.carry) and callable(P.PROBE.enough)
-          and P.PROBE.to == "harbor_master")
+          and P.PROBE.to == "codemother")
     c2 = tmp / "probe-commons"
     (c2 / "tickets").mkdir(parents=True)
     A.set_diagnostic_roots({"CairnCommons": c2, "cairn": REPO})

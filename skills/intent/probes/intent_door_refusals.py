@@ -165,9 +165,9 @@ PROBE = Probe(
         "with an exit code, and it is indistinguishable from a working gate until someone "
         "counts. Cleared only when BOTH edges are live: a refusal, and a recorded kill.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

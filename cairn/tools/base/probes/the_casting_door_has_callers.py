@@ -152,9 +152,9 @@ PROBE = Probe(
     why="does the casting door keep its callers, and does anything still arrive beside it? — "
         "the phase door beside it took 13 records in four days and then sat with no caller",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,

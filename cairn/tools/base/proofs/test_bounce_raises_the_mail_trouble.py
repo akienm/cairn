@@ -285,7 +285,7 @@ def the_mail_lane_watch_is_armed():
     err = watchme_spec.armed_error(spec, root=_REPO_ROOT)
     assert err is None, err
     assert isinstance(SUT.PROBE, Probe) and SUT.PROBE.carry and SUT.PROBE.enough
-    assert SUT.PROBE.to == "harbor_master", SUT.PROBE.to
+    assert SUT.PROBE.to == "codemother", SUT.PROBE.to
 
 
 TEETH = [a_returned_letter_raises_the_addressees_mail_trouble,

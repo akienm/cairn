@@ -145,11 +145,11 @@ PROBE = Probe(
         "post-crossing state — this probe watches whether it bites "
         "what builders actually write, not just fixtures",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "validate", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the_refusal_names_a_criterion_a_builder_would_have_shipped"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

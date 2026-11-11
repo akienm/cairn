@@ -147,6 +147,11 @@ class CodeMotherDevice(BaseDevice):
             "drain": self._handle_drain,
         }
 
+    def declared_machines(self) -> dict:
+        """The gates she holds, each answering ``machines/<gate>/<verb>`` (outline 3.3.4.1)."""
+        from cairn.devices.codemother.machines.watchme.gate import Voice, WatchmeGate
+        return {"watchme": WatchmeGate(participant=Voice(self._bus))}
+
     # --- the door she fires -------------------------------------------------
 
     def _handle_cross(self, envelope: dict) -> dict:

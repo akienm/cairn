@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_shim_delivers_mail.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-05T05:38:35",
+    "date": "2026-11-10T22:12:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_device_is_whole\n.\n  ok   test_the_probes_load_with_zero_failures\n.\n  ok   test_a_delivery_is_ledgered\n.\n  ok   test_a_consumption_names_its_session\n.\n  ok   test_enough_needs_two_sessions\n.\n  ok   test_an_empty_ledger_never_fires\n.\n  ok   test_undelivered_mail_fails_after_a_day\n                                                                  [100%]\n7 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_the_device_is_whole\n.\n  ok   test_the_probes_load_with_zero_failures\n.\n  ok   test_a_delivery_is_ledgered\n.\n  ok   test_a_consumption_names_its_session\n.\n  ok   test_enough_needs_two_sessions\n.\n  ok   test_an_empty_ledger_never_fires\n.\n  ok   test_undelivered_mail_fails_after_a_day\n                                                                  [100%]\n7 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_device_is_whole",
@@ -19,7 +19,7 @@
         "test_undelivered_mail_fails_after_a_day"
       ],
       "teeth_red": [],
-      "test": "test-8f3f514fb187",
+      "test": "test-f5b948bb487e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,6 +36,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -45,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8f3f514fb187",
-      "source_fingerprint": "a1af181273d335c5d4a9038e30a8a3614b617fe8e1c640344504e0b814cb9fad",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f5b948bb487e",
+      "source_fingerprint": "2a279aaf595056587f13dc717a60fcbabd677bfcf40256120a969e8b06e43585",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/probes/the_shim_delivers_mail.py",
@@ -54,29 +55,30 @@
         "cairn/devices/cc/shim.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "a37b0565718377e99942549b148b17a89c255a46f760200370a9d866be8473f3",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
-        "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-53572-1nl87lm6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-238587-qgdb5hg7/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 116838873,
-          "disk_bytes": 148643840,
-          "entries": 12508,
+          "bytes": 525115507,
+          "disk_bytes": 560889856,
+          "entries": 13986,
           "builds": 1,
-          "reuses": 2
+          "reuses": 11
         }
       }
     },

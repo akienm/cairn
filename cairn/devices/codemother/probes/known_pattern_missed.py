@@ -36,9 +36,9 @@ PROBE = Probe(
         "failed to surface it — the device had the answer and did not give it. "
         "Enough when the miss rate drops below 10% over 10+ events.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy", "object": "known-pattern-violation-caught-before-code"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=200,

@@ -73,9 +73,9 @@ PROBE = Probe(
         "never fires gathers nothing while looking like learning. This watches the "
         "recorder's output.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=100,

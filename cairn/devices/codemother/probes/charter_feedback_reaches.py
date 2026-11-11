@@ -83,11 +83,11 @@ PROBE = Probe(
         "whether feedback about charter quality actually reaches that held instance — "
         "the first record written and read back is the placement working, not merely built",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": _OBJECT},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, holds=_holds),
     enough=_enough,
     horizon=500,

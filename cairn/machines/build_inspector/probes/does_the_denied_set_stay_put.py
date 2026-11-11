@@ -160,9 +160,9 @@ PROBE = Probe(
         "the closure may grow freely while the set sits still — the watch is whether the "
         "set actually sits still, and how much closure growth it sat through",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

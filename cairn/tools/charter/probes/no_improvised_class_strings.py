@@ -153,9 +153,9 @@ PROBE = Probe(
         "registered vocabulary. Fires when any charter carries an unresolvable node_class or "
         "is missing the field entirely.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

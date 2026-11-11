@@ -265,9 +265,9 @@ PROBE = Probe(
     why="does the bounce blame the right party? — a receiver-side majority "
         "of cleared bounce troubles says the spec is wrong, not the sender",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

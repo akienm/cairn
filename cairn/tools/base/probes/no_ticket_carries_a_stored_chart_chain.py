@@ -200,9 +200,9 @@ PROBE = Probe(
         "fallback to the stored copy? — 24 tickets carried the key on 2026-09-10 with no "
         "writer anywhere in the tree, and the instrument gating PROVED believed them",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

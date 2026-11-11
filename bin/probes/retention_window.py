@@ -204,9 +204,9 @@ PROBE = Probe(
     why="is 1000 lines a window that still explains anything — or does a record that has "
         "turned over now speak for a single live process and nothing before it?",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

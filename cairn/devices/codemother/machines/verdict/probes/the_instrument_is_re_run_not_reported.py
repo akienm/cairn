@@ -195,9 +195,9 @@ PROBE = Probe(
         "fact about live traffic, and the ticket's own WRONG INTENT clause names "
         "trivially-green instruments as the way this build fails while reading green",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

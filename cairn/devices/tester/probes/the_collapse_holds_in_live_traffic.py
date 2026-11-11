@@ -194,9 +194,9 @@ PROBE = Probe(
         "question about live traffic that no fixture can answer, and the same store already "
         "lost this exact bet once, two days after its physics went green",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

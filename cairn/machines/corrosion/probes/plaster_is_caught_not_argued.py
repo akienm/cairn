@@ -43,9 +43,9 @@ PROBE = Probe(
         "probe fires when the sieve has been live with no genuine catch, so "
         "the question 'is this check vacuous?' gets asked.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

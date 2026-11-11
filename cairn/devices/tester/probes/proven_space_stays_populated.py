@@ -186,9 +186,9 @@ PROBE = Probe(
         "census measures the fraction as a diagnostic, and enough clears when at least one "
         "crossing is refused for an unproven proven_by (the horizon condition)",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

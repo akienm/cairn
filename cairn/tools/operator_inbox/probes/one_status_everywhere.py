@@ -136,10 +136,10 @@ PROBE = Probe(
     why="a ticket has one status; the three reports are venn diagrams of one reader, "
         "and an id wearing two labels across them is the bug Akien named 2026-09-06",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "3feb201c84ea (1): one id, two labels across the three reports"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,

@@ -126,11 +126,11 @@ PROBE = Probe(
         "two weeks is the reader missing a door, or Akien's real backlog — the probe carries "
         "which, so the inbox never reads 65 again",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "codemother", "kind": "efficacy",
           "falsifier_tooth": "3ed960cc402e: an idea reported open after a firing, a ticket "
                              "or acted_on took it up"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

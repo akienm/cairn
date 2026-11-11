@@ -160,9 +160,9 @@ PROBE = Probe(
         "records where every miss actually landed — one post-era loopback generate is "
         "the rule failing live, and zero across enough traffic is it proven holding",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

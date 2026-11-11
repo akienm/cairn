@@ -147,9 +147,9 @@ PROBE = Probe(
         "free, a pickup is journaled on purpose, and many of the former with none of the "
         "latter is the ruled mechanism standing decorative",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

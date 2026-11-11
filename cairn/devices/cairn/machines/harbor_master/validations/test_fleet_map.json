@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_fleet_map.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-10-31T14:26:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-10T22:12:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -19,7 +19,7 @@
         "test_unknown_view_refuses"
       ],
       "teeth_red": [],
-      "test": "test-878d3b7b2929",
+      "test": "test-c02cd2bb6dc3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,45 +36,54 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-878d3b7b2929",
-      "source_fingerprint": "29474297814b3119f69464c5bb5df6faa06249d175f17e283dec78b6c53bf786",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c02cd2bb6dc3",
+      "source_fingerprint": "b2a16cd6bbda0f8636ae0546fc57aada5b7854d09d2fb61334aadf1872932e67",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/device.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_fleet_map.py",
         "cairn/devices/cairn/machines/harbor_master/register.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "dd7ef981132ceaa750c3f8ad5c77fc7ca251ad6533e24da2d8066f62af4b249e",
+        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
+        "cairn/tools/base": "a37b0565718377e99942549b148b17a89c255a46f760200370a9d866be8473f3",
+        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/operator_inbox": "653ac1abe1938b5f2c26de270260e4169fe0aaf1d9ba8a7cfc57c7c0d1adca9f",
+        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3003653-s2rinz5k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-238587-izahwfih/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/harbor_master/0/20261031.202616.148970.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261031.202616.482011.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261031.202616.812677.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261031.202617.158296.HarborMasterDevice.reconciled.json"
+            "logs/harbor_master/0/20261111.051200.984251.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261111.051201.391313.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261111.051201.755388.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261111.051202.183596.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 114754819,
-          "disk_bytes": 144904192,
-          "entries": 11919,
+          "bytes": 525113231,
+          "disk_bytes": 560902144,
+          "entries": 13991,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
         }
       }
     },

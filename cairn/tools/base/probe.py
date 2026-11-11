@@ -179,9 +179,10 @@ _NO_FINDING = "the probe reads its ticket's falsifier as failing and its carry n
 def watch_carry(ticket_id: str, carry: Callable[[dict], dict] | None = None, *,
                 fails: Callable[[object, dict], bool] | None = None,
                 holds: Callable[[dict], bool] | None = None) -> Callable[[dict], dict]:
-    """The carry for a probe whose consumer is harbor_master's ``watch`` verb: the probe's own
-    carry, plus ``{ticket, holds, finding}`` stated against ITS ticket's falsifier (835b5736bf2b
-    D2; the verb and its contract are a88d6a368cfb's). Exactly one predicate says how:
+    """The carry for a probe whose consumer is CodeMother's WATCHME gate (``to="codemother"``,
+    ``verb="machines/watchme/watch"``, ticket 386ea8131006): the probe's own carry, plus
+    ``{ticket, holds, finding}`` stated against ITS ticket's falsifier (835b5736bf2b D2; the
+    contract is a88d6a368cfb's). Exactly one predicate says how:
 
       - ``fails`` — trigger-shaped ``(now, context) -> bool``, TRUE when the falsifier is
         failing. Most probes already have one: their trigger.

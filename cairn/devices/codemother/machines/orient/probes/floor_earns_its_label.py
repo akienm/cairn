@@ -178,9 +178,9 @@ PROBE = Probe(
         "the floor's answer starts reaching packets unchanged. Cleared when at least one "
         "field earns it over a corpus big enough to have asked.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

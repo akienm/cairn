@@ -148,9 +148,9 @@ PROBE = Probe(
         "about returned mail (Law 6), and a bounce that loses the sender's identity "
         "sends the blame nowhere",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

@@ -189,10 +189,10 @@ PROBE = Probe(
         "to prevent, and a probe that never fires gathers nothing while looking "
         "like learning. This watches whether the slate is really there.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     channel="personal",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET, _carry_watched, holds=_holds),
     while_true=False,
     enough=_enough,

@@ -170,9 +170,9 @@ PROBE = Probe(
         "cannot settle is whether the caller driving a real tool-using conversation was built "
         "with it, and a cache hit there is a silent infinite loop rather than an error",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

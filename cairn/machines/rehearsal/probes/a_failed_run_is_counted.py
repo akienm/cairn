@@ -95,9 +95,9 @@ PROBE = Probe(
         "twenty minutes of runs the record said never happened (Law 7); this counts the "
         "ran:false records that now land, and reds the first one read as clean or as gaps.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "cairn/machines/rehearsal/state.json", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_fails),
     enough=_enough,
     horizon=1000,

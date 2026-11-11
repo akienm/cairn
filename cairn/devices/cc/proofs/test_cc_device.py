@@ -114,7 +114,7 @@ def test_the_probe_module_declares_a_probe():
 
     assert isinstance(PROBE, Probe)
     assert callable(PROBE.trigger)
-    assert PROBE.to == "harbor_master"
+    assert PROBE.to == "codemother"
 
 if __name__ == "__main__":
     from cairn.tools.proof_coverage import print_teeth_main

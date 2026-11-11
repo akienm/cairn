@@ -196,9 +196,9 @@ PROBE = Probe(
         "silently, one word at a time, the day his shift key lands on it. This replays the "
         "mixed-case drives against the live tree and counts the bite before he meets it.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "codemother", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

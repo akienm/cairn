@@ -159,9 +159,9 @@ PROBE = Probe(
         "is that promise failing silently. Fires on a standing rot pattern; cleared only "
         "by demonstrated working of the queue at scale.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

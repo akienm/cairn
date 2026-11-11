@@ -228,11 +228,11 @@ PROBE = Probe(
         "watches closed voyages for that pattern — the detector's efficacy "
         "measured over real builds, not over seeded chains",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "build-time-discoveries-that-never-re-entered"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

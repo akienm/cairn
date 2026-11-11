@@ -324,7 +324,7 @@ def test_the_probe_shares_the_predicate_and_fires_on_a_lacking_ticket():
         s = probe.judge_tickets(good * 4 + [refused])
         assert probe._enough({"corpus": s}) is True, s
         assert probe._carry({"corpus": s})["cleared_by"] == "named-and-troubled"
-        assert probe.PROBE.to == "harbor_master"
+        assert probe.PROBE.to == "codemother"
 
 
 _NARROW = [

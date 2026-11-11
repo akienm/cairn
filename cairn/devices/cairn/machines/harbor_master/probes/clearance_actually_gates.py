@@ -314,9 +314,9 @@ PROBE = Probe(
         "fleet, or a gate that has never once refused are the three ways it lands wired "
         "and hollow",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

@@ -155,11 +155,11 @@ PROBE = Probe(
         "builders actually name a checkable second reading (commit, worktree, mutation, "
         "revert) or write plausible prose that satisfies the gate",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the_discriminating_observation_names_a_second_tree"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,

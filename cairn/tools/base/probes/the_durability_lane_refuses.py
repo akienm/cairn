@@ -141,11 +141,11 @@ PROBE = Probe(
         "refusal is the proof it can — and reds if it goes silent over twenty crossings or "
         "if an exemption roster ever names it",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET),
           "object": "the-durability-lane-refuses-and-is-not-exempted"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

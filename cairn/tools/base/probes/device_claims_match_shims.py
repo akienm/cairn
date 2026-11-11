@@ -211,9 +211,9 @@ PROBE = Probe(
     why="do the things that CLAIM device-hood match the things that ARE devices? — the "
         "divergence Akien's ruling created and nothing announces",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

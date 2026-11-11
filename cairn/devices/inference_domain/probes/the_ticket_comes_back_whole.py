@@ -154,9 +154,9 @@ PROBE = Probe(
     why="the inference ticket must come back whole — every answer carries the host's "
         "raw response body so the reader can inspect what the host actually said",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

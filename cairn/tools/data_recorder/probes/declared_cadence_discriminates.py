@@ -101,9 +101,9 @@ PROBE = Probe(
         "recorder and retires once three are read under two distinct frequencies — the "
         "point at which the declaration measurably discriminates.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy", "ticket": TICKET},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(TICKET, _carry, holds=_holds),
     enough=_enough,
     horizon=2000,

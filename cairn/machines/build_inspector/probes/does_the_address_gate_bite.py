@@ -213,14 +213,14 @@ PROBE = Probe(
         "and treats a site standing while the gate is present as strong falsification: a "
         "green gate is leaned on, which is worse than no gate at all",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     # THE TICKET RIDES AS AN ADDRESS, NEVER AS A BARE ID — ruled 2026-08-05, and caught HERE
     # on 2026-08-17 by test_probe_carry's corpus tooth, which is what that ruling was turned
     # into. This body first carried `_OWNING_TICKET` raw; a receiver holding an id has to know
     # where tickets live to do anything with it, and seven probes once re-derived exactly that.
     body={"nexus": "hypothesize", "kind": "efficacy",
           "ticket": owning_ticket(_OWNING_TICKET), "object": "the_address_gate_bites"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

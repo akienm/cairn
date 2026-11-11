@@ -214,9 +214,9 @@ PROBE = Probe(
         "refused row, or one damaged answer is the build failing live, and one real recorded "
         "refusal beside healthy answered traffic is it proven real",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

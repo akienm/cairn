@@ -111,9 +111,9 @@ PROBE = Probe(
         "that hand and a gate that admits everyone are indistinguishable until a second "
         "actor crosses. Fires when enough crossings have passed with only one distinct actor.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

@@ -233,9 +233,9 @@ PROBE = Probe(
         "record of the same events; the proofs settle that they agree in a fixture world on "
         "the day it shipped, and whether they keep agreeing is a fact about live traffic",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

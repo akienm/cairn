@@ -238,9 +238,9 @@ PROBE = Probe(
         "keeps its seal measurements is a fact about live traffic, and the loss this ticket "
         "was cast against happened while every proof in the corpus was green",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

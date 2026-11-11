@@ -139,9 +139,9 @@ PROBE = Probe(
     why="the constraint door (add_owned_constraint) is the one path to ALTER TABLE; "
         "a schema change outside store.py is a bypass of the owner gate (Law 6)",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

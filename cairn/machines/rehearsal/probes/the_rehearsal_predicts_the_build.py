@@ -91,9 +91,9 @@ PROBE = Probe(
         "converged tree's steps and the built proof's teeth diverged, so the gate is trusted "
         "by measurement or found wrong by it.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "cairn/machines/rehearsal/state.json", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

@@ -16,7 +16,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import tool_path
 from cairn.tools.base.probe import Probe, by_copy, owning_ticket, once, watch_carry
-from cairn.tools.base.transitions import BUILD_GATE
+
 
 _TICKET_ID = "13758831632c"
 
@@ -88,9 +88,9 @@ PROBE = Probe(
     why="does the gate's living tree ever diverge from its seed through evidence? "
         "a delta answers the founding question of whether sieve dials actually move",
     trigger=_trigger,
-    to=BUILD_GATE.notifies,
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=500,

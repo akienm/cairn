@@ -133,9 +133,9 @@ PROBE = Probe(
         "starve child 2 on cast day; this watch counts only what answers the five "
         "questions, and pokes when one block crosses the casting threshold.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "sorted", "kind": "casting-condition", "ticket": _TICKET},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,

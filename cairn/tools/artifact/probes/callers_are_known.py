@@ -95,9 +95,9 @@ PROBE = Probe(
         "over one host's unit names on one day. This fires on the first unknown so the "
         "regex is taught before the journal fills with them.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

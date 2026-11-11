@@ -117,9 +117,9 @@ PROBE = Probe(
         "lets one through with a question standing is the wrong intent; this counts the "
         "crossings and the answers in the wild so the claim is measured, not assumed.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=1000,

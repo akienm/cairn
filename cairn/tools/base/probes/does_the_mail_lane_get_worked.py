@@ -198,9 +198,9 @@ PROBE = Probe(
     why="does the mail lane get worked? — mail-* troubles that stand past 14 days, or "
         "crowd past 20 with a rising age, say the self-maintaining list is not being worked",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

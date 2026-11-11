@@ -104,9 +104,9 @@ PROBE = Probe(
         "cocoon strategy has no way to poke CC of work, and the device is a "
         "rack address nobody can reach",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=100,

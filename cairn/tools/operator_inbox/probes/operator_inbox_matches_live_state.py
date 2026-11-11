@@ -175,9 +175,9 @@ PROBE = Probe(
         "reports a figure that is not true, which is the founding defect this script was "
         "built to kill (the old LLM skill could invent counts)",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=500,

@@ -185,9 +185,9 @@ PROBE = Probe(
         "convenience, and the way this design fails is that the sites keep their copies and "
         "the two shapes drift",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=_HORIZON,

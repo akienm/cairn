@@ -100,9 +100,9 @@ PROBE = Probe(
         "which is the half a proof cannot see; the rendering is deterministic and is proved "
         "at cairn/devices/cairn/proofs/test_trouble_panel.py.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
     body={"nexus": "triage", "kind": "efficacy"},
-    verb="watch",
+    verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
     horizon=100,

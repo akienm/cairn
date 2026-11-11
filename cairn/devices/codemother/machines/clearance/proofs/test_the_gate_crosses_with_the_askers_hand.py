@@ -20,6 +20,7 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import shutil
 import sys
 import tempfile
 from contextlib import contextmanager
@@ -42,6 +43,11 @@ _CHARTER = "intention" + "+why.json"
 _TID = "0f76d01d3170"
 _WF = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
 _NEXT = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+# The ticket's write reads the store charter beside its tickets: the live one is copied in, the
+# home checkout's where a hollow worktree has no CairnCommons beside it.
+_STORE_CHARTER = _REPO.parent / "CairnCommons" / "tickets" / "_charter+why.json"
+if not _STORE_CHARTER.is_file():
+    _STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
 
 
 class _Heard:
@@ -60,6 +66,7 @@ class _Heard:
 def _asked(gated_by: list[str], sender: str):
     """Queue a scratch boat whose owner admits ``gated_by`` at clearance as ``sender``; yield
     (the gate's answer, the kwargs clearance.clear was handed)."""
+    from cairn.tools.base import ticket_file
     clearance = importlib.import_module(_DOTTED + ".clearance")
     gate_mod = importlib.import_module(_DOTTED + ".gate")
     handed: list[dict] = []
@@ -73,6 +80,7 @@ def _asked(gated_by: list[str], sender: str):
         repo, commons = t / "repo", t / "commons"
         (repo / "comp" / "proofs").mkdir(parents=True)
         (commons / "tickets").mkdir(parents=True)
+        shutil.copy(_STORE_CHARTER, commons / "tickets" / _STORE_CHARTER.name)
         (repo / "comp" / _CHARTER).write_text(json.dumps({"gated_by": gated_by}))
         (repo / "comp" / "proofs" / "test_the_fixture.py").write_text(
             'PROVES = {"%s": {"1": "test_one"}}\n' % _TID)
@@ -81,8 +89,9 @@ def _asked(gated_by: list[str], sender: str):
                                     "workflow_and_state": _WF}, indent=2) + "\n")
         old_trace = os.environ.get("CAIRN_LB_TRACE_ROOT")
         os.environ["CAIRN_LB_TRACE_ROOT"] = str(t / "traces")
-        real_clear = clearance.clear
+        real_clear, real_tickets = clearance.clear, ticket_file._TICKETS
         clearance.clear = recording_clear
+        ticket_file._TICKETS = commons / "tickets"
         try:
             gate = gate_mod.ClearanceGate(participant=_Heard(), roots={
                 "repo": repo, "commons": commons, "instance": t / "instance"})
@@ -90,7 +99,7 @@ def _asked(gated_by: list[str], sender: str):
                                                        "body": {"fileref": str(plan)}})
             yield answer, handed
         finally:
-            clearance.clear = real_clear
+            clearance.clear, ticket_file._TICKETS = real_clear, real_tickets
             if old_trace is None:
                 os.environ.pop("CAIRN_LB_TRACE_ROOT", None)
             else:

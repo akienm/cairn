@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_ticket_queues_itself_at_a_gate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T09:53:00",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T10:49:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "test_at_resolves_an_id_or_a_path_and_refuses_nothing"
       ],
       "teeth_red": [],
-      "test": "test-160a67a00eda",
+      "test": "test-dc50d5374a07",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,14 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-160a67a00eda",
-      "source_fingerprint": "7579559fddd150266b1d7ccf601e28fe44f4c9f229aa4ed331963f0fa9619e31",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dc50d5374a07",
+      "source_fingerprint": "7877fae40ebfa58bbcf3ffeb5e982d94646e7f35cf3bfa72020f57bec91accee",
       "fingerprint_closure": [
         "cairn/machines/ticket/__init__.py",
         "cairn/machines/ticket/proofs/test_a_ticket_queues_itself_at_a_gate.py",
@@ -70,56 +69,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-447179-4wps45x1/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-466454-rz6h93_q/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261111.165258.288801.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.165258.292997.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261111.174955.424004.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261111.174955.428419.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 525805427,
-          "disk_bytes": 562237440,
-          "entries": 14241,
+          "bytes": 525995718,
+          "disk_bytes": 562601984,
+          "entries": 14303,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "fa4462c803d6": {
-          "cairn/machines/ticket/ticket.py": [
-            "test_a_door_refusal_fails_the_ticket_with_the_doors_words",
-            "test_a_fail_before_buildme_stays_put_and_queues_at_design",
-            "test_an_absent_draft_or_earlier_berth_fails_the_ticket_and_writes_nothing"
-          ],
-          "cairn/devices/codemother/machines/clearance/gate.py": [
-            "test_a_door_refusal_fails_the_ticket_with_the_doors_words",
-            "test_an_absent_draft_or_earlier_berth_fails_the_ticket_and_writes_nothing"
-          ],
-          "cairn/devices/codemother/machines/chart_gate/gate.py": [
-            "test_a_door_refusal_fails_the_ticket_with_the_doors_words",
-            "test_an_absent_draft_or_earlier_berth_fails_the_ticket_and_writes_nothing",
-            "test_gates_carries_eight_stages_and_the_shim_holds_them",
-            "test_the_constrain_gate_reads_the_recorded_orient_berth",
-            "test_the_orient_gate_berths_a_claimed_packet_and_deposits_it",
-            "test_the_verdict_gate_disposes_from_the_observed_runs_not_the_draft"
-          ],
-          "cairn/devices/codemother/shim.py": [
-            "test_gates_carries_eight_stages_and_the_shim_holds_them"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "fa4462c803d6": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "bc3c83ec368381d095d98674082460d4b9aaf4ac",
-          "anchor_first_build": "30d2cc0e739bc9283033dcfe9fdf852b04fb8737",
-          "commit": "89d2ae3432d5d68cd4003d1089a888daeddfb16d"
+          "reuses": 2
         }
       }
     },

@@ -186,13 +186,37 @@ class Ticket(DiagnosticBase):
                    {"gate": gate, "verb": verb, "sent": sent, "reply": body, "queued": queued},
                    actor=tid or "ticket", why=f"{tid} queueme at {gate}: queued={queued}")
         trouble = None
+        identity = f"ticket-unqueued-{tid}-at-{gate}"
         if not queued:
-            trouble = f"ticket-unqueued-{tid}-at-{gate}"
+            trouble = identity
             self.raise_trouble(
                 trouble, why=f"ticket {tid} asked {GATE_HOLDER} to queue it at {gate} and no "
                              "handler took it; the ticket waits",
                 detail={"fileref": self.fileref, "gate": gate, "reply": body})
+        elif self._stands_raised(identity):
+            # The ticket's own raise, cleared by the ticket once the gate takes it (41a5bae3d01b);
+            # nothing standing sends nothing, so a taken ask never writes a clear on its own.
+            self.clear_trouble(identity, by=tid or "ticket",
+                               what_changed=f"queued at {gate}: the gate took it")
         return {"queued": queued, "gate": gate, "reply": body, "trouble": trouble}
+
+    def _stands_raised(self, identity: str) -> bool:
+        """Does ``identity`` stand raised on this ticket's own trail? The newest raise or clear
+        record naming it decides (names sort by time); none is False. Reads only."""
+        trail = self.diagnostic_trail()
+        if trail is None or not Path(trail).is_dir():
+            return False
+        names = sorted((n.name for n in Path(trail).iterdir()
+                        if n.name.endswith((".raise_trouble.json", ".clear_trouble.json"))),
+                       reverse=True)
+        for name in names:
+            try:
+                rec = json.loads((Path(trail) / name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if rec.get("pointer") == identity:
+                return name.endswith(".raise_trouble.json")
+        return False
 
     def _tell_harbor(self, participant, *, frm: str, to: str, direction: str) -> None:
         participant.post(to=HARBOR, verb="crossing",

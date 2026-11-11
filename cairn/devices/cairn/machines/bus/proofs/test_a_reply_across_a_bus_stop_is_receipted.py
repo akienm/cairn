@@ -65,6 +65,7 @@ home, mode = Path(sys.argv[2]), sys.argv[3]
 from cairn.devices.cairn.machines.bus import server
 from cairn.devices.cairn.machines.bus.bus import BusDevice
 from cairn.devices.db_domain.tools.client import store
+from cairn.tools.base import testing_mark
 ASKER, SILENT = sys.argv[4], sys.argv[5]
 with BusDevice.scratch("bus_ask_stop") as bus:
     def _forever(self, poll_interval=0.5):
@@ -73,8 +74,9 @@ with BusDevice.scratch("bus_ask_stop") as bus:
             if t.name == "bus-backlog":
                 t.join(timeout=30)
         if mode == "ask":
+            # Marked: SILENT has no receiver, and an unmarked bounce raises in the live lane.
             ask = bus.post(sender=ASKER, to=SILENT, channel="personal", verb="run", why="testing-054a03f974f6 the ask",
-                           _asked=True)
+                           body={testing_mark.FIELD: testing_mark.mark("054a03f974f6")}, _asked=True)
             (home / "ask.json").write_text(json.dumps({"id": ask["id"]}))
             return None
         ask_id = json.loads((home / "ask.json").read_text())["id"]

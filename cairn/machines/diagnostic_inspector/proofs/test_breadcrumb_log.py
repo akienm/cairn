@@ -281,6 +281,18 @@ def the_disk_log_drops_into_the_inspector_unchanged(tmp: Path) -> None:
                    "from pathlib import Path"],
        "inspector.py's imports did NOT grow to make that true — the charter's fork-independence "
        "edge wants that surface argued, not grown, so the new code lives in its own module")
+    # The one argued growth (ticket 86b1694956b0): the diagnostic mixin, reached only through a
+    # top-level try whose fallback is a plain object base, so a broken mixin never stops the read.
+    tree = ast.parse(_INSPECTOR_SOURCE.read_text())
+    guarded = [n for n in tree.body if isinstance(n, ast.Try)]
+    inside = [(i.module, [a.name for a in i.names]) for t in guarded for i in t.body
+              if isinstance(i, ast.ImportFrom)]
+    falls_back = [any(isinstance(s, ast.Assign) and isinstance(s.value, ast.Name)
+                      and s.value.id == "object" for s in h.body)
+                  for t in guarded for h in t.handlers]
+    ok(inside == [("cairn.tools.base.diagnostic", ["DiagnosticBase"])] and falls_back == [True],
+       "the only import past the four is the diagnostic mixin, inside one guard that falls back "
+       f"to object — guarded imports: {inside}, fallbacks: {falls_back}")
 
 
 # ── THE TWO FAILURE MODES ────────────────────────────────────────────────────

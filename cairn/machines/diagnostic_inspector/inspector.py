@@ -47,8 +47,20 @@ import copy
 import json
 from pathlib import Path
 
+# Every class with code reaches the diagnostic mixin (17.1.2, ticket 86b1694956b0) — but this is
+# the reader of the breadcrumbs, and charter edge (g) wants it working even when logging itself
+# is broken. So the mixin is reached through a guard: a diagnostic.py that will not import costs
+# this module its own report, loudly, and never its reading.
+try:
+    from cairn.tools.base.diagnostic import DiagnosticBase
+except Exception as _exc:  # noqa: BLE001 — any import failure, said out loud (Law 7)
+    import sys as _sys
+    print(f"diagnostic_inspector: the diagnostic mixin did not import ({type(_exc).__name__}: "
+          f"{_exc}); reading on without it", file=_sys.stderr)
+    DiagnosticBase = object  # type: ignore[assignment,misc]
 
-class Mailbox:
+
+class Mailbox(DiagnosticBase):
     """A diagnostic receiver: answers ``receive_diagnostic`` (the contract
     ``DiagnosticBase.emit`` calls) and accumulates breadcrumbs. The v0 in-memory STAND-IN
     for the instance-space breadcrumb log (~/.cairn/, cache-class) — a proof fixture so an
@@ -65,7 +77,7 @@ class Mailbox:
         return list(self._records)
 
 
-class _Filter:
+class _Filter(DiagnosticBase):
     """A labelled selection predicate over one breadcrumb record. Labelled so the findings
     can echo their own scope (a resolver reads WHAT was filtered without re-deriving it —
     the remit, in miniature). A filter is a thing you compose, not a class to subclass."""
@@ -157,7 +169,7 @@ VALUES_AT_THE_FAULT = (
 )
 
 
-class Inspector:
+class Inspector(DiagnosticBase):
     """Reacts to a probe: applies FILTERS to the log, produces FINDINGS — and carries its
     learned completeness across inspections, so it gets better over time (the remit).
 
@@ -246,7 +258,7 @@ class Inspector:
         return self._registry.record_miss(gate, key)
 
 
-class CompletenessRegistry:
+class CompletenessRegistry(DiagnosticBase):
     """What each transition-class has LEARNED its findings must carry — the inspector's
     memory, keyed by ``gate`` → the set of value-keys a report for that gate must include.
 

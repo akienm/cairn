@@ -2,12 +2,12 @@
   {
     "claim": "proof test_breadcrumb_log.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-06T11:45:11",
-    "method": "ran the proof as a subprocess (seal=sealed, instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-11T15:11:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_file_that_will_not_parse_is_loud\n  PASS  a_record_emitted_in_one_process_is_read_back_in_another\n  PASS  an_unserializable_payload_degrades_but_the_crossing_is_still_recorded\n  PASS  construction_touches_no_disk\n  PASS  each_emission_is_its_own_file\n  PASS  running_this_proof_writes_nothing_into_the_live_tree\n  PASS  the_address_comes_from_the_one_owner\n  PASS  the_disk_log_drops_into_the_inspector_unchanged\n  PASS  two_devices_get_two_trails\ngreen — breadcrumb log: 38 assertions over 9 teeth. A record emitted by a device in one process is read back from disk in another (the tooth the trouble demanded); the trail appends and never rewrites; its address comes from the one owner and lands in the owning device instance's own space; it drops into the Inspector with inspector.py untouched; and the two failure modes stay different — a payload degrades, a corrupt trail is loud.",
+      "stdout_tail": "  PASS  a_file_that_will_not_parse_is_loud\n  PASS  a_record_emitted_in_one_process_is_read_back_in_another\n  PASS  an_unserializable_payload_degrades_but_the_crossing_is_still_recorded\n  PASS  construction_touches_no_disk\n  PASS  each_emission_is_its_own_file\n  PASS  running_this_proof_writes_nothing_into_the_live_tree\n  PASS  the_address_comes_from_the_one_owner\n  PASS  the_disk_log_drops_into_the_inspector_unchanged\n  PASS  two_devices_get_two_trails\ngreen — breadcrumb log: 39 assertions over 9 teeth. A record emitted by a device in one process is read back from disk in another (the tooth the trouble demanded); the trail appends and never rewrites; its address comes from the one owner and lands in the owning device instance's own space; it drops into the Inspector with inspector.py untouched; and the two failure modes stay different — a payload degrades, a corrupt trail is loud.",
       "stderr_tail": "",
       "teeth_green": [
         "a_file_that_will_not_parse_is_loud",
@@ -21,40 +21,47 @@
         "two_devices_get_two_trails"
       ],
       "teeth_red": [],
-      "test": "test-d3ddf8356b46",
+      "test": "test-1da41f6564da",
       "seal": {
-        "verdict": "sealed",
-        "detail": "1.1.1.1:53 reachable bare, unreachable inside netns — the seal removes the route"
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
         "dropped": 0,
         "tables": []
       },
       "conditions": {
-        "proof": "912293ae1b636c2ae0b575fd951d123693ef5c1bf0991769082499da7622a9f1",
+        "proof": "9c3fa8013a07fd466d9ca899e327981e6f13da20e76dec5a1bc808a9f4d99e48",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "netns seal=sealed instance-seal=sealed",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d3ddf8356b46",
-      "source_fingerprint": "6ba962a08864a63fc82584e0877cdbd76f3613851a92b8a67e28184c4da7d19c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1da41f6564da",
+      "source_fingerprint": "5eea9a09f5e2de93a08851a67bc451048e1403b623fa3abe924a8515c1840e0d",
       "fingerprint_closure": [
         "cairn/machines/diagnostic_inspector/__init__.py",
         "cairn/machines/diagnostic_inspector/inspector.py",
         "cairn/machines/diagnostic_inspector/proofs/test_breadcrumb_log.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3951581-jjtkjlod/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-570894-geqdkog9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,13 +70,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 102557452,
-          "disk_bytes": 123416576,
-          "entries": 8563,
+          "bytes": 526566081,
+          "disk_bytes": 564051968,
+          "entries": 14621,
           "builds": 1,
-          "reuses": 19
+          "reuses": 0
         }
-      }
+      },
+      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

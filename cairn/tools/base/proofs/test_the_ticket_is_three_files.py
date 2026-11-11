@@ -400,12 +400,12 @@ def r_buildme_rides_the_sorted(t, patch):
 
 
 def r_harbor_watch(t, patch):
+    # the watch reader is CodeMother's WATCHME gate since 386ea8131006 (outline 9.4.1.5)
     _state(t, watchme={"object": "x", "probe": "cairn/tools/base/probes/x.py"})
-    patch(_mod(CLEARANCE), "_crossing_roots",
-          lambda: {"repo": t.parent.parent / "repo", "commons": t.parent, "instance": t.parent.parent / "inst"})
-    got = _mod("cairn.devices.cairn.machines.harbor_master.device").HarborMasterDevice()._handle_watch(
-        {"id": "w", "to": "harbor_master", "verb": "watch", "why": "x", "sender": "proof",
-         "body": {"ticket": TID, "holds": True}})
+    gate = _mod("cairn.devices.codemother.machines.watchme.gate").WatchmeGate(
+        roots={"repo": t.parent.parent / "repo", "commons": t.parent, "instance": t.parent.parent / "inst"})
+    got = gate.watch({"id": "w", "to": "codemother", "verb": "machines/watchme/watch", "why": "x",
+                      "sender": "proof", "body": {"ticket": TID, "holds": True}})
     return "sits under no component charter" in repr(got), got
 
 

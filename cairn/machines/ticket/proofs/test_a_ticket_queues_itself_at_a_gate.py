@@ -35,6 +35,9 @@ PROVES = {
         "4": "test_a_fail_kicks_back_to_fixme_and_queues_at_design",
         "5": "test_at_resolves_an_id_or_a_path_and_refuses_nothing",
     },
+    "fa4462c803d6": {
+        "7": "test_a_fail_before_buildme_stays_put_and_queues_at_design",
+    },
 }
 
 _TID = "fixturet2a01"
@@ -183,6 +186,29 @@ def test_a_fail_kicks_back_to_fixme_and_queues_at_design():
         assert got["queued"] is False and got["trouble"] == ident, got
         assert ident in _troubles(w), f"no trouble {ident} in the roots"
     print("ok test_a_fail_kicks_back_to_fixme_and_queues_at_design")
+
+
+def test_a_fail_before_buildme_stays_put_and_queues_at_design():
+    """A chart stage fails a ticket that stands at TICKETME, where FIXME (anchored before BUILDME)
+    cannot be entered: outline 3.3.4.3's whole fail is "it asks design to queue it"."""
+    with _world("TICKETME") as w:
+        t = _ticket(w)
+        spy = _Spy()
+        before = _state(w)["workflow_and_state"]
+        hist = Path(w["history"])
+        had = hist.read_bytes() if hist.is_file() else None
+        lacks = [{"kind": "survey", "why": "the plan carries no chart.survey draft"}]
+        got = t.failed(lacks, participant=spy, history_path=w["history"],
+                       state_path=w["state"], actor="codemother", why="fixture chart fail")
+        st = _state(w)
+        assert st["workflow_and_state"] == before and got["workflow"] == before, (st, got)
+        assert st["fixme"] == [{"n": 1, "kind": "survey",
+                                "missing": "the plan carries no chart.survey draft"}], st
+        assert (hist.read_bytes() if hist.is_file() else None) == had, "a journal was written"
+        assert not [p for p in spy.posts if p["to"] == "harbor_master"], spy.posts
+        assert [r["verb"] for r in spy.requests] == ["machines/design/queueme"], spy.requests
+        assert got["queued"] is True, got
+    print("ok test_a_fail_before_buildme_stays_put_and_queues_at_design")
 
 
 def test_at_resolves_an_id_or_a_path_and_refuses_nothing():

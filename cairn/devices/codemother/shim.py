@@ -142,10 +142,12 @@ class CodeMotherDevice(BaseDevice):
 
     def declared_machines(self) -> dict:
         """The gates she holds, each answering ``machines/<gate>/<verb>`` (outline 3.3.4.1)."""
+        from cairn.devices.codemother.machines.chart_gate.gate import gates
         from cairn.devices.codemother.machines.clearance.gate import ClearanceGate
         from cairn.devices.codemother.machines.watchme.gate import Voice, WatchmeGate
         return {"watchme": WatchmeGate(participant=Voice(self._bus)),
-                "clearance": ClearanceGate(participant=Voice(self._bus))}
+                "clearance": ClearanceGate(participant=Voice(self._bus)),
+                **gates(participant=Voice(self._bus))}
 
     # --- the seal that crosses its own boat ---------------------------------
 

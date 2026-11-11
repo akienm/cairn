@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_ticket_charts_itself_stage_by_stage.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T09:09:35",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T09:49:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_draft_lands_on_the_plan_and_an_unknown_stage_writes_nothing\n.\n  ok   test_a_berth_lands_on_the_state_beside_the_earlier_ones\n.\n  ok   test_chart_queues_at_every_stage_in_order_with_only_the_fileref\n.\n  ok   test_chart_stops_at_the_first_stage_that_does_not_pass\n.\n  ok   test_the_store_charter_shapes_chart_and_the_cast_door_enforces_it\n                                                                    [100%]\n5 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_a_draft_lands_on_the_plan_and_an_unknown_stage_writes_nothing\n.\n  ok   test_a_berth_lands_on_the_state_beside_the_earlier_ones\n.\n  ok   test_chart_queues_at_every_stage_in_order_with_only_the_fileref\n.\n  ok   test_chart_stops_at_the_first_stage_that_does_not_pass\n.\n  ok   test_the_store_charter_shapes_chart_and_the_cast_door_enforces_it\n                                                                    [100%]\n5 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_draft_lands_on_the_plan_and_an_unknown_stage_writes_nothing",
@@ -17,7 +17,7 @@
         "test_the_store_charter_shapes_chart_and_the_cast_door_enforces_it"
       ],
       "teeth_red": [],
-      "test": "test-048b7ccd513f",
+      "test": "test-69b45b3e96d8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-048b7ccd513f",
-      "source_fingerprint": "9eeba66e4633aa031bb900924e7811a064287507b6bd939e4cda9af170419469",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-69b45b3e96d8",
+      "source_fingerprint": "fd8370dc69b5059ca4a4c7f10ead147a1fe5f6e009b8733b7c0694957c6f4dd0",
       "fingerprint_closure": [
         "cairn/machines/ticket/__init__.py",
         "cairn/machines/ticket/proofs/test_a_ticket_charts_itself_stage_by_stage.py",
@@ -55,7 +54,7 @@
       "reached": {
         "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
         "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
-        "cairn/tools/base": "135d7c18423646d45e7a8e43fb2cf8bd536d443219331b080bffc7868944ad93",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -64,7 +63,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-410525-q0dz_x59/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-445463-xzow9ro9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,35 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 525719655,
-          "disk_bytes": 562085888,
-          "entries": 14215,
+          "bytes": 525797903,
+          "disk_bytes": 562212864,
+          "entries": 14235,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "cd8a1de6139c": {
-          "cairn/tools/base/transitions.py": [
-            "test_the_store_charter_shapes_chart_and_the_cast_door_enforces_it"
-          ],
-          "cairn/machines/ticket/ticket.py": [
-            "test_a_berth_lands_on_the_state_beside_the_earlier_ones",
-            "test_a_draft_lands_on_the_plan_and_an_unknown_stage_writes_nothing",
-            "test_chart_queues_at_every_stage_in_order_with_only_the_fileref",
-            "test_chart_stops_at_the_first_stage_that_does_not_pass"
-          ],
-          "CairnCommons/tickets/_charter+why.json": [
-            "test_the_store_charter_shapes_chart_and_the_cast_door_enforces_it"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "cd8a1de6139c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "35260351d068d4d900035dd6371fdb57976e0c8e",
-          "anchor_first_build": "dbcef1a7f4450ac078be5f8ca3a9625883388f6c",
-          "commit": "35260351d068d4d900035dd6371fdb57976e0c8e"
+          "reuses": 4
         }
       }
     },

@@ -36,6 +36,18 @@ VERDICT = "verdict"
 _CURSOR = re.compile(r"\[([A-Z]+)")
 
 
+def _before_repair(workflow: str) -> bool:
+    """Does ``workflow`` stand before the anchor of its FIXME repair summons, so FIXME cannot be
+    entered (``transitions.emit``'s rule, read from the same registered workflow)?"""
+    from cairn.tools.base.transitions import load_class_def
+    from cairn.tools.base.workflow_grammar import _registered_workflow, parse_workflow
+    wf = parse_workflow(workflow)
+    anchor = _registered_workflow(load_class_def(wf.node_class), wf.version
+                                  ).get("repair_summons", {}).get("FIXME")
+    return bool(anchor) and "FIXME" not in wf.path and anchor in wf.path \
+        and wf.cursor < wf.path.index(anchor)
+
+
 def _step(workflow: str) -> str:
     m = _CURSOR.search(workflow or "")
     return m.group(1) if m else ""
@@ -217,11 +229,19 @@ class Ticket(DiagnosticBase):
         from cairn.tools.base.transitions import emit
         old = self.workflow
         missing = [f"[{one['kind']}] {one['why']}" for one in lacks]
+        fixme = [{"n": i, "kind": one["kind"], "missing": one["why"]}
+                 for i, one in enumerate(lacks, 1)]
+        if _before_repair(old):
+            # A chart stage fails a ticket still at TICKETME, and FIXME is anchored before
+            # BUILDME: there is no build to kick back from. Outline 3.3.4.3's whole fail is "it
+            # asks design to queue it", so the cursor stands, the lacks land, design is asked.
+            self._write({"fixme": fixme},
+                        why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
+            return {**self.queueme(DESIGN, participant=participant, timeout=timeout),
+                    "workflow": old}
         new = emit(old, "FIXME", history_path=history_path, state_path=state_path,
                    write_fixme=False, ticket=self.id, actor=actor, missing=missing, why=why)
-        self._write({"workflow_and_state": new,
-                     "fixme": [{"n": i, "kind": one["kind"], "missing": one["why"]}
-                               for i, one in enumerate(lacks, 1)]},
+        self._write({"workflow_and_state": new, "fixme": fixme},
                     why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
         self._tell_harbor(participant, frm=_step(old), to="FIXME", direction="back")
         return {**self.queueme(DESIGN, participant=participant, timeout=timeout), "workflow": new}

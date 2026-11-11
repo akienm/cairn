@@ -44,6 +44,28 @@ _COMMONS = _REPO.parent / "CairnCommons"
 _SKIP = {".git", "__pycache__", "node_modules", ".venv", "venv"}
 
 
+def journal_of(ticket, *, roots=None) -> dict:
+    """``{history_path, state_path}`` of the component that owns ``ticket``, or ValueError.
+
+    The owning intention resolves under the repo, then the commons, then as an absolute path —
+    ``roots`` (``{repo, commons, ...}``) for a proof's scratch world, None for the live one. Read
+    by this gate's crossing and by every chart-stage gate's fail (``chart_gate``)."""
+    repo, commons = ((Path(roots["repo"]), Path(roots["commons"])) if roots is not None
+                     else (_REPO, _COMMONS))
+    owning = ticket.doc().get("owning_intention") or ""
+    if not owning:
+        raise ValueError(f"ticket {ticket.id} names no owning_intention, so the component "
+                         "whose journal the crossing writes is unknown")
+    comp = next((r / owning for r in (repo, commons) if (r / owning).is_file()), None)
+    if comp is None and Path(owning).is_absolute() and Path(owning).is_file():
+        comp = Path(owning)
+    if comp is None:
+        raise ValueError(f"ticket {ticket.id}'s owning_intention {owning!r} resolves under "
+                         f"neither {repo} nor {commons}")
+    return {"history_path": str(comp.parent / "history.json"),
+            "state_path": str(comp.parent / "state.json")}
+
+
 class ClearanceGate(DiagnosticBase):
     """The gate a ticket's crossing asks.
 
@@ -75,25 +97,13 @@ class ClearanceGate(DiagnosticBase):
     def crossing_of(self, ticket) -> dict:
         """``{target, proven_by, history_path, state_path}`` for ``ticket``, or ValueError."""
         from cairn.tools.base.workflow_grammar import parse_workflow
-        _, repo, commons = self._where()
         wf = parse_workflow(ticket.workflow)
         if wf.cursor + 1 >= len(wf.path):
             raise ValueError(f"ticket {ticket.id} stands at {wf.here}, the last step of its "
                              "workflow: there is no next step to cross to")
         target = wf.path[wf.cursor + 1]
-        owning = ticket.doc().get("owning_intention") or ""
-        if not owning:
-            raise ValueError(f"ticket {ticket.id} names no owning_intention, so the component "
-                             "whose journal the crossing writes is unknown")
-        comp = next((r / owning for r in (repo, commons) if (r / owning).is_file()), None)
-        if comp is None and Path(owning).is_absolute() and Path(owning).is_file():
-            comp = Path(owning)
-        if comp is None:
-            raise ValueError(f"ticket {ticket.id}'s owning_intention {owning!r} resolves under "
-                             f"neither {repo} nor {commons}")
         return {"target": target, "proven_by": self.proven_by(ticket.id, target),
-                "history_path": str(comp.parent / "history.json"),
-                "state_path": str(comp.parent / "state.json")}
+                **journal_of(ticket, roots=self._roots)}
 
     def proven_by(self, tid: str, target: str) -> list[str]:
         if target == "PROVED":

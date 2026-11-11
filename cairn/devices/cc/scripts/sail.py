@@ -38,6 +38,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402
+
 SENDER = "CC"
 HOLDER = "codemother"
 CHART = ("orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate")
@@ -48,10 +50,11 @@ VERDICT_TIMEOUT_S = 890.0
 GATE_TIMEOUT_S = 120.0
 
 
-class Asker:
+class Asker(DiagnosticBase):
     """The participant CC hands a Ticket: a bus that asks codemother, with CC as the sender."""
 
     def __init__(self, bus=None) -> None:
+        super().__init__()
         self._bus = bus
 
     def _dial(self):

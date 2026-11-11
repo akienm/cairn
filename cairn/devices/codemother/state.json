@@ -1,9 +1,9 @@
 {
   "cursor": {
     "from": "TICKETME",
-    "to": "SUPERSEDED",
-    "standing": "SUPERSEDED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(the_skills_stop_asking_the_operator) -> PROVED -> [SUPERSEDED]",
+    "to": "RETIRED",
+    "standing": "RETIRED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [RETIRED]",
     "direction": "disposition",
     "entry_gate": "not_applicable",
     "proved": [
@@ -11,18 +11,17 @@
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
-        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "expected": "'RETIRED' in the code-seam@v2 vocabulary",
+        "actual": "'RETIRED' in the code-seam@v2 vocabulary",
         "fatality": "none",
         "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "RETIRED",
           "vocabulary": [
             "THINKME",
             "TICKETME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -36,26 +35,26 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
-        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "expected": "TICKETME -> RETIRED moves the cursor off position 1",
+        "actual": "TICKETME -> RETIRED moves the cursor off position 1",
         "fatality": "none",
         "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "RETIRED",
           "cursor": 1,
-          "resolved": 6
+          "resolved": 5
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED",
-        "actual": "TICKETME -> SUPERSEDED",
+        "expected": "TICKETME -> RETIRED",
+        "actual": "TICKETME -> RETIRED",
         "fatality": "none",
         "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "RETIRED",
           "legal_from_here": [
             "BUILDME",
             "DROPPED",
@@ -71,194 +70,17 @@
     "cleared_by": "CC",
     "actor": "CC",
     "proven_by": [
-      "cairn/devices/codemother/proofs/test_codemother_shows_an_artifact.py"
+      "cairn/devices/codemother/machines/chart_gate/proofs/test_the_stage_gates_chart_a_ticket.py"
     ],
-    "proven_seal_date": "2026-11-10T06:58:00",
+    "proven_seal_date": "2026-11-11T09:52:55",
     "delegated": false,
-    "ticket": "6b06fcb499fa",
-    "why": "superseded by ticket 2faf52fb34ca (D7): re-cast against the outline as it stands — harbor_master is a CodeMother machine with no show map (9.4.1), the operator's commands are inbox, review, answer (7.4), and operator_inbox is CodeMother's tool (9.5); 2faf52fb34ca is PROVED",
-    "fingerprint": "e52c9e749643c6fe7f8b640189147f0f3a2f2ba785fe6c75a364e89fba6307d1",
-    "at": "2026-11-10T07:16:10",
-    "seq": 77
+    "ticket": "26ec04b32637",
+    "why": "retired unbuilt: superseded by fa4462c803d6 (PROVED 2026-11-11) — the chart is no one verb on codemother's bus; each stage is a gate the ticket queues to (Q#81, outline 9.6)",
+    "fingerprint": "4f7fad33e8374de4987dd319d0a293658180d824bc65461170ebec90f1f4f166",
+    "at": "2026-11-11T09:59:22",
+    "seq": 78
   },
   "window": [
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'c42e4e436d6c', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'codemother' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "c42e4e436d6c",
-            "component": "codemother",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'c42e4e436d6c' is cast",
-          "actual": "named ticket 'c42e4e436d6c' is cast",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "c42e4e436d6c",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/c42e4e436d6c-test-codemother-declares-its-budget.json"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "c42e4e436d6c"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "c42e4e436d6c"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "c42e4e436d6c"
-          }
-        },
-        {
-          "identity": "the_ticket_has_every_answer_it_needs",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "c42e4e436d6c"
-          }
-        },
-        {
-          "identity": "the_ticket_was_checked_against_the_outline",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "c42e4e436d6c"
-          }
-        }
-      ],
-      "checks_proved": 10,
-      "certificate": "certificates/c42e4e436d6c-BUILDME-20261110T140212Z-d470.cert.json",
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": [
-        "cairn/devices/codemother/proofs/test_codemother_declares_its_budget.py"
-      ],
-      "proven_seal_date": null,
-      "delegated": false,
-      "ticket": "c42e4e436d6c",
-      "why": "charted, outline-checked; the red-first proof stands red",
-      "fingerprint": "3ec6bfc03f5d3471fa9ad0d7eb27a139f57f423a5a3f74219fa9649c2f20a7c8",
-      "at": "2026-11-10T07:02:12",
-      "seq": 73
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -2120,7 +1942,88 @@
       "fingerprint": "e52c9e749643c6fe7f8b640189147f0f3a2f2ba785fe6c75a364e89fba6307d1",
       "at": "2026-11-10T07:16:10",
       "seq": 77
+    },
+    {
+      "from": "TICKETME",
+      "to": "RETIRED",
+      "standing": "RETIRED",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [RETIRED]",
+      "direction": "disposition",
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'RETIRED' in the code-seam@v2 vocabulary",
+          "actual": "'RETIRED' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "RETIRED",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> RETIRED moves the cursor off position 1",
+          "actual": "TICKETME -> RETIRED moves the cursor off position 1",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "RETIRED",
+            "cursor": 1,
+            "resolved": 5
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> RETIRED",
+          "actual": "TICKETME -> RETIRED",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "RETIRED",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "cairn/devices/codemother/machines/chart_gate/proofs/test_the_stage_gates_chart_a_ticket.py"
+      ],
+      "proven_seal_date": "2026-11-11T09:52:55",
+      "delegated": false,
+      "ticket": "26ec04b32637",
+      "why": "retired unbuilt: superseded by fa4462c803d6 (PROVED 2026-11-11) — the chart is no one verb on codemother's bus; each stage is a gate the ticket queues to (Q#81, outline 9.6)",
+      "fingerprint": "4f7fad33e8374de4987dd319d0a293658180d824bc65461170ebec90f1f4f166",
+      "at": "2026-11-11T09:59:22",
+      "seq": 78
     }
   ],
-  "count": 78
+  "count": 79
 }

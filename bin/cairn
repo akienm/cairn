@@ -126,8 +126,12 @@ _floor_venv() {
     "$CAIRN_VENV/bin/python3 is absent and $HERE/../cairn/devices/recovery/bootstrap.sh (the venv's one recipe) did not load"
   declare -F cairn_bootstrap_apply >/dev/null 2>&1 || _floor_refuse venv \
     "$CAIRN_VENV/bin/python3 is absent and bootstrap.sh exposes no cairn_bootstrap_apply"
-  cairn_bootstrap_verify >/dev/null 2>&1 || cairn_bootstrap_apply >/dev/null 2>&1 || true
+  # ONE verify-or-apply, and its findings are the report. A second verify here used to reset
+  # CAIRN_BOOTSTRAP_FINDINGS and replace apply's measured cause with its downstream symptom —
+  # measured 2026-11-11 on a fresh box: ensurepip absent came out as "IMPORT ROOT BROKEN …
+  # Repair: pip install -e", a repair that could not run because the venv had no pip (Law 7).
   cairn_bootstrap_verify >/dev/null 2>&1 && return 0
+  cairn_bootstrap_apply >/dev/null 2>&1 && return 0
   _floor_refuse venv "$CAIRN_VENV/bin/python3 was absent and the lay-down (cairn/devices/recovery/bootstrap.sh cairn_bootstrap_apply) did not leave a working venv: $(printf '%s | ' ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"})"
 }
 
@@ -140,8 +144,14 @@ _floor_db() {
   if command -v pg_isready >/dev/null 2>&1 && pg_isready -h "$CAIRN_PG_SOCKET_DIR" -p 5432 -q 2>/dev/null; then
     return 0
   fi
-  local started
-  started="$(sudo -n systemctl start postgresql.service 2>&1)" || _floor_refuse db \
+  local started start_rc=0
+  started="$(sudo -n systemctl start postgresql.service 2>&1)" || start_rc=$?
+  # A unit that does not exist is not a permissions problem, and the sudoers remedy below
+  # would send a fresh box's fixer the wrong way (measured 2026-11-11, akienasus: "Unit
+  # postgresql.service not found." answered with "lay the sudoers line").
+  [[ "$started" == *"postgresql.service not found"* ]] && _floor_refuse db \
+    "postgres is down at $sock because it is NOT INSTALLED on this host (sudo -n systemctl start postgresql.service: $started). Repair: sudo apt-get install -y postgresql, then lay cairn's database on it"
+  [[ "$start_rc" -eq 0 ]] || _floor_refuse db \
     "postgres is down at $sock and this user could not start it (sudo -n systemctl start postgresql.service: ${started:-refused}); lay the sudoers line once — the ollama line's twin, for /bin/systemctl start postgresql.service — or run: cairn sudorelay"
   local i=0
   while (( i < 75 )); do
@@ -246,7 +256,32 @@ if [[ $# -ge 2 && "${2,,}" == help ]]; then
   _help device "$_hd" "$_hn"; exit $?
 fi
 
-_floor
+# SUPERCLAUDE IS THE ONE COMMAND THE FLOOR NEVER REFUSES (Akien, 2026-11-11: on a brand-new box
+# "it should start by installing and launching you with a report about what's not working so
+# you can fix it"). Its own preflight owns the venv (and can use the sudo password it collects,
+# which this floor runs too early to have), so here the venv check is left to it, and db +
+# instance run soft: each in a subshell, where a refusal's exit 3 ends only that subshell and
+# its message is carried into the launch as CAIRN_FLOOR_FINDINGS for the session to fix.
+_sc_tok="${1,,}"
+if [[ "${_sc_tok%%.*}" == superclaude ]]; then
+  CAIRN_FLOOR_FINDINGS=""
+  for _chk in _floor_db _floor_instance; do
+    _out="$( ($_chk) 2>&1 )" || CAIRN_FLOOR_FINDINGS+="${_out}"$'\n'
+  done
+  # _floor_instance's proxy is "cairn/0 exists", and other writers make that folder (measured
+  # 2026-11-11, fresh box: a session's hooks had made cairn/0, so the walk never ran and the
+  # dispatch below answered "no such device: superclaude"). This launch needs its OWN bin.
+  if [[ ! -x "$INSTANCE_ROOT/superclaude/0/bin/superclaude" ]]; then
+    # shellcheck source=/dev/null
+    source "$HERE/../cairn/devices/recovery/bootstrap.sh" 2>/dev/null || true
+    declare -F cairn_wire_instances >/dev/null 2>&1 \
+      && CAIRN_INSTANCE_ROOT="$INSTANCE_ROOT" cairn_wire_instances >/dev/null 2>&1 || true
+  fi
+  [[ -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && export PATH="$CAIRN_VENV/$CAIRN_VENV_BIN:$PATH"
+  export CAIRN_FLOOR_FINDINGS
+else
+  _floor
+fi
 
 # THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim
 # (ruled 2026-09-07: system words are case-insensitive when Akien types them; his free

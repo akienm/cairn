@@ -323,6 +323,45 @@ fi
 _sc_log "launch: argv=[$*] session=$session context=$context_state preflight=$([[ "$no_preflight" -eq 1 ]] && echo bypassed || echo on)"
 [[ -n "$_sc_moved" ]] && _sc_log "moved: $_sc_moved"
 
+# ── sudo for the session: asked once, held in memory, gone when the session ends ──────────
+# Akien, 2026-11-11: a brand-new box should launch CC "with a report about what's not working
+# so you can fix it. this includes asking for the sudo pw so you can set up everything …
+# putting it in an env var that goes away when the session ends". So: if sudo already works
+# without a prompt nothing is asked; otherwise the password is read here (no echo), checked
+# against sudo itself, and exported as CAIRN_SUDO_PW. It is in THIS process tree's environment
+# only — never written to disk, never in an argv (the boot log records argv), and it dies with
+# the launcher. SUDO_ASKPASS serves it to `sudo -A`, which is how the session and the
+# preflight's _cairn_sudo use it without it ever appearing on a command line.
+# Asked BEFORE the preflight, so the venv lay-down can already install python3-venv with it.
+_sc_askpass="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/scripts/sudo_askpass"
+_sc_sudo_note=""
+_sc_sudo_check() { printf '%s\n' "$1" | sudo -S -k -p '' true >/dev/null 2>&1; }
+if command -v sudo >/dev/null 2>&1; then
+  if sudo -n true 2>/dev/null; then
+    _sc_sudo_note="sudo: passwordless for $USER on this host — plain \`sudo -n <cmd>\` works."
+  elif [[ -n "${CAIRN_SUDO_PW:-}" ]] && _sc_sudo_check "$CAIRN_SUDO_PW"; then
+    _sc_sudo_note="held"
+  elif [[ "$dry_run" -eq 0 && -t 0 ]]; then
+    unset CAIRN_SUDO_PW
+    for _sc_try in 1 2 3; do
+      IFS= read -rs -p "superclaude: sudo password for $USER, so the session can set this box up (held in memory for this session only; Enter skips): " _sc_pw </dev/tty
+      echo >&2
+      [[ -z "$_sc_pw" ]] && break
+      if _sc_sudo_check "$_sc_pw"; then export CAIRN_SUDO_PW="$_sc_pw"; _sc_sudo_note="held"; break; fi
+      echo "superclaude: sudo refused that password" >&2
+    done
+    unset _sc_pw
+  fi
+  if [[ "$_sc_sudo_note" == held ]]; then
+    export SUDO_ASKPASS="$_sc_askpass"
+    _sc_sudo_note="sudo: the password was given at launch and is held in this session's environment (CAIRN_SUDO_PW, served by SUDO_ASKPASS=$_sc_askpass). Run privileged commands as \`sudo -A <cmd>\`. Never print, log or commit that variable; it ends with the session."
+  elif [[ -z "$_sc_sudo_note" ]]; then
+    unset CAIRN_SUDO_PW
+    _sc_sudo_note="sudo: NOT available to this session — it needs a password and none was given at launch. Anything needing root goes to Akien as a command for him to run with \`! <cmd>\`."
+  fi
+fi
+_sc_log "sudo: $(case "$_sc_sudo_note" in *passwordless*) echo passwordless ;; *held*) echo "password held for session" ;; *NOT*) echo unavailable ;; *) echo "no sudo" ;; esac)"
+
 preflight_arg=()
 if [[ "$no_preflight" -eq 0 ]]; then
   bootstrap="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../recovery/bootstrap.sh"
@@ -387,8 +426,58 @@ if [[ -r "$_sc_memlink" && -n "$_sc_py" ]]; then
   fi
 fi
 
+# ── what bin/cairn's floor could not lay, carried in rather than refused (2026-11-11) ──
+# bin/cairn runs its db + instance checks soft for this one command and exports what they
+# said. Riding with the residue is what turns "exit 3 on a bare box" into a session that
+# opens knowing what to fix. The sudo line rides only beside a real report — invisible when
+# the floor is up, the preflight's own contract.
+_sc_floor="${CAIRN_FLOOR_FINDINGS:-}"   # unset when launched directly, not through bin/cairn
+if [[ -n "${_sc_floor//[[:space:]]/}" ]]; then
+  _sc_log "floor: carried in — ${CAIRN_FLOOR_FINDINGS//$'\n'/ | }"
+  residue="${residue:+$residue
+}CAIRN FLOOR — bin/cairn's floor checks that did not pass (they would refuse any other command):
+$(printf '%s' "$CAIRN_FLOOR_FINDINGS" | sed '/^$/d; s/^/  - /')"
+fi
+unset CAIRN_FLOOR_FINDINGS
+if [[ -n "${residue:-}" ]]; then
+  [[ -n "$_sc_sudo_note" ]] && residue="$residue
+
+$_sc_sudo_note"
+  preflight_arg=(--append-system-prompt "$residue")
+fi
+
 # ── assemble the launch ──────────────────────────────────────────────────────
 claude_bin="${CLAUDE_BIN:-claude}"
+
+# ── NO CLAUDE ON THE BOX: INSTALL IT (Akien, 2026-11-11: "if claude is not installed, it
+# should be") ─────────────────────────────────────────────────────────────────────────────
+# The native installer puts the binary in ~/.local/bin, which a fresh login PATH may not hold
+# yet, so that is looked at before anything is downloaded. --dry-run says what it would do
+# and installs nothing. If the install fails there is nothing left to launch: that is the one
+# exit this launcher takes before exec, and it is loud.
+if ! command -v "$claude_bin" >/dev/null 2>&1 && [[ -x "$HOME/.local/bin/claude" ]]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+if ! command -v "$claude_bin" >/dev/null 2>&1; then
+  _sc_installer="${CAIRN_CLAUDE_INSTALLER:-https://claude.ai/install.sh}"
+  if [[ "$dry_run" -eq 1 ]]; then
+    echo "# claude not found: a real launch would install it from $_sc_installer"
+  else
+    echo "superclaude: $claude_bin not found — installing Claude Code from $_sc_installer" >&2
+    _sc_log "claude: absent — installing from $_sc_installer"
+    if command -v curl >/dev/null 2>&1; then curl -fsSL "$_sc_installer" | bash
+    elif command -v wget >/dev/null 2>&1; then wget -qO- "$_sc_installer" | bash
+    else echo "superclaude: neither curl nor wget is on PATH to fetch $_sc_installer" >&2
+    fi
+    export PATH="$HOME/.local/bin:$PATH"
+    if ! command -v "$claude_bin" >/dev/null 2>&1; then
+      echo "superclaude: FAILED — the installer ran but $claude_bin is still not on PATH. Install by hand: curl -fsSL https://claude.ai/install.sh | bash" >&2
+      _sc_log "claude: install FAILED — nothing to launch"
+      exit 127
+    fi
+    _sc_log "claude: installed — $(command -v "$claude_bin")"
+  fi
+fi
 
 # THE FLAGS HOME -- instance-space, per instance, never in git. The MENU is created
 # on every launch so `ls` always shows the three; an ACTIVE signal is a copy one

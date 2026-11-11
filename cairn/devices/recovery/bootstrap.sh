@@ -99,6 +99,17 @@ cairn_venv_dir() {
   echo "${CAIRN_VENV:-$HOME/.cairn/venv}"
 }
 
+# sudo that never prompts: passwordless if the host allows it, else the session password
+# superclaude collected at launch (CAIRN_SUDO_PW, served to sudo -A by SUDO_ASKPASS — Akien,
+# 2026-11-11: "putting it in an env var that goes away when the session ends"). A prompt here
+# would hang a sourced, non-interactive caller, so neither branch can ever ask.
+_cairn_sudo() {
+  command -v sudo >/dev/null 2>&1 || return 127
+  if sudo -n true 2>/dev/null; then sudo -n "$@"; return $?; fi
+  if [[ -n "${CAIRN_SUDO_PW:-}" && -x "${SUDO_ASKPASS:-}" ]]; then sudo -A "$@" </dev/null; return $?; fi
+  return 1
+}
+
 # The venv's interpreter, wherever the host puts it: bin/python3 on POSIX, Scripts/python.exe
 # under Git Bash. When neither exists yet, the POSIX path is returned (the absent-venv message
 # names it, and apply re-resolves after it creates the venv).
@@ -208,14 +219,44 @@ cairn_bootstrap_apply() {
     return 1
   fi
 
-  if [[ ! -x "$vpy" ]]; then
+  # A HALF-BUILT VENV IS NOT A VENV (measured 2026-11-11, akienasus, a fresh 24.04 box):
+  # `python3 -m venv` without ensurepip exits 1 but LEAVES bin/python3 behind, with no pip.
+  # Every later launch then saw an executable interpreter, skipped the create, and failed
+  # the install on "No module named pip", forever. So a venv whose interpreter cannot run
+  # pip is rebuilt (--clear), never installed into.
+  local rebuild=()
+  if [[ -x "$vpy" ]] && ! "$vpy" -m pip --version >/dev/null 2>&1; then
+    _cairn_boot_log "apply: step half-built-venv — $vpy exists but has no pip; rebuilding with --clear"
+    rebuild=(--clear)
+  fi
+
+  if [[ ! -x "$vpy" || ${#rebuild[@]} -gt 0 ]]; then
     # `python3 -m venv` does NOT create intermediate directories — measured 2026-07-30,
     # it exits 1 with ENOENT on the parent. On a genuinely bare box ~/.cairn does not
     # exist yet, which is precisely the box this tier exists to serve, so the seam makes
     # its own parent rather than reporting a failure it could have prevented.
     mkdir -p "$(dirname "$venv")" 2>/dev/null
-    out="$(python3 -m venv "$venv" 2>&1)"; rc=$?
+    out="$(python3 -m venv ${rebuild[@]+"${rebuild[@]}"} "$venv" 2>&1)"; rc=$?
     _cairn_boot_log "apply: step create-venv \`python3 -m venv $venv\` -> rc=$rc out=${out//$'\n'/ | }"
+    # Debian/Ubuntu ship python3 WITHOUT ensurepip; it is the python3-venv package. This
+    # branch fires on the measured output naming ensurepip, never on a guess, and only
+    # when sudo can actually be used without a prompt (passwordless, or the session's
+    # password that superclaude collected — _cairn_sudo).
+    if [[ $rc -ne 0 && "$out" == *ensurepip* ]] && command -v apt-get >/dev/null 2>&1; then
+      local apt_out apt_rc
+      apt_out="$(_cairn_sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y python3-venv 2>&1)"; apt_rc=$?
+      if [[ $apt_rc -ne 0 ]]; then
+        _cairn_sudo env DEBIAN_FRONTEND=noninteractive apt-get update >/dev/null 2>&1
+        apt_out="$(_cairn_sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y python3-venv 2>&1)"; apt_rc=$?
+      fi
+      _cairn_boot_log "apply: step apt-python3-venv -> rc=$apt_rc out=$(tail -n 3 <<<"$apt_out" | tr '\n' '|')"
+      if [[ $apt_rc -eq 0 ]]; then
+        out="$(python3 -m venv --clear "$venv" 2>&1)"; rc=$?
+        _cairn_boot_log "apply: step create-venv-retry -> rc=$rc out=${out//$'\n'/ | }"
+      else
+        CAIRN_BOOTSTRAP_FINDINGS+=("PYTHON3-VENV NOT INSTALLABLE — the venv create reported ensurepip missing, and \`sudo apt-get install -y python3-venv\` exited $apt_rc: $(tail -n 3 <<<"$apt_out" | tr '\n' '|'). sudo needs a password this launch does not hold, or apt is offline. Repair: sudo apt-get install -y python3-venv, then cairn_bootstrap_apply.")
+      fi
+    fi
     if [[ $rc -ne 0 ]]; then
       # The hint names CANDIDATES, never a cause. An earlier draft asserted "usually the
       # missing ensurepip package" and was measured saying exactly that over an ENOENT on

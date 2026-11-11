@@ -151,6 +151,27 @@ def test_a_finding_never_asserts_a_cause_it_did_not_measure() -> None:
     assert "Output:" in r.stdout, "the finding does not carry the measured output it is reasoning from"
 
 
+def test_a_half_built_venv_is_rebuilt_not_installed_into() -> None:
+    """Regression, measured 2026-11-11 on a fresh 24.04 box: `python3 -m venv` without ensurepip
+    exits 1 but leaves bin/python3 behind with no pip, and every later apply saw an interpreter,
+    skipped the create, and failed on "No module named pip" forever. --without-pip builds that
+    exact shape. PIP_NO_INDEX keeps the editable install from reaching PyPI: the tooth measures
+    the rebuild, not the download, so the install may well fail — but never for want of pip."""
+    venv = scratch_dir("cairn-proof-halfvenv-") / "venv"
+    subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(venv)], check=True,
+                   capture_output=True, env=_env())
+    assert (venv / "bin" / "python3").exists(), "the half-built fixture has no interpreter"
+    gone = subprocess.run([str(venv / "bin" / "python3"), "-m", "pip", "--version"], capture_output=True,
+                          env=_env())
+    assert gone.returncode != 0, "the half-built fixture has pip — the tooth would be vacuous"
+    r = _sh('cairn_bootstrap_apply >/dev/null 2>&1; printf "%s\\n" "${CAIRN_BOOTSTRAP_FINDINGS[@]}"',
+            env={"CAIRN_VENV": str(venv), "PIP_NO_INDEX": "1"})
+    has_pip = subprocess.run([str(venv / "bin" / "python3"), "-m", "pip", "--version"],
+                             capture_output=True, env=_env()).returncode == 0
+    assert has_pip, f"apply left the half-built venv without pip — findings: {r.stdout!r}"
+    assert "No module named pip" not in r.stdout, f"apply installed into a pip-less venv: {r.stdout!r}"
+
+
 def test_the_report_is_silent_when_the_floor_is_up() -> None:
     """The invisibility contract: the tool speaks only when there is something to fix."""
     r = _sh('CAIRN_BOOTSTRAP_FINDINGS=(); cairn_bootstrap_report; echo "RC=$?"')

@@ -1,0 +1,10 @@
+#!/bin/sh
+# sudo_askpass — serves the session's sudo password to `sudo -A`, and nothing else.
+#
+# superclaude asks for the password once at launch and exports it as CAIRN_SUDO_PW, in its
+# own process tree's environment only (Akien, 2026-11-11: "an env var that goes away when the
+# session ends"). sudo runs this helper and reads one line from stdout; the password never
+# appears in an argv, a log or a file. With nothing held it exits 1, so sudo refuses
+# rather than hanging.
+[ -n "${CAIRN_SUDO_PW:-}" ] || exit 1
+printf '%s\n' "$CAIRN_SUDO_PW"

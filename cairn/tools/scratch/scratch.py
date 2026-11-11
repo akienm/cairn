@@ -60,6 +60,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 # THE MARK (ticket 4784351e4838): ``<prefix>scratch.<pid-namespace inode>-<pid>-<mkdtemp suffix>``.
 # The name is the record — a tool holds no state of its own (Law 6).
@@ -87,7 +89,7 @@ def _rmtree(path, **kw) -> None:
 _swept = False
 
 
-class ScratchPath(type(Path())):
+class ScratchPath(DiagnosticBase, type(Path())):
     """A scratch Path that still works as a with-block.
 
     Python 3.13 removed pathlib.Path.__enter__/__exit__ (since 3.9 they returned self and

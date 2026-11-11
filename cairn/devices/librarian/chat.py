@@ -67,6 +67,7 @@ from cairn.devices.librarian.loop import BackfillRefused, resolve_query
 from cairn.devices.librarian.summarize import _MARKER, SUMMARY_REGION_K, SummaryRefused, summarize
 from cairn.devices.librarian.tools.trees.trees import NODES, DepositRefused, RefutationRefused, deposit, refute
 from cairn.devices.librarian.device import LibrarianDevice
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 # The affordances that route a turn away from the core loop — stated on the surface,
 # matched case-insensitively here. A prefix, not an intent guess: deterministic, free,
@@ -250,7 +251,7 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
     return {"utterance": utterance, "kind": kind, "reply": reply}
 
 
-class ChatSession:
+class ChatSession(DiagnosticBase):
     """The chatbot face a surface holds: turns accumulate here, knowledge accumulates
     in the graph. The transcript is RUNTIME state (in-process, instance-space if it
     ever persists); everything durable a conversation produces lives in the tree,
@@ -259,6 +260,7 @@ class ChatSession:
     def __init__(self, *, resolve, tree: str = "commons", k: int = 5,
                  summary_k: int = SUMMARY_REGION_K, table: str = NODES, conn=None,
                  dev: LibrarianDevice | None = None) -> None:
+        super().__init__()
         self._resolve = resolve
         self._tree = tree
         self._k = k

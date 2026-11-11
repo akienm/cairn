@@ -67,6 +67,9 @@ _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scr
 _HELD: dict[str, str] = {}
 
 
+
+PROVES = {"8c185173269a": {"2": "test_chat_opens_no_door_of_its_own"}}
+
 def _t(name: str) -> str:
     """Per-test nonce leaf table — each test "tree" IS its own leaf table (three-table design)."""
     if name not in _HELD:
@@ -434,7 +437,11 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
 def test_chat_opens_no_door_of_its_own():
     allowed = ("__future__", "hashlib", "cairn.devices.librarian.loop",
                "cairn.devices.librarian.summarize", "cairn.devices.librarian.tools.trees.trees",
-               "cairn.devices.librarian.device")
+               "cairn.devices.librarian.device",
+               # the diagnostic mixin every class with code carries (339a45cee6a1, Akien
+               # 2026-10-27: "everybody must inherit it. that's why it's a mixin") — the
+               # universal report surface, not a third mechanism (8c185173269a D3)
+               "cairn.tools.base.diagnostic")
     src = Path(chat_module.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):

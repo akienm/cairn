@@ -1084,7 +1084,7 @@ def _troubles_now():
     the crossing bug above, which at least failed loudly.
     """
     # The store moved to the logs tree (ticket 4ddc9df3369e); its cleared/ counts too.
-    from cairn.devices.trouble.trouble import store_root
+    from cairn.devices.trouble.tools.store.store import store_root
     troubles = store_root()
     return len(list(troubles.rglob("*.json"))) if troubles.is_dir() else 0
 

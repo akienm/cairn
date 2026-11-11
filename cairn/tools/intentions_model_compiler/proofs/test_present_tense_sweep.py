@@ -56,9 +56,9 @@ _PAIRS = Path(__file__).resolve().parents[1] / "probes" / "dated_append_judgment
 
 PROVES = {
     "c5875eb0d2d3": {
-        "1": "tooth_ii_zero_live_and_every_cite_stands",
-        "2": "tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record",
-        "3": "tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record",
+        "1": "test_ii_zero_live_and_every_cite_stands",
+        "2": "test_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record",
+        "3": "test_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record",
     },
 }
 
@@ -98,7 +98,7 @@ _FIXTURE = (
 )
 
 
-def tooth_i_scanner_detects_a_planted_narration() -> None:
+def test_i_scanner_detects_a_planted_narration() -> None:
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         if _PLANT:
             f.write(_FIXTURE)
@@ -117,7 +117,7 @@ def tooth_i_scanner_detects_a_planted_narration() -> None:
     print(f"tooth (i) green: planted fixture detected ({len(found)} matches, all three shapes)")
 
 
-def tooth_ii_zero_live_and_every_cite_stands() -> None:
+def test_ii_zero_live_and_every_cite_stands() -> None:
     r = survey_the_corpus()
     assert r["matches"] == [], (
         f"tooth (ii) RED: {len(r['matches'])} dated-append shape(s) still standing: "
@@ -153,7 +153,7 @@ def tooth_ii_zero_live_and_every_cite_stands() -> None:
     )
 
 
-def tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record() -> None:
+def test_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record() -> None:
     with tempfile.TemporaryDirectory(prefix="c587-cite-") as tmp:
         root = Path(tmp)
 
@@ -185,13 +185,11 @@ def tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record
 if __name__ == "__main__":
     failed = 0
     for _name, _fn in list(globals().items()):
-        if _name.startswith("tooth_") and callable(_fn):
+        if _name.startswith("test_") and callable(_fn):
             try:
                 _fn()
                 print(f"PASS {_name}")
             except Exception as exc:  # noqa: BLE001 — every tooth reports, red or raising
                 failed += 1
                 print(f"FAIL {_name}: {type(exc).__name__}: {exc}")
-    if not failed:
-        print("GREEN: the present-tense corpus carries no dated appends, and every judgment is on record")
     sys.exit(1 if failed else 0)

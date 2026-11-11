@@ -1,0 +1,25 @@
+{
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "component": "cairn/devices/codemother/machines/clearance",
+  "what": "CodeMother's CLEARANCE gate for a workflow's state-transition. `clear(workflow, target, *, actor, boat_id, proven_by, grant=None, history_path, state_path, resources=None, ...)` binds authority (Law 6: owner-gated, delegable per operation through `mint_grant`/`Grant`, never ambient; the boat's owner is read from the boat, `boat_owner_of`), proven-space (Law 8: `proven_by` is the proof's ADDRESS and the gate asks the seal beside it through `validation_store.standing`; the code is proven, never called), room on the host (a verdict from system_rackmount's `ask` door), retirement (an intention superseded or retired refuses its riders by name, `riders_of`, `retirement_of`), coverage (`hollow_lacks`, `_coverage_lacks`), and the wrapped base-class rules and truth (`base/transitions.emit`) before a cursor moves. Every attempt, granted or refused, is traced to the learning block `harbor_master:clearance` (the name of the corpus, kept). `python3 -m cairn.devices.codemother.machines.clearance <intention>` prints the deprecation report of an intention's riders. The refusal is the TICKET'S; the gate refuses on its behalf (decisions/2026-08-10-the-ticket-owns-the-refusal). Until T3b-2 it is fired by CodeMother's `cross` verb in her own process; then by queueme.",
+  "why": "Akien 2026-11-10 (outline 9.4.1.5, Q#80): the harbor's verbs are status queries (show, get) and crossing; it answers no gate and moves no ticket, and `clear` leaves. Outline 9.6 and 3.3.4.3 (Q#81): the gates are CodeMother's machines, each answering a ticket that asks it. It housed in the harbor before 'only because we had to have some place to put them' (Akien 2026-10-17); this is the place.",
+  "role": "the gate a ticket's crossing asks: grant the move, or refuse it by name on the ticket's behalf",
+  "runtime_role": "machine",
+  "node_class": "code-seam",
+  "falsifier": "A crossing moves a cursor that the actor does not own and holds no grant for, or whose proof's seal does not stand green, or onto a host with no room, or for an intention that is retired; or a refusal is not traced; or the harbor still answers `clear`; or CodeMother needs a bus to reach this gate.",
+  "public_interface": [],
+  "gated_by": [
+    "codemother",
+    "CC"
+  ],
+  "owner": "codemother (the care of the code, ruling 2026-09-06); CC co-listed while CC builds it",
+  "learns": "It does not learn; it decides from the ticket, the seal and the host, and every decision is a trace.",
+  "how_it_learns": "It does not; every attempt it decides lands in the learning block harbor_master:clearance (GRANTED or REFUSED, with the refusal's type), which is the record a learner reads.",
+  "state_and_history": "No state of its own: the crossing lands in the ticket's component journal through transitions.emit, the attempt in the learning block's trace store in instance-space.",
+  "feedback": {},
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
+}

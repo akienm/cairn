@@ -11,7 +11,8 @@ tooth (2) can read it like any other file.
 
 Teeth, each importing the code under test at call time:
   (1) the module imports at its new address with clear, _decide and riders_of, and the old
-      file is gone;
+      file is gone; every moved probe and proof stands at its new berth and not its old,
+      the package files and the charter exist, and codemother's charter holds clearance;
   (2) no class-space file outside history, state, validations and journals names the old
       module, its probes or its moved proofs, dotted, slashed or path-joined;
   (3) lives at the harbor's own address (RULE 1: this proof may not import the harbor):
@@ -61,6 +62,27 @@ _MOVED_PROOFS = ("test_clearance", "test_a_notified_file_is_covered", "test_" + 
                  "test_the_proven_space_rule_follows_the_ticket_kind",
                  "test_" + _H + "_probes_report_to_the_watch")
 
+# (old path under OLD_DIR, new path under NEW) for every moved source file — the ticket's
+# forwarding order, written here because a hollow worktree has no commons beside it.
+_MOVED_FILES = (
+    ("clearance.py", "clearance.py"),
+    ("probes/__init__.py", "probes/__init__.py"),
+    ("probes/a_second_hand_meets_the_gate.py", "probes/a_second_hand_meets_the_gate.py"),
+    ("probes/a_superseded_intention_is_never_silent.py", "probes/a_superseded_intention_is_never_silent.py"),
+    ("probes/boat_owner_comes_from_the_boat.py", "probes/boat_owner_comes_from_the_boat.py"),
+    ("probes/clearance_actually_gates.py", "probes/clearance_actually_gates.py"),
+    ("proofs/test_a_notified_file_is_covered.py", "proofs/test_a_notified_file_is_covered.py"),
+    ("proofs/test_clearance.py", "proofs/test_clearance.py"),
+    ("proofs/test_clearance_accepts_a_recorded_approval.py", "proofs/test_clearance_accepts_a_recorded_approval.py"),
+    ("proofs/test_clearance_reaches_trouble_through_its_tool.py",
+     "proofs/test_clearance_reaches_trouble_through_its_tool.py"),
+    ("proofs/test_clearance_reads_a_plan_approval.py", "proofs/test_clearance_reads_a_plan_approval.py"),
+    ("proofs/test_" + "harbor_asks_the_real_host.py", "proofs/test_clearance_asks_the_real_host.py"),
+    ("proofs/test_" + _H + "_probes_report_to_the_watch.py", "proofs/test_clearance_probes_report_to_the_watch.py"),
+    ("proofs/test_the_proven_space_rule_follows_the_ticket_kind.py",
+     "proofs/test_the_proven_space_rule_follows_the_ticket_kind.py"),
+)
+
 FAILURES: list[str] = []
 
 
@@ -82,6 +104,30 @@ def test_the_module_berths_in_codemother() -> None:
         bad.append(f"new address does not import: {type(exc).__name__}: {exc}")
     if (_REPO / OLD_DIR / "clearance.py").exists():
         bad.append("the old module still stands")
+    # The move is WHOLE (clause 1): every source file the forwarding order names stands at
+    # its new berth and not at its old one, the package files beside them exist, and the
+    # holder's charter says it holds the machine. Hollow measured each of these HOLLOW when
+    # the tooth read only clearance.py (2026-11-11).
+    for old, new in _MOVED_FILES:
+        if not (_REPO / NEW / new).is_file():
+            bad.append(f"{new} is not at {NEW}/")
+        if (_REPO / OLD_DIR / old).exists():
+            bad.append(f"{OLD_DIR}/{old} still stands")
+    for new in ("__init__.py", "probes/__init__.py", "intention+why.json"):
+        if not (_REPO / NEW / new).is_file():
+            bad.append(f"{NEW}/{new} is absent")
+    try:
+        charter = json.loads((_REPO / NEW / "intention+why.json").read_text("utf-8"))
+        if not (charter.get("why") or charter.get("what")):
+            bad.append("the clearance charter carries no why")
+    except Exception as exc:  # noqa: BLE001
+        bad.append(f"the clearance charter does not parse: {type(exc).__name__}")
+    try:
+        cm = json.loads((_REPO / "cairn/devices/codemother/intention+why.json").read_text("utf-8"))
+        if "clearance" not in (cm.get("held_machines") or []):
+            bad.append("codemother's charter does not hold clearance")
+    except Exception as exc:  # noqa: BLE001
+        bad.append(f"codemother's charter does not parse: {type(exc).__name__}")
     check("test_the_module_berths_in_codemother", not bad, "; ".join(bad))
 
 

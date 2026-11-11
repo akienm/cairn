@@ -460,7 +460,7 @@ def test_clearance_folds_the_node_class_it_exempts():
     """The harbor master's hollow rung exempts a concept-piece by FOLDED node_class — a
     ticket that spells it Concept-Piece is still a concept-piece, and a code-seam with no
     hollow reading is still refused (so the exemption is the fold deciding, not a bypass)."""
-    from cairn.devices.cairn.machines.harbor_master.clearance import hollow_lacks
+    from cairn.devices.codemother.machines.clearance.clearance import hollow_lacks
     seal_without_hollow = lambda *_a, **_k: {"evidence": {}}
     assert hollow_lacks({"id": "fx", "node_class": "Concept-Piece"}, ["p.py"],
                         seal_reader=seal_without_hollow) == []

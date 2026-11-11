@@ -1,4 +1,4 @@
-"""harbor_master/clearance.py — the CLEARANCE gate: the AUTHORITY rung of a transition.
+"""codemother/machines/clearance/clearance.py — the CLEARANCE gate: the AUTHORITY rung of a transition.
 
 harbor_master owns the harbor through which workflows voyage. Child a (register.py) is the
 TRUTH rung as an aggregate — the fleet register. This is child b: the AUTHORITY rung — the
@@ -71,7 +71,7 @@ Three things this is NOT, each load-bearing:
     starts anything. Initiative stays with the boat: each device owns its own task of checking
     whether it can start, and this is the door it checks at.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_clearance.py     # exit 0 = green
 """
 
 from __future__ import annotations

@@ -23,13 +23,12 @@ hands a VERB-carrying envelope to the base dispatcher and keeps the mail-drop on
 verbless mail (which is what the mail directory was always for — the device process
 reads it when woken).
 
-THE CROSS VERB IS THIS TICKET'S POINT. CodeMother owns the care of the code (ruled
-2026-09-06), and an owner with no gate is paper: the write she must be able to gate is
-a CROSSING. She fires the harbor's clearance door over the bus, as herself, and the
-door's own checks run unchanged — so a crossing she admits carries HER name in the
-record of truth, and a crossing she should not have admitted is refused by the door
-rather than by her manners. She may not import harbor_master (device isolation, ruled
-2026-08-31); the bus is the whole seam.
+THE CROSSING IS THE TICKET'S OWN ACT (outline 3.3.4.3, 9.6; ticket 0be964512fb0). CodeMother
+owns the care of the code (ruled 2026-09-06), and the write she gates is a CROSSING — but she
+does not move tickets. She HOLDS the gates a ticket asks: the clearance gate at
+``machines/clearance`` answers ``queueme <fileref>``, instantiates the ticket on her side and
+lets it process the pass, with ``clearance.clear`` as the door it crosses through, as her. The
+``cross`` verb that asked the harbor's ``clear`` over the bus left with it (9.4.1.5).
 """
 
 from __future__ import annotations
@@ -86,12 +85,7 @@ def ensure_charter_instance(roots: dict | None = None) -> dict:
     return {"address": str(home), "backpack": str(inbound),
             "tool_class": "cairn/tools/charter", "records": len(charter_backpack(roots).read())}
 
-# The harbor's bus address. A STRING, deliberately: naming the device is not importing
-# it, and this is the only thing codemother needs to know about the harbor.
-_HARBOR = "harbor_master"
-
-# The commons root, resolved the same way ``_resolve_component_dir`` resolves it below —
-# stated once here because the sealed handler reads the ticket corpus to find its boats.
+# The commons root — stated once here because the sealed handler reads the ticket corpus to find its boats.
 _COMMONS = Path(__file__).resolve().parents[3].parent / "CairnCommons"
 
 
@@ -136,7 +130,6 @@ class CodeMotherDevice(BaseDevice):
     def declared_verbs(self) -> dict:
         return {
             **super().declared_verbs(),
-            "cross": self._handle_cross,
             "sealed": self._handle_sealed,
             "activate": self._handle_activate,
             "commit": self._handle_commit,
@@ -149,137 +142,10 @@ class CodeMotherDevice(BaseDevice):
 
     def declared_machines(self) -> dict:
         """The gates she holds, each answering ``machines/<gate>/<verb>`` (outline 3.3.4.1)."""
+        from cairn.devices.codemother.machines.clearance.gate import ClearanceGate
         from cairn.devices.codemother.machines.watchme.gate import Voice, WatchmeGate
-        return {"watchme": WatchmeGate(participant=Voice(self._bus))}
-
-    # --- the door she fires -------------------------------------------------
-
-    def _handle_cross(self, envelope: dict) -> dict:
-        """Ask the harbor to move a boat, AS CODEMOTHER.
-
-        This handler decides nothing about whether the crossing may happen. It resolves
-        the crossing's four coordinates (which boat, to what target, over which history,
-        onto which proof), and asks. The harbor reads the actor off the ENVELOPE'S
-        SENDER — which is ``codemother``, because this device posted it — so there is no
-        field here that could claim a different hand, and none is sent.
-
-        WHAT IT WILL NOT DO IS FALL BACK. If the harbor is not wired on this bus the
-        request would sit until ``bus.request`` timed out thirty seconds later and then
-        raise something about correlation ids. That is a true error told badly, so it is
-        caught before it is made: the bus knows who is wired, and a harbor that is not
-        there is said plainly, once, with the fix (CP1).
-        """
-        body = envelope.get("body", {}) or {}
-        ticket = body.get("ticket") or body.get("boat_id") or ""
-        target = body.get("target") or ""
-        if not ticket or not target:
-            return {"accepted": False, "verb": "cross", "device": self.device_id,
-                    "reason": "cross needs a ticket and a target — a crossing is a named "
-                              "boat moving to a named state"}
-        try:
-            coords = self._crossing_coordinates(ticket, body)
-        except ValueError as exc:
-            return {"accepted": False, "verb": "cross", "device": self.device_id,
-                    "ticket": ticket, "target": target, "reason": str(exc)}
-        if self._bus is None:
-            return {"accepted": False, "verb": "cross", "device": self.device_id,
-                    "ticket": ticket, "target": target,
-                    "reason": "codemother has no bus, and the harbor door is only "
-                              "reachable over one — she may not import it (device "
-                              "isolation, ruled 2026-08-31)"}
-        wired = set(self._bus.list() or {})    # {device_id: {"wired": ..., ...}}
-        if wired and _HARBOR not in wired:
-            return {"accepted": False, "verb": "cross", "device": self.device_id,
-                    "ticket": ticket, "target": target,
-                    "reason": f"{_HARBOR!r} is not wired on this bus, so there is no door "
-                              f"to knock on. Wired: {sorted(wired)}. Reach it first: "
-                              f"reach('codemother', {_HARBOR!r})"}
-
-        # THE BOUNDARY, LOGGED AT BOTH EDGES. This handler is the first thing in this
-        # component to inherit BaseDevice, and a device that inherits emit() and never
-        # fires it is silent at every crossing (the build inspector's silent_device sieve
-        # measured exactly that here on 2026-09-09, and it was right). The ask and the
-        # answer are two records on purpose: an ask with no answer beside it is a request
-        # that never came back, and that is the shape a reader needs to be able to see.
-        self.emit("cross_asked", pointer=ticket,
-                  values={"target": target, "door": _HARBOR,
-                          "proven_by": coords["proven_by"]})
-        reply = self._bus.request(
-            sender=self.device_id, to=_HARBOR, verb="clear",
-            why=f"codemother clears {ticket} to {target}",
-            body={"workflow": coords["workflow"], "target": target,
-                  "boat_id": ticket, "proven_by": coords["proven_by"],
-                  "history_path": coords["history_path"],
-                  "state_path": coords["state_path"],
-                  "journal_extra": {"ticket": ticket, **(body.get("journal_extra") or {})}},
-            timeout=float(body.get("timeout", 30.0)),
-        )
-        answer = dict(reply.get("body") or {})
-        answer["asked_as"] = self.device_id
-        answer["door"] = _HARBOR
-        self.emit("cross_answered", pointer=ticket,
-                  values={"target": target,
-                          "accepted": bool(answer.get("accepted")),
-                          "refusal": answer.get("refusal", "")})
-        return answer
-
-    @staticmethod
-    def _crossing_coordinates(ticket: str, body: dict) -> dict:
-        """The four coordinates of a crossing, taken from the body or read off the boat.
-
-        A caller that already knows them (a proof against a fixture history, above all)
-        passes them and nothing is read. A caller that knows only the ticket gets them
-        derived — from the ticket file, through ``chain.grammar.ticket_path``, which is
-        THE one implementation of where a ticket lives, and from the ticket's own
-        ``owning_intention``, whose directory is where that component's history berths
-        (Law 5: intent, state and proofs share an address).
-
-        ``proven_by`` is never derived. No ticket field carries it (measured 2026-09-09
-        across 258 tickets: 0), and inventing one would mean this device choosing which
-        proof the harbor leans on — which is the one thing Law 8 asks a hand to state.
-        """
-        from cairn.tools.chain.grammar import ticket_path
-
-        proven_by = body.get("proven_by")
-        if not proven_by:
-            raise ValueError(
-                "cross needs proven_by — the harbor clears only onto proven code (Law 8) "
-                "and the proof is named by the hand asking, never guessed from the ticket")
-        workflow = body.get("workflow")
-        history_path = body.get("history_path")
-        state_path = body.get("state_path")
-        if workflow and history_path and state_path:
-            return {"workflow": workflow, "history_path": history_path,
-                    "state_path": state_path, "proven_by": proven_by}
-
-        path = ticket_path(ticket)
-        if path is None:
-            raise ValueError(
-                f"no ticket on file for {ticket!r}, so its workflow and its component's "
-                f"history cannot be read. Pass workflow/history_path/state_path "
-                f"explicitly, or cast the ticket first")
-        from cairn.tools.base.ticket_file import read_ticket
-        doc = read_ticket(path)
-        workflow = workflow or doc.get("workflow_and_state") or ""
-        if not workflow:
-            raise ValueError(f"ticket {ticket!r} carries no workflow_and_state — there is "
-                             f"no cursor to move")
-        if not (history_path and state_path):
-            charter = doc.get("owning_intention") or ""
-            if not charter:
-                raise ValueError(
-                    f"ticket {ticket!r} names no owning_intention, so the component whose "
-                    f"history this crossing writes is unknown. Pass history_path and "
-                    f"state_path explicitly")
-            comp = _resolve_component_dir(charter)
-            if comp is None:
-                raise ValueError(
-                    f"the owning_intention of {ticket!r} ({charter!r}) resolves under "
-                    f"neither class-space nor the commons — nothing to write a history to")
-            history_path = history_path or str(comp / "history.json")
-            state_path = state_path or str(comp / "state.json")
-        return {"workflow": workflow, "history_path": history_path,
-                "state_path": state_path, "proven_by": proven_by}
+        return {"watchme": WatchmeGate(participant=Voice(self._bus)),
+                "clearance": ClearanceGate(participant=Voice(self._bus))}
 
     # --- the seal that crosses its own boat ---------------------------------
 
@@ -369,11 +235,10 @@ class CodeMotherDevice(BaseDevice):
             # The boat's own PROVEME crossing is the record of what proves it; the seal is
             # only the event that says now. Every named end must still stand — the harbor
             # checks that, and refusing a seam because one end went stale is correct.
-            answer = self._handle_cross({
-                "sender": self.device_id,
-                "body": {"ticket": boat["ticket"], "target": "PROVED",
-                         "proven_by": boat["proven_by"]},
-            })
+            # The boat asks the clearance gate to queue it, fileref only; the gate reads the
+            # same proven_by off the boat's crossings (``proven_by_since_buildme``).
+            answer = self.declared_machines()["clearance"].queueme(
+                {"sender": self.device_id, "body": {"fileref": boat["ticket"]}})
             if answer.get("accepted"):
                 crossed.append(boat["ticket"])
             else:
@@ -545,39 +410,18 @@ class CodeMotherDevice(BaseDevice):
     def intention(self) -> dict:
         return {
             "what": "CodeMother — the owner of the care of the code: the watcher face "
-                    "over the codebase, and the hand that clears a boat through the "
-                    "harbor door as herself.",
+                    "over the codebase, and the holder of the gates a ticket asks to "
+                    "queue it (clearance, watchme).",
             "why": "An owner with no gate is paper (Law 6). The write an owner of code "
-                   "must be able to gate is a CROSSING, so she fires the clearance door "
-                   "over the bus and her name lands in the record of truth.",
+                   "must be able to gate is a CROSSING, so she holds the clearance gate "
+                   "and her name lands in the record of truth.",
         }
 
     def state(self) -> dict:
-        return {"mail_dir": str(_MAIL_DIR), "door": _HARBOR}
+        return {"mail_dir": str(_MAIL_DIR), "gates": sorted(self.declared_machines())}
 
     def settings(self) -> dict:
         return {}
-
-
-def _resolve_component_dir(charter: str) -> Path | None:
-    """The directory a charter path names, under class-space or the commons.
-
-    Two roots and no third, tried in that order — the same pair
-    ``clearance.boat_owner_of`` resolves a charter against, stated here because
-    codemother may not import that module to ask.
-    """
-    cairn_root = Path(__file__).resolve().parents[3]
-    commons_root = cairn_root.parent / "CairnCommons"
-    for root in (cairn_root, commons_root):
-        candidate = root / charter
-        if candidate.is_file():
-            return candidate.parent
-        if candidate.is_dir():
-            return candidate
-    p = Path(charter)
-    if p.is_absolute() and p.is_file():
-        return p.parent
-    return None
 
 
 class CodeMotherShim(BaseShim):

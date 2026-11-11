@@ -18,7 +18,7 @@ Two teeth:
 The fake ``seal_reader`` hands hollow_lacks a reading directly, so this measures the rung
 and nothing else (RULE 1). ``hollow_lacks`` is resolved at call time so reverting
 clearance.py reds a tooth instead of breaking the import.
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_a_notified_file_is_covered.py
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_a_notified_file_is_covered.py
 """
 from __future__ import annotations
 
@@ -38,11 +38,11 @@ PROVES = {
 }
 
 _TID = "0069ce6b8681"
-_PROOF = "cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py"
+_PROOF = "cairn/devices/codemother/machines/clearance/proofs/test_clearance.py"
 
 
 def _lacks(reading) -> list[dict]:
-    clearance = importlib.import_module("cairn.devices.cairn.machines.harbor_master.clearance")
+    clearance = importlib.import_module("cairn.devices.codemother.machines.clearance.clearance")
 
     def seal_reader(path, artifact=False):
         return {"evidence": {"hollow": {_TID: reading}}}

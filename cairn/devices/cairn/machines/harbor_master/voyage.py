@@ -76,7 +76,7 @@ from cairn.devices.cairn.machines.harbor_master import register
 # below, one at a time. The per-entry wording is load-bearing: a shared phrase would have gone
 # on describing an absence for the two entries whose fact was built on 2026-08-10.
 GROW_AGAINST_NEED = {
-    # THE QUEUE EXISTS NOW (cairn/devices/cairn/machines/harbor_master/clearance.py, ticket clearance-leaves-a-trace,
+    # THE QUEUE EXISTS NOW (cairn/devices/codemother/machines/clearance/clearance.py, ticket clearance-leaves-a-trace,
     # 2026-08-10): both of these were filed as waiting on it, and neither still is. What each
     # waits on now is a DIFFERENT thing, and saying "the queue" for both would go on hiding that.
     "[R] requested": "NOT the queue any more — the queue records attempts, and this marker "

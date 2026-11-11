@@ -329,10 +329,12 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         # deliver() returns (at-least-once, below), so while a handler runs its envelope is
         # still ``undelivered`` — and a handler that POSTS pokes its own mailbox, which drains
         # and hands it the same envelope again. MEASURED 2026-09-09, ticket 8754ae677af6:
-        # codemother's ``cross`` handler is the first verb handler that posts, and the harbor's
+        # codemother's ``cross`` handler (since retired, ticket 0be964512fb0) was the first verb
+        # handler that posted, and the harbor's
         # reply (addressed back to codemother) poked codemother mid-delivery. faulthandler
         # dumped the cycle repeating without bound —
-        # post -> _receive_poke -> _check_mail -> deliver -> _handle_cross -> request -> post.
+        # post -> _receive_poke -> _check_mail -> deliver -> _handle_cross -> request -> post
+        # (the handler is gone; the guard stands for every handler that posts).
         # This set is the cycle-breaker, and it is narrow ON PURPOSE: it suppresses ONLY the
         # envelope already in flight, so genuinely new mail arriving during a handler is still
         # delivered on the same poke.

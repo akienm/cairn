@@ -57,7 +57,7 @@ _H = "harbor" + "_master"
 OLD_DIR = "cairn/devices/cairn/machines/" + _H
 PROBE_TICKETS = ("0354c0269ff7", "0cde908b8fbe", "2b16d2d8b056", "faa51bcfbdfc")
 BREACH_CEILING = 71
-_MOVED_PROOFS = ("test_clearance", "test_a_notified_file_is_covered", "test_harbor_asks_the_real_host",
+_MOVED_PROOFS = ("test_clearance", "test_a_notified_file_is_covered", "test_" + "harbor_asks_the_real_host",
                  "test_the_proven_space_rule_follows_the_ticket_kind",
                  "test_" + _H + "_probes_report_to_the_watch")
 
@@ -90,7 +90,7 @@ def test_no_class_space_file_names_the_old_berth() -> None:
     spellings = [h + r"\.clearance\b", h + r"/clearance", h + r" import clearance\b",
                  h + r"\"\s*/\s*\"clearance", h + r"[./]probes\b", h + r"\"\s*/\s*\"probes"]
     spellings += [h + r"/proofs/" + p + r"\b" for p in _MOVED_PROOFS]
-    spellings.append(r"\btest_harbor_asks_the_real_host\b")
+    spellings.append(r"\btest_" + "harbor_asks_the_real_host\\b")
     r = subprocess.run(["git", "grep", "--untracked", "-nE", "|".join(spellings), "--", ".",
                         ":!*.jsonl", ":!*history.json", ":!*state.json", ":!*/validations/*"],
                        cwd=_REPO, capture_output=True, text=True)

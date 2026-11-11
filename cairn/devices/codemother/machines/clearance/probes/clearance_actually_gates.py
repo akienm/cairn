@@ -78,7 +78,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
-from cairn.devices.cairn.machines.harbor_master.clearance import GRANTED, read_attempts
+from cairn.devices.codemother.machines.clearance.clearance import GRANTED, read_attempts
 
 _TICKET_ID = "0cde908b8fbe"
 

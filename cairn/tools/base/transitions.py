@@ -87,7 +87,7 @@ the refusal names the growth path (grow the census/sieves, the learning device's
 THE CLEARANCE GATE (2026-08-10, ticket emit-refuses-an-uncleared-crossing, draining the live
 trouble ``every-crossing-goes-around-the-clearance-gate``): a journaled FORWARD crossing into
 a REST — ``not is_summons(target)``, i.e. the move that ENTERS proven-space — must carry the
-witness ``harbor_master.clearance.clear`` stamps, and this door re-reads the Law 8 half of it
+witness ``clearance.clear (codemother/machines/clearance)`` stamps, and this door re-reads the Law 8 half of it
 against the world (the named proof must be in proven-space right now, at the seal date the
 record claims). The demanded set is derived from the grammar, never from a component list, so
 a future class inherits the rule for free.
@@ -868,7 +868,7 @@ def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
         f"{target} crossing refused: this is a forward crossing into a REST — the move that "
         f"ENTERS proven-space — and it carries no evidence that the authority rung ran. "
         "Nothing was journaled. Cross through the harbor's gate instead of the bare door: "
-        "cairn.devices.cairn.machines.harbor_master.clearance.clear(workflow_str, target, actor=..., boat_id=..., "
+        "cairn.devices.codemother.machines.clearance.clearance.clear(workflow_str, target, actor=..., boat_id=..., "
         "boat_owner=..., proven_by=<the proof your PROVEME step just sealed>, "
         "history_path=..., state_path=..., ticket=...). That call stamps cleared_by itself "
         "— you cannot supply it here, and a crossing that could would make the check "
@@ -1362,7 +1362,7 @@ def emit(
     AUTHORITY (WHO MAY) IS STILL NOT DECIDED HERE, and that line did not move on 2026-08-10.
     What landed then (ticket emit-refuses-an-uncleared-crossing) is the CLEARANCE GATE — the
     sixth seat below — which reads a RECORD rather than a right: a forward crossing into a
-    REST must carry the witness ``harbor_master.clearance.clear`` stamps, and this door
+    REST must carry the witness ``clearance.clear (codemother/machines/clearance)`` stamps, and this door
     re-reads the Law 8 half of that witness against the world. Whether the named actor MAY
     is Law 6, it is harbor_master's, and base computes it nowhere. So the honest shape is
     two rungs at one door, not one rung doing two jobs.

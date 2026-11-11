@@ -20,7 +20,7 @@ Three teeth, matching the falsifier:
 The fake ``seal_reader`` hands hollow_lacks the reading directly, so this measures the rung and
 nothing else (RULE 1). ``hollow_lacks`` is resolved at call time so reverting clearance.py reds a
 tooth instead of breaking the import.
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_clearance_reads_a_plan_approval.py
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_clearance_reads_a_plan_approval.py
 """
 from __future__ import annotations
 
@@ -46,11 +46,11 @@ PROVES = {
 }
 
 _TID = "bf1cd5d79805"
-_PROOF = "cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py"
+_PROOF = "cairn/devices/codemother/machines/clearance/proofs/test_clearance.py"
 
 
 def _lacks(reading, ticket_extra: dict) -> list[dict]:
-    clearance = importlib.import_module("cairn.devices.cairn.machines.harbor_master.clearance")
+    clearance = importlib.import_module("cairn.devices.codemother.machines.clearance.clearance")
 
     def seal_reader(path, artifact=False):
         return {"evidence": {"hollow": {_TID: reading}}}
@@ -87,7 +87,7 @@ def test_a_plan_approval_the_plan_does_not_name_is_unresolved():
 
 def test_the_standing_clearance_proofs_stay_green():
     for rel in (_PROOF,
-                "cairn/devices/cairn/machines/harbor_master/proofs/test_clearance_accepts_a_recorded_approval.py"):
+                "cairn/devices/codemother/machines/clearance/proofs/test_clearance_accepts_a_recorded_approval.py"):
         r = subprocess.run([sys.executable, str(_REPO_ROOT / rel)], capture_output=True,
                            text=True, timeout=1500, cwd=_REPO_ROOT)
         assert r.returncode == 0, (rel, r.stdout[-1500:], r.stderr[-1500:])

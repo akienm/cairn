@@ -1,8 +1,8 @@
 import sys
-# Kept in class-space 2026-11-09 (from ~/.cairn/devices/cc/0/scratch-keep/2026-11-05): cross a ticket through harbor_master.clearance.clear and write the cursor back through the ticket door.
+# Kept in class-space 2026-11-09 (from ~/.cairn/devices/cc/0/scratch-keep/2026-11-05): cross a ticket through clearance.clear (codemother/machines/clearance) and write the cursor back through the ticket door.
 from cairn.tools.base import ticket_file, transitions
 from cairn.tools.base.cross import charter_dir
-from cairn.devices.cairn.machines.harbor_master.clearance import clear
+from cairn.devices.codemother.machines.clearance.clearance import clear
 ID, TARGET, WHY = sys.argv[1], sys.argv[2], sys.argv[3]
 proven = sys.argv[4:] or None
 tp = ticket_file.plans_of(ID, ticket_file._TICKETS)[0]; t = ticket_file.read_ticket(tp)

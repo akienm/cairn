@@ -8,7 +8,7 @@ live in three proofs and the PROVED crossing names all three (``proven_by`` is r
 one-or-many precisely because a seam has ends in more than one place). Codemother's end —
 what she DOES with a seal — is
 ``cairn/devices/codemother/proofs/test_codemother.py``. The harbor's end — what the door
-REFUSES — is ``cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py``.
+REFUSES — is ``cairn/devices/codemother/machines/clearance/proofs/test_clearance.py``.
 This file is the tester's end, and its question is narrower than either: **does the seal
 say so, and does saying so cost the seal anything?**
 
@@ -51,7 +51,7 @@ from cairn.tools.validation_store.validation_store import (
 )
 from cairn.tools import bus_client
 # Clauses (2) and (5) are codemother's own (cairn/devices/codemother/proofs/test_codemother.py);
-# clause (3) is the harbor door's (machines/harbor_master/proofs/test_clearance.py).
+# clause (3) is the harbor door's (cairn/devices/codemother/machines/clearance/proofs/test_clearance.py).
 PROVES = {
     "1accdc1781aa": {
         "1": "test_a_green_seal_posts_EXACTLY_ONE_sealed_message_carrying_all_four_fields",

@@ -10,10 +10,10 @@ What a hollow build cannot pass (Law 8):
     verb, ``to``, ``ticket``, ``holds`` and ``finding``.
 
 The population is read from the commons, never listed here: every ticket at a rest (PROVED or
-WATCHME) whose watchme probe berths under cairn/devices/cairn/machines/harbor_master/probes. Live payloads are
+WATCHME) whose watchme probe berths under cairn/devices/codemother/machines/clearance/probes. Live payloads are
 asserted as INVARIANTS only — a holds value is the world's to change.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_master_probes_report_to_the_watch.py   # exit 0 = green
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_clearance_probes_report_to_the_watch.py   # exit 0 = green
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ PROVES = {
     },
 }
 
-BERTH = "cairn/devices/cairn/machines/harbor_master/probes/"
+BERTH = "cairn/devices/codemother/machines/clearance/probes/"
 RECEIVER = {"what": "codemother watchme gate", "in": "cairn/devices/codemother/machines/watchme"}
 
 

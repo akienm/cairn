@@ -128,14 +128,20 @@ class Ticket(DiagnosticBase):
                                "from": frm, "to": to, "direction": direction})
 
     def passed(self, target: str, *, participant, watchers=(), history_path, state_path,
-               actor: str, why: str, **journal_extra) -> str:
+               actor: str, why: str, cross=None, **journal_extra) -> str:
         """The gate passed this ticket: cross to ``target`` through the chokepoint, write the
         cursor, tell the harbor, and tell each watcher the gate supplies what step is next.
-        ``journal_extra`` rides to emit (a gate into a REST carries its witness there)."""
-        from cairn.tools.base.transitions import emit
+        ``journal_extra`` rides to emit (a gate into a REST carries its witness there).
+
+        ``cross`` is the door the crossing rides, when the gate has one of its own that records
+        the crossing itself (the clearance gate's ``clear`` wraps emit, ticket 0be964512fb0):
+        the crossing then rides that door exactly once and never a second time through emit,
+        and the cursor written is the one the door returned. None is emit."""
+        if cross is None:
+            from cairn.tools.base.transitions import emit as cross
         old = self.workflow
-        new = emit(old, target, history_path=history_path, state_path=state_path,
-                   ticket=self.id, actor=actor, why=why, **journal_extra)
+        new = cross(old, target, history_path=history_path, state_path=state_path,
+                    ticket=self.id, actor=actor, why=why, **journal_extra)
         self._write({"workflow_and_state": new}, why=f"{self.id}: passed into {target} — {why}")
         self._tell_harbor(participant, frm=_step(old), to=target, direction="forward")
         for w in watchers:

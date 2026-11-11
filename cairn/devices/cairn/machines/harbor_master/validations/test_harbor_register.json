@@ -2,12 +2,12 @@
   {
     "claim": "proof test_harbor_register.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-31T14:26:39",
+    "date": "2026-11-11T07:04:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (fleet: 611 open, 80 in port, 1 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
+      "stdout_tail": "    (fleet: 712 open, 92 in port, 1 finding(s))\n  PASS  test_fleet_queries_both_berths_nonempty\n  PASS  test_register_is_an_index_not_a_rival_record\n  PASS  test_every_boat_points_back_to_an_existing_source\n  PASS  test_open_and_in_port_are_exhaustive_and_berth_disjoint\n  PASS  test_the_scan_reaches_both_roots\ngreen — the fleet register queries both berths of the real fleet (non-hollow), stays an index over the one reader's labels and the components' own cursors (no drift, Law 7; prose standings are findings), points every boat back to its source, and covers the fleet exactly (open ∪ in_port, disjoint) — harbor_master child a",
       "stderr_tail": "",
       "teeth_green": [
         "test_fleet_queries_both_berths_nonempty",
@@ -17,7 +17,7 @@
         "test_the_scan_reaches_both_roots"
       ],
       "teeth_red": [],
-      "test": "test-059394712f9f",
+      "test": "test-a703adc5e72c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,6 +34,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -44,16 +45,25 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-059394712f9f",
-      "source_fingerprint": "9965d7f881fb126d97388a7ecba5180582cab6736dbf2dd6c83c48310225e2f7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a703adc5e72c",
+      "source_fingerprint": "428bcfdeab2f76053303b75beb587ade4340eb49347cb73b5f095776ffa2e0a9",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/harbor_master/__init__.py",
         "cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py",
         "cairn/devices/cairn/machines/harbor_master/register.py"
       ],
+      "reached": {
+        "cairn/devices/cairn": "cbaf7fa03758a50348b8aa12bd73086191a35affb674752eb4540b39fddf8377",
+        "cairn/devices/tester": "189c872614a26b6f23b8ae9e809b16f80ef4ab7fe4834a0d52dfd1d9a1f6f99b",
+        "cairn/tools/base": "5803083581d7132dab909b99b51ade39b48fda061b9231df8b9ee21956fd2d39",
+        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/operator_inbox": "ff20a4cbdfd98961c0e8b21ba497cc89472505e5cd2cdc697124498503ac0635",
+        "cairn/tools/system_word": "0d11b733bb6dd3fd2d48af29916af9df69e254a92829d89854acea84344acc63"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3003793-23yoirhj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-352517-qupq5pkf/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,11 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114753619,
-          "disk_bytes": 144887808,
-          "entries": 11913,
+          "bytes": 525486930,
+          "disk_bytes": 561700864,
+          "entries": 14154,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       }
     },

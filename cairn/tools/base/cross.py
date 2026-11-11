@@ -14,7 +14,7 @@ pattern ``set_phase(ticket=)`` already uses. emit refuses before writing anythin
 refused crossing leaves the ticket and the history as they were.
 
 A CROSSING INTO A REST IS REFUSED BY NAME. Entering proven-space belongs to
-``cairn.devices.cairn.machines.harbor_master.clearance.clear``, a device-held machine this
+``cairn.devices.codemother.machines.clearance.clearance.clear``, a device-held machine this
 tool may not reach (RULE 1); emit's own clearance gate would refuse it too, but later and
 less plainly.
 """
@@ -68,7 +68,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
     if (tgt in wf.path and not transitions.is_summons(tgt)
             and not transitions.is_disposition(tgt, class_def)):
         raise ValueError(f"{tgt} is a rest: the crossing into it is cleared by "
-                         "cairn.devices.cairn.machines.harbor_master.clearance.clear, "
+                         "cairn.devices.codemother.machines.clearance.clearance.clear, "
                          "not by this command")
     dev = charter_dir(str(t.get("owning_intention") or ""), repo_root,
                       Path(commons_root if commons_root is not None else tickets_dir.parent))

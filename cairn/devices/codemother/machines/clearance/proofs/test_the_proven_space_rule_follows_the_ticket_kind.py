@@ -25,7 +25,7 @@ The read of proven-space (``clearance.standing``) and of the owner (``clearance.
 are substituted at call time, the established pattern in test_clearance.py, so this measures the
 rule and nothing else (RULE 1).
 
-    bin/cairn test cairn/devices/cairn/machines/harbor_master/proofs/test_the_proven_space_rule_follows_the_ticket_kind.py
+    bin/cairn test cairn/devices/codemother/machines/clearance/proofs/test_the_proven_space_rule_follows_the_ticket_kind.py
 """
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ def _commons() -> Path:
 
 
 def _c():
-    return importlib.import_module("cairn.devices.cairn.machines.harbor_master.clearance")
+    return importlib.import_module("cairn.devices.codemother.machines.clearance.clearance")
 
 
 def _proof(name: str, proves: dict | None) -> str:

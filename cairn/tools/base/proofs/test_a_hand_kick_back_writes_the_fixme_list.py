@@ -5,7 +5,7 @@ missing=[...])`` journaled ``missing`` and left the ticket with no ``fixme`` lis
 crossing back out refused (FixmeGateRed) for a reason nobody had written. Only clearance
 wrote the list. Now emit writes it, after the journal, on any back-edge into a repair summons
 that names a ticket; clearance passes ``write_fixme=False`` because it writes its own list
-with the lack kinds (its tooth beside it, in harbor_master/proofs/test_clearance.py, counts
+with the lack kinds (its tooth beside it, in cairn/devices/codemother/machines/clearance/proofs/test_clearance.py, counts
 that it is written exactly once).
 
 One tooth for the one falsifier clause:

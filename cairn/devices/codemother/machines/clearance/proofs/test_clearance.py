@@ -35,7 +35,7 @@ could not pass (mapped to the parent falsifier, tickets/harbor-master.json):
 Runs bare. The proven-space fixtures are REAL: scratch component trees whose validation
 trails are written by the real tester through the real single write-door, so a build that
 faked a seal or a verdict dies before the teeth even start.
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_clearance.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ PROVES = {
 from cairn.tools.base.transitions import IllegalTransition
 from cairn.tools.base import ticket_file as _tfile  # 632edb992aa3: the _TICKETS patch point
 from cairn.tools.charter import projector
-from cairn.devices.cairn.machines.harbor_master.clearance import (
+from cairn.devices.codemother.machines.clearance.clearance import (
     GRANT_TTL_SECONDS,
     HARBOR_LINES,
     GrantExpired,
@@ -131,7 +131,7 @@ from cairn.devices.cairn.machines.harbor_master.clearance import (
 # cannot bind its subject's newest names at import time.
 def _built(name):
     """A name ticket 1accdc1781aa added to clearance, fetched now rather than at import."""
-    from cairn.devices.cairn.machines.harbor_master import clearance as _c
+    from cairn.devices.codemother.machines.clearance import clearance as _c
     try:
         return getattr(_c, name)
     except AttributeError as exc:  # the hollow instrument's reversion, or a real regression
@@ -140,8 +140,8 @@ def _built(name):
             f"reading (the reverted file lacks it, so this tooth is evidence about it); "
             f"at HEAD it is a regression: {exc}") from exc
 
-from cairn.devices.cairn.machines.harbor_master import clearance as _clearance
-from cairn.devices.cairn.machines.harbor_master import register as _register
+from cairn.devices.codemother.machines.clearance import clearance as _clearance
+from cairn.devices.codemother.machines.clearance import __main__ as _report
 from cairn.machines.learning_block.learning_block import trace_root, write_trace
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.validation_store.validation_store import persist_validation, record_hollow
@@ -199,7 +199,7 @@ def _main_tree() -> Path:
 
 
 def _correct_the_corpus_roots_if_this_is_a_worktree() -> None:
-    from cairn.devices.cairn.machines.harbor_master import clearance as _c
+    from cairn.devices.codemother.machines.clearance import clearance as _c
     from cairn.tools.base import transitions as _t
 
     # THE PREDICATE IS "AM I THE MAIN TREE", NOT "DOES THE DEFAULT DIRECTORY EXIST", and
@@ -532,7 +532,7 @@ def test_the_public_door_and_the_decision_it_wraps_have_one_signature():
     the forward would be silently ignored, which is worse. Asserted rather than remembered —
     the first cut of the wrapper took ``**kwargs`` and quietly lost the whole named set."""
     import inspect as _inspect
-    from cairn.devices.cairn.machines.harbor_master.clearance import _decide
+    from cairn.devices.codemother.machines.clearance.clearance import _decide
 
     door = _inspect.signature(clear).parameters
     decision = _inspect.signature(_decide).parameters
@@ -551,7 +551,7 @@ def test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them()
     naming this ticket as the build that would make the number real. So the tooth measures
     the thing that asked for it — which also means a writer whose event names or consumer
     ever drift away from the reader's dies here rather than reporting a quiet zero."""
-    from cairn.devices.cairn.machines.harbor_master.probes.clearance_actually_gates import survey_the_refusals
+    from cairn.devices.codemother.machines.clearance.probes.clearance_actually_gates import survey_the_refusals
 
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
@@ -1171,7 +1171,7 @@ def test_the_read_reaches_nothing_outward():
     # anything being up. So the check is this module's own imports, plus every call the
     # resolution makes, against a whitelist. Anything not on it is a finding — which is the
     # sign that matters, since a NEW reach is exactly what this would have to catch.
-    src = _REPO_ROOT / "cairn" / "devices" / "cairn" / "machines" / "harbor_master" / "clearance.py"
+    src = _REPO_ROOT / "cairn" / "devices" / "codemother" / "machines" / "clearance" / "clearance.py"
     tree = ast.parse(src.read_text(encoding="utf-8"))
 
     imported = set()
@@ -1427,7 +1427,11 @@ def test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register():
         f"the buckets do not partition the fleet: {r.blind} over {r.in_flight}"
     assert set(r.blind) == {"unattributed", "unresolvable", "unreadable"}, \
         "all three blind classes are reported, at zero as well as non-zero"
-    open_ids = {b["id"] for b in _register.register()["open"]}
+    # The register's open set IS operator_inbox's two readers (register._open_boats), so the
+    # tooth reads them where the register does, without reaching into the harbor (RULE 1).
+    from cairn.tools.operator_inbox.inbox import TICKETS_DIR, read_done_tickets, read_tickets
+    open_ids = {b["id"] for b in (read_tickets(tickets_dir=TICKETS_DIR)["records"]
+                                  + read_done_tickets(tickets_dir=TICKETS_DIR)["records"])}
     assert set(r.riding) <= open_ids, \
         f"the reverse read returned boats the register does not call open: " \
         f"{set(r.riding) - open_ids}"
@@ -1472,7 +1476,7 @@ def test_the_read_face_prints_only_numbers_the_library_returned():
     r = riders_of(addr)
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        rc = _register._retirement_report(addr)
+        rc = _report._retirement_report(addr)
     out = buf.getvalue()
     assert rc == 0
     for label, n in r.blind.items():

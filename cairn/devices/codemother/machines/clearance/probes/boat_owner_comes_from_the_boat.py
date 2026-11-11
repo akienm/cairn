@@ -51,7 +51,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
-from cairn.devices.cairn.machines.harbor_master.clearance import OwnerUnresolvable, boat_owner_of
+from cairn.devices.codemother.machines.clearance.clearance import OwnerUnresolvable, boat_owner_of
 
 _TICKET_ID = "faa51bcfbdfc"
 

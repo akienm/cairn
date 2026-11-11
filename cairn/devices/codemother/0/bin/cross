@@ -1,48 +1,28 @@
 #!/usr/bin/env bash
-# cairn codemother cross — clear a boat through the harbor door as codemother
+# cairn codemother cross — the ticket asks CodeMother's clearance gate to queue it (cross <ticket>)
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
 
-    # The falsifier's clause 1 names this command by name. It is a THIN mouth: it
-    # reaches the two shims and posts one envelope. Every judgement — who the actor is,
-    # whether the boat stands proven — belongs to the door, not to this file.
+    # A THIN mouth (outline 3.3.4.3, 9.7; ticket 0be964512fb0): it instantiates the ticket and
+    # has it queue itself at clearance, fileref only. The gate derives the target and the
+    # proofs from the ticket; every judgement is the gate's, none is this file's.
     exec python3 -c "
 import sys, json; sys.path.insert(0, '$REPO_ROOT')
 args = sys.argv[1:]
-def _flag(name):
-    if name in args:
-        i = args.index(name)
-        return args[i + 1] if i + 1 < len(args) else None
-    return None
-pos = []
-skip = False
-for i, a in enumerate(args):
-    if skip:
-        skip = False
-        continue
-    if a.startswith('--'):
-        skip = True
-        continue
-    pos.append(a)
-if len(pos) < 2:
-    print('usage: cairn codemother cross <ticket> <target> --proven-by <proof path> [--history <path>] [--state <path>]')
-    sys.exit(1)
-ticket, target = pos[0], pos[1]
-proven_by = _flag('--proven-by')
-if not proven_by:
-    print('cross needs --proven-by <proof path>: Law 8 asks a hand to name the proof that stands, and no ticket field carries one (censused 2026-09-09: 0 of 258).')
+timeout = 240.0
+if '--timeout' in args:
+    i = args.index('--timeout')
+    timeout = float(args[i + 1])
+    del args[i:i + 2]
+if len(args) != 1 or args[0].startswith('-'):
+    print('usage: cairn codemother cross <ticket> [--timeout <s>]  (the gate derives the target and the proofs)')
     sys.exit(1)
 from cairn.tools.bus_client import reach
-bus = reach('codemother', 'harbor_master')
-body = {'ticket': ticket, 'target': target, 'proven_by': proven_by}
-for flag, key in (('--history', 'history_path'), ('--state', 'state_path'), ('--workflow', 'workflow')):
-    v = _flag(flag)
-    if v:
-        body[key] = v
-reply = bus.request(sender='cairn-codemother-cli', to='codemother', verb='cross',
-                    why='cairn codemother cross ' + ticket + ' ' + target,
-                    body=body, timeout=float(_flag('--timeout') or 240.0))
-answer = reply.get('body') or {}
-print(json.dumps(answer, indent=2, default=str))
-sys.exit(0 if answer.get('accepted') else 1)
+from cairn.machines.ticket.ticket import Ticket
+from cairn.devices.codemother.machines.watchme.gate import Voice
+bus = reach('codemother')
+ticket = Ticket.at(args[0])
+out = ticket.queueme('clearance', participant=Voice(bus, sender='cairn-codemother-cli'), timeout=timeout)
+print(json.dumps(out, indent=2, default=str))
+sys.exit(0 if out.get('queued') else 1)
 " "$@"

@@ -83,7 +83,7 @@ PROVES = {
     # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, and `proven_by` is read as one-or-many so
     # the crossing can name all of them. Clauses (1) and (4) of 1accdc1781aa are the tester's
     # end (cairn/devices/tester/proofs/test_the_seal_announces_itself.py); clause (3) is the
-    # harbor's (machines/harbor_master/proofs/test_clearance.py). These two are codemother's.
+    # harbor's (cairn/devices/codemother/machines/clearance/proofs/test_clearance.py). These two are codemother's.
     "1accdc1781aa": {
         "2": "test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof",
         "5": "test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody",
@@ -637,7 +637,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
     """
     from cairn.tools.validation_store.validation_store import record_hollow
     from cairn.tools.base.address import ROOTS
-    import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
+    import cairn.devices.codemother.machines.clearance.clearance as _clearance
     import cairn.devices.codemother.shim as _shim
     import cairn.tools.base.transitions as _transitions
     from cairn.tools.base import ticket_file as _ticket_file
@@ -677,8 +677,8 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
         "node_class": "code-seam",
         # ABSOLUTE, AND THAT IS WHAT MAKES ONE FIXTURE SERVE TWO RESOLVERS. ``os.path.join``
         # returns an absolute right-hand side unchanged, so ``boat_owner_of`` finds this
-        # charter under any root it is given; and ``_resolve_component_dir`` has an explicit
-        # absolute-path branch, so the sealed path derives this component's history from the
+        # charter under any root it is given; and the clearance gate's ``crossing_of`` has an
+        # explicit absolute-path branch, so the gate derives this component's history from the
         # same field with nothing patched. A relative spelling would have needed a third
         # substitution to say the same thing twice.
         "owning_intention": str(comp / "intention+why.json"),
@@ -802,61 +802,63 @@ def _in_process(*names):
         yield bus
 
 
-def _ask_codemother_to_cross(comp, proof, *, boat=_HARBOR_BOAT):
-    """Fire ONE `cross` at codemother over the bus and return the reply body.
+class _Spy:
+    """The participant a pass posts through. A pass asks nothing; it tells the harbor once."""
 
-    This is the exact path `cairn codemother cross` walks — the CLI is a mouth over
-    this request and nothing else — so the tooth measures the seam, not a helper.
-    """
-    with _in_process("codemother", "harbor_master") as bus:
-        # request() answers with the reply ENVELOPE; the device's answer is its body.
-        reply = bus.request(
-            sender="cc", to="codemother", verb="cross",
-            why="proof: codemother crosses a boat as herself",
-            body={"ticket": boat, "target": "PROVED", "workflow": _FIXTURE_WORKFLOW,
-                  "proven_by": str(proof),
-                  "history_path": str(comp / "history.json"),
-                  "state_path": str(comp / "state.json"),
-                  "timeout": 120.0},
-            timeout=180)
-    assert reply, "codemother never answered the cross request"
-    return reply.get("body") or {}
+    def __init__(self):
+        self.posts = []
+
+    def request(self, **kw):
+        raise AssertionError(f"a pass asked something: {kw}")
+
+    def post(self, *, to, verb="", why="", body=None, **_):
+        self.posts.append({"to": to, "verb": verb, "body": body})
 
 
-def test_cross_is_a_declared_verb_on_a_real_device():
-    """Clause (1)'s precondition: the verb EXISTS on the device, not just in the CLI.
+def _ask_the_clearance_gate_to_queue(boat, *, sender="cc", **extra):
+    """Ask CodeMother's clearance gate to queue ``boat`` and return its answer.
 
-    A mouth that names a verb its device does not declare is a mouth that always
-    bounces — and the help text now compiles from ``declared_contract()`` for exactly
-    that reason, so this tooth reads the same list the dispatcher reads."""
-    from cairn.devices.codemother.shim import CodeMotherShim
+    The ticket sends its fileref and nothing else (outline 3.3.4.3); the gate derives the
+    target, the proofs and the journal from the ticket. This is the gate the device holds
+    (``declared_machines()["clearance"]``), built with a spy participant so the pass's one
+    post to the harbor is read here rather than sent onto the live bus. ``extra`` lands in
+    the body beside the fileref, for the tooth that asks whether a body can name a hand."""
+    from cairn.devices.codemother.machines.clearance.gate import ClearanceGate
+    spy = _Spy()
+    gate = ClearanceGate(participant=spy)
+    answer = gate.queueme({"sender": sender, "body": {"fileref": boat, **extra}})
+    return answer, spy
+
+
+def test_codemother_declares_no_cross_verb_and_holds_the_clearance_gate():
+    """Outline 9.6 (Q#80/Q#81, ticket 0be964512fb0): ``cross`` left; a ticket asks a gate.
+
+    The verb list is the one the dispatcher reads (``declared_contract()``), so a cross verb
+    that lingered would be one a caller could still fire. The gate list is what answers
+    ``machines/<gate>/<verb>``, and clearance answers ``queueme``."""
+    from cairn.devices.codemother.shim import CodeMotherDevice, CodeMotherShim
     verbs = CodeMotherShim().declared_contract()["verbs"]
-    assert "cross" in verbs, f"'cross' is not a declared verb; the device offers {verbs}"
-    print("PASS: test_cross_is_a_declared_verb_on_a_real_device")
+    assert "cross" not in verbs, f"'cross' is still a declared verb: {verbs}"
+    gates = CodeMotherDevice().declared_machines()
+    assert "clearance" in gates, f"codemother holds no clearance gate: {sorted(gates)}"
+    assert set(gates["clearance"].declared_verbs()) == {"queueme"}, \
+        f"the clearance gate answers {sorted(gates['clearance'].declared_verbs())}, expected queueme"
+    print("PASS: test_codemother_declares_no_cross_verb_and_holds_the_clearance_gate")
 
 
 def test_a_crossing_codemother_admits_names_her_in_the_record():
     """FALSIFIER CLAUSE (1): the record says the hand was codemother's, not CC's.
 
-    The whole ticket is this assertion. The crossing is fired over the bus with sender
-    ``cc`` ON PURPOSE — the CLI is a person's mouth, and if the actor tracked the human
-    at the keyboard the record would read 'cc' here. It reads 'codemother' because the
-    hand that fires the clearance gate is the DEVICE the envelope reached, and the
-    device asks the harbor as itself.
-
-    AND THE BOAT IS COVERED, NOT EXEMPT. Until 2026-09-09 this tooth crossed
-    harbor_master's own live ticket, which carries no crossings and no hollow reading —
-    fine while PROVED asked only for proven-space, and a red the moment the clearance
-    gate grew its coverage rung. The repair builds the coverage rather than dodging the
-    rung; ``_the_boat_is_covered`` says why at length."""
+    The ticket asks the gate with sender ``cc`` ON PURPOSE. The record reads 'codemother'
+    because the gate is hers and she asks the door as herself; the asker rides into the
+    journal as ``asked_by``. The boat is covered, not exempt (``_the_boat_is_covered``)."""
     comp, proof = _fixture_component("cm_admit_", boat=_FIXTURE_BOAT)
     with _the_boat_is_covered(comp, proof) as boat:
-        answer = _ask_codemother_to_cross(comp, proof, boat=boat)
+        answer, spy = _ask_the_clearance_gate_to_queue(boat)
     assert answer.get("accepted") is True, f"the crossing was refused: {answer}"
-    assert answer.get("asked_as") == "codemother", \
-        f"asked_as is {answer.get('asked_as')!r}, expected 'codemother'"
-    assert answer.get("door") == "harbor_master", \
-        f"door is {answer.get('door')!r}, expected 'harbor_master'"
+    assert answer.get("device") == "codemother", f"device is {answer.get('device')!r}"
+    assert answer.get("door") == "clearance", f"door is {answer.get('door')!r}, expected 'clearance'"
+    assert answer.get("target") == "PROVED", f"target is {answer.get('target')!r}, expected PROVED"
 
     history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
     assert len(history) == 1, f"expected exactly 1 crossing record, got {len(history)}"
@@ -865,6 +867,7 @@ def test_a_crossing_codemother_admits_names_her_in_the_record():
         f"the record's actor is {record.get('actor')!r}, expected 'codemother'"
     assert record.get("cleared_by") == "codemother", \
         f"cleared_by is {record.get('cleared_by')!r}, expected 'codemother'"
+    assert record.get("asked_by") == "cc", f"asked_by is {record.get('asked_by')!r}, expected 'cc'"
     gate = record.get("clearance_gate") or ""
     assert "cleared by 'codemother'" in gate, \
         f"the clearance_gate line does not say who cleared it: {gate!r}"
@@ -888,7 +891,7 @@ def _the_real_corpus_is_reachable():
     gate reads — so the tooth still meets the real owner rung, the real node-class
     definition, and then the real proven-space rung that it exists to assert.
     """
-    import cairn.devices.cairn.machines.harbor_master.clearance as _clearance
+    import cairn.devices.codemother.machines.clearance.clearance as _clearance
     import cairn.tools.base.transitions as _transitions
     from cairn.tools.base import ticket_file as _ticket_file
 
@@ -916,19 +919,17 @@ def _the_real_corpus_is_reachable():
 
 
 def test_the_door_still_refuses_an_unproven_boat_through_her():
-    """FALSIFIER CLAUSE (2): reaching the door as codemother does not soften it.
+    """FALSIFIER CLAUSE (2): reaching the door through her gate does not soften it.
 
     The fixture's proof is never sealed, so the boat is honestly outside proven-space
-    (Law 8). The refusal must come back as DATA carrying its own class name — an
-    exception cannot cross a bus envelope, and a refusal collapsed into a shrug is the
-    Law 7 failure the handler was written against. And the history must be UNTOUCHED:
-    a door that refuses but writes anyway has not refused."""
-    comp, proof = _fixture_component("cm_refuse_", seal=False)
-    with _the_real_corpus_is_reachable():
-        answer = _ask_codemother_to_cross(comp, proof)
+    (Law 8). The refusal comes back as DATA carrying its own class name (Law 7), and the
+    history is UNTOUCHED: a door that refuses but writes anyway has not refused."""
+    comp, proof = _fixture_component("cm_refuse_", seal=False, boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof, hollow=None) as boat:
+        answer, _ = _ask_the_clearance_gate_to_queue(boat)
     assert answer.get("accepted") is False, f"an unproven boat was ADMITTED: {answer}"
     assert answer.get("refusal") == "Unproven", \
-        f"the refusal is {answer.get('refusal')!r}, expected 'Unproven'"
+        f"the refusal is {answer.get('refusal')!r}, expected 'Unproven': {answer}"
     assert "proven-space" in (answer.get("reason") or ""), \
         f"the refusal does not say why: {answer.get('reason')!r}"
     history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
@@ -936,30 +937,21 @@ def test_the_door_still_refuses_an_unproven_boat_through_her():
     print("PASS: test_the_door_still_refuses_an_unproven_boat_through_her")
 
 
-def test_the_actor_is_the_envelopes_sender_not_the_bodys_claim():
-    """The identity the gate judges is stamped by the transport, never chosen by the asker.
+def test_the_body_cannot_name_the_hand():
+    """The identity on the record is the holder's and the envelope's, never the body's claim.
 
-    If the body could name the actor, any device on the bus could claim to be any other
-    and the Law 6 authority check would be deciding about a name the caller picked. The
-    handler refuses a body that DISAGREES with the sender; a body that agrees is merely
-    redundant. Fired straight at harbor_master so the tooth measures the door itself."""
-    from cairn.tools.bus_client import reach
-
-    bus = reach("harbor_master")
-    reply = bus.request(
-        sender="codemother", to="harbor_master", verb="clear",
-        why="proof: the body may not name a different hand",
-        body={"actor": "Akien", "workflow": _FIXTURE_WORKFLOW, "target": "PROVED",
-              "boat_id": _HARBOR_BOAT, "proven_by": "/nonexistent/proof.py"},
-        timeout=60)
-    assert reply, "the harbor never answered the clear request"
-    answer = reply.get("body") or {}
-    assert answer.get("accepted") is False, \
-        f"a body naming a DIFFERENT hand was accepted: {answer}"
-    reason = answer.get("reason") or ""
-    assert "'Akien'" in reason and "'codemother'" in reason, \
-        f"the refusal does not name both hands it saw: {reason!r}"
-    print("PASS: test_the_actor_is_the_envelopes_sender_not_the_bodys_claim")
+    The gate takes a fileref and nothing else (outline 3.3.4.3), so a body that names an
+    actor names it to no one: the crossing is codemother's and ``asked_by`` is the
+    envelope's sender. Measured on the record, not on the answer."""
+    comp, proof = _fixture_component("cm_actor_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof) as boat:
+        answer, _ = _ask_the_clearance_gate_to_queue(boat, sender="cc", actor="Akien")
+    assert answer.get("accepted") is True, f"the crossing was refused: {answer}"
+    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
+    hands = {(h.get("actor"), h.get("asked_by")) for h in history}
+    assert hands == {("codemother", "cc")}, \
+        f"the record's hands are {hands}; a body naming 'Akien' moved them"
+    print("PASS: test_the_body_cannot_name_the_hand")
 
 
 def test_codemother_never_imports_the_harbor():
@@ -1009,8 +1001,8 @@ def test_a_handler_that_posts_does_not_re_enter_its_own_mailbox():
     The delivery receipt is written only AFTER ``deliver()`` returns (at-least-once —
     a raising receiver must leave the mail in the inbox), so while a handler runs its
     envelope is still ``undelivered``. Every ``request()`` posts, every post pokes the
-    addressee, and the harbor's reply is addressed back to codemother — so codemother's
-    ``cross`` handler poked its own mailbox mid-delivery and was handed the same envelope
+    addressee, and the harbor's reply was addressed back to codemother — so codemother's
+    old ``cross`` handler poked its own mailbox mid-delivery and was handed the same envelope
     again, without bound. Measured 2026-09-09 by faulthandler on a request that never
     returned.
 
@@ -1090,52 +1082,29 @@ def test_a_history_that_is_not_a_list_is_refused_by_name():
 #     and (4) are the tester's end of the seam and berth with it
 #     (cairn/devices/tester/proofs/test_the_seal_announces_itself.py);
 #     clause (3) is the harbor's and berths with the gate
-#     (cairn/devices/cairn/machines/harbor_master/proofs/test_clearance.py).
+#     (cairn/devices/codemother/machines/clearance/proofs/test_clearance.py).
 #     A seam has ends in more than one component, and `proven_by` is read as
 #     one-or-many for exactly this reason.
 # ══════════════════════════════════════════════════════════════════════════
 
 @contextlib.contextmanager
 def _the_sealed_path_can_find_the_boat(comp, boat=_FIXTURE_BOAT):
-    """Point the sealed handler's two corpus reads at the fixture commons.
+    """Point the sealed handler's corpus scan at the fixture commons.
 
-    WHAT IS SUBSTITUTED IS THE CORPUS, NOT A GATE — the same line ``_the_boat_is_covered``
-    draws, and it matters more here because this tooth walks the whole seam. Two reads ask
-    the world where a boat lives: ``_boats_named_on`` scans ``load_tickets(_COMMONS)`` for
-    tickets standing at PROVEME, and ``_crossing_coordinates`` asks ``grammar.ticket_path``
-    for the file so it can derive the workflow and the component's history. Both are
-    pointed at ``<root>/tickets`` — the fixture ticket, in the commons' own shape.
+    ``_boats_named_on`` scans ``load_tickets(_COMMONS)`` for tickets standing at PROVEME.
+    That is the one read left to point: the clearance gate it hands each boat to resolves
+    the ticket through the tickets store and the crossings through ``_crossing_roots``,
+    both of which ``_the_boat_is_covered`` already stands behind the fixture.
 
-    EVERYTHING ELSE RUNS FOR REAL: the bus request, the harbor's clearance gate with its
-    authority check, its proven-space check, its PROVED coverage rung, the entry and exit
-    gates, and the journal write. What a fixture may not do is put a manufactured PROVEME
-    state onto a live voyage's name — measured 2026-09-09, the corpus holds ZERO tickets at
-    PROVEME, so there is no real boat this handler could have been fired at.
-
-    ``grammar.ticket_path`` is replaced by a WRAPPER around the real function rather than a
-    stub: the lookup it performs — hex-id glob, whole-slug match, the 2026-09-09 narrowing —
-    is logic this tooth wants exercised, not logic it wants to reimplement.
-    """
+    EVERYTHING ELSE RUNS FOR REAL: the gate, the door with its authority, proven-space and
+    PROVED coverage rungs, the entry and exit gates, and the journal write."""
     import cairn.devices.codemother.shim as _shim
-    import cairn.tools.chain.grammar as _grammar
 
-    root = comp.parent
-    real_ticket_path = _grammar.ticket_path
     saved_commons = _shim._COMMONS
-
-    def _fixture_ticket_path(claim, *args, **kw):
-        # ``*args`` because ``root`` is POSITIONAL on the real signature and callers pass it
-        # that way; swallowing it into keywords would make this wrapper refuse a call the
-        # real function accepts.
-        kw.setdefault("tickets_dir", str(root / "tickets"))
-        return real_ticket_path(claim, *args, **kw)
-
-    _grammar.ticket_path = _fixture_ticket_path
-    _shim._COMMONS = root
+    _shim._COMMONS = comp.parent
     try:
         yield boat
     finally:
-        _grammar.ticket_path = real_ticket_path
         _shim._COMMONS = saved_commons
 
 
@@ -1148,7 +1117,7 @@ def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
     and returns a dict either way, which is what clause (4)'s tooth relies on when the
     same message arrives by ``post`` and is drained off the mailbox instead.
     """
-    with _in_process("codemother", "harbor_master") as bus:
+    with _in_process("codemother") as bus:
         reply = bus.request(
             sender="tester", to="codemother", verb="sealed",
             why=f"proof: a green seal on {proof} crosses the boat it proves",
@@ -1185,7 +1154,7 @@ def test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof():
     the announcement.
 
     The whole seam is fired, end to end: a ``sealed`` message arrives at codemother, she finds
-    the boat that named the proof, and she asks the HARBOR to cross it — as herself, over the
+    the boat that named the proof, and the boat asks to be queued at
     bus, through the gate. She decides nothing about whether it may cross; the gate does, and
     it is the same gate with the same coverage rung a hand would have met.
     """
@@ -1370,10 +1339,10 @@ if __name__ == "__main__":
         test_challenge_catches_known_violation,
         test_query_returns_relevant_types,
         test_digest_consolidates,
-        test_cross_is_a_declared_verb_on_a_real_device,
+        test_codemother_declares_no_cross_verb_and_holds_the_clearance_gate,
         test_a_crossing_codemother_admits_names_her_in_the_record,
         test_the_door_still_refuses_an_unproven_boat_through_her,
-        test_the_actor_is_the_envelopes_sender_not_the_bodys_claim,
+        test_the_body_cannot_name_the_hand,
         test_codemother_never_imports_the_harbor,
         test_the_harbor_shim_is_reachable_by_its_own_name,
         test_a_handler_that_posts_does_not_re_enter_its_own_mailbox,

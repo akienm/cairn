@@ -331,7 +331,7 @@ def r_compiler(t, patch):
     return got == (CURSOR, None), got
 
 
-CLEARANCE = "cairn.devices.cairn.machines.harbor_master.clearance"
+CLEARANCE = "cairn.devices.codemother.machines.clearance.clearance"
 
 
 def r_riders_of(t, patch):
@@ -436,11 +436,14 @@ def r_validate(t, patch):
     return got == [], got
 
 
-def r_codemother_shim(t, patch):
-    patch(_mod("cairn.tools.chain.grammar"), "ticket_path", lambda c, *a, **k: str(t / (PLAN + ".json")))
-    got = _mod("cairn.devices.codemother.shim").CodeMotherDevice._crossing_coordinates(
-        TID, {"proven_by": ["x"]})["workflow"]
-    return got == CURSOR, got
+def r_clearance_gate(t, patch):
+    # codemother's cross verb left (ticket 0be964512fb0); the clearance gate reads the cursor now,
+    # off a Ticket instantiated from the fileref, and derives the next step from it.
+    repo = Path(__file__).resolve().parents[4]
+    gate = _mod("cairn.devices.codemother.machines.clearance.gate").ClearanceGate(
+        participant=object(), roots={"repo": repo, "commons": t.parent, "instance": t.parent / "instance"})
+    got = gate.crossing_of(_mod("cairn.machines.ticket.ticket").Ticket(t / (PLAN + ".json")))["target"]
+    return got == "PROVEME", got
 
 
 def r_failed_run(t, patch):
@@ -529,7 +532,7 @@ READERS = (
     ("reader_tellmeabout_presents_the_state_cursor", r_tellmeabout_present),
     ("reader_grammar_ticket_path_never_a_state_file", r_grammar),
     ("reader_validate_reads_node_class_from_state", r_validate),
-    ("reader_codemother_shim_reads_the_state_cursor", r_codemother_shim),
+    ("reader_clearance_gate_reads_the_state_cursor", r_clearance_gate),
     ("reader_failed_run_counts_no_state_file", r_failed_run),
     ("reader_no_stored_chart_chain_walks_plans_only",
      _carriers(P + "no_ticket_carries_a_stored_chart_chain", "chart_chain", {})),

@@ -39,7 +39,7 @@ that watches the door refuse. Until then ``harbor_master`` is RED by its own fal
 its charter now says out loud.
 
 Runs bare (no daemon, no bus, no instance — ``ask`` is a plain method on the device):
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_asks_the_real_host.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/clearance/proofs/test_clearance_asks_the_real_host.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.transitions import parse_workflow
 from cairn.tools.charter import projector
-from cairn.devices.cairn.machines.harbor_master.clearance import (
+from cairn.devices.codemother.machines.clearance.clearance import (
     HARBOR_LINES,
     QUEUE_BLOCK,
     Unresourced,
@@ -102,7 +102,7 @@ def _proven() -> str:
     from cairn.tools.bus_client.bus_client import reach  # the tester's interface is the bus (RULE 1)
     validation = reach("tester").request(
         sender="harbor_master", to="tester", verb="run", why="seal a fixture under the real tester",
-        body={"path": str(proof), "caller": "test_harbor_asks_the_real_host"}, timeout=120)["body"]["record"]
+        body={"path": str(proof), "caller": "test_clearance_asks_the_real_host"}, timeout=120)["body"]["record"]
     persist_validation(validation, proof_path=str(proof))
     return str(proof)
 

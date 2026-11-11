@@ -38,10 +38,11 @@ PROVES = {"ed3d02b24675": {
     "3": "clause_3_the_launcher_keeps_no_arm_for_the_five",
 }}
 
-# The no-argument usage lines of the old arms, copied from the launcher at HEAD 38293f63.
+# The no-argument usage lines of the old arms, copied from the launcher at HEAD 38293f63 (cross's since 0be964512fb0).
 USAGE = {
-    "cross": "usage: cairn codemother cross <ticket> <target> --proven-by <proof path> "
-             "[--history <path>] [--state <path>]\n",
+    # Ticket 0be964512fb0 (outline 9.7): the ticket queues itself, so the mouth takes the ticket only.
+    "cross": "usage: cairn codemother cross <ticket> [--timeout <s>]  "
+             "(the gate derives the target and the proofs)\n",
     "watch": "usage: cairn codemother watch <area> [reason]\n",
     "question": "usage: cairn codemother question <question>\n",
 }

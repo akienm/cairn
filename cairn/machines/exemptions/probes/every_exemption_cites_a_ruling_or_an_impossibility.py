@@ -45,7 +45,7 @@ _NOT_A_SITE = ("/proofs/", "/machines/exemptions/")
 # Candidates measured 2026-09-10 and judged NOT exemption sites, with the reason.
 # A line removed from here re-arms the probe for that path; that is the intent.
 _ACKNOWLEDGED = {
-    "cairn/devices/cairn/machines/harbor_master/probes/clearance_actually_gates.py":
+    "cairn/devices/codemother/machines/clearance/probes/clearance_actually_gates.py":
         "_EXEMPT_IN = 4 is a ratio threshold the probe compares against, not a "
         "place any check declines to run",
     # measured 2026-09-17: the durability-lane watch (ticket c2460ae6c3d1) reads

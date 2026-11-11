@@ -1,27 +1,26 @@
 [
   {
     "claim": "proof test_sail_queues_the_ticket_at_codemothers_gates.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-11T10:48:29",
+    "caller": "cairn test",
+    "date": "2026-11-11T10:50:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nFAIL test_a_refused_cross_raises_into_the_scratch_world_only: AssertionError: the refused cross raised nothing into the scratch world's ticket trail\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
+      "returncode": 0,
+      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_a_refused_cross_raises_into_the_scratch_world_only\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
       "stderr_tail": "",
       "teeth_green": [
         "test_sail_imports_no_device_and_the_old_helpers_are_gone",
         "test_draft_writes_each_stage_without_claim_or_refs",
         "test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail",
         "test_cross_with_no_target_queues_at_clearance",
+        "test_a_refused_cross_raises_into_the_scratch_world_only",
         "test_cross_by_name_is_a_back_edge_or_a_disposition_only",
         "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
         "test_close_and_prove_cross_only_at_the_clearance_gate"
       ],
-      "teeth_red": [
-        "test_a_refused_cross_raises_into_the_scratch_world_only"
-      ],
-      "test": "test-71a9f84dd742",
+      "teeth_red": [],
+      "test": "test-f0f9cfdcd720",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +30,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "518ac1cfb8360ba396347a94c84049bb66632aeecca31f5a6cf955f7abbed610",
+        "proof": "ac44aebf9b7ae2137a0e4c9f3a824218c21a4cc60cd4b91007bbf354ed3fbb38",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,19 +42,20 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-71a9f84dd742",
-      "source_fingerprint": "4043a934a98d713fafa2ec6cd5ad464c128b9fef7d757f0fe3a7e8be3fbed86a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f0f9cfdcd720",
+      "source_fingerprint": "a050c741e5a2f78e25927f5e0909b6954c3dce510ab3aef98fd8665016393f58",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_sail_queues_the_ticket_at_codemothers_gates.py"
       ],
       "reached": {
         "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
-        "cairn/machines/ticket": "9d6f8a92b10c622c9e01ea4f7432f50eab7f0f8ca8840de69ab7cf93c46ceb8b",
+        "cairn/machines/ticket": "ff8fb7fcc64c9150901c7c8a028d42c57f564d47846b967cad65c44c67edca10",
         "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
         "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
@@ -65,33 +65,41 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-465810-_2p5bgs8/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-466844-wap873_0/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/ticket/0/20261111.174828.068883.Ticket.raise_trouble.json",
-            "logs/ticket/0/20261111.174828.074232.Ticket.raise_trouble.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 525974249,
-          "disk_bytes": 562524160,
-          "entries": 14286,
+          "bytes": 525994997,
+          "disk_bytes": 562589696,
+          "entries": 14298,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "9ffa5a154a7d",
+      "reseal_closed": {
         "proof_sha256": "518ac1cfb8360ba396347a94c84049bb66632aeecca31f5a6cf955f7abbed610",
         "opened": "2026-11-11T10:48:29",
         "last_red": "2026-11-11T10:48:29",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cc-proofs-test-sail-queues-the-ticket-at-codemothers-gates",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-11T10:50:37",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "ac44aebf9b7ae2137a0e4c9f3a824218c21a4cc60cd4b91007bbf354ed3fbb38"
+      },
+      "conditions_moved": {
+        "notified": "n-5466a267a767",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

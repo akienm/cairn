@@ -21,7 +21,7 @@ from __future__ import annotations
 import ast
 import json
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[4]
@@ -46,7 +46,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _scratch():
-    tmp = Path(tempfile.mkdtemp(prefix="metric_proof_"))
+    tmp = scratch_dir("metric_proof_")
     charter = tmp / "intention+why.json"
     charter.write_text(json.dumps({"metrics": {
         "spent": {"consumer": "the yield report (outline 11.4.4.2)", "unit": "tokens"},

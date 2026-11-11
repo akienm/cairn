@@ -19,7 +19,7 @@ import json
 import os
 import shutil
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -160,7 +160,7 @@ class _Spy:
 @contextmanager
 def _world(chart: dict | None = None, claim: dict | None = None):
     import cairn.tools.base.ticket_file as tf
-    tmp = Path(tempfile.mkdtemp(prefix="t4b-gates-"))
+    tmp = scratch_dir("t4b-gates-")
     store = tmp / "tickets"
     store.mkdir()
     shutil.copy(_LIVE_STORE_CHARTER, store / "_charter+why.json")

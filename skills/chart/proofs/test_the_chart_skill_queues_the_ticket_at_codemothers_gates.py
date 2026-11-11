@@ -26,7 +26,7 @@ import json
 import re
 import shutil
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -70,7 +70,7 @@ def _world(spy=None):
     import cairn.tools.base.ticket_file as tf
     from cairn.machines.ticket.ticket import Ticket
     live = importlib.import_module("skills.chart.live")
-    tmp = Path(tempfile.mkdtemp(prefix="t1800-chart-"))
+    tmp = scratch_dir("t1800-chart-")
     store = tmp / "tickets"
     store.mkdir()
     shutil.copy(_STORE_CHARTER, store / "_charter+why.json")

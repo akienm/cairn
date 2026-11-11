@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[4]
@@ -50,7 +50,7 @@ def _world():
     """Three calls at three times: a miss (spent 10), a hit (saved 4), a miss (spent 6); each
     with a valueless latency row carrying its verdict."""
     from cairn.tools.metric import metric
-    tmp = Path(tempfile.mkdtemp(prefix="metrics_totals_proof_"))
+    tmp = scratch_dir("metrics_totals_proof_")
     roots = {"repo": _REPO, "commons": tmp / "commons", "instance": tmp / "instance"}
     charter = tmp / "charter.json"
     charter.write_text(json.dumps({"metrics": {

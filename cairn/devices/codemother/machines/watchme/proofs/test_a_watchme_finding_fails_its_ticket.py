@@ -26,7 +26,7 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -105,7 +105,7 @@ class _Spy:
 @contextmanager
 def _world(cursor: str = "PROVED", *, watchme=None):
     import cairn.tools.base.ticket_file as tf
-    tmp = Path(tempfile.mkdtemp(prefix="watchme-gate-"))
+    tmp = scratch_dir("watchme-gate-")
     roots = {"repo": tmp / "repo", "commons": tmp / "commons", "instance": tmp / "instance"}
     store = roots["commons"] / "tickets"
     store.mkdir(parents=True)

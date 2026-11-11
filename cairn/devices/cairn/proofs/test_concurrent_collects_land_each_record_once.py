@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 import threading
 import time
 from pathlib import Path
@@ -52,7 +52,7 @@ FAIL = 0
 def _world(n: int):
     """A temp roots with one holder whose recorder waits with n spent records."""
     from cairn.tools.metric import metric
-    tmp = Path(tempfile.mkdtemp(prefix="metrics_single_flight_proof_"))
+    tmp = scratch_dir("metrics_single_flight_proof_")
     roots = {"repo": _REPO, "commons": tmp / "commons", "instance": tmp / "instance"}
     charter = tmp / "charter.json"
     charter.write_text(json.dumps({"metrics": {"spent": {

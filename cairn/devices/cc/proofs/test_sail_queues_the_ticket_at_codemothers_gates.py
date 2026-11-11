@@ -19,7 +19,7 @@ import importlib.util
 import json
 import shutil
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -94,7 +94,7 @@ def _wf(cursor: str) -> str:
 @contextmanager
 def _world(cursor: str = "TICKETME", plan_extra: dict | None = None):
     import cairn.tools.base.ticket_file as tf
-    tmp = Path(tempfile.mkdtemp(prefix="t5-sail-"))
+    tmp = scratch_dir("t5-sail-")
     store = tmp / "tickets"
     store.mkdir()
     shutil.copy(_LIVE_STORE_CHARTER, store / "_charter+why.json")

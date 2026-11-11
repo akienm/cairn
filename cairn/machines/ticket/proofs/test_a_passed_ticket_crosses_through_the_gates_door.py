@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -48,7 +48,7 @@ def test_a_pass_crosses_through_the_door_it_is_handed():
     import cairn.tools.base.transitions as transitions
     from cairn.machines.ticket.ticket import Ticket
 
-    tmp = Path(tempfile.mkdtemp(prefix="t-cross-door-"))
+    tmp = scratch_dir("t-cross-door-")
     store = tmp / "tickets"
     store.mkdir()
     shutil.copy(_STORE_CHARTER, store / "_charter+why.json")

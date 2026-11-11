@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -59,7 +59,7 @@ class _Spy:
 def _ticket():
     import cairn.tools.base.ticket_file as tf
     from cairn.machines.ticket.ticket import Ticket
-    tmp = Path(tempfile.mkdtemp(prefix="t41a5-ticket-"))
+    tmp = scratch_dir("t41a5-ticket-")
     store = tmp / "tickets"
     store.mkdir()
     shutil.copy(_LIVE_STORE_CHARTER, store / "_charter+why.json")

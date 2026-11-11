@@ -2,12 +2,12 @@
   {
     "claim": "proof test_metric.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T22:05:02",
+    "date": "2026-11-11T15:30:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_declared_name_lands_in_the_holders_recorder\n  PASS  test_an_undeclared_name_writes_nothing\n  PASS  test_take_hands_rows_and_clears_only_after\n  PASS  test_the_read_frequency_is_declared  — {\"expected_read_frequency_seconds\": 86400, \"last_read\": null, \"on_read\": \"drain\", \"started\": \"2026-11-10T05:05:01.102827+00:00\"}\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_declared_name_lands_in_the_holders_recorder\n  PASS  test_an_undeclared_name_writes_nothing\n  PASS  test_take_hands_rows_and_clears_only_after\n  PASS  test_the_read_frequency_is_declared  — {\"expected_read_frequency_seconds\": 86400, \"last_read\": null, \"on_read\": \"drain\", \"started\": \"2026-11-11T22:30:53.555628+00:00\"}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_declared_name_lands_in_the_holders_recorder",
@@ -16,7 +16,7 @@
         "test_the_read_frequency_is_declared"
       ],
       "teeth_red": [],
-      "test": "test-7b65580e1694",
+      "test": "test-c1c90a750422",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b662bedcfa203fc9a39874e9c71d7e3d53d753d535698e032ee3d5f8798c9a21",
+        "proof": "b81f4db09d96f2476f5e6f99beece8c80db105cf51c0494ec5b4b965724cc842",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -39,63 +39,40 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7b65580e1694",
-      "source_fingerprint": "2b073dd9553e324058c35e60caae3fd03b8f647b0d319367d671fed38274e083",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c1c90a750422",
+      "source_fingerprint": "7c1873b22385d89aee85871ad44fbe81f0200d8fda44e66d64b53049ceb8b5a2",
       "fingerprint_closure": [
         "cairn/tools/metric/__init__.py",
         "cairn/tools/metric/metric.py",
         "cairn/tools/metric/proofs/test_metric.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
-        "cairn/tools/data_recorder": "977acf767a86b253a583c929bc2e5468b9ccac313103f1cc4349867e0329793f"
+        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
+        "cairn/tools/data_recorder": "da58d63ece0a0ff40107281efaa2493a5643468a910f847c1e9fb6b5e251c5e6",
+        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-582980-5ekwg23i/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-7b65580e1694/stderr.txt",
-            "logs/tester/0/runs/test-7b65580e1694/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "75de6bafbd95": {
-          "cairn/tools/metric/metric.py": [
-            "test_a_declared_name_lands_in_the_holders_recorder",
-            "test_an_undeclared_name_writes_nothing",
-            "test_take_hands_rows_and_clears_only_after",
-            "test_the_read_frequency_is_declared"
-          ],
-          "cairn/tools/metric/__init__.py": {
-            "notified": "n-df433cd9c96d"
-          },
-          "cairn/tools/metric/intention+why.json": {
-            "notified": "n-b7b39f1cd459"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "75de6bafbd95": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "4651677e8c1311450373f62949216b7d822f5cb7",
-          "anchor_first_build": "4651677e8c1311450373f62949216b7d822f5cb7",
-          "commit": "a794a2837204d89949a7a79ae6ab51997164103b"
+          "measured": true,
+          "bytes": 526620944,
+          "disk_bytes": 564285440,
+          "entries": 14683,
+          "builds": 1,
+          "reuses": 10
         }
       }
     },

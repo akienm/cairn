@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
+from cairn.tools.scratch.scratch import scratch_dir
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[4]
@@ -49,7 +49,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def _world():
     from cairn.tools.metric import metric
-    tmp = Path(tempfile.mkdtemp(prefix="metrics_table_proof_"))
+    tmp = scratch_dir("metrics_table_proof_")
     roots = {"repo": _REPO, "commons": tmp / "commons", "instance": tmp / "instance"}
     charter = tmp / "charter.json"
     charter.write_text(json.dumps({"metrics": {

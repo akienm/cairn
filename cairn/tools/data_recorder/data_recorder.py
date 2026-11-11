@@ -35,6 +35,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 RECORDS_FILE = "records.jsonl"
 READING_FILE = "reading.json"
@@ -45,7 +47,7 @@ ON_READ = ("drain", "hold")
 REQUIRED_KEYS = ("finding", "inspector_target", "probe_source", "timestamp")
 
 
-class DataRecorder:
+class DataRecorder(DiagnosticBase):
     """Accumulate-and-clear mailbox for structured feedback records.
 
     Construction touches no disk — the directory is made at the first write.

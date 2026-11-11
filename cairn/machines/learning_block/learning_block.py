@@ -33,11 +33,12 @@ from pathlib import Path
 
 from cairn.tools.gate import gate
 from cairn.tools.base.address import instance_path
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 CONSUMERS = ("debug", "training", "tree-primary")
 DEBUG_TTL_DAYS = 30
 
-class DoorRefused(ValueError):
+class DoorRefused(DiagnosticBase, ValueError):
     """Insufficient input at a block's door. Carries EVERY lack, named — and the
     message renders each as ``field: why`` so a caller that only prints ``str(exc)``
     hands the executor the remedy, not a list of names to go look up (ticket

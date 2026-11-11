@@ -28,6 +28,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 PROVES = {
+    "794835a34ec9": {
+        "4": "test_a_door_refusal_fails_the_ticket_with_the_doors_words",
+    },
     "fa4462c803d6": {
         "1": "test_the_orient_gate_berths_a_claimed_packet_and_deposits_it",
         "2": "test_the_constrain_gate_reads_the_recorded_orient_berth",
@@ -120,7 +123,7 @@ def _drafts() -> dict:
                         "provenance": prov("triage_ref", "hypotheses", "unknowns")},
         "validate": {"criteria": [{"claim": "the stage gates chart a ticket",
                                    "instrument": _CRITERION, "covers": [p["what"] for p in _P]},
-                                  {"claim": "a fail before BUILDME stands and asks design",
+                                  {"claim": "a fail before BUILDME stands and waits in the trouble lane",
                                    "instrument": _FAILED, "covers": [_P[0]["what"]]}],
                      "unknowns": [], "confidence": 0.85,
                      "provenance": prov("hypothesize_ref", "criteria", "unknowns")},
@@ -128,7 +131,7 @@ def _drafts() -> dict:
                                   "instrument": _CRITERION, "outcome": "pass",
                                   "evidence": "the fixture's teeth",
                                   "discriminating_observation": "a hollow gate berths nothing"},
-                                 {"claim": "a fail before BUILDME stands and asks design",
+                                 {"claim": "a fail before BUILDME stands and waits in the trouble lane",
                                   "instrument": _FAILED, "outcome": "pass",
                                   "evidence": "Ticket.failed's tooth",
                                   "discriminating_observation": "a kick-back to FIXME raises"}],
@@ -256,17 +259,21 @@ def _assert_failed(w, got, *words):
     for word in words:
         assert word in said, (word, got.get("lacks"))
     assert _packets(w) == [], _packets(w)
-    _assert_design_asked(w, got)
+    _assert_refused_trouble(w, got)
     assert _deposits(w) == [], w["spy"].posts
 
 
-def _assert_design_asked(w, got):
+def _assert_refused_trouble(w, got):
     """The fail of a ticket charting at TICKETME (outline 3.3.4.3): the cursor stands, the lacks
-    land as the ticket's fixme, and design is asked to queue it."""
+    land as the ticket's fixme, nothing is asked of any verb, and the ticket's refused trouble
+    names the stage (outline 3.3.4, Q#85, ticket 794835a34ec9)."""
     st = _state(w)
     assert st.get("workflow_and_state") == _WF, st
     assert [f["missing"] for f in st.get("fixme") or []] == [one["why"] for one in got["lacks"]], st
-    assert [r["verb"] for r in w["spy"].requests] == ["machines/design/queueme"], w["spy"].requests
+    assert w["spy"].requests == [], f"a refused ticket asked something: {w['spy'].requests}"
+    stage = got["lacks"][0]["kind"]
+    assert got.get("trouble") == f"ticket-refused-{_TID}-at-{stage}", got
+    assert "design_queued" not in got, f"the answer still speaks of design: {sorted(got)}"
 
 
 def test_an_absent_draft_or_earlier_berth_fails_the_ticket_and_writes_nothing():
@@ -290,7 +297,7 @@ def test_a_door_refusal_fails_the_ticket_with_the_doors_words():
         said = " ".join(str(one.get("why")) for one in got.get("lacks") or [])
         assert "ConstrainRefused" in said, got.get("lacks")
         assert _packets(w) == before, _packets(w)
-        _assert_design_asked(w, got)
+        _assert_refused_trouble(w, got)
         assert "constrain_berth" not in (_state(w).get("chart_claim") or {}), _state(w)
     print("ok test_a_door_refusal_fails_the_ticket_with_the_doors_words")
 

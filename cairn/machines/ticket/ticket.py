@@ -4,9 +4,11 @@ Akien, 2026-11-10 (Q#80/Q#81 answers, outline 3.3.1-3.3.4.3 and 9.6): a ticket i
 a machine, never a device. To cross a gate it sends its fileref to
 ``devices/codemother/0/machines/<gate>/queueme``; the gate instantiates the ticket on its own
 side, and that instance processes the pass or the fail. On a pass the ticket goes to the next
-step and alerts the probes watching the gate; on a fail it asks design to queue it, and when no
-handler answers it throws a trouble and waits. Self-queuing belongs to the abstract class, so it
-is written once, here.
+step and alerts the probes watching the gate. On a fail it waits in the trouble lane CC and Akien
+read: one trouble naming the gate and every lack, cleared when that gate later passes it. Design
+is CC and Akien until the outline is implemented (outline 3.3.4, Q#85), so nothing posts to a
+design verb no machine answers (ticket 794835a34ec9). Self-queuing belongs to the abstract class,
+so it is written once, here.
 
 WHAT THE CLASS DOES NOT DO. It does not judge — the gate does (Law 6). It does not dial the bus —
 the caller hands it a participant (anything with ``request`` and ``post``), so the ticket has no
@@ -25,7 +27,6 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 
 GATE_HOLDER = "codemother"
 HARBOR = "harbor_master"
-DESIGN = "design"
 
 # The chart stages in the order a ticket queues itself at them (outline 9.6, ticket
 # cd8a1de6139c). Each is a CodeMother gate answering ``machines/<stage>/queueme``. The verdict
@@ -46,6 +47,11 @@ def _before_repair(workflow: str) -> bool:
                                   ).get("repair_summons", {}).get("FIXME")
     return bool(anchor) and "FIXME" not in wf.path and anchor in wf.path \
         and wf.cursor < wf.path.index(anchor)
+
+
+def _refused_identity(tid: str, gate: str) -> str:
+    """The trouble a refusal at ``gate`` raises on ticket ``tid``, and that gate's pass clears."""
+    return f"ticket-refused-{tid}-at-{gate}"
 
 
 def _step(workflow: str) -> str:
@@ -155,7 +161,7 @@ class Ticket(DiagnosticBase):
         """Queue this ticket at each chart stage in turn (outline 9.6), stopping at the first
         stage whose gate does not pass it: one not queued (a trouble is already raised by
         ``queueme``) or one whose reply says ``passed`` is not true (the gate has already
-        failed the ticket back to design)."""
+        refused the ticket into the trouble lane)."""
         done: list[dict] = []
         for stage in stages:
             got = self.queueme(stage, participant=participant, timeout=timeout)
@@ -193,11 +199,18 @@ class Ticket(DiagnosticBase):
                 trouble, why=f"ticket {tid} asked {GATE_HOLDER} to queue it at {gate} and no "
                              "handler took it; the ticket waits",
                 detail={"fileref": self.fileref, "gate": gate, "reply": body})
-        elif self._stands_raised(identity):
-            # The ticket's own raise, cleared by the ticket once the gate takes it (41a5bae3d01b);
-            # nothing standing sends nothing, so a taken ask never writes a clear on its own.
-            self.clear_trouble(identity, by=tid or "ticket",
-                               what_changed=f"queued at {gate}: the gate took it")
+        else:
+            if self._stands_raised(identity):
+                # The ticket's own raise, cleared by the ticket once the gate takes it
+                # (41a5bae3d01b); nothing standing sends nothing, so a taken ask writes no clear.
+                self.clear_trouble(identity, by=tid or "ticket",
+                                   what_changed=f"queued at {gate}: the gate took it")
+            refused = _refused_identity(tid, gate)
+            if body.get("passed") is True and self._stands_raised(refused):
+                # The refusal this gate made stands until this gate passes the ticket
+                # (794835a34ec9); a reply that takes the ticket but does not pass it leaves it.
+                self.clear_trouble(refused, by=tid or "ticket",
+                                   what_changed=f"passed at {gate}: the refusal is answered")
         return {"queued": queued, "gate": gate, "reply": body, "trouble": trouble}
 
     def _stands_raised(self, identity: str) -> bool:
@@ -247,25 +260,31 @@ class Ticket(DiagnosticBase):
         return new
 
     def failed(self, lacks: list[dict], *, participant, history_path, state_path, actor: str,
-               why: str, timeout: float = 30.0) -> dict:
-        """The gate failed this ticket: kick back to FIXME carrying every lack, tell the harbor,
-        then ask design to queue it (a trouble when no handler answers)."""
+               why: str, gate: str | None = None) -> dict:
+        """The gate failed this ticket: kick back to FIXME carrying every lack and tell the harbor,
+        then wait in the trouble lane — one trouble naming ``gate`` (else the first lack's kind)
+        and every lack. Nothing is asked of any verb: design is CC and Akien (outline 3.3.4)."""
         from cairn.tools.base.transitions import emit
         old = self.workflow
         missing = [f"[{one['kind']}] {one['why']}" for one in lacks]
         fixme = [{"n": i, "kind": one["kind"], "missing": one["why"]}
                  for i, one in enumerate(lacks, 1)]
+        gate = gate or (lacks[0]["kind"] if lacks else "unnamed")
         if _before_repair(old):
             # A chart stage fails a ticket still at TICKETME, and FIXME is anchored before
-            # BUILDME: there is no build to kick back from. Outline 3.3.4.3's whole fail is "it
-            # asks design to queue it", so the cursor stands, the lacks land, design is asked.
+            # BUILDME: there is no build to kick back from, so the cursor stands and the lacks land.
             self._write({"fixme": fixme},
                         why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
-            return {**self.queueme(DESIGN, participant=participant, timeout=timeout),
-                    "workflow": old}
-        new = emit(old, "FIXME", history_path=history_path, state_path=state_path,
-                   write_fixme=False, ticket=self.id, actor=actor, missing=missing, why=why)
-        self._write({"workflow_and_state": new, "fixme": fixme},
-                    why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
-        self._tell_harbor(participant, frm=_step(old), to="FIXME", direction="back")
-        return {**self.queueme(DESIGN, participant=participant, timeout=timeout), "workflow": new}
+            new = old
+        else:
+            new = emit(old, "FIXME", history_path=history_path, state_path=state_path,
+                       write_fixme=False, ticket=self.id, actor=actor, missing=missing, why=why)
+            self._write({"workflow_and_state": new, "fixme": fixme},
+                        why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
+            self._tell_harbor(participant, frm=_step(old), to="FIXME", direction="back")
+        identity = _refused_identity(self.id, gate)
+        self.raise_trouble(
+            identity, why=f"ticket {self.id} was refused at {gate} with {len(lacks)} lack(s): "
+                          + "; ".join(missing) + " — it waits for CC and Akien",
+            detail={"fileref": self.fileref, "gate": gate, "lacks": lacks, "workflow": new})
+        return {"queued": False, "gate": gate, "trouble": identity, "workflow": new}

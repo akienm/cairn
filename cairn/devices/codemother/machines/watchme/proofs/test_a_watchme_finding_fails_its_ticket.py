@@ -3,8 +3,8 @@
 Outline 3.3.4, 3.3.4.1 and 9.4.1.5 (Akien 2026-11-10): the gates are CodeMother's; the harbor's
 bus face answers status queries and the crossing notice only, and its ``watch`` verb leaves. A
 WATCHME probe's red finding over a ticket at a rest makes that ticket's own instance fail the gate:
-it goes to FIXME carrying the finding, tells the harbor, and asks design to queue it — and with no
-handler it throws a trouble and waits.
+it goes to FIXME carrying the finding, tells the harbor, and waits in the trouble lane CC and
+Akien read, posting to no design verb (outline 3.3.4, Q#85, ticket 794835a34ec9).
 
 Clauses 2-4 run in a scratch world: a tickets store (the live store charter copied in, one fixture
 plan and state), a component with a charter and a probe, ``ticket_file._TICKETS`` pointed at the
@@ -37,10 +37,13 @@ if str(_REPO_ROOT) not in sys.path:
 PROVES = {
     "386ea8131006": {
         "1": "test_codemother_holds_the_watch_and_the_harbor_does_not",
-        "2": "test_a_red_finding_fails_the_ticket_back_to_design",
+        "2": "test_a_red_finding_fails_the_ticket_into_the_trouble_lane",
         "3": "test_a_green_finding_or_a_ticket_not_at_rest_moves_nothing",
         "4": "test_a_malformed_watch_is_refused_by_name",
         "5": "test_no_standing_probe_still_posts_to_the_harbor",
+    },
+    "794835a34ec9": {
+        "4": "test_a_red_finding_fails_the_ticket_into_the_trouble_lane",
     },
 }
 
@@ -164,7 +167,7 @@ def test_codemother_holds_the_watch_and_the_harbor_does_not():
     assert "watch" not in keys, f"harbor_master still declares watch: {keys}"
 
 
-def test_a_red_finding_fails_the_ticket_back_to_design():
+def test_a_red_finding_fails_the_ticket_into_the_trouble_lane():
     import cairn.tools.base.ticket_file as tf
     with _world("PROVED") as w:
         reply, spy = _watch(w, {"ticket": _TID, "holds": False, "finding": "fixture finding"})
@@ -180,8 +183,8 @@ def test_a_red_finding_fails_the_ticket_back_to_design():
         assert last.get("to") == "FIXME" and "WATCHME finding" in json.dumps(last), last
         back = [p for p in spy.posts if p["to"] == "harbor_master" and p["verb"] == "crossing"]
         assert len(back) == 1 and back[0]["body"]["direction"] == "back", spy.posts
-        assert [r["verb"] for r in spy.requests] == ["machines/design/queueme"], spy.requests
-        ident = f"ticket-unqueued-{_TID}-at-design"
+        assert spy.requests == [], f"a refused ticket asked something: {spy.requests}"
+        ident = f"ticket-refused-{_TID}-at-watchme"
         assert reply.get("queued") is False and reply.get("trouble") == ident, reply
         found = "\n".join(p.read_text("utf-8", errors="replace") for p in w["tmp"].rglob("*")
                           if p.is_file() and p.suffix in (".json", ".jsonl"))
@@ -274,7 +277,7 @@ def test_no_standing_probe_still_posts_to_the_harbor():
 if __name__ == "__main__":
     checks = [
         test_codemother_holds_the_watch_and_the_harbor_does_not,
-        test_a_red_finding_fails_the_ticket_back_to_design,
+        test_a_red_finding_fails_the_ticket_into_the_trouble_lane,
         test_a_green_finding_or_a_ticket_not_at_rest_moves_nothing,
         test_a_malformed_watch_is_refused_by_name,
         test_no_standing_probe_still_posts_to_the_harbor,

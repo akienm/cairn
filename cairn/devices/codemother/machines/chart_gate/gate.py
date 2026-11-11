@@ -195,7 +195,7 @@ class StageGate(DiagnosticBase):
             got = ticket.failed(lacks, participant=self._participant, actor=HOLDER,
                                 why=f"{tid} failed at the {self.stage} gate", **journal)
             return answer(True, **said, passed=False, lacks=lacks, workflow=got.get("workflow"),
-                          design_queued=got.get("queued"))
+                          trouble=got.get("trouble"))
         ticket.berthed(self.stage, berth, why=f"{tid}: the {self.stage} gate berthed {berth}")
         self._participant.post(to=HOLDER, verb=DEPOSIT, body={"berth": str(berth)},
                                why=f"{tid}: the {self.stage} gate's berth, for its tree")

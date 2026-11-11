@@ -3,8 +3,9 @@
 Outline 3.3.4.3 and 9.6 (Akien 2026-11-10, Q#80/Q#81 answers): a ticket is a class and a
 machine; it crosses a gate by sending its fileref to devices/codemother/0/machines/<gate>/queueme;
 the gate's own instance processes the pass or the fail; on a pass the ticket goes to the next
-step and alerts the probes watching the gate; on a fail it asks design to queue it, and with no
-handler it throws a trouble and waits.
+step and alerts the probes watching the gate. On a fail it waits in the trouble lane CC and Akien
+read (outline 3.3.4, Q#85, ticket 794835a34ec9): one trouble naming the gate and every lack, and
+no post to a design verb no machine answers.
 
 Every tooth runs in a scratch world: a tempdir tickets store (the live store charter copied in,
 one fixture plan and state), ``ticket_file._TICKETS`` pointed at it for the tooth, diagnostic
@@ -32,11 +33,18 @@ PROVES = {
         "1": "test_queueme_asks_codemother_with_the_fileref_and_logs_it",
         "2": "test_a_bounce_or_a_timeout_raises_a_trouble_and_waits",
         "3": "test_a_pass_crosses_and_tells_the_harbor_and_the_watchers",
-        "4": "test_a_fail_kicks_back_to_fixme_and_queues_at_design",
+        # clause 4's design request is superseded by 794835a34ec9; the kick-back still holds
+        "4": "test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane",
         "5": "test_at_resolves_an_id_or_a_path_and_refuses_nothing",
     },
     "fa4462c803d6": {
-        "7": "test_a_fail_before_buildme_stays_put_and_queues_at_design",
+        # clause 7's design request is superseded by 794835a34ec9; the stand-still still holds
+        "7": "test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane",
+    },
+    "794835a34ec9": {
+        "1": "test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane",
+        "2": "test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane",
+        "3": "test_a_pass_at_the_refusing_gate_clears_the_refused_trouble",
     },
 }
 
@@ -178,10 +186,21 @@ def test_a_pass_crosses_and_tells_the_harbor_and_the_watchers():
     print("ok test_a_pass_crosses_and_tells_the_harbor_and_the_watchers")
 
 
-def test_a_fail_kicks_back_to_fixme_and_queues_at_design():
+def _refused(w, ident) -> dict:
+    """The detail of the newest raise naming ``ident`` in the world's roots (None: no raise)."""
+    found = None
+    for p in sorted(w["tmp"].rglob("*.raise_trouble.json")):
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        if rec.get("pointer") == ident:
+            found = rec
+    return found
+
+
+def test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane():
+    """Clause 1: FIXME, the harbor told, NO request at all, one trouble naming every lack."""
     with _world("BUILDME") as w:
         t = _ticket(w)
-        spy = _Spy([{"body": {"is_bounce": True, "reason": "no design device"}}])
+        spy = _Spy()
         lacks = [{"kind": "coverage", "why": "clause 2 has no tooth"},
                  {"kind": "seal", "why": "the proof is unsealed"}]
         got = t.failed(lacks, participant=spy, history_path=w["history"],
@@ -192,34 +211,60 @@ def test_a_fail_kicks_back_to_fixme_and_queues_at_design():
                                {"n": 2, "kind": "seal", "missing": "the proof is unsealed"}], st
         back = [p for p in spy.posts if p["to"] == "harbor_master"]
         assert len(back) == 1 and back[0]["body"]["direction"] == "back", spy.posts
-        assert [r["verb"] for r in spy.requests] == ["machines/design/queueme"], spy.requests
-        ident = f"ticket-unqueued-{_TID}-at-design"
+        assert spy.requests == [], f"a refused ticket asked something: {spy.requests}"
+        assert len(spy.posts) == 1, f"a refused ticket posted beyond the harbor: {spy.posts}"
+        ident = f"ticket-refused-{_TID}-at-coverage"
         assert got["queued"] is False and got["trouble"] == ident, got
-        assert ident in _troubles(w), f"no trouble {ident} in the roots"
-    print("ok test_a_fail_kicks_back_to_fixme_and_queues_at_design")
+        assert got["workflow"] == st["workflow_and_state"], got
+        rec = _refused(w, ident)
+        assert rec is not None, f"no trouble {ident} raised in the roots"
+        said = json.dumps(rec)
+        for one in lacks:
+            assert one["why"] in said, f"the refused trouble does not name {one['why']!r}: {rec}"
+        assert t._stands_raised(ident), f"{ident} does not stand on the ticket's trail"
+    print("ok test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane")
 
 
-def test_a_fail_before_buildme_stays_put_and_queues_at_design():
-    """A chart stage fails a ticket that stands at TICKETME, where FIXME (anchored before BUILDME)
-    cannot be entered: outline 3.3.4.3's whole fail is "it asks design to queue it"."""
+def test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane():
+    """Clause 2: a chart stage fails a ticket that stands at TICKETME, where FIXME (anchored
+    before BUILDME) cannot be entered: the cursor stands, the lack lands, nothing is sent."""
     with _world("TICKETME") as w:
         t = _ticket(w)
         spy = _Spy()
         before = _state(w)["workflow_and_state"]
         hist = Path(w["history"])
         had = hist.read_bytes() if hist.is_file() else None
-        lacks = [{"kind": "survey", "why": "the plan carries no chart.survey draft"}]
+        lacks = [{"kind": "chart", "why": "the plan carries no chart.survey draft"}]
         got = t.failed(lacks, participant=spy, history_path=w["history"],
-                       state_path=w["state"], actor="codemother", why="fixture chart fail")
+                       state_path=w["state"], actor="codemother", why="fixture chart fail",
+                       gate="survey")
         st = _state(w)
         assert st["workflow_and_state"] == before and got["workflow"] == before, (st, got)
-        assert st["fixme"] == [{"n": 1, "kind": "survey",
+        assert st["fixme"] == [{"n": 1, "kind": "chart",
                                 "missing": "the plan carries no chart.survey draft"}], st
         assert (hist.read_bytes() if hist.is_file() else None) == had, "a journal was written"
-        assert not [p for p in spy.posts if p["to"] == "harbor_master"], spy.posts
-        assert [r["verb"] for r in spy.requests] == ["machines/design/queueme"], spy.requests
-        assert got["queued"] is True, got
-    print("ok test_a_fail_before_buildme_stays_put_and_queues_at_design")
+        assert spy.posts == [] and spy.requests == [], (spy.posts, spy.requests)
+        ident = f"ticket-refused-{_TID}-at-survey"
+        assert got["queued"] is False and got["trouble"] == ident, got
+        assert t._stands_raised(ident), f"{ident} does not stand: the gate= keyword was ignored"
+    print("ok test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane")
+
+
+def test_a_pass_at_the_refusing_gate_clears_the_refused_trouble():
+    """Clause 3: queued-but-not-passed leaves the refusal standing; passed true clears it."""
+    with _world("TICKETME") as w:
+        t = _ticket(w)
+        ident = f"ticket-refused-{_TID}-at-gate_x"
+        t.failed([{"kind": "gate_x", "why": "a fixture lack"}], participant=_Spy(),
+                 history_path=w["history"], state_path=w["state"], actor="cc", why="fixture")
+        assert t._stands_raised(ident), f"{ident} was not raised"
+        t.queueme("gate_x", participant=_Spy([{"body": {"accepted": True, "passed": False}}]))
+        assert t._stands_raised(ident), "a reply that did not pass cleared the refusal"
+        t.queueme("gate_y", participant=_Spy([{"body": {"accepted": True, "passed": True}}]))
+        assert t._stands_raised(ident), "a pass at ANOTHER gate cleared gate_x's refusal"
+        t.queueme("gate_x", participant=_Spy([{"body": {"accepted": True, "passed": True}}]))
+        assert not t._stands_raised(ident), "a pass at the refusing gate left the refusal standing"
+    print("ok test_a_pass_at_the_refusing_gate_clears_the_refused_trouble")
 
 
 def test_at_resolves_an_id_or_a_path_and_refuses_nothing():

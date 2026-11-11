@@ -10,7 +10,11 @@ Teeth, each importing the code under test at call time:
   (1) the inspector's every_class_reaches_the_diagnostic_mixin sieve returns no findings for
       component diagnostic_inspector;
   (2) behaviour unchanged: each class is a DiagnosticBase and keeps its original base, and
-      the smoke below still holds.
+      the smoke below still holds;
+  (3) it writes its own logs and decides nothing from them (Akien, open-d32047bb1759): inspector.py
+      reads none of its own diagnostics, a trail it emitted into a mailbox never changes what it
+      finds in the log it is handed, and with the mixin made unimportable it reads on and says so
+      (charter edge (g)).
 
     bin/cairn test cairn/machines/diagnostic_inspector/proofs/test_every_diagnostic_inspector_class_reaches_the_diagnostic_mixin.py
 """
@@ -31,6 +35,7 @@ if str(_REPO) not in sys.path:
 PROVES = {"86b1694956b0": {
     "1": "test_no_bare_class_in_diagnostic_inspector",
     "2": "test_behaviour_unchanged",
+    "3": "test_it_writes_its_own_logs_and_decides_nothing_from_them",
 }}
 
 _DIR = "cairn/machines/diagnostic_inspector"
@@ -85,6 +90,31 @@ def test_behaviour_unchanged() -> None:
         lacks.append(f"smoke raised {type(exc).__name__}: {exc}")
     if not ok:
         lacks.append("the smoke no longer holds")
+    check("test_behaviour_unchanged", not lacks, "; ".join(lacks))
+
+
+def test_it_writes_its_own_logs_and_decides_nothing_from_them() -> None:
+    import ast
+    lacks: list[str] = []
+    m = importlib.import_module(f"{_PKG}.inspector")
+    src = Path(m.__file__).read_text(encoding="utf-8")
+    own = {"emit", "diagnostic_records", "held_diagnostics", "diagnostic_trail", "_receiver"}
+    reads = sorted({n.attr for n in ast.walk(ast.parse(src))
+                    if isinstance(n, ast.Attribute) and n.attr in own})
+    if reads:
+        lacks.append(f"inspector.py touches its own diagnostics: {reads}")
+    log = [{"gate": "enter", "pointer": "ticket/A", "ts": "2026-11-11T00:00:01", "us": "000001"},
+           {"gate": "verify", "pointer": "ticket/A", "ts": "2026-11-11T00:00:02", "us": "000002"}]
+    quiet = m.Inspector(m.CompletenessRegistry()).inspect(list(log), m.by_pointer("ticket/A"))
+    loud = m.Inspector(m.CompletenessRegistry())
+    box = m.Mailbox()
+    loud.set_diagnostic_receiver(box)
+    loud.emit("decide", pointer="ticket/A", values={"expected": "x", "actual": "y"})
+    heard = loud.inspect(list(log), m.by_pointer("ticket/A"))
+    if not box.records():
+        lacks.append("the inspector's own emit reached no mailbox — it cannot write its own logs")
+    if heard != quiet:
+        lacks.append(f"its own trail changed its findings: {heard} != {quiet}")
     # Charter edge (g): the reader works even when logging itself is broken. Make the mixin
     # unimportable in a fresh interpreter; the inspector must still load, read, and say why.
     import subprocess
@@ -97,11 +127,12 @@ def test_behaviour_unchanged() -> None:
     if "READ True" not in run.stdout or "did not import" not in run.stderr:
         lacks.append(f"with the mixin broken the inspector did not read on loudly: "
                      f"rc={run.returncode} out={run.stdout[-200:]!r} err={run.stderr[-300:]!r}")
-    check("test_behaviour_unchanged", not lacks, "; ".join(lacks))
+    check("test_it_writes_its_own_logs_and_decides_nothing_from_them", not lacks, "; ".join(lacks))
 
 
 def main() -> int:
-    for tooth in (test_no_bare_class_in_diagnostic_inspector, test_behaviour_unchanged):
+    for tooth in (test_no_bare_class_in_diagnostic_inspector, test_behaviour_unchanged,
+                  test_it_writes_its_own_logs_and_decides_nothing_from_them):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly

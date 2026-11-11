@@ -1269,10 +1269,17 @@ not matter here. The code catches up to this, never the reverse.
            next rung when a host does not answer, so it needs the whole order,
            and the compare belongs inside the nest (Akien, 2026-09-29: "i really
            like option c").
-           [Q#83: Route also moves a domain's preferred models ahead of cheaper
-           ones (route.py:301, since 2026-08-28), and nothing here names that.
-           Does the walk order read "a domain's preferred models first, then
-           cheapest", or does the preference go?]
+           A domain row names the models it may use; the general domain names
+           none, so any model may serve it. The walk goes cheapest first among a
+           domain's models and never leaves them: programming falls from one
+           capable model to the next, never down to a cheaper one outside its
+           set, and when none of its models answers, route refuses, loudly. The
+           set is a sieve in the nest like the others, not a sort after it. WHY:
+           Akien, 2026-11-10, Q#83: "a programming domain will want a specific
+           set of models to be selected from, because we wouldn't replace fable
+           with haiku just to save cash and still be successful." Measured the
+           same day: route.py:301 only reorders a domain's `prefers` to the
+           front, so the walk still falls to cheaper models outside the set.
     11.4.7 Hosts: the cloud, and the local GPU box.
     11.4.8 TOOLS: base, import_sieve; database client. MACHINES: route, nest.
     11.4.9 VERBS: infer, embed, resolve, calls. COMMANDS: cairn inference show.

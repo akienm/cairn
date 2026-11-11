@@ -35,6 +35,7 @@ PROVES = {
         "4": "test_cross_with_no_target_queues_at_clearance",
         "5": "test_cross_by_name_is_a_back_edge_or_a_disposition_only",
         "6": "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
+        "7": "test_close_and_prove_cross_only_at_the_clearance_gate",
     },
 }
 
@@ -274,6 +275,22 @@ def test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate():
         assert sail.verdict(_TID, "obs", participant=sail.Asker(bus), tickets_dir=w["store"],
                             out=out, err=out) == 1
         assert bus.requests == [], bus.requests
+
+
+def test_close_and_prove_cross_only_at_the_clearance_gate():
+    import re
+    for name in ("close.sh", "prove.sh"):
+        text = (_SCRIPTS / name).read_text(encoding="utf-8")
+        assert "cross.py" not in text, f"{name} still names cross.py"
+        assert re.search(r"^X=\S*/cc/scripts/sail\.py$", text, re.M), f"{name}: X is not sail.py"
+        calls = [ln for ln in text.splitlines() if "$X" in ln and not ln.lstrip().startswith("#")]
+        assert calls, f"{name} never calls sail.py"
+        for ln in calls:
+            args = re.search(r"python3 \$X (.*?)(?: 2>&1|\)|$)", ln)
+            assert args and args.group(1).split() == ["cross", "$ID"], (
+                f"{name} crosses by something other than 'sail.py cross $ID': {ln.strip()}")
+    gone = _REPO_ROOT / "cairn" / "devices" / "cc" / "proofs" / "test_cross_asks_the_harbor_over_the_bus.py"
+    assert not gone.exists(), f"5e11fadd63b3's proof still stands: {gone}"
 
 
 if __name__ == "__main__":

@@ -21,8 +21,11 @@ read off the ticket and the disk, never taken from the asker:
 THE GATE DECIDES NOTHING. ``clearance.clear`` decides (authority, proven-space, room,
 retirement, coverage, rules and truth), and the gate hands it to the ticket as the door its
 pass crosses through (``Ticket.passed(cross=...)``), so the crossing is journaled once. The
-actor is codemother, the holder; the envelope's sender rides into the journal as
-``asked_by``. A refusal comes back as data carrying the exception's class name (Law 7); a
+crossing is the ticket's own act (outline 9.6), so its HAND is the asker's: the envelope's sender
+crosses whenever the boat's owning intention admits it (``hand_of``), and codemother, the holder,
+crosses otherwise (ticket f76d01d3170c — a boat only CC may move could not cross when CC asked).
+``clear`` still judges that hand against the owner, so the choice never widens authority. The
+sender rides into the journal as ``asked_by`` either way. A refusal comes back as data carrying the exception's class name (Law 7); a
 failure after the crossing stood is said as one, never as a refusal, because the boat moved.
 
 Imports no device (RULE 1).
@@ -143,6 +146,19 @@ class ClearanceGate(DiagnosticBase):
                         out.append(str(p.relative_to(repo)) if root == repo else str(p))
         return out
 
+    def hand_of(self, tid: str, asked_by: str) -> str:
+        """The hand the crossing is made with: ``asked_by`` when the boat's owner admits it,
+        else the holder. An owner that cannot be read leaves the holder's hand, and ``clear``
+        refuses the crossing in its own words."""
+        from cairn.devices.codemother.machines.clearance import clearance
+        tickets, repo, commons = self._where()
+        try:
+            owner = clearance.boat_owner_of(tid, tickets_dir=str(tickets), cairn_root=str(repo),
+                                            commons_root=str(commons))
+        except clearance.OwnerUnresolvable:
+            return HOLDER
+        return asked_by if asked_by and asked_by in owner.hands else HOLDER
+
     # --- the verb -----------------------------------------------------------
 
     def queueme(self, envelope: dict) -> dict:
@@ -175,7 +191,8 @@ class ClearanceGate(DiagnosticBase):
         try:
             new = ticket.passed(target, participant=self._participant,
                                 history_path=crossing["history_path"],
-                                state_path=crossing["state_path"], actor=HOLDER,
+                                state_path=crossing["state_path"],
+                                actor=self.hand_of(tid, asked_by),
                                 why=f"{tid} queued at clearance by {asked_by or 'an unnamed sender'}",
                                 cross=door, asked_by=asked_by)
         except Exception as exc:  # noqa: BLE001 — a refusal IS the answer, said as data

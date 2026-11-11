@@ -165,6 +165,10 @@ not matter here. The code catches up to this, never the reverse.
               own side. A ticket instance then processes the pass or fail: on a
               pass it goes on to the next step, alerting the probes watching the
               gate (3.3.4.2); on a fail it asks design to queue it, the same way.
+              Self-queuing is the abstract ticket's (3.3.2), so every kind inherits
+              it and no caller queues a ticket on its behalf (Akien, same day:
+              "that could be in the class, rather than the instance :) self
+              queuing").
               WHY: Akien, 2026-11-10: "now it has to send it's fileref over to the
               thing that will process it, and a new code instance created over
               there even tho it's the same thing... because that's good

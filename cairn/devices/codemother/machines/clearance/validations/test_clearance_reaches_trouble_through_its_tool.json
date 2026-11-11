@@ -1,0 +1,84 @@
+[
+  {
+    "claim": "proof test_clearance_reaches_trouble_through_its_tool.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-11T08:36:09",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "FAIL test_the_named_lines_reach_only_the_tool: AssertionError: device code reached: ['cairn/devices/codemother/machines/clearance/proofs/test_clearance.py:2012 cairn.devices.trouble.trouble']\nFAIL test_the_live_sieve_reads_no_row_at_the_named_lines: AssertionError: the RULE 1 sieve reads [{'source': 'cairn/devices/codemother/machines/clearance', 'target': 'cairn/devices/trouble', 'reason': 'into_device', 'file': 'cairn/devices/codemother/machines/clearance/proofs/test_clearance.py', 'line': 2012, 'module': 'cairn.devices.trouble.trouble'}]",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_the_named_lines_reach_only_the_tool",
+        "test_the_live_sieve_reads_no_row_at_the_named_lines"
+      ],
+      "test": "test-eb15c4a41d94",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "9ef0ad5a0587f6050d4be4953027f6359f9d3e31294a28bc26beeeaac9b1c88b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb15c4a41d94",
+      "source_fingerprint": "469bd24174e57294bdc76c652f84449a8a104173c080d6598cd8147205711ec7",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/clearance/proofs/test_clearance_reaches_trouble_through_its_tool.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
+        "cairn/machines/build_inspector": "ee71e5ee3ab85c1d97685105e7980846502e5c68c84f0318f996aa3b2392c43f",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "135d7c18423646d45e7a8e43fb2cf8bd536d443219331b080bffc7868944ad93",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-399771-ngo6wfvj/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 525643340,
+          "disk_bytes": 561905664,
+          "entries": 14177,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

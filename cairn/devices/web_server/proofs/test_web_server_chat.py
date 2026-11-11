@@ -5,9 +5,11 @@ understands (declared_panes), its shim rides the roster, and a POSTed utterance 
 web_server → shim.deliver → device.receive. No chat route, no injected chat source, no
 second door.
 
-No socket, no DB, no host: the shim's session factory is injected (a fake face in
-ChatSession's shape), because THIS proof is about the carrying — the librarian's own
-teeth live beside the librarian.
+No socket, no DB, no host, and no librarian code: the device on the roster is a SPEC chat
+device declared here (a BaseShim + BaseDevice pair in the librarian's shape, holding a fake
+face in ChatSession's shape), because THIS proof measures the carrying — the web server's
+rendering of a chat pane (RULE 1, ticket 3650ce94445b). The librarian's own teeth live
+beside the librarian.
 
 Teeth a hollow surface could not pass:
   - THE LIBRARIAN RIDES THE ROSTER like any device; its page carries the CHAT pane
@@ -41,8 +43,9 @@ import os, tempfile  # noqa: E401
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("ws-proof-traces-"))
 
+from cairn.tools.base.device import BaseDevice
+from cairn.tools.base.shim import BaseShim
 from cairn.tools.bus_client.roster import DeviceRoster
-from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.web_server.server import WebServerDevice
 
 # The chat reply in its ruled shape (the-librarian-chats, 2026-08-09): prose rendered
@@ -77,11 +80,56 @@ class _FakeFace:
                           for u in self.taken]}
 
 
+class _ChatDevice(BaseDevice):
+    """A spec chat device: the chat pane over its face's page, one utterance per ``chat``
+    envelope — the shape any device offering a chat pane takes (declared_panes + receive)."""
+
+    def __init__(self, face) -> None:
+        super().__init__()
+        self._face = face
+
+    def intention(self) -> dict:
+        return {"what": "a spec chat device", "why": "drives the web server's chat pane in this proof"}
+
+    def state(self) -> dict:
+        return {"note": "resting"}
+
+    def settings(self) -> dict:
+        return {"verbosity": "loud"}
+
+    def declared_panes(self) -> list[dict]:
+        return [{"kind": "chat", "label": "Chat",
+                 "handler": None if self._face is None else self._face.page}]
+
+    def receive(self, envelope: dict) -> dict:
+        if envelope.get("channel") != "chat":
+            raise ValueError(f"spec chat device: no handler for {envelope.get('channel')!r}")
+        if self._face is None:
+            raise RuntimeError("spec chat device: no face attached")
+        return self._face.turn(str((envelope.get("body") or {}).get("utterance", "")))
+
+
+class _ChatShim(BaseShim):
+    """The spec device's shim, on the roster as ``librarian``: it starts the device on the
+    first poke (BaseShim's wake-to-a-poke), as every shim does."""
+
+    def __init__(self, face) -> None:
+        super().__init__(bus=None)
+        self._face = face
+
+    @property
+    def device_id(self) -> str:
+        return "librarian"
+
+    def _start_device(self) -> _ChatDevice:
+        return _ChatDevice(self._face)
+
+
 def _wired(face=None):
-    """The real machinery end to end: a DeviceRoster, the REAL LibrarianShim held
-    (its face injected), the ONE web server over the roster that holds the shims."""
+    """The web server's machinery end to end: a DeviceRoster, a spec chat shim held (its
+    face injected), the ONE web server over the roster that holds the shims."""
     heartbeat = DeviceRoster(None)
-    shim = LibrarianShim(session_factory=lambda dev: face)
+    shim = _ChatShim(face)
     heartbeat.hold(shim)
     web = WebServerDevice(heartbeat, port=8799)
     # SILENCED (ticket a-device-logs-without-being-wired, 2026-08-18): a device nobody wired now

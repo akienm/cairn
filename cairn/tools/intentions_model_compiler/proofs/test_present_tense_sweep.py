@@ -183,7 +183,15 @@ def tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record
 
 
 if __name__ == "__main__":
-    tooth_i_scanner_detects_a_planted_narration()
-    tooth_ii_zero_live_and_every_cite_stands()
-    tooth_iii_a_cite_stands_only_where_its_bytes_or_their_deletion_are_on_record()
-    print("GREEN: the present-tense corpus carries no dated appends, and every judgment is on record")
+    failed = 0
+    for _name, _fn in list(globals().items()):
+        if _name.startswith("tooth_") and callable(_fn):
+            try:
+                _fn()
+                print(f"PASS {_name}")
+            except Exception as exc:  # noqa: BLE001 — every tooth reports, red or raising
+                failed += 1
+                print(f"FAIL {_name}: {type(exc).__name__}: {exc}")
+    if not failed:
+        print("GREEN: the present-tense corpus carries no dated appends, and every judgment is on record")
+    sys.exit(1 if failed else 0)

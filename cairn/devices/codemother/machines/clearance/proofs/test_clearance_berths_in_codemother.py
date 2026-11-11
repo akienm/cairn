@@ -4,7 +4,7 @@
 Akien 2026-11-10 (outline 9.4.1.5, Q#80): the harbor's verbs are status queries (show, get)
 and crossing; it answers no gate and moves no ticket, and `clear` leaves. Outline 9.6 and
 3.3.4.3 (Q#81): the gates are CodeMother's machines. Ticket 0be964512fb0 moves the module,
-its proofs and its probes, and CodeMother's `cross` fires the gate in her own process.
+its proofs and its probes, and the gate answers queueme <fileref>.
 
 The retired spellings are built from parts below, so this file never names them whole and
 tooth (2) can read it like any other file.
@@ -16,12 +16,15 @@ Teeth, each importing the code under test at call time:
       module, its probes or its moved proofs, dotted, slashed or path-joined;
   (3) lives at the harbor's own address (RULE 1: this proof may not import the harbor):
       cairn/devices/cairn/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py;
-  (4) CodeMother's cross with no bus answers a clearance refusal over a fixture, never a
-      no-bus or harbor-unwired one;
+  (4) CodeMother declares no cross verb and holds the clearance gate; the gate, asked queueme
+      <fileref> over a scratch world, derives the crossing and answers a clearance refusal;
   (5) no RULE 1 breach between codemother and harbor_master names clearance, and the total
       is not above 71 (measured 2026-11-11);
   (6) the four clearance probes' tickets name a probe under clearance/probes/ that exists;
-  (7) the deprecation report runs from the new address.
+  (7) the deprecation report runs from the new address;
+  (8) lives at the Ticket's own address: cairn/machines/ticket/proofs/
+      test_a_passed_ticket_crosses_through_the_gates_door.py;
+  (9) `cairn codemother cross <ticket>` has the ticket queue itself at clearance.
 
     bin/cairn test cairn/devices/codemother/machines/clearance/proofs/test_clearance_berths_in_codemother.py
 """
@@ -42,10 +45,11 @@ if str(_REPO) not in sys.path:
 
 PROVES = {"0be964512fb0": {"1": "test_the_module_berths_in_codemother",
                            "2": "test_no_class_space_file_names_the_old_berth",
-                           "4": "test_codemother_reaches_the_gate_without_a_bus",
+                           "4": "test_the_gate_answers_queueme_with_a_clearance_refusal",
                            "5": "test_no_breach_joins_codemother_and_the_harbor_over_clearance",
                            "6": "test_the_probe_tickets_name_the_new_berth",
-                           "7": "test_the_deprecation_report_runs_from_the_new_address"}}
+                           "7": "test_the_deprecation_report_runs_from_the_new_address",
+                           "9": "test_the_cross_command_has_the_ticket_queue_itself"}}
 
 NEW = "cairn/devices/codemother/machines/clearance"
 NEW_DOTTED = "cairn.devices.codemother.machines.clearance"
@@ -95,32 +99,75 @@ def test_no_class_space_file_names_the_old_berth() -> None:
           f"{len(hits)} hit(s): " + "; ".join(hits[:8]) if hits else r.stderr.strip())
 
 
-def test_codemother_reaches_the_gate_without_a_bus() -> None:
+class _Heard:
+    """A participant that only listens: a refused queueme must post nothing and ask nothing."""
+
+    def __init__(self) -> None:
+        self.said: list[tuple[str, dict]] = []
+
+    def request(self, **kw):
+        self.said.append(("request", kw))
+        return {"body": {"accepted": True}}
+
+    def post(self, **kw):
+        self.said.append(("post", kw))
+
+
+_CHARTER = "intention" + "+why.json"
+
+
+def test_the_gate_answers_queueme_with_a_clearance_refusal() -> None:
     import importlib
     from cairn.devices.codemother.shim import CodeMotherDevice
     clearance = importlib.import_module(NEW_DOTTED + ".clearance")
+    gate_mod = importlib.import_module(NEW_DOTTED + ".gate")
+    dev = CodeMotherDevice(bus=None)
+    bad = []
+    if "cross" in dev.declared_verbs():
+        bad.append("codemother still declares a cross verb")
+    if "clearance" not in dev.declared_machines():
+        bad.append("codemother's declared_machines holds no clearance gate")
+    wf = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
     with tempfile.TemporaryDirectory(prefix="clearance-berth-") as tmp:
+        t = Path(tmp)
+        repo, commons = t / "repo", t / "commons"
+        (repo / "comp" / "proofs").mkdir(parents=True)
+        (commons / "tickets").mkdir(parents=True)
+        (repo / "comp" / _CHARTER).write_text(json.dumps({"gated_by": ["nobody"]}))
+        proof = repo / "comp" / "proofs" / "test_the_fixture.py"
+        proof.write_text('PROVES = {"000000000000": {"1": "test_one"}}\n')
+        plan = commons / "tickets" / "000000000000-the-fixture.json"
+        plan.write_text(json.dumps({"id": "000000000000", "owning_intention": "comp/" + _CHARTER,
+                                    "workflow_and_state": wf}))
         old = os.environ.get("CAIRN_LB_TRACE_ROOT")
-        os.environ["CAIRN_LB_TRACE_ROOT"] = str(Path(tmp) / "traces")
+        os.environ["CAIRN_LB_TRACE_ROOT"] = str(t / "traces")
+        heard = _Heard()
         try:
-            comp = Path(tmp) / "comp"
-            comp.mkdir()
-            answer = CodeMotherDevice(bus=None)._handle_cross({"sender": "codemother", "body": {
-                "ticket": "000000000000", "target": "BUILDME",
-                "workflow": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED",
-                "history_path": str(comp / "history.json"), "state_path": str(comp / "state.json"),
-                "proven_by": str(comp / "proofs" / "test_nothing.py")}})
+            gate = gate_mod.ClearanceGate(participant=heard, roots={"repo": repo, "commons": commons,
+                                                                    "instance": t / "instance"})
+            answer = gate.declared_verbs()["queueme"]({"sender": "cc", "body": {"fileref": str(plan)}})
         finally:
             if old is None:
                 os.environ.pop("CAIRN_LB_TRACE_ROOT", None)
             else:
                 os.environ["CAIRN_LB_TRACE_ROOT"] = old
+        cursor = json.loads(plan.read_text()).get("workflow_and_state")
     refusal = answer.get("refusal") or ""
     cls = getattr(clearance, refusal, None)
-    ok = (answer.get("accepted") is False and isinstance(cls, type)
-          and issubclass(cls, Exception) and cls.__module__ == clearance.__name__
-          and answer.get("door") == "clearance")
-    check("test_codemother_reaches_the_gate_without_a_bus", ok, json.dumps(answer, default=str)[:400])
+    if not (answer.get("accepted") is False and isinstance(cls, type) and issubclass(cls, Exception)
+            and cls.__module__ == clearance.__name__):
+        bad.append("not a clearance refusal: " + json.dumps(answer, default=str)[:300])
+    if answer.get("door") != "clearance":
+        bad.append(f"door {answer.get('door')!r}")
+    if answer.get("target") != "BUILDME":
+        bad.append(f"derived target {answer.get('target')!r}, not BUILDME")
+    if [Path(p).name for p in answer.get("proven_by") or []] != [proof.name]:
+        bad.append(f"derived proven_by {answer.get('proven_by')!r}")
+    if cursor != wf:
+        bad.append(f"the refused ticket's cursor moved: {cursor!r}")
+    if heard.said:
+        bad.append(f"a refusal spoke: {heard.said}")
+    check("test_the_gate_answers_queueme_with_a_clearance_refusal", not bad, "; ".join(bad))
 
 
 def test_no_breach_joins_codemother_and_the_harbor_over_clearance() -> None:
@@ -166,12 +213,28 @@ def test_the_deprecation_report_runs_from_the_new_address() -> None:
           f"exit {r.returncode}: " + (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or [""])[-1])
 
 
+def test_the_cross_command_has_the_ticket_queue_itself() -> None:
+    mouth = _REPO / "cairn/devices/codemother/0/bin/cross"
+    text = mouth.read_text(encoding="utf-8")
+    bad = []
+    if re.search(r"verb\s*=\s*['\"]cross['\"]", text):
+        bad.append("the mouth still sends verb 'cross'")
+    if not re.search(r"\.queueme\(\s*['\"]clearance['\"]", text):
+        bad.append("the mouth does not have the ticket queue itself at clearance")
+    r = subprocess.run([str(mouth)], cwd=_REPO, capture_output=True, text=True, timeout=60)
+    usage = r.stdout + r.stderr
+    if r.returncode == 0 or "cross <ticket>" not in usage or "<target>" in usage:
+        bad.append(f"bare mouth: exit {r.returncode}, said {usage.strip()[:200]!r}")
+    check("test_the_cross_command_has_the_ticket_queue_itself", not bad, "; ".join(bad))
+
+
 TEETH = (test_the_module_berths_in_codemother,
          test_no_class_space_file_names_the_old_berth,
-         test_codemother_reaches_the_gate_without_a_bus,
+         test_the_gate_answers_queueme_with_a_clearance_refusal,
          test_no_breach_joins_codemother_and_the_harbor_over_clearance,
          test_the_probe_tickets_name_the_new_berth,
-         test_the_deprecation_report_runs_from_the_new_address)
+         test_the_deprecation_report_runs_from_the_new_address,
+         test_the_cross_command_has_the_ticket_queue_itself)
 
 
 def main() -> int:

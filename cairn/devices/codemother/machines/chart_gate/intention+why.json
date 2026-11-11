@@ -1,0 +1,27 @@
+{
+  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "component": "cairn/devices/codemother/machines/chart_gate",
+  "what": "CodeMother's chart-stage gates: one StageGate per chart stage (orient, constrain, survey, decompose, triage, hypothesize, validate) and one for the verdict, each answering `machines/<stage>/queueme {fileref}` on her bus face. The gate instantiates the ticket from the fileref (`Ticket.at`), reads that stage's draft off the plan (`Ticket.drafted`), fills the ticket claim and the earlier stage's berth as the stage's ref (orient also the floor's domain and refs where the draft leaves them unset, and its unknowns appended), writes the packet through the stage's own door, records the berth on the ticket (`Ticket.berthed`, `<stage>_berth` in chart_claim), posts the berth to her `deposit` verb, and answers `passed: true`. A missing draft, a missing earlier berth or a door's refusal fails the ticket (`Ticket.failed`: FIXME, then queued at design) and answers `passed: false` with the lacks. The verdict gate observes the criteria's instruments once and disposes each hypothesis from the observed run of its own instrument \u2014 confirmed when it met its expected exit, killed otherwise \u2014 never from the draft.",
+  "why": "Akien 2026-11-10 (outline 9.6, Q#81): each chart stage and the verdict is a gate machine that answers queueme <fileref>, and the ticket class queues itself to each in turn, so there is no chart or verdict verb. Outline 3.3.4.3: the ticket sends only its fileref and the gate instantiates it on its own side. Before this, the one chart driver was cc's chart_ticket.py importing her seven stage machines (a RULE 1 breach), and verdict_ticket.py wrote every disposition 'confirmed' \u2014 the builder grading its own build.",
+  "role": "the gates a charting ticket asks, one per stage: write the stage's packet from the ticket's own draft, or fail the ticket back to design by name",
+  "runtime_role": "machine",
+  "node_class": "code-seam",
+  "falsifier": "A stage gate writes a packet that is not the ticket's own draft, or one without the ticket claim or the earlier stage's berth as its ref; records no berth; passes a ticket whose draft is absent or whose door refused it; or the verdict gate takes a disposition from the draft instead of the observed run.",
+  "public_interface": [
+    "machines/<stage>/queueme {fileref} on codemother's bus face, for each stage in orient, constrain, survey, decompose, triage, hypothesize, validate, verdict"
+  ],
+  "gated_by": [
+    "codemother",
+    "CC"
+  ],
+  "owner": "codemother (the care of the code, ruling 2026-09-06); CC co-listed while CC builds it",
+  "learns": "Not itself: every packet it berths is posted to codemother's deposit verb, which lands it in the stage's tree, and those trees are what learn.",
+  "how_it_learns": "Not itself: every packet it berths is posted to codemother's deposit verb, which lands it in the stage's tree, and those trees are what learn.",
+  "state_and_history": "No state of its own: the packets berth under the chart device's instance packets dir through each stage's door, the berth paths on the ticket's state (chart_claim), and a failure in the ticket's component journal through Ticket.failed.",
+  "feedback": {},
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
+}

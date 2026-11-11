@@ -14,7 +14,9 @@ breaches, carried the moment they appear (Law 7, complete diagnostic on the firs
 his answer to an escalated question reads "already answered" (the tree let a settled
 question through), or a later ask of the same words resolved to a DIFFERENT record than the
 one his answer made (the tree held it all along). Enough is 30 live asks. Runs marked
-``testing`` in their input are a proof's, never use, and are not counted.
+``testing`` in their input are a proof's, never use, and are not counted. The finding posts to
+CodeMother's WATCHME gate (to codemother, verb machines/watchme/watch, ticket 8b16f3e77013),
+holding while no breach stands; the gate owns the back-edge, the probe has no authority.
 
     python3 cairn/devices/librarian/probes/ask_spares_akien.py
 """
@@ -26,9 +28,9 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, once, watch_carry
 
-_OWNING_TICKET = "cd8096f9eeca"
+_TICKET_ID = "cd8096f9eeca"
 _BLOCK = "librarian-ask"
 ENOUGH_RUNS = 30
 _QID = re.compile(r"question:(open-[0-9a-f]{12})")
@@ -123,7 +125,11 @@ def _carry(context: dict) -> dict:
     else:
         finding = (f"LETS THROUGH — {len(s['breaches'])} breach(es) over {s['runs']} live ask(s): "
                    + "; ".join(f"{b['kind']}: {b['question']!r}" for b in s["breaches"]))
-    return {"finding": finding, "survey": s, "ticket": owning_ticket(_OWNING_TICKET)}
+    return {"finding": finding, "survey": s}
+
+
+def _holds(context: dict) -> bool:
+    return once(context, "survey", survey)["holds"]
 
 
 PROBE = Probe(
@@ -131,11 +137,11 @@ PROBE = Probe(
         "spends it on the settled (Law 1); this probe watches, over 30 live asks, whether the "
         "answers tree catches equivalent questions or lets them through to him",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "hypothesize", "kind": "efficacy",
-          "ticket": owning_ticket(_OWNING_TICKET),
           "object": "ask_spares_akien"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=1000,
 )

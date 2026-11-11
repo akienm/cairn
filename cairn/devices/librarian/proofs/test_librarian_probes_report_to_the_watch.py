@@ -35,6 +35,8 @@ PROVES = {
     "90354d32aa72": {
         "all": "test_librarian_probes_report_to_the_watch",
     },
+    # 8b16f3e77013 armed the last two librarian probes; this proof is its falsifier
+    "8b16f3e77013": {"1": "test_librarian_probes_report_to_the_watch"},
 }
 
 BERTH = "cairn/devices/librarian/probes/"

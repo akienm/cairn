@@ -16,7 +16,11 @@ the trigger starts False and crosses True when the first dynamic pane is served.
 ENOUGH: three dynamic pane renders under real traffic, each returning correct content for
 the requesting device's current state (from the ticket's watchme spec).
 
-AUTHORITY: none. This probe deposits and pokes.
+HOLDS: False when any render read carries an empty or missing ``content`` (a render that
+returned no content is the falsifier's failure); with no records it holds.
+
+AUTHORITY: none. It posts its finding to CodeMother's WATCHME gate (to codemother, verb
+machines/watchme/watch, ticket 8b16f3e77013), which owns the back-edge.
 
 FILES ONLY — no device, no bus, no network.
 """
@@ -27,10 +31,10 @@ import json
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket, once
+from cairn.tools.base.probe import Probe, once, watch_carry
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
-_OWNING_TICKET = "the-web-server-graduates-to-starlette"
+_TICKET_ID = "72e8e3509287"
 
 _LOG_PATH = address.instance_path("web_server", 0) / "dynamic_pane_renders.json"
 
@@ -62,13 +66,17 @@ def _carry(context: dict) -> dict:
         "finding": f"{len(renders)} dynamic pane render(s) observed",
         "render_count": len(renders),
         "renders": renders[:3],
-        "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": "clause (2): WebSocket connection establishes — "
                              "the capability the current server lacks; "
                              "clause (1): existing pane URLs render identically",
         "suggests": "the Starlette graduation is exercised under real traffic — "
                     "the capability it unlocked (async + WebSocket) is in use",
     }
+
+
+def _holds(context: dict) -> bool:
+    renders = once(context, "renders", _read_renders)
+    return all(isinstance(r, dict) and r.get("content") for r in renders)
 
 
 _HORIZON = 2000
@@ -78,9 +86,10 @@ PROBE = Probe(
         "that capability is exercised under real traffic, which is the web server's "
         "reason for existing beyond static file serving",
     trigger=_trigger,
-    to="librarian",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "hypothesize", "kind": "efficacy"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     horizon=_HORIZON,
 )

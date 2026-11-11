@@ -41,6 +41,7 @@ from pathlib import Path
 
 from cairn.machines.nest import nest as base_nest
 from cairn.tools.base.address import instance_path
+from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.import_sieve import sieve as import_sieve
 
 STACKS_DIR = Path(__file__).resolve().parent / "stacks"
@@ -57,7 +58,7 @@ STACKS_DIR = Path(__file__).resolve().parent / "stacks"
 OVERLAY_PATH = instance_path("inference_domain", 0) / "hosts.json"
 
 
-class RouteRefused(RuntimeError):
+class RouteRefused(DiagnosticBase, RuntimeError):
     """No combo survived the shake (or the rules themselves are unreadable). Loud, with the
     full sieve trace carried in ``.findings`` — a diagnostic surface delivers ALL the data
     in its first report, never 'no route' alone."""

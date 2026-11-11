@@ -404,6 +404,9 @@ def test_the_mesh_holds_no_seam_of_its_own():
     assert imported == {
         "__future__", "json", "pathlib",
         "cairn.machines.nest", "cairn.tools.base.address", "cairn.tools.import_sieve",
+        # stdlib-only (copyreg, traceback, datetime): the diagnostic mixin every class with
+        # code reaches (ticket 7ef055775027) keeps the mesh pure.
+        "cairn.tools.base.diagnostic",
     }, f"import surface widened beyond pure dependencies: {sorted(imported)}"
 
 

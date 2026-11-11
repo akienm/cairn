@@ -1,0 +1,25 @@
+{
+  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "component": "cairn/devices/codemother/machines/watchme",
+  "what": "CodeMother's WATCHME gate. Every WATCHME probe posts its finding here (verb machines/watchme/watch, body {ticket, holds, finding}); a red finding over a ticket at a rest makes that ticket's own instance fail the gate (Ticket.failed): it goes to FIXME carrying the finding as its one watchme lack, tells the harbor, and asks design to queue it. A green finding changes nothing.",
+  "why": "Akien 2026-11-10 (outline 3.3.4, 3.3.4.1, 9.4.1.5): the gates are CodeMother's; harbor_master's bus face answers status queries and the crossing notice only, and its watch verb leaves. A ticket whose falsifier stops holding under live use sends itself back to design; with no handler it throws a trouble and waits.",
+  "role": "the gate a standing WATCHME probe reports to: turn a red finding into the ticket's own fail",
+  "runtime_role": "machine",
+  "node_class": "code-seam",
+  "falsifier": "A red finding over a ticket at PROVED or WATCHME leaves its cursor where it stood, or moves it without the finding as a lack, or without the ticket asking design; or a green finding writes anything; or a malformed watch moves a ticket instead of being refused by name; or a standing WATCHME probe still posts to harbor_master.",
+  "public_interface": [],
+  "gated_by": [
+    "codemother",
+    "CC"
+  ],
+  "owner": "codemother (the care of the code, ruling 2026-09-06); CC co-listed while CC builds it",
+  "learns": "It does not learn; it moves a ticket on a probe's measurement, and the probe is what measures.",
+  "how_it_learns": "It does not; every finding it acts on lands in the ticket's own log and its component's journal, which is the record a learner reads.",
+  "state_and_history": "No state of its own: the ticket's writes land in its own three files through the Ticket class, the crossing in the probe's component journal through transitions.emit.",
+  "feedback": {},
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  }
+}

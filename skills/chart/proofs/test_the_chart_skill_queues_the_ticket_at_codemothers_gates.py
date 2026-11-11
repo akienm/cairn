@@ -163,6 +163,11 @@ def test_a_refusing_or_absent_gate_makes_queue_exit_nonzero_with_the_reason():
         code, out, err = _run(live, ["queue", _TID, "survey"])
         assert code != 0, f"a bounced ask exited 0: {out}"
         assert (out + err).strip(), "a bounced ask said nothing"
+    spy = _Spy([])
+    with _world(spy) as (live, plan, tmp):
+        code, out, err = _run(live, ["queue", _TID, "launch"])
+        assert code != 0 and spy.asked == [], (
+            f"a stage outside the chart exited {code} after {len(spy.asked)} ask(s): {out} {err}")
 
 
 if __name__ == "__main__":

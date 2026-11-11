@@ -11,6 +11,8 @@ deposit-back — the whole embed cost of the stratum, readable in the yield repo
     python3 -m skills.chart.live counsel "<request>" [nexus] [owner]  # the walk, live
     python3 -m skills.chart.live learn <berth-path> [nexus]           # deposit-back one packet
     python3 -m skills.chart.live moreabout "<ask>" [nexus] [owner]    # the learning door
+    python3 -m skills.chart.live draft <ticket> <stage> <packet.json> # the stage's draft, on the plan
+    python3 -m skills.chart.live queue <ticket> <stage>               # the ticket queues at that gate
     # exit 0 = the verb returned; a refusal prints loud and exits 1; exit 3 = learn or
     # counsel SERVED, but an owed verdict failed to deposit in the drain (ticket 4818f7f37e1e)
     # [owner] serves the grafted tenants: `counsel "<text>" corrections orient` walks
@@ -175,6 +177,75 @@ def _chain(argv: list[str]) -> int:
     return 0
 
 
+class _Gates:
+    """The participant the ticket is handed: a bus asking codemother, sent as chart. The ticket
+    asks the gate itself (outline 9.6: each stage is a gate answering queueme <fileref>); this
+    skill only drafts and hands it a hand to ask with."""
+
+    def request(self, **kw):
+        return _bus().request(sender=_SENDER, **kw)
+
+    def post(self, **kw):
+        return _bus().post(sender=_SENDER, **kw)
+
+
+def _gates():
+    return _Gates()
+
+
+# a stage's gate may take a while to answer: the verdict runs every instrument
+_GATE_TIMEOUT_S = 120.0
+
+
+def _draft(argv: list[str]) -> int:
+    """Put the packet file's JSON on the plan as ``chart.<stage>`` (Ticket.draft), the draft the
+    stage's gate reads. A stage outside the chart is refused before anything is written."""
+    if len(argv) != 3:
+        print("usage: python3 -m skills.chart.live draft <ticket> <stage> <packet.json>",
+              file=sys.stderr)
+        return 1
+    from cairn.machines.ticket.ticket import Ticket
+    tid, stage, path = argv
+    try:
+        packet = json.loads(open(path, encoding="utf-8").read())
+        Ticket.at(tid).draft(stage, packet, why=f"{tid}: /chart drafts chart.{stage} for its gate")
+    except (ValueError, OSError) as exc:
+        print(f"draft refused: {exc}", file=sys.stderr)
+        return 1
+    print(f"{tid}: drafted chart.{stage}")
+    return 0
+
+
+def _queue(argv: list[str]) -> int:
+    """The ticket queues itself at ``stage``'s gate (Ticket.chart over that one stage) and the
+    berth the gate wrote is printed. A gate that refuses, or one nobody answers, exits 1 with
+    what it said."""
+    if len(argv) != 2:
+        print("usage: python3 -m skills.chart.live queue <ticket> <stage>", file=sys.stderr)
+        return 1
+    from cairn.machines.ticket.ticket import CHART, VERDICT, Ticket
+    tid, stage = argv
+    if stage not in CHART + (VERDICT,):
+        print(f"queue refused: {stage!r} is not a chart stage ({', '.join(CHART)}, {VERDICT})",
+              file=sys.stderr)
+        return 1
+    try:
+        got = Ticket.at(tid).chart(participant=_gates(), timeout=_GATE_TIMEOUT_S, stages=(stage,))
+    except (ValueError, OSError) as exc:
+        print(f"queue refused: {exc}", file=sys.stderr)
+        return 1
+    one = got["stages"][-1]
+    reply = one["reply"]
+    if one["passed"]:
+        print(f"{stage}: {reply.get('berth')}")
+        return 0
+    lacks = reply.get("lacks") or []
+    said = ("; ".join(f"[{x.get('kind')}] {x.get('why')}" for x in lacks) if lacks
+            else str(reply.get("reason") or reply.get("error") or reply))
+    print(f"refused at {stage}: {said}", file=sys.stderr)
+    return 1
+
+
 def _main(argv: list[str]) -> int:
     argv = fold_head(argv, 1)  # system words fold (ruled 2026-09-07); the rest is verbatim
     if argv and argv[0] == "chain":
@@ -185,6 +256,10 @@ def _main(argv: list[str]) -> int:
         return _learn(argv[1:])
     if argv and argv[0] == "moreabout":
         return _moreabout(argv[1:])
+    if argv and argv[0] == "draft":
+        return _draft(argv[1:])
+    if argv and argv[0] == "queue":
+        return _queue(argv[1:])
     print(__doc__, file=sys.stderr)
     return 1
 

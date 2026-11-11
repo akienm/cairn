@@ -32,29 +32,29 @@ cairn codemother show artifact <id>
 
 This asks CodeMother, who answers every command about the code, for the ticket
 (her show verb hands it to the operator_inbox tool's deep view). Do not search for the ticket file with grep/find; the command
-resolves it. The output is the briefing the orient stage works from. If the
-argument is a natural-language request (not a hex id), skip this step.
+resolves it. The output is the briefing the orient stage works from.
+
+**A chart needs a cast ticket.** Each stage is a gate the ticket queues itself at
+(outline 9.6: `machines/<stage>/queueme <fileref>`, no chart verb), and every berth
+it writes is claimed by that ticket. A natural-language request is cast by /sorted
+first; then chart its id. In every command below, `<ticket>` is that id.
 
 ## Stage 1 — ORIENT
 
 One narrow question: **what is actually being asked, and where does it live?**
 Not how to do it, not what the answer is — that's later stages' work.
 
-### 1. Run the floor (deterministic — before you reason)
+### 1. The floor (deterministic — the gate runs it)
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.orient.orient import floor_packet
-print(json.dumps(floor_packet(sys.argv[1]), indent=2, ensure_ascii=False))
-" '<the request, verbatim>'
-```
+The orient gate runs the floor itself when the ticket queues (`chart_gate/gate.py`
+`packet_of`): `domain` and `refs` it fills where your draft leaves them unset, and its
+`unknowns` come first. Leave those keys out of the draft unless you mean to set them.
 
-**THE FLOOR AUTHORS THREE OF THE FIVE FIELDS. COPY THEM THROUGH UNCHANGED.**
+**THE FLOOR AUTHORS THREE OF THE FIVE FIELDS. LEAVE THEM TO IT.**
 Since 2026-08-14 (ticket orient-floor-authors-and-provenance-is-measured) the
 floor does not merely report facts — it writes `refs`, `domain` and `unknowns`,
-because each of those is lookup rather than language. `floor_packet` returns
-them ready to paste, beside the `facts` they came from. Your job on those three
+because each of those is lookup rather than language. The gate merges
+them into your draft when the ticket queues at orient. Your job on those three
 is to **add**, never to rewrite: append the conceptual unknowns the floor cannot
 see, and leave what it wrote alone.
 
@@ -151,12 +151,12 @@ emitted packet is narrow.
 ### 5. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.orient.orient import write_packet
-print(write_packet(json.load(open(sys.argv[1]))))
-" <scratchpad>/orient_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> orient <scratchpad>/orient_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> orient
 ```
+
+The draft lands on the plan as `chart.orient`; `queue` has the ticket queue itself at
+CodeMother's `orient` gate (outline 9.6), which fills the claim and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 A refusal is loud and specific — fix the packet, don't argue with the gate.
 The berth is instance-space (`~/.cairn/devices/chart/0/packets/`).
@@ -186,13 +186,9 @@ existed): a packet the door passes is a packet the promotion gate passes.
 
 ### 1. The floor — template-filled from stage 1's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.constrain.constrain import constrain_floor
-print(json.dumps(constrain_floor(sys.argv[1]), indent=2))
-" <the orient berth path>
-```
+The floor is the constrain door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the orient berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It surfaces each ref'd component's charter **falsifier / gates / owner
 verbatim, with its address**. The floor surfaces text; you decide what applies.
@@ -222,12 +218,12 @@ Prior bounds for this class of request, floor labeled as always.
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.constrain.constrain import write_constrain
-print(write_constrain(json.load(open(sys.argv[1]))))
-" <scratchpad>/constrain_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> constrain <scratchpad>/constrain_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> constrain
 ```
+
+The draft lands on the plan as `chart.constrain`; `queue` has the ticket queue itself at
+CodeMother's `constrain` gate (outline 9.6), which fills the claim and the `orient` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 The door runs the inspector's own judges — a refusal names the judge; fix the
 packet, don't argue with the gate.
@@ -254,13 +250,9 @@ built UNDER pre-installed judges (`survey_holdings_resolve` +
 
 ### 1. The floor — template-filled from stage 2's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.survey.survey import survey_floor
-print(json.dumps(survey_floor(sys.argv[1]), indent=2))
-" <the constrain berth path>
-```
+The floor is the survey door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the constrain berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It surfaces each ref'd component's **device_census row verbatim** (measured
 state: charter, proofs, validations, devices, emit sites — constrain already
@@ -297,12 +289,12 @@ Sweep as wide as the request needs — parsimony must NOT squeeze the survey
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.survey.survey import write_survey
-print(write_survey(json.load(open(sys.argv[1]))))
-" <scratchpad>/survey_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> survey <scratchpad>/survey_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> survey
 ```
+
+The draft lands on the plan as `chart.survey`; `queue` has the ticket queue itself at
+CodeMother's `survey` gate (outline 9.6), which fills the claim and the `constrain` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 ### 5. Deposit back
 
@@ -326,13 +318,9 @@ is a claim the survey berth can check.
 
 ### 1. The floor — template-filled from stage 3's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.decompose.decompose import decompose_floor
-print(json.dumps(decompose_floor(sys.argv[1]), indent=2))
-" <the survey berth path>
-```
+The floor is the decompose door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the survey berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It re-reads the chain whole (depth 4 — a broken link anywhere refuses) and
 hands you the **judges' vocabularies verbatim**: `holding_addresses` (what a
@@ -366,12 +354,12 @@ How past requests of this class divided, floor labeled as always.
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.decompose.decompose import write_decompose
-print(write_decompose(json.load(open(sys.argv[1]))))
-" <scratchpad>/decompose_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> decompose <scratchpad>/decompose_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> decompose
 ```
+
+The draft lands on the plan as `chart.decompose`; `queue` has the ticket queue itself at
+CodeMother's `decompose` gate (outline 9.6), which fills the claim and the `survey` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 ### 5. Deposit back
 
@@ -396,13 +384,9 @@ to drift against the list.
 
 ### 1. The floor — template-filled from stage 4's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.triage.triage import triage_floor
-print(json.dumps(triage_floor(sys.argv[1]), indent=2))
-" <the decompose berth path>
-```
+The floor is the triage door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the decompose berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It re-reads the chain whole (depth 5 — a broken link anywhere refuses) and
 hands you the pieces verbatim, the split's unknowns, and the **coverage
@@ -434,12 +418,12 @@ How past requests of this class ranked, floor labeled as always.
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.triage.triage import write_triage
-print(write_triage(json.load(open(sys.argv[1]))))
-" <scratchpad>/triage_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> triage <scratchpad>/triage_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> triage
 ```
+
+The draft lands on the plan as `chart.triage`; `queue` has the ticket queue itself at
+CodeMother's `triage` gate (outline 9.6), which fills the claim and the `decompose` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 ### 5. Deposit back
 
@@ -465,13 +449,9 @@ the label has fields the gate refuses without.
 
 ### 1. The floor — template-filled from stage 5's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.hypothesize.hypothesize import hypothesize_floor
-print(json.dumps(hypothesize_floor(sys.argv[1]), indent=2))
-" <the triage berth path>
-```
+The floor is the hypothesize door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the triage berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It re-reads the chain whole (depth 6 — a broken link anywhere refuses) and
 hands you the order verbatim (whats and why_nows), the underlying split
@@ -506,12 +486,12 @@ killed which), floor labeled as always.
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.hypothesize.hypothesize import write_hypothesize
-print(write_hypothesize(json.load(open(sys.argv[1]))))
-" <scratchpad>/hypothesize_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> hypothesize <scratchpad>/hypothesize_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> hypothesize
 ```
+
+The draft lands on the plan as `chart.hypothesize`; `queue` has the ticket queue itself at
+CodeMother's `hypothesize` gate (outline 9.6), which fills the claim and the `triage` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 ### 5. Deposit back
 
@@ -536,13 +516,9 @@ world by the instrument, never the narration.
 
 ### 1. The floor — template-filled from stage 6's berth
 
-```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.validate.validate import validate_floor
-print(json.dumps(validate_floor(sys.argv[1]), indent=2))
-" <the hypothesize berth path>
-```
+The floor is the validate door's, not this skill's (RULE 1: no skill imports CodeMother's
+code). Read the hypothesize berth the previous `queue` printed, and the charters it names,
+directly; the gate supplies the berth ref itself.
 
 It re-reads the chain whole (depth 7 — a broken link anywhere refuses) and
 hands you the hypotheses verbatim (their instruments are composable), the
@@ -572,12 +548,12 @@ What done meant for past requests of this class, floor labeled as always.
 ### 4. The gate and the berth
 
 ```bash
-PYTHONPATH=$HOME/dev/src/cairn python3 -c "
-import json, sys
-from cairn.devices.codemother.machines.validate.validate import write_validate
-print(write_validate(json.load(open(sys.argv[1]))))
-" <scratchpad>/validate_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live draft <ticket> validate <scratchpad>/validate_packet.json
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.chart.live queue <ticket> validate
 ```
+
+The draft lands on the plan as `chart.validate`; `queue` has the ticket queue itself at
+CodeMother's `validate` gate (outline 9.6), which fills the claim and the `hypothesize` berth ref and hands the packet to the stage's own door. It prints the berth, or exits 1 with the door's lacks.
 
 ### 5. Deposit back
 

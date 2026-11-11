@@ -3,13 +3,6 @@ hollow build could not pass:
 
   - THE TABLE IS BORN OWNED BY CHART: the nexus's table registers under owner 'chart',
     and a write wearing any other name is refused by db_domain's physics, not manners.
-  - GATE BEFORE SEED: a malformed packet never reaches the tree (validate_orient runs at
-    the deposit-back door), and a berth path that does not exist on disk refuses BY NAME —
-    a node whose provenance points at nothing is fabricated attribution one layer up —
-    with the control that the same packet, berthed, is accepted (so the refusal measured
-    is the berth's, not an earlier lack; ticket 9c46e187f2de).
-  - DEPOSIT-BACK LANDS HONESTLY: content is the packet's intent, provenance names the
-    berth, standing is hypothesis (inherited physics); a duplicate writes nothing.
   - COUNSEL KEEPS ITS FLOOR VISIBLE: the resolution floor rides every answer, labeled as
     the n=1 guess it is; above_floor holds only nodes at/above it; an empty tree is an
     honest empty counsel, not an error.
@@ -21,7 +14,9 @@ hollow build could not pass:
     unreadable packets reported by name (never silently skipped), an absent berth a
     nameable state, and the REAL berth checked by invariant (fractions sum to 1) — never
     by pinned value (live data moves; pinning it re-derives noise).
-  - 'tree' IS A LEGAL STRATUM at the packet gate — the seam the ceiling writes through.
+  The orient teeth (gate before seed, deposit-back, codemother's leaf, 'tree' a legal
+  stratum) measure orient and live beside it since ticket a692614a4654:
+  cairn/devices/codemother/machines/orient/proofs/test_orient_deposits_into_the_tree.py.
 
 Requires the one-time DB provisioning (as the librarian's trees proof does). Self-cleaning:
 the nonce table and its registry row are dropped. The netns seal does not sever the DB —
@@ -47,7 +42,6 @@ from skills.chart import dial as dial_mod
 from cairn.tools.tree import tree
 from skills.chart.dial import dial
 from cairn.tools.chain.grammar import (STRATA)
-from cairn.devices.codemother.machines.orient.orient import (OrientRefused, deposit_orient)
 from cairn.tools.tree.tree import (
     TreeRefused, counsel, deposit_learning, nexus_table, scratch_nexus,
 )
@@ -58,18 +52,10 @@ from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 
 # The falsifier of 9c46e187f2de is one unnumbered clause, so one composite tooth carries it.
 PROVES = {
-    "9c46e187f2de": {"all": "test_gate_before_seed"},
-    "a229f01ed699": {"1": "test_deposit_back_lands_and_dedups",
-                     "2": "test_the_orient_leaf_is_codemothers_scratch"},
 }
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
 _HELD: list[tuple[str, str]] = []   # (nexus name, owner) — each forgotten under its own owner at close
-_ORIENT: list[str] = []
-
-# deposit_orient writes under codemother's owner since 2b3d842bc118, so the teeth that drive it
-# deposit into a codemother-owned scratch nexus and read it there (ticket a229f01ed699).
-ORIENT_OWNER = "codemother"
 
 
 def _nexus() -> str:
@@ -81,19 +67,6 @@ def _nexus() -> str:
 
 def _table() -> str:
     return nexus_table(_nexus())
-
-
-def _orient_nexus() -> str:
-    """This run's codemother-owned scratch nexus, the one deposit_orient's leaf lands in."""
-    if not _ORIENT:
-        name = _SCRATCH.enter_context(scratch_nexus("orient", owner=ORIENT_OWNER))
-        _HELD.append((name, ORIENT_OWNER))
-        _ORIENT.append(name)
-    return _ORIENT[0]
-
-
-def _orient_table() -> str:
-    return nexus_table(_orient_nexus(), owner=ORIENT_OWNER)
 
 
 _PROV = {"source": "proofs/test_chart_tree.py", "ground": "fixture"}
@@ -139,13 +112,6 @@ def _packet(intent="wire the tree stratum into the orient nexus of the chart dev
     return p
 
 
-def _berthed_fixture(tmp: str, packet: dict) -> str:
-    path = os.path.join(tmp, "orient-20260728T120000-feedfacecafe.json")
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(packet, fh)
-    return path
-
-
 def test_a_nexus_name_is_identity():
     for bad in ("Orient", "a-b", "", "9lives", None, 12):
         _refuses(TreeRefused, nexus_table, bad)
@@ -165,75 +131,6 @@ def test_the_table_is_born_owned_by_chart():
         raise AssertionError("a non-chart write must be REFUSED by db_domain (Law 6)")
     except OwnershipError:
         pass
-
-
-def test_gate_before_seed():
-    before = trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER)
-    with tempfile.TemporaryDirectory() as tmp:
-        berth = _berthed_fixture(tmp, _packet())
-        # A malformed packet (missing a required field) never reaches the tree.
-        broken = _packet()
-        del broken["confidence"]
-        _refuses(OrientRefused, deposit_orient, broken, [1.0, 0.0, 0.0], berth_path=berth)
-        # A berth that does not exist on disk refuses — provenance may not point at nothing.
-        # The refusal must be THAT refusal: it names the missing path, and it is not the
-        # coverage refusal that stood in front of it until ticket 9c46e187f2de.
-        missing = os.path.join(tmp, "no-such-berth.json")
-        msg = _refuses(OrientRefused, deposit_orient, _packet(), [1.0, 0.0, 0.0],
-                       berth_path=missing)
-        assert "does not exist" in msg, msg
-        assert missing in msg, "the refusal must name the berth that is not there: " + msg
-        assert "provenance does not cover" not in msg, \
-            "the fixture was refused one lack early — the berth check was never reached"
-        assert trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER) == before, \
-            "a refused deposit-back must leave the tree exactly where it stood"
-        # THE CONTROL: the same packet, with the berth that exists, is accepted — so the
-        # refusal above was the berth's and not some earlier lack the packet carries.
-        control = _packet(intent=f"the gate control packet of the chart tree proof [{_orient_nexus()}]")
-        berth = _berthed_fixture(tmp, control)
-        r = deposit_orient(control, [1.0, 0.0, 0.0], berth_path=berth, nexus=_orient_nexus())
-        _CREATED_NODES.append(r["node_id"])
-        assert r["duplicate"] is False, "the control packet must land as a new node"
-
-
-def test_deposit_back_lands_and_dedups():
-    with tempfile.TemporaryDirectory() as tmp:
-        packet = _packet(intent=f"wire the tree stratum into the orient nexus [{_orient_nexus()}]")
-        berth = _berthed_fixture(tmp, packet)
-        r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_orient_nexus())
-        _CREATED_NODES.append(r["node_id"])
-        assert r["duplicate"] is False
-        node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
-        assert node_rows and node_rows[0]["content"] == packet["intent"], \
-            "the node's content is the packet's intent"
-        assert node_rows[0]["provenance"]["source"] == berth, "provenance names the berth"
-        assert node_rows[0]["provenance"]["confidence"] == packet["confidence"]
-        assert node_rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
-        leaf_rows = store.read(_orient_table(), where="node_id = %s", params=(r["node_id"],))
-        assert leaf_rows, "a leaf must land in the nexus's table"
-        # The same packet again: a duplicate writes nothing (Law 1).
-        before = trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER)
-        r2 = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_orient_nexus())
-        assert r2["duplicate"] is True
-        assert trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER) == before
-
-
-def test_the_orient_leaf_is_codemothers_scratch():
-    """deposit_orient writes under codemother's owner (2b3d842bc118), so the leaf this proof
-    makes it write must be codemother's AND a registered scratch table — one that cannot
-    outlive the run (ticket a229f01ed699; three unregistered ones leaked 2026-11-06)."""
-    from cairn.devices.codemother.machines.orient import orient as orient_mod
-    with tempfile.TemporaryDirectory() as tmp:
-        packet = _packet(intent=f"the orient leaf ownership probe [{_nexus()}]")
-        berth = _berthed_fixture(tmp, packet)
-        nexus = _orient_nexus()
-        r = deposit_orient(packet, [0.7, 0.3, 0.0], berth_path=berth, nexus=nexus)
-        _CREATED_NODES.append(r["node_id"])
-        leaf = nexus_table(nexus, owner=orient_mod.OWNER)
-        assert store.owner_of(leaf) == "codemother", \
-            f"deposit_orient's leaf {leaf} must be codemother's, not {store.owner_of(leaf)!r}"
-        assert store.is_scratch(leaf), \
-            f"deposit_orient's leaf {leaf} is not a registered scratch table — it outlives the run"
 
 
 def test_counsel_keeps_its_floor_visible():
@@ -360,22 +257,6 @@ def test_the_real_berth_by_invariant():
     assert got["packets"] == total
 
 
-def test_tree_is_a_legal_stratum_at_the_packet_gate():
-    from cairn.devices.codemother.machines.orient.orient import (validate_orient)
-    p = _packet(provenance={"intent": "tree", "domain": "tree", "scope": "tree",
-                            "unknowns": "tree"})
-    assert validate_orient(p) is p, "the ceiling writes 'tree' through the standing gate"
-    # A 'tree' DECLARATION SURVIVES THE FLOOR MEASUREMENT, and this is the clause the
-    # 2026-08-14 door had to be careful about: it derives ``floor`` vs ``claude`` and
-    # nothing else, so a field the ceiling says came from the TREE keeps saying so. The
-    # alternative — overwriting every unreproducible field with ``claude`` — would trade
-    # one wrong label for another and erase the only stratum the tree walk can claim.
-    assert p["provenance"]["domain"] == "tree", p["provenance"]
-    assert p["provenance"]["unknowns"] == "tree", p["provenance"]
-    assert p["provenance"]["refs"] == "cc", \
-        "an undeclared floor-authored field is derived, and this packet carries no request"
-
-
 _CREATED_NODES: list[str] = []
 
 
@@ -383,16 +264,12 @@ def _main() -> int:
     checks = [
         test_a_nexus_name_is_identity,
         test_the_table_is_born_owned_by_chart,
-        test_gate_before_seed,
-        test_deposit_back_lands_and_dedups,
-        test_the_orient_leaf_is_codemothers_scratch,
         test_counsel_keeps_its_floor_visible,
         test_the_librarians_tools_are_the_only_door,
         test_the_dial_reads_exact_fractions_in_time_order,
         test_the_dial_reports_unreadable_never_skips,
         test_an_absent_berth_is_a_nameable_state,
         test_the_real_berth_by_invariant,
-        test_tree_is_a_legal_stratum_at_the_packet_gate,
     ]
     failed = []
     try:
@@ -412,8 +289,7 @@ def _main() -> int:
     if failed:
         print(f"RED — {len(failed)} failure(s): {', '.join(failed)}")
         return 1
-    print("green — chart/tree + chart/dial: the table is born chart's, the gate runs "
-          "before the seed, deposit-back lands honest and dedups, counsel keeps its "
+    print("green — chart/tree + chart/dial: the table is born chart's, counsel keeps its "
           "labeled floor, the librarian's tools are the only door, and the dial reads "
           "true — exact on fixtures, by invariant on the live berth")
     return 0

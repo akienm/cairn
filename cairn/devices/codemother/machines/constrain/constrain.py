@@ -255,6 +255,83 @@ _REENTRY = "CAIRN_CONSTRAIN_FLOOR_RUNNING"
 # the fingerprint is exactly the thing that would say so if it had.
 _RUN_CACHE: dict = {}
 
+# AND BACKED BY A STORE EVERY FIRING SHARES (ticket 070c5fc9624c). The dict lives in one
+# process, so seven charts in flight each asked the tester for the same unsealed bytes:
+# measured 2026-10-30, 66 tester runs in 30 minutes, one proof run 15 times, and the oldest
+# stage timed out unberthed. A verdict the tester read for one (path, fingerprint) is
+# settled for every process (Law 1), so it is written to codemother's instance-space and
+# asked under a lock, once. Only what the tester actually read is persisted: an
+# ``unrunnable`` is a transport fault, and the next asker must try again.
+_STORE_DIR = None  # None = instance_path('codemother', 0)/machines/constrain/run_cache
+_TTL_S = 3600
+_PERSISTED = ("green", "red")
+
+
+def _store_dir(store_dir=None) -> str:
+    if store_dir is not None:
+        return str(store_dir)
+    if _STORE_DIR is not None:
+        return str(_STORE_DIR)
+    return os.path.join(str(address.instance_path("codemother", 0)), "machines", "constrain",
+                        "run_cache")
+
+
+def _entry_path(store: str, rel_path: str, fingerprint: str) -> str:
+    return os.path.join(store, hashlib.sha256((rel_path + "\0" + fingerprint).encode("utf-8"))
+                        .hexdigest() + ".json")
+
+
+def _read_entry(path: str, rel_path: str, fingerprint: str):
+    """The persisted state for this key, or None: a missing, malformed, foreign or expired
+    entry is a miss."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            entry = json.load(f)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(entry, dict) or entry.get("rel_path") != rel_path \
+            or entry.get("fingerprint") != fingerprint \
+            or entry.get("verdict") not in _PERSISTED:
+        return None
+    try:
+        if time.time() - float(entry.get("written_at")) > _TTL_S:
+            return None
+    except (TypeError, ValueError):
+        return None
+    return {"verdict": entry["verdict"],
+            "how": "%s — shared from an earlier firing's read of these bytes" % entry.get("how"),
+            "_seconds": 0.0}
+
+
+def _write_entry(path: str, rel_path: str, fingerprint: str, state: dict) -> None:
+    """Persist a read verdict atomically (tmp + os.replace), so a reader never sees half."""
+    if state.get("verdict") not in _PERSISTED:
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    entry = {"verdict": state["verdict"], "how": state.get("how"),
+             "_seconds": state.get("_seconds"), "written_at": time.time(),
+             "rel_path": rel_path, "fingerprint": fingerprint}
+    tmp = "%s.%d.tmp" % (path, os.getpid())
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(entry, f)
+    os.replace(tmp, path)
+
+
+def _ask_tester(abs_path: str) -> dict:
+    """The tester's record for one run, asked over the bus (its public interface, RULE 1,
+    ticket 67b78ae59c1d); the run verb runs with sink none and hands the record back. No
+    record raises, with the tester's reason."""
+    from cairn.tools.bus_client.bus_client import reach
+    reply = reach("tester").request(
+        sender="constrain", to="tester", verb="run",
+        why="the chart floor reads an instrument verdict",
+        body={"path": abs_path, "caller": "constrain_floor"}, timeout=180)
+    body = (reply or {}).get("body") or {}
+    record = body.get("record")
+    if not isinstance(record, dict):
+        raise RuntimeError(body.get("refused") or "the tester returned no record")
+    return record
+
 
 def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
     """THE INSTRUMENTS THAT JUDGE THE REF'D COMPONENTS — discovered, never enumerated.
@@ -300,7 +377,8 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
     return sorted(out)
 
 
-def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
+def _run_instrument(rel_path: str, root: str = CAIRN_ROOT, *, store_dir=None,
+                    asker=None) -> dict:
     """Run ONE discovered instrument and report the state it is in RIGHT NOW.
 
     The verdict is the tester's, read and not granted. Its ``run`` bus verb returns the
@@ -337,6 +415,11 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
                 % (rel_path, type(e).__name__, e)}
     if key in _RUN_CACHE:
         return _RUN_CACHE[key]
+    entry_path = _entry_path(_store_dir(store_dir), rel_path, key[1])
+    shared = _read_entry(entry_path, rel_path, key[1])
+    if shared is not None:
+        _RUN_CACHE[key] = shared
+        return shared
     # A STANDING SEAL IS THE TESTER'S VERDICT ALREADY READ — Law 8's return on its price:
     # "composing proven code without re-checking it is the whole return." The seal stands
     # only while the component's source_fingerprint matches the working tree, so a re-run
@@ -358,7 +441,33 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
                         "now (Law 8: proven, then trusted)",
                  "_seconds": 0.0}
         _RUN_CACHE[key] = state
+        _write_entry(entry_path, rel_path, key[1], state)
         return state
+    lock = None
+    try:
+        import fcntl
+        os.makedirs(os.path.dirname(entry_path), exist_ok=True)
+        lock = open(entry_path + ".lock", "a")
+        fcntl.flock(lock, fcntl.LOCK_EX)
+    except ImportError:                                      # no flock here (Windows): unlocked
+        lock = None
+    try:
+        # another firing may have read these bytes while this one waited for the lock
+        shared = _read_entry(entry_path, rel_path, key[1])
+        if shared is not None:
+            _RUN_CACHE[key] = shared
+            return shared
+        state = _ask_once(abs_path, asker)
+        _RUN_CACHE[key] = state
+        _write_entry(entry_path, rel_path, key[1], state)
+        return state
+    finally:
+        if lock is not None:
+            lock.close()
+
+
+def _ask_once(abs_path: str, asker=None) -> dict:
+    """One tester read of ``abs_path``, timed; a failure to read is ``unrunnable``."""
     os.environ[_REENTRY] = "1"
     started = time.monotonic()
     try:
@@ -370,16 +479,9 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
         # not-sealing is now stated here rather than being the absence of a thought.
         # ASKED OVER THE BUS, the tester's public interface (RULE 1, ticket 67b78ae59c1d):
         # the run verb runs with sink none and hands the record back.
-        from cairn.tools.bus_client.bus_client import reach
-        reply = reach("tester").request(
-            sender="constrain", to="tester", verb="run",
-            why="the chart floor reads an instrument verdict",
-            body={"path": abs_path, "caller": "constrain_floor"}, timeout=180)
-        body = (reply or {}).get("body") or {}
-        record = body.get("record")
+        record = (asker or _ask_tester)(abs_path)
         if not isinstance(record, dict):
-            state = {"verdict": "unrunnable",
-                     "how": body.get("refused") or "the tester returned no record"}
+            state = {"verdict": "unrunnable", "how": "the tester returned no record"}
         else:
             state = {"verdict": record.get("verdict"), "how": "run by the tester"}
     except Exception as e:
@@ -392,7 +494,6 @@ def _run_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
     # never earn ``floor`` — the measurement would have destroyed the label it exists to
     # make honest.
     state["_seconds"] = round(time.monotonic() - started, 3)
-    _RUN_CACHE[key] = state
     return state
 
 

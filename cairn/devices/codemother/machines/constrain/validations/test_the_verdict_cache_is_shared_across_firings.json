@@ -1,24 +1,23 @@
 [
   {
     "claim": "proof test_the_verdict_cache_is_shared_across_firings.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T01:11:35",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T11:12:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "E       assert 1 == 0\nE        +  where 1 = <Popen: returncode: 1 args: ['/home/akien/.cairn/venv/bin/python3', '-c', '\\...>.returncode\n\ntest_the_verdict_cache_is_shared_across_firings.py:85: AssertionError\n______________________ test_an_expired_entry_is_not_read _______________________\n\n    def test_an_expired_entry_is_not_read() -> None:\n        import importlib\n>       ttl = importlib.import_module(\"cairn.devices.codemother.machines.constrain.constrain\")._TTL_S\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: module 'cairn.devices.codemother.machines.constrain.constrain' has no attribute '_TTL_S'\n\ntest_the_verdict_cache_is_shared_across_firings.py:151: AttributeError\n=========================== short test summary info ============================\nFAILED test_the_verdict_cache_is_shared_across_firings.py::test_a_second_process_reads_the_persisted_verdict\nFAILED test_the_verdict_cache_is_shared_across_firings.py::test_two_concurrent_processes_ask_once\nFAILED test_the_verdict_cache_is_shared_across_firings.py::test_a_changed_file_asks_again\nFAILED test_the_verdict_cache_is_shared_across_firings.py::test_a_raising_asker_leaves_no_entry\nFAILED test_the_verdict_cache_is_shared_across_firings.py::test_an_expired_entry_is_not_read\n5 failed in 0.87s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_second_process_reads_the_persisted_verdict\n.\n  ok   test_two_concurrent_processes_ask_once\n.\n  ok   test_a_changed_file_asks_again\n.\n  ok   test_a_raising_asker_leaves_no_entry\n.\n  ok   test_an_expired_entry_is_not_read\n                                                                    [100%]\n5 passed in 8.15s",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_a_second_process_reads_the_persisted_verdict",
         "test_two_concurrent_processes_ask_once",
         "test_a_changed_file_asks_again",
         "test_a_raising_asker_leaves_no_entry",
-        "test_an_expired_entry_is_not_read",
-        "test_the_verdict_cache_is_shared_across_firings"
+        "test_an_expired_entry_is_not_read"
       ],
-      "test": "test-54f84c3b4281",
+      "teeth_red": [],
+      "test": "test-3b9e6f84e8f4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,47 +31,49 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-54f84c3b4281",
-      "source_fingerprint": "5b651bbb966785ff96ed77f0f16f7a1d3e0e5fc6836f41f9681e8fbbfbe62ce6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3b9e6f84e8f4",
+      "source_fingerprint": "17f7c25c2ccb78ae668b5ef92585cd46a06a6baca0043fb923c8c9aa4b685be7",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/constrain/__init__.py",
         "cairn/devices/codemother/machines/constrain/constrain.py",
         "cairn/devices/codemother/machines/constrain/proofs/test_the_verdict_cache_is_shared_across_firings.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "ff06603bc75319233d2cfe57f8575472caa58edbdf0f976e6df1f798c2ed7e71",
-        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
-        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
-        "cairn/devices/librarian": "45a4338d30bae41ab041f6aab8d2e05dec83d0c202ba4f731d008accf85a12ef",
-        "cairn/devices/librarian/tools/trees": "b23c78e80dc4bf219388914a87122d193eeb1f1dc5023cda5337cbe5adee7033",
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/machines/build_inspector": "fdc059880759f987c2e2e22cd24be2e70aa8c4ac0f5dc493c6b703c262597a56",
-        "cairn/tools/base": "e29347e766483a68925d893cf13dedaa60fb9fb3fce6dafbc407fc3ab2b52af7",
+        "cairn/devices/codemother": "f42bdc258d2351304e73e4dcd81d8eb2b3daf4e84764b4aca5f1d13ac5580874",
+        "cairn/devices/db_domain": "52998e37b8de4105ff936faef8d8d6805951c04151767cf053ab3a57bfcb8332",
+        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
+        "cairn/devices/librarian": "73406a7ca4dc7b63601fa428fd9d58b7eae6ec04f8dad941a4418f6f2121c7b0",
+        "cairn/devices/librarian/tools/trees": "2aec644f81b58c87697fb1267cdcad96027039a6ef529a3f9130a359d7b8ad57",
+        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
+        "cairn/machines/build_inspector": "ee71e5ee3ab85c1d97685105e7980846502e5c68c84f0318f996aa3b2392c43f",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
-        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/import_sieve": "b10245a3fa09ead03e42d99bd2c5ba0601d56ebc0ff4a2722b3f3c0a2882f8d9",
-        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
-        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
-        "cairn/tools/tree": "b7f6644637cda1e88fd7db0cbbe17ec93d3350799119071b3f0789fee2189364"
+        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/proof_coverage": "78cf131ddc73f34c0245a0c995a8822723df65d5eee04e1f13cae7ceda01a500",
+        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef",
+        "cairn/tools/tree": "ba371e467a7ec604778fc75bc7e7487814df247b89250b4e300b917a82518fa8",
+        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-435390-81qn_let/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-477477-nn50rxhx/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,12 +82,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118852957,
-          "disk_bytes": 152129536,
-          "entries": 13023,
+          "bytes": 526075095,
+          "disk_bytes": 562786304,
+          "entries": 14335,
           "builds": 1,
           "reuses": 2
         }
+      },
+      "conditions_moved": {
+        "notified": "n-7e1ff76b364f",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -1142,13 +1142,13 @@ not matter here. The code catches up to this, never the reverse.
   9.6 VERBS: activate, charter, cross, deposit, drain, feedback, question, sealed
       (plus get and show). Moving a ticket across its workflow is the ticket's own
       act; CodeMother's gates only answer it (3.3.4).
-      [Q#81: The chart stages (orient through validate) and the verdict are
-      machines inside CodeMother (9.3.2, 9.3.4), and none of these verbs writes
-      one, so the builder reaches them by importing her code: the /chart skill's
-      own instructions do, and so do CC's chart and verdict helpers
-      (cairn/devices/cc/scripts/), which the cc proof reds under RULE 1. Should
-      CodeMother answer a `chart` verb (one stage, or all seven from a spec) and a
-      `verdict` verb here, so a builder asks over the bus instead?]
+      Each chart stage (orient through validate) and the verdict is a gate
+      machine that answers queueme <fileref>; the ticket class queues itself to
+      each in turn (3.3.4.3), so there is no chart or verdict verb, and `cross`
+      leaves with the harbor's `clear` (9.4.1.5). WHY: Akien, 2026-11-10, Q#81
+      ("should CodeMother answer a `chart` verb ... and a `verdict` verb?"):
+      "yes, Q#81 closes on that", that being each stage and the verdict a gate
+      with queueme, queued by the ticket class.
   9.7 COMMANDS: cairn codemother cast | cross | question | rehearse | tickets |
       whatsnext | seed | show dashboard; the inspectors' own shortcuts
       (determinism, edges, probescan, cleanup, feedbackmap) in her bin/.

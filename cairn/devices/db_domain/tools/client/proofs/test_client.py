@@ -15,6 +15,9 @@ One tooth per numbered falsifier clause, over the LIVE repo (invariants, never s
   3. THE CLIENT IS PUBLISHED. Its charter declares published_by_device and exactly its one
      module, and that module exposes the surface callers use.
 
+Ticket 40b05ea65eed adds one tooth: the inspector's claim_provenance sieve answers [] on this
+charter.
+
     python3 cairn/devices/db_domain/tools/client/proofs/test_client.py   # exit 0 = green
 """
 import json
@@ -43,7 +46,8 @@ _sieve = _Late("cairn.tools.import_sieve.sieve")
 
 PROVES = {"4cbf6e28126e": {"1": "nothing_reaches_into_db_domain",
                            "2": "the_old_door_is_gone",
-                           "3": "the_client_is_published"}}
+                           "3": "the_client_is_published"},
+          "40b05ea65eed": {"1": "the_charter_carries_its_provenance"}}
 
 DEVICE = "cairn/devices/db_domain"
 CLIENT_DIR = _REPO_ROOT / DEVICE / "tools" / "client"
@@ -97,7 +101,15 @@ def the_client_is_published():
     assert not missing, f"the client does not expose {missing}"
 
 
-TEETH = [nothing_reaches_into_db_domain, the_old_door_is_gone, the_client_is_published]
+def the_charter_carries_its_provenance():
+    """Ticket 40b05ea65eed clause 1: the inspector's own claim_provenance sieve answers [] on
+    this charter (it reds a charter with no non-empty claim_provenance)."""
+    got = _inspector.claim_provenance({"component": "devices/db_domain/tools/client"}, CLIENT_DIR)
+    assert got == [], f"claim_provenance findings: {got}"
+
+
+TEETH = [nothing_reaches_into_db_domain, the_old_door_is_gone, the_client_is_published,
+         the_charter_carries_its_provenance]
 
 if __name__ == "__main__":
     for fn in TEETH:

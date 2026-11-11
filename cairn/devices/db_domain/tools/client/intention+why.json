@@ -11,6 +11,11 @@
   ],
   "what": "db_domain's socket client, published as a tool nested in the device: connect, read, write, update, query, delete, create_owned_table, owner_of and scratch over the one owner-gated store. Every caller in the repo talks to the database through this module and nothing else of db_domain's.",
   "why": "RULE 1 agreed detail (2) (Akien, 2026-10-01): \"there should still be a public interface everyone uses, so we can change things about the db underneath.\" Measured before the build: 48 imports from 46 files reached into db_domain's own store.py, so any change to the device's insides could break any of them. The client talks straight to the db over its socket — no bus hop — because graph-tree traffic is too heavy to pay a bus round trip per row.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien"
+  },
   "entry": "GRAFTED by git mv from cairn/devices/db_domain/store.py, ticket 4cbf6e28126e, 2026-10-01. The module's bytes moved unchanged; every importer's dotted path was rewritten, its alias and comment kept.",
   "invoke": "`from cairn.devices.db_domain.tools.client import store` (and `from cairn.devices.db_domain.tools.client.store import OwnershipError`). Prove: `python3 cairn/devices/db_domain/tools/client/proofs/test_client.py` (exit 0 = green). Provisioning (the OS-named LOGIN CREATEDB role) stays db_domain's, in its charter's state.",
   "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): the tables it reads and writes are owned by the caller that created them, gated by the owner CHECK in the store. Its design history rides the db_domain device's history (cairn/devices/db_domain/) under ticket 4cbf6e28126e; nothing beside this charter holds history.",

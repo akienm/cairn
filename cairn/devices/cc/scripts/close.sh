@@ -9,7 +9,7 @@ TRAILER=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Se
 commit_all() {
   (cd $C && git add -u && git commit -qm "$ID: $1$TRAILER" >/dev/null 2>&1)
   (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
-  (cd $C && git push -q 2>&1 | tail -1); (cd $CC && git push -q 2>&1 | tail -1)
+  (cd $C && git pull -q --rebase && git push -q 2>&1 | tail -1); (cd $CC && git pull -q --rebase && git push -q 2>&1 | tail -1)
 }
 commit_all "hollow sealed, verdict"
 # The commit is named for what the gate did, never for what was asked: a commit saying "PROVED"

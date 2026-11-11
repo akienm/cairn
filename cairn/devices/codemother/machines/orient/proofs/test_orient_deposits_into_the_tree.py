@@ -213,15 +213,19 @@ def test_tree_is_a_legal_stratum_at_the_packet_gate():
 def test_the_tree_tools_proofs_reach_no_codemother_code():
     """The tree tool's proofs import nothing from codemother (RULE 1): the encapsulation sieve
     reads [] for component tree."""
+    # The sieve's own breach list, read whole and filtered by file: the first form of this tooth
+    # asked encapsulation_holds with dir "cairn/tools/tree", which the sieve reads relative to
+    # cairn/, so it matched nothing and read [] whatever stood on disk (hollow measured it).
     from cairn.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO_ROOT)
     try:
-        found = inspector.encapsulation_holds({"component": "tree", "dir": "cairn/tools/tree"},
-                                              Path("cairn/tools/tree"))
+        breaches = inspector.encapsulation_breaches(".")
     finally:
         os.chdir(here)
-    assert found == [], "; ".join(str(f.get("about")) for f in found)
+    mine = [b for b in breaches if str(b.get("file", "")).startswith("cairn/tools/tree/")]
+    assert breaches, "the sieve read no breach anywhere — it is blind, not clean"
+    assert not mine, "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine)
 
 
 def _main() -> int:

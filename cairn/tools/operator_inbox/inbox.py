@@ -281,12 +281,18 @@ def _trouble_store() -> Path:
     return store_root()
 
 
+def _trouble_listings(path: str | None) -> tuple[list[dict], list[dict]]:
+    """The store's top (live: location is liveness) and its cleared/, read through the tool
+    trouble publishes (RULE 1, outline 2.3.7.1.3; ticket 5e1b0c7d2a94). A reader never folds
+    pending emissions — that is the owner's write, done by TroubleDevice in its own process."""
+    from cairn.devices.trouble.tools.store import store
+    top = Path(path) if path else store.store_root()
+    return store.listing(top), store.listing(top / store.CLEARED_DIR)
+
+
 def read_troubles(*, path: str | None = None) -> dict:
-    from cairn.devices.trouble.trouble import TroubleDevice
-    td = TroubleDevice(path)
-    live = td.live()
-    total = td.all()
-    return {"live": live, "live_count": len(live), "total_count": len(total)}
+    live, cleared = _trouble_listings(path)
+    return {"live": live, "live_count": len(live), "total_count": len(live) + len(cleared)}
 
 
 def read_adjudications() -> dict:
@@ -993,8 +999,8 @@ def read_all_ideas(*, ideas_dir: Path | None = None) -> dict:
 
 def read_all_troubles(*, path: str | None = None) -> dict:
     """Every trouble on disk, cleared included — the reference lane behind ``read_troubles``."""
-    from cairn.devices.trouble.trouble import TroubleDevice
-    items = TroubleDevice(path).all()
+    live, cleared = _trouble_listings(path)
+    items = live + cleared
     return {"count": len(items), "items": items}
 
 

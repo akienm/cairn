@@ -45,9 +45,10 @@ PROVES = {
 
 
 def test_troubles_match_independent_read():
-    from cairn.devices.trouble.trouble import TroubleDevice
-    td = TroubleDevice()
-    independent_live = [t for t in td.all() if t.get("standing") != "CLEARED"]
+    # Independent: count the files at the top of the store (location is liveness), through
+    # the tool trouble publishes for its store (RULE 1; ticket 5e1b0c7d2a94).
+    from cairn.devices.trouble.tools.store import store
+    independent_live = list(store.store_root().glob("*.json"))
     result = read_troubles()
     assert result["live_count"] == len(independent_live)
 
@@ -356,12 +357,11 @@ def test_troubles_render_under_a_cc_owned_lane_after_the_operators_sections():
 
 
 def test_no_akien_in_headers():
-    data = gather_all()
-    output = format_inbox(data)
-    for line in output.split("\n"):
-        if line.strip().startswith("--") or "INBOX" in line:
-            assert "AKIEN" not in line.upper() or "AKIEN" in line, \
-                f"Header uses 'Akien' instead of 'Operator': {line}"
+    """The live inbox, judged by the one structural-line reader (0162736f42ed). Measured
+    2026-11-11: this tooth stripped each line before testing for '--', so a relayed diff's
+    indented '--- a/tickets/...akien...' read as a header and redded (ticket 5e1b0c7d2a94)."""
+    reds = _operator_word_reds(format_inbox(gather_all()))
+    assert reds == [], f"Header uses 'Akien' instead of 'Operator': {reds}"
 
 
 def test_adjudication_shows_berth_and_skill():

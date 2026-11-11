@@ -149,75 +149,56 @@ class CodeMotherDevice(BaseDevice):
                 "clearance": ClearanceGate(participant=Voice(self._bus)),
                 **gates(participant=Voice(self._bus))}
 
-    # --- the seal that crosses its own boat ---------------------------------
+    # --- the seal that names the boats it makes ready -------------------------
 
     def _handle_sealed(self, envelope: dict) -> dict:
-        """A proof sealed. Cross every boat that proof was named on, and no others.
+        """A proof sealed. Name every PROVEME boat that proof makes ready, and move none.
 
-        THE MEASURED DEFECT (2026-09-07, ticket 1accdc1781aa): twelve tickets sat at
-        ``PROVEME:waiting`` with a green seal already standing on the proof they named,
-        some for three days. Nobody fired the crossing because firing one meant a mind
-        remembering to run ``clearance.clear`` after a seal, and minds forget — that pile
-        IS the forgetting, written down. A decision with no judgment left in it should
-        not wait for a person.
+        MOVING A TICKET IS THE TICKET'S OWN ACT (outline 9.6, ticket a19e05ff6647). Until
+        2026-11-11 this handler queued each boat at the clearance gate with codemother's own
+        hand (ticket 1accdc1781aa). Every real charter admits only Akien and CC, so the gate
+        refused that hand: 327 refusals stood in bus.log, and codemother's sealed_heard
+        records show a crossing 28 times, the last on 2026-10-14, against 503 with refusals.
+        CC crosses PROVED through its own hand after the verdict
+        (cairn/devices/cc/scripts/sail.py cross). So the seal reports; it does not move.
 
-        THIS HANDLER MAKES NO DECISION EITHER, and that is the design rather than a
-        limitation. It answers one question — *which boats named this proof?* — by
-        reading the ticket corpus, and hands each answer to the door. Whether a boat may
-        cross is the harbor's to say, and since this voyage the door's PROVED rung asks
-        for full coverage on a matching fingerprint (``clearance.Uncovered``). So a
-        hollow green does not become a crossing here; it becomes a refusal there, with a
-        trouble raised beside it. The automation can only ever fire a door that was
-        already hard — which is why the ticket's build order put the gate first.
+        The answer carries ``ready`` (ticket ids whose named proofs each hold a hollow
+        reading) and ``awaiting_hollow`` (boats whose proof has a seal but no reading yet,
+        ticket b984567d8c05's wait). Whether a ready boat may cross is still the harbor's to
+        say, when the boat asks.
 
-        A RED SEAL CROSSES NOTHING. The tester announces every seal, green or red (Law 7
-        — a red seals its red), and reading the verdict is this handler's job, not the
-        sender's: a tool that only announced its greens would be a tool deciding what the
-        owner gets to know.
+        A RED SEAL MAKES NOTHING READY. The tester announces every seal, green or red (Law 7),
+        and reading the verdict is this handler's job, not the sender's.
 
-        CONCEPT-PIECES NEVER ARRIVE HERE, and the reason is worth stating rather than
-        assuming: a concept-piece is proved by REVIEW, and a review verdict is not a
-        tester seal, so no ``sealed`` message is ever sent about one. Nothing filters
-        them out below because nothing needs to — but a reader who finds one in a body
-        has found a real defect upstream, not a missing branch here.
+        Concept-pieces never arrive here: they are proved by review, and a review verdict is
+        not a tester seal.
         """
         body = envelope.get("body", {}) or {}
         proof = str(body.get("proof") or body.get("proof_path") or "")
         if not proof:
             return {"accepted": False, "verb": "sealed", "device": self.device_id,
-                    "reason": "sealed needs the proof it sealed — the boats to cross are "
-                              "the ones that named it, and an unnamed proof names none"}
+                    "reason": "sealed needs the proof it sealed — the boats it makes ready "
+                              "are the ones that named it, and an unnamed proof names none"}
         verdict = str(body.get("verdict") or "")
         if verdict != "green":
             self.emit("sealed_heard", pointer=proof,
-                      values={"verdict": verdict, "crossed": 0,
-                              "why": "a red seal crosses nothing"})
+                      values={"verdict": verdict, "ready": 0,
+                              "why": "a red seal makes nothing ready"})
             return {"accepted": True, "verb": "sealed", "device": self.device_id,
-                    "proof": proof, "verdict": verdict, "crossed": [], "refused": [],
-                    "awaiting_hollow": [],
-                    "reason": "a red seal crosses nothing — the boat stays where it is "
+                    "proof": proof, "verdict": verdict, "ready": [], "awaiting_hollow": [],
+                    "reason": "a red seal makes nothing ready — the boat stays where it is "
                               "and the red stands beside it (Law 7)"}
 
         boats = self._boats_named_on(proof)
-        self.emit("sealed_heard", pointer=proof,
-                  values={"verdict": verdict, "boats": len(boats),
-                          "fingerprint": body.get("source_fingerprint", "")})
         from cairn.tools.base.validation import latest_seal
         from cairn.tools.system_word import is_word
 
-        crossed, refused, awaiting_hollow = [], [], []
+        ready, awaiting_hollow = [], []
         for boat in boats:
-            # A SEAL WAITS FOR ITS HOLLOW READING (ticket b984567d8c05). The reading can only be
-            # taken AFTER a seal stands, so the first seal on a proof always arrives without
-            # one — and crossing on it was refused hollow_evidence_absent, which sends the boat
-            # to FIXME. Measured n=2 on 2026-10-02 (e8fe361a5b2f, 56d1aff4455e): an unchanged
-            # build bounced, both times. An ABSENT reading is a measurement still to come, so
-            # the boat waits, listed; the tester announces again when the reading lands
-            # (9bdbeeaa1f8b). A PRESENT reading that names a hollow, unreadable or empty file
-            # is not waiting for anything, so it crosses and the door refuses it into FIXME,
-            # where the real lack belongs (973574dddb77). A proof with NO seal is not waiting
-            # either: the harbor already refuses it. Concept-pieces are proved by review and
-            # carry no reversion reading at all.
+            # A SEAL WAITS FOR ITS HOLLOW READING (ticket b984567d8c05). The reading can only
+            # be taken after a seal stands, so the first seal on a proof arrives without one.
+            # An absent reading is a measurement still to come; the tester announces again
+            # when it lands (9bdbeeaa1f8b). Concept-pieces carry no reversion reading.
             if not is_word(boat.get("node_class"), "concept-piece"):
                 waiting_on = [
                     p for p in boat["proven_by"]
@@ -227,31 +208,14 @@ class CodeMotherDevice(BaseDevice):
                 if waiting_on:
                     awaiting_hollow.append({"ticket": boat["ticket"], "waiting_on": waiting_on})
                     continue
-            # THE CROSSING NAMES WHAT THE BOAT NAMED, NOT WHAT WAS JUST SEALED (2026-09-09).
-            # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, which is why ``proven_by`` is read
-            # as one-or-many everywhere else in this path — and passing the single sealed
-            # proof here would have thrown that away at the last step: the PROVED rung asks
-            # whether every clause of the falsifier is DECLARED by some proof the crossing
-            # names, so a three-ended seam would be refused for the two ends it forgot to
-            # mention. Measured on this very ticket, whose five clauses live in three files.
-            # The boat's own PROVEME crossing is the record of what proves it; the seal is
-            # only the event that says now. Every named end must still stand — the harbor
-            # checks that, and refusing a seam because one end went stale is correct.
-            # The boat asks the clearance gate to queue it, fileref only; the gate reads the
-            # same proven_by off the boat's crossings (``proven_by_since_buildme``).
-            answer = self.declared_machines()["clearance"].queueme(
-                {"sender": self.device_id, "body": {"fileref": boat["ticket"]}})
-            if answer.get("accepted"):
-                crossed.append(boat["ticket"])
-            else:
-                refused.append({"ticket": boat["ticket"],
-                                "reason": answer.get("reason") or answer.get("refusal", "")})
+            ready.append(boat["ticket"])
         self.emit("sealed_heard", pointer=proof,
-                  values={"crossed": len(crossed), "refused": len(refused),
-                          "awaiting_hollow": len(awaiting_hollow)})
+                  values={"verdict": verdict, "boats": len(boats), "ready": len(ready),
+                          "awaiting_hollow": len(awaiting_hollow),
+                          "fingerprint": body.get("source_fingerprint", "")})
         return {"accepted": True, "verb": "sealed", "device": self.device_id,
                 "proof": proof, "verdict": verdict,
-                "crossed": crossed, "refused": refused, "awaiting_hollow": awaiting_hollow}
+                "ready": ready, "awaiting_hollow": awaiting_hollow}
 
     @staticmethod
     def _boats_named_on(proof: str) -> list[dict]:

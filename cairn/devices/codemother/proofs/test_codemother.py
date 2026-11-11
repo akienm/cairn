@@ -80,18 +80,14 @@ def _main_tree():
 # intersection of three things already on disk: the ticket's clauses, this
 # declaration, and the teeth the seal records as actually printed.
 PROVES = {
-    # A SEAM HAS ENDS IN MORE THAN ONE COMPONENT, and `proven_by` is read as one-or-many so
-    # the crossing can name all of them. Clauses (1) and (4) of 1accdc1781aa are the tester's
-    # end (cairn/devices/tester/proofs/test_the_seal_announces_itself.py); clause (3) is the
-    # harbor's (cairn/devices/codemother/machines/clearance/proofs/test_clearance.py). These two are codemother's.
-    "1accdc1781aa": {
-        "2": "test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof",
-        "5": "test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody",
-    },
-    "b984567d8c05": {
-        "1": "test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME",
-        "2": "test_a_seal_whose_hollow_reading_COVERS_crosses",
-        "3": "test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME",
+    # A SEAL MAKES BOATS READY; IT MOVES NONE (ticket a19e05ff6647, outline 9.6). This ticket
+    # supersedes 1accdc1781aa (a green seal crosses the boat it proves) and b984567d8c05 (a
+    # seal waits for its hollow reading), whose keys left this map with the crossing.
+    "a19e05ff6647": {
+        "1": "test_a_green_seal_names_the_covered_boat_READY_and_moves_nothing",
+        "2": "test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody",
+        "3": "test_a_RED_seal_makes_nothing_ready_and_journals_nothing",
+        "4": "test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME",
     },
     "8754ae677af6": {
         "1": "test_a_crossing_codemother_admits_names_her_in_the_record",
@@ -576,38 +572,8 @@ def _fixture_component(tag, *, seal=True, boat=None):
 _FIXTURE_BOAT = "cfa17e00b0a7"
 
 
-_SECOND_TOOTH = "test_the_other_end_holds"
-
-
-def _a_second_end(comp, boat, first_proof):
-    """Mint, declare and seal a SECOND proof for the same boat, covering clause 2.
-
-    A SEAM HAS ENDS IN MORE THAN ONE COMPONENT and this is the fixture shape of that: two
-    proof files, one clause each, one boat. It lives here rather than inside
-    ``_fixture_component`` because most teeth want the one-ended case — the two-ended one
-    is a specific claim, made once, by the tooth that needs it.
-    """
-    other = comp / "proofs" / "test_other_end.py"
-    other.write_text(
-        f'PROVES = {{{boat!r}: {{"2": {_SECOND_TOOTH!r}}}}}\n\n\n'
-        f'def {_SECOND_TOOTH}():\n'
-        '    assert True\n'
-        f'    print("PASS: {_SECOND_TOOTH}")\n\n\n'
-        'if __name__ == "__main__":\n'
-        f'    {_SECOND_TOOTH}()\n', encoding="utf-8")
-    _seal(other)
-    # AND THE FIRST END IS RESEALED, because writing this file MOVED the component's
-    # fingerprint and the seal already standing on the first proof is now about a tree that
-    # no longer exists. That is the horizon rung doing its job — measured the first time
-    # this fixture ran, where the refusal read "the code moved under the proof" and was
-    # entirely correct. A fixture that left it stale would be measuring the horizon rung
-    # instead of the coverage rung it is aimed at.
-    _seal(first_proof)
-    return other
-
-
 @contextlib.contextmanager
-def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, hollow="covered"):
+def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, hollow="covered"):
     """Give ``boat`` REAL coverage, and point the gate's owner read at the fixture corpus.
 
     THE COVERAGE RUNG IS SATISFIED, NEVER ROUTED AROUND (2026-09-09, ticket 1accdc1781aa).
@@ -652,12 +618,6 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
         assert landed is True, (
             f"the hollow reading did not land on {proof}'s seal — the rung would refuse for a "
             "reason the fixture created, not one the gate found")
-    # A SECOND END IS COVERED THE SAME WAY, NEVER EXEMPTED. Each end carries its own hollow
-    # reading because the rung asks it of every proof the crossing names — an end admitted
-    # on the first end's evidence would be a seam half-checked.
-    if second_end is not None:
-        assert record_hollow(str(second_end), boat, {"other.py": [_SECOND_TOOTH]}) is True, (
-            f"the hollow reading did not land on {second_end}'s seal")
 
     # ``<root>/tickets`` is deliberately the shape a COMMONS has, not an arbitrary scratch
     # folder: three different readers ask where this boat lives — the owner read
@@ -682,10 +642,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
         # same field with nothing patched. A relative spelling would have needed a third
         # substitution to say the same thing twice.
         "owning_intention": str(comp / "intention+why.json"),
-        "falsifier": (
-            f"DONE when (1) {_FIXTURE_TOOTH} prints its PASS under the tester"
-            + (f"; (2) {_SECOND_TOOTH} prints its PASS at the other end."
-               if second_end is not None else ".")),
+        "falsifier": f"DONE when (1) {_FIXTURE_TOOTH} prints its PASS under the tester.",
         "workflow_and_state": _FIXTURE_WORKFLOW,
     }), encoding="utf-8")
 
@@ -703,9 +660,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
     # nothing. Live repo + fixture commons leaves the absolute spellings alone, and
     # ``proof_coverage.lacks`` has an absolute branch for exactly them.
     #
-    # ONE-OR-MANY, WRITTEN AS THE WORLD WRITES IT: a single-ended boat records a string and a
-    # seam records a list, because that is what the live journals hold and a fixture that only
-    # ever wrote lists would not measure the string path at all.
+    # A SINGLE-ENDED BOAT RECORDS A STRING, as the live journals hold for one proof.
     journal = root / "journal" / "history.json"
     journal.parent.mkdir(parents=True, exist_ok=True)
     journal.write_text(json.dumps([{
@@ -716,8 +671,7 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, second_end=None, ho
         "to": "PROVEME",
         "direction": "forward",
         "actor": "cc",
-        "proven_by": (str(proof) if second_end is None
-                      else [str(proof), str(second_end)]),
+        "proven_by": str(proof),
     }]), encoding="utf-8")
 
     def _fixture_crossing_roots():
@@ -1077,14 +1031,10 @@ def test_a_history_that_is_not_a_list_is_refused_by_name():
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# 14. A GREEN SEAL CROSSES THE BOAT IT PROVES
-#     ticket 1accdc1781aa — clauses (2) and (5) of the falsifier. Clause (1)
-#     and (4) are the tester's end of the seam and berth with it
-#     (cairn/devices/tester/proofs/test_the_seal_announces_itself.py);
-#     clause (3) is the harbor's and berths with the gate
-#     (cairn/devices/codemother/machines/clearance/proofs/test_clearance.py).
-#     A seam has ends in more than one component, and `proven_by` is read as
-#     one-or-many for exactly this reason.
+# 14. A SEAL NAMES THE BOATS IT MAKES READY, AND MOVES NONE
+#     ticket a19e05ff6647, outline 9.6: moving a ticket is the ticket's own act. It
+#     supersedes 1accdc1781aa (the seal crossed its boat) and b984567d8c05 (the seal
+#     waited for its hollow reading; that wait is clause 4 here).
 # ══════════════════════════════════════════════════════════════════════════
 
 @contextlib.contextmanager
@@ -1092,12 +1042,8 @@ def _the_sealed_path_can_find_the_boat(comp, boat=_FIXTURE_BOAT):
     """Point the sealed handler's corpus scan at the fixture commons.
 
     ``_boats_named_on`` scans ``load_tickets(_COMMONS)`` for tickets standing at PROVEME.
-    That is the one read left to point: the clearance gate it hands each boat to resolves
-    the ticket through the tickets store and the crossings through ``_crossing_roots``,
-    both of which ``_the_boat_is_covered`` already stands behind the fixture.
-
-    EVERYTHING ELSE RUNS FOR REAL: the gate, the door with its authority, proven-space and
-    PROVED coverage rungs, the entry and exit gates, and the journal write."""
+    That is the one read left to point: the crossings it reads go through
+    ``_crossing_roots``, which ``_the_boat_is_covered`` already stands behind the fixture."""
     import cairn.devices.codemother.shim as _shim
 
     saved_commons = _shim._COMMONS
@@ -1114,13 +1060,12 @@ def _tell_codemother_a_seal_landed(proof, *, verdict="green"):
     Sent as ``tester`` because that is who sends it in the world — ``cairn test --seal``
     is the only caller — and over ``request`` rather than ``post`` only so this tooth can
     read the answer. The handler cannot tell the difference: it reads the envelope's body
-    and returns a dict either way, which is what clause (4)'s tooth relies on when the
-    same message arrives by ``post`` and is drained off the mailbox instead.
+    and returns a dict either way.
     """
     with _in_process("codemother") as bus:
         reply = bus.request(
             sender="tester", to="codemother", verb="sealed",
-            why=f"proof: a green seal on {proof} crosses the boat it proves",
+            why=f"proof: a seal on {proof} names the boats it makes ready",
             body={"proof": str(proof), "verdict": verdict,
                   "source_fingerprint": "", "validations_path": ""},
             timeout=180)
@@ -1144,179 +1089,85 @@ def _troubles_now():
     return len(list(troubles.rglob("*.json"))) if troubles.is_dir() else 0
 
 
-def test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof():
-    """FALSIFIER CLAUSE (2): the seal crosses the boat, and the record says codemother did it.
-
-    THE DEFECT THIS ENDS, measured 2026-09-07: twelve tickets stood at PROVEME with a green
-    seal already on the proof they named. Nothing was wrong with any of them — the proof had
-    run, the seal had landed, the coverage was there. The crossing simply required a hand to
-    remember, and twelve times nobody did. So the seal announces itself and the boat moves on
-    the announcement.
-
-    The whole seam is fired, end to end: a ``sealed`` message arrives at codemother, she finds
-    the boat that named the proof, and the boat asks to be queued at
-    bus, through the gate. She decides nothing about whether it may cross; the gate does, and
-    it is the same gate with the same coverage rung a hand would have met.
-    """
-    comp, proof = _fixture_component("cm_sealed_", boat=_FIXTURE_BOAT)
-    with _the_boat_is_covered(comp, proof) as boat,             _the_sealed_path_can_find_the_boat(comp, boat):
-        answer = _tell_codemother_a_seal_landed(proof)
-
-    assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
-    assert answer.get("crossed") == [boat],         f"crossed is {answer.get('crossed')!r}, expected [{boat!r}]; refused={answer.get('refused')!r}"
-    assert answer.get("refused") == [], f"a crossing was refused: {answer.get('refused')!r}"
-
+def _the_boat_did_not_move(comp, boat=_FIXTURE_BOAT):
+    """The boat's history is empty and its cursor still reads PROVEME: nothing crossed it."""
     history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
-    assert len(history) == 1, f"expected exactly 1 crossing record, got {len(history)}"
-    record = history[0]
-    assert record.get("cleared_by") == "codemother",         f"cleared_by is {record.get('cleared_by')!r} — the record does not say whose hand it was"
-    assert "PROVED" in (record.get("workflow_and_state") or record.get("to") or ""), record
-    print("PASS: test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof")
+    assert history == [], f"the seal journaled {len(history)} crossing(s): {history}"
+    ticket = comp.parent / "tickets" / f"{boat}-a-fixture-boat.json"
+    cursor = json.loads(ticket.read_text(encoding="utf-8")).get("workflow_and_state")
+    assert cursor == _FIXTURE_WORKFLOW, f"the boat's cursor moved to {cursor!r}"
 
 
-def test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody():
-    """FALSIFIER CLAUSE (5): the quiet case, and it must stay quiet.
+def test_a_green_seal_names_the_covered_boat_READY_and_moves_nothing():
+    """FALSIFIER CLAUSE (1): a green seal on a covered PROVEME boat answers ready [boat].
 
-    Most seals are this one. ``cairn test --seal`` over the corpus lands dozens of green
-    seals on proofs no boat at PROVEME is waiting on, and the handler must answer each with
-    a shrug: no crossing, and NO TROUBLE. A trouble raised here would be the loudest kind of
-    Law 7 failure — a diagnostic surface reporting a problem that does not exist, once per
-    proof per run, until nobody reads the surface at all.
+    THE DEFECT THIS ENDS, measured 2026-11-11: the handler queued each boat at the clearance
+    gate with codemother's hand, every real charter refused it, and 327 refusals stood in
+    bus.log. The fixture here admits any hand, so a handler that still crossed would journal
+    a record and move the cursor; both are asserted absent."""
+    comp, proof = _fixture_component("cm_sealed_", boat=_FIXTURE_BOAT)
+    with _the_boat_is_covered(comp, proof) as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
+        answer = _tell_codemother_a_seal_landed(proof)
+        assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
+        assert answer.get("ready") == [boat], f"ready is {answer.get('ready')!r}, expected [{boat!r}]"
+        assert answer.get("awaiting_hollow") == [], f"a covered boat was held: {answer}"
+        assert "crossed" not in answer and "refused" not in answer, (
+            f"the answer still speaks of crossing: {sorted(answer)}")
+        _the_boat_did_not_move(comp, boat)
+    print("PASS: test_a_green_seal_names_the_covered_boat_READY_and_moves_nothing")
 
-    The corpus is the REAL one, deliberately: this tooth's claim is about a proof nothing
-    names, and the strongest fixture for 'nothing names it' is a proof minted seconds ago in
-    scratch, checked against every ticket actually on file."""
+
+def test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody():
+    """FALSIFIER CLAUSE (2): the quiet case, and it must stay quiet.
+
+    Most seals are this one: a proof no boat at PROVEME is waiting on. No boat is ready and
+    NO TROUBLE is raised; a trouble here would cry once per proof per run. The corpus is the
+    REAL one: a proof minted seconds ago in scratch is named by no ticket on file."""
     comp, proof = _fixture_component("cm_unnamed_")
     before = _troubles_now()
     answer = _tell_codemother_a_seal_landed(proof)
     after = _troubles_now()
 
     assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
-    assert answer.get("crossed") == [],         f"a proof no boat names crossed something: {answer.get('crossed')!r}"
-    assert answer.get("refused") == [],         f"a proof no boat names produced a refusal: {answer.get('refused')!r}"
-    assert after == before,         f"the quiet case raised {after - before} trouble(s) — a surface that cries at every seal"
+    assert answer.get("ready") == [], f"a proof no boat names made something ready: {answer}"
+    assert answer.get("awaiting_hollow") == [], f"a proof no boat names held a boat: {answer}"
+    assert after == before, \
+        f"the quiet case raised {after - before} trouble(s) — a surface that cries at every seal"
     history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
     assert history == [], f"nothing was named, yet {len(history)} crossing(s) were journaled"
-    print("PASS: test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody")
+    print("PASS: test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody")
 
 
-def test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed():
-    """THE DEFECT THIS VOYAGE UNCOVERED IN ITS OWN BUILD, fixed under the bounds ruling
-    2026-09-09-a-bug-the-voyage-uncovers-is-fixed-by-that-voyage.
-
-    ``_handle_sealed`` passed the ONE proof that had just sealed as the crossing's
-    ``proven_by``. Everywhere else in this path the field is read as one-or-many precisely
-    because a seam has ends in more than one component, and the crossing is the RECORD OF
-    TRUTH about what this move was cleared onto — so a record naming one end of a two-ended
-    seam claims less than the gate actually verified, and a reader a year out goes and looks
-    at half the evidence (Law 5: the proof shares the address; Law 7: a record of truth never
-    collapses).
-
-    FOUND BY BUILDING THIS TICKET, not by reading the code: ``1accdc1781aa``'s own five
-    clauses live in three files. The fix is one line of intent — the crossing carries what
-    the BOAT declared, and the seal is only the event that says now.
-
-    WHAT ACTUALLY BITES, MEASURED 2026-09-09 rather than assumed. This docstring first
-    claimed the single-proof spelling would red at ``clause_declared``. IT DOES NOT, and the
-    reason is worth keeping: ``_coverage_lacks`` composes ``coverage_lacks(ticket, ...)``,
-    which reads the clause-to-tooth join off THE TICKET'S OWN crossings, not off the list
-    this call passes — so the clause rung sees both ends however the caller spells the
-    crossing. The list is used by ``hollow_lacks(ticket, named)`` alone. So the single-proof
-    spelling loses two things and neither of them is clause coverage: the hollow reading is
-    never demanded of the unnamed end, and the record on disk names one proof of two. The
-    assertion below is the second one, and reverting the fix reds it verbatim:
-    ``the record names '.../test_fixture.py' — a seam's crossing must name every end``."""
-    comp, proof = _fixture_component("cm_two_ends_", boat=_FIXTURE_BOAT)
-    other = _a_second_end(comp, _FIXTURE_BOAT, proof)
-    with _the_boat_is_covered(comp, proof, second_end=other) as boat, \
-            _the_sealed_path_can_find_the_boat(comp, boat):
-        # SEALED ON ONE END ONLY — which is the real shape: a builder reseals the file they
-        # touched, and the boat is proved by all of its ends.
-        answer = _tell_codemother_a_seal_landed(proof)
-
-    assert answer.get("accepted") is True, f"the sealed message was refused: {answer}"
-    assert answer.get("refused") == [], (
-        f"a two-ended seam was refused: {answer.get('refused')}")
-    assert answer.get("crossed") == [boat], (
-        f"expected the two-ended boat to cross, got {answer.get('crossed')}")
-
-    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
-    assert len(history) == 1, f"expected one crossing record, got {len(history)}: {history}"
-    named = history[0].get("proven_by")
-    assert isinstance(named, list) and {str(proof), str(other)} == {str(one) for one in named}, (
-        f"the record names {named!r} — a seam's crossing must name every end, or the record "
-        "claims less than the gate verified")
-    print("PASS: test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed")
-
-
-def test_a_RED_seal_crosses_nothing_at_all():
-    """The clause-(5) neighbour the ticket's WRONG INTENT depends on: red never moves a boat.
-
-    Not a clause of its own, and it is here because the WRONG INTENT clause is *'a boat
-    auto-crossed to PROVED is later redded by Akien'* — the one shape that must be
-    impossible for this path to produce on its own is a RED measurement moving anything.
-    The handler answers before it ever looks for a boat, so a red seal cannot even reach the
-    corpus scan."""
+def test_a_RED_seal_makes_nothing_ready_and_journals_nothing():
+    """FALSIFIER CLAUSE (3): red never readies a boat. The handler answers before it looks
+    for one, so a red seal cannot reach the corpus scan."""
     comp, proof = _fixture_component("cm_red_seal_", boat=_FIXTURE_BOAT)
-    with _the_boat_is_covered(comp, proof) as boat,             _the_sealed_path_can_find_the_boat(comp, boat):
+    with _the_boat_is_covered(comp, proof) as boat, \
+            _the_sealed_path_can_find_the_boat(comp, boat):
         answer = _tell_codemother_a_seal_landed(proof, verdict="red")
-    assert answer.get("accepted") is True, answer
-    assert answer.get("crossed") == [],         f"a RED seal crossed {answer.get('crossed')!r} — the boat moved on a failed measurement"
-    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
-    assert history == [], f"a RED seal journaled {len(history)} crossing(s)"
-    print("PASS: test_a_RED_seal_crosses_nothing_at_all")
+        assert answer.get("accepted") is True, answer
+        assert answer.get("ready") == [], f"a RED seal made {answer.get('ready')!r} ready"
+        _the_boat_did_not_move(comp, boat)
+    print("PASS: test_a_RED_seal_makes_nothing_ready_and_journals_nothing")
 
-
-# ══════════════════════════════════════════════════════════════════════════
-# 15. A SEAL WAITS FOR ITS HOLLOW READING
-#     ticket b984567d8c05. Measured n=2 on 2026-10-02 (e8fe361a5b2f, 56d1aff4455e): the
-#     seal that comes BEFORE the hollow reading can exist fired the crossing, the PROVED
-#     rung refused hollow_evidence_absent, and an unchanged build went to FIXME. A missing
-#     reading is a measurement still to come; a reading that names a hollow file is not.
-# ══════════════════════════════════════════════════════════════════════════
 
 def test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME():
-    """FALSIFIER CLAUSE (1): no reading yet → no crossing, no FIXME, the boat listed as waiting."""
+    """FALSIFIER CLAUSE (4): no reading yet → listed in awaiting_hollow, not in ready.
+
+    The wait b984567d8c05 built, measured n=2 on 2026-10-02 (e8fe361a5b2f, 56d1aff4455e): the
+    seal comes before the hollow reading can exist, so a first seal finds none."""
     comp, proof = _fixture_component("cm_awaiting_hollow_", boat=_FIXTURE_BOAT)
     with _the_boat_is_covered(comp, proof, hollow=None) as boat, \
             _the_sealed_path_can_find_the_boat(comp, boat):
         answer = _tell_codemother_a_seal_landed(proof)
-    assert answer.get("accepted") is True, answer
-    assert answer.get("crossed") == [], f"a boat with no hollow reading crossed: {answer}"
-    assert answer.get("refused") == [], \
-        f"a boat with no hollow reading was refused (and so sent to FIXME): {answer}"
-    waiting = [w.get("ticket") for w in (answer.get("awaiting_hollow") or [])]
-    assert waiting == [boat], f"awaiting_hollow is {answer.get('awaiting_hollow')!r}, expected [{boat}]"
-    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
-    assert history == [], f"a waiting boat journaled {len(history)} crossing(s): {history}"
+        assert answer.get("accepted") is True, answer
+        assert answer.get("ready") == [], f"a boat with no hollow reading was made ready: {answer}"
+        waiting = [w.get("ticket") for w in (answer.get("awaiting_hollow") or [])]
+        assert waiting == [boat], \
+            f"awaiting_hollow is {answer.get('awaiting_hollow')!r}, expected [{boat}]"
+        _the_boat_did_not_move(comp, boat)
     print("PASS: test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME")
-
-
-def test_a_seal_whose_hollow_reading_COVERS_crosses():
-    """FALSIFIER CLAUSE (2): the reading stands and covers → the boat crosses to PROVED."""
-    comp, proof = _fixture_component("cm_hollow_covers_", boat=_FIXTURE_BOAT)
-    with _the_boat_is_covered(comp, proof, hollow="covered") as boat, \
-            _the_sealed_path_can_find_the_boat(comp, boat):
-        answer = _tell_codemother_a_seal_landed(proof)
-    assert answer.get("crossed") == [boat], f"a covered boat did not cross: {answer}"
-    assert not answer.get("awaiting_hollow"), f"a covered boat was held: {answer}"
-    print("PASS: test_a_seal_whose_hollow_reading_COVERS_crosses")
-
-
-def test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME():
-    """FALSIFIER CLAUSE (3): a reading that names a file no tooth noticed is design work → FIXME."""
-    comp, proof = _fixture_component("cm_hollow_file_", boat=_FIXTURE_BOAT)
-    with _the_boat_is_covered(comp, proof, hollow="empty") as boat, \
-            _the_sealed_path_can_find_the_boat(comp, boat):
-        answer = _tell_codemother_a_seal_landed(proof)
-    assert answer.get("crossed") == [], f"a boat with a hollow file crossed: {answer}"
-    assert [r.get("ticket") for r in answer.get("refused") or []] == [boat], \
-        f"a boat with a hollow file was not refused: {answer}"
-    assert not answer.get("awaiting_hollow"), f"a boat WITH a reading was held as waiting: {answer}"
-    history = json.loads((comp / "history.json").read_text(encoding="utf-8"))
-    states = [str(h.get("workflow_and_state") or h.get("to") or "") for h in history]
-    assert any("FIXME" in s for s in states), f"the refusal did not send the boat to FIXME: {states}"
-    print("PASS: test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME")
 
 
 if __name__ == "__main__":
@@ -1347,13 +1198,10 @@ if __name__ == "__main__":
         test_the_harbor_shim_is_reachable_by_its_own_name,
         test_a_handler_that_posts_does_not_re_enter_its_own_mailbox,
         test_a_history_that_is_not_a_list_is_refused_by_name,
-        test_a_green_seal_crosses_the_PROVEME_boat_that_NAMES_that_proof,
-        test_a_seal_NO_PROVEME_TICKET_NAMES_crosses_nothing_and_troubles_nobody,
-        test_a_TWO_ENDED_SEAM_crosses_carrying_BOTH_ends_not_just_the_one_that_sealed,
-        test_a_RED_seal_crosses_nothing_at_all,
+        test_a_green_seal_names_the_covered_boat_READY_and_moves_nothing,
+        test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody,
+        test_a_RED_seal_makes_nothing_ready_and_journals_nothing,
         test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME,
-        test_a_seal_whose_hollow_reading_COVERS_crosses,
-        test_a_seal_whose_hollow_reading_names_a_HOLLOW_FILE_goes_to_FIXME,
     ]
     passed = 0
     failed = 0

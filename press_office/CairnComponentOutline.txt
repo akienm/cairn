@@ -1625,13 +1625,20 @@ not matter here. The code catches up to this, never the reverse.
     17.28.5 One that does not resolve is loud and names its address, never a value.
             A sieve reds a class-space config holding a plain value where a secret
             belongs.
-            [Q#84: What marks a place where a secret belongs? The plainest
-            measure is the key's name, as the secretgate hook reads it (pass,
-            token, secret, key, credential): over every tracked json in the repo
-            on 2026-11-10 it finds 3 string values, and none is a secret (two
-            path#item pointers in artifact/jurisdiction.json, one field name in a
-            chain proof's evidence). Is the key's name the mark, or something
-            else (a declared list of secret fields, the value's shape)?]
+      17.28.5.1 A secret is marked when the need for it is created, not by a
+                list or a key's name: the day a secret comes into being, its value
+                goes into its holder's env file and the code names its key there,
+                and from that day every use of it is a secret: address, so the
+                factory hands back a Secret (17.28.2). The place a secret belongs
+                is wherever such a key is used; a plain value there is the red.
+                WHY: Akien, 2026-11-10, on Q#84 ("what marks a place where a
+                secret belongs?"): "when we create the need for a secret that's
+                what creates the secrets. it's not a list... like we gave you your
+                own email address. on the day that we did that, we put the values
+                in your env file. and keys into that file into the code. it's at
+                that point that it's marked as a secret. and later code that uses
+                it has to use the secret prefix so the factory spits out the right
+                thing."
 
 18 PRESS OFFICE (press_office/, a top-level folder in the repo)
   18.1 PURPOSE: Talking to the world: how we explain to others how to use Cairn.

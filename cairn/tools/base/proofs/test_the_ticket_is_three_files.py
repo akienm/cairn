@@ -49,7 +49,9 @@ COMMONS = REPO.parent / "CairnCommons"
 LIVE_CHARTER = COMMONS / "tickets" / "_charter+why.json"
 CENSUS = COMMONS / "measurements" / "2026-10-29-ticket-fields-plan-state-log.json"
 
-PROVES = {"284798998ab0": {"all": "test_the_ticket_is_three_files"}}
+PROVES = {"284798998ab0": {"all": "test_the_ticket_is_three_files"},
+          # 386ea8131006 moved the watch reader to CodeMother's WATCHME gate; this tooth now asks it
+          "386ea8131006": {"4": "test_the_ticket_is_three_files"}}
 
 TEETH = ("test_the_charter_declares_three_disjoint_field_sets",
          "test_the_door_keys_the_state_file_by_state_fields",
@@ -399,7 +401,7 @@ def r_buildme_rides_the_sorted(t, patch):
     return "sorted berth readable" in repr(got), got
 
 
-def r_harbor_watch(t, patch):
+def r_watchme_gate(t, patch):
     # the watch reader is CodeMother's WATCHME gate since 386ea8131006 (outline 9.4.1.5)
     _state(t, watchme={"object": "x", "probe": "cairn/tools/base/probes/x.py"})
     gate = _mod("cairn.devices.codemother.machines.watchme.gate").WatchmeGate(
@@ -522,7 +524,7 @@ READERS = (
     ("reader_chain_carriers_ignores_a_state_file", r_chain_carriers),
     ("reader_hollow_finds_no_ticket_in_a_state_file", r_hollow),
     ("reader_build_inspector_reads_the_sorted_berth_from_state", r_buildme_rides_the_sorted),
-    ("reader_harbor_watch_reads_the_state_watchme", r_harbor_watch),
+    ("reader_watchme_gate_reads_the_state_watchme", r_watchme_gate),
     ("reader_tellmeabout_skips_a_state_stem", r_tellmeabout_stem),
     ("reader_tellmeabout_presents_the_state_cursor", r_tellmeabout_present),
     ("reader_grammar_ticket_path_never_a_state_file", r_grammar),

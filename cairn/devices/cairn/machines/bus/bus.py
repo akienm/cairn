@@ -60,11 +60,14 @@ FILED EDGES (children of this stone — not faked):
 from __future__ import annotations
 
 import json
+import os
 import re
 import threading
+import time
 import uuid
 from contextlib import contextmanager
 from datetime import datetime
+from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.devices.db_domain.tools.client import store
@@ -108,6 +111,9 @@ _TRAFFIC_COLUMNS = {
     "date": "text",
 }
 _BUS_OWNER = "bus"
+# A request handed over at a stop is held as given up for a day (ticket 054a03f974f6): long past any
+# answerer's run, short enough that the list cannot grow without bound across restarts.
+ASK_HORIZON_S = 86_400.0
 
 # THE RECEIPT — delivery as its own append-only fact, NOT a column on the envelope.
 #
@@ -204,9 +210,12 @@ class BusDevice(BaseDevice):
         # installs it to serve the mail queued for shims the waiting thread holds. None on a
         # bare bus.
         self._while_waiting: "Callable[[], Any] | None" = None
-        # Ids of requests whose asker is inside ``request()`` right now: a bounce answering one
-        # is the asker's to take by correlation, never the no-receiver path's (ticket 7cb1989e7825).
-        self._asked: set[str] = set()
+        # Ids of requests whose asker is inside ``request()`` right now, keyed to that asker: a
+        # bounce answering one is the asker's to take by correlation, never the no-receiver
+        # path's (ticket 7cb1989e7825). Keyed so a stop can hand them over (ticket 054a03f974f6).
+        self._asked: dict[str, str] = {}
+        # When each ask was posted, epoch seconds: the horizon a handed-over ask expires by.
+        self._ask_since: dict[str, float] = {}
         # Ids of requests whose asker's ``request()`` reached its deadline, keyed to that asker
         # (ticket cd2d27fe3261): a reply landing later has nobody to take it, so the bus
         # receipts it as given up rather than let it stand for report_stood to raise.
@@ -384,7 +393,8 @@ class BusDevice(BaseDevice):
             if channel == "personal":
                 self._pending[envelope["id"]] = envelope
             if _asked:
-                self._asked.add(envelope["id"])
+                self._asked[envelope["id"]] = sender
+                self._ask_since[envelope["id"]] = time.time()
             self._posted += 1
         self._last_envelope = envelope
         self.emit("post", pointer=envelope["id"], values={
@@ -392,6 +402,8 @@ class BusDevice(BaseDevice):
         })
         if channel == "personal":
             gave_up = self._abandoned.pop(reply_to, None) if reply_to is not None else None
+            if gave_up is not None:
+                self._ask_since.pop(reply_to, None)
             hook = self._delivery_hooks.get(to)
             toggles = self._channel_toggles.get(to, {})
             if hook is not None and toggles.get(channel, True):
@@ -524,7 +536,7 @@ class BusDevice(BaseDevice):
                 if replies:
                     return self._taken(replies[0], sender)
         finally:
-            self._asked.discard(envelope["id"])
+            self._asked.pop(envelope["id"], None)
         self._abandoned[envelope["id"]] = sender
         late = self._ring_matches(reply_to=envelope["id"])
         if late and self._abandoned.pop(envelope["id"], None) is not None:
@@ -714,6 +726,48 @@ class BusDevice(BaseDevice):
             for rcpt in rcpts:
                 fh.write(json.dumps({"receipt": rcpt}, default=str) + "\n")
         return {"spilled": len(envs), "receipts": len(rcpts)}
+
+    def hand_over_asks(self, path) -> dict:
+        """Write every request still unanswered to ``path`` — the bus's last act at a stop
+        (ticket 054a03f974f6). An asker waits inside this process (``request()`` runs here),
+        so a stop ends its wait; the bus after this one takes the list over as given up, and a
+        reply landing then is receipted ``bus-asker-gave-up`` instead of standing for
+        report_stood to raise. Measured 2026-11-11: tester->constrain 'run reply' c363a743
+        answered a request posted the second a stale client shut the bus down, and stood.
+        Asks older than ``ASK_HORIZON_S`` are not carried. Rewrites the file; none, no file."""
+        now = time.time()
+        with self._lock:
+            asks = {**self._abandoned, **self._asked}
+            since = dict(self._ask_since)
+        rows = {i: {"asker": a, "since": since.get(i, now)} for i, a in asks.items()
+                if now - since.get(i, now) < ASK_HORIZON_S}
+        path = Path(path)
+        if not rows:
+            path.unlink(missing_ok=True)
+            return {"handed_over": 0}
+        tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+        tmp.write_text(json.dumps(rows) + "\n", encoding="utf-8")
+        os.replace(tmp, path)
+        return {"handed_over": len(rows)}
+
+    def take_over_asks(self, path) -> dict:
+        """Hold the asks the bus before this one handed over (``hand_over_asks``) as given up,
+        so their late replies are receipted, and retire the file. Asks past the horizon drop."""
+        path = Path(path)
+        if not path.exists():
+            return {"taken_over": 0}
+        rows = json.loads(path.read_text(encoding="utf-8") or "{}")
+        now, taken = time.time(), 0
+        with self._lock:
+            for ask_id, row in rows.items():
+                since = float(row.get("since", 0))
+                if now - since >= ASK_HORIZON_S:
+                    continue
+                self._abandoned[ask_id] = row.get("asker", "")
+                self._ask_since[ask_id] = since
+                taken += 1
+        path.unlink(missing_ok=True)
+        return {"taken_over": taken}
 
     def restore(self, path) -> dict:
         """Put a spill back in the ring ahead of anything newer; the next ``flush()`` writes it.

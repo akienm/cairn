@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_requester_takes_its_reply.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-08T11:12:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T12:09:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "mail_outside_the_request_stays_undelivered"
       ],
       "teeth_red": [],
-      "test": "test-d9bbe8e91f2d",
+      "test": "test-c2363d630cd6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,7 +29,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 500,
+        "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -37,14 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d9bbe8e91f2d",
-      "source_fingerprint": "986222541ef38387160f27e6811a293f5ddf14ae5654d90dd9485de979cf4f00",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2363d630cd6",
+      "source_fingerprint": "0a5fb62def617434f9373dd55c66a7176a3d9e3c91f022ba24a97ba36a9b46d6",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -52,57 +51,57 @@
         "cairn/devices/cairn/machines/bus/shim.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
-        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
-        "cairn/devices/tester": "5044f0fa779f6edee18aaf82b209fe032fa397739786d42be2c47abf5ebed8c3",
-        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
-        "cairn/tools/base": "51cd6f5de4883d1534fc0dda17c1f3f1c118702673fe57cf99426e26ec406a8d",
-        "cairn/tools/bus_client": "fd556006723fa440746905a9f9346f2e23c28bafab2ec2070249f7f97d83454d",
+        "cairn/devices/cairn": "cbaf7fa03758a50348b8aa12bd73086191a35affb674752eb4540b39fddf8377",
+        "cairn/devices/db_domain": "52998e37b8de4105ff936faef8d8d6805951c04151767cf053ab3a57bfcb8332",
+        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
+        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
+        "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
+        "cairn/tools/bus_client": "1ee16fdb7e6908a7feb96a89f9bfea0cbfdb32d03a333a31df5b6f8300df7697",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
-        "cairn/tools/system_word": "d09a4b9e06066397f35467fe4733f419966a41e4f7ec6307926c6ce76661d6b3"
+        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-984152-dcy9c7wr/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-507205-9d3483sh/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 23,
+          "count": 24,
           "paths": [
-            "logs/bus/0/20261108.181239.803090.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.848959.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261108.181239.862669.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.868610.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.868824.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.868937.BusDevice.delivered.json",
-            "logs/bus/0/20261108.181239.873528.BusDevice.delivered.json",
-            "logs/bus/0/20261108.181239.906052.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.950041.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261108.181239.964620.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.970539.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.976214.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.976428.BusDevice.post.json",
-            "logs/bus/0/20261108.181239.976546.BusDevice.delivered.json",
-            "logs/bus/0/20261108.181239.977329.BusDevice.delivered.json",
-            "logs/bus/0/20261108.181240.011949.BusDevice.post.json",
-            "logs/bus/0/20261108.181240.061345.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261108.181240.078692.BusDevice.post.json",
-            "logs/bus/0/20261108.181240.084758.BusDevice.post.json",
-            "logs/bus/0/20261108.181240.084953.BusDevice.post.json",
-            "logs/bus/0/20261108.181240.085107.BusDevice.post.json",
-            "logs/bus/0/20261108.181240.085215.BusDevice.delivered.json",
-            "logs/bus/0/20261108.181240.087012.BusDevice.delivered.json"
+            "logs/bus/0/20261111.190939.323385.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.369098.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261111.190939.383120.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.389088.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.389304.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.389423.BusDevice.delivered.json",
+            "logs/bus/0/20261111.190939.394325.BusDevice.delivered.json",
+            "logs/bus/0/20261111.190939.534279.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.593432.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261111.190939.613099.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.621746.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.630321.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.630618.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.630797.BusDevice.delivered.json",
+            "logs/bus/0/20261111.190939.632221.BusDevice.delivered.json",
+            "logs/bus/0/20261111.190939.707585.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.767118.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261111.190939.795338.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.807919.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.808328.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.808647.BusDevice.post.json",
+            "logs/bus/0/20261111.190939.808888.BusDevice.delivered.json",
+            "logs/bus/0/20261111.190939.812601.BusDevice.delivered.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 119598038,
-          "disk_bytes": 154042368,
-          "entries": 13420,
+          "bytes": 526223908,
+          "disk_bytes": 563376128,
+          "entries": 14496,
           "builds": 1,
-          "reuses": 3
+          "reuses": 2
         }
       }
     },

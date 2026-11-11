@@ -751,6 +751,9 @@ def _write_port(home: Path, record: dict) -> None:
 
 
 STOPS_FILE = "stops.jsonl"
+# The requests still unanswered when this bus stopped, for the next bus to hold as given up
+# (ticket 054a03f974f6): written last at every stop serve() returns from, retired at the next start.
+ASKS_FILE = "asks_in_flight.json"
 _BACKLOG_JOIN_S = 30.0  # the pass is one read of undelivered; a minute would be wedged
 _STOP_SIGNALS = tuple(getattr(signal, n) for n in ("SIGTERM", "SIGINT", "SIGHUP")
                       if hasattr(signal, n))
@@ -884,6 +887,13 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
         land_spill(bus, home)
     except Exception as exc:  # noqa: BLE001 — the spill stays on disk for the next start
         print(f"bus: spill did not land: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+    try:
+        taken = bus.take_over_asks(home / ASKS_FILE)
+        if taken["taken_over"]:
+            print(f"bus: took over {taken['taken_over']} unanswered ask(s) as given up",
+                  file=sys.stderr, flush=True)
+    except Exception as exc:  # noqa: BLE001 — their late replies stand and report_stood says so
+        print(f"bus: asks not taken over: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
     lan_note = f" lan 0.0.0.0:{lan_server.server_address[1]}" if lan_server else ""
     print(f"bus: serving {where}{lan_note} pid {os.getpid()} root {ROOT}",
           file=sys.stderr, flush=True)
@@ -920,6 +930,12 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
             # started touches the bus after it returns.
             backlog.join(timeout=_BACKLOG_JOIN_S)
             final_flush(bus, home)
+            if home.is_dir():
+                try:
+                    bus.hand_over_asks(home / ASKS_FILE)
+                except Exception as exc:  # noqa: BLE001 — loud; their replies will stand
+                    print(f"bus: asks not handed over: {type(exc).__name__}: {exc}",
+                          file=sys.stderr, flush=True)
             if unix:
                 sock.unlink(missing_ok=True)
             (home / PORT_FILE).unlink(missing_ok=True)

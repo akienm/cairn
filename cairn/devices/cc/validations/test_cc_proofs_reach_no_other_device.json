@@ -1,22 +1,21 @@
 [
   {
     "claim": "proof test_cc_proofs_reach_no_other_device.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-10T22:12:37",
+    "caller": "cairn test",
+    "date": "2026-11-11T10:27:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "FAIL test_no_cc_file_imports_another_device: cc reaches into another device: cairn/devices/cc/scripts/chart_ticket.py:20 imports cairn.devices.codemother.machines.orient.orient; cairn/devices/cc/scripts/chart_ticket.py:30 imports cairn.devices.codemother.machines.constrain.constrain; cairn/devices/cc/scripts/chart_ticket.py:34 imports cairn.devices.codemother.machines.survey.survey; cairn/devices/cc/scripts/chart_ticket.py:41 imports cairn.devices.codemother.machines.decompose.decompose; cairn/devices/cc/scripts/chart_ticket.py:47 imports cairn.devices.codemother.machines.triage.triage; cairn/devices/cc/scripts/chart_ticket.py:52 imports cairn.devices.codemother.machines.hypothesize.hypothesize; cairn/devices/cc/scripts/chart_ticket.py:58 imports cairn.devices.codemother.machines.validate.validate; cairn/devices/cc/scripts/cross.py:5 imports cairn.devices.cairn.machines.harbor_master.clearance; cairn/devices/cc/scripts/verdict_ticket.py:9 imports cairn.devices.codemother.machines.verdict.verdict\nPASS test_each_loader_still_judges\nPASS test_each_loader_loads_ccs_probes",
+      "returncode": 0,
+      "stdout_tail": "PASS test_no_cc_file_imports_another_device\nPASS test_each_loader_still_judges\nPASS test_each_loader_loads_ccs_probes",
       "stderr_tail": "",
       "teeth_green": [
+        "test_no_cc_file_imports_another_device",
         "test_each_loader_still_judges",
         "test_each_loader_loads_ccs_probes"
       ],
-      "teeth_red": [
-        "test_no_cc_file_imports_another_device"
-      ],
-      "test": "test-c3343a0f1e2b",
+      "teeth_red": [],
+      "test": "test-663b955e3a49",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,12 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3343a0f1e2b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-663b955e3a49",
       "source_fingerprint": "4ffcc0c8fa75706f8ac8ca9a369583f67f2a9994fcda91183bf7c1bfd8ca044c",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
@@ -53,14 +53,14 @@
         "cairn/devices/cc/proofs/test_the_shim_delivers_mail.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "a37b0565718377e99942549b148b17a89c255a46f760200370a9d866be8473f3",
+        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-238587-9chpilzg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-456353-9vqyxq90/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,21 +69,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 525112031,
-          "disk_bytes": 560885760,
-          "entries": 13985,
+          "bytes": 525849167,
+          "disk_bytes": 562335744,
+          "entries": 14259,
           "builds": 1,
-          "reuses": 10
+          "reuses": 1
         }
-      },
-      "reseal_ladder": {
-        "proof_sha256": "5bb156294d9605266fe93599834edf981ea6e730cb3818a43e12fed450bde41e",
-        "opened": "2026-11-10T03:14:34",
-        "last_red": "2026-11-10T22:12:37",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cc-proofs-test-cc-proofs-reach-no-other-device",
-        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

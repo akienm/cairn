@@ -156,6 +156,19 @@ not matter here. The code catches up to this, never the reverse.
         3.3.4.2.1 How a builder declares what it can do is decided when there is
                   more than one kind of builder. WHY: with one kind there is nothing
                   to choose between.
+      3.3.4.3 A ticket's code is a tool or machine; its life is data. All of its
+              state is on disk, so anyone can instantiate it to talk to it, and any
+              dialog is written to the relevant part of the ticket as it happens.
+              To cross a gate the ticket asks that gate to queue it, sending only
+              its fileref: devices/codemother/0/machines/<inspector>/queueme
+              <fileref>. The gate instantiates the ticket from that fileref on its
+              own side. A ticket instance then processes the pass or fail: on a
+              pass it goes on to the next step, alerting the probes watching the
+              gate (3.3.4.2); on a fail it asks design to queue it, the same way.
+              WHY: Akien, 2026-11-10: "now it has to send it's fileref over to the
+              thing that will process it, and a new code instance created over
+              there even tho it's the same thing... because that's good
+              encapsulation. :)"
     3.3.5 Commit often. WHY: so we never wind up with stray files or incomplete
           work.
     3.3.6 More than one builder runs at a time, so work is kept apart by branches:
@@ -1040,15 +1053,19 @@ not matter here. The code catches up to this, never the reverse.
               inference tickets do not.
       9.4.1.4 TOOLS: base, artifact, charter, operator_inbox, proof_coverage,
               question, system_word; machine learning_block.
-      9.4.1.5 VERBS: crossing, watch. COMMANDS: cairn codemother harbor_master ->
+      9.4.1.5 VERBS: status queries only (show, get), and crossing, the notice a
+              ticket sends as it moves, which keeps the register. It answers no
+              gate and moves no ticket. A ticket that would cross a gate asks that
+              gate itself for an inspection, and either receives a pass or sends
+              itself back to design (3.3.4). WHY: Akien, 2026-11-10: "why would the
+              harbor master's bus face answer anything other than a status query.
+              if anything (ticket) is going to try and cross a gate it's the
+              ticket that asks that gate for an inspection. and the ticket either
+              recieves a pass or it sends itself back to design." Measured the
+              same day: the bus face also answers `clear` (fires clearance.py and
+              moves a boat) and `watch` (sends a ticket to FIXME), and both leave.
+              COMMANDS: cairn codemother harbor_master ->
               "652 boats (570 open, 82 in port)".
-              [Q#80: The harbor's bus face also answers `clear`: the crossing
-              gate's door (clearance.py), which codemother's `cross` verb already
-              asks, and which CC's cross helper would ask instead of importing
-              clearance (RULE 1, ticket 5e11fadd63b3). You said 2026-10-17 it
-              houses the gates "only because we had to have some place to put
-              them". Is `clear` a harbor verb to add here, or should a crossing
-              reach the gate through another door?]
     9.4.2 tester
       9.4.2.1 PURPOSE: The system's notary: runs proofs and seals their verdicts.
       9.4.2.2 WHY: Law 8: nothing enters proven-space without a proof a hollow build

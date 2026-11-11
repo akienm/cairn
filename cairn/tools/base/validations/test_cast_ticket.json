@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_cast_ticket.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-11T07:14:59",
+    "caller": "cairn test",
+    "date": "2026-11-11T09:09:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -10,13 +10,13 @@
       "stdout_tail": "  PASS  the sweep never raises — an absent commons reads as empty\n  PASS  bin/cmd/cast --sweep prints the same counts, exit 0  — rc=0 \n  PASS  bin/cmd/cast refuses an empty cast on stderr with exit 1 and writes nothing  — rc=1  'watchme' is absent or blank; required field 'sorted_berth' is absent or blank; required field 'intent_berth' is absent or blank; bounds is required; measured is absent or empty. Nothing was written.\n5. the probe's enough\n  PASS  PROBE is a frozen Probe with carry and enough\n  PASS  not enough at nine\n  PASS  not enough at ten on one day\n  PASS  carry names the calendar as the finding  — the last ten casts span fewer than three calendar days\n  PASS  enough at ten consecutive across three distinct days  — {\"landing\": \"2026-09-10T00:00:00+00:00\", \"arrivals\": 12, \"through_the_door\": 12, \"journaled_beside\": [], \"unjournaled\": [], \"last_run_clean\": true, \"days_in_last_run\": [\"2026-09-10\", \"2026-09-11\", \"2026-09-12\"]}\n  PASS  one hand-dropped file takes it back down\n  PASS  carry names the offending path and the owning ticket\n  PASS  a creation through some other frame — even one named cast_ticket — takes it back down\n6. the callers and residues\n  PASS  SKILL.md step 5 fires cairn cast\n  PASS  the sorted charter's what names cast_ticket\n  PASS  watchme_spec's residue no longer says casting has no chokepoint\n  PASS  the live journal never moved\n  PASS  test_the_door_the_sweep_and_the_watch_end_to_end\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "the cast lands at tickets/<id>-<slug>.json  — /tmp/cairn-cast-ticket-proof-02lxvlkv/CairnCommons/tickets/abc123def456-casting-rides-a-door-proof.json",
+        "the cast lands at tickets/<id>-<slug>.json  — /tmp/cairn-cast-ticket-proof-vfh9o7tx/CairnCommons/tickets/abc123def456-casting-rides-a-door-proof.json",
         "the slug lower-cases and collapses non-alphanumerics",
         "cast is stamped with today's date when absent  — 2026-11-11",
         "no other key was touched",
         "exactly two journal lines were added — the plan and its state file  — ['tickets/abc123def456-casting-rides-a-door-proof.json', 'tickets/abc123def456-casting-rides-a-door-proof.state.json']",
         "the line is verb cast, sha_before absent, why naming id title actor  — cast_ticket: abc123def456 Casting rides a door!!  Proof by proof",
-        "the line carries transitions.py's own cast_ticket frame  — ['/home/akien/dev/src/cairn/cairn/tools/base/transitions.py:2465:cast_ticket']",
+        "the line carries transitions.py's own cast_ticket frame  — ['/home/akien/dev/src/cairn/cairn/tools/base/transitions.py:2481:cast_ticket']",
         "a cast that already carries its date keeps it",
         "the refusal is a CastRefused that is an IllegalTransition",
         "every lack is named in one pass: why, how, falsifier, workflow, the berth's workflow, intent exemption  — required field 'why' is absent or blank | required field 'how' is absent or blank | required field 'falsifier' is absent or blank | workflow_and_state does not parse: no 'class@version:' header in 'not a workflow' | sorted_berth's answers.workflow differs from the doc's workflow_and_state | intent_berth exemption 'none, because we talked about it' names no resolvable referent",
@@ -47,7 +47,7 @@
         "test_the_door_the_sweep_and_the_watch_end_to_end"
       ],
       "teeth_red": [],
-      "test": "test-c5a4c18c5a00",
+      "test": "test-e558e4443b65",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -69,13 +69,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c5a4c18c5a00",
-      "source_fingerprint": "3d36a67796749ddc169313b78ff326cc4c239687aa269a54e1917ad7a84cd62e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e558e4443b65",
+      "source_fingerprint": "034d94b2955dad64eec0f62838d50b56af168726fa117a8754abf7a424b9c095",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -109,7 +110,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-355558-ma0qf0rg/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-410525-f8jc3kmi/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -118,11 +119,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 525488658,
-          "disk_bytes": 561700864,
-          "entries": 14154,
+          "bytes": 525719655,
+          "disk_bytes": 562085888,
+          "entries": 14215,
           "builds": 1,
-          "reuses": 33
+          "reuses": 3
         }
       }
     },

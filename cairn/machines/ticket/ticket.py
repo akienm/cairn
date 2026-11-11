@@ -27,6 +27,12 @@ GATE_HOLDER = "codemother"
 HARBOR = "harbor_master"
 DESIGN = "design"
 
+# The chart stages in the order a ticket queues itself at them (outline 9.6, ticket
+# cd8a1de6139c). Each is a CodeMother gate answering ``machines/<stage>/queueme``. The verdict
+# is a gate too, but not one of these: it is queued after the build, not as part of the chart.
+CHART = ("orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate")
+VERDICT = "verdict"
+
 _CURSOR = re.compile(r"\[([A-Z]+)")
 
 
@@ -92,6 +98,61 @@ class Ticket(DiagnosticBase):
         doc = json.loads(self._plan.read_text(encoding="utf-8"))
         doc.update(updates)
         tf.rewrite_ticket(self._plan, doc, why=why, verb="phase")
+
+    # --- the chart, carried on the ticket (outline 3.3.4.3: its life is data) ---------------
+
+    def draft(self, stage: str, packet: dict, *, why: str) -> None:
+        """Put ``packet``, the draft of chart stage ``stage``, on the plan under ``chart``.
+
+        The draft is authored, so it lands in the plan; the gate reads it from there, because
+        the ticket sends the gate only its fileref. A stage outside CHART and the verdict is
+        refused before anything is written."""
+        if stage not in CHART + (VERDICT,):
+            raise ValueError(f"{stage!r} is not a chart stage: CHART is {', '.join(CHART)}, "
+                             f"and {VERDICT} after the build")
+        from cairn.tools.base import ticket_file as tf
+        doc = json.loads(self._plan.read_text(encoding="utf-8"))
+        chart = dict(doc.get("chart") or {})
+        chart[stage] = packet
+        doc["chart"] = chart
+        tf.rewrite_ticket(self._plan, doc, why=why, verb="cast")
+
+    def drafted(self, stage: str):
+        """The draft of ``stage`` on the plan, or None."""
+        return (self.doc().get("chart") or {}).get(stage)
+
+    def berthed(self, stage: str, berth: str, *, why: str) -> None:
+        """Record ``berth``, the packet a stage's gate wrote, as ``<stage>_berth`` in the state's
+        ``chart_claim`` — the shape the claim already carries for ``validate_berth`` and
+        ``verdict_berth`` — keeping every earlier stage's. A claim still the empty string a cast
+        leaves becomes a dict."""
+        if stage not in CHART + (VERDICT,):
+            raise ValueError(f"{stage!r} is not a chart stage: CHART is {', '.join(CHART)}, "
+                             f"and {VERDICT} after the build")
+        claim = self.doc().get("chart_claim")
+        merged = dict(claim) if isinstance(claim, dict) else {}
+        merged[f"{stage}_berth"] = str(berth)
+        self._write({"chart_claim": merged}, why=why)
+
+    def berth(self, stage: str):
+        """The berth ``stage``'s gate recorded on this ticket, or None."""
+        claim = self.doc().get("chart_claim")
+        return claim.get(f"{stage}_berth") if isinstance(claim, dict) else None
+
+    def chart(self, *, participant, timeout: float = 30.0, stages=CHART) -> dict:
+        """Queue this ticket at each chart stage in turn (outline 9.6), stopping at the first
+        stage whose gate does not pass it: one not queued (a trouble is already raised by
+        ``queueme``) or one whose reply says ``passed`` is not true (the gate has already
+        failed the ticket back to design)."""
+        done: list[dict] = []
+        for stage in stages:
+            got = self.queueme(stage, participant=participant, timeout=timeout)
+            passed = got["queued"] and got["reply"].get("passed") is True
+            done.append({"stage": stage, "queued": got["queued"], "passed": passed,
+                         "reply": got["reply"]})
+            if not passed:
+                return {"charted": False, "stopped_at": stage, "stages": done}
+        return {"charted": True, "stopped_at": None, "stages": done}
 
     def queueme(self, gate: str, *, participant, timeout: float = 30.0) -> dict:
         """Ask the gate's holder to queue this ticket at ``gate``; log the exchange.

@@ -2329,6 +2329,22 @@ def _shape_lacks(doc: dict, charter: Path) -> list[str]:
                 when = e.get("when")
                 if not _blank(when) and not (isinstance(when, str) and _ISO_DATE.match(when[:10])):
                     lacks.append(f"measured[{i}].when {when!r} is not an ISO date")
+
+    # chart: each stage's draft, authored on the plan (ticket cd8a1de6139c, outline 9.6) — a
+    # map of chart stage -> draft packet, so a gate reading it never meets a stage it has no door
+    # for, nor a draft that is not a packet.
+    spec = shapes.get("chart")
+    if isinstance(spec, dict) and "chart" in doc:
+        ch = doc.get("chart")
+        if not isinstance(ch, dict):
+            lacks.append(f"chart is not a map of stage -> draft: {repr(ch)[:80]}")
+        else:
+            keys = spec.get("keys") or []
+            for stage, draft in ch.items():
+                if stage not in keys:
+                    lacks.append(f"chart.{stage} is not a chart stage ({', '.join(keys)})")
+                elif not isinstance(draft, dict):
+                    lacks.append(f"chart.{stage} is not a draft packet: {repr(draft)[:80]}")
     return lacks
 
 

@@ -21,6 +21,8 @@ import json
 import re
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 GATE_HOLDER = "codemother"
 HARBOR = "harbor_master"
 DESIGN = "design"
@@ -33,12 +35,18 @@ def _step(workflow: str) -> str:
     return m.group(1) if m else ""
 
 
-class Ticket:
-    """One ticket, read and written through its own three files (plan, state, log)."""
+class Ticket(DiagnosticBase):
+    """One ticket, read and written through its own three files (plan, state, log).
+
+    It reaches the diagnostic mixin like every class, so the trouble a waiting ticket throws is
+    its own (filed under this component, ``ticket``), raised with the base's ``raise_trouble``.
+    ``roots`` points that trail at another world — a proof's scratch tree."""
 
     def __init__(self, plan: str | Path, *, roots=None) -> None:
+        super().__init__()
         self._plan = Path(plan)
-        self._roots = roots
+        if roots is not None:
+            self.set_diagnostic_roots(roots)
 
     @classmethod
     def at(cls, ref: str | Path, *, tickets_dir: str | Path | None = None, roots=None) -> "Ticket":
@@ -106,9 +114,8 @@ class Ticket:
                    actor=tid or "ticket", why=f"{tid} queueme at {gate}: queued={queued}")
         trouble = None
         if not queued:
-            from cairn.tools.base.diagnostic import ModuleRaiser
             trouble = f"ticket-unqueued-{tid}-at-{gate}"
-            ModuleRaiser("ticket", roots=self._roots).raise_trouble(
+            self.raise_trouble(
                 trouble, why=f"ticket {tid} asked {GATE_HOLDER} to queue it at {gate} and no "
                              "handler took it; the ticket waits",
                 detail={"fileref": self.fileref, "gate": gate, "reply": body})

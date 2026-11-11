@@ -196,8 +196,42 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
         human-readable text, ``get`` returns JSON for machine consumption. A device that
         declares views gets both for free; a device that declares none honestly refuses.
         Subclasses extend with ``{**super().declared_verbs(), "crossing": ...}``.
+
+        Base also carries every held machine's verbs as ``machines/<name>/<verb>``
+        (``declared_machines()``, ticket 15d850266972), so the shim's lookup, bounce and
+        announce menu carry them with no shim change.
         """
-        return {"show": self._handle_show, "get": self._handle_get}
+        return {"show": self._handle_show, "get": self._handle_get, **self._machine_verbs()}
+
+    def declared_machines(self) -> dict:
+        """The machines this device holds that answer verbs — name → machine object.
+
+        Outline 3.3.4.3 and 9.6 (Akien 2026-11-10): a ticket crosses a gate by asking
+        ``devices/codemother/0/machines/<gate>/queueme <fileref>``. A machine is not its
+        own process (outline 1.3.2), so it rides its holder's bus face: each machine
+        object needs only ``declared_verbs() -> {verb: callable(envelope) -> dict}``,
+        and ``declared_verbs()`` above exposes each as ``machines/<name>/<verb>``.
+        Default empty: a device that holds no answering machine answers show and get.
+        """
+        return {}
+
+    def _machine_verbs(self) -> dict[str, "Callable"]:
+        """``machines/<name>/<verb>`` → handler for every held machine's declared verb.
+
+        A '/' inside a name or verb would make the path ambiguous, so it is refused
+        loudly (Law 7); a held machine without ``declared_verbs()`` is a TypeError."""
+        verbs: dict = {}
+        for name, machine in self.declared_machines().items():
+            table = getattr(machine, "declared_verbs", None)
+            if not callable(table):
+                raise TypeError(f"machine {name!r} is held by {type(self).__name__} but "
+                                "declares no declared_verbs()")
+            for verb, handler in table().items():
+                if "/" in name or "/" in verb:
+                    raise ValueError(f"machine {name!r} verb {verb!r}: a name or verb "
+                                     "may not contain '/'")
+                verbs[f"machines/{name}/{verb}"] = handler
+        return verbs
 
     def declared_views(self) -> dict[str, "Callable"]:
         """The data this device can produce — view name → callable returning a dict.

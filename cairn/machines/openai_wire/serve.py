@@ -28,6 +28,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from cairn.machines.openai_wire import translate
+from cairn.tools.base.diagnostic import DiagnosticBase
 
 STREAM_GAP = "stream=true is not served: the answerer behind this door speaks one whole answer"
 
@@ -35,7 +36,7 @@ STREAM_GAP = "stream=true is not served: the answerer behind this door speaks on
 def make_handler(*, resolve, models):
     """Build a handler class closed over the two injected callables."""
 
-    class OpenAIWireHandler(BaseHTTPRequestHandler):
+    class OpenAIWireHandler(DiagnosticBase, BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
         def log_message(self, *a):  # stderr is for real errors only

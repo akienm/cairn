@@ -104,12 +104,17 @@ def _world(cursor: str = "TICKETME", plan_extra: dict | None = None):
                                 **(plan_extra or {})}, indent=2) + "\n")
     tf.state_path(plan).write_text(json.dumps({"workflow_and_state": _wf(cursor),
                                                "node_class": "code-seam"}, indent=2) + "\n")
+    # Every Ticket sail.py builds files its trail in this world (9ffa5a154a7d): sail.py builds
+    # them with no roots, so the class carries the world's for its life.
+    from cairn.machines.ticket.ticket import Ticket
     roots = {k: tmp / k for k in ("repo", "commons", "instance")}
     was = tf._TICKETS
     tf._TICKETS = store
+    Ticket._diagnostic_roots = roots
     try:
         yield {"tmp": tmp, "store": store, "plan": plan, "roots": roots}
     finally:
+        del Ticket._diagnostic_roots
         tf._TICKETS = was
         shutil.rmtree(tmp, ignore_errors=True)
 

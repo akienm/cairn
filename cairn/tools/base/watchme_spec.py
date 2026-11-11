@@ -314,6 +314,34 @@ def absent_probes(ticket: dict, *, root: Path | str = _REPO_ROOT) -> list[str]:
     return out
 
 
+def forwarded_paths(tickets: list[dict], *, root: Path | str = _REPO_ROOT) -> set[str]:
+    """Every exact path a VALID forwarding order among ``tickets`` says went somewhere.
+
+    Ticket 7088856d2150: a retirement deletes a probe along with its component, and its
+    ticket records where the address went in its ``forwarding`` order (precedent
+    164da559823d). An entry counts only when it is well shaped (``{from: {to, why}}``, all
+    non-empty strings), its ``from`` is gone and its ``to`` is present — the same rule as
+    build_inspector's ``_valid_orders``, held here so a tool does not import a machine
+    (RULE 1). Exact paths only: a folder entry forwards that folder, not what was in it."""
+    def _exists(path: str) -> bool:
+        return (Path(root) / path).exists() or Path(path).expanduser().exists()
+
+    out: set[str] = set()
+    for t in tickets:
+        order = t.get("forwarding") if isinstance(t, dict) else None
+        if not isinstance(order, dict):
+            continue
+        for old, entry in order.items():
+            if not (isinstance(old, str) and old.strip() and isinstance(entry, dict)):
+                continue
+            to, why = entry.get("to"), entry.get("why")
+            if not all(isinstance(v, str) and v.strip() for v in (to, why)):
+                continue
+            if not _exists(old) and _exists(to):
+                out.add(old)
+    return out
+
+
 def stands_watch(ticket: dict, spec: dict, *, root: Path | str = _REPO_ROOT) -> bool:
     """DOES THIS SPEC'S WATCH STAND — is its probe in the population that reports to the watch?
 

@@ -48,7 +48,16 @@ _spec = _Late("cairn.tools.base.watchme_spec")
 
 # The ticket's falsifier is one unnumbered clause ("all"), so ONE composite tooth claims it;
 # the three named teeth below are its parts and still print one by one.
-PROVES = {"693e9f45e6f2": {"all": "test_every_built_probe_spec_names_a_file"}}
+PROVES = {
+    "693e9f45e6f2": {"all": "test_every_built_probe_spec_names_a_file"},
+    "7088856d2150": {
+        "1": "test_no_proved_ticket_names_a_missing_probe",
+        "2": "test_a_ticket_sent_back_for_an_absent_probe_names_it",
+        "3": "test_a_watchme_ticket_naming_nothing_reds",
+        "4": "test_a_valid_forwarding_order_disposes_the_absent_probe",
+        "5": "test_a_broken_or_folder_order_grants_nothing",
+    },
+}
 
 # Beside the checkout when there is one; hollow's /tmp worktree has none, so fall back
 # to where hollow.py itself resolves the commons.
@@ -58,21 +67,28 @@ _CURSOR = re.compile(r"\[([A-Z]+)")
 
 
 def census(tickets: list[dict], repo: Path = _REPO_ROOT) -> list[dict]:
-    """Every (ticket, probe) whose probe file is absent, with the ticket's cursor."""
+    """Every (ticket, probe) whose probe file is absent and not validly forwarded by any
+    ticket in the same list (ticket 7088856d2150), with the ticket's cursor."""
+    forwarded = _spec.forwarded_paths(tickets, root=repo)
     out = []
     for t in tickets:
         m = _CURSOR.search(t.get("workflow_and_state") or "")
         for p in _spec.absent_probes(t, root=repo):
+            if p in forwarded:
+                continue
             out.append({"tid": t.get("id"), "cursor": m.group(1) if m else "?",
                         "probe": p, "fixme": t.get("fixme") or []})
     return out
 
 
 def _corpus() -> list[dict]:
+    """Every ticket read WHOLE — plan and state merged (284798998ab0 D11: a ticket is three
+    files). A glob of *.json read each .state.json as a ticket of its own, with no id."""
+    from cairn.tools.base.ticket_file import plans, read_ticket
     out = []
-    for tp in sorted(_TICKETS.glob("*.json")):
+    for tp in plans(_TICKETS):
         try:
-            out.append(json.loads(tp.read_text(encoding="utf-8")))
+            out.append(read_ticket(tp))
         except (OSError, ValueError):
             continue
     assert out, f"no tickets read under {_TICKETS}"
@@ -80,9 +96,58 @@ def _corpus() -> list[dict]:
 
 
 def test_no_proved_ticket_names_a_missing_probe():
-    bad = [r for r in census(_corpus()) if r["cursor"] == "PROVED"]
-    assert not bad, f"{len(bad)} PROVED ticket(s) name a missing probe:\n" + \
-        "\n".join(f"  {r['tid']}  {r['probe']}" for r in bad)
+    rows = census(_corpus())
+    nameless = [r for r in rows if not r["tid"]]
+    assert not nameless, f"census rows without a ticket id: {nameless}"
+    bad = [r for r in rows if r["cursor"] in ("PROVED", "WATCHME")]
+    assert not bad, f"{len(bad)} PROVED or WATCHME ticket(s) name a missing probe:\n" + \
+        "\n".join(f"  {r['tid']}  {r['cursor']}  {r['probe']}" for r in bad)
+
+
+_GHOST = "cairn/no/such/dir/fixture_probe_that_never_existed.py"
+_PRESENT = "bin/proofs/test_retired_components_are_gone.py"
+
+
+def _fixture(cursor: str, tid: str = "fixture-names-a-ghost") -> dict:
+    return {"id": tid, "workflow_and_state": f"code-seam@v2: THINKME -> PROVEME -> [{cursor}]",
+            "watchme": [{"probe": _GHOST}]}
+
+
+def _forwarder(order: dict) -> dict:
+    return {"id": "fixture-forwarder", "workflow_and_state": "code-seam@v2: [PROVED]",
+            "forwarding": order}
+
+
+def test_a_watchme_ticket_naming_nothing_reds():
+    for cursor in ("PROVED", "WATCHME"):
+        got = census([_fixture(cursor)])
+        assert [(r["tid"], r["cursor"]) for r in got] == [("fixture-names-a-ghost", cursor)], got
+    print("ok test_a_watchme_ticket_naming_nothing_reds")
+
+
+def test_a_valid_forwarding_order_disposes_the_absent_probe():
+    order = {_GHOST: {"to": _PRESENT, "why": "fixture: the retirement deleted it"}}
+    got = census([_fixture("PROVED"), _forwarder(order)])
+    assert got == [], f"a valid forwarding order did not dispose the probe: {got}"
+    print("ok test_a_valid_forwarding_order_disposes_the_absent_probe")
+
+
+def test_a_broken_or_folder_order_grants_nothing():
+    present_from = str(Path(__file__).relative_to(_REPO_ROOT))
+    orders = {
+        "to does not exist": {_GHOST: {"to": "cairn/no/such/target.py", "why": "x"}},
+        "no why": {_GHOST: {"to": _PRESENT, "why": ""}},
+        "parent folder only": {"cairn/no/such/dir": {"to": _PRESENT, "why": "x"}},
+    }
+    for name, order in orders.items():
+        got = census([_fixture("PROVED"), _forwarder(order)])
+        assert [r["tid"] for r in got] == ["fixture-names-a-ghost"], f"{name}: granted {got}"
+    still = {"id": "fixture-still-there", "workflow_and_state": "x [PROVED]",
+             "watchme": [{"probe": present_from}]}
+    assert _spec.forwarded_paths(
+        [_forwarder({present_from: {"to": _PRESENT, "why": "x"}}), still],
+        root=_REPO_ROOT) == set(), "an order whose from still exists was granted"
+    print("ok test_a_broken_or_folder_order_grants_nothing")
 
 
 def test_a_ticket_sent_back_for_an_absent_probe_names_it():

@@ -43,6 +43,21 @@ _FLOOR_GUARD = "CAIRN_CONSTRAIN_FLOOR_RUNNING"  # constrain.py _REENTRY
 _LIVE_STORE_CHARTER = _REPO_ROOT.parent / "CairnCommons" / "tickets" / "_charter+why.json"
 if not _LIVE_STORE_CHARTER.is_file():
     _LIVE_STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
+
+# hollow runs this proof in a worktree with no CairnCommons beside it, where transitions'
+# repo-relative class table points at nothing (measured 2026-11-11, fa4462c803d6's first hollow):
+# so with no sibling, the class-table defaults read the home checkout, for this process only.
+if not (_REPO_ROOT.parent / "CairnCommons").is_dir():
+    from cairn.tools.base import transitions as _transitions
+    _transitions._NODE_CLASSES = _LIVE_STORE_CHARTER.parents[1] / "node_classes"
+    for _fn in (_transitions.emit, _transitions.load_class_def):
+        for _k in ("node_class_root", "root"):
+            if _k in (_fn.__kwdefaults__ or {}):
+                _fn.__kwdefaults__[_k] = _LIVE_STORE_CHARTER.parents[1] / "node_classes"
+    # and the chart doors' ticket-claim check finds the claim (this ticket's own id) in the
+    # commons beside the repo: the same home checkout stands in for it (grammar.ticket_path)
+    from cairn.tools.chain import grammar as _grammar
+    _grammar.ticket_path.__defaults__ = (_grammar.CAIRN_ROOT, str(_LIVE_STORE_CHARTER.parent))
 _WF = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
 _OWNING = "machines/fixture_gate/intention+why.json"
 _STAGES = ["orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate",

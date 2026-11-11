@@ -45,6 +45,17 @@ _LIVE_STORE_CHARTER = (_REPO_ROOT.parent / "CairnCommons" / "tickets" / "_charte
 if not _LIVE_STORE_CHARTER.is_file():
     _LIVE_STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
 
+# hollow runs this proof in a worktree with no CairnCommons beside it, where transitions'
+# repo-relative class table points at nothing (measured 2026-11-11, fa4462c803d6's first hollow):
+# so with no sibling, the class-table defaults read the home checkout, for this process only.
+if not (_REPO_ROOT.parent / "CairnCommons").is_dir():
+    from cairn.tools.base import transitions as _transitions
+    _transitions._NODE_CLASSES = _LIVE_STORE_CHARTER.parents[1] / "node_classes"
+    for _fn in (_transitions.emit, _transitions.load_class_def):
+        for _k in ("node_class_root", "root"):
+            if _k in (_fn.__kwdefaults__ or {}):
+                _fn.__kwdefaults__[_k] = _LIVE_STORE_CHARTER.parents[1] / "node_classes"
+
 
 def _wf(cursor: str) -> str:
     steps = ["THINKME", "TICKETME", "BUILDME", "PROVEME", "PROVED"]

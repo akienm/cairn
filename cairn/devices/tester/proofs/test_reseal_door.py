@@ -55,7 +55,12 @@ PROVES = {
         "7": "test_a_timeout_writes_no_seal_and_bounds_no_repair",
         "8": "test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing",
         "9": "test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list",
-    }
+    },
+    "b65e965237f3": {
+        "1": "test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run",
+        "2": "test_rung_1_clears_nothing_where_no_seal_red_stands",
+        "3": "test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_green",
+    },
 }
 
 # A REAL, CONFIRMED RULING — the one this ticket was cast under. Rung 4 leans on the
@@ -756,6 +761,91 @@ def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_lis
     assert record["standing"] == "CLEARED", record
     assert "cairn test --reseal" in record["resolution"]["what_changed"], (
         "the door's name is provenance and belongs in what_changed")
+
+
+# ── rung 1 settles a standing raise (ticket b65e965237f3) ─────────────────────────────
+
+def _holder(root: Path):
+    """A REAL TroubleDevice over a scratch store, and a raiser wired straight to it — the
+    same seam tooth 9 measures, because what matters is the operator's live list."""
+    from cairn.devices.trouble.trouble import TroubleDevice
+
+    store = root / "troubles"
+    holder = TroubleDevice(root=store)
+
+    class _HolderRaiser:
+        def __init__(self):
+            self.cleared = []
+
+        def raise_trouble(self, identity, *, why, detail=None):
+            holder.raise_trouble(identity, why=why, detail=detail)
+
+        def clear_trouble(self, identity, *, by, what_changed):
+            self.cleared.append(identity)
+            holder.clear(identity, by=by, what_changed=what_changed)
+
+    return holder, store, _HolderRaiser()
+
+
+def test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run():
+    """MEASURED 2026-11-10/11: a seal-red raised while the standing verdict stayed green (a
+    timeout) outlived every later green, because validation_store clears only on a verdict
+    CHANGE and rung 1 returned without a word. Here the proof is sealed green over today's
+    bytes, its seal-red stands live at a real holder, and one reseal must take it off the
+    live list. The tester EXPLODES if called: rung 1 settles from the seal, never by a run."""
+    root, proof = _component()
+    persist_validation(_record(proof, GREEN), proof_path=str(proof))
+    assert standing(str(proof))["proven"], "fixture: the seal must read proven"
+    holder, store, raiser = _holder(root)
+    identity = trouble_identity(proof)
+    holder.raise_trouble(identity, why="fixture: a timeout raised while the seal stayed green")
+    assert [t["id"] for t in holder.live()] == [identity], "fixture: the raise did not land"
+
+    out = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=store)
+    assert out["outcome"] == "unchanged" and out["rung"] == 1 and out["ran"] is False, out
+    assert out["cleared"] == identity, out
+    assert [t["id"] for t in holder.live()] == [], (
+        "rung 1 read the proof proven and the seal-red it stood under is STILL LIVE at the "
+        "holder — a false alarm the green already answered")
+    from cairn.devices.trouble.tools.store.store import live
+    assert [t["id"] for t in live(root=store)] == [], "the published tool still reads it live"
+
+
+def test_rung_1_clears_nothing_where_no_seal_red_stands():
+    """THE BLIND CLEAR STAYS DEAD (ticket 87f0fc7b3514: 5054 clears with no raise behind
+    them, 2026-11-05). Rung 1 fires for every proof on every commit; a clear emitted for each
+    would be that defect at corpus scale. A holder carrying some OTHER trouble, and a holder
+    with no store at all, both draw no clear."""
+    root, proof = _component()
+    persist_validation(_record(proof, GREEN), proof_path=str(proof))
+    holder, store, _ = _holder(root)
+    holder.raise_trouble("seal-red-some-other-proof", why="fixture: a neighbour's raise")
+    raiser = _FakeRaiser()
+    out = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=store)
+    assert out["outcome"] == "unchanged" and out["cleared"] is None, out
+    assert raiser.cleared == [], f"rung 1 cleared with nothing of its own standing: {raiser.cleared}"
+    assert [t["id"] for t in holder.live()] == ["seal-red-some-other-proof"], (
+        "rung 1 cleared a trouble under another proof's identity")
+    out2 = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=root / "no-store-here")
+    assert out2["cleared"] is None and raiser.cleared == [], (out2, raiser.cleared)
+
+
+def test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_green():
+    """A STALE GREEN MAY NOT CLEAR ITS OWN RED. The lane keys on ``standing()['proven']``, not on
+    the seal's verdict: a green whose fingerprint moved is an open question, so it runs, and a
+    run that times out settles nothing — the raise stays live at the holder."""
+    root, proof = _component()
+    persist_validation(_record(proof, GREEN), proof_path=str(proof))
+    (root / "code.py").write_text("VALUE = 3\n", encoding="utf-8")
+    assert not standing(str(proof))["proven"], "fixture: the fingerprint must have moved"
+    holder, store, raiser = _holder(root)
+    identity = trouble_identity(proof)
+    holder.raise_trouble(identity, why="fixture: a standing seal-red")
+    out = reseal(proof, tester=_TimingOut(), raiser=raiser, trouble_root=store)
+    assert out["outcome"] == "timeout", out
+    assert raiser.cleared == [], f"a reseal that was not green cleared {raiser.cleared}"
+    assert [t["id"] for t in holder.live()] == [identity], (
+        "the standing seal-red left the live list though nothing proved the moved bytes")
 
 
 if __name__ == "__main__":

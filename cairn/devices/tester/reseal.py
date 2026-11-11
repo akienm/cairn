@@ -502,10 +502,49 @@ def carry_ladder(record: dict, proof_path, ladder: dict, *, ruling_id: str | Non
     return sealed
 
 
+def _clear_a_raise_a_green_settles(proof: Path, rel: str, raiser, trouble_root=None) -> str | None:
+    """Clear ``proof``'s seal-red when it stands live at the holder; the cleared identity or None.
+
+    Rung 1's half of "one identity from raise to clear" (ticket b65e965237f3). A seal that reads
+    proven over today's bytes settles every raise filed under its identity, and before this
+    lane nothing said so. validation_store clears only on a verdict CHANGE, so a raise filed
+    while the standing verdict stayed green (a timeout, a settled-red lane re-raise) outlived
+    every later green. Measured: seal-red-...-test-codemother stood at 5x after its proof
+    resealed green (2026-11-10), and -test-clearance-reaches-trouble-through-its-tool stood live
+    over a proven seal (2026-11-11).
+
+    THE HOLDER'S LIVE LIST, NOT THE TRAIL. The run lane's ``_stands_raised`` scans the raiser's
+    trail newest first, and that trail held 80,880 records on 2026-11-11. Rung 1 fires for
+    every proof on every commit, and a never-raised proof would read the whole trail, so this
+    lane asks the trouble device's published tool for its standing ids instead (RULE 1: the
+    tool is ``published_by_device``). Only an id that stands is cleared, never a blind clear
+    (ticket 87f0fc7b3514). A holder this lane cannot read leaves the trouble standing:
+    loud and wrong beats quiet and wrong (Law 7)."""
+    identity = trouble_identity(proof)
+    try:
+        from cairn.devices.trouble.tools.store.store import live
+        standing_ids = {t.get("id") for t in live(root=trouble_root)}
+    except Exception:  # noqa: BLE001 — an unreadable holder leaves the trouble standing
+        return None
+    if identity not in standing_ids:
+        return None
+    if raiser is None:
+        from cairn.tools.base.diagnostic import ModuleRaiser
+        raiser = ModuleRaiser("tester")
+    try:
+        raiser.clear_trouble(identity, by=CLEARS_FOR, what_changed=(
+            f"{CALLER}: {rel} reads proven at rung 1 — its green seal still reproduces over "
+            f"today's bytes, so the raise it stood under no longer measures true"))
+    except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
+        return None
+    _RAISED_THIS_RUN.discard(identity)
+    return identity
+
+
 def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None,
            skip_settled: bool = False,
            timeout: int = 120, isolation: str | None = None,
-           index_only: bool = False) -> dict:
+           index_only: bool = False, trouble_root=None) -> dict:
     """ONE proof through the ladder. Runs it, then disposes of what the run measured.
 
     Raises ``ResealRefused`` at rung 4 — BEFORE the run, before any write — when the proof
@@ -532,8 +571,10 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
 
     before = standing(str(proof))
     if before["proven"]:
+        cleared = _clear_a_raise_a_green_settles(proof, rel, raiser, trouble_root)
         return {"proof": rel, "outcome": "unchanged", "rung": 1, "ran": False,
-                "why": before["why"]}
+                "cleared": cleared,
+                "why": before["why"] + (f" — cleared the standing {cleared}" if cleared else "")}
 
     # THE COMMIT IS WHAT IS MEASURED (ticket 42075a49c121): under the hook (index_only), a
     # proof whose closure differs from the index is held BEFORE it runs — no seal, no trouble —
@@ -762,7 +803,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
 
 def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None,
                skip_settled: bool = False, timeout: int = 120,
-               index_only: bool = False) -> dict:
+               index_only: bool = False, trouble_root=None) -> dict:
     """Every proof in ``proofs`` through the ladder; a refusal on one does not end the run.
 
     The same lean as a batch run: one proof whose reseal is refused is not a reason to lose
@@ -773,7 +814,7 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
         try:
             results.append(reseal(proof, ruling_id=ruling_id, tester=tester, raiser=raiser,
                                   skip_settled=skip_settled, timeout=timeout,
-                                  index_only=index_only))
+                                  index_only=index_only, trouble_root=trouble_root))
         except ResealRefused as refusal:
             refusals.append({"proof": _rel(proof), "refusal": str(refusal)})
     counts = {}

@@ -222,6 +222,82 @@ def ask_box_identity(
     return {"id": "box-identity", "status": "applied", "detail": "; ".join(said)}
 
 
+MERGE_DRIVER = "cairn-journal"
+_REPO = Path(__file__).resolve().parents[3]
+
+
+def _driver_fault(root: Path) -> str | None:
+    """Why this repo's journal merge driver is not good, or None when it is.
+
+    Good = the string `cairn artifact install-merge-driver` writes, still true of this box:
+    PYTHONPATH names this checkout, the interpreter exists, and it runs the merge-journal
+    verb. A rebuilt venv or a moved checkout leaves a string that names what is gone."""
+    got = subprocess.run(["git", "-C", str(root), "config", "--get", f"merge.{MERGE_DRIVER}.driver"],
+                         capture_output=True, text=True)
+    drv = got.stdout.strip()
+    if not drv:
+        return "not configured"
+    import shlex
+    try:
+        words = shlex.split(drv)
+    except ValueError as exc:
+        return f"unreadable ({exc}): {drv}"
+    if len(words) < 2 or not words[0].startswith("PYTHONPATH="):
+        return f"not the artifact tool's driver: {drv}"
+    if Path(words[0][len("PYTHONPATH="):]).resolve() != _REPO:
+        return f"points at another checkout ({words[0]}), not {_REPO}"
+    if not Path(words[1]).exists():
+        return f"its interpreter {words[1]} does not exist (venv rebuilt or moved)"
+    if not {"-m", "cairn.tools.artifact", "merge-journal"} <= set(words):
+        return f"does not run cairn.tools.artifact merge-journal: {drv}"
+    return None
+
+
+def ensure_journal_merge_driver(*, roots: dict | None = None, dry_run: bool = False) -> dict:
+    """Ticket 7cfbc64b2a67: every repo root on the box merges .artifact-journal.jsonl with the
+    cairn-journal driver (ticket b7d2e05a1c93), so two sessions' journals meet re-linked.
+
+    The driver lives in .git/config, which git does not carry, so it is a host change and
+    goes through here (outline 6.3.5). The tracked .gitattributes line names it on every
+    clone, and without the config git silently uses its text merge, which forks the chain.
+    It is laid through the artifact tool's own verb (its public interface, RULE 1). No
+    question is asked: a local git config is benign, as box-identity makes keys unasked."""
+    if roots is None:
+        from cairn.tools.artifact.artifact import roots as artifact_roots
+        roots = artifact_roots()
+    sid = "journal-merge-driver"
+    skipped, bad, good = [], {}, []
+    for name, d in roots.items():
+        d = Path(d)
+        if not (d / ".git").exists():
+            skipped.append(f"{name} skipped ({d} is not a git repository)")
+            continue
+        fault = _driver_fault(d)
+        if fault:
+            bad[name] = (d, fault)
+        else:
+            good.append(name)
+    tail = "".join(f"; {s}" for s in skipped)
+    if not bad:
+        return {"id": sid, "status": "already_applied",
+                "detail": f"driver good in {', '.join(good) or 'no repo'}{tail}"}
+    if dry_run:
+        return {"id": sid, "status": "offered",
+                "detail": "; ".join(f"{n}: {f}" for n, (_, f) in bad.items()) + tail}
+    env = dict(os.environ, PYTHONPATH=str(_REPO))
+    for name, (d, fault) in bad.items():
+        r = subprocess.run([sys.executable, "-m", "cairn.tools.artifact", "install-merge-driver", str(d)],
+                           capture_output=True, text=True, cwd=str(_REPO), env=env)
+        after = _driver_fault(d)
+        if r.returncode or after:
+            return {"id": sid, "status": "failed",
+                    "detail": f"RED: {name} ({d}) was {fault}; install-merge-driver exited "
+                              f"{r.returncode}: {(r.stderr or r.stdout).strip()}; now {after or 'good'}"}
+    return {"id": sid, "status": "applied",
+            "detail": "laid in " + ", ".join(f"{n} (was {f})" for n, (_, f) in bad.items())
+                      + (f"; already good in {', '.join(good)}" if good else "") + tail}
+
+
 def install(
     *,
     intentions_dir: Path | None = None,
@@ -314,7 +390,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     home = ask_cairn_home(dry_run=args.dry_run)
-    results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run)] + install(
+    results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run),
+               ensure_journal_merge_driver(dry_run=args.dry_run)] + install(
         intentions_dir=args.intentions_dir,
         dry_run=args.dry_run,
     )

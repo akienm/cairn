@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_installer.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-09T17:50:14",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T06:39:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_lux4g_do/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 13 teeth, all pass",
+      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof__wa2n1g1/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 13 teeth, all pass",
       "stderr_tail": "",
       "teeth_green": [
         "test_cairn_home_question",
@@ -25,7 +25,7 @@
         "test_run_verify_no_command"
       ],
       "teeth_red": [],
-      "test": "test-83fd00b9db55",
+      "test": "test-372bc28f57f0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -47,27 +47,26 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-83fd00b9db55",
-      "source_fingerprint": "f4b8f4fb3c4f96ec7fb8a6da311df51ebb973e24a902becdecac45419712d519",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-372bc28f57f0",
+      "source_fingerprint": "bed95e2795e0681fe7a70c986be0ae65e9dcc4d5ea334daa9a184fdba5af5890",
       "fingerprint_closure": [
         "cairn/machines/installer/__init__.py",
         "cairn/machines/installer/installer.py",
         "cairn/machines/installer/proofs/test_installer.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
-        "cairn/tools/bus_client": "41b784abe7dcbd8b3c692f0b1ef9cf38555abf4a57dae0f5a663a9b8fab7c7ed"
+        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/tools/base": "9757f3b9e44e8dcef1931042955999f03aa19ed34f0ecb0149306c559f6d7899",
+        "cairn/tools/bus_client": "a757376bf1567421ac15353f250dc536c185dde093ec0542b6a525eed4c02e85"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1542806-bcbn8hth/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1299449-hb8gz8kz/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,70 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 120272330,
-          "disk_bytes": 155074560,
-          "entries": 13573,
+          "bytes": 528421809,
+          "disk_bytes": 571695104,
+          "entries": 16556,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "5183005fa134": {
-          "cairn/tools/bus_client/remote.py": [
-            "the LAN port answers only a pinned box and refuses plain TCP",
-            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
-            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
-          ],
-          "cairn/devices/cairn/machines/bus/server.py": [
-            "the LAN port answers only a pinned box and refuses plain TCP",
-            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
-            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
-          ],
-          "cairn/tools/bus_client/tls.py": [
-            "test_a_box_pins_its_peers",
-            "test_box_identity_step",
-            "the LAN port answers only a pinned box and refuses plain TCP",
-            "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
-            "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1"
-          ],
-          "cairn/machines/installer/installer.py": [
-            "test_box_identity_step"
-          ],
-          "cairn/machines/build_inspector/inspector.py": {
-            "notified": "n-81a9241b17f5"
-          },
-          "cairn/devices/inference_domain/proofs/test_host.py": [
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_bare_requests_outbound_body_is_byte_for_byte_undressed",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_chat_call_meters_the_hosts_own_counters",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_malformed_messages_list_never_reaches_the_host",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_non_final_answer_is_refused_by_its_own_name",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_response_carrying_no_done_key_at_all_is_left_alone",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_an_unmetered_chat_answer_is_refused_not_metered_as_zero",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_chat_opens_api_chat_and_nothing_else",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_generals_walk_is_todays_walk_exactly",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_no_other_module_in_the_tree_opens_the_inference_host",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_agent_shapes_are_CHECKED_not_exempted",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_answer_lifts_tool_calls_out_of_the_hosts_message",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_chat_walk_obeys_the_domains_escalation_rule",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_horizon_is_a_construction_policy_and_never_touches_the_request",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_outbound_body_wears_the_named_domains_prompt_content",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_shipped_models_stack_declares_the_chat_verb",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_sole_path_tooth_reds_on_a_planted_dialer",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_the_walk_obeys_the_domains_escalation_rule",
-            "cairn/devices/inference_domain/proofs/test_host.py::test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5183005fa134": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "0e9f98afa9a889f5805aef10b333dee14fd8be94",
-          "anchor_first_build": "8d54f46e76ca16891315f45e681fb0b680a06f74",
-          "commit": "a12fa122ddf3722b08169ea058cbc13d259e2cdf"
+          "reuses": 0
         }
       }
     },

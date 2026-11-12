@@ -31,11 +31,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from cairn.tools.base.address import log_path
+
 DEVICE_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[4]
 LISTENER = DEVICE_DIR / "listener.py"
 UNIT = "cairn-web-server"
-LOG = Path.home() / ".cairn" / "logs" / "web_server.log"
+LOG = log_path("web_server", 0) / "web_server.log"
 HOME_VAR = "CAIRN_HOME_HOST"
 PORT_VAR = "CAIRN_WEB_SERVER_PORT"
 

@@ -1096,14 +1096,11 @@ not matter here. The code catches up to this, never the reverse.
                   (claim, caller, date, method, verdict, evidence, falsifier,
                   horizon).
         9.4.2.3.2 Hollow runs: proves a proof goes red when the build is removed.
-        [Q#87: The hollow proof's live tooth (ticket ce92eb562cf9 clause 6) reads
-                6890cf7e4053's clause-2 tooth in hunk mode. That tooth was deleted
-                with the inference_calls table (98ab0e9db57f), so the clause has no
-                subject and reds forever (measured 2026-11-11). No other live
-                reading has ever used hunk mode, so there is nothing to repoint it
-                at, and fixture teeth 1-5 still cover hunk mode. Does clause 6
-                retire with its subject, as c691's clause 1 did with cairnmap? CC's
-                read: retire it.]
+          9.4.2.3.2.1 A tooth whose live subject was deleted retires with it, when
+                      fixture teeth still cover the behaviour. Akien 2026-11-12,
+                      answering Q#87 (ce92eb562cf9 clause 6 read 6890cf7e4053's
+                      clause-2 tooth, deleted with the inference_calls table by
+                      98ab0e9db57f): "i am good with retiring that".
         9.4.2.3.3 Seals: one current validation per proof, beside the proof. A seal
                   holds while the code it measured is unchanged.
         9.4.2.3.4 A timed-out run is its own outcome, not red.

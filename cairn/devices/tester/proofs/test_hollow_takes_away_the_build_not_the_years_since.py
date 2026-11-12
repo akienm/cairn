@@ -28,8 +28,6 @@ from cairn.devices.tester.hollow import HollowUnmeasurable, measure  # noqa: E40
 from cairn.tools.scratch.scratch import git_env, scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
-PROOF_TIMEOUT_S = 900   # tooth 6 takes a live hollow reading of 6890cf7e4053
-
 PROVES = {
     "ce92eb562cf9": {
         "1": "test_a_checked_build_hunk_reads_ok_in_hunk_mode_not_unran",
@@ -37,7 +35,6 @@ PROVES = {
         "3": "test_a_whole_file_revert_that_runs_keeps_its_reading",
         "4": "test_an_overlapping_later_change_is_unmeasurable_by_name",
         "5": "test_the_seal_carries_revert_mode_per_file",
-        "6": "test_the_live_6890_clause_2_proof_reads_ok",
     },
 }
 
@@ -193,48 +190,10 @@ def test_the_seal_carries_revert_mode_per_file():
     assert seen and seen[0].get("revert_mode") == {"f.py": "hunks"}, seen
 
 
-# 6890cf7e4053 was SUPERSEDED by 98ab0e9db57f, whose build (beec1c90, 2026-11-10) deleted 6890's
-# teeth from test_inference_domain.py, so the live reading at HEAD has no declared teeth and is
-# unmeasurable (measured 2026-11-12: this tooth's seal red since 2026-11-11). The reading is taken
-# instead in a clone standing at the last commit where 6890's teeth stood. Clause 6 names clause 2
-# alone; teeth 1 and 3 read the STANDING table, which 98ab0e9db57f's migration reshaped, so they
-# fail at that commit for a reason that is not hollow's (measured the same day). The clone's proof
-# therefore declares clause 2 only, committed there under a subject that names no ticket.
-_LAST_6890 = "beec1c90^"
-
-
-def _clone_at_last_6890() -> Path:
-    proof_rel = "cairn/devices/inference_domain/proofs/test_inference_domain.py"
-    root = scratch_dir("hollow-6890-") / "cairn"
-    env = git_env()
-    run = lambda *a, cwd=root: subprocess.run(a, cwd=cwd, env=env, check=True,  # noqa: E731
-                                              capture_output=True, text=True)
-    run("git", "clone", "-q", "--shared", "--no-checkout", str(_REPO_ROOT), str(root), cwd=None)
-    run("git", "checkout", "-q", "--detach",
-        run("git", "-C", str(_REPO_ROOT), "rev-parse", _LAST_6890, cwd=None).stdout.strip())
-    p = root / proof_rel
-    text = p.read_text(encoding="utf-8")
-    narrowed = text.replace(
-        '        "1": "test_the_standing_table_refuses_an_out_of_vocabulary_write",\n', "").replace(
-        '        "3": "test_the_probes_row_read_agrees_with_an_actual_write_refusal",\n', "")
-    assert narrowed.count("\n") == text.count("\n") - 2, "6890's PROVES map is not where it stood"
-    p.write_text(narrowed, encoding="utf-8")
-    run("git", "-c", "user.name=hollow-proof", "-c", "user.email=hollow-proof@localhost",
-        "commit", "-q", "--no-verify", "-am", "scratch: the proof declares clause 2 alone")
-    return root
-
-
-def test_the_live_6890_clause_2_proof_reads_ok():
-    """Clause 6, live: 6890cf7e4053's domain.py, whose anchor dies at its own import line, is
-    read in hunk mode and its clause-2 tooth reds — ok, not UNRAN."""
-    root = _clone_at_last_6890()
-    proof = root / "cairn/devices/inference_domain/proofs/test_inference_domain.py"
-    tooth = "test_an_out_of_vocabulary_verdict_is_refused_at_the_database"
-    f = measure("6890cf7e4053", repo_root=root, timeout=300, log=lambda m: None,
-                proofs=[str(proof)])
-    key = "cairn/devices/inference_domain/domain.py"
-    assert key not in f.get("unran", {}), (f.get("unran"), f.get("revert_mode"))
-    assert tooth in f["measured"].get(key, []), (f["measured"], f.get("revert_mode"))
+# Clause 6 (a live reading of 6890cf7e4053's clause-2 tooth in hunk mode) is RETIRED with its
+# subject: that tooth was deleted with the inference_calls table (98ab0e9db57f), no other live
+# reading has used hunk mode, and teeth 1-5 cover hunk mode over the fixture. Outline 9.4.2.3.2,
+# Q#87, Akien 2026-11-12: "i am good with retiring that".
 
 
 if __name__ == "__main__":

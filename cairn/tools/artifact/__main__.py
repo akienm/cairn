@@ -14,13 +14,17 @@ this file only parses and prints, so a proof measures the module and the CLI sta
   cairn artifact install-hook <root>             install the blocking pre-commit check
   cairn artifact check-title <msgfile>           the commit-msg question; exit 2 on refusal
   cairn artifact install-title-hook <root>       install the blocking commit-msg check
+  cairn artifact merge-journal <base> <ours> <theirs>   git's merge driver for the journal
+  cairn artifact install-merge-driver <root>     point the root's git at that driver
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -74,6 +78,33 @@ def _install_title_hook(name: str) -> dict:
     return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12]}
 
 
+MERGE_DRIVER = "cairn-journal"
+
+
+def _merge_journal(ours: str, theirs: str) -> dict:
+    """git's merge driver: the result is written over OURS (%A), as git requires."""
+    p = Path(ours)
+    merged = A.merge_journals(p.read_bytes(), Path(theirs).read_bytes())
+    p.write_bytes(merged)
+    return {"entries": len(merged.splitlines())}
+
+
+def _install_merge_driver(root) -> dict:
+    """The driver lives in the root's .git/config (a host-seam: git cannot carry it); the
+    ``merge=cairn-journal`` line that names it is in the root's tracked .gitattributes. Without
+    the config, git falls back to its text merge, so an uninstalled box is no worse than before."""
+    root = Path(root)
+    if not (root / ".git").exists():
+        raise A.Refused(f"{root} is not a repository")
+    code = Path(__file__).resolve().parents[3]
+    cmd = (f"PYTHONPATH={shlex.quote(str(code))} {shlex.quote(sys.executable)} "
+           f"-m cairn.tools.artifact merge-journal %O %A %B")
+    for key, val in ((f"merge.{MERGE_DRIVER}.name", "the artifact journal, re-linked (cairn artifact)"),
+                     (f"merge.{MERGE_DRIVER}.driver", cmd)):
+        subprocess.run(["git", "-C", str(root), "config", key, val], check=True)
+    return {"root": str(root), "driver": cmd}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="cairn artifact", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -95,6 +126,8 @@ def main(argv=None) -> int:
     sub.add_parser("install-hook").add_argument("root")
     sub.add_parser("check-title").add_argument("msgfile")
     sub.add_parser("install-title-hook").add_argument("root")
+    m = sub.add_parser("merge-journal"); m.add_argument("base"); m.add_argument("ours"); m.add_argument("theirs")
+    sub.add_parser("install-merge-driver").add_argument("root")
     args = ap.parse_args(argv)
 
     try:
@@ -152,6 +185,10 @@ def main(argv=None) -> int:
                 return 2
         elif args.verb == "install-title-hook":
             _out(_install_title_hook(args.root))
+        elif args.verb == "merge-journal":
+            _out(_merge_journal(args.ours, args.theirs))
+        elif args.verb == "install-merge-driver":
+            _out(_install_merge_driver(A.roots()[args.root] if args.root in A.roots() else args.root))
     except A.Refused as exc:
         print(f"artifact {args.verb}: REFUSED — {exc}", file=sys.stderr)
         return 2

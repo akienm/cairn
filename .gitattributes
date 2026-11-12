@@ -11,3 +11,7 @@ cairn/devices/**/bin/* text eol=lf
 # Records are byte-exact artifacts (the artifact door canonical form): LF everywhere, never autocrlf.
 *.json text eol=lf
 *.jsonl text eol=lf
+
+# The artifact journal meets another branch re-linked, never forked (ticket b7d2e05a1c93);
+# the driver is installed per box: cairn artifact install-merge-driver <root>.
+.artifact-journal.jsonl merge=cairn-journal

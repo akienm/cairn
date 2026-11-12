@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_json_record_lands_in_one_canonical_form.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-30T05:58:49",
+    "date": "2026-11-11T23:22:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-fwabuz88/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-fwabuz88/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 4265 records\n\nGREEN",
+      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-63ro9w17/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-63ro9w17/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 5775 records\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_indent_1_record_is_refused_and_nothing_lands",
@@ -17,7 +17,7 @@
         "test_every_live_json_record_is_canonical"
       ],
       "teeth_red": [],
-      "test": "test-54ceeede698a",
+      "test": "test-1cdd6a1ae314",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,6 +34,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -43,16 +44,20 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-54ceeede698a",
-      "source_fingerprint": "3ef7cf1b3c0189c67db203955ad9ff8b53017dc2758ed7a972ff72272d73eb15",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1cdd6a1ae314",
+      "source_fingerprint": "ad7e95dd19eaab398efc46179523c8a5885fb3ec2e2ea2061076f5107add296c",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_json_record_lands_in_one_canonical_form.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "f4f715ad85034f02fa768c0c0f300e2183b9e896e7cfd42a25784f9424b07483",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2298810-ffi9kui7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-858983-e92k0m70/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,11 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114158047,
-          "disk_bytes": 143917056,
-          "entries": 11770,
+          "bytes": 528037469,
+          "disk_bytes": 569839616,
+          "entries": 16041,
           "builds": 1,
-          "reuses": 22
+          "reuses": 1
         }
       }
     },

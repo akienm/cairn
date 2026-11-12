@@ -316,6 +316,54 @@ def verify_chain(root: Path) -> list[str]:
     return faults
 
 
+def _identity(entry: dict) -> str:
+    """What an entry SAYS, without where it hangs: the body less ``prev`` and ``entry``. A copy
+    re-linked by an earlier merge carries a new sha and the same identity."""
+    return json.dumps({k: v for k, v in entry.items() if k not in ("prev", "entry")},
+                      sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
+def _parse_journal(blob: bytes, side: str) -> list[dict]:
+    out = []
+    for n, line in enumerate(blob.decode("utf-8").splitlines(), 1):
+        if line.strip():
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError as exc:
+                raise Refused(f"{side} journal line {n} is not an entry ({exc})")
+    return out
+
+
+def merge_journals(ours: bytes, theirs: bytes) -> bytes:
+    """Two journals that grew apart, met without forking the chain (ticket b7d2e05a1c93).
+
+    Git's text merge of ``.artifact-journal.jsonl`` either conflicts or leaves two entries
+    chained to one ``prev``. Measured 2026-11-11 (6d324d26343d's PROVED push): upstream was
+    already forked at entry 16162, a peer having chained off entry 16018, and the repair was a
+    hand re-link. Here OURS is kept byte for byte, in order. Each entry of THEIRS whose identity
+    OURS lacks is appended in THEIRS' order with ``prev`` and ``entry`` re-linked onto the tail.
+    Its body is never touched. So the result replays clean from genesis (``verify_chain``) and
+    holds every entry either side wrote, once. In a rebase OURS is upstream, so only the
+    replayed commits' entries are re-linked; in a merge it is the branch merged into.
+    """
+    mine = _parse_journal(ours, "ours")
+    have = {_identity(e) for e in mine}
+    tail = mine[-1]["entry"] if mine else "genesis"
+    added = []
+    for e in _parse_journal(theirs, "theirs"):
+        key = _identity(e)
+        if key in have:
+            continue
+        have.add(key)
+        e = {k: v for k, v in e.items() if k not in ("prev", "entry")}
+        e["prev"] = tail
+        e["entry"] = _entry_sha(e)
+        tail = e["entry"]
+        added.append(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n")
+    head = ours if not ours or ours.endswith(b"\n") else ours + b"\n"
+    return head + "".join(added).encode("utf-8")
+
+
 def _append(root: Path, entry: dict) -> dict:
     """Append under a lock: read the tail, chain, write. Two writers cannot fork the chain."""
     jp = journal_path(root)

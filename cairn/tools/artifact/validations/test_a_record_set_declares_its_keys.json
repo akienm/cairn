@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_record_set_declares_its_keys.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-30T05:58:51",
+    "date": "2026-11-11T23:22:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-622vm6pq/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-10-30T11:58:50+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-622vm6pq/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
+      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-p9qof0yl/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-11-12T06:22:42+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-p9qof0yl/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_body_of_declared_keys_lands",
@@ -15,7 +15,7 @@
         "no_charter_refuses_and_the_charter_writes_freely"
       ],
       "teeth_red": [],
-      "test": "test-1b6a064a4d64",
+      "test": "test-0241bf1131f0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,6 +32,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -41,16 +42,20 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1b6a064a4d64",
-      "source_fingerprint": "c7ccfd56abd71244e2c5a3ed843a4615fff4e0115850780161676ad78f53aaa2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0241bf1131f0",
+      "source_fingerprint": "37ffb964c705064e868a6a33ecd9cb53a3db1cb308fa830705b6ff104b167af4",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_record_set_declares_its_keys.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "f4f715ad85034f02fa768c0c0f300e2183b9e896e7cfd42a25784f9424b07483",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2298810-n6b34wrc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-858983-vf41_soj/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,11 +64,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114158047,
-          "disk_bytes": 143917056,
-          "entries": 11770,
+          "bytes": 528037469,
+          "disk_bytes": 569839616,
+          "entries": 16041,
           "builds": 1,
-          "reuses": 23
+          "reuses": 2
         }
       }
     },

@@ -62,9 +62,10 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, Threshold
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 TICKET = "aider-builds-a-piece"
+_TICKET_ID = "6d3e689b0bf8"   # the ticket's 12-hex id; watch_carry moves tickets by id
 
 #: The spec's three words, plus the honest fourth. Read by `_disposition`; never re-spelled
 #: at a call site, so a change here cannot leave one reader on the old vocabulary.
@@ -221,6 +222,36 @@ def _enough(context=None) -> bool:
 #: probe carries: nothing pulses this shim yet, so loudness rides BaseShim.overdue() alone.
 _HORIZON = 1000
 
+
+def _holds(context=None) -> bool:
+    """6d3e689b0bf8's wrong-intent tell: driven edits rewritten by CC more often than they
+    survive. A rate needs its sample, so the reading is taken at `enough` (five recorded) and
+    not before — below it the watch is still counting. `rewritten` and `discarded` are both
+    the hand's; `survived` is the apprentice's (0e0f208bb893, 835b5736bf2b D2)."""
+    context = context or {}
+    rows = _recorded(dispositions(drives_path=context.get("drives_path"),
+                                  root=context.get("root")))
+    if len(rows) < 5:
+        return True
+    survived = sum(1 for r in rows if r["disposition"] == "survived")
+    handed = sum(1 for r in rows if r["disposition"] in ("rewritten", "discarded"))
+    return handed <= survived
+
+
+
+def _verdict(context=None) -> dict:
+    """The carry, plus the finding a falsifying reading owes the gate: the survival counts the
+    wrong-intent tell was read from."""
+    out = _carry(context)
+    if not _holds(context):
+        c = out["counts"]
+        out["finding"] = (f"6d3e689b0bf8 wrong-intent tell: of {out['with_survival']} driven pieces with "
+                          f"survival recorded, {c.get('rewritten', 0)} rewritten and {c.get('discarded', 0)} "
+                          f"discarded by the hand against {c.get('survived', 0)} survived (compared against the "
+                          f"working tree at {out['compared_against']['head']}, the carry's declared hole)")
+    return out
+
+
 PROBE = Probe(
     why="a ticket can pass its physics green while every line the apprentice wrote was "
         "thrown away and rewritten by CC — the offload buying nothing while reporting "
@@ -230,10 +261,11 @@ PROBE = Probe(
         "triage whether the green came from the apprentice or from the hand cleaning up "
         "after it.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "hypothesize", "kind": "edit-survival", "ticket": TICKET,
           "consumer": "Akien at triage — offload-more vs pull-back is his call"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _verdict, holds=_holds),
     enough=_enough,
     thresholds=(
         Threshold(5, "5 in the predicate: len(rows) >= 5",

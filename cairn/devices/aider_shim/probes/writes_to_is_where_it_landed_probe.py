@@ -66,9 +66,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, Threshold
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 TICKET = "a-piece-names-where-its-output-lands"
+_TICKET_ID = "68f1fc073512"   # the ticket's 12-hex id; watch_carry moves tickets by id
 
 #: The dispositions, and there is no sixth. `no-edit` is kept apart from `landed-outside`
 #: for the same reason edit_survival_probe keeps `not-applied` apart from `discarded`: a
@@ -264,6 +265,30 @@ def _enough(context=None) -> bool:
 #: probe carries: nothing pulses this shim yet, so loudness rides BaseShim.overdue() alone.
 _HORIZON = 1000
 
+
+def _holds(context=None) -> bool:
+    """The ticket's falsifier, as its spec words it: the FIRST drive whose edits land outside
+    the piece's declared `writes_to` is the finding and stops the watch. `mixed`, `unknowable`
+    and `no-edit` are not that reading and do not falsify (0e0f208bb893, 835b5736bf2b D2)."""
+    context = context or {}
+    rows = readings(drives_path=context.get("drives_path"),
+                    berths_root=context.get("berths_root"),
+                    root=context.get("root"))
+    return not any(r["disposition"] == OUTSIDE for r in rows)
+
+
+
+def _verdict(context=None) -> dict:
+    """The carry, plus the finding a falsifying reading owes the gate: the drives whose edits
+    landed outside their piece's declared `writes_to`."""
+    out = _carry(context)
+    outside = [r for r in out["rows"] if r["disposition"] == OUTSIDE]
+    if outside:
+        out["finding"] = (f"{len(outside)} drive(s) landed outside the declared writes_to: "
+                          + "; ".join(f"{r.get('ticket')} piece {r.get('piece_index')}" for r in outside))
+    return out
+
+
 PROBE = Probe(
     why="the decompose door now REQUIRES every piece to name where its output lands, and a "
         "required field that does not describe the world is worse than an absent one — it "
@@ -273,12 +298,13 @@ PROBE = Probe(
         "declaration it was handed, and tells the next mind charting a ticket whether a "
         "piece's output address is actually knowable at decompose time.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "decompose", "kind": "piece-output-address", "ticket": TICKET,
           "consumer": "whoever next charts a ticket for the apprentice to build — today "
                       "CC, deciding at decompose time whether a piece's output address is "
                       "knowable"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _verdict, holds=_holds),
     enough=_enough,
     thresholds=(
         Threshold(10, "10 in the predicate: len(rows) >= 10",

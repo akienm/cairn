@@ -66,9 +66,10 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, Threshold
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 TICKET = "aider-shim"
+_TICKET_ID = "d7b4019d2407"   # the ticket's 12-hex id; watch_carry moves tickets by id
 
 #: Instance-space, and the same path fence.DEFAULT_RECORD writes. THE COMMENT HERE USED TO
 #: SAY THIS COULD NOT BE FIXED — "imported rather than re-spelled would be better, and is
@@ -214,6 +215,16 @@ def _enough(context=None) -> bool:
 #: BaseShim.overdue() alone. Re-tune when the beat becomes a real number.
 _HORIZON = 1000
 
+
+def _holds(context=None) -> bool:
+    """d7b4019d2407's falsifier compares CC's tool calls for a shimmed build against building
+    directly, and that column (`cc_calls`) is a declared hole per row, so no row can falsify
+    it yet: the watch is counting, and a watch that never reaches `enough` is a stall the
+    horizon names (BaseShim.overdue), not a single post. Same shape as the openai_wire watch
+    (0e0f208bb893, 835b5736bf2b D2)."""
+    return True
+
+
 PROBE = Probe(
     why="does offloading a build to the apprentice actually yield? The shim can be built, "
         "proved and sealed and still be a net loss — if every shimmed ticket costs CC as "
@@ -222,10 +233,11 @@ PROBE = Probe(
         "that went through the shim, reads whether each passed the UNCHANGED physics, and "
         "carries the cost column as a visible hole until something counts it.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "hypothesize", "kind": "offload-yield", "ticket": TICKET,
           "consumer": "Akien at triage — offload-more vs pull-back is his call"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
     thresholds=(
         Threshold(5, "5 in the predicate: len(complete) >= 5",

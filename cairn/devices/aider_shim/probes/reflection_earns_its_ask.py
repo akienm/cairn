@@ -72,9 +72,10 @@ work is the owner's act.
 
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe, Threshold
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 TICKET = "the-apprentice-learns-its-test-failed"
+_TICKET_ID = "e9b0a8d4fb99"   # the ticket's 12-hex id; watch_carry moves tickets by id
 
 #: The spec's stop-early threshold and its retire threshold, named once so a reader cannot
 #: find two different fives in this file.
@@ -327,6 +328,27 @@ def _enough(context=None) -> bool:
 #: probe carries: nothing pulses this shim yet, so loudness rides BaseShim.overdue() alone.
 _HORIZON = 1000
 
+
+def _holds(context=None) -> bool:
+    """The ticket's falsifier, as its spec words it: either stop-early observation — a reflected
+    drive that ends left-changed-and-failing, or a second ask too small to carry the test's
+    failure — falsifies, at the drive that bore it, whether or not `enough` is met. No such row
+    is the watch still counting (0e0f208bb893, 835b5736bf2b D2)."""
+    context = context or {}
+    return not falsifications(readings(drives_path=context.get("drives_path")))
+
+
+
+def _verdict(context=None) -> dict:
+    """The carry, plus the finding a falsifying reading owes the gate: each stop-early
+    observation with the drive that bore it."""
+    out = _carry(context)
+    if out["falsifications"]:
+        out["finding"] = "; ".join(f"{f['which']} at {f['at']} ({f['ticket']} piece "
+                                   f"{f['piece_index']}): {f['says']}" for f in out["falsifications"])
+    return out
+
+
 PROBE = Probe(
     why="the fix that made a failing test reach the apprentice also made every failing drive "
         "cost a second ask against a metered host, and nothing in the record says whether "
@@ -337,12 +359,13 @@ PROBE = Probe(
         "and loudly on either falsifier — so 'it helps' and 'it helps enough' stay two "
         "questions, and Akien settles the second.",
     trigger=_trigger,
-    to="harbor_master",
+    to="codemother",
+    verb="machines/watchme/watch",
     body={"nexus": "hypothesize", "kind": "reflection-yield", "ticket": TICKET,
           "consumer": "Akien at triage — reflection multiplies asks against a metered host, "
                       "so offload-more vs pull-back is his call; and CC, who is the party "
                       "that would otherwise read num_reflections as convergence"},
-    carry=_carry,
+    carry=watch_carry(_TICKET_ID, _verdict, holds=_holds),
     enough=_enough,
     thresholds=(
         Threshold(_ENOUGH_REFLECTED, "reflected — Five reflected drives with a live second ask — the spec's number, unlowered.",

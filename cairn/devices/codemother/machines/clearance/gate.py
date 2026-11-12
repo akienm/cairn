@@ -105,8 +105,34 @@ class ClearanceGate(DiagnosticBase):
             raise ValueError(f"ticket {ticket.id} stands at {wf.here}, the last step of its "
                              "workflow: there is no next step to cross to")
         target = wf.path[wf.cursor + 1]
-        return {"target": target, "proven_by": self.proven_by(ticket.id, target),
+        proven_by = self.proven_by(ticket.id, target)
+        return {"target": target, "proven_by": proven_by,
+                "validation": self.validation_of(wf, proven_by),
                 **journal_of(ticket, roots=self._roots)}
+
+    def validation_of(self, wf, proven_by: list[str]) -> str | None:
+        """The quorum VALIDATION a human-proved class's crossing out of PROVEME names, or None.
+
+        The chokepoint's quorum seat reads ``emit(..., validation=<path>)`` (transitions.py
+        ``_quorum_gate``); the asker sends only a fileref, so the gate derives it the way the
+        seal derived it: beside the piece the crossings named (``validations_path_for_artifact``,
+        ``<dir>/x.md`` -> ``<dir>/validations/x.json``). Measured 2026-11-12: concept-piece
+        0682e51ab011, sealed by quorum, was refused at clearance because "the crossing names no
+        validation". The first piece whose seal is on disk is named; the seat still reads the
+        file and trusts nothing about it it did not read. Any other class or step: None."""
+        if wf.here != "PROVEME":
+            return None
+        from cairn.tools.base import transitions
+        if not transitions._is_human_proved(transitions.load_class_def(wf.node_class)):
+            return None
+        from cairn.tools.validation_store.validation_store import validations_path_for_artifact
+        _, repo, commons = self._where()
+        for one in proven_by:
+            for piece in ([Path(one)] if Path(one).is_absolute() else [repo / one, commons / one]):
+                seal = Path(validations_path_for_artifact(str(piece)))
+                if seal.is_file():
+                    return str(seal)
+        return None
 
     def proven_by(self, tid: str, target: str) -> list[str]:
         if target == "PROVED":
@@ -183,6 +209,8 @@ class ClearanceGate(DiagnosticBase):
         crossed: dict = {}
 
         def door(workflow, to, **kw):
+            if crossing.get("validation"):
+                kw["validation"] = crossing["validation"]
             crossed["workflow"] = clearance.clear(workflow, to, boat_id=tid, proven_by=proofs, **kw)
             return crossed["workflow"]
 

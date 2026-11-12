@@ -50,6 +50,10 @@ PROVES = {
         "4": "the_live_system_is_untouched",
         "5": "the_shortcuts_are_python_in_the_cairn_bin_and_import_no_other_device",
     },
+    # a817fce02520 clause 4: behind its argument check, a bare verb still acts.
+    "a817fce02520": {
+        "4": "restart_brings_both_back_with_new_pids",
+    },
 }
 
 FAILURES: list[str] = []

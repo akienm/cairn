@@ -139,3 +139,25 @@ def restart() -> int:
     down = stop()
     up = start()
     return 0 if down == 0 and up == 0 else 1
+
+
+USAGE = {
+    "start": "usage: cairn start\n  bring the system up: the ground loop, then the bus. Takes no argument.",
+    "stop": "usage: cairn stop\n  take the system down: the ground loop, then the bus (its shims with it). Takes no argument.",
+    "restart": "usage: cairn restart\n  stop, then start. Takes no argument.",
+}
+VERBS = {"start": start, "stop": stop, "restart": restart}
+
+
+def main(verb: str, argv: list[str]) -> int:
+    """The shortcut's whole body (ticket a817fce02520). -h/--help prints the usage and changes
+    nothing; any other argument is refused with exit 2 before the loop or the bus is touched;
+    no argument runs the verb. `cairn stop --help` once took the live system down."""
+    if argv and argv[0] in ("-h", "--help"):
+        print(USAGE[verb])
+        return 0
+    if argv:
+        import sys
+        print(f"cairn {verb}: unknown argument {argv[0]} (it takes none)", file=sys.stderr)
+        return 2
+    return VERBS[verb]()

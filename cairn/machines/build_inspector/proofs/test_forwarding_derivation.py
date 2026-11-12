@@ -548,28 +548,49 @@ def test_l_the_M_flag_measurement_is_retaken_not_cited(d: str) -> None:
                              text=True, check=True).stdout
         return {tuple(l.split("\t")[1:3]) for l in out.splitlines()
                 if l.startswith("R") and len(l.split("\t")) == 3}
-    m_set = run(["-M"])
-    mc_set = run(["-M", "-C"])
-    m_sources = {pair[0] for pair in m_set}
-    mc_sources = {pair[0] for pair in mc_set}
-    assert m_sources == mc_sources, \
-        ("-C discovers additional SOURCES without --find-copies-harder; if this "
-         "tooth reds, the measurement that disposed the ticket's gate (1) was "
-         "taken wrong and the shipped flags must be revisited. "
-         f"Extra sources: {mc_sources - m_sources}")
-    # THE RECORD IS THE SAME SIZE. An extra record would be a copy git found without
-    # being asked, which is the thing the flag question is actually about.
-    assert len(m_set) == len(mc_set), \
-        ("-C changes the SIZE of the rename record without --find-copies-harder "
-         f"({len(m_set)} vs {len(mc_set)}); the flag measurement must be retaken")
+    # THE COMPARATOR FIRST, OVER FIXTURES: each way -C could beat -M still reds, and the
+    # way -C can only LOSE (2026-11-12) does not.
+    a, b = "x/keep.json", "y/keep.json"
+    assert _flag_reading_problems({(a, b)}, {(a, b), ("x/new.py", "y/new.py")}), \
+        "an extra -C source must red"
+    assert _flag_reading_problems({(a, b)}, {(a, b), (a, "q/keep.json")}), \
+        "an extra -C record over a known source must red"
+    assert _flag_reading_problems({(a, "y/other.json")}, {(a, b)}), \
+        "-C keeping a basename -M loses must red"
+    assert not _flag_reading_problems({(a, b), ("x/lost.json", "y/new.json")}, {(a, b)}), \
+        "a pair -C loses to a copy record casts no -C vote, so -M is not worse"
 
-    # AND WHERE THEY DISAGREE ON A TARGET, -M IS NEVER THE WORSE READING — measured
-    # by the only property the consumer reads off a pair, not by a list of filenames.
+    problems = _flag_reading_problems(run(["-M"]), run(["-M", "-C"]))
+    assert not problems, \
+        ("the measurement that disposed the ticket's gate (1) was taken wrong and the "
+         "shipped flags must be revisited: " + "; ".join(problems))
+
+
+def _flag_reading_problems(m_set: set, mc_set: set) -> list[str]:
+    """Every way the -M -C reading beats the shipped -M one. Empty means -M is never worse.
+
+    -C may FIND what -M cannot: an extra source or an extra record is a copy git found
+    without being asked, which is the thing the flag question is about, so both red.
+    -C may also LOSE a pair -M keeps. Measured 2026-11-12 at 3b8320c6: -C paired a new
+    validation file with a copy source (C059), so the -M rename of
+    test_clearance_reaches_trouble_through_its_tool.json had no -C counterpart (731 vs 730
+    records). A lost pair casts no -C vote, so it can never make -M the worse reading.
+    The old equality checks redded on it; the claim they guarded never did.
+
+    Where the two disagree on a source's targets, -M is never the worse reading. That is
+    measured by the only property the consumer reads off a pair, not by a list of filenames.
+    """
     m_by_source: dict = {}
     mc_by_source: dict = {}
     for bucket, pairs in ((m_by_source, m_set), (mc_by_source, mc_set)):
         for old_path, new_path in pairs:
             bucket.setdefault(old_path, set()).add(new_path)
+    problems = []
+    extra = set(mc_by_source) - set(m_by_source)
+    if extra:
+        problems.append(f"-C discovers additional SOURCES: {sorted(extra)}")
+    if mc_set - m_set and len(mc_set) > len(m_set):
+        problems.append(f"-C grows the rename record ({len(m_set)} vs {len(mc_set)})")
 
     def _votes(source: str, targets) -> int:
         """How many of these targets could cast a directory vote for this source.
@@ -582,16 +603,15 @@ def test_l_the_M_flag_measurement_is_retaken_not_cited(d: str) -> None:
         return sum(1 for t in targets if t.endswith("/" + tail))
 
     worse = {}
-    for source, m_targets in m_by_source.items():
+    for source in set(m_by_source) | set(mc_by_source):
+        m_targets = m_by_source.get(source, set())
         mc_targets = mc_by_source.get(source, set())
-        if m_targets == mc_targets:
-            continue
-        if _votes(source, m_targets) < _votes(source, mc_targets):
+        if m_targets != mc_targets and _votes(source, m_targets) < _votes(source, mc_targets):
             worse[source] = {"-M": sorted(m_targets), "-M -C": sorted(mc_targets)}
-    assert not worse, \
-        ("-C preserves a source's basename where -M does not, so the shipped -M "
-         "record would lose a directory vote that copy detection keeps. The flag "
-         f"choice must be revisited: {worse}")
+    if worse:
+        problems.append("-C preserves a source's basename where -M does not, so the shipped "
+                        f"-M record would lose a directory vote that copy detection keeps: {worse}")
+    return problems
 
 
 def test_m_the_live_corpus_holds_the_two_ended_invariant(d: str) -> None:

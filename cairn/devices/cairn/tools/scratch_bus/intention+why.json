@@ -18,7 +18,7 @@
   },
   "entry": "Born 2026-11-11 under ticket a695aee4d89b: two functions over BusDevice.scratch and the BusShim constructor, no new behaviour.",
   "invoke": "from cairn.devices.cairn.tools.scratch_bus import scratch_bus; then with scratch_bus.scratch_bus('prefix') as bus: and roster.hold(scratch_bus.bus_shim(bus, roster)). Prove: bin/cairn test cairn/devices/cairn/tools/scratch_bus/proofs/test_a_proof_gets_a_bus_of_its_own.py",
-  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): each bus it yields lives on a scratch table that drops on exit. Its voyages ride history.json and state.json beside this charter.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): each bus it yields lives on a scratch table that drops on exit. Its voyages ride history.json and state.json beside this charter, born at this address's first crossing (ticket a695aee4d89b's BUILDME waits on Q#86).",
   "proof": "proofs/test_a_proof_gets_a_bus_of_its_own.py — a post on the yielded bus is read back and stands undelivered with no shim wired, flush empties the ring into the store, the scratch table is gone after exit, bus_shim returns the bus's own shim over that bus, and the encapsulation sieve admits an outside import of this module while still redding one of the bus machine.",
   "gates": "Import gate — encapsulation_holds in build_inspector admits a reach into the cairn device through this tool because this charter says published_by_device. Seal: the tester seals the proof into validations/.",
   "falsifier": "Red if a post on the yielded bus does not stand in its store, if the scratch table outlives the context, if bus_shim builds anything but the bus's own shim, or if this charter stops declaring published_by_device.",

@@ -291,10 +291,27 @@ def _snapshot_ignore(directory: str, names: list[str]) -> set:
         return set(names)
     if Path(directory) == Path(_INSTANCE_ROOT) / _LOGS:
         return set(names)
+    if _is_metrics_recorder(directory):
+        from cairn.tools.data_recorder.data_recorder import RECORDS_FILE
+        return {n for n in names if n == RECORDS_FILE}
     # A unix socket or a fifo is a live process's endpoint, not state: a copy names nothing
     # and copytree cannot make one (ENXIO). Since ticket 48519f4789b1 the bus process keeps
     # ``bus.sock`` in its instance folder, and every sealed run snapshots instance-space.
     return {n for n in names if _is_endpoint(os.path.join(directory, n))}
+
+
+def _is_metrics_recorder(directory: str) -> bool:
+    """A holder's metrics recorder (``<holder>/tools/data_recorder/metrics/``) arrives with its
+    directory and its declaration but none of its waiting records (ticket 5bcceb08973f).
+
+    A metrics collect under the seal drains the snapshot's copy into the ONE shared metrics
+    table, which the seal does not cover. Measured 2026-11-10: each sealed run re-landed the
+    live recorder's waiting records, and a dedupe removed 199,215 copies. The other data
+    recorders keep their records: only metrics have a collect that writes outside the swap.
+    """
+    from cairn.tools.metric.metric import RECORDER
+    return Path(directory).parts[-3:] == ("tools", "data_recorder", RECORDER)
+
 
 
 def _is_endpoint(path: str) -> bool:

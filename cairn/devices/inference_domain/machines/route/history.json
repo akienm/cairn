@@ -1520,5 +1520,91 @@
     "fingerprint": "9f48c30a836442c664c842e3ffe8dd445b28cf595128363f55071deec7b58b0b",
     "at": "2026-11-11T20:49:35",
     "seq": 4
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "ae6bdf48b76d",
+    "actor": "CC",
+    "why": "hollow_unreadable: with route.py reverted the proof's runner raised out of its loop on the first red and printed no tooth line, so the hollow could not read which teeth caught the revert",
+    "proven_by": [
+      "cairn/devices/inference_domain/machines/route/proofs/test_route_reads_its_walk_order_from_the_nest.py"
+    ],
+    "missing": [
+      "the proof's runner must run every tooth and print PASS or FAIL per tooth, returning 1 on any failure (house runner), so a hollow reading over the reverted route.py can name the teeth that caught it"
+    ],
+    "fingerprint": "ec607bd8f89bacedda56b06898c7bf4ab3a81f97d01807585d4bd0e69399130a",
+    "at": "2026-11-11T20:50:30",
+    "seq": 5
   }
 ]

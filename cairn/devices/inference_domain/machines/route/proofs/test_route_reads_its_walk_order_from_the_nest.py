@@ -242,9 +242,18 @@ def test_refusals_unchanged():
 def _main() -> int:
     checks = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     assert sorted(c.__name__ for c in checks) == sorted(PROVES["ae6bdf48b76d"].values()), f"the derived roster changed: {len(checks)}"
-    for check in checks:
-        check()
-        print(f"  PASS  {check.__name__}")
+    failed = []
+    for check in checks:                    # the house runner: every tooth runs and is said
+        try:
+            check()
+        except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
+            failed.append(check.__name__)
+            print(f"  FAIL  {check.__name__}: {type(exc).__name__}: {exc}")
+        else:
+            print(f"  PASS  {check.__name__}")
+    if failed:
+        print(f"RED — {len(failed)} of {len(checks)} teeth failed: {', '.join(failed)}")
+        return 1
     print("green — route sorts nothing, walk_rank ranks inside the nest as its one postprocess "
           "sieve, the walk is the old sort-and-reorder element for element, the rank cuts "
           "nothing, test_route.py holds, and the refusals stand")

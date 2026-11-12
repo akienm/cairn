@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_route_reads_its_walk_order_from_the_nest.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T20:15:28",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T20:52:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_walk_order_is_byte_identical"
       ],
       "teeth_red": [],
-      "test": "test-98744a288b3b",
+      "test": "test-c7606ecb56b7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "bb1b173da51850d87f6187af68ccaf549dd3e06b4d7d1345b5229f21b45202c0",
+        "proof": "4e0b61ae26689cb0231dad3325aa4ac0432a663378a688cdbfe0e45098b99c00",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-98744a288b3b",
-      "source_fingerprint": "0bfd5e0cadb6f4b43b0b66f168d88d6db50efabc7f6bd353f149ad6cbbd96f6c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c7606ecb56b7",
+      "source_fingerprint": "418594a671726c13a993188230cdc104ba3c0ad45fa24c51b63245324a75ae1e",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/machines/route/__init__.py",
         "cairn/devices/inference_domain/machines/route/proofs/test_route.py",
@@ -55,14 +54,14 @@
       ],
       "reached": {
         "cairn/devices/inference_domain": "045280870d7161a950fc0e6661ce4f5cd8d81504882a42a6e0291bc5caf402ae",
-        "cairn/devices/tester": "f5282822e5cf797ab84996e4c38800b28695b60bea3ffe4e1e51357cca16690a",
+        "cairn/devices/tester": "fc6fc418108807150996768c241bb80390e0601059f3a47b08eef23110587201",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-765528-8odsr9nl/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-781041-3k797r1l/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,31 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 527753989,
-          "disk_bytes": 568242176,
-          "entries": 15622,
+          "bytes": 527759559,
+          "disk_bytes": 568262656,
+          "entries": 15625,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "ae6bdf48b76d": {
-          "cairn/devices/inference_domain/machines/route/route.py": {
-            "unreadable": [
-              "cairn/devices/inference_domain/machines/route/proofs/test_route_reads_its_walk_order_from_the_nest.py"
-            ]
-          }
-        }
-      },
-      "hollow_anchor": {
-        "ae6bdf48b76d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "74ce019bff6aab2710bd1b2ef0bec13657b0acdc",
-          "anchor_first_build": "25d76de0c1227fa3fddb74ca69add5fe175b729b",
-          "commit": "74ce019bff6aab2710bd1b2ef0bec13657b0acdc",
-          "revert_mode": {
-            "cairn/devices/inference_domain/machines/route/route.py": "hunks"
-          }
         }
       }
     },

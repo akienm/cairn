@@ -7,20 +7,17 @@ claim (PROVES keys follow the falsifier markers): (a) no source outside
 walk over every .py under ``cairn/`` that is not a proof or a probe (instruments may read
 what they measure; ``device_isolation_holds`` draws the same line), which is the
 falsifier's ``grep`` taken the way the sieve takes it and widened from the devices to the
-TOOL that used to hold the door; (b) the path that used to go around the bus now rides
-it: a surface built with NO bus and NO injected door (aider's venv subprocess) asks
-``resolve`` and ``get`` of ``inference_domain`` on the bus ``bus_client.inference_bus``
-hands it, and ``bus_client.models_stack()`` is a ``get`` on that same bus, never a call
-into the domain; (c) that bus is real — ``inference_bus()`` wires inference_domain's shim
-in-process and answers ``get``/``what=models`` with a non-empty stack, so the door the
-no-bus path leans on exists.
+TOOL that used to hold the door; (b) ``bus_client.models_stack()`` is a ``get`` on the bus
+``reach`` hands it, never a call into the domain; (c) that bus is real — ``inference_bus()``
+wires inference_domain's shim in-process and answers ``get``/``what=models`` with a non-empty
+stack. That aider's no-bus surface (its venv subprocess) rides that bus is aider_shim's to
+prove, and it does at its own address (ticket 51fa6654ed3e); this proof imports no aider_shim
+module (RULE 1, ticket 30b03739df9c).
 
 A HOLLOW BUILD COULD NOT PASS THIS: reverting bus_client restores ``inference_seam`` (the
-import walk reds, and ``inference_bus`` is gone); reverting interceptor.py makes the no-bus
-surface reach for ``inference_seam`` instead of the bus (the fake bus sees no ``resolve``).
-Measured 2026-09-18 before the build: the walk found two imports, both in
-``cairn/tools/bus_client/bus_client.py`` (``inference_seam``, ``models_stack``), and the
-no-bus surface called ``domain.resolve`` in-process.
+import walk reds, and ``inference_bus`` is gone). Measured 2026-09-18 before the build: the
+walk found two imports, both in ``cairn/tools/bus_client/bus_client.py`` (``inference_seam``,
+``models_stack``), and the no-bus surface called ``domain.resolve`` in-process.
 """
 
 from __future__ import annotations
@@ -80,16 +77,9 @@ def test_no_source_outside_the_owner_imports_inference_domain():
     assert not offenders, "source outside inference_domain imports it directly:\n  " + "\n  ".join(offenders)
 
 
-def fence_provider() -> str:
-    """The provider the device's own fence allows — the scripted reply must sit inside it,
-    or the fence (rightly) refuses the answer before this tooth can read the route."""
-    from cairn.devices.aider_shim.fence import Fence
-    return list(Fence().providers)[0]
-
-
 class _RecordingBus:
-    """Answers ``get``/``what=models`` with a declared stack and ``resolve`` with a scripted
-    reply; records every request so the tooth can say which door was knocked on."""
+    """Answers ``get``/``what=models`` with a declared stack; records every request so the
+    tooth can say which door was knocked on."""
 
     def __init__(self, stack: dict, model: str):
         self.stack = stack
@@ -103,41 +93,7 @@ class _RecordingBus:
             assert kw["body"] == {"what": "models"}, kw
             return {"body": {"accepted": True, "verb": "get", "view": "models",
                              "device": "inference_domain", "data": self.stack}}
-        if kw["verb"] == "resolve":
-            return {"body": {"answer": {"text": "pong", "role": "assistant"}, "hit": False,
-                             "canonical": "c", "cost": 1,
-                             "provenance": {"provider": fence_provider(), "domain": "coding",
-                                            "model": self.model}}}
         raise AssertionError(f"unexpected verb on the bus: {kw['verb']}")
-
-
-def test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus():
-    from cairn.tools import bus_client as bc
-    from cairn.devices.aider_shim import interceptor
-    from cairn.devices.aider_shim.fence import Fence, SeenLog
-
-    fence = Fence()
-    model = fence.models[0]
-    bus = _RecordingBus({"models": [{"name": model}]}, model)
-    built = []
-
-    def _fake_inference_bus():
-        built.append(1)
-        return bus
-
-    saved = bc.inference_bus
-    bc.inference_bus = _fake_inference_bus
-    try:
-        mod = interceptor.build(fence=fence, log=SeenLog(record_path=None))
-        out = mod.completion(model=model, messages=[{"role": "user", "content": "ping"}])
-    finally:
-        bc.inference_bus = saved
-    assert built == [1], f"the surface builds ONE reach bus on first need, saw {len(built)}"
-    verbs = [r["verb"] for r in bus.seen]
-    assert verbs == ["get", "resolve"], f"the no-bus surface asks the stack then resolves, over the bus: {verbs}"
-    assert all(r["sender"] == "aider_shim" for r in bus.seen), bus.seen
-    assert bus.seen[1]["body"]["model"] == model, bus.seen[1]
-    assert out.choices[0].message.content == "pong", out
 
 
 def test_the_tools_models_stack_is_a_get_on_the_bus():
@@ -170,10 +126,11 @@ def test_the_reach_bus_is_real_and_inference_domain_answers_on_it():
 
 
 def test_every_inference_call_rides_the_bus():
-    """The declared tooth: the falsifier whole — zero direct imports outside the owner,
-    the no-bus surface on the bus, the tool's stack seam on the bus, and the bus real."""
+    """The declared tooth: the falsifier whole — zero direct imports outside the owner, the
+    tool's stack seam on the bus, and the bus real. The no-bus surface's half is aider_shim's
+    and is proved at its own address (ticket 51fa6654ed3e,
+    cairn/devices/aider_shim/proofs/test_the_no_bus_surface_asks_over_a_reach_bus.py)."""
     test_no_source_outside_the_owner_imports_inference_domain()
-    test_a_surface_with_no_bus_asks_inference_domain_over_a_reach_bus()
     test_the_tools_models_stack_is_a_get_on_the_bus()
     test_the_reach_bus_is_real_and_inference_domain_answers_on_it()
 

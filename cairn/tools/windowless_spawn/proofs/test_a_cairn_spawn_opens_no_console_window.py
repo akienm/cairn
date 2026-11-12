@@ -109,15 +109,38 @@ def a_spawned_child_leaves_no_console_in_its_tree():
         child.kill()
 
 
-def no_site_hand_builds_a_flag_set():
+HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",
+                '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
+
+
+def unhelped_sites(root: Path) -> list[str]:
+    """Scan every non-proof .py under root/cairn that spawns (Popen) or builds a flag set, and name
+    each that does not take its keywords from the helper or that hand-builds a flag. Scans; no list."""
     bad = []
-    for rel in SITES:
-        text = (REPO / rel).read_text(encoding="utf-8")
+    base = Path(root) / "cairn"
+    for p in sorted(base.rglob("*.py")):
+        rel = p.relative_to(root).as_posix()
+        if "/proofs/" in rel or p.name == "windowless_spawn.py" or "/__pycache__/" in rel:
+            continue
+        try:
+            text = p.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        spawns = "Popen(" in text
+        hand = [n for n in HAND_NEEDLES if n in text]
+        if not (spawns or hand):
+            continue
         if "detached_kwargs" not in text:
-            bad.append(f"{rel}: does not take its keywords from the helper")
-        for needle in ("start_new_session=True", "creationflags="):
-            if needle in text:
-                bad.append(f"{rel}: hand-builds {needle}")
+            bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
+        for n in hand:
+            bad.append(f"{rel}: hand-builds {n}")
+    return bad
+
+
+def no_site_hand_builds_a_flag_set():
+    missing = [rel for rel in SITES if not (REPO / rel).exists()]
+    assert not missing, f"a known site is gone: {missing}"
+    bad = unhelped_sites(REPO)
     assert not bad, "\n".join(bad)
 
 

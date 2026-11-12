@@ -32,6 +32,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
+from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
 
 DEVICE_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -132,11 +133,7 @@ def _note(log: Path, text: str) -> None:
 def _detached(argv: list[str], log: Path) -> int:
     log.parent.mkdir(parents=True, exist_ok=True)
     kw: dict = {"cwd": str(REPO_ROOT), "stdin": subprocess.DEVNULL,
-                "env": {**os.environ, "PYTHONPATH": str(REPO_ROOT)}}
-    if os.name == "nt":
-        kw["creationflags"] = 0x00000008 | 0x08000000   # DETACHED_PROCESS | CREATE_NO_WINDOW
-    else:
-        kw["start_new_session"] = True
+                "env": {**os.environ, "PYTHONPATH": str(REPO_ROOT)}, **detached_kwargs()}
     with open(log, "ab") as fh:
         return subprocess.Popen(argv, stdout=fh, stderr=fh, **kw).pid
 

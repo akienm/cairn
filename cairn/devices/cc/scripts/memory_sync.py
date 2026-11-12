@@ -46,10 +46,18 @@ def push() -> int:
     git("add", "-A")
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     git("commit", "-q", "-m", f"memory from {platform.node()} {stamp}")
-    detach = ({"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW}
-              if os.name == "nt" else {"start_new_session": True})
+    # This script runs by absolute path with no PYTHONPATH (memory_link.py names it that way), so the
+    # repo root joins sys.path here and the helper is imported at call time. If cairn is not there the
+    # push is skipped aloud, never failing the Stop hook; the next SessionStart pull pushes what is ahead.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+    try:
+        from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
+    except ImportError as exc:
+        print(f"CC MEMORY SYNC: push skipped, the spawn helper is not importable ({exc}); "
+              f"the next SessionStart pull pushes it", file=sys.stderr)
+        return 0
     subprocess.Popen(["git", "-C", str(CLONE), "push", "-q"], stdin=subprocess.DEVNULL,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **detach)
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **detached_kwargs())
     return 0
 
 

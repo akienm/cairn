@@ -339,6 +339,16 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         # envelope already in flight, so genuinely new mail arriving during a handler is still
         # delivered on the same poke.
         self._in_flight: set = set()
+        # ENVELOPES A NESTED DRAIN ALREADY TOOK (ticket 1c5e0e7a9d42). The outer drain works
+        # from a snapshot of ``undelivered``; a handler that ASKS (request -> the server's
+        # _serve_held) drains this mailbox again from inside, and that inner drain takes the
+        # rest of the snapshot. Without this the outer loop then hands each of them over a
+        # second time. MEASURED 2026-11-12 03:09:50-51 UTC: three asks CC had given up on were
+        # delivered to codemother 2, 2 and 3 times in 1.7 s; the first reply to each was
+        # receipted bus-asker-gave-up and the four after it stood as mail-cc-stood-600s (20x).
+        # Cleared when the outermost drain returns, so it never grows past one batch.
+        self._taken_in_drain: set = set()
+        self._drain_depth = 0
         # The mail troubles this process has already cleared (ticket 7cb1989e7825): a take
         # is a measured green, and one clear per identity per process is enough — the trouble
         # shim declines a clear on a non-live identity, so the first is cheap and the rest
@@ -669,17 +679,30 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         measurement."""
         if self._bus is None:
             return None
+        self._drain_depth += 1
+        try:
+            return self._drain_mail()
+        finally:
+            self._drain_depth -= 1
+            if self._drain_depth == 0:
+                self._taken_in_drain.clear()
+
+    def _drain_mail(self) -> dict | None:
+        """One pass of ``_check_mail`` — see its docstring; this is its body."""
         try:
             waiting = self._bus.undelivered(to=self.device_id, limit=self._MAIL_LIMIT)
         except Exception:  # noqa: BLE001 — an unreachable store cannot stop the pulse
             return None
-        waiting = [e for e in waiting if e.get("id") not in self._in_flight]
+        waiting = [e for e in waiting if e.get("id") not in self._in_flight
+                   and e.get("id") not in self._taken_in_drain]
         if not waiting:
             return None
         delivered = []
         refused = []
         for envelope in waiting:
             eid = envelope.get("id")
+            if eid in self._taken_in_drain:
+                continue
             self._in_flight.add(eid)
             try:
                 taken = self.deliver(envelope)
@@ -692,6 +715,7 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
                 continue
             finally:
                 self._in_flight.discard(eid)
+            self._taken_in_drain.add(eid)
             try:
                 self._bus.record_delivery(
                     envelope["id"], to=self.device_id, by=self.device_id)

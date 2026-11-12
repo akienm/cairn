@@ -1,0 +1,91 @@
+[
+  {
+    "claim": "proof test_aider_probes_report_to_the_watchme_gate.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T10:48:34",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_each_probe_posts_to_the_watchme_gate_with_its_own_ticket\n  ok   test_each_predicate_reads_its_own_falsifier\n  ok   test_each_spec_names_the_watchme_gate_as_receiver\n3/3 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_each_probe_posts_to_the_watchme_gate_with_its_own_ticket",
+        "test_each_predicate_reads_its_own_falsifier",
+        "test_each_spec_names_the_watchme_gate_as_receiver"
+      ],
+      "teeth_red": [],
+      "test": "test-fbd21bad7454",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "aa3c4bb7c514a4e3b2c829303274be5ff6acc774c71591a5ddd0002885fe3970",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fbd21bad7454",
+      "source_fingerprint": "0a0d038e485b1cb7f819c9c03bf1312326362303e9c90fa9533c5ff88a4a00d3",
+      "fingerprint_closure": [
+        "cairn/devices/aider_shim/__init__.py",
+        "cairn/devices/aider_shim/driver.py",
+        "cairn/devices/aider_shim/fence.py",
+        "cairn/devices/aider_shim/interceptor.py",
+        "cairn/devices/aider_shim/probes/edit_survival_probe.py",
+        "cairn/devices/aider_shim/probes/offload_yield_probe.py",
+        "cairn/devices/aider_shim/probes/reflection_earns_its_ask.py",
+        "cairn/devices/aider_shim/probes/writes_to_is_where_it_landed_probe.py",
+        "cairn/devices/aider_shim/proofs/test_aider_probes_report_to_the_watchme_gate.py",
+        "cairn/devices/aider_shim/translate.py",
+        "cairn/devices/aider_shim/venv.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/tools/base": "9757f3b9e44e8dcef1931042955999f03aa19ed34f0ecb0149306c559f6d7899",
+        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1582175-wm9y8ml4/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 529125977,
+          "disk_bytes": 574242816,
+          "entries": 17144,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

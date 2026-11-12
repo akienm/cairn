@@ -31,7 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "96f71a89a0fa"
 _RETIRED = "learns"
 _FIELD = "how_it_learns"
-_VALIDATION = "cairn/machines/build_inspector/validations/test_inspector.json"
+_VALIDATION = "cairn/machines/build_inspector/validations/test_one_mouth_answers_the_learning_question.json"
 _TOOTH = "learning_declared refuses the retired field"
 _HORIZON = 1000
 # The first-clause yes/no reading the contradiction count comes from (D5). Not tuned to any

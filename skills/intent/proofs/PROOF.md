@@ -1,6 +1,6 @@
 # Proof — skill:/intent
 
-**The obligation is discharged. This file is now a pointer, not an IOU.**
+**The obligation is discharged. This file is now a pointer.**
 
     python3 skills/intent/proofs/test_intent_skill.py     # exit 0 = green
 
@@ -23,7 +23,7 @@ behind instead of leaving the conversation.
 The skill class's derivation gate, and the tooth here that ran it, retired with the tool
 that compiled the old help map (ticket `d547b4859f9a`, outline 19.6): `cairn help` is
 the one help surface (2.4.2). Before it went, that tooth earned its keep: written
-asserting a stale IOU, it went red on its first run, and its first real run caught
+asserting a stale obligation, it went red on its first run, and its first real run caught
 `cairn/machines/skill_block/` standing with no charter. An executable proof can go
 stale loudly; a recorded obligation cannot.
 

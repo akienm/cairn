@@ -57,7 +57,7 @@ _OWNING_TICKET = "the-domain-carries-the-inference-side"
 _ERA = datetime.fromisoformat("2026-08-08T20:19:58-06:00")
 
 # The clear's denominator floor: below it, all-marked is silence, not health.
-# A hand-set constant is a learns-its-gates IOU, named at the owning ticket's horizon.
+# The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _ENOUGH = 12
 
 
@@ -142,7 +142,7 @@ def _carry(context: dict) -> dict:
                         "second door"}
 
 
-# Same placeholder horizon, same tracked debt, as the probes at cairn/tools/base: the beat
+# Same placeholder horizon as the probes at cairn/tools/base: the beat
 # rate is not yet a real number; 1000 pulses is "clearly a long standing" until it is.
 _HORIZON = 1000
 

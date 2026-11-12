@@ -65,9 +65,8 @@ _DENIED_AT_PROVED = (
 )
 
 # The clear's denominator floor: below it, an unchanged denied set is silence, not
-# evidence. A hand-set constant is a learns-its-gates IOU, named at the owning ticket's
-# horizon rather than solved here — the same debt, and the same disclosure, as the
-# inference route probe's _ENOUGH.
+# evidence. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank,
+# as for the inference route probe's _ENOUGH.
 _ENOUGH = 10
 
 
@@ -150,7 +149,7 @@ def _carry(context: dict) -> dict:
                         "failing, and the two are told apart by the commit that added it"}
 
 
-# Same placeholder horizon, same tracked debt, as the probes at cairn/tools/base and
+# Same placeholder horizon as the probes at cairn/tools/base and
 # cairn/devices/inference_domain: the beat rate is not yet a real number.
 _HORIZON = 1000
 

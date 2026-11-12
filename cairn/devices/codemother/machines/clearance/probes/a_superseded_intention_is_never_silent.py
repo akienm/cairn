@@ -72,8 +72,8 @@ _OWNING_TICKET = "a-superseded-intention-is-never-silent"
 
 # The ticket's own ``enough``, transcribed rather than freshly chosen: "three live
 # supersessions". Three because a supersession of an intention with zero boats proves
-# nothing about the interesting case. A hand-set constant in a gate is a learns-its-gates
-# IOU; this one is owed to the ticket that set it, and the ticket is named right here.
+# nothing about the interesting case. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank;
+# the ticket that set it is named right here.
 _ENOUGH_RETIREMENTS = 3
 
 # How many escapes ride back verbatim. NOT a silent cap: the payload states the window and
@@ -306,7 +306,7 @@ def _carry(context: dict) -> dict:
 
 
 # THE HORIZON (falsifier clause: armed, correct, and silent is indistinguishable from
-# health without one). Same placeholder and same tracked debt as every sibling: the beat
+# health without one). Same placeholder as every sibling: the beat
 # rate is not yet a real number, so 1000 pulses is "clearly a long standing" and MUST be
 # re-tuned when it becomes one. It is longer than this watch expects to wait — a retirement
 # is a rare deliberate act, not a rate — and that is the point of stating it.

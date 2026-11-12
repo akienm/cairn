@@ -6,7 +6,8 @@ else (charter filed edge (b); CLAUDE.md's "the inference host is reached only th
 inference_domain"). Sole path is PHYSICS at two moments now, one rule both times: proof-time,
 the repo-wide import-sieve mesh in ``proofs/test_host.py``; build-time, the ``sole_path_holds``
 sieve in build_inspector's roster (ruling 2026-08-08, item 1: "THAT NEEDS TO BE IN THE BUILD
-INSPECTION"). The subprocess/dynamic-import residue stays a named IOU in CLAUDE.md.
+INSPECTION"). A subprocess or a dynamic import is now seen too (ticket f6ecce0822eb,
+sole-path-sees-subprocess-and-dynamic-import, PROVED).
 
 Why it exists: ``yield_report()`` is the measuring instrument for Telos 1 — tokens SPENT on
 misses against tokens AVOIDED by hits. Until now it metered a stub resolver, so the compile-once

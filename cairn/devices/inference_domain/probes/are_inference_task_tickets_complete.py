@@ -38,8 +38,8 @@ _TICKET_ID = "ea4a6151300f"
 _OWNING_TICKET = "ea4a6151300f"
 
 # The watch spec's own numbers (ticket ea4a6151300f, watchme): the trigger floor, the
-# non-vacuity floors of the clear, and the give-up arm. Hand-set from the ticket, a
-# learns-its-gates IOU like every constant in this folder.
+# non-vacuity floors of the clear, and the give-up arm. Hand-set from the ticket; each
+# declares its provenance in set_by, which cairn/tools/base/probe.py refuses blank.
 _TRIGGER_FLOOR = 20
 _ENOUGH_NAMED = 10
 _ENOUGH_TROUBLED = 1

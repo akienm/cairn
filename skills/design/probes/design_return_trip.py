@@ -62,8 +62,8 @@ _BERTH_DEFAULT = Path.home() / ".cairn/devices/skill_block/0/berths"
 # The sample below which "no return trip was ever recorded" says nothing. /design fires
 # once per design SESSION, not once per turn, so twelve distinct nodes through the door
 # is a real season of design work — enough that zero recorded returns is a pattern about
-# the system, not a lull. A HAND-SET PRIOR, named as such on the ticket (learns-its-
-# gates): an IOU against the door's real cadence once it has one.
+# the system, not a lull. A HAND-SET PRIOR, named as such on the ticket; its provenance
+# is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _FLOOR = 12
 
 
@@ -149,7 +149,7 @@ def _carry(context: dict) -> dict:
 
 _TICKET = owning_ticket("the-return-trip-is-countable")
 
-# THE HORIZON — the roster's shared tracked debt, restated not re-derived: the unit is
+# THE HORIZON — the roster's shared placeholder, restated not re-derived: the unit is
 # PULSES, nothing pulses this shim yet (the retired private ground loop's filed edge, removed by ticket efb670ff1dd8), so the
 # loudness rides ``BaseShim.overdue()`` alone. 1000 is honest as a placeholder and
 # dishonest as a measurement, and MUST be re-tuned when the beat becomes a real number.

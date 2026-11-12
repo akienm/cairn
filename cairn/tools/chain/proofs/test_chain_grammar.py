@@ -79,7 +79,7 @@ def test_the_roster_is_measured_ONCE_per_process_and_forgetting_re_measures(root
     The tooth measures the two halves of the fix as PHYSICS, not as speed: the census
     is taken once per root per process (so a judge cannot re-derive its world between
     two of its own findings and contradict itself), and ``forget_roster`` really
-    re-measures (so the memo has a door, and the residue is a named IOU rather than a
+    re-measures (so the memo has a door, and the edge is named rather than a
     trap). It counts CALLS INTO the measurer — the receiver, not the clock — because a
     timing assertion would go red on a slow box and green on a fast one holding the
     identical defect."""

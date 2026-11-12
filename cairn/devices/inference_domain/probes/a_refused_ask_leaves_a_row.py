@@ -87,8 +87,8 @@ _OWNING_TICKET = "a-refused-ask-leaves-a-row"
 _ERA = datetime.fromisoformat("2026-08-18T01:25:01-06:00")
 
 # The clear's denominator floor for the answered half: below it, "all answers healthy" is
-# silence, not health. A hand-set constant is a learns-its-gates IOU, named at the ticket's
-# horizon — the same debt every probe in this folder carries.
+# silence, not health. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank,
+# as for every probe in this folder.
 _ENOUGH_ANSWERED = 12
 
 
@@ -204,7 +204,7 @@ def _carry(context: dict) -> dict:
                         "hollow answer means the try: block swallowed something it should not"}
 
 
-# Same placeholder horizon, same tracked debt, as the sibling probes in this folder: the beat
+# Same placeholder horizon as the sibling probes in this folder: the beat
 # rate is not yet a real number; 1000 pulses is "clearly a long standing" until it is.
 _HORIZON = 1000
 

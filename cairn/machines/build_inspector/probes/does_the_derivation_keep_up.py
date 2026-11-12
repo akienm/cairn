@@ -34,7 +34,7 @@ sweeps at zero-residue-beyond-the-hand-named, AT LEAST ONE TAKEN AFTER A BULK MO
 because a derivation that has never watched the corpus move is the misaimed census this
 system has already met once, and keeping up is the entire claim.
 
-WHAT IS ENFORCED HERE AND WHAT IS DECLARED DEBT. The reading half is measured every
+WHAT IS ENFORCED HERE AND WHAT WAITS ON A BEAT. The reading half is measured every
 time: the residue with every member named, the answered count, the size of the rename
 record, and whether any answer points at a hole. The CONSECUTIVE-SWEEPS half needs a
 pulse history this probe cannot see from here — nothing beats build_inspector's shim on
@@ -107,9 +107,8 @@ _AT_PROVED = {"asked": 423, "answered": 406, "answer_index": 172,
               "corpus_address_findings_both_doors": 6,
               "hand_entries_written": 14}
 
-#: The confirmation branch's denominator, per the spec. A hand-set constant is a
-#: learns-its-gates IOU named at the owning ticket's horizon rather than solved here —
-#: the same debt, and the same disclosure, as the sibling probes.
+#: The confirmation branch's denominator, per the spec. The constant is
+#: hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank, as for the sibling probes.
 _ENOUGH_SWEEPS = 3
 
 
@@ -277,7 +276,7 @@ def _carry(context: dict) -> dict:
     }
 
 
-# Same placeholder horizon, same tracked debt, as every sibling: PULSES, because the
+# Same placeholder horizon as every sibling: PULSES, because the
 # shim counts pulses and a clock is bounded out — and nothing beats this machine's shim
 # on a cadence today, so loudness rides BaseShim.overdue() alone. Honest as a
 # placeholder, dishonest as a measurement; re-tune when the beat becomes a real number.

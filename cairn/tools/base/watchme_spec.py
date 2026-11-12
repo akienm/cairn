@@ -35,7 +35,7 @@ entry-gate stone already paid for once: A CHECK THAT RETRO-REDS EVERY OPEN BOAT 
 THAT GETS DISABLED. Measured twice now — the second time on 2026-08-03, when the scrub sweep
 retagged 50 cast tickets to v2 in one act and this rule redded all 50.
 
-THE IOU AT THE CASTING END IS PAID (2026-09-18, ticket 23089d52d805): casting rides
+THE CASTING END IS PHYSICS (2026-09-18, ticket 23089d52d805): casting rides
 ``transitions.cast_ticket``, which refuses a ticket lacking its ``watchme`` field (among
 the fifteen required) with every lack named in one pass and writes nothing. So "the spec
 is required AT TICKETING" is now physics at the store's entrance rather than one step late.

@@ -219,8 +219,8 @@ def _build_commits(tid: str, files: list[str], repo_root: Path) -> list[tuple[st
     """[(sha, committer_iso)] oldest first: the commits whose SUBJECT names the ticket AND that
     change a writes_to file.
 
-    The subject, never the body (ticket 38a790293259). Measured 2026-11-12: 0115dfff ("IOU scrub:
-    ...") names 96f71a89a0fa only in its body and touched a charter that ticket later rewrote,
+    The subject, never the body (ticket 38a790293259). Measured 2026-11-12: 0115dfff (a scrub
+    commit) names 96f71a89a0fa only in its body and touched a charter that ticket later rewrote,
     so a whole-message grep anchored the hollow at 2cc799a6 and reverted two months of other
     work. A body mention is a passing mention; a build names its ticket in its subject
     ('<id>: ...'). A build that does not is named in the ticket's ``build_commits``."""

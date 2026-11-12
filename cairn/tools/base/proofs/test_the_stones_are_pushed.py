@@ -294,7 +294,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
     assert probe_mod._exemption_tenants() == [], \
         f"an exemption roster names {_LANE}: {probe_mod._exemption_tenants()}"
 
-    # (g) the commit charter says the gate IS physics, naming the ticket — the IOU retired
+    # (g) the commit charter says the gate IS physics, naming the ticket — the prose retired
     #     in the same build (a reverted charter reads the old prose and reds here)
     charter = json.loads((_REPO / "skills" / "commit" / "intention+why.json").read_text(encoding="utf-8"))
     state = str(charter.get("state", ""))

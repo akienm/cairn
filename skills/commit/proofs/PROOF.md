@@ -11,8 +11,7 @@ skill's gate is its own proofs, sealed by the tester, like every code-seam.
 ## The OTHER gate this skill is often confused with
 
 The **durability-of-stones gate** — "every stone committed + pushed" — is *not*
-this skill. It belongs on the emit chokepoint as physics (an IOU in CLAUDE.md's
-"rules awaiting physics"). This proof records that they are distinct so the
+this skill. It is physics on the emit chokepoint (the stones-are-pushed lane). This proof records that they are distinct so the
 confusion doesn't recur: the skill is the interim act, the gate is the guarantee.
 
 ## v0 behavioral check (hand-run)

@@ -137,8 +137,7 @@ def survey_the_crossings() -> dict:
 # ``resolved_total`` half of ``enough`` — never the second-actor half, which is a kind of
 # evidence and not an amount of it. Transcribed from the sibling watch's floor (the ticket's
 # own "the next 20 journaled crossings") so the two watches on this one gate do not develop
-# separate opinions about what a sample is. A hand-set constant in a gate is a
-# learns-its-gates IOU; this one is owed to the ticket that set it.
+# separate opinions about what a sample is. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _ENOUGH_CROSSINGS = 20
 
 
@@ -226,7 +225,7 @@ def _carry(context: dict) -> dict:
 
 
 # THE HORIZON (falsifier clause: armed, correct, and silent is indistinguishable from
-# health without one). Same placeholder, same tracked debt, as its siblings: the beat rate
+# health without one). Same placeholder as its siblings: the beat rate
 # is not yet a real number, so 1000 pulses is "clearly a long standing" and MUST be
 # re-tuned when it becomes one.
 _HORIZON = 1000

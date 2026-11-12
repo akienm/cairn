@@ -10,7 +10,7 @@ moment a green stops being reproducible it has to stop being green **without any
 to notice**. Rung 1 of that — the noticing — has been physics since 2026-08-04:
 ``build_inspector.component_color`` reds a component whose seal fingerprint no longer
 matches the working tree, and files an ``inspector-new-finding`` trouble for it. Rungs 2,
-3 and 4 were a paragraph in a ruling, which is exactly the shape CLAUDE.md's IOU names:
+3 and 4 were a paragraph in a ruling, which is exactly the shape CLAUDE.md's rule names:
 *a deterministic red is fixed, or it carries a ruling from Akien — never a paragraph.*
 This module is the three missing rungs.
 

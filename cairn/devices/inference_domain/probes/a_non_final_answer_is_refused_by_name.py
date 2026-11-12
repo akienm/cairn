@@ -22,8 +22,8 @@ be a watch that cannot bite dressed as one that can.
     re-measured it would have to dial the host on a schedule, which is a poller wearing a
     watch's clothes.
   - Clause two is not measurable from this store at all, and the gap is a filed defect in the
-    ticket's own watchme spec rather than something to paper over here (ticket owed: a refusal
-    is invisible to the ask log).
+    ticket's own watchme spec rather than something to paper over here. A refusal now leaves a
+    row in the ask log, and a_refused_ask_leaves_a_row.py beside this file watches that.
 
 So this probe watches THE FAULT RETURNING, which is what a standing watch is for: not "did the
 guard fire" but "did anything the guard exists to stop ever get through anyway". A non-final
@@ -73,8 +73,8 @@ _OWNING_TICKET = "a-non-final-answer-is-refused-by-name"
 # The netns seal that pinned the predicate — the moment before which no row can testify.
 _ERA = datetime.fromisoformat("2026-08-18T00:50:47-06:00")
 
-# The clear's denominator floor: below it, zero-offenders is silence rather than health. A
-# hand-set constant is a learns-its-gates IOU, named at the owning ticket's horizon.
+# The clear's denominator floor: below it, zero-offenders is silence rather than health.
+# The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _ENOUGH = 20
 
 _CHAT_PATH = "/api/chat"
@@ -171,7 +171,7 @@ def _carry(context: dict) -> dict:
                         "cross _post. The provenance names the host and path; start there."}
 
 
-# Same placeholder horizon, same tracked debt, as the probes beside it: the beat rate is not yet
+# Same placeholder horizon as the probes beside it: the beat rate is not yet
 # a real number; 1000 pulses is "clearly a long standing" until it is.
 _HORIZON = 1000
 

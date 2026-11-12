@@ -39,7 +39,7 @@ rather than committing straight to it.
 ## What it is NOT
 
 - **Not the durability gate.** "Every stone committed + pushed" is a *gate* on the
-  emit chokepoint (physics, an IOU until built) — not this skill. A skill that
+  emit chokepoint (physics: the stones-are-pushed lane) — not this skill. A skill that
   exists to *force* a behavior is policy standing in for a missing gate. This skill
   is the interim act; the gate is the guarantee. They coexist — they'd only collide
   under an exclusive-and-terminal reading, which the keystone forbids.

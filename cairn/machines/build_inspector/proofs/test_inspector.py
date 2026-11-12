@@ -235,7 +235,7 @@ def main() -> None:
         assert set(x) - {"values"} == _FINDING_SHAPE and x["about"], x
 
     # 10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance
-    #      naming its seeding failure (dated or IOU-named) — a sieve nobody was
+    #      naming its seeding failure (dated or ticket-named) — a sieve nobody was
     #      taught by is refused here, same tooth as orient's scans.
     tooth("10 — THE LEARNING-DEVICE SHAPE: every sieve's docstring carries a provenance")
     for name, judge in SIEVES.items():

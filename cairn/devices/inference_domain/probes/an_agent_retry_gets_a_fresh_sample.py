@@ -59,7 +59,7 @@ _ERA = datetime.fromisoformat("2026-09-11T00:00:00-06:00")
 
 # The sample size below which the question cannot be answered. A store with no agent traffic
 # disagrees with nothing and would otherwise CLEAR AT ZERO — a watch that can clear before it
-# can fire is not a watch. Hand-set, and therefore a learns-its-gates IOU named at birth.
+# can fire is not a watch. It is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 #
 # IT IS THE TICKET'S NUMBER, NOT THE PROBE'S. The watchme spec on 548dd13fb4db says "when 50
 # agent-door calls have landed"; this file first carried 20, which would have let the watch

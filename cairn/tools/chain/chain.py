@@ -28,8 +28,7 @@ imports the one it reads from, so "what are the legs, in order" could only be an
 tracing imports. That is a settled question being re-derived (Law 1), and a gate cannot afford
 it. This declares it once, importing NOTHING, so a ticket gate stays as light as a file read;
 ``dial.STAGE_FIELDS`` is bound to it by a tooth in ``proofs/test_chart_notes.py`` rather than
-by a second copy. IOU: dial should CONSTRUCT its registry from ``STAGES`` — that edit touches a
-proven module and is a change with a ticket, not a drive-by.
+by a second copy.
 
     python3 -m cairn.tools.chain.chain            # scan the live tickets, report ALL nonconformance
 """

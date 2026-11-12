@@ -19,9 +19,8 @@ The emit-chokepoint factors into three rungs (resolved in the harbor_master /sor
              delegable-per-operation authority (Law 6). Not here — and, as of the
              measurement below, not anywhere: MEASURED 2026-08-10, 186 emit-shaped records
              across the component histories and ZERO carrying ``cleared_by``; ``clear()``
-             has no production caller. Until ``emit`` refuses an uncleared crossing, this
-             file's claim to be the *authority* door is an IOU, not a fact
-             (ticket emit-refuses-an-uncleared-crossing).
+             had no production caller. ``emit`` now refuses an uncleared crossing (ticket
+             0cde908b8fbe, emit-refuses-an-uncleared-crossing, PROVED).
   - TRUTH  — record it. ``emit`` journals the crossing append-only through the projector
              door (charter-state-history-split), the same door a charter's state rides.
              Two-vantage: the boat's own history (here) + the harbor register (harbor_master).
@@ -2112,7 +2111,7 @@ def set_phase(
 #
 # What it judges, and refuses with EVERY lack named in one pass (D2-D4): the required
 # field set below (measured >=73/77 of the 308 tickets cast since 2026-09-01 carry each of
-# them — the template CairnCommons/tickets/_charter+why.json called an IOU is the set this
+# them — the template CairnCommons/tickets/_charter+why.json left unchecked is the set this
 # door retires), an id of twelve lowercase hex that nothing in the store already holds, a
 # workflow string ``parse_workflow`` accepts, a sorted berth on disk whose answers match
 # the doc's class and workflow, and an intent berth on disk — or a ``none, because <X>``

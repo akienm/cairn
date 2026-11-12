@@ -116,6 +116,24 @@ def test_a_synonym_at_a_census_site_reds():
         assert len(_red(r, "tools/testing_tool")) == 1, other
 
 
+def test_a_tree_outside_git_has_no_sites_and_a_broken_repo_is_loud():
+    """A sieve fixture tree is not a repo: nothing is tracked, so nothing stands. A tree that
+    claims a repo (a .git) git cannot read must refuse, never read as clean (Law 7)."""
+    from cairn.machines.build_inspector import inspector
+    bare = Path(tempfile.mkdtemp(prefix="testing-no-iou-stands-nogit-"))
+    for rel in (f"cairn/{BI}/intention+why.json", "cairn/tools/testing_tool/intention+why.json"):
+        (bare / rel).parent.mkdir(parents=True, exist_ok=True)
+        (bare / rel).write_text("{}")
+    (bare / "cairn/tools/testing_tool/tool.py").write_text(f"# an {WORD}\n")
+    assert _red(bare, "tools/testing_tool") == []
+    (bare / ".git").write_text("gitdir: /nonexistent-testing-gitdir\n")
+    try:
+        _red(bare, "tools/testing_tool")
+    except inspector.ScanRefused:
+        return
+    raise AssertionError("an unreadable repo read as clean")
+
+
 def main() -> int:
     teeth = [v for k, v in globals().items() if k.startswith("test_") and callable(v)]
     failed = 0

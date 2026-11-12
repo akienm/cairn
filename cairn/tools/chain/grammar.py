@@ -136,8 +136,8 @@ def component_roster(root: str = CAIRN_ROOT) -> list[str]:
     caller today is a short-lived CLI or gate invocation, where "the tree at the moment
     this process started" is exactly the right world to judge against — but a long-lived
     holder (a shim, the ground loop) would keep a roster past a real install. ``forget_roster``
-    is the door for a caller that knows; a FileChanged-hook-fired clear is the physics that
-    would retire the residue, and it is an IOU, not a resting state (Law 4).
+    is the door for a caller that knows; nothing clears the memo on its own. The outline
+    holds no rule that a long-lived holder must see a fresh roster, so this is a known edge.
     """
     hit = _ROSTER_MEMO.get(root)
     if hit is not None:

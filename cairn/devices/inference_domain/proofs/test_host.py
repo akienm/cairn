@@ -348,8 +348,8 @@ def test_a_falsifier_survives_an_unreadable_digest_and_says_so():
 # ---------------------------------------------------------------- sole path
 
 def test_no_other_module_in_the_tree_opens_the_inference_host():
-    """Charter edge (b): the host client lives HERE and nowhere else. The IOU is now CLOSED —
-    this delegates to cairn/tools/import_sieve, the shared tooth, instead of carrying its own copy.
+    """Charter edge (b): the host client lives HERE and nowhere else. This
+    delegates to cairn/tools/import_sieve, the shared tooth, instead of carrying its own copy.
 
     WHAT CHANGED ON 2026-08-06, and why it was not just a refactor. The hand-rolled version
     globbed `_REPO_ROOT / "cairn"` — the package directory. It therefore never looked at

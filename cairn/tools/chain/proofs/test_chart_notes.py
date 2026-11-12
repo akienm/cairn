@@ -143,8 +143,7 @@ def test_the_dial_registry_and_the_chain_are_the_same_seven_in_the_same_order():
     from skills.chart import dial
     assert tuple(dial.STAGE_FIELDS) == chain.STAGES, (
         f"the two lists have drifted — dial says {tuple(dial.STAGE_FIELDS)}, "
-        f"chain says {chain.STAGES}. Until dial CONSTRUCTS its registry from chain.STAGES "
-        "(the IOU in chain.py), this tooth is the only thing holding them together."
+        f"chain says {chain.STAGES}. This tooth is what holds the two lists together."
     )
 
 

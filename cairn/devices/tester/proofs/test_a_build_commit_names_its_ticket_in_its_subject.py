@@ -1,7 +1,7 @@
 """Teeth for ticket 38a790293259 — a build commit names its ticket in its subject.
 
 MEASURED 2026-11-12: the hollow prediction for 96f71a89a0fa read its charters unseen. The anchor
-was 2cc799a6, because commit 0115dfff ("IOU scrub: ...", 2026-09-09) names 96f71a89a0fa only in
+was 2cc799a6, because commit 0115dfff (a scrub, 2026-09-09) names 96f71a89a0fa only in
 its BODY and touched a charter the ticket later rewrote. ``_build_commits`` grepped the whole
 message, so a passing mention counted as the build, and the reading reverted two months of other
 work instead of this build. Over 751 cast tickets, 55 had a body-only mention before every
@@ -79,7 +79,7 @@ def _passing_mention_then_build():
     changing a writes_to file, then the real build naming it in its subject."""
     return _fixture([
         ("c0", 1, "lay down w.py", ""),
-        ("scrub", 1.5, "IOU scrub: 9 stale sites", f"Also touches w.py for ticket {FIXTURE}."),
+        ("scrub", 1.5, "scrub: 9 stale sites", f"Also touches w.py for ticket {FIXTURE}."),
         ("build", 2, f"{FIXTURE}: build", ""),
     ])
 

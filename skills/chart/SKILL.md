@@ -91,7 +91,7 @@ If the embed host is unreachable, the stratum refuses loudly — record
 `"tree stratum unavailable: <the refusal>"` in `unknowns` and proceed on
 floor + claude. Never silently skip the walk.
 
-### 3. The curtain (an IOU held as discipline until it is physics)
+### 3. The curtain (discipline; no gate reads orient's opens)
 
 During orient, read **only the request and the floor facts**. Do not open the
 target folders or files — proximity to a plausible answer is exactly what

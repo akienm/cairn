@@ -29,17 +29,17 @@ going red at the moment its condition is satisfied. **A probe watches what the g
 DEMANDS.** The narrowing is named here rather than taken quietly, and the ticket's
 own text carries the same correction.
 
-WHAT A REFUSAL COSTS TO COUNT — THE IOU THIS PROBE FILED, AND ITS PAYMENT. Clause
+WHAT A REFUSAL COSTS TO COUNT — THE GAP THIS PROBE FILED, AND ITS CLOSE. Clause
 (c) and the refusal half of ``enough`` both ask whether clearance has ever said NO
 to a real crossing. When this probe was armed on 2026-08-10 **nothing recorded
 that**: every refusal raised before ``emit`` was reached, so a refused move left no
 record at all, and this file reported ``refusals_recorded: 0`` with the absence
-named rather than faked — an IOU pointing at ticket ``clearance-leaves-a-trace``
+named rather than faked — pointing at ticket ``clearance-leaves-a-trace``
 (cast 2026-07-26) as the one build that would make its own horizon countable.
 
 That ticket landed the same day, and the number is now READ rather than asserted:
 ``survey_the_refusals`` below counts what the gate actually answered, by reason
-class. The IOU is retired at the address that filed it — a SECOND probe over the
+class. The gap is closed at the address that filed it — a SECOND probe over the
 same store, with this one still hard-coding a zero beside it, would have been the
 parallel-roster failure with the answer sitting one file away. The reading itself
 belongs to the gate (``clearance.read_attempts``), which owns the queue and is
@@ -107,8 +107,7 @@ _ERA_FLOOR = "2026-08-10T16:40:00"
 # HORIZON transcribed rather than a fresh number: "the next 20 journaled crossings
 # after PROVED. If fewer than all 20 carry cleared_by or a NAMED exemption, the gate
 # did not land." Same floor for the trend clause and for `enough`, so the pair cannot
-# drift apart. A hand-set constant in a gate is a learns-its-gates IOU; this one is
-# owed to the ticket that set it.
+# drift apart. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _ENOUGH = 20
 
 # Falsifier clause (1), caught while it is still a TREND: "the gate is wired but every
@@ -303,7 +302,7 @@ def _carry(context: dict) -> dict:
 
 
 # THE HORIZON (falsifier clause: armed, correct, and silent is indistinguishable from
-# health without one). Same placeholder, same tracked debt, as the three siblings at
+# health without one). Same placeholder as the three siblings at
 # cairn/tools/base/probes/: the beat rate is not yet a real number, so 1000 pulses is "clearly
 # a long standing" and MUST be re-tuned when it becomes one.
 _HORIZON = 1000

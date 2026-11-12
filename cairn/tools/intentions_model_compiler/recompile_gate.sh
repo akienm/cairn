@@ -11,7 +11,7 @@
 # The prior FileChanged host hook is RETIRED (measured 2026-07-23 not to fire on CC's own
 # writes); the semantic writer poking the door replaced it.
 #
-# HOST-NOTICING-BY-DISCIPLINE for the beside-code case (the IOU, named in the charter): CC
+# HOST-NOTICING-BY-DISCIPLINE for the beside-code case (named in the charter): CC
 # poking the door after writing a charter is convention, not physics — standing in for the
 # not-yet-built owner-gate emit (the emit-chokepoint state-machine-physics.json tracks). A
 # stopgap that labels itself one; the read-refresh at /intent backstops it until that physics

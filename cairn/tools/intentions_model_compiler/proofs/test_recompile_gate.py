@@ -13,7 +13,7 @@ Teeth a hollow gate could not pass:
     the instance-space log — the error is collapsed at the surface, never lost. A gate that
     crashed the session, or swallowed the failure silently, trips this.
 
-The gate is HOST-NOTICING, not owner-emitting (see the charter host_seam / IOU): whether the
+The gate is HOST-NOTICING, not owner-emitting (see the charter host_seam): whether the
 FileChanged hook FIRES on a disk change is host behavior, verified out of turn — not here.
 This proves the COMMAND the hook pokes.
 
@@ -110,7 +110,7 @@ def _main() -> int:
         print(f"  PASS  {check.__name__}")
     print("green — recompile_gate: the write gate pokes the copy door (the lab fills and "
           "reverts drift), never blocks a save, and records a failed run rather than "
-          "swallowing it (Law 7). Host-noticing, not owner-emitting — the IOU is in the charter.")
+          "swallowing it (Law 7). Host-noticing, not owner-emitting — the charter says so.")
     return 0
 
 

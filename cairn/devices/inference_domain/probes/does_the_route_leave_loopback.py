@@ -55,7 +55,7 @@ _OWNING_TICKET = "the-inference-proxy-is-a-rules-stack"
 _ERA = datetime.fromisoformat("2026-08-08T17:22:52-06:00")
 
 # The clear's denominator floor: below it, zero loopback rows is silence, not health.
-# A hand-set constant is a learns-its-gates IOU, named at the owning ticket's horizon.
+# The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank.
 _ENOUGH = 12
 
 _LOOPBACK_MARKS = ("127.0.0.1", "localhost")
@@ -151,7 +151,7 @@ def _carry(context: dict) -> dict:
                         "certainly passed endpoint= by hand or predates a healed call site"}
 
 
-# Same placeholder horizon, same tracked debt, as the probes at cairn/tools/base: the beat
+# Same placeholder horizon as the probes at cairn/tools/base: the beat
 # rate is not yet a real number; 1000 pulses is "clearly a long standing" until it is.
 _HORIZON = 1000
 

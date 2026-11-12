@@ -285,7 +285,7 @@ def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
     Provenance: CLAUDE.md 'Rules awaiting physics': 'a compiled view is never
     hand-edited... → single write-door + tester drift check'. The write-door exists
     (projector.append_entry, shape-gated 2026-07-25); THIS is the drift check — the
-    IOU's other half, now physics at the build gate.
+    rule's other half, now physics at the build gate.
     """
     h, s = comp_dir / "history.json", comp_dir / "state.json"
     if not h.exists() and not s.exists():
@@ -2001,7 +2001,7 @@ def validate_covers_the_build(row: dict, comp_dir: Path) -> list[dict]:
 
     Provenance: 2026-07-24 — the dropped piece was also the unvalidated piece
     (the substitution survived because no acceptance measured the whole); and
-    the wire's filed edge (a), 2026-07-28 — success_criteria as an IOU from the
+    the wire's filed edge (a), 2026-07-28 — success_criteria left open from the
     day packet jurisdiction landed, coming due at the stage whose question they
     answer. Installed 2026-07-28, before the validate module exists.
     """
@@ -2067,7 +2067,7 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
 # whole ticket exists to close.
 #
 # THE NAMED EXEMPTION, AND THE NUMBER THAT FORCED IT. Measured before wiring, as the
-# turnscan IOU taught: 25 of 70 filed tickets sit at or before BUILDME and ZERO carry
+# turnscan rule taught: 25 of 70 filed tickets sit at or before BUILDME and ZERO carry
 # an intent_berth. A gate that reds on absence reds a quarter of the backlog. So the
 # gate accepts "none, because <X>" — the same shape /sorted already uses for watchme,
 # where silence is the failure and a named exemption is legal. You must say something;
@@ -3146,7 +3146,7 @@ def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
     rather than cached — a cache keyed by root would go stale between a proof's seeded
     fixtures (measured while building the seeded tooth, not guessed). Known residue
     (CLAUDE.md): a subprocess that dials and a dynamic import are invisible to both seats
-    — that IOU stays named, not closed here.
+    — ticket f6ecce0822eb (PROVED) since closed it, at import_sieve.
     """
     graph = import_sieve.import_graph(str(comp_dir.parent))
     prefix = row["component"] + os.sep
@@ -4920,6 +4920,102 @@ def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
     return findings
 
 
+# The word, and the renamed resting debts the falsifier's WRONG INTENT names (ticket
+# f5dbfddea8c6, decision D11 clause 3). The word is matched case-sensitively and whole, as
+# `git grep -w` does; the phrases case-folded.
+_IOU_WORD = "IOU"
+_IOU_SYNONYMS = ("tracked debt", "declared debt", "not yet enforced", "awaiting physics",
+                 "ticket owed", "owed to the ticket")
+# Door-written records quote what was said when and are never edited (D7, Law 7), and the
+# census is one of them (D12). The sieve's own module and its proof say the word to define
+# and plant it (D3).
+_IOU_RECORD_NAMES = ("history.json", "state.json", "dated_append_judgments.json",
+                     "iou_census.json")
+_IOU_ALLOW = ("cairn/machines/build_inspector/inspector.py",
+              "cairn/machines/build_inspector/proofs/test_no_iou_stands.py")
+_IOU_HOME = "cairn/machines/build_inspector"
+_IOU_CACHE: dict[str, list[dict]] = {}
+
+
+def _iou_is_record(path: str) -> bool:
+    name = path.rsplit("/", 1)[-1]
+    return (name in _IOU_RECORD_NAMES or name.endswith(".jsonl")
+            or "/validations/" in f"/{path}")
+
+
+def _iou_grep(repo_root: str, *args: str) -> list[tuple[str, int, str]]:
+    """`git grep -n` over the repo's tracked files, as (path, line, text). Exit 1 is no match;
+    any other failure is loud (Law 7) — a grep that could not run reads as no IOU otherwise.
+    A tree with no ``.git`` at its root (a sieve fixture) has no tracked files, so it has no
+    sites; a tree that has one and still cannot be read is the loud case."""
+    import subprocess  # local, as in _git_lines
+    if not (Path(repo_root) / ".git").exists():
+        return []
+    r = subprocess.run(["git", "-C", repo_root, "grep", "-n", "-I", *args],
+                       capture_output=True, text=True, timeout=60)
+    if r.returncode not in (0, 1):
+        raise ScanRefused(f"no_iou_stands: git grep failed in {repo_root}: {r.stderr.strip()}")
+    out = []
+    for ln in r.stdout.splitlines():
+        path, num, text = ln.split(":", 2)
+        out.append((path, int(num), text))
+    return out
+
+
+def _iou_sites(repo_root: str) -> list[dict]:
+    """Every standing site in the repo: the word in an authored file, and a synonym in a file
+    the census names. Each carries the census row it lands on (D9): the deepest component
+    holding it, else build_inspector."""
+    if repo_root in _IOU_CACHE:
+        return _IOU_CACHE[repo_root]
+    rows = sorted(_components(repo_root), key=len, reverse=True)
+
+    def home(path: str) -> str:
+        return next((r for r in rows if path.startswith(r + "/")), _IOU_HOME)
+
+    sites = [{"file": p, "line": n, "text": t.strip()[:200], "kind": "word", "said": _IOU_WORD}
+             for p, n, t in _iou_grep(repo_root, "-w", "-e", _IOU_WORD)
+             if p not in _IOU_ALLOW and not _iou_is_record(p)]
+    census = Path(repo_root) / _IOU_HOME / "iou_census.json"
+    named = []
+    if census.is_file():
+        named = sorted({r["path"] for r in json.loads(census.read_text()).get("rows", [])
+                        if not _iou_is_record(r["path"]) and r["path"] not in _IOU_ALLOW
+                        and (Path(repo_root) / r["path"]).is_file()})
+    if named:
+        pattern = "|".join(re.escape(s) for s in _IOU_SYNONYMS)
+        for p, n, t in _iou_grep(repo_root, "-i", "-E", "-e", pattern, "--", *named):
+            said = next(s for s in _IOU_SYNONYMS if s in t.lower())
+            sites.append({"file": p, "line": n, "text": t.strip()[:200], "kind": "synonym",
+                          "said": said})
+    for s in sites:
+        s["row"] = home(s["file"])
+    _IOU_CACHE[repo_root] = sites
+    return sites
+
+
+def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
+    """No IOU stands: an authored file in the repo saying IOU reds, and so does a renamed
+    resting debt in a file the census names. A site reds on the row that holds it; a site
+    outside every row reds here, on build_inspector's row.
+
+    Provenance: 2026-09-29, ticket f5dbfddea8c6 (Akien: "THERE ARE TO BE NO IOUS EVER", after
+    answering it repeatedly). Measured 2026-11-12: 120 lines in 67 tracked files carried the
+    word, among them residues whose physics had shipped and comments calling a hand-set
+    probe constant a debt that probe.py's set_by already declares."""
+    root = Path(comp_dir).resolve()
+    for _ in row["dir"].split("/"):
+        root = root.parent                       # the census root: <repo_root>/cairn
+    repo_root = str(root.parent)
+    here = "cairn/" + row["dir"]
+    return [_finding("no_iou_stands", row["component"],
+                     f"{s['file']}:{s['line']} says {s['said']!r} — a rule resting as policy; "
+                     "cite the enforcing address or the ticket instead",
+                     expected=0, actual=1, file=s["file"], line=s["line"], kind=s["kind"],
+                     text=s["text"])
+            for s in _iou_sites(repo_root) if s["row"] == here]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "intention_fidelity": intention_fidelity,
@@ -4964,6 +5060,7 @@ SIEVES = {
     "working_tree_clean": working_tree_clean,
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
+    "no_iou_stands": no_iou_stands,
 }
 
 
@@ -4998,6 +5095,7 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
     root = root or (_REPO_ROOT / "cairn")
     _BREACH_CACHE.clear()
     _CENSUS_DIRS.clear()
+    _IOU_CACHE.clear()
     census = device_census(root=root)  # refuses bad roots loudly — inherited, not re-built
     rows = census["measured"]["components"]
     if component is not None:

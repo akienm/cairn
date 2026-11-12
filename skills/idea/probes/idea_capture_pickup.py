@@ -60,8 +60,8 @@ _BERTH_DEFAULT = Path.home() / ".cairn/devices/skill_block/0/berths"
 # days — that is weeks of standing rot); twelve picked-through-the-door captures is a
 # population's worth of evidence that working the queue is a practice, not an accident.
 # A HAND-SET PRIOR, named as such on the ticket: the learns-its-gates intention says a
-# constant in a gate is a learned value stranded in a head, and this one is an IOU
-# against the store's real cadence once the store has one.
+# constant in a gate is a learned value stranded in a head; this one declares its
+# provenance in set_by, which cairn/tools/base/probe.py refuses blank.
 _FLOOR = 12
 
 
@@ -145,7 +145,7 @@ def _carry(context: dict) -> dict:
 
 _TICKET = owning_ticket("an-idea-has-an-address")
 
-# THE HORIZON, and the residual it does NOT cover — the same tracked debt every probe in
+# THE HORIZON, and the residual it does NOT cover — the same placeholder every probe in
 # the roster carries: the unit is PULSES because the shim counts pulses, but nothing
 # pulses this shim yet (the wall-clock backing is a filed edge in
 # the retired private ground loop (removed by ticket efb670ff1dd8)), so today the loudness rides the READ-SIDE door

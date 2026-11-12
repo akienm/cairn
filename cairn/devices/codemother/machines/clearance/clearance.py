@@ -153,7 +153,7 @@ _UNSTATABLE_FIELDS = frozenset({"boat_owner", "owning_intention", "gated_by"})
 # Until today this gate remembered only what it PERMITTED. A refusal raised and the attempt
 # vanished with the stack frame, so "the gate was asked, and said no" survived nowhere — and
 # by Law 1 that guarantees the next mind walks into the same wall and re-derives the same
-# refusal. The IOU is voyage.py's, filed 2026-07-26 and standing since.
+# refusal. voyage.py filed the gap on 2026-07-26.
 #
 # WHY THIS IS NOT A NEW STORE. ``write_trace`` already is this ticket's shape — one firing,
 # one durable record, "green or red, same fidelity", append-only JSONL, instance-space,
@@ -234,7 +234,7 @@ def read_attempts() -> dict:
     it read it from.
 
     IT LIVES AT THE OWNER'S ADDRESS, not in a consumer. There are two readers already
-    (harbor_master's own probe, which filed the IOU for this store, and the traffic image's
+    (harbor_master's own probe, which asked for this store, and the traffic image's
     filed ``[X] refused`` marker), and a component that reads its own queue twice by hand is
     the parallel-roster failure inside one directory: two copies of the block name and the
     event names, either of which can quietly stop matching the writer and report a confident

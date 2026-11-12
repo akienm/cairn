@@ -57,8 +57,7 @@ Nothing here enforces it: an entry that fails while carrying an empty refusal pa
 internally inconsistent, but the payload's key is the caller's word (lacks, findings,
 complaints, reds, failures, missing) and this tool does not know it. What caught all four
 was the component's own tooth asserting that a healthy fixture produces an all-passing
-record. That tooth is the physics until something better exists — an IOU, not a resting
-state (Law 4). · *ticket owed*
+record. That tooth, one per component, is the physics (Law 4).
 
 A TOOL HAS USERS, NOT AN OWNER (Law 6). Not because a tool cannot remember — it can, and
 ruling 2026-08-14-tools-and-machines-remember-under-their-holder says so: ongoing state

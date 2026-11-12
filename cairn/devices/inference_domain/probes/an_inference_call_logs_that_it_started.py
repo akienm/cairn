@@ -79,8 +79,8 @@ _OWNING_TICKET = "an-inference-call-logs-that-it-started"
 _ERA = datetime.fromisoformat("2026-08-18T14:20:00-06:00")
 
 # The sample size below which the question cannot be answered: agreement between two empty
-# records is not agreement. A hand-set constant, and therefore a learns-its-gates IOU named at
-# the ticket's horizon — the same debt the three sibling probes at this address carry. Twelve
+# records is not agreement. The constant is hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank,
+# as for the three sibling probes at this address. Twelve
 # because organic traffic here is the graph-tree's embed calls, which arrive in the dozens per
 # working session, so it is most of a session rather than a wait.
 _ENOUGH = 12
@@ -222,7 +222,7 @@ def _carry(context: dict) -> dict:
                         "tree is the shape that has already been reached for once"}
 
 
-# Same placeholder horizon and same tracked debt as the three sibling probes in this folder:
+# Same placeholder horizon as the three sibling probes in this folder:
 # the unit is PULSES because the shim counts pulses, nothing pulses this shim today, and 1000
 # is "clearly a long standing" against any beat rate we would plausibly pick. Honest as a
 # placeholder and dishonest as a measurement.

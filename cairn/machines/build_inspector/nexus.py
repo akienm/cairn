@@ -77,7 +77,7 @@ FOUNDING_QUESTIONS = [
         "candidate_sieve": "charter_answers_learning",
         "provenance": {"source": "cairn/machines/build_inspector/intention+why.json filed edge "
                                  "(c). SHIPPED 2026-08-31 as the learning_declared sieve "
-                                 "(ticket learning-as-a-pattern) — no longer an IOU; "
+                                 "(ticket learning-as-a-pattern); "
                                  "scrubbed 2026-09-09. NOTE FOR THE RECORD: this entry "
                                  "named `how_it_learns` in 2026-07-27 and the build read "
                                  "`learns` instead, creating the two-mouth defect now "

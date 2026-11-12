@@ -25,7 +25,7 @@ THE PAIR IS DELIBERATELY ASYMMETRIC, and the asymmetry is the ticket's, transcri
     it. Weak, because a clean corpus that never had the chance to get dirty is the misaimed
     census this system has already met once.
 
-WHAT IS ENFORCED HERE AND WHAT IS DECLARED DEBT. The reading half is measured every time:
+WHAT IS ENFORCED HERE AND WHAT WAITS ON A BEAT. The reading half is measured every time:
 the count, its denominator, and the registry. The CONSECUTIVE-READINGS half needs a pulse
 history this probe cannot see from here — nothing beats build_inspector's shim on a cadence
 yet — so the confirmation branch reads its history out of ``context`` and, absent one,
@@ -67,9 +67,8 @@ _SIEVE = "address_is_resolved_never_spelled"
 #: a count with nothing to be a delta against says nothing, and this is what it was handed over at.
 _AT_PROVED = {"sites": 0, "files_read": 274, "exemptions_bearing_weight": 3}
 
-#: The confirmation branch's denominator. Three readings, per the spec, and a hand-set
-#: constant is a learns-its-gates IOU named at the owning ticket's horizon rather than
-#: solved here — the same debt, and the same disclosure, as the sibling probes.
+#: The confirmation branch's denominator. Three readings, per the spec. The constant is
+#: hand-set; its provenance is declared in set_by, which cairn/tools/base/probe.py refuses blank, as for the sibling probes.
 _ENOUGH_READINGS = 3
 
 
@@ -200,7 +199,7 @@ def _carry(context: dict) -> dict:
     }
 
 
-# Same placeholder horizon, same tracked debt, as every sibling: PULSES, because the shim
+# Same placeholder horizon as every sibling: PULSES, because the shim
 # counts pulses and a clock is bounded out — and nothing beats this machine's shim on a
 # cadence today, so loudness rides BaseShim.overdue() alone. Honest as a placeholder,
 # dishonest as a measurement; re-tune when the beat becomes a real number.

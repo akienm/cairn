@@ -82,7 +82,7 @@ _EXEMPT_SEGMENTS = frozenset({"proofs", "__pycache__", ".git", "node_modules"})
 # THE PROOF WHOSE SEAL THE CLEAR READS — the fixture tooth lives there.
 PROOF = _REPO_ROOT / "cairn" / "tools" / "bus_client" / "proofs" / "test_a_client_reaches_and_never_beats.py"
 
-# THE HORIZON. Same tracked debt as the siblings at this address: 1000 pulses stands for
+# THE HORIZON. Same placeholder as the siblings at this address: 1000 pulses stands for
 # "clearly a long standing" until the beat rate is a real number.
 _HORIZON = 1000
 
@@ -170,7 +170,7 @@ def _carry(context: dict) -> dict:
         "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": ("WRONG INTENT if the five were switched and a sixth grew back: "
                               "the rule lived in a docstring and nothing enforced it, which "
-                              "is the Law 4 IOU this probe exists to close."),
+                              "is the Law 4 gap this probe exists to close."),
         "suggests": ("switch the caller to reach(<device>) unless it is a runner — and if it "
                      "IS a runner, the roster in this probe is where that fact is recorded, "
                      "with the file, not in a paragraph"),

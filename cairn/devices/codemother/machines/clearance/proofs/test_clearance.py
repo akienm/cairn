@@ -547,7 +547,7 @@ def test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them()
     """"THAT RECORD MUST BE READABLE AFTERWARDS" — the ticket's own wording, and the half
     that keeps this build from being ceremony. The reader is not a fresh one written to
     satisfy this tooth: it is ``clearance_actually_gates.survey_the_refusals``, the probe
-    that filed the IOU for this store and hard-coded ``refusals_recorded: 0`` beside a note
+    that asked for this store and hard-coded ``refusals_recorded: 0`` beside a note
     naming this ticket as the build that would make the number real. So the tooth measures
     the thing that asked for it — which also means a writer whose event names or consumer
     ever drift away from the reader's dies here rather than reporting a quiet zero."""

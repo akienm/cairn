@@ -1,7 +1,8 @@
 """Proof for ticket d23356c26e7d — every question Akien answered before the question door existed
 stands as a resolved record in the corpus, copied by ``question.migrate``.
 
-One tooth per falsifier clause, each over a scratch world: a commons with two tickets, three
+One tooth per falsifier clause, each over a scratch world: a commons with three tickets (one
+split, its state holding inline {q, a} entries), three
 rulings, decision lines of every kind, and a transcript folder with one pair of each kind. The
 live census is the verdict's instrument (D15), not a tooth here.
 
@@ -35,7 +36,11 @@ PROVES = {
     },
 }
 
-T1, T2 = "aaaaaaaaaaa1", "bbbbbbbbbbb2"
+T1, T2, T3 = "aaaaaaaaaaa1", "bbbbbbbbbbb2", "ccccccccccc3"
+# T3 stands split, as every live ticket does: its state file carries /sorted's old inline
+# {q, a} bullets beside an open-* id (measured live 2026-11-12: 625 on 129 tickets)
+INLINE = [{"q": "distinctions", "a": "a distinction, kept byte for byte"},
+          {"q": "builder_check", "a": "a check bullet"}]
 LIST_WORDS = ["a DEVICE is a top level thingie.", "i like yuour devices list."]
 STRING_WORDS = "  keep the leading spaces, and the trailing ones too  "
 THIRD_WORDS = "no ticket named here"
@@ -71,10 +76,18 @@ def _world():
                 ]),
             }
             keys = sorted({k for p in plans.values() for k in p})
-            (commons / "tickets" / "_charter+why.json").write_text(json.dumps({"plan_fields": keys}) + "\n")
+            (commons / "tickets" / "_charter+why.json").write_text(json.dumps({
+                "plan_fields": keys, "state_fields": ["date", "questions"],
+                "log_kinds": {"field": {"field": "the top-level key", "value": "its value, whole"}}}) + "\n")
             for tid, doc in plans.items():
                 A.write_json(commons / "tickets" / f"{tid}-a-proof-ticket.json", doc,
                              verb="cast", why="a scratch ticket for the migration proof")
+            t3 = commons / "tickets" / f"{T3}-a-split-ticket.json"
+            A.write_json(t3, {"id": T3, "title": "a split ticket", "decisions": []},
+                         verb="cast", why="a scratch split ticket for the migration proof")
+            A.write_json(t3.with_name(f"{T3}-a-split-ticket.state.json"),
+                         {"date": "2026-09-01", "questions": [EXISTING, *INLINE]},
+                         verb="cast", why="its state, inline entries and all")
             (commons / "questions" / f"{EXISTING}.json").write_text(json.dumps({
                 "id": EXISTING, "date": "2026-09-16", "ticket": T2, "question": "already here?",
                 "resolved": True, "answer": "yes", "spawned": []}) + "\n")
@@ -125,7 +138,10 @@ def _migrated(commons: Path, chat: Path) -> dict:
 
 
 def _plan_doc(commons: Path, tid: str) -> dict:
-    return json.loads(next((commons / "tickets").glob(f"{tid}-*.json")).read_text(encoding="utf-8"))
+    """The whole ticket a reader means: plan and state merged, as read_ticket reads it."""
+    from cairn.tools.base.ticket_file import read_ticket
+    plan = next(p for p in (commons / "tickets").glob(f"{tid}-*.json") if not p.name.endswith(".state.json"))
+    return read_ticket(plan)
 
 
 def test_a_ruling_stands_as_a_resolved_record_with_its_words_and_date():
@@ -169,10 +185,15 @@ def test_a_decision_line_citing_him_is_copied_or_linked_and_names_its_record():
 def test_every_ticket_questions_list_holds_open_ids_only():
     with _world() as (commons, chat, _):
         _migrated(commons, chat)
-        for tid in (T1, T2):
+        for tid in (T1, T2, T3):
             qs = _plan_doc(commons, tid)["questions"]
             assert isinstance(qs, list) and qs and all(isinstance(q, str) and q.startswith("open-") for q in qs), \
                 f"{tid} questions: {qs}"
+        assert _plan_doc(commons, T3)["questions"] == [EXISTING], "the open id beside the inline entries was lost"
+        log = next((commons / "tickets").glob(f"{T3}-*.log.jsonl")).read_text(encoding="utf-8")
+        moved = [json.loads(x) for x in log.splitlines() if x]
+        assert [x["value"] for x in moved if x.get("kind") == "field" and x.get("field") == "questions"] == \
+            [[EXISTING, *INLINE]], f"the inline entries did not ride the log whole: {moved}"
 
 
 def test_a_second_run_writes_nothing_and_every_record_is_journaled():
@@ -186,7 +207,8 @@ def test_a_second_run_writes_nothing_and_every_record_is_journaled():
             "the second run changed a file"
         journal = [json.loads(x) for x in (commons / ".artifact-journal.jsonl").read_text().splitlines() if x]
         migrated = [e for e in journal if "migrated" in str(e.get("why", "")) and e.get("verb") == "answer"]
-        wrote = sum(v["wrote"] for v in first.values())
+        wrote = sum(first[k]["wrote"] for k in ("rulings", "decision_lines", "chat"))
+        assert first["inline"]["wrote"] == 1, f"the inline move: {first['inline']}"
         assert wrote == n - 1 == len(migrated), f"wrote {wrote}, {n - 1} new records, {len(migrated)} journaled"
 
 
@@ -194,11 +216,11 @@ def test_after_the_run_nothing_stands_outside():
     with _world() as (commons, chat, _):
         from cairn.tools.question import migrate as M
         before = M.run(transcripts=chat, root=commons / "questions", write=False)
-        assert (before["rulings"]["outside"], before["decision_lines"]["outside"], before["chat"]["outside"]) == (3, 2, 1), before
+        assert [before[k]["outside"] for k in ("rulings", "decision_lines", "chat", "inline")] == [3, 2, 1, 1], before
         assert sum(v["wrote"] for v in before.values()) == 0 and len(_records(commons)) == 1, "a census wrote"
         _migrated(commons, chat)
         after = M.run(transcripts=chat, root=commons / "questions", write=False)
-        assert [after[k]["outside"] for k in ("rulings", "decision_lines", "chat")] == [0, 0, 0], after
+        assert [after[k]["outside"] for k in ("rulings", "decision_lines", "chat", "inline")] == [0, 0, 0, 0], after
 
 
 def test_a_chat_reply_is_copied_and_the_counted_out_are_not():

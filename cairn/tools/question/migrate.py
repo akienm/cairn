@@ -25,6 +25,11 @@ THREE SOURCES, each read deterministically, each a translation that names its or
   house details stay out of committed files, and a pasted mail or post is someone else's
   words), and a "reply" that is a command echo or system tag (``not_typed``).
 
+And one cleanup: INLINE — a ticket's state ``questions`` holding anything but open-* ids (625
+{q, a} dicts on 129 tickets, measured 2026-11-12: /sorted's old distinctions and check bullets).
+Each ticket's whole standing list rides its append-only log as one kind 'field' line, then the
+state keeps the open-* ids alone.
+
 The migration is idempotent: ``question.migrate`` refuses nothing it already holds (ticket +
 source), so a second run writes 0 records.
 
@@ -43,7 +48,8 @@ import sys
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
-from cairn.tools.base.ticket_file import read_ticket, rewrite_ticket
+from cairn.tools.base.ticket_file import read_ticket, rewrite_ticket, state_path, write_state
+from cairn.tools.base.ticket_log import append_log
 from cairn.tools.question import question as Q
 
 TICKET_ID = re.compile(r"\b[0-9a-f]{12}\b")
@@ -145,7 +151,9 @@ def decision_lines(commons: Path, corpus: set[str]) -> list[dict]:
                     item.update(kind="no_words")
                 else:
                     n = line.get("n", i + 1)
-                    when = (DATE.findall(by) or DATE.findall(text) or [str(doc.get("date") or "")])[0]
+                    # the plan's date moved to its state file (the D11 split): read_ticket merges it
+                    when = (DATE.findall(by) or DATE.findall(text)
+                            or [str(read_ticket(plan).get("date") or "")])[0]
                     item.update(kind="copy", args=dict(
                         ticket=item["ticket"],
                         question=f"{text.strip().rstrip('.')} — is that the decision?",
@@ -164,6 +172,36 @@ def _set_line_question(item: dict, qid: str) -> None:
     line["question"] = qid
     rewrite_ticket(item["plan"], doc, verb="cast",
                    why=f"decision line {item['index'] + 1} names the corpus record {qid} (d23356c26e7d)")
+
+
+# ── inline entries ────────────────────────────────────────────────────────────────────────
+
+def inline_entries(commons: Path) -> list[tuple[Path, list]]:
+    """Every ticket whose state ``questions`` holds anything but an open-* id: (plan, the list).
+    Measured 2026-11-12: 625 {q, a} dicts on 129 tickets (/sorted's distinctions and check
+    bullets from before the question door), none written since 2026-09-01, none read."""
+    out = []
+    for plan in _plans(commons):
+        sp = state_path(plan)
+        try:
+            qs = json.loads(sp.read_text(encoding="utf-8")).get("questions")
+        except (OSError, ValueError):
+            continue
+        if isinstance(qs, list) and any(not (isinstance(e, str) and QUESTION_ID.fullmatch(e))
+                                        for e in qs):
+            out.append((plan, qs))
+    return out
+
+
+def _move_inline(plan: Path, qs: list) -> None:
+    """The whole standing list goes to the ticket's append-only log (kind 'field', its value
+    whole), THEN the state keeps the open-* ids alone — log first, so no crash loses a byte."""
+    why = "questions[] holds open-* ids only; the inline entries ride the log (d23356c26e7d)"
+    append_log(plan, "field", {"field": "questions", "value": qs}, actor="CC", why=why)
+    sp = state_path(plan)
+    state = json.loads(sp.read_text(encoding="utf-8"))
+    state["questions"] = [e for e in qs if isinstance(e, str) and QUESTION_ID.fullmatch(e)]
+    write_state(plan, state, why=why, verb="cast")
 
 
 # ── chat ──────────────────────────────────────────────────────────────────────────────────
@@ -261,6 +299,14 @@ def run(*, transcripts: Path | None = DEFAULT_TRANSCRIPTS, root: Path | str | No
     report["chat"] = {"population": len(pairs), "outside": len(todo), **counted_out, "wrote": 0}
     if write:
         report["chat"]["wrote"] = sum(Q.migrate(**a, root=root)["migrated"] for a in todo)
+
+    inline = inline_entries(commons)
+    report["inline"] = {"population": len(inline), "outside": len(inline),
+                        "entries": sum(len(qs) for _, qs in inline), "wrote": 0}
+    if write:
+        for plan, qs in inline:
+            _move_inline(plan, qs)
+        report["inline"]["wrote"] = len(inline)
     return report
 
 

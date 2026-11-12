@@ -43,6 +43,7 @@ import socketserver
 import struct
 import sys
 import threading
+import time
 import traceback
 from collections import deque
 from contextlib import contextmanager
@@ -113,6 +114,66 @@ def code_stamp(root: Path = ROOT) -> float:
     return newest
 
 
+class _InFlight:
+    """The requests this process is answering (ticket 1029d5146152). A shutdown that arrives
+    while any are held DRAINS: it answers at once, keeps serving (stale refusal suspended, so a
+    newer caller is served rather than sent to spawn a bus that cannot claim the lock), and
+    exits at the first moment none is held, or at the cap. Measured 2026-11-12: a replace
+    killed a 14-minute constrain ask because the daemon handler threads died with the process."""
+
+    def __init__(self) -> None:
+        self._cv = threading.Condition()
+        self._held: dict[int, str] = {}
+        self._next = 0
+        self.deadline: float | None = None
+
+    def enter(self, op: str) -> int:
+        with self._cv:
+            self._next += 1
+            self._held[self._next] = op
+            return self._next
+
+    def leave(self, ticket: int) -> None:
+        with self._cv:
+            self._held.pop(ticket, None)
+            self._cv.notify_all()
+
+    @property
+    def count(self) -> int:
+        with self._cv:
+            return len(self._held)
+
+    @property
+    def draining(self) -> bool:
+        return self.deadline is not None
+
+    def begin(self, cap: float) -> bool:
+        """Start the drain; True only for the call that started it (a second shutdown joins)."""
+        with self._cv:
+            if self.deadline is not None:
+                return False
+            self.deadline = time.monotonic() + cap
+            return True
+
+    def wait(self) -> list[str]:
+        """Block until nothing is held or the cap passes; the ops still held when it returns."""
+        with self._cv:
+            while self._held:
+                left = self.deadline - time.monotonic()
+                if left <= 0:
+                    break
+                self._cv.wait(left)
+            return list(self._held.values())
+
+
+def _drain_cap() -> float:
+    """CAIRN_BUS_DRAIN_S, default 600: the inference-call limit (outline 5.5.3.9)."""
+    try:
+        return float(os.environ.get("CAIRN_BUS_DRAIN_S", "600"))
+    except ValueError:
+        return 600.0
+
+
 class BusProcess(DiagnosticBase):
     """The ring, the held shims, and the per-shim locks — everything one request touches."""
 
@@ -123,6 +184,7 @@ class BusProcess(DiagnosticBase):
         self.bus = bus
         self.roster = DeviceRoster(bus)
         self.stamp = code_stamp()
+        self.in_flight = _InFlight()
         # Guards the roster lookup and shim construction only, never _wire: holding it while
         # _wire waits on a busy shim's lock deadlocked that shim's own handler and stalled
         # every other wake on the bus (ticket 445e66f32ba0, measured 2026-10-18).
@@ -484,7 +546,9 @@ class BusProcess(DiagnosticBase):
         # checkout by construction, and its replace-on-stale cannot reach this process, so
         # the stale answer would be a refusal nobody can act on (ticket 5183005fa134).
         root = req.get("root")
-        local = not in_process and not remote
+        # A DRAINING bus serves everyone: refusing stale would send the caller to replace a
+        # bus that is already going, and its spawn would lose the lock (ticket 1029d5146152).
+        local = not in_process and not remote and not self.in_flight.draining
         if local and root is not None and str(root) != str(ROOT):
             return {"ok": False, "stale": True, "root": str(ROOT)}
         if (local and req.get("op") not in ("shutdown", "flush")
@@ -526,11 +590,38 @@ class _Handler(DiagnosticBase, socketserver.StreamRequestHandler):
             stop = getattr(self.server, "stop", None)
             if stop is not None:
                 stop.set("verb", {"op": "shutdown", **self.caller()})
+            held = self.server.process.in_flight
+            if held.count or held.draining:
+                # Requests are in flight: answer now, serve on, exit when they are answered
+                # or at the cap (ticket 1029d5146152).
+                cap = _drain_cap()
+                if held.begin(cap):
+                    threading.Thread(target=self._drain_then_stop, daemon=True).start()
+                self._send({"ok": True, "draining": held.count, "drain_s": cap})
+                return
             reply = final_flush(self.server.process.bus, self.server.home)
             self._send(reply)
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
-        self._send(self.reply_to(req))
+        if req.get("op") == "stats":
+            self._send(self.reply_to(req))
+            return
+        held = self.server.process.in_flight
+        ticket = held.enter(str(req.get("op")))
+        try:
+            reply = self.reply_to(req)
+        finally:
+            held.leave(ticket)
+        self._send(reply)
+
+    def _drain_then_stop(self) -> None:
+        cut = self.server.process.in_flight.wait()
+        if cut:
+            print(f"bus: drain cut {len(cut)} request(s): {', '.join(cut)}", flush=True)
+        try:
+            final_flush(self.server.process.bus, self.server.home)
+        finally:
+            self.server.shutdown()
 
     def admit(self, req: dict) -> dict | None:
         return None

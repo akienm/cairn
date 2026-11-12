@@ -45,6 +45,9 @@ from cairn.tools.validation_store.validation_store import (  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
 PROVES = {
+    "4a05db0f2280": {
+        "3": "test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list",
+    },
     "4d9115eb04cd": {
         "1": "test_a_component_whose_source_moved_reads_red_with_no_human_act",
         "2": "test_a_repair_leaving_the_proof_hash_alone_reseals_green_and_closes_the_ladder",
@@ -706,86 +709,93 @@ def test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing():
 
 # ── tooth 9 ───────────────────────────────────────────────────────────────────────────
 
-def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list():
-    """RUNG 3's OTHER HALF, MEASURED AT THE HOLDER. Tooth 4 asserts the door EMITS a clear
-    with the right identity — and that was every bit of the seam a fake raiser could see.
-    What the fake could not see, and what stood wrong in the live store for four days
-    (2026-09-09..13, 11 of 12 seal-red troubles): the trouble device clears PER RECIPIENT,
-    its troubles are notified to `cc`, and the door signed its clear `by="cairn test
-    --reseal"`. The fold appended the clear, read `cc` as still outstanding, and left the
-    trouble OPEN — a green announcing its fix into a record nobody's inbox ever left, three
-    times over on some components. The emission was right; the identity was right; the
-    NAME was wrong, and only the holder can say so.
+RECIPIENT = "cc"
+"""The name trouble notifies by default, and so the only name whose clear takes a trouble off
+its live list. Trouble's own proof (test_trouble.py, test_only_the_recipient_clears_it) holds
+the fold; this proof holds that the door SIGNS with it."""
 
-    So this tooth stands a REAL TroubleDevice over a scratch store behind the door's raiser
-    and asserts the one thing that matters to the operator: after the green, ``live()`` no
-    longer carries the trouble. The device's own docstring says nothing but the recipient
-    may clear — this tooth is what proves the door speaks as one."""
-    from cairn.devices.trouble.trouble import CLEARED_DIR, TroubleDevice
 
-    root, proof = _component()
+def _holder(root: Path):
+    """A scratch trouble store and a raiser that writes it the way the holder lays it out: a
+    live trouble is ``<store>/<id>.json``, a cleared one berths in the published tool's
+    ``CLEARED_DIR``, and only the recipient's clear moves it (RULE 1: the tester's proofs
+    measure the tester, so the holder here is a stand-in and the read goes through the store
+    tool trouble publishes). Returns (store, raiser); the raiser records every clear."""
+    from cairn.devices.trouble.tools.store.store import CLEARED_DIR
+
     store = root / "troubles"
-    holder = TroubleDevice(root=store)
+    store.mkdir(parents=True, exist_ok=True)
 
     class _HolderRaiser:
-        """The door's raiser, wired straight to the holder: what the emission lane folds
-        to, without the lane — the FOLD is what is under test, not the drain."""
+        def __init__(self):
+            self.cleared, self.signed = [], []
+
         def raise_trouble(self, identity, *, why, detail=None):
-            holder.raise_trouble(identity, why=why, detail=detail)
+            path = store / f"{identity}.json"
+            rec = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {
+                "id": identity, "standing": "OPEN", "why": why, "count": 0,
+                "notified": [RECIPIENT], "cleared_by": []}
+            rec["count"] += 1
+            path.write_text(json.dumps(rec), encoding="utf-8")
 
         def clear_trouble(self, identity, *, by, what_changed):
-            holder.clear(identity, by=by, what_changed=what_changed)
+            self.cleared.append(identity)
+            self.signed.append({"by": by, "what_changed": what_changed})
+            path = store / f"{identity}.json"
+            if not path.exists():
+                return
+            rec = json.loads(path.read_text(encoding="utf-8"))
+            rec["cleared_by"].append({"by": by})
+            if by not in rec["notified"]:
+                path.write_text(json.dumps(rec), encoding="utf-8")
+                return
+            rec["standing"] = "CLEARED"
+            rec["resolution"] = {"what_changed": what_changed}
+            (store / CLEARED_DIR).mkdir(exist_ok=True)
+            (store / CLEARED_DIR / f"{identity}.json").write_text(json.dumps(rec), encoding="utf-8")
+            path.unlink()
+
+    return store, _HolderRaiser()
+
+
+def _live_ids(store: Path) -> list:
+    from cairn.devices.trouble.tools.store.store import live
+    return [t["id"] for t in live(root=store)]
+
+
+def test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list():
+    """RUNG 3's OTHER HALF: THE NAME THE CLEAR IS SIGNED WITH. Tooth 4 asserts the door EMITS a
+    clear with the right identity. What stood wrong in the live store for four days
+    (2026-09-09..13, 11 of 12 seal-red troubles) was the SIGNATURE: trouble clears per
+    recipient, its troubles are notified to ``cc``, and the door signed ``by="cairn test
+    --reseal"``. The fold appended the clear, read ``cc`` as still outstanding, and left the
+    trouble OPEN.
+
+    So the door's clear must be signed by the recipient, with its own name as provenance in
+    what_changed, and after the green the published store tool reads the trouble gone."""
+    root, proof = _component()
+    store, raiser = _holder(root)
 
     persist_validation(_record(proof, GREEN), proof_path=str(proof))
     (root / "code.py").write_text("VALUE = 3\n", encoding="utf-8")
-    raiser = _HolderRaiser()
     identity = trouble_identity(proof)
 
     red = reseal(proof, tester=_FakeTester(RED, tail="AssertionError: fixture"), raiser=raiser)
     assert red["outcome"] == "red", red
-    assert [t["id"] for t in holder.live()] == [identity], (
-        "the red did not land as a live trouble at the holder")
+    assert _live_ids(store) == [identity], "the red did not land as a live trouble"
 
     (root / "code.py").write_text("VALUE = 2\n", encoding="utf-8")
     green = reseal(proof, tester=_FakeTester(GREEN), raiser=raiser)
     assert green["outcome"] == "resealed", green
-    still = [t["id"] for t in holder.live()]
-    # A trouble's location is its liveness (4ddc9df3369e): a cleared record berths in cleared/.
-    assert not (store / f"{identity}.json").exists(), "the cleared trouble still berths as live"
-    record = json.loads((store / CLEARED_DIR / f"{identity}.json").read_text(encoding="utf-8"))
-    assert still == [], (
-        f"the door's clear reached the holder and the trouble is STILL LIVE: standing="
-        f"{record.get('standing')!r}, notified={record.get('notified')!r}, cleared_by="
-        f"{[c['by'] for c in record.get('cleared_by', [])]!r} — the clear is signed by a name "
-        f"that is not a recipient, so the fold appends it and nothing ever leaves the inbox")
-    assert record["standing"] == "CLEARED", record
-    assert "cairn test --reseal" in record["resolution"]["what_changed"], (
+    assert [s["by"] for s in raiser.signed] == [RECIPIENT], (
+        f"the door's clear is signed {[s['by'] for s in raiser.signed]!r}, not by the recipient "
+        f"{RECIPIENT!r} — trouble appends such a clear and nothing ever leaves the inbox")
+    assert "cairn test --reseal" in raiser.signed[0]["what_changed"], (
         "the door's name is provenance and belongs in what_changed")
+    assert _live_ids(store) == [], "the published store tool still reads the trouble live"
 
 
 # ── rung 1 settles a standing raise (ticket b65e965237f3) ─────────────────────────────
-
-def _holder(root: Path):
-    """A REAL TroubleDevice over a scratch store, and a raiser wired straight to it — the
-    same seam tooth 9 measures, because what matters is the operator's live list."""
-    from cairn.devices.trouble.trouble import TroubleDevice
-
-    store = root / "troubles"
-    holder = TroubleDevice(root=store)
-
-    class _HolderRaiser:
-        def __init__(self):
-            self.cleared = []
-
-        def raise_trouble(self, identity, *, why, detail=None):
-            holder.raise_trouble(identity, why=why, detail=detail)
-
-        def clear_trouble(self, identity, *, by, what_changed):
-            self.cleared.append(identity)
-            holder.clear(identity, by=by, what_changed=what_changed)
-
-    return holder, store, _HolderRaiser()
-
 
 def test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run():
     """MEASURED 2026-11-10/11: a seal-red raised while the standing verdict stayed green (a
@@ -796,19 +806,18 @@ def test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run():
     root, proof = _component()
     persist_validation(_record(proof, GREEN), proof_path=str(proof))
     assert standing(str(proof))["proven"], "fixture: the seal must read proven"
-    holder, store, raiser = _holder(root)
+    store, raiser = _holder(root)
     identity = trouble_identity(proof)
-    holder.raise_trouble(identity, why="fixture: a timeout raised while the seal stayed green")
-    assert [t["id"] for t in holder.live()] == [identity], "fixture: the raise did not land"
+    raiser.raise_trouble(identity, why="fixture: a timeout raised while the seal stayed green")
+    raiser.cleared.clear()
+    assert _live_ids(store) == [identity], "fixture: the raise did not land"
 
     out = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=store)
     assert out["outcome"] == "unchanged" and out["rung"] == 1 and out["ran"] is False, out
     assert out["cleared"] == identity, out
-    assert [t["id"] for t in holder.live()] == [], (
-        "rung 1 read the proof proven and the seal-red it stood under is STILL LIVE at the "
-        "holder — a false alarm the green already answered")
-    from cairn.devices.trouble.tools.store.store import live
-    assert [t["id"] for t in live(root=store)] == [], "the published tool still reads it live"
+    assert _live_ids(store) == [], (
+        "rung 1 read the proof proven and the seal-red it stood under is STILL LIVE — a false "
+        "alarm the green already answered")
 
 
 def test_rung_1_clears_nothing_where_no_seal_red_stands():
@@ -818,13 +827,13 @@ def test_rung_1_clears_nothing_where_no_seal_red_stands():
     with no store at all, both draw no clear."""
     root, proof = _component()
     persist_validation(_record(proof, GREEN), proof_path=str(proof))
-    holder, store, _ = _holder(root)
+    store, holder = _holder(root)
     holder.raise_trouble("seal-red-some-other-proof", why="fixture: a neighbour's raise")
     raiser = _FakeRaiser()
     out = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=store)
     assert out["outcome"] == "unchanged" and out["cleared"] is None, out
     assert raiser.cleared == [], f"rung 1 cleared with nothing of its own standing: {raiser.cleared}"
-    assert [t["id"] for t in holder.live()] == ["seal-red-some-other-proof"], (
+    assert _live_ids(store) == ["seal-red-some-other-proof"], (
         "rung 1 cleared a trouble under another proof's identity")
     out2 = reseal(proof, tester=_Exploding(), raiser=raiser, trouble_root=root / "no-store-here")
     assert out2["cleared"] is None and raiser.cleared == [], (out2, raiser.cleared)
@@ -838,13 +847,13 @@ def test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_
     persist_validation(_record(proof, GREEN), proof_path=str(proof))
     (root / "code.py").write_text("VALUE = 3\n", encoding="utf-8")
     assert not standing(str(proof))["proven"], "fixture: the fingerprint must have moved"
-    holder, store, raiser = _holder(root)
+    store, raiser = _holder(root)
     identity = trouble_identity(proof)
-    holder.raise_trouble(identity, why="fixture: a standing seal-red")
+    raiser.raise_trouble(identity, why="fixture: a standing seal-red")
     out = reseal(proof, tester=_TimingOut(), raiser=raiser, trouble_root=store)
     assert out["outcome"] == "timeout", out
     assert raiser.cleared == [], f"a reseal that was not green cleared {raiser.cleared}"
-    assert [t["id"] for t in holder.live()] == [identity], (
+    assert _live_ids(store) == [identity], (
         "the standing seal-red left the live list though nothing proved the moved bytes")
 
 

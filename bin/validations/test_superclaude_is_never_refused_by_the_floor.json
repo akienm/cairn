@@ -2,8 +2,8 @@
   {
     "claim": "proof test_superclaude_is_never_refused_by_the_floor.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-11T17:56:29",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-12T14:02:35",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -17,7 +17,7 @@
         "test_an_absent_postgres_is_named_not_installed"
       ],
       "teeth_red": [],
-      "test": "test-f2af86df66ca",
+      "test": "test-f249a79e9e0d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,21 +27,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d34a157387acc5bdafe300462f4f1f46050eb0598ba50aa0456bcd7d0ec8fcad",
+        "proof": "f53e236ab0cc7b1ebb17edb0c61c35cfde174629be3f77258e05467bf3f9779f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2af86df66ca",
-      "source_fingerprint": "d805fc9d6e24cae161e7435b6ea59a57870ac425ca7c339a31123c0459f72932",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f249a79e9e0d",
+      "source_fingerprint": "8b8a4b361130ac15406d46895e955dfdefe5deb0adf3cec6d793d540e6c0a335",
       "fingerprint_closure": [
         "bin/proofs/test_superclaude_is_never_refused_by_the_floor.py",
         "cairn/__init__.py",
@@ -63,24 +68,36 @@
         "cairn/tools/system_word/system_word.py"
       ],
       "reached": {
-        "cairn/devices/cc": "a1e3efcc0fde3e3c8d484e2c5cce8c6ed8a5b7ad20ed65f90b7607ea8aeec7fb",
-        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
-        "cairn/machines/learning_block": "d2483c01e89e884a252e79564bfd5e2186c1f08579437d1187f1979d10d11183",
-        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
+        "cairn/devices/cc": "38f0122c316aca6f1b5ae6be6c9f275a16fc46d216f0e5e0e80cb972193fb9de",
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
+        "cairn/tools/base": "6d0b2be5a8a17d8a090197e877d17f07425e7c91effc57bc683057fece8485d3",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: kernel.apparmor_restrict_unprivileged_userns=1 — unprivileged user namespaces are blocked, so bwrap cannot build a sandbox (fix: sysctl -w kernel.apparmor_restrict_unprivileged_userns=0) — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1730508-qvg_a1be/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 5,
+          "paths": [
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/preflight.json"
+          ],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 529525585,
+          "disk_bytes": 575873024,
+          "entries": 17613,
+          "builds": 1,
+          "reuses": 21
         }
       }
     },

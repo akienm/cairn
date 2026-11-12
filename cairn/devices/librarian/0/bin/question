@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# cairn librarian question harvest | proposals | confirm <n> | add "<q?>" (ticket c7cb0de74f71).
+# Proposes cross-domain questions harvested in Akien's own words, for him to confirm, and takes a
+# new one as he says it. The logic lives in cairn/devices/librarian/harvest_questions.py.
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m cairn.devices.librarian.harvest_questions "$@"

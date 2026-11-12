@@ -21,14 +21,14 @@ by tooth instead of crashing the reader:
   nothing_asks_trouble_over_the_bus     — no request addressed to trouble anywhere outside proofs
   the_cli_clears_with_no_bus            — `trouble live` and `trouble clear` over a scratch HOME
                                          with every bus dial refused
-  the_two_readers_read_with_no_bus      — the cairn pane and the web_server rows read a scratch
-                                         store with the bus refused
   the_store_tool_is_published           — the tool's charter publishes its one module, the old
                                          door is gone, and no encapsulation breach names either
   nothing_imports_the_old_door          — no module under cairn/ or bin/ imports
                                          cairn.devices.trouble.store, nested imports included
-  the_pane_probe_reads_with_no_bus      — the pane's probe, no bus in its context and every dial
-                                         refused, reads a seeded store healthy with 3 live rows
+
+The readers' own teeth berth beside the readers (RULE 1: this proof measures trouble only): the
+web server's socket rows in web_server's proofs (ticket 609b038a1958), the cairn pane and its
+probe in the cairn device's proofs.
 
     bin/cairn test cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py
 """
@@ -105,13 +105,6 @@ def _seed(store: Path) -> None:
 
 class _Refused(Exception):
     pass
-
-
-class _NoBus:
-    """A bus whose every request is refused, so a reader that still asks reds."""
-
-    def request(self, *a, **kw):
-        raise _Refused(f"a trouble reader asked the bus: {kw.get('to')}/{kw.get('verb')}")
 
 
 def _refuse_dials():
@@ -297,40 +290,6 @@ def test_the_cli_clears_with_no_bus() -> None:
           f"out={(nope.stdout + nope.stderr)[-160:]!r} | dials={dialled[:200]!r}")
 
 
-def test_the_two_readers_read_with_no_bus() -> None:
-    from cairn.devices.cairn.device import CairnDevice
-    from cairn.devices.web_server import listener
-    got, errs = {}, []
-    undo = _refuse_dials()
-    try:
-        with tempfile.TemporaryDirectory(prefix="ee04-readers-") as d:
-            roots, store = _world(Path(d))
-            _seed(store)
-            for name, call in (
-                    ("pane", lambda: CairnDevice(bus=_NoBus(), roots=roots)._trouble_pane_data()),
-                    ("web", lambda: listener._trouble_rows(roots))):
-                try:
-                    got[name] = call()
-                except Exception as exc:  # noqa: BLE001 — a reader that cannot read is the red
-                    errs.append(f"{name}: {type(exc).__name__}: {exc}")
-            roots2, _ = _world(Path(d) / "absent")
-            try:
-                CairnDevice(bus=_NoBus(), roots=roots2)._trouble_pane_data()
-                errs.append("pane over an absent store answered instead of raising")
-            except _Refused as exc:
-                errs.append(f"pane over an absent store asked the bus: {exc}")
-            except Exception:  # noqa: BLE001 — Law 7: absent is a raise, never zero troubles
-                pass
-    finally:
-        undo()
-    want = ["proof-live-a", "proof-unreadable", "who-writes-what-proof-top"]
-    pane_ok = sorted(r.get("id") for r in got.get("pane") or []) == want
-    web_ok = sorted(r.get("id") for r in got.get("web") or []) == want \
-        and all(set(r) == {"id", "standing", "why", "count"} for r in got.get("web") or [])
-    check("the_two_readers_read_with_no_bus", pane_ok and web_ok and not errs,
-          f"pane={pane_ok} web={web_ok} errs={errs}")
-
-
 def test_the_store_tool_is_published() -> None:
     tool_dir = _COMP / "tools" / "store"
     charter = json.loads((tool_dir / "intention+why.json").read_text(encoding="utf-8"))
@@ -367,27 +326,10 @@ def test_nothing_imports_the_old_door() -> None:
     check("nothing_imports_the_old_door", not hits, f"importers={hits[:8]}")
 
 
-def test_the_pane_probe_reads_with_no_bus() -> None:
-    """The probe watching the trouble pane reads the store the pane reads — no bus in its
-    context, every dial refused — and a seeded store reads healthy with its three live rows."""
-    probe = importlib.import_module("cairn.devices.cairn.probes.trouble_panel_surfaces_live_troubles")
-    undo = _refuse_dials()
-    try:
-        with tempfile.TemporaryDirectory(prefix="ee04-probe-") as d:
-            roots, store = _world(Path(d))
-            _seed(store)
-            got = probe._check({"roots": roots})
-    finally:
-        undo()
-    check("the_pane_probe_reads_with_no_bus",
-          got.get("healthy") is True and got.get("live_count") == 3, f"check={got}")
-
-
 TEETH = (test_the_lane_declares_no_trouble_verbs, test_the_tool_reads_the_live_rows,
          test_the_tool_reaches_no_host,
          test_nothing_asks_trouble_over_the_bus, test_the_cli_clears_with_no_bus,
-         test_the_two_readers_read_with_no_bus, test_the_store_tool_is_published,
-         test_nothing_imports_the_old_door, test_the_pane_probe_reads_with_no_bus)
+         test_the_store_tool_is_published, test_nothing_imports_the_old_door)
 
 
 def main() -> int:

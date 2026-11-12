@@ -18,7 +18,8 @@ WHAT THIS PROVES, on scratch stores:
       development tickets' own parser reads with the cursor at OPEN, and at CLEARED once it
       clears. The trouble node class loads through the same class loader.
   (3) the default store is ``log_path('cairn', 0)/troubletickets`` under whatever instance
-      root the caller names, and the cairn device's log sweep forgets an aged file in it.
+      root the caller names, so it sits inside the logs tree the 30-day sweep forgets (the
+      sweep's own tooth berths beside the sweeper, in the cairn device's proofs).
   (4) migrate_from() moves an old store whole: live files to the top, CLEARED ones to
       ``cleared/``, nothing left behind and nothing lost.
 
@@ -30,10 +31,8 @@ Hollow: the field-filter, commons-rooted build reds every tooth.
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
@@ -121,8 +120,10 @@ def test_the_trouble_node_class_loads():
 
 
 def test_the_default_store_is_under_the_instance_logs():
+    """The store berths under the logs tree, so the logs tree's 30-day sweep covers it. That the
+    sweep forgets an aged file there is the sweeper's claim and is proved beside the sweeper, in
+    the cairn device's proofs (RULE 1: this proof measures trouble only)."""
     from cairn.tools.base.address import log_path
-    from cairn.devices.cairn.logs_sweep import sweep_logs
     from cairn.devices.trouble import trouble
     with tempfile.TemporaryDirectory() as d:
         roots = {"instance": Path(d)}
@@ -132,11 +133,7 @@ def test_the_default_store_is_under_the_instance_logs():
         dev = _device(store)
         dev.raise_trouble(IDENT, why="the proof raised it")
         dev.clear(IDENT, by="CC", what_changed="the proof cleared it")
-        aged = store / "cleared" / f"{IDENT}.json"
-        old = time.time() - 31 * 86400
-        os.utime(aged, (old, old))
-        sweep_logs(roots=roots)
-        assert not aged.exists(), "the 30-day sweep did not reach the trouble store"
+        assert (store / "cleared" / f"{IDENT}.json").is_file(), sorted(store.rglob("*"))
 
 
 def test_migrate_from_moves_the_old_store_whole():

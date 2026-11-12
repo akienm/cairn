@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_location_is_liveness.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T05:48:42",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-11T17:43:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_clearing_moves_the_file_into_cleared\n.\n  ok   test_live_is_the_top_level_listing\n.\n  ok   test_a_raise_on_a_cleared_trouble_brings_it_back\n.\n  ok   test_a_trouble_carries_the_development_ticket_fields\n.\n  ok   test_the_trouble_node_class_loads\n.\n  ok   test_the_default_store_is_under_the_instance_logs\n.\n  ok   test_migrate_from_moves_the_old_store_whole\n                                                                  [100%]\n7 passed in 0.05s",
+      "stdout_tail": ".\n  ok   test_clearing_moves_the_file_into_cleared\n.\n  ok   test_live_is_the_top_level_listing\n.\n  ok   test_a_raise_on_a_cleared_trouble_brings_it_back\n.\n  ok   test_a_trouble_carries_the_development_ticket_fields\n.\n  ok   test_the_trouble_node_class_loads\n.\n  ok   test_the_default_store_is_under_the_instance_logs\n.\n  ok   test_migrate_from_moves_the_old_store_whole\n                                                                  [100%]\n7 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_clearing_moves_the_file_into_cleared",
@@ -19,7 +19,7 @@
         "test_migrate_from_moves_the_old_store_whole"
       ],
       "teeth_red": [],
-      "test": "test-2ea056b4f57d",
+      "test": "test-fe84f2db38b6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,26 +29,25 @@
         "tables": []
       },
       "conditions": {
-        "proof": "0264e9fc288ff28766c7e7da8b4b33c9cdef6ebe08e5a7f13701e66821d30121",
+        "proof": "957d4e2eeec0f1a0c0e9c04dd30036e42c53000b4e8e3708acdcf5b3f812d6df",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ea056b4f57d",
-      "source_fingerprint": "9ffd431616667582c1c373b6f03db2c22c213d827604e2c41368ee1afcfc9d5d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fe84f2db38b6",
+      "source_fingerprint": "09e4473d055173cbf09ec486dab3355e7c41f056db084a276db80d2b0aab705d",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/__init__.py",
@@ -56,32 +55,32 @@
         "cairn/devices/trouble/trouble.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "a7d287cf7101ce42df3deba7df3b355f3e1fcda55e76c155482a3e4efda1c70f",
-        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
-        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
-        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
+        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/charter": "13c52a81874d8c2195c704b2b76c6a183452bf716af06a12a72a85d4cb7d49e3",
+        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/proof_coverage": "c87f4d18e73ea364821eb6ade4780c6fc8e07dd0025f70286201515fa04cc156",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/proof_coverage": "78cf131ddc73f34c0245a0c995a8822723df65d5eee04e1f13cae7ceda01a500",
+        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-648400-2j8d23m4/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-2ea056b4f57d/stderr.txt",
-            "logs/tester/0/runs/test-2ea056b4f57d/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 527139105,
+          "disk_bytes": 565858304,
+          "entries": 15017,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

@@ -4,12 +4,13 @@ One tooth per numbered falsifier clause:
 
   1. cognition_questions.json carries no question text for any corpus id, and no
      cognition_questions or novelty_matrix keys.
-  2. Every held id resolves through the librarian's load(), and the holds list includes
+  2. Every held id resolves in the librarian's corpus tree, and the holds list includes
      Q-cog-014..018 (the five UU questions she never had).
   3. seed(dry_run=True) returns one entry per held id plus one per coding_domain question, and
      each held entry's content starts with the corpus text.
   4. A holds list naming an unknown id is reported in errors, and the CLI exits non-zero.
-  5. seed_trees.py reaches the corpus only through the module, never by a path to the JSON.
+  5. seed_trees.py reaches the corpus only through the trees tool's find, never by the
+     librarian's corpus module or a path to the JSON (ticket 6ba77d0e0c32, RULE 1).
   6. Every held entry's provenance carries the corpus origin.
 
 Every import of what the build changed happens inside a tooth.
@@ -44,8 +45,17 @@ SEED = HERE / "seed_trees.py"
 
 
 def _corpus() -> dict:
-    from cairn.devices.librarian import cross_domain_questions
-    return {q["id"]: q for q in cross_domain_questions.load()["questions"]}
+    """The librarian's corpus as its keyed tree carries it, read through the tools it
+    publishes (RULE 1): every key in the tree, its newest leaf's text and origin."""
+    from cairn.devices.db_domain.tools.client import store
+    from cairn.devices.librarian.tools.trees import trees
+    table = trees.CROSS_DOMAIN_QUESTIONS
+    out = {}
+    for key in sorted({r["key"] for r in store.read(table)}):
+        n = trees.find(key, table=table)[0]
+        out[key] = {"id": key, "question": n["content"], "origin": (n["meta"] or {}).get("origin")}
+    assert out, f"the librarian's corpus tree {table} carries no question"
+    return out
 
 
 def _seed():
@@ -120,7 +130,9 @@ def test_an_unknown_held_id_is_loud():
 
 def test_seed_reaches_the_corpus_only_through_the_module():
     src = SEED.read_text()
-    assert "cross_domain_questions.load()" in src, "seed_trees does not call the librarian's load()"
+    assert "trees.find(" in src and "CROSS_DOMAIN_QUESTIONS" in src, "seed_trees does not find held ids in the corpus tree"
+    assert "librarian import cross_domain_questions" not in src and "librarian.cross_domain_questions" not in src, \
+        "seed_trees imports the librarian's corpus module"
     for line in src.splitlines():
         if "cross_domain_questions.json" in line:
             assert "source" in line and "#" in line, f"a path to the corpus JSON: {line.strip()}"

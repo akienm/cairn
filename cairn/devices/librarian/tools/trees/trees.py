@@ -43,6 +43,11 @@ NODES = "librarian_nodes"
 # (seeded by the first live walk, n=1; see the module note). Returned in every verdict.
 RESOLUTION_FLOOR = 0.65
 OWNER = "librarian"
+# The keyed tree the librarian plants its cross-domain question corpus in (outline 4.3.1.8,
+# ticket 2248911aaf05). A device holding questions as the librarian's delegate (4.3.1.4) finds
+# each by its id here, through find, and never imports the librarian's corpus module (RULE 1,
+# outline 4.4.2).
+CROSS_DOMAIN_QUESTIONS = "librarian_cross_domain_questions"
 
 _MIN_CONTENT_CHARS = 8
 

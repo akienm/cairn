@@ -25,8 +25,9 @@ import json
 import sys
 from pathlib import Path
 
+from cairn.devices.librarian.tools.trees.trees import CROSS_DOMAIN_QUESTIONS as TABLE
+
 CORPUS = Path(__file__).resolve().parent / "cross_domain_questions.json"
-TABLE = "librarian_cross_domain_questions"
 ORIGINS = ("verbatim", "proposed")
 
 

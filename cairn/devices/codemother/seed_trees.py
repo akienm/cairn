@@ -1,9 +1,12 @@
 """codemother/seed_trees.py — plant the cognition questions as root nodes.
 
 Reads cognition_questions.json beside this file: the ids she HOLDS of the
-librarian's cross-domain corpus (texts read through
-cairn.devices.librarian.cross_domain_questions.load(), never from its file;
-ticket d12fd9781fb6) plus her own coding_domain starters. Embeds each question
+librarian's cross-domain corpus (ticket d12fd9781fb6) plus her own coding_domain
+starters. Each held id is found by key in the keyed tree the librarian plants the
+corpus in, through the trees tool it publishes (trees.find over
+trees.CROSS_DOMAIN_QUESTIONS); she never imports the librarian's corpus module and
+never reads its file (RULE 1, outline 4.4.2: a delegate works its trees through
+that tool). Embeds each question
 and deposits it into codemother's graph tree via the librarian's deposit door.
 Idempotent: the deposit door deduplicates by content hash, so re-running
 after a corpus update deposits only the new questions.
@@ -44,30 +47,37 @@ def _embed_fn():
     return embed
 
 
-def _sections(data: dict, errors: list) -> list:
-    """Her held corpus ids, resolved through the librarian's module, plus her coding_domain.
-    A held id the corpus does not carry is a loud error, never a silent skip."""
-    from cairn.devices.librarian import cross_domain_questions
+def _sections(data: dict, errors: list, table: str) -> list:
+    """Her held ids, each found by key in the librarian's keyed corpus tree, plus her
+    coding_domain. A held id the tree does not carry is a loud error, never a silent skip."""
+    from cairn.devices.librarian.tools.trees import trees
 
-    corpus = {q["id"]: q for q in cross_domain_questions.load()["questions"]}
     held = []
     for qid in data.get("holds", []):
-        q = corpus.get(qid)
-        if q is None:
-            errors.append({"id": qid, "error": f"held id {qid} resolves to no question in the librarian's corpus"})
+        found = trees.find(qid, table=table)
+        if not found:
+            errors.append({"id": qid, "error": f"held id {qid} resolves to no question in the librarian's tree {table}"})
             continue
-        held.append(q)
+        node = found[0]
+        prov, meta = node["provenance"] or {}, node["meta"] or {}
+        held.append({"id": qid, "question": node["content"], "function": meta.get("function", ""),
+                     "origin": meta.get("origin") or prov.get("origin"), "said_by": prov.get("said_by", "")})
     return [("held", held), ("coding_domain", data.get("coding_domain", {}).get("questions", []))]
 
 
-def seed(*, dry_run: bool = False, questions_file: Path | str | None = None) -> dict:
+def seed(*, dry_run: bool = False, questions_file: Path | str | None = None,
+         table: str | None = None) -> dict:
+    """``table`` is the keyed tree the held ids are found in; the librarian's standing corpus
+    tree when absent (a proof hands a scratch keyed leaf)."""
+    from cairn.devices.librarian.tools.trees import trees
+
     data = json.loads(Path(questions_file or QUESTIONS_FILE).read_text())
 
     deposited = []
     skipped = []
     errors = []
 
-    sections = _sections(data, errors)
+    sections = _sections(data, errors, table or trees.CROSS_DOMAIN_QUESTIONS)
     embed = None if dry_run else _embed_fn()
 
     for section_name, questions in sections:

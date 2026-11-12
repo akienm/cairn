@@ -142,7 +142,7 @@ def _built(name):
 
 from cairn.devices.codemother.machines.clearance import clearance as _clearance
 from cairn.devices.codemother.machines.clearance import __main__ as _report
-from cairn.machines.learning_block.learning_block import trace_root, write_trace
+from cairn.machines.learning_block.learning_block import trace_path, trace_root, write_trace
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.validation_store.validation_store import persist_validation, record_hollow
 
@@ -376,7 +376,7 @@ def _paths(tmp: str):
 # came out of the run byte-identical. Same discipline, and the same pairing of injection
 # with a byte-identity tooth, as skills/sorted/proofs/test_sorted_door.py.
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
-_LIVE_QUEUE = trace_root() / f"{QUEUE_BLOCK}.jsonl"
+_LIVE_QUEUE = trace_path(QUEUE_BLOCK)
 _LIVE_BEFORE = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
 os.environ[_TRACE_ENV] = str(Path(_SCRATCH) / "traces")
 
@@ -391,7 +391,7 @@ def _queue(tmp: str):
     prior = os.environ[_TRACE_ENV]
     os.environ[_TRACE_ENV] = str(root)
     try:
-        yield root / f"{QUEUE_BLOCK}.jsonl"
+        yield trace_path(QUEUE_BLOCK, root)
     finally:
         os.environ[_TRACE_ENV] = prior
 

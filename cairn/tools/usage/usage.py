@@ -9,6 +9,8 @@ a failed fetch is written as an error beside the last good reading, never in its
     python -m cairn.tools.usage --fetch    # fetch now, write, print
     python -m cairn.tools.usage --hook     # Stop-hook entry: fetch, write, exit 0 always
 
+Store: ~/.cairn/devices/cc/0/tools/usage/usage.json (override CAIRN_USAGE_FILE).
+
 The reply shape of the endpoint is a HYPOTHESIS (no network call was measured at build); an
 unreadable reply is recorded as a window of None, never invented.
 """
@@ -28,7 +30,9 @@ BETA = "oauth-2025-04-20"
 
 def store_path(environ=None) -> Path:
     env = os.environ if environ is None else environ
-    return Path(env.get("CAIRN_USAGE_FILE") or Path.home() / ".cairn" / "usage" / "usage.json")
+    # Outline 1.3.1: a tool's data for a holder berths under that holder; the Stop hook is CC's.
+    return Path(env.get("CAIRN_USAGE_FILE")
+                or Path.home() / ".cairn" / "devices" / "cc" / "0" / "tools" / "usage" / "usage.json")
 
 
 def creds_path(environ=None) -> Path:

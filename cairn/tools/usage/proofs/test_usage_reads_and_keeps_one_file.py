@@ -125,6 +125,14 @@ def a_missing_credential_is_recorded_and_the_hook_exits_zero():
         assert u.main(["--hook"], environ=env, fetch=_boom) == 0, "--hook returned non-zero on a failed fetch"
 
 
+def the_default_store_berths_under_the_cc_holder():
+    """Outline 1.3.1 (open-44690b1b31d8): the default is the holder's tools/usage/, not ~/.cairn/usage/."""
+    u = _usage()
+    got = u.store_path({}).as_posix()
+    assert got.endswith("/.cairn/devices/cc/0/tools/usage/usage.json"), got
+    assert u.store_path({"CAIRN_USAGE_FILE": "x.json"}).as_posix() == "x.json", "the override was lost"
+
+
 def no_network_is_touched():
     u = _usage()
     with _world() as (env, _path):
@@ -139,7 +147,7 @@ def no_network_is_touched():
 
 TEETH = [a_good_fetch_is_written_and_read_fresh, a_failed_fetch_sits_beside_the_last_good_reading,
          the_token_never_appears, a_missing_credential_is_recorded_and_the_hook_exits_zero,
-         no_network_is_touched]
+         the_default_store_berths_under_the_cc_holder, no_network_is_touched]
 
 
 def main() -> int:

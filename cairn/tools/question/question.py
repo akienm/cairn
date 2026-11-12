@@ -49,6 +49,7 @@ accepted and the class rides the record and the journal (his answer to open-6903
     cairn question answer <qid> "<the finding>" --measured <record> --spawned none
     cairn question rebind <ticket-id>        questions bound to the ticket's intent berth → the id
     cairn question list [<ticket>]           open questions; for one ticket, its whole tree
+    python3 -m cairn.tools.question.migrate  answers given before the door, copied in (migrate)
 """
 
 from __future__ import annotations
@@ -245,6 +246,56 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
            why=f"{'a measurement' if measured else 'Akien'} answered {record['id']}" +
                (f"; spawned {len(born)} question(s)" if born else "; spawned none"))
     return record
+
+
+def migrate(ticket: str, question: str, answer_words: str, *, date: str, answered_at: str,
+            source: str, raised_by: str, answered_by: str = "Akien", extra: dict | None = None,
+            root: Path | str | None = None) -> dict:
+    """Open-and-resolve in one journaled act: a question answered BEFORE this door existed —
+    a ruling under ``decisions/``, a ticket decision line citing him, a chat turn — copied into
+    the corpus (ticket d23356c26e7d). It is a translation, so it names what it translates:
+    ``source`` is the path (or transcript#uuid) it came from, and ``date`` / ``answered_at``
+    are the SOURCE's, never the clock's. The answer is copied byte for byte — nothing strips it.
+
+    Idempotent on (ticket, source): a record already carrying both is returned with
+    ``"migrated": False`` and nothing is written, so a second run writes 0 records. Returns
+    the record, ``"migrated": True`` when this call wrote it. The ticket-side end of the link
+    is written as ``open_question`` writes it (no ticket file → the question side only)."""
+    lacks = []
+    if not (isinstance(ticket, str) and ticket.strip()):
+        lacks.append("ticket: the ticket (or the source's own id) the answer is bound to")
+    if not (isinstance(question, str) and question.strip().endswith("?")):
+        lacks.append("question: a question ends with '?' — a statement is not one")
+    if not (isinstance(answer_words, str) and answer_words.strip()):
+        lacks.append("answer: the source's words, verbatim, and they are empty")
+    if not (isinstance(source, str) and source.strip()):
+        lacks.append("source: the path a migrated answer came from — a copy names its original")
+    for name, v in (("date", date), ("answered_at", answered_at)):
+        if not (isinstance(v, str) and len(v) >= 10 and v[:4].isdigit() and v[4] == "-"):
+            lacks.append(f"{name}: the source's date (YYYY-MM-DD...), not the clock's — got {v!r}")
+    if not (isinstance(raised_by, str) and raised_by.strip()):
+        lacks.append("raised_by: who put the question")
+    if lacks:
+        raise Refused("migrate refused — " + "; ".join(lacks))
+    for q in _all(root):
+        if q.get("ticket") == ticket.strip() and q.get("source") == source:
+            return {**q, "migrated": False}
+    who = door.caller()
+    qid = PREFIX + uuid.uuid4().hex[:12]
+    record = {
+        "id": qid, "date": date[:10], "ticket": ticket.strip(),
+        "question": question.strip(), "why_it_blocks": "answered before the question door "
+        "existed; migrated into the corpus so the system reads its Q&A in one place",
+        "raised_by": raised_by.strip(), "born_of": None, "source": source, "resolved": True,
+        "answer": answer_words,
+        "answered_by": f"{answered_by}, migrated by caller class {who['class']}",
+        "answered_at": answered_at, "spawned": [],
+        **(extra or {}),
+    }
+    _write(_path(qid, root), record, verb="answer",
+           why=f"migrated {source} into the corpus as {qid}, bound to {ticket.strip()}")
+    _link_to_ticket(record["ticket"], qid, why=f"{qid} migrated from {source}")
+    return {**record, "migrated": True}
 
 
 def note(qid: str, text: str, *, by: str, root: Path | str | None = None) -> dict:

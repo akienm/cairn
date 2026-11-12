@@ -292,9 +292,15 @@ def test_inbox_and_dashboard_print_the_same_open_idea_and_intention_counts():
     open-idea count and the same open-intention count — one reader, two surfaces. Read
     over the live commons; the invariant is agreement, never a snapshot of the number."""
     import re
-    from cairn.devices.codemother.dashboard import format_dashboard
+    import subprocess
     data = gather_all()
-    inbox, dash, summary = format_inbox(data), format_dashboard(data), format_summary(data)
+    inbox, summary = format_inbox(data), format_summary(data)
+    # the dashboard as Akien types it — codemother's command, never her module (RULE 1)
+    cairn = Path(__file__).resolve().parents[4] / "bin" / "cairn"
+    r = subprocess.run([str(cairn), "codemother", "show", "dashboard"], capture_output=True,
+                       text=True, timeout=120)
+    assert r.returncode == 0, f"cairn codemother show dashboard exited {r.returncode}: {r.stderr[-400:]}"
+    dash = r.stdout
 
     def one(pattern, text, where):
         hits = re.findall(pattern, text, re.M)

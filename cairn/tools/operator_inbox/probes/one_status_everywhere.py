@@ -6,7 +6,8 @@ cairn/tools/operator_inbox because that is WHAT IT WATCHES: the one reader's lab
 as printed by the three reports `akienupdate` shows Akien — the operator inbox, the
 codemother dashboard, the harbor map.
 
-THE MEASUREMENT. Re-render the three reports through their own modules, read every
+THE MEASUREMENT. Re-render the three reports — the inbox through its own module, the
+dashboard and the map as the commands Akien types (RULE 1) — read every
 ticket atom (date, label, id, title) off the printed text, and diff the label per
 ticket id across the reports it appears on. A divergence is one id with two labels
 — the defect Akien named 2026-09-06 ("for a given ticket that appers in all the
@@ -30,7 +31,9 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
 
 from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
 
@@ -52,14 +55,22 @@ def _rows(text: str) -> dict[str, str]:
     return out
 
 
+_CAIRN = Path(__file__).resolve().parents[4] / "bin" / "cairn"
+
+
+def _command(*argv: str) -> str:
+    """A device's report as Akien types it — its command, never its module (RULE 1)."""
+    r = subprocess.run([str(_CAIRN), *argv], capture_output=True, text=True, timeout=120)
+    if r.returncode != 0:
+        raise RuntimeError(f"cairn {' '.join(argv)} exited {r.returncode}: {r.stderr[-400:]}")
+    return r.stdout
+
+
 def _render_three() -> dict[str, str]:
     from cairn.tools.operator_inbox.inbox import build_inbox
-    from cairn.devices.codemother.dashboard import format_dashboard
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
-    dev = HarborMasterDevice()
-    hmap = dev._handle_show({"id": "probe", "sender": "probe", "to": "harbor_master",
-                             "verb": "show", "body": {"what": "map", "args": ["open"]}})
-    return {"inbox": build_inbox(), "dashboard": format_dashboard(), "map": hmap["text"]}
+    return {"inbox": build_inbox(),
+            "dashboard": _command("codemother", "show", "dashboard"),
+            "map": _command("harbor_master", "show", "map", "open")}
 
 
 def _header_counts(inbox_text: str) -> dict[str, int]:

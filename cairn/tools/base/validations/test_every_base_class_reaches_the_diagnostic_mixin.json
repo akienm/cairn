@@ -1,26 +1,25 @@
 [
   {
     "claim": "proof test_every_base_class_reaches_the_diagnostic_mixin.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-12T05:26:02",
+    "caller": "cairn test",
+    "date": "2026-11-12T06:04:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_the_sieve_reads_base_green  — 1 finding(s): cairn/tools/base/probe.py:232 class Threshold has code and does not reach DiagnosticBase\n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  FAIL  test_base_holds_every_clause_of_the_falsifier  — 1 tooth/teeth red\n\nRED — 2 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_sieve_reads_base_green  — 0 finding(s): \n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  PASS  test_base_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "test_the_sieve_reads_base_green",
         "test_diagnostic_loads_only_the_standard_library",
         "test_every_touched_module_imports_fresh",
         "test_the_exceptions_keep_their_shape",
         "test_the_workflow_stays_frozen_and_can_emit",
-        "test_the_shim_orders_core_values_first"
-      ],
-      "teeth_red": [
-        "test_the_sieve_reads_base_green",
+        "test_the_shim_orders_core_values_first",
         "test_base_holds_every_clause_of_the_falsifier"
       ],
-      "test": "test-480a6796d1a1",
+      "teeth_red": [],
+      "test": "test-f0b8287b507c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,13 +41,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-480a6796d1a1",
-      "source_fingerprint": "097bf109e4f068d27a62b30a5d89c56244094c7bb69fe773a6f484dab70d03cd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f0b8287b507c",
+      "source_fingerprint": "62678dfed9f8fa4ebe0a777b7c9d148845f225a6a5761b43caf9cf0f29741dcc",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -71,18 +71,18 @@
       ],
       "reached": {
         "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
-        "cairn/machines/build_inspector": "acf6fdbc9623ef6aa4efcae8fa4d4c8449066c33708d47f43a6ea1b64dd0ff1e",
+        "cairn/machines/build_inspector": "3850a943a90ab112e3b7c894da9f1a88fe35c702fb7f6de2aa07b5cc948bd02b",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
-        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "4b17e1dca968731b5db13abddbd411e856a5fad29f2a360e0a7485223ce841b6"
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1112830-2145t5f7/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1234951-bufh3jbh/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -91,21 +91,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528302794,
-          "disk_bytes": 571109376,
-          "entries": 16379,
+          "bytes": 528366295,
+          "disk_bytes": 571547648,
+          "entries": 16524,
           "builds": 1,
-          "reuses": 100
+          "reuses": 1
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705",
         "opened": "2026-11-12T05:26:02",
         "last_red": "2026-11-12T05:26:02",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-every-base-class-reaches-the-diagnostic-mixin",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-12T06:04:47",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705"
+      },
+      "conditions_moved": {
+        "notified": "n-eb27b14a66ed",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

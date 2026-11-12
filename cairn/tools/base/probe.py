@@ -229,7 +229,7 @@ def watch_carry(ticket_id: str, carry: Callable[[dict], dict] | None = None, *,
 
 
 @dataclass(frozen=True)
-class Threshold:
+class Threshold(DiagnosticBase):
     """A DECLARED number behind a probe's ``enough`` — the number AND what set it (ticket
     336a781018ba, 2026-09-18).
 

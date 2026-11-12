@@ -84,13 +84,34 @@ def connect_system(*, devices: list[str] | None = None, beat: bool = True):
     return _wire(devices=devices, beat=beat)
 
 
-def harbor_source():
-    """The harbor's traffic_image function — loadable without a cross-device import.
+def harbor_source(*, ask=None):
+    """A callable ``() -> traffic image`` that ASKS harbor_master over the bus.
 
-    The web_server renders the harbor view from this; importing it here (a tool)
-    rather than from the device keeps the web_server's isolation clean.
+    The web_server renders /harbor from this. Until ticket a433ced0b6e8 it imported
+    harbor_master's ``voyage.traffic_image`` and handed the function over: a reach into the
+    device laundered through a tool (RULE 1). Since cd36b8e86cd3 harbor_master answers
+    ``get traffic``, so the callable sends that and returns the reply's data. The reach bus
+    is built on the FIRST ask and kept, so the web server's start pays no wiring and
+    /harbor pays it once. A refusal raises, naming the reason (Law 7): the page shows it.
+    ``ask(**request)`` is injectable for a proof.
     """
-    from cairn.devices.cairn.machines.harbor_master.voyage import traffic_image
+    held: dict = {}
+
+    def traffic_image() -> dict:
+        request = dict(sender="bus_client", to="harbor_master", verb="get",
+                       why="the harbor's traffic image, asked of its owner over the bus",
+                       body={"what": "traffic"})
+        if ask is not None:
+            reply = ask(**request)
+        else:
+            if "bus" not in held:
+                held["bus"] = reach("harbor_master")
+            reply = held["bus"].request(**request)
+        body = reply["body"]
+        if not body.get("accepted"):
+            raise RuntimeError(f"harbor_master refused get traffic: {body.get('reason')}")
+        return body["data"]
+
     return traffic_image
 
 

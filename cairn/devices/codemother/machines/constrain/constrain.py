@@ -333,7 +333,7 @@ def _ask_tester(abs_path: str) -> dict:
     return record
 
 
-def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
+def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT, *, tickets_dir=None) -> list:
     """THE INSTRUMENTS THAT JUDGE THE REF'D COMPONENTS — discovered, never enumerated.
 
     COMPOSED FROM THE TESTER'S OWN COLLECTOR, and that is the whole of the discovery half.
@@ -352,10 +352,23 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
 
     Returns repo-relative paths, sorted, deduped — relative because that is the spelling
     ``constraint_traces`` resolves, and this build does not get to choose that.
+
+    A CLAIMED CHART DISCOVERS IN ITS OWN COMPONENT ONLY (ticket b0e608f34ccb, RULE 1). Measured
+    2026-10-05: b312ff041558's constrain stage, a one-file tester build, discovered 70 proofs
+    across 6 components because every ref'd component contributed its proofs. A ticket's proofs
+    measure only its own component, so when the orient berth claims a ticket, discovery reads
+    the component whose charter is that ticket's ``owning_intention``; the other refs stay
+    context (charter constraints) and contribute no instruments. An owner outside class-space
+    (a commons-berthed intention) has no proofs here. A claimless chart has no owner to read
+    and discovers across its refs as before. ``tickets_dir`` is the proof's seam onto a fixture
+    store (``grammar.ticket_path``'s own keyword, the reader the claim door uses).
     """
     from cairn.tools.base.validation import discover
 
     orient_packet = _read_orient_berth(intent_ref)
+    tid = orient_packet.get("ticket")
+    if isinstance(tid, str) and tid:
+        return _owned_instruments(tid, root, tickets_dir, discover)
     comp_dirs, seen = [], set()
     for ref in orient_packet.get("refs", []):
         comp_dir, _why = _resolve_ref(ref, root)
@@ -373,6 +386,33 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT) -> list:
             # A proof outside the class-space root cannot be spelled the way the judge
             # resolves sources. Kept out rather than emitted with a spelling the door
             # would refuse — and it is not silently dropped: the count is reported.
+            continue
+    return sorted(out)
+
+
+def _owned_instruments(tid: str, root: str, tickets_dir, discover) -> list:
+    """The proofs of the component that owns ticket ``tid``: the directory of its
+    ``owning_intention`` charter under ``root``. An unresolved ticket or an owner with no
+    charter in class-space discovers nothing (the door refuses an unfiled claim upstream)."""
+    from cairn.tools.chain.grammar import ticket_path
+    found = ticket_path(tid, root, None if tickets_dir is None else str(tickets_dir))
+    if found is None:
+        return []
+    try:
+        with open(found, encoding="utf-8") as fh:
+            owner = json.load(fh).get("owning_intention")
+    except (OSError, ValueError):
+        return []
+    if not isinstance(owner, str) or not owner:
+        return []
+    charter = os.path.join(root, owner)
+    if not os.path.isfile(charter):
+        return []
+    out = set()
+    for path in discover([os.path.dirname(charter)]):
+        try:
+            out.add(str(path.relative_to(root)))
+        except ValueError:
             continue
     return sorted(out)
 

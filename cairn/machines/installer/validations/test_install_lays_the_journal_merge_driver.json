@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_install_lays_the_journal_merge_driver.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T06:41:35",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_unset_driver_is_offered_and_left_unwritten\n  PASS  test_a_run_lays_it_in_every_root_and_a_second_reads_applied\n  PASS  test_a_driver_naming_a_gone_interpreter_is_relaid\n  PASS  test_a_root_that_is_not_a_repository_is_skipped\n  PASS  test_cairn_install_dry_run_lists_the_step\n\nGREEN — all 5 teeth pass",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_unset_driver_is_offered_and_left_unwritten",
+        "test_a_run_lays_it_in_every_root_and_a_second_reads_applied",
+        "test_a_driver_naming_a_gone_interpreter_is_relaid",
+        "test_a_root_that_is_not_a_repository_is_skipped",
+        "test_cairn_install_dry_run_lists_the_step"
+      ],
+      "teeth_red": [],
+      "test": "test-ef85a5d6c8b0",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4855e9d302b76b93682ceaf4f5ece2fde0d00fba4ed1513d1dd49286b3ee2d08",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef85a5d6c8b0",
+      "source_fingerprint": "96a74bd0586b81c30541243800c1687e9801f26efb12d4dafafa94a7d5e46527",
+      "fingerprint_closure": [
+        "cairn/machines/installer/__init__.py",
+        "cairn/machines/installer/installer.py",
+        "cairn/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
+        "cairn/tools/base": "9757f3b9e44e8dcef1931042955999f03aa19ed34f0ecb0149306c559f6d7899",
+        "cairn/tools/bus_client": "a757376bf1567421ac15353f250dc536c185dde093ec0542b6a525eed4c02e85",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1300952-v70wz23s/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 528439384,
+          "disk_bytes": 571772928,
+          "entries": 16576,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

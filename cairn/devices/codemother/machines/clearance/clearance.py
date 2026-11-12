@@ -84,7 +84,7 @@ from pathlib import Path
 
 from cairn.tools.base.transitions import (
     canon_target, emit, parse_workflow, resolve_target)
-from cairn.machines.learning_block.learning_block import trace_root, write_trace
+from cairn.machines.learning_block.learning_block import trace_lines, trace_path, trace_root, write_trace
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.validation import standing
 from cairn.tools.system_word import fold
@@ -248,28 +248,25 @@ def read_attempts() -> dict:
     every number, and an event matched without its consumer would count a record the reaper
     is entitled to delete. An unparseable line is SKIPPED — counting it as a refusal invents
     a no the gate never said, and counting it as an attempt inflates the denominator."""
-    path = trace_root() / f"{QUEUE_BLOCK}.jsonl"
+    path = trace_path(QUEUE_BLOCK)
     attempts: list[dict] = []
     unreadable = 0
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                unreadable += 1
-                continue
-            if rec.get("consumer") != QUEUE_CONSUMER or rec.get("event") not in (GRANTED, REFUSED):
-                continue
-            data = rec.get("data") or {}
-            row = {"at": rec.get("when"), "event": rec.get("event"), "actor": data.get("actor"),
-                   "boat": data.get("boat"), "target": data.get("target"),
-                   "workflow": data.get("workflow")}
-            if rec.get("event") == REFUSED:
-                row["reason_type"] = data.get("reason_type") or "<unnamed>"
-                row["reason"] = data.get("reason")
-            attempts.append(row)
+    for line in trace_lines(QUEUE_BLOCK):
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            unreadable += 1
+            continue
+        if rec.get("consumer") != QUEUE_CONSUMER or rec.get("event") not in (GRANTED, REFUSED):
+            continue
+        data = rec.get("data") or {}
+        row = {"at": rec.get("when"), "event": rec.get("event"), "actor": data.get("actor"),
+               "boat": data.get("boat"), "target": data.get("target"),
+               "workflow": data.get("workflow")}
+        if rec.get("event") == REFUSED:
+            row["reason_type"] = data.get("reason_type") or "<unnamed>"
+            row["reason"] = data.get("reason")
+        attempts.append(row)
     return {"queue": str(path), "attempts": attempts, "unreadable_lines": unreadable}
 
 

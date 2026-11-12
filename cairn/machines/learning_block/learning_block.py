@@ -65,6 +65,33 @@ def trace_root() -> Path:
     return instance_path("learning_block", 0) / "traces"
 
 
+def trace_path(block: str, root: Path | None = None) -> Path:
+    """The file a block's trace lives in. ':' (a block like ``skill:intent``) is an
+    alternate-data-stream separator on NTFS, so it is written ``__`` — a name legal on
+    every box. The ONE place a trace file name is built (ticket a9709b744bf5)."""
+    base = root if root is not None else trace_root()
+    return base / (str(block).replace(":", "__") + ".jsonl")
+
+
+def legacy_trace_path(block: str, root: Path | None = None) -> Path:
+    """The name traces were written under before the rename: the block verbatim. Only
+    differs from ``trace_path`` for a block carrying ':' — read and folded, never written."""
+    base = root if root is not None else trace_root()
+    return base / f"{block}.jsonl"
+
+
+def trace_lines(block: str, *, root: Path | None = None) -> list[str]:
+    """Raw non-blank lines of a block's trace, legacy file first, then the new one.
+    For readers that keep their own tolerance for an unparseable line."""
+    out: list[str] = []
+    new = trace_path(block, root)
+    legacy = legacy_trace_path(block, root)
+    for path in ((legacy, new) if legacy != new else (new,)):
+        if path.exists():
+            out += [l for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return out
+
+
 def _now(now: datetime | None) -> datetime:
     return now if now is not None else datetime.now(timezone.utc)
 
@@ -98,21 +125,21 @@ def write_trace(block: str, event: str, consumer: str, data: dict, *,
     }
     base = root if root is not None else trace_root()
     base.mkdir(parents=True, exist_ok=True)
-    path = base / f"{block}.jsonl"
+    path = trace_path(block, base)
+    legacy = legacy_trace_path(block, base)
     kept: list[str] = []
     cutoff = when - timedelta(days=DEBUG_TTL_DAYS)
-    if path.exists():
-        for line in path.read_text().splitlines():
-            if not line.strip():
-                continue
-            old = json.loads(line)
-            if old.get("consumer") == "debug" and datetime.fromisoformat(old["when"]) < cutoff:
-                continue                      # expired into nothingness, at the write
-            kept.append(line)
+    for line in trace_lines(block, root=base):
+        old = json.loads(line)
+        if old.get("consumer") == "debug" and datetime.fromisoformat(old["when"]) < cutoff:
+            continue                      # expired into nothingness, at the write
+        kept.append(line)
     kept.append(json.dumps(record, sort_keys=True))
     tmp = path.with_suffix(".tmp")
-    tmp.write_text("\n".join(kept) + "\n")
+    tmp.write_text("\n".join(kept) + "\n", encoding="utf-8")
     os.replace(tmp, path)
+    if legacy != path and legacy.exists():
+        legacy.unlink()                   # folded into the new name; retired
     return record
 
 
@@ -140,11 +167,7 @@ def traced(block: str, op: str, *, consumer: str = "training",
 
 def read_trace(block: str, *, root: Path | None = None) -> list[dict]:
     """Pure read; never mutates (no touch-marks — the dial must not disturb what it counts)."""
-    base = root if root is not None else trace_root()
-    path = base / f"{block}.jsonl"
-    if not path.exists():
-        return []
-    return [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+    return [json.loads(l) for l in trace_lines(block, root=root)]
 
 
 # ── DOOR — send-back at all steps ────────────────────────────────────────────

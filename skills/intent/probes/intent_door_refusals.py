@@ -45,6 +45,7 @@ import json
 import os
 from pathlib import Path
 
+from cairn.machines.learning_block.learning_block import trace_lines
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "2db333d857dd"
@@ -79,22 +80,18 @@ def survey_the_firings() -> dict:
     berths = Path(os.environ.get(_BERTH_ENV) or _BERTH_DEFAULT)
 
     passes = refusals = findings = 0
-    path = traces / "skill:intent.jsonl"
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            event = rec.get("event")
-            if event == "door_pass":
-                passes += 1
-            elif event == "send_back":
-                refusals += 1
-            elif event == "finding":
-                findings += 1
+    for line in trace_lines("skill:intent", root=traces):
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        event = rec.get("event")
+        if event == "door_pass":
+            passes += 1
+        elif event == "send_back":
+            refusals += 1
+        elif event == "finding":
+            findings += 1
 
     kills = 0
     for p in sorted((berths / "intent").glob("*.json")) if (berths / "intent").is_dir() else []:

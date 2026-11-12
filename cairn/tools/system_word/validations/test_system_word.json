@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_system_word.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-11T18:24:17",
+    "caller": "cairn test",
+    "date": "2026-11-11T18:24:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim\n  PASS  test_fold_flags_folds_only_dash_tokens\n  PASS  test_fold_head_folds_n_and_passes_the_rest_as_the_same_objects\n  PASS  test_fold_strips_and_casefolds_and_never_raises\n  PASS  test_ground_loop_takes_uppercase_help_and_status_word\n  PASS  test_is_word_compares_as_system_words\n  PASS  test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag\n  PASS  test_orient_chart_and_librarian_take_uppercase_verbs\n  PASS  test_pick_is_a_folded_lookup\n  PASS  test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix\n  PASS  test_stage_targets_fold_at_render_and_resolve\n  FAIL  test_sudo_relay_takes_uppercase_status_flag: AssertionError: (CompletedProcess(args=['/home/akien/dev/src/cairn/bin/cairn', 'sudorelay', '--STATUS'], returncode=1, stdout='[sudo_relay] 2026-11-11T18:24:11  no live daemon — status names pid 576359, but no such process — stale (daemon exited or crashed)\\n', stderr=''), CompletedProcess(args=['/home/akien/dev/src/cairn/bin/cairn', 'sudorelay', '--status'], returncode=1, stdout='[sudo_relay] 2026-11-11T18:24:10  no live daemon — status names pid 576359, but no such process — stale (daemon exited or crashed)\\n', stderr=''))\n  PASS  test_the_codemother_launcher_folds_its_subcommand\n  PASS  test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree\n  PASS  test_the_real_harbor_master_takes_uppercase_show_map_open\n  PASS  test_the_three_charters_say_the_words_fold\n  PASS  test_wrong_intent_a_stored_ticket_string_keeps_its_case\n  PASS  test_wrong_intent_free_text_lands_byte_identical\n\n21/22 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim\n  PASS  test_fold_flags_folds_only_dash_tokens\n  PASS  test_fold_head_folds_n_and_passes_the_rest_as_the_same_objects\n  PASS  test_fold_strips_and_casefolds_and_never_raises\n  PASS  test_ground_loop_takes_uppercase_help_and_status_word\n  PASS  test_is_word_compares_as_system_words\n  PASS  test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag\n  PASS  test_orient_chart_and_librarian_take_uppercase_verbs\n  PASS  test_pick_is_a_folded_lookup\n  PASS  test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix\n  PASS  test_stage_targets_fold_at_render_and_resolve\n  PASS  test_sudo_relay_takes_uppercase_status_flag\n  PASS  test_the_codemother_launcher_folds_its_subcommand\n  PASS  test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree\n  PASS  test_the_real_harbor_master_takes_uppercase_show_map_open\n  PASS  test_the_three_charters_say_the_words_fold\n  PASS  test_wrong_intent_a_stored_ticket_string_keeps_its_case\n  PASS  test_wrong_intent_free_text_lands_byte_identical\n\n22/22 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_base_device_show_and_shim_verb_fold",
@@ -25,6 +25,7 @@
         "test_pick_is_a_folded_lookup",
         "test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix",
         "test_stage_targets_fold_at_render_and_resolve",
+        "test_sudo_relay_takes_uppercase_status_flag",
         "test_the_codemother_launcher_folds_its_subcommand",
         "test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree",
         "test_the_real_harbor_master_takes_uppercase_show_map_open",
@@ -32,10 +33,8 @@
         "test_wrong_intent_a_stored_ticket_string_keeps_its_case",
         "test_wrong_intent_free_text_lands_byte_identical"
       ],
-      "teeth_red": [
-        "test_sudo_relay_takes_uppercase_status_flag"
-      ],
-      "test": "test-296774d7b8bf",
+      "teeth_red": [],
+      "test": "test-0fd45a48212b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -57,18 +56,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 676901,
+          "pid": 678157,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-296774d7b8bf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0fd45a48212b",
       "source_fingerprint": "f290a99a15329fd22b95a3d27bdb065c2ccb27ccd8831efc44d8770f84a5e43b",
       "fingerprint_closure": [
         "cairn/tools/system_word/__init__.py",
@@ -109,7 +109,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-676552-0jytl_68/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-677857-5tnf_4ii/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 24,
@@ -121,43 +121,52 @@
             "devices/verb_device/0/last_known.json",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261112.012408.258496.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261112.012408.673207.BusDevice.post.json",
-            "logs/bus/0/20261112.012408.685030.BusDevice.post.json",
-            "logs/bus/0/20261112.012408.817423.BusDevice.post.json",
-            "logs/bus/0/20261112.012408.817660.BusDevice.delivered.json",
-            "logs/bus/0/20261112.012408.821825.BusDevice.delivered.json",
-            "logs/bus/0/20261112.012409.875490.BusDevice.post.json",
-            "logs/bus/0/20261112.012410.008298.BusDevice.post.json",
-            "logs/bus/0/20261112.012410.008550.BusDevice.delivered.json",
-            "logs/bus/0/20261112.012410.009313.BusDevice.delivered.json",
+            "logs/bus/0/20261112.012434.979770.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261112.012435.397626.BusDevice.post.json",
+            "logs/bus/0/20261112.012435.409451.BusDevice.post.json",
+            "logs/bus/0/20261112.012435.563598.BusDevice.post.json",
+            "logs/bus/0/20261112.012435.563789.BusDevice.delivered.json",
+            "logs/bus/0/20261112.012435.568049.BusDevice.delivered.json",
+            "logs/bus/0/20261112.012436.650248.BusDevice.post.json",
+            "logs/bus/0/20261112.012436.771245.BusDevice.post.json",
+            "logs/bus/0/20261112.012436.771423.BusDevice.delivered.json",
+            "logs/bus/0/20261112.012436.772243.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261112.012412.515909.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261112.012413.047488.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261112.012413.600467.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261112.012414.132506.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261112.012408.820070.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261112.012408.821144.TesterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261112.012439.285046.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261112.012439.806336.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261112.012440.352343.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261112.012440.893391.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261112.012435.566132.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261112.012435.567191.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 527354190,
+          "bytes": 527354058,
           "disk_bytes": 566665216,
           "entries": 15205,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "dc3f7e3c699576a9d3c43d3ad3202bf9078a585d62a3aa55916ce4b793150f31",
         "opened": "2026-11-11T18:24:17",
         "last_red": "2026-11-11T18:24:17",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-system-word-proofs-test-system-word",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-11T18:24:44",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "dc3f7e3c699576a9d3c43d3ad3202bf9078a585d62a3aa55916ce4b793150f31"
+      },
+      "conditions_moved": {
+        "notified": "n-bc4d12fe7e9f",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

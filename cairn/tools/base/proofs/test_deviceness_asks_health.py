@@ -8,7 +8,9 @@ injected ``ask`` (D1), so these teeth hand in fakes and open no bus.
   1. answers_health is True for exit 0 with data, False for a refusal, a raise, or data None;
   2. is_live_device is False for a fitted device whose shim is silent and True for one that
      answers, and is_device reads the same for both;
-  3. deviceness.py no longer says UNBUILT and the clause names get status at shim.py.
+  3. deviceness.py no longer says UNBUILT and the clause names get status at shim.py, and the
+     divergence probe's wire key carries that built clause (D3): its payload names
+     is_live_device and no longer calls the asking half unbuilt.
 
     bin/cairn test cairn/tools/base/proofs/test_deviceness_asks_health.py
 """
@@ -86,6 +88,16 @@ def test_the_clause_is_built_and_names_get_status():
     assert "UNBUILT" not in src
     assert "get status" in D.HEALTH_QUERY_CLAUSE
     assert "cairn/tools/base/shim.py" in D.HEALTH_QUERY_CLAUSE
+    # D3: the probe carries the built clause on the wire. Injected axes, so no disk is read.
+    from cairn.tools.base.probes.device_claims_match_shims import _carry
+    axes = {"ruled_devices": [], "claims_device_by_inheritance": [],
+            "inherits_but_not_ruled": [], "ruled_but_inherits_nothing": [],
+            "on_all_three": [], "symmetric_difference_ruled_vs_inherited": 0}
+    carried = _carry({"deviceness": axes})
+    assert carried["predicate_is_half_built"] == D.HEALTH_QUERY_CLAUSE
+    said = carried["against_falsifier"]
+    assert "is_live_device" in said and "get status" in said, said
+    assert "unbuilt" not in said.lower(), said
 
 
 def main() -> int:

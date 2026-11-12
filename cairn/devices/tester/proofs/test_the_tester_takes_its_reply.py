@@ -23,7 +23,7 @@ bus's: cairn/devices/cairn/machines/bus/proofs/test_folder_mail_lands_late.py):
      reads 0. And on the LIVE bus, undelivered(to='tester') reads 0: once the one-time
      drain has run, every later seal run is taken at its own exchange (633 stood at HEAD).
 
-Requires Postgres; every bus rides BusDevice.scratch and drops at close.
+Requires Postgres; every bus rides scratch_bus (the cairn device's published tool) and drops at close.
 
     python3 cairn/devices/tester/proofs/test_the_tester_takes_its_reply.py
 """
@@ -42,8 +42,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.base.shim import BaseShim, ONLINE  # noqa: E402
 from cairn.tools.base.device import BaseDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.bus import BusDevice  # noqa: E402
-from cairn.devices.cairn.machines.bus.shim import BusShim  # noqa: E402
+from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus, bus_shim  # noqa: E402
 from cairn.tools.bus_client.roster import DeviceRoster  # noqa: E402
 from cairn.devices.db_domain.tools.client import store  # noqa: E402
 from cairn.devices.tester.shim import TesterShim  # noqa: E402
@@ -100,9 +99,9 @@ class _Shim(BaseShim):
 
 
 def _rig(*, with_tester: bool = True):
-    bus = _SCRATCH.enter_context(BusDevice.scratch("bus_ttr"))
+    bus = _SCRATCH.enter_context(scratch_bus("bus_ttr"))
     loop = DeviceRoster(bus)
-    loop.hold(BusShim(bus, loop))
+    loop.hold(bus_shim(bus, loop))
     loop.hold(_Shim("codemother", StubCodemother(), bus))
     if with_tester:
         loop.hold(TesterShim(bus=bus))

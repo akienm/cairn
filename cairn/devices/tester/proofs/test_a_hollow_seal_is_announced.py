@@ -37,7 +37,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.bus.bus import BusDevice
+from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus
 from cairn.tools import bus_client
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.validation_store.validation_store import read_validations, validations_path_for
@@ -83,8 +83,8 @@ def _fixture_proof(tag: str) -> Path:
     return proof
 
 
-def _fixture_bus() -> BusDevice:
-    return _SCRATCH.enter_context(BusDevice.scratch("hollow_ann"))
+def _fixture_bus():
+    return _SCRATCH.enter_context(scratch_bus("hollow_ann"))
 
 
 def _finding(proof: Path) -> dict:
@@ -117,7 +117,7 @@ def _wired(bus, *, finding=None, unwired=False):
         bus_client.reach, hollow.measure = saved_reach, saved_measure
 
 
-def _sealed(bus: BusDevice) -> list[dict]:
+def _sealed(bus) -> list[dict]:
     return [env for env in bus.read(to="codemother", channel="personal")
             if env.get("verb") == "sealed"]
 
@@ -127,7 +127,7 @@ def _cli(argv):
     return cli.main(argv)
 
 
-def _seal_green(proof: Path, bus: BusDevice) -> None:
+def _seal_green(proof: Path, bus) -> None:
     """Seed the fixture's standing green seal through the store's one door.
 
     NOT THROUGH ``cairn test --seal``, MEASURED 2026-10-02 on this proof's first hollow run:

@@ -42,7 +42,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.bus.bus import BusDevice
+from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus
 from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.validation_store.validation_store import (
     read_validations,
@@ -91,13 +91,13 @@ def _fixture_proof(tag: str) -> Path:
     return proof
 
 
-def _fixture_bus() -> BusDevice:
+def _fixture_bus():
     """A bus on an ephemeral table. ``table`` is injectable for exactly this."""
-    bus = _SCRATCH.enter_context(BusDevice.scratch("seal_ann"))
+    bus = _SCRATCH.enter_context(scratch_bus("seal_ann"))
     return bus
 
 
-def _seal_through_the_cli(proof: Path, bus: BusDevice, reached: list | None = None) -> int:
+def _seal_through_the_cli(proof: Path, bus, reached: list | None = None) -> int:
     """Run ``cairn test --seal <proof>`` for real, with its bus pointed at ``bus``.
 
     WHAT IS SUBSTITUTED IS THE BUS, AND NOTHING ELSE. The tester runs, the verdict is
@@ -140,7 +140,7 @@ def _seal_through_the_cli(proof: Path, bus: BusDevice, reached: list | None = No
         bus_client.reach = saved
 
 
-def _sealed_messages(bus: BusDevice) -> list[dict]:
+def _sealed_messages(bus) -> list[dict]:
     """Every ``sealed`` envelope addressed to codemother, read off the RECORD.
 
     ``read`` and not ``undelivered``: the record is the full truth and says what was POSTED

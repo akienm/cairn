@@ -43,13 +43,12 @@ from cairn.tools.base import address as _address  # noqa: E402
 
 # The subjects are bound at call time, never at import: a hollow reading that takes one away
 # must red the teeth by name, not crash the file before the first tooth prints.
-BusDevice = BusShim = DeviceRoster = _codemother = CodeMotherShim = None
+scratch_bus = bus_shim = DeviceRoster = _codemother = CodeMotherShim = None
 
 
 def _bind() -> None:
-    global BusDevice, BusShim, DeviceRoster, _codemother, CodeMotherShim
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
-    from cairn.devices.cairn.machines.bus.shim import BusShim
+    global scratch_bus, bus_shim, DeviceRoster, _codemother, CodeMotherShim
+    from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus, bus_shim
     from cairn.tools.bus_client.roster import DeviceRoster
     from cairn.devices.codemother import shim as _codemother
     from cairn.devices.codemother.shim import CodeMotherShim
@@ -81,9 +80,9 @@ def _restore_roots() -> None:
 
 
 def _fresh_bus():
-    bus = _SCRATCH.enter_context(BusDevice.scratch("charter_held"))
+    bus = _SCRATCH.enter_context(scratch_bus("charter_held"))
     loop = DeviceRoster(bus)
-    loop.hold(BusShim(bus, loop))
+    loop.hold(bus_shim(bus, loop))
     loop.hold(CodeMotherShim(bus=bus))
     loop.pulse(NOW)
     assert "charter" not in bus.list().get("devices", {}), "a device named charter is on the bus"

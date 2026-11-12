@@ -744,9 +744,9 @@ def _in_process(*names):
     no ticket" while the fixture ticket stood on disk here. So the devices are held here, on
     a bus of their own, exactly as the instance holds them (decision 7's shape, as in
     test_librarian_chat)."""
-    from cairn.devices.cairn.machines.bus.bus import BusDevice
+    from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus
     from cairn.tools.bus_client import _load_device_shim
-    with BusDevice.scratch("bus_codemother") as bus:
+    with scratch_bus("bus_codemother") as bus:
         for name in names:
             shim = _load_device_shim(name, bus)
             assert shim is not None, f"no shim answers to {name!r}"

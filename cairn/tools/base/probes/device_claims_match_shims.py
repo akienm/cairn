@@ -173,10 +173,10 @@ def _carry(context: dict) -> dict:
         "predicate_is_half_built": HEALTH_QUERY_CLAUSE,
         "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": (
-            "'is X a device?' is answered by ASKING X. It is not: the fitted clause is "
-            "answered from disk and the health-query clause names nothing that exists. The "
-            "Calibre-shaped half of the falsifier passes eleven times over; the asking half "
-            "is unbuilt and this payload says so on every firing."
+            "'is X a device?' is answered by ASKING X. The fitted clause is answered from "
+            "the rack; the asking clause is deviceness.is_live_device, which asks the shim "
+            "get status (ticket f78a1a09e8ff). This payload carries the clause on every "
+            "firing so a reader sees which half the divergence measures."
         ),
         "suggests": (
             "rule the axis (ticket runtime-role-is-a-second-axis, at Akien's signature gate) "

@@ -27,15 +27,14 @@ second parallel roster would be exactly the failure the folder rule was ruled to
 a808 this asked ground_loop's probes/ walk, which named 42 "devices" (tools such as base,
 question and artifact among them) against 13 rack folders, measured 2026-09-30.
 
-CLAUSE 1 ONLY, AND THE OTHER CLAUSE IS DECLARED, NOT OMITTED. The ticket's falsifier names
-TWO clauses: a shim is fitted (this), AND the thing answers a health query over the bus.
-The second names something that does not exist — MEASURED at the build, ``grep -rni health``
-over ``cairn/`` outside proofs returns 21 hits and every one is the English word in prose or
-one line of UU ancestry in ``device.py``. There is no health protocol, no health method, no
-health message on the bus. Building one inside this ticket was ruled OUT of the chart's
-bounds ("Building a health-query protocol from scratch if none exists"). So the clause is
-carried as ``HEALTH_QUERY_CLAUSE`` below, unbuilt and saying so, because a predicate that
-silently implements half of its own definition is the shape a reader mistakes for whole.
+BOTH CLAUSES, AND THE SECOND ASKS. The falsifier of ticket 74d4124bc0e7 names two clauses: a
+shim is fitted (``is_device``), AND the thing answers a health query over the bus
+(``answers_health``). When 74d4 was built the second named nothing that existed (measured
+2026-08-11) and was carried here as a constant declaring itself unbuilt. Every shim has since
+answered the root view ``status`` (``cairn/tools/base/shim.py`` ``ROOT_VIEWS``), and ticket
+7cb1989e7825 proved the tooth "the bus answers get status", so ticket f78a1a09e8ff built the
+clause: ``is_live_device`` is fitted AND its shim answers ``get status``. Outline 5.8.3.2.3: a
+shim answers what it can, so a cached reply from a sleeping device's shim is an answer.
 
 WHAT THIS FILE IS NOT. It is not an authority and it grants nothing. Discovery decides
 membership; this reads it and puts the two axes side by side so their disagreement can be
@@ -47,18 +46,32 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-# THE UNBUILT HALF OF THE PREDICATE, NAMED SO IT CANNOT PASS AS BUILT.
-# The ticket's falsifier reads: device-ness is answered by ASKING X — a health query over
-# the bus. Nothing in the corpus can be asked that today. This constant is the tracked debt
-# (Law 4: until a rule is physics it is an IOU, not a resting state), and the probe beside
-# this file reports it on every firing so the gap is loud rather than remembered.
+# THE SECOND CLAUSE, BUILT (ticket f78a1a09e8ff). Kept as a named constant because the probe
+# beside this file carries it on every firing.
 HEALTH_QUERY_CLAUSE = (
-    "UNBUILT — no health-query protocol exists on the bus. Measured 2026-08-11: "
-    "grep -rni health over cairn/ excluding proofs returns 21 hits, all prose plus one "
-    "line of UU ancestry in cairn/tools/base/device.py. is_device() therefore answers the "
-    "FITTED clause only; a member that is discovered but dead cannot be told from a "
-    "member that is discovered and answering. Ticket: device-ness-is-decided-at-the-shim."
+    "a device answers a health query: its shim replies to `get status` (the root view in "
+    "cairn/tools/base/shim.py ROOT_VIEWS) with exit 0 and data; is_live_device() asks it, "
+    "is_device() answers the fitted clause alone."
 )
+
+# ask(device_id, verb, view) -> the shim's reply dict ({"exit", "data", ...}). Injected, so
+# nothing here opens a bus (D1): the live path hands in the bus client's ask.
+Ask = "Callable[[str, str, str], dict]"
+
+
+def answers_health(device_id: str, ask) -> bool:
+    """Does ``device_id``'s shim answer ``get status``? True only for exit 0 with data. A
+    refusal, a raise, a non-dict, or data None is no answer."""
+    try:
+        reply = ask(device_id, "get", "status")
+    except Exception:  # noqa: BLE001 — any failure to answer is the answer "no"
+        return False
+    return isinstance(reply, dict) and reply.get("exit") == 0 and reply.get("data") is not None
+
+
+def is_live_device(candidate: str, ask, root: Path | str | None = None) -> bool:
+    """Device-ness whole: fitted at the rack AND answering a health query."""
+    return is_device(candidate, root) and answers_health(candidate, ask)
 
 
 def fitted_device_ids(root: Path | str | None = None) -> set[str]:
@@ -157,12 +170,13 @@ def has_fitted_shim_class(root: Path | str | None = None) -> set[str]:
     return set(_class_census(root, "BaseShim"))
 
 
-def divergence(root: Path | str | None = None) -> dict:
+def divergence(root: Path | str | None = None, ask=None) -> dict:
     """The three axes side by side, with names — never a count alone.
 
     A count is what lets a divergence sit still: "6" reads the same in a report whether it is
     the same six every week or a different six. The per-component lists are what a reader can
-    act on, and they are what the probe carries back.
+    act on, and they are what the probe carries back. Given an ``ask``, it also splits the
+    fitted devices into those whose shim answers ``get status`` and those that stay silent.
     """
     fitted = fitted_device_ids(root)
     inherited = claims_device_by_inheritance(root)
@@ -180,4 +194,6 @@ def divergence(root: Path | str | None = None) -> dict:
         "on_all_three": sorted(fitted & inherited & shim_classes),
         "symmetric_difference_ruled_vs_inherited": len(fitted ^ inherited),
         "health_query_clause": HEALTH_QUERY_CLAUSE,
+        **({} if ask is None else {"answers_health": sorted(d for d in fitted if answers_health(d, ask)),
+                                   "fitted_but_silent": sorted(d for d in fitted if not answers_health(d, ask))}),
     }

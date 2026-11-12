@@ -23,9 +23,9 @@ Teeth a hollow build could not pass:
     named per component) and never a frozen count. A proof that pinned "19" would go red the
     day the divergence improved — the failure shape where a check reds at the moment its
     condition is satisfied.
-  - THE HALF-BUILT CLAUSE IS DECLARED, NOT OMITTED. ``HEALTH_QUERY_CLAUSE`` must exist, must
-    say UNBUILT, and must ride in the probe's payload — because a predicate that silently
-    implements half its own definition is the shape a reader mistakes for whole.
+  - THE SECOND CLAUSE IS NAMED AND RIDES. ``HEALTH_QUERY_CLAUSE`` must exist, must name the
+    query it asks (``get status``, built by ticket f78a1a09e8ff), and must ride in the probe's
+    payload, so a reader of either can see which half of the predicate a number measures.
   - THE PROBE FIRES ON ARMING AND NAMES NAMES. Its trigger is TRUE now, it is a CROSSING on
     a virgin shim (``_was_true`` starts empty) so it actually pokes, and its payload carries
     per-component LISTS rather than a count — a count is what lets a divergence sit still.
@@ -129,7 +129,9 @@ def test_the_unbuilt_half_is_declared_not_omitted():
     """A predicate that silently implements half its own definition is the shape a reader
     mistakes for whole. The ticket's falsifier has two clauses; one of them names nothing
     that exists, and that fact must be reachable from the code and from the wire."""
-    assert "UNBUILT" in HEALTH_QUERY_CLAUSE
+    # Built by ticket f78a1a09e8ff: the clause now names the query it asks.
+    assert "UNBUILT" not in HEALTH_QUERY_CLAUSE
+    assert "get status" in HEALTH_QUERY_CLAUSE and "cairn/tools/base/shim.py" in HEALTH_QUERY_CLAUSE
     assert "health" in HEALTH_QUERY_CLAUSE.lower()
     assert HEALTH_QUERY_CLAUSE in divergence()["health_query_clause"]
 

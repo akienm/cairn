@@ -81,10 +81,15 @@ def drafts_of(spec: dict) -> dict:
     """``{stage: draft}`` for orient through validate, from CC's chart spec."""
     pieces = spec["pieces"]
     whats = [p["what"] for p in pieces]
+    orient = {"request": spec["request"], "intent": spec["intent"], "scope": spec["scope"],
+              "unknowns": list(spec.get("unknowns") or []), "confidence": CONFIDENCE,
+              "provenance": {"intent": "claude", "scope": "claude"}}
+    if spec.get("domain"):
+        # An address off the complexity axis (bin/, for one) has no floor domain, so the
+        # spec authors it; the door derives its provenance (2026-11-12, c3f5e1a0d924).
+        orient["domain"] = spec["domain"]
     return {
-        "orient": {"request": spec["request"], "intent": spec["intent"], "scope": spec["scope"],
-                   "unknowns": list(spec.get("unknowns") or []), "confidence": CONFIDENCE,
-                   "provenance": {"intent": "claude", "scope": "claude"}},
+        "orient": orient,
         "constrain": {"constraints": spec["constraints"], "bounds": spec["bounds"],
                       "unknowns": [], "confidence": CONFIDENCE,
                       "provenance": {"intent_ref": "floor", "bounds": "claude"}},

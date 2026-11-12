@@ -2,21 +2,22 @@
   {
     "claim": "proof test_the_harbor_source_asks_over_the_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-12T16:16:05",
+    "date": "2026-11-12T16:17:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_no_breach_from_bus_client_lands_on_harbor_master  — 1 breach(es) in all; these: \n  PASS  test_bus_client_names_no_harbor_master_module\n  PASS  test_the_source_asks_get_traffic_and_raises_a_refusal  — asked [{'sender': 'bus_client', 'to': 'harbor_master', 'verb': 'get', 'why': \"the harbor's traffic image, asked of its owner over the bus\", 'body': {'what': 'traffic'}}]; got {'gates': [], 'at_anchor': [], 'berthed': [], 'counts': {'fleet': 0}}; refusal raised \"harbor_master refused get traffic: no view 'traffic'\"\n  PASS  test_the_live_source_answers_a_traffic_image  — keys ['at_anchor', 'berthed', 'counts', 'gates']\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_sieve_names_a_planted_harbor_breach  — found [('cairn/tools/bus_client/planted.py', 1, 'cairn/devices/cairn/machines/harbor_master')]\n  PASS  test_no_breach_from_bus_client_lands_on_harbor_master  — 1 breach(es) in all; these: \n  PASS  test_bus_client_names_no_harbor_master_module\n  PASS  test_the_source_asks_get_traffic_and_raises_a_refusal  — asked [{'sender': 'bus_client', 'to': 'harbor_master', 'verb': 'get', 'why': \"the harbor's traffic image, asked of its owner over the bus\", 'body': {'what': 'traffic'}}]; got {'gates': [], 'at_anchor': [], 'berthed': [], 'counts': {'fleet': 0}}; refusal raised \"harbor_master refused get traffic: no view 'traffic'\"\n  PASS  test_the_live_source_answers_a_traffic_image  — keys ['at_anchor', 'berthed', 'counts', 'gates']\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "test_the_sieve_names_a_planted_harbor_breach",
         "test_no_breach_from_bus_client_lands_on_harbor_master",
         "test_bus_client_names_no_harbor_master_module",
         "test_the_source_asks_get_traffic_and_raises_a_refusal",
         "test_the_live_source_answers_a_traffic_image"
       ],
       "teeth_red": [],
-      "test": "test-8d13c494eeca",
+      "test": "test-562f1b73b329",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "50d528f4dc40076f765e75ea395504b47a26f143c5201c216b90b1375444933d",
+        "proof": "df5f29b62c423d8e45fcc9626ab1764c762631aa53d25e9be40a30cea96a0525",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,14 +44,14 @@
       },
       "killed": [
         {
-          "pid": 1845817,
+          "pid": 1847314,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8d13c494eeca",
-      "source_fingerprint": "f429039af45eb23422436890dcc948eb0cb358763b9f51f3317b25eae733e832",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-562f1b73b329",
+      "source_fingerprint": "10c67bb09636ab0a1736bcd579d8079515a1c0037e46b1aec827a2c2ad8dcaf4",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -78,11 +79,12 @@
         "cairn/tools/operator_inbox": "27240ec6bd7bb9b4213acf48a77b6e1fba14ea310a6ca8e5abb9549e31dda16a",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
         "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
         "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1844681-55hrlc8k/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1847289-micayg8e/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
@@ -91,39 +93,27 @@
             "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/harbor_master/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261112.231601.567337.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261112.231602.088871.BusDevice.post.json",
-            "logs/bus/0/20261112.231602.102401.BusDevice.post.json",
-            "logs/bus/0/20261112.231602.575534.BusDevice.post.json",
-            "logs/bus/0/20261112.231602.575706.BusDevice.delivered.json",
-            "logs/bus/0/20261112.231602.579655.BusDevice.delivered.json",
+            "logs/bus/0/20261112.231746.148674.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261112.231746.650655.BusDevice.post.json",
+            "logs/bus/0/20261112.231746.663095.BusDevice.post.json",
+            "logs/bus/0/20261112.231747.141523.BusDevice.post.json",
+            "logs/bus/0/20261112.231747.141741.BusDevice.delivered.json",
+            "logs/bus/0/20261112.231747.145862.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261112.231602.564007.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261112.231602.578226.HarborMasterShim.clear_trouble.json",
-            "logs/harbor_master/0/20261112.231602.579313.HarborMasterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261112.231747.128604.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261112.231747.144331.HarborMasterShim.clear_trouble.json",
+            "logs/harbor_master/0/20261112.231747.145460.HarborMasterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529879114,
+          "bytes": 529879364,
           "disk_bytes": 576712704,
           "entries": 17788,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "50d528f4dc40076f765e75ea395504b47a26f143c5201c216b90b1375444933d",
-        "opened": "2026-11-12T15:40:09",
-        "last_red": "2026-11-12T15:40:09",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-bus-client-proofs-test-the-harbor-source-asks-over-the-bus",
-        "ruling": null,
-        "closed_at": "2026-11-12T16:16:05",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "50d528f4dc40076f765e75ea395504b47a26f143c5201c216b90b1375444933d"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

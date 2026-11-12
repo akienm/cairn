@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_every_built_probe_spec_names_a_file.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T06:02:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T13:47:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_proved_ticket_names_a_missing_probe\n.\n  ok   test_a_watchme_ticket_naming_nothing_reds\n.\n  ok   test_a_valid_forwarding_order_disposes_the_absent_probe\n.\n  ok   test_a_broken_or_folder_order_grants_nothing\n.\n  ok   test_a_ticket_sent_back_for_an_absent_probe_names_it\n.\n  ok   test_the_census_reds_a_missing_probe\n.\n  ok   test_every_built_probe_spec_names_a_file\n                                                                  [100%]\n7 passed in 0.46s",
+      "stdout_tail": ".\n  ok   test_no_proved_ticket_names_a_missing_probe\n.\n  ok   test_a_watchme_ticket_naming_nothing_reds\n.\n  ok   test_a_valid_forwarding_order_disposes_the_absent_probe\n.\n  ok   test_a_broken_or_folder_order_grants_nothing\n.\n  ok   test_a_ticket_sent_back_for_an_absent_probe_names_it\n.\n  ok   test_the_census_reds_a_missing_probe\n.\n  ok   test_every_built_probe_spec_names_a_file\n                                                                  [100%]\n7 passed in 0.54s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_proved_ticket_names_a_missing_probe",
@@ -19,7 +19,7 @@
         "test_every_built_probe_spec_names_a_file"
       ],
       "teeth_red": [],
-      "test": "test-0c82b55494f2",
+      "test": "test-3fbe8e6e25a9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,14 +41,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c82b55494f2",
-      "source_fingerprint": "3dc5c1973b26235076ee91e134e067dbce0a7a6f63bf4c4fae65434b399cb994",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3fbe8e6e25a9",
+      "source_fingerprint": "1f557730c7f51523e6c2e2569788994918086ae4ad06b533bf9dacaf4057e7db",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -58,13 +57,13 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "189c872614a26b6f23b8ae9e809b16f80ef4ab7fe4834a0d52dfd1d9a1f6f99b",
-        "cairn/tools/proof_coverage": "78cf131ddc73f34c0245a0c995a8822723df65d5eee04e1f13cae7ceda01a500",
-        "cairn/tools/system_word": "0d11b733bb6dd3fd2d48af29916af9df69e254a92829d89854acea84344acc63"
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/tools/proof_coverage": "8c50adf9ed5be618471e8ec88abc289352cd7d7bd9495276a681d98fb41345dd",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-323364-zbzafd3b/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1707805-lo_7uc0q/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,36 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 525346128,
-          "disk_bytes": 561451008,
-          "entries": 14113,
+          "bytes": 529483005,
+          "disk_bytes": 575799296,
+          "entries": 17604,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "7088856d2150": {
-          "cairn/tools/base/watchme_spec.py": [
-            "test_a_broken_or_folder_order_grants_nothing",
-            "test_a_ticket_sent_back_for_an_absent_probe_names_it",
-            "test_a_valid_forwarding_order_disposes_the_absent_probe",
-            "test_a_watchme_ticket_naming_nothing_reds",
-            "test_no_proved_ticket_names_a_missing_probe"
-          ],
-          "CairnCommons/tickets/d547b4859f9a-cairnmap-retires-and-help-is-the-one-help-surface.state.json": [
-            "test_no_proved_ticket_names_a_missing_probe"
-          ],
-          "CairnCommons/tickets/6935a4a71f93-nothing-hangs-off-the-git-post-commit-hook.state.json": [
-            "test_no_proved_ticket_names_a_missing_probe"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7088856d2150": {
-          "anchor_rule": "journal",
-          "anchor_journal": "0b42029fa3f93da07ea16dec2ff429c438d4f813",
-          "anchor_first_build": "9c1c23fcada2c41de9cc8d8053583a61ef9994af",
-          "commit": "0b42029fa3f93da07ea16dec2ff429c438d4f813"
+          "reuses": 23
         }
       }
     },

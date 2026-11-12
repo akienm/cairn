@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_ticket_log_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-11T09:14:58",
+    "date": "2026-11-12T13:48:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_append_log_lands_lines_in_order_and_refuses_what_it_must  — lines [{'actor': 'proof', 'at': '2026-11-11T09:14:56', 'field': 'one', 'kind': 'field', 'value': 1}, {'actor': 'proof', 'at': '2026-11-11T09:14:56', 'field': 'two', ' refusals [True, True]\n  PASS  test_split_moves_the_trail_and_reconstructs_the_v1_doc  — moved {'field': 1, 'phase_write': 2, 'rehearsal': 1, 'decision_retired': 1, 'state': 4}; plan keys outside: []; lossless True\n  PASS  test_a_second_split_is_a_no_op  — moved {}\n  PASS  test_set_phase_appends_its_record_to_the_log  — log phase_writes 1; plan keys ['id', 'release', 'title', 'workflow_and_state']\n  PASS  test_cast_ticket_refuses_a_field_outside_the_plan  — refusal named the field True; extra cast landed False; clean cast True\n  PASS  test_split_names_the_plans_one_intention\n\nGREEN",
+      "stdout_tail": "  PASS  test_append_log_lands_lines_in_order_and_refuses_what_it_must  — lines [{'actor': 'proof', 'at': '2026-11-12T13:48:38', 'field': 'one', 'kind': 'field', 'value': 1}, {'actor': 'proof', 'at': '2026-11-12T13:48:38', 'field': 'two', ' refusals [True, True]\n  PASS  test_split_moves_the_trail_and_reconstructs_the_v1_doc  — moved {'field': 1, 'phase_write': 2, 'rehearsal': 1, 'decision_retired': 1, 'state': 4}; plan keys outside: []; lossless True\n  PASS  test_a_second_split_is_a_no_op  — moved {}\n  PASS  test_set_phase_appends_its_record_to_the_log  — log phase_writes 1; plan keys ['id', 'release', 'title', 'workflow_and_state']\n  PASS  test_cast_ticket_refuses_a_field_outside_the_plan  — refusal named the field True; extra cast landed False; clean cast True\n  PASS  test_split_names_the_plans_one_intention\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_append_log_lands_lines_in_order_and_refuses_what_it_must",
@@ -18,7 +18,7 @@
         "test_split_names_the_plans_one_intention"
       ],
       "teeth_red": [],
-      "test": "test-d228191d2b18",
+      "test": "test-0771f004519b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,13 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d228191d2b18",
-      "source_fingerprint": "e27c5ff45f00535f8676b2200d6f0b43e79d4b3815d2635a3d5fe1f41b3a5708",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0771f004519b",
+      "source_fingerprint": "82e1edf0be882aadafd46a9e9020624aa3cb05fcdfaf7d57d2476fa9f21426c2",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -59,18 +59,18 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
-        "cairn/devices/trouble": "0ad364528a5402d4e54840a13da26e25a0a8b5bba13de32b21a805281c467c0b",
-        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/devices/trouble": "1af8277876d63bd78e1de73a437ec5359ebfdfc72cb32c0b72da02ead3d1e25f",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-410756-1blqt4hc/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1707805-d_eamdsf/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -79,11 +79,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 525719655,
-          "disk_bytes": 562085888,
-          "entries": 14215,
+          "bytes": 529483005,
+          "disk_bytes": 575799296,
+          "entries": 17604,
           "builds": 1,
-          "reuses": 33
+          "reuses": 40
         }
       }
     },

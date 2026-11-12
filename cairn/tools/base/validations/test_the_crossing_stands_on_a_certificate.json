@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_crossing_stands_on_a_certificate.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-11T09:14:44",
+    "date": "2026-11-12T13:48:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261111T161442Z-aebf.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261111T161443Z-a793.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261112T204816Z-7b0f.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261112T204816Z-9fff.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_gated_crossing_names_a_certificate_that_verifies",
@@ -17,7 +17,7 @@
         "test_a_proved_crossing_without_demo_can_be_certified"
       ],
       "teeth_red": [],
-      "test": "test-50c52cec467d",
+      "test": "test-07277d28d432",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,13 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-50c52cec467d",
-      "source_fingerprint": "b47104dcb308fbf67bb521ff6b23fc10c444943b57124089f5d9076e963608f4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-07277d28d432",
+      "source_fingerprint": "e53525c84eaa85c642e3489394144e3f2c1255528cd596d182deec0eb77cb8c3",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -58,47 +58,48 @@
         "cairn/tools/base/sail_record.py",
         "cairn/tools/base/settled.py",
         "cairn/tools/base/testing_mark.py",
+        "cairn/tools/base/threshold_census.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
-        "cairn/machines/build_inspector": "ee71e5ee3ab85c1d97685105e7980846502e5c68c84f0318f996aa3b2392c43f",
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/machines/build_inspector": "3850a943a90ab112e3b7c894da9f1a88fe35c702fb7f6de2aa07b5cc948bd02b",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
+        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
-        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-410756-_3twrvh8/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1707805-z4x2rupt/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261111.161442.999564.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161443.009821.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161443.015913.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161443.017227.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161443.027469.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161443.038020.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261112.204816.576231.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.204816.582796.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.204816.588307.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.204816.589446.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.204816.598162.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.204816.607297.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 525722746,
-          "disk_bytes": 562110464,
-          "entries": 14223,
+          "bytes": 529486225,
+          "disk_bytes": 575827968,
+          "entries": 17613,
           "builds": 1,
-          "reuses": 30
+          "reuses": 36
         }
       }
     },

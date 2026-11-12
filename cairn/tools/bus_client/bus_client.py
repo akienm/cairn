@@ -34,14 +34,28 @@ def _wire(*, devices: list[str] | None = None, beat: bool = True):
     rings. Now the named devices are HELD IN THE BUS PROCESS, where holding wires each one's
     delivery onto the one ring (decision 12 — wired, never pulsed); nothing is held here. ``beat`` is kept for the
     callers' signature: a hold in the bus process is the only wiring there is, so a client
-    that names devices gets them wired either way, and one that names none touches no shim."""
-    from cairn.tools.bus_client.remote import RemoteBus, ensure_bus
+    that names devices gets them wired either way, and one that names none touches no shim.
+
+    A FAR HOME HOLDS NOTHING (ticket bc0bbfd33a71). The LAN door answers only call, stats and
+    verbs, so a hold sent to another box's bus is refused. Mail to a device no hook answers
+    takes that bus's no_receiver, which wakes the addressee there (ticket 7cb1989e7825). The
+    name is still checked, here on this box's disk, by the roster's own two answers (a shim
+    module, else a fitted device): an unknown name raises LookupError, as the hold would."""
+    from cairn.tools.bus_client.remote import RemoteBus, ensure_bus, remote_address
     from cairn.tools.bus_client.roster import DeviceRoster
 
     ensure_bus()
     bus = RemoteBus()
-    if devices:
+    if devices and remote_address() is None:
         bus.hold(*devices)
+    elif devices:
+        from cairn.tools.base.deviceness import fitted_device_ids
+        fitted = fitted_device_ids(_CLASS_ROOT)
+        for name in devices:
+            if _device_shim_module(name) is None and name not in fitted:
+                raise LookupError(
+                    f"no shim answers to {name!r} — a device's bus presence IS "
+                    f"cairn/devices/{name}/shim.py on disk, and nothing was discovered there")
     return bus, DeviceRoster(bus)
 
 

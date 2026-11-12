@@ -8,7 +8,7 @@ Teeth 1-4 run over scratch repos (git init under a scratch dir) passed in as roo
 live repos' config is never written. Tooth 5 runs `cairn install --dry-run`, which reads only.
 The installer's new step is imported inside each tooth, so a hollow build reds per tooth.
 
-    python3 cairn/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py
+    python3 cairn/devices/recovery/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py
 """
 
 from __future__ import annotations
@@ -19,7 +19,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
+assert (REPO / "bin" / "cairn").exists(), f"REPO {REPO} does not hold bin/cairn"
 sys.path.insert(0, str(REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
@@ -47,7 +48,7 @@ def _driver(d: Path) -> str:
 
 
 def test_an_unset_driver_is_offered_and_left_unwritten() -> None:
-    from cairn.machines.installer.installer import ensure_journal_merge_driver
+    from cairn.devices.recovery.machines.installer.installer import ensure_journal_merge_driver
     a, b = _repo("a"), _repo("b")
     r = ensure_journal_merge_driver(roots={"cairn": a, "CairnCommons": b}, dry_run=True)
     assert r["status"] == "offered", r
@@ -56,7 +57,7 @@ def test_an_unset_driver_is_offered_and_left_unwritten() -> None:
 
 
 def test_a_run_lays_it_in_every_root_and_a_second_reads_applied() -> None:
-    from cairn.machines.installer.installer import ensure_journal_merge_driver
+    from cairn.devices.recovery.machines.installer.installer import ensure_journal_merge_driver
     a, b = _repo("a"), _repo("b")
     roots = {"cairn": a, "CairnCommons": b}
     r = ensure_journal_merge_driver(roots=roots)
@@ -70,7 +71,7 @@ def test_a_run_lays_it_in_every_root_and_a_second_reads_applied() -> None:
 
 
 def test_a_driver_naming_a_gone_interpreter_is_relaid() -> None:
-    from cairn.machines.installer.installer import ensure_journal_merge_driver
+    from cairn.devices.recovery.machines.installer.installer import ensure_journal_merge_driver
     a = _repo("stale")
     stale = f"PYTHONPATH={REPO} /nonexistent/python3 -m cairn.tools.artifact merge-journal %O %A %B"
     subprocess.run(["git", "-C", str(a), "config", KEY, stale], check=True)
@@ -83,7 +84,7 @@ def test_a_driver_naming_a_gone_interpreter_is_relaid() -> None:
 
 
 def test_a_root_that_is_not_a_repository_is_skipped() -> None:
-    from cairn.machines.installer.installer import ensure_journal_merge_driver
+    from cairn.devices.recovery.machines.installer.installer import ensure_journal_merge_driver
     a = _repo("real")
     bare = scratch_dir("journal-driver-norepo-")
     r = ensure_journal_merge_driver(roots={"cairn": a, "CairnCommons": bare})
@@ -93,7 +94,7 @@ def test_a_root_that_is_not_a_repository_is_skipped() -> None:
 
 
 def test_cairn_install_dry_run_lists_the_step() -> None:
-    from cairn.machines.installer import installer
+    from cairn.devices.recovery.machines.installer import installer
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
         installer.main(["--dry-run"])

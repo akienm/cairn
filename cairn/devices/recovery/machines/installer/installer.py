@@ -223,7 +223,7 @@ def ask_box_identity(
 
 
 MERGE_DRIVER = "cairn-journal"
-_REPO = Path(__file__).resolve().parents[3]
+_REPO = Path(__file__).resolve().parents[5]
 
 
 def _driver_fault(root: Path) -> str | None:

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_install_lays_the_journal_merge_driver.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T06:41:35",
+    "date": "2026-11-12T16:55:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_cairn_install_dry_run_lists_the_step"
       ],
       "teeth_red": [],
-      "test": "test-ef85a5d6c8b0",
+      "test": "test-fae3f2f2e606",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "4855e9d302b76b93682ceaf4f5ece2fde0d00fba4ed1513d1dd49286b3ee2d08",
+        "proof": "f72050e990072f19d9aea15df90fed0f58dac926afc2d0d0815f160bdcddddd5",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,29 +40,30 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ef85a5d6c8b0",
-      "source_fingerprint": "96a74bd0586b81c30541243800c1687e9801f26efb12d4dafafa94a7d5e46527",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fae3f2f2e606",
+      "source_fingerprint": "a6638d79d585a4d7fbbfea514f3df82cfffb9c5f7a6e3744e875a537225af922",
       "fingerprint_closure": [
-        "cairn/machines/installer/__init__.py",
-        "cairn/machines/installer/installer.py",
-        "cairn/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py"
+        "cairn/devices/recovery/machines/installer/__init__.py",
+        "cairn/devices/recovery/machines/installer/installer.py",
+        "cairn/devices/recovery/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
         "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
-        "cairn/tools/base": "9757f3b9e44e8dcef1931042955999f03aa19ed34f0ecb0149306c559f6d7899",
-        "cairn/tools/bus_client": "a757376bf1567421ac15353f250dc536c185dde093ec0542b6a525eed4c02e85",
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
+        "cairn/tools/bus_client": "df6fd6031034334a2001f065188780de90f2be1a511a7a02e2b0a458c365356b",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1300952-v70wz23s/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1910218-0xsfawpt/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,30 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528439384,
-          "disk_bytes": 571772928,
-          "entries": 16576,
+          "bytes": 530034722,
+          "disk_bytes": 577925120,
+          "entries": 18206,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "7cfbc64b2a67": {
-          "cairn/machines/installer/installer.py": [
-            "test_a_driver_naming_a_gone_interpreter_is_relaid",
-            "test_a_root_that_is_not_a_repository_is_skipped",
-            "test_a_run_lays_it_in_every_root_and_a_second_reads_applied",
-            "test_an_unset_driver_is_offered_and_left_unwritten",
-            "test_cairn_install_dry_run_lists_the_step"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "7cfbc64b2a67": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6b56fc7c61db523c3f9446857f72322d3c79c74d",
-          "anchor_first_build": "7436d52ad8feec8affe0cf827421a20a92a419c4",
-          "commit": "6b56fc7c61db523c3f9446857f72322d3c79c74d"
         }
       }
     },

@@ -19,7 +19,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -52,7 +52,7 @@ def no_production_source_spells_the_home_commons():
 _PROBE = r"""
 import json
 from cairn.tools.base.address import ROOTS
-from cairn.machines.installer import installer
+from cairn.devices.recovery.machines.installer import installer
 from cairn.tools.ticket_inspector import inspector
 from cairn.tools.operator_inbox import inbox
 from cairn.machines.skill_block import skill_block
@@ -94,7 +94,7 @@ def the_sites_default_to_the_one_resolver_and_keep_their_overrides():
 
 
 def install_over_an_absent_commons_is_a_named_failed_result():
-    from cairn.machines.installer import installer
+    from cairn.devices.recovery.machines.installer import installer
     with tempfile.TemporaryDirectory() as t:
         absent = Path(t) / "no-such-commons" / "intentions-not-beside-code"
         try:

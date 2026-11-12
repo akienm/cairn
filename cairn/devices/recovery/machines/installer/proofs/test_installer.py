@@ -1,4 +1,4 @@
-"""Proof for cairn/machines/installer — the projection over host-seam intentions.
+"""Proof for cairn/devices/recovery/machines/installer — the projection over host-seam intentions.
 
 Teeth a hollow build could not pass:
 
@@ -35,16 +35,17 @@ import sys
 import tempfile
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
+assert (REPO / "bin" / "cairn").exists(), f"REPO {REPO} does not hold bin/cairn"
 sys.path.insert(0, str(REPO))
 
-from cairn.machines.installer.installer import (
+from cairn.devices.recovery.machines.installer.installer import (
     gather_host_seams,
     install,
     run_verify,
 )
 
-ASK_USER = REPO / "cairn" / "machines" / "installer" / "ask_user.sh"
+ASK_USER = REPO / "cairn" / "devices" / "recovery" / "machines" / "installer" / "ask_user.sh"
 
 failures: list[str] = []
 
@@ -271,7 +272,7 @@ def test_cairn_home_question():
     """Outline 7.3.7.4: yes writes this box's own name, no writes the named home,
     an answer already in the rc is never asked again, and no terminal writes nothing.
     A build that asks every run, writes on a skip, or ignores the answer trips this."""
-    from cairn.machines.installer.installer import ask_cairn_home  # bound at call time
+    from cairn.devices.recovery.machines.installer.installer import ask_cairn_home  # bound at call time
     saved = os.environ.pop("CAIRN_HOME_HOST", None)
     try:
         with tempfile.TemporaryDirectory() as d:
@@ -310,7 +311,7 @@ def test_box_identity_step():
     both fingerprints); the home's operator accepts or declines each held ask; a box already
     pinned to its home is not contacted again. A build that skips the step, regenerates the
     key, contacts on every run, or pins an ask without the operator trips this."""
-    from cairn.machines.installer.installer import ask_box_identity  # bound at call time
+    from cairn.devices.recovery.machines.installer.installer import ask_box_identity  # bound at call time
     from cairn.tools.bus_client import tls
     with tempfile.TemporaryDirectory() as d:
         home_d, box_d = Path(d) / "home", Path(d) / "box"

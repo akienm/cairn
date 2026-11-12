@@ -229,6 +229,13 @@ cairn_bootstrap_apply() {
     _cairn_boot_log "apply: step half-built-venv — $vpy exists but has no pip; rebuilding with --clear"
     rebuild=(--clear)
   fi
+  # A VENV WHOSE INTERPRETER WAS UPGRADED AWAY IS NOT A VENV EITHER (measured 2026-11-11,
+  # akienasus after 24.04→26.04): bin/python3 -> /usr/bin/python3.12, which no longer exists.
+  # `python3 -m venv` over that dangling link exits 1 with ENOENT on bin/python3; --clear works.
+  if [[ ! -x "$vpy" && -e "$venv/pyvenv.cfg" ]]; then
+    _cairn_boot_log "apply: step stale-venv — $venv exists but $vpy does not run (interpreter gone); rebuilding with --clear"
+    rebuild=(--clear)
+  fi
 
   if [[ ! -x "$vpy" || ${#rebuild[@]} -gt 0 ]]; then
     # `python3 -m venv` does NOT create intermediate directories — measured 2026-07-30,

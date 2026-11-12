@@ -113,6 +113,16 @@ CAIRN_PG_SOCKET_DIR="${CAIRN_PG_SOCKET_DIR:-/var/run/postgresql}"
 
 _floor_refuse() {  # <check> <what was probed, what came back, the one remedy>
   echo "cairn: floor: $1 — $2" >&2
+  # A REFUSED FLOOR AT A TERMINAL HANDS OFF TO THE REPAIR SESSION (Akien, 2026-11-11: "try to
+  # launch you normally, with all the cairn stuff, and if it finds the venv isn't set up or
+  # whatever, it should launch you in a mode that can fix it all"). Only a person at a
+  # terminal is handed off: a script, hook or proof (no tty) still gets the loud exit 3, so
+  # nothing unattended ever spawns a Claude. CAIRN_FLOOR_NO_HANDOFF=1 keeps the old refusal.
+  if [[ "${_CAIRN_FLOOR_HANDOFF:-0}" -eq 1 && -t 0 && -t 2 && "${CAIRN_FLOOR_NO_HANDOFF:-0}" != 1 ]]; then
+    echo "cairn: floor is not up — launching superclaude to repair it (\`cairn $_CAIRN_TYPED\` refused)." >&2
+    export CAIRN_FLOOR_CARRIED="cairn: floor: $1 — $2 (refused command: cairn $_CAIRN_TYPED — rerun it once the floor is fixed)"
+    exec "$HERE/cairn" superclaude
+  fi
   exit 3
 }
 
@@ -263,8 +273,10 @@ fi
 # instance run soft: each in a subshell, where a refusal's exit 3 ends only that subshell and
 # its message is carried into the launch as CAIRN_FLOOR_FINDINGS for the session to fix.
 _sc_tok="${1,,}"
+_CAIRN_TYPED="$*"
 if [[ "${_sc_tok%%.*}" == superclaude ]]; then
-  CAIRN_FLOOR_FINDINGS=""
+  CAIRN_FLOOR_FINDINGS="${CAIRN_FLOOR_CARRIED:+$CAIRN_FLOOR_CARRIED$'\n'}"   # a handed-off refusal rides in first
+  unset CAIRN_FLOOR_CARRIED
   for _chk in _floor_db _floor_instance; do
     _out="$( ($_chk) 2>&1 )" || CAIRN_FLOOR_FINDINGS+="${_out}"$'\n'
   done
@@ -280,7 +292,9 @@ if [[ "${_sc_tok%%.*}" == superclaude ]]; then
   [[ -x "$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY" ]] && export PATH="$CAIRN_VENV/$CAIRN_VENV_BIN:$PATH"
   export CAIRN_FLOOR_FINDINGS
 else
+  _CAIRN_FLOOR_HANDOFF=1
   _floor
+  _CAIRN_FLOOR_HANDOFF=0
 fi
 
 # THE TWO TOKENS THE DISPATCHER RESOLVES ARE FOLDED; everything after rides verbatim

@@ -141,7 +141,85 @@ def _render(value, indent: str = "  ") -> str:
     return _wrap(value, indent)
 
 
-def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
+ROSTER_DAYS = 14   # how far back the OTHER CLAUDES block looks
+
+
+def _identity(argv: list[str]) -> dict:
+    """Which Claude this session is (ticket c3f5e1a0d924). Under the hook the session id
+    rides stdin (Claude Code's hook JSON); by hand it is $CLAUDE_CODE_SESSION_ID. A record
+    not found by id falls back to the session's pid chain. Never raises."""
+    sid = _hook_session_id() if HOOK_FLAG in argv else ""
+    sid = sid or os.environ.get("CLAUDE_CODE_SESSION_ID", "")
+    try:
+        from cairn.tools.base import claude_identity
+        who = claude_identity.who(sid or None)
+        if not who["name"] and sid:
+            by_pid = claude_identity.who(None)
+            if by_pid["name"]:
+                who = dict(by_pid, session=sid)
+        return who
+    except Exception:                          # identity is a filter, never a wedge
+        return {"name": "", "former_names": [], "host": "", "session": sid}
+
+
+def _hook_session_id() -> str:
+    """The session_id from the hook's stdin JSON; '' when there is none to read. Waits at
+    most half a second, so an inherited stdin that never closes cannot hang session open."""
+    try:
+        if sys.stdin is None or sys.stdin.isatty():
+            return ""
+        import select
+        ready, _, _ = select.select([sys.stdin], [], [], 0.5)
+        if not ready:
+            return ""
+        raw = sys.stdin.read()
+        data = json.loads(raw) if raw.strip() else {}
+        return str(data.get("session_id") or "") if isinstance(data, dict) else ""
+    except Exception:
+        return ""
+
+
+def _mine(data: dict, who: dict | None) -> bool:
+    """A slate is this Claude's when its author is this session's name or a former name,
+    or its session is this session (that claims the author-'CC' slates written before the
+    door stamped names)."""
+    if not who:
+        return True
+    names = {n for n in [who.get("name"), *(who.get("former_names") or [])] if n}
+    if data.get("author") in names:
+        return True
+    return bool(who.get("session")) and data.get("session") == who.get("session")
+
+
+def _knows_itself(who: dict | None) -> bool:
+    return bool(who and (who.get("name") or who.get("session")))
+
+
+def _others(who: dict | None) -> list[dict]:
+    """Each OTHER named Claude's newest slate from the last ROSTER_DAYS, newest first.
+    Author-'CC' slates name no Claude and are left out."""
+    if not SLATES.is_dir():
+        return []
+    from datetime import date, timedelta
+    floor = (date.today() - timedelta(days=ROSTER_DAYS)).isoformat()
+    newest: dict[str, tuple] = {}
+    for p in SLATES.glob("*.json"):
+        if p.name.startswith("_"):
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        author = data.get("author")
+        if not author or author == "CC" or _mine(data, who) or str(data.get("date") or "") < floor:
+            continue
+        key = (str(data.get("date") or ""), str(data.get("written_at") or ""), p.name)
+        if author not in newest or key > newest[author][0]:
+            newest[author] = (key, data, p)
+    return [d for _, d, _ in sorted(newest.values(), key=lambda v: v[0], reverse=True)]
+
+
+def _newest_slate(who: dict | None = None) -> tuple[Path | None, dict | None, str | None]:
     """Newest by the slate's own ``date``, then its own ``written_at``, then filename.
 
     NOT by mtime: 14 slates were bulk-touched at 2026-07-29 18:03 by an unrelated
@@ -172,13 +250,23 @@ def _newest_slate() -> tuple[Path | None, dict | None, str | None]:
             unreadable.append(f"{p.name}: {exc}")
             continue
         key = (str(data.get("date") or ""), str(data.get("written_at") or ""), p.name)
+        if _knows_itself(who) and not _mine(data, who):
+            continue
         ranked.append((key, p, data))
 
     warns = []
     if unreadable:
         warns.append("unreadable slate file(s): " + "; ".join(unreadable))
     if not ranked:
+        if _knows_itself(who):
+            me = who.get("name") or f"session {who.get('session')}"
+            warns.append(f"NO SLATE OF YOURS ({me}): opening cold for this Claude; the "
+                         f"other Claudes' slates are listed below")
+            return None, None, " | ".join(warns)
         return None, None, (" | ".join(warns) if warns else "every slate failed to parse")
+    if not _knows_itself(who):
+        warns.append("could not tell which Claude this session is; restored the newest "
+                     "slate of all, which may be another Claude's")
 
     key, path, data = max(ranked, key=lambda r: r[0])
     if not data.get("written_at"):
@@ -281,7 +369,7 @@ def _receipt(slate: dict | None, path: Path | None, troubles: list, t_err: str |
     return f"\U0001fa9d slate · {which} · {lane} · {gate}{lap}{open_q}{tickets}"
 
 
-def build() -> tuple[str, str]:
+def build(who: dict | None = None) -> tuple[str, str]:
     """Return ``(banner, receipt)``. Split out from main so the two output shapes
     (plain text by hand, JSON under the hook) render the SAME bytes — a second
     renderer would be a second owner of what session-open says (Law 6)."""
@@ -292,7 +380,8 @@ def build() -> tuple[str, str]:
     unadj, a_err = _unadjudicated()
     questions, q_err = _open_questions()
     tkt_summary = _ticket_summary()
-    path, slate, s_warn = _newest_slate()
+    path, slate, s_warn = _newest_slate(who)
+    others = _others(who) if _knows_itself(who) else []
 
     lines.append(_rule("═"))
     lines.append("CAIRN — SESSION OPEN".center(WIDTH))
@@ -382,9 +471,20 @@ def build() -> tuple[str, str]:
                            "on its ticket; they stay here until cleared.", "   "))
         lines.append("")
 
+    def _roster() -> None:
+        if not others:
+            return
+        lines.append("OTHER CLAUDES (their newest slates; not yours to resume):")
+        for o in others:
+            lines.append(f"  {o.get('author')} @ {o.get('host') or '?'}  "
+                         f"{o.get('written_at') or o.get('date') or '?'}  {o.get('id', '?')}")
+        lines.append("")
+
     if slate is None:
         lines.append(f"!! NO SLATE RESTORED: {s_warn}")
         lines.append("   Opening cold. Orient from MAP.md.")
+        lines.append("")
+        _roster()
         lines.append(_rule("═"))
         return "\n".join(lines), _receipt(None, None, troubles, t_err, pending, g_err, unadj, questions, tkt_summary)
 
@@ -393,8 +493,10 @@ def build() -> tuple[str, str]:
         lines.append("")
 
     lines.append(f"SLATE  {slate.get('id', path.stem)}")
-    lines.append(f"       {slate.get('date', '?')}   author: {slate.get('author', '?')}   file: {path.name}")
+    by = slate.get('author', '?') + (f" @ {slate['host']}" if slate.get('host') else "")
+    lines.append(f"       {slate.get('date', '?')}   author: {by}   file: {path.name}")
     lines.append("")
+    _roster()
 
     for field in CARRIED:
         if field not in slate:
@@ -418,7 +520,7 @@ def build() -> tuple[str, str]:
 
 
 def main(argv: list[str]) -> int:
-    banner, receipt = build()
+    banner, receipt = build(_identity(argv))
     if HOOK_FLAG in argv:
         # One object, both audiences. additionalContext is what stdout used to be.
         print(json.dumps({

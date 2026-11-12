@@ -124,8 +124,15 @@ def run(slates_dir: Path | str, troubles_dir: Path | str, *args: str,
     # Legacy trace root — kept for any remaining consumers.
     env["CAIRN_LB_TRACE_ROOT"] = str(traces_dir if traces_dir is not None
                                      else Path(env["CAIRN_SLATES_DIR"]).parent / "traces_empty")
+    # No Claude identity (ticket c3f5e1a0d924): the reader restores THIS Claude's slate,
+    # and these fixtures are author-"CC" slates that belong to no Claude. Unset, the run
+    # inherits the operator's session and reads the live ~/.claude/sessions.
+    env["CAIRN_CLAUDE_SESSIONS_DIR"] = str(Path(env["CAIRN_SLATES_DIR"]).parent / "sessions_empty")
+    env.pop("CLAUDE_PID", None)
+    env.pop("CLAUDE_CODE_SESSION_ID", None)
     return subprocess.run([sys.executable, str(SLATE), *args],
-                          capture_output=True, text=True, env=env)
+                          capture_output=True, text=True, env=env,
+                          stdin=subprocess.DEVNULL)
 
 
 def write_slate(d: Path, name: str, **fields) -> Path:

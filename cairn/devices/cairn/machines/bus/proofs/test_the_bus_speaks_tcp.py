@@ -20,6 +20,14 @@ printed, none stopping at the first red:
        in this run: ``PRE_BUILD_COMMIT``'s cairn/ and bin/ and the code under test's, side by
        side in one scratch folder, benched in turn for three rounds; TCP loopback is measured
        and printed beside it.
+  (d)  the two trees hold the same set of file paths under cairn/ and bin/ (ticket
+       1bfbc0832d8c). code_stamp stats every file it walks on every request, so a tree that
+       grew reads as a slower bus. Measured 2026-11-12 on akienasus: tree-pre 855 .py, tree-now
+       983 .py, p50 7799 vs 8436 us. With server.py alone reverted the now tree read 8598 us,
+       so the gap was the walk, not the bus. ``_trees`` copies each path only one tree holds
+       into the other, so the trees differ only in bytes at the paths both commits hold.
+  (e)  the bound still bites: a third tree, the now tree with a 2 ms sleep planted at the top
+       of ``_Handler.handle``, benched in the same rounds, reads p50 > pre * 1.10.
 
 Run:  python3 cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py
 """
@@ -44,6 +52,11 @@ PROVES = {
         "a": "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1",
         "b": "the LAN port answers only a pinned box and refuses plain TCP",
         "c": "the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured",
+    },
+    "1bfbc0832d8c": {
+        "1": "the two latency trees hold the same set of file paths under cairn/ and bin/",
+        "2": "over equal trees the now tree's Unix-socket p50 is within 10% of the pre tree's",
+        "3": "a planted 2 ms sleep at the top of _Handler.handle reds the 10% bound",
     },
 }
 
@@ -292,9 +305,37 @@ def _bench(home: Path, no_unix: bool, n: int = 400, repo: Path = _REPO) -> float
     return float(r.stdout.strip().splitlines()[-1]) if r.returncode == 0 else float("nan")
 
 
+def _paths(tree: Path) -> set[str]:
+    """Every file under ``tree``'s cairn/ and bin/, relative, __pycache__ left out."""
+    out = set()
+    for top in ("cairn", "bin"):
+        for dirpath, dirnames, filenames in os.walk(tree / top):
+            dirnames[:] = [d for d in dirnames if d != "__pycache__"]
+            for name in filenames:
+                out.add(str((Path(dirpath) / name).relative_to(tree)))
+    return out
+
+
+def _fill(src: Path, dst: Path, only: set[str]) -> tuple[int, int]:
+    """Copy each path in ``only`` from ``src`` into ``dst``; a path whose place in ``dst`` is a
+    directory, or whose parent is a file there, is skipped. (copied, skipped)."""
+    copied = skipped = 0
+    for rel in sorted(only):
+        target = dst / rel
+        if target.is_dir() or any(p.is_file() for p in target.parents if p != dst and dst in p.parents):
+            skipped += 1
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src / rel, target)
+        copied += 1
+    return copied, skipped
+
+
 def _trees(base: Path) -> tuple[Path, Path]:
     """The pre-build tree and the code under test, as cairn/ + bin/ in one folder, so the two
-    benches stat the same filesystem."""
+    benches stat the same filesystem. EQUALIZED (ticket 1bfbc0832d8c): each path only one tree
+    holds is copied into the other, so code_stamp walks the same files in both and the bound
+    reads the bus code, not the tree's growth."""
     pre, now = base / "tree-pre", base / "tree-now"
     for d in (pre, now):
         d.mkdir(parents=True, exist_ok=True)
@@ -303,7 +344,33 @@ def _trees(base: Path) -> tuple[Path, Path]:
     subprocess.run(["tar", "-x", "-C", str(pre)], input=arc.stdout, check=True)
     subprocess.run(["rsync", "-a", "--exclude", "__pycache__", str(_REPO / "cairn"),
                     str(_REPO / "bin"), str(now) + "/"], check=True)
+    in_pre, in_now = _paths(pre), _paths(now)
+    to_pre = _fill(now, pre, in_now - in_pre)
+    to_now = _fill(pre, now, in_pre - in_now)
+    print(f"         trees equalized: {to_pre[0]} now-only path(s) into pre ({to_pre[1]} skipped), "
+          f"{to_now[0]} pre-only path(s) into now ({to_now[1]} skipped)")
     return pre, now
+
+
+_PLANT_AT = "    def handle(self) -> None:\n"
+_PLANT = "        __import__('time').sleep(0.002)  # planted by tooth (e), ticket 1bfbc0832d8c\n"
+
+
+def _planted(now: Path, base: Path) -> Path:
+    """A copy of the now tree with a 2 ms sleep at the top of ``_Handler.handle``."""
+    slow = base / "tree-slow"
+    if slow.exists():
+        shutil.rmtree(slow)
+    subprocess.run(["cp", "-a", str(now), str(slow)], check=True)
+    server = slow / "cairn" / "devices" / "cairn" / "machines" / "bus" / "server.py"
+    text = server.read_text(encoding="utf-8")
+    at = text.find("class _Handler(")
+    i = text.find(_PLANT_AT, at)
+    if at < 0 or i < 0:
+        raise AssertionError(f"no _Handler.handle to plant in: {server}")
+    i += len(_PLANT_AT)
+    server.write_text(text[:i] + _PLANT + text[i:], encoding="utf-8")
+    return slow
 
 
 def tooth_c_latency(base: Path) -> None:
@@ -320,9 +387,14 @@ def tooth_c_latency(base: Path) -> None:
         ok(PROVES["5183005fa134"]["c"], tcp == tcp, f"tcp={tcp:.0f}us")
         return
     pre_tree, now_tree = _trees(base / "c-trees")
-    pre, now = [], []
+    in_pre, in_now = _paths(pre_tree), _paths(now_tree)
+    ok(PROVES["1bfbc0832d8c"]["1"], in_pre == in_now,
+       f"pre-only {sorted(in_pre - in_now)[:5]} ({len(in_pre - in_now)}), "
+       f"now-only {sorted(in_now - in_pre)[:5]} ({len(in_now - in_pre)}); {len(in_now)} paths")
+    slow_tree = _planted(now_tree, base / "c-trees")
+    pre, now, slow = [], [], []
     for rnd in range(_ROUNDS):
-        for tree, out in ((pre_tree, pre), (now_tree, now)):
+        for tree, out in ((pre_tree, pre), (now_tree, now), (slow_tree, slow)):
             home = base / f"c-{tree.name}-{rnd}"
             try:
                 out.append(_bench(home, False, repo=tree))
@@ -333,13 +405,16 @@ def tooth_c_latency(base: Path) -> None:
         tcp = _bench(thome, True)
     finally:
         _stop(thome, no_unix=True)
-    p_pre, p_now = statistics.median(pre), statistics.median(now)
-    print(f"         unix p50 pre-build {p_pre:.0f} us, now {p_now:.0f} us "
-          f"(rounds {[round(x) for x in pre]} / {[round(x) for x in now]}); "
-          f"tcp loopback p50 {tcp:.0f} us")
-    ok(PROVES["5183005fa134"]["c"],
-       p_pre == p_pre and p_now == p_now and p_now <= p_pre * 1.10 and tcp == tcp,
+    p_pre, p_now, p_slow = statistics.median(pre), statistics.median(now), statistics.median(slow)
+    print(f"         unix p50 pre-build {p_pre:.0f} us, now {p_now:.0f} us, planted {p_slow:.0f} us "
+          f"(rounds {[round(x) for x in pre]} / {[round(x) for x in now]} / "
+          f"{[round(x) for x in slow]}); tcp loopback p50 {tcp:.0f} us")
+    within = p_pre == p_pre and p_now == p_now and p_now <= p_pre * 1.10
+    ok(PROVES["5183005fa134"]["c"], within and tcp == tcp,
        f"pre={p_pre:.0f}us now={p_now:.0f}us tcp={tcp:.0f}us")
+    ok(PROVES["1bfbc0832d8c"]["2"], within, f"pre={p_pre:.0f}us now={p_now:.0f}us")
+    ok(PROVES["1bfbc0832d8c"]["3"], p_pre == p_pre and p_slow == p_slow and p_slow > p_pre * 1.10,
+       f"pre={p_pre:.0f}us planted={p_slow:.0f}us (bound {p_pre * 1.10:.0f}us)")
 
 
 def main() -> int:

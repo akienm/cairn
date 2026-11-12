@@ -250,18 +250,28 @@ def test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates():
 
 def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
     """Over the live repo and journals: the two tickets the rule was measured on anchor at the
-    parents of their build commits (edb4e137 and 448601ca), both by the first-build-commit rule.
-    These are historical commits, so the shas cannot drift."""
+    parents of their build commits (edb4e137 and 448601ca). These are historical commits, so the
+    shas cannot drift.
+
+    The RULE that finds the parent can, for c691. Its BUILDME crossing was journaled in the
+    cairnmap tool's history.json, and that file left with the tool (d547b4859f9a, 3882dac1,
+    2026-11-08). With no crossing to read, the anchor comes from `_anchor_without_a_crossing`
+    ('first-build-commit-no-crossing'), which takes the same parent. Clause (5) is the
+    commit, "reverts c691 to anything but 448601ca^", so each ticket asserts that commit by a
+    first-build rule: 68f5, whose journal stands, by 'first-build-commit' itself; c691 by
+    either first-build rule. A 'journal' anchor still reds both. Measured 2026-11-11."""
     build_anchor = getattr(hollow, "build_anchor", None)
     assert build_anchor is not None, "hollow.build_anchor does not exist"
     roots = hollow._roots()
+    rules = {"68f563403c8f": {"first-build-commit"},
+             "c691e19d5464": {"first-build-commit", "first-build-commit-no-crossing"}}
     for tid, build in (("68f563403c8f", "edb4e137"), ("c691e19d5464", "448601ca")):
         ticket = json.loads(hollow._ticket_path(tid).read_text(encoding="utf-8"))
         files = [hollow._inside(p, _REPO_ROOT) for p in hollow.writes_to(ticket)]
         a = build_anchor(ticket, files, roots=roots, repo_root=_REPO_ROOT)
         parent = _git(_REPO_ROOT, "rev-parse", f"{build}^").stdout.strip()
         assert a["commit"] == parent, (tid, a)
-        assert a["anchor_rule"] == "first-build-commit", (tid, a)
+        assert a["anchor_rule"] in rules[tid], (tid, a)
 
 
 if __name__ == "__main__":

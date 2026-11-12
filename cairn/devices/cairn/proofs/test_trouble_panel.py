@@ -1,8 +1,10 @@
-"""Proof: the cairn device's trouble panel — pane declaration, handler data shape,
-render kind output, and WATCHME probe.
+"""Proof: the cairn device's trouble panel — pane declaration, handler data shape, the
+store-to-pane read timed and read with no bus, the 30-day sweep reaching the store, and the
+WATCHME probe. The render of the pane is the web server's and is proved in its own proofs
+(RULE 1, ticket 6d324d26343d).
 
-Teeth a hollow build could not pass: an unoverridden declared_panes returns [],
-an unregistered render kind falls to <pre>, and an absent probe module raises ImportError.
+Teeth a hollow build could not pass: an unoverridden declared_panes returns [], a reader
+that asks the bus reds against refused dials, and an absent probe module raises ImportError.
 """
 from __future__ import annotations
 
@@ -19,17 +21,19 @@ import pytest
 # and that is the one place it cannot be honoured: the probe deliberately stopped
 # importing the renderer on 2026-09-07 (see the probe's own docstring — a cross-device
 # import from a watch is the very defect this ticket closes, and re-asserting a pure
-# function once per heartbeat is reciting, not measuring). So the clause is served HERE,
-# where a raise, a real drain, a real store read and a real render can be run end to
-# end in one process and TIMED — which is what the clause was actually after. What a
-# proof cannot put in the loop is the socket itself; the budget measured is the poke
-# path the socket pushes, and the tooth says so at its assertion.
+# function once per heartbeat is reciting, not measuring). So the clause is served by
+# proofs, each owner timing its own seam (RULE 1, ticket 6d324d26343d): raise → store in
+# trouble's, store → pane here, pane → HTML in the web server's.
 PROVES = {
     "9579a6f9cec6": {
-        "5": "test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path",
+        "5": "test_a_stored_trouble_reaches_the_PANE_inside_the_budget",
+    },
+    "6d324d26343d": {
+        "3": "test_a_stored_trouble_reaches_the_PANE_inside_the_budget",
+        "4": "test_the_30_day_sweep_reaches_the_trouble_store",
     },
     "7a1265439f54": {
-        "1": "test_websocket_route_exists",
+        "1": "test_the_panel_owns_no_route_of_its_own",
         "2": "test_an_UNHEALTHY_probe_NAMES_ITS_FINDING",
         "3": "test_the_panel_is_the_CAIRN_devices_not_the_hosts",
     },
@@ -149,166 +153,102 @@ def test_the_pane_projects_and_does_not_filter():
     assert [r["standing"] for r in data] == ["OPEN", "CLEARED", "OPEN"]
 
 
-# ── render kind ─────────────────────────────────────────────────────────────────
+# ── end to end, the cairn half: store → pane, timed ──────────────────────────────
 
-def test_render_trouble_two_sided_layout():
-    from cairn.devices.web_server.render import render_pane
-    html = render_pane({
-        "kind": "trouble",
-        "label": "troubles",
-        "data": [{"id": "t1", "standing": "OPEN", "why": "test", "count": 1,
-                  "first_seen": "2026-09-01", "last_seen": "2026-09-01"}],
-    })
-    assert "trouble-list" in html, "no trouble-list class in output"
-    assert "trouble-detail" in html, "no trouble-detail class in output"
-    assert "red-light" in html, "no red-light indicator in output"
-
-
-def test_render_trouble_red_light_live():
-    from cairn.devices.web_server.render import render_pane
-    html = render_pane({
-        "kind": "trouble",
-        "label": "troubles",
-        "data": [{"id": "t1", "standing": "OPEN", "why": "test", "count": 1}],
-    })
-    assert "#d33" in html, "red light should be bright (#d33) when live troubles exist"
-
-
-def test_render_trouble_red_light_none():
-    from cairn.devices.web_server.render import render_pane
-    html = render_pane({
-        "kind": "trouble",
-        "label": "troubles",
-        "data": [],
-    })
-    assert "#998" in html, "red light should be dull (#998) when no live troubles"
-
-
-def test_render_trouble_escapes_values():
-    from cairn.devices.web_server.render import render_pane
-    html = render_pane({
-        "kind": "trouble",
-        "label": "troubles",
-        "data": [{"id": "<script>", "standing": "OPEN",
-                  "why": "a&b", "count": 1}],
-    })
-    assert "<script>" not in html
-    assert "&lt;script&gt;" in html
-    assert "&amp;" in html
-
-
-# ── end to end: raise → poke → drain → read → render ────────────────────────────
-
-def test_a_raised_trouble_reaches_the_RENDERED_PANE_over_the_poke_path():
-    """THE WHOLE LANE IN ONE PROCESS, and the only tooth here that runs it end to end.
-
-    Ticket 9579a6f9cec6 clause (5). A component that holds nothing of ``cairn.devices``
-    raises; the poke drains it into the held store; the cairn device's pane reads the
-    store through trouble's tool (ticket ee04bb869795 — it asked ``live`` over the bus
-    until 2026-10-18); the rows render. Each half of that is already proved separately —
-    the raise in ``cairn/tools/base/proofs/test_raise_trouble.py``, the fold in trouble's
-    own proof, the projection and the render above — and a lane can be green in every
-    half and dark end to end, because the seams are where the store's address, the row shape
-    and the drain's watermark all live. That is what this tooth is for.
-
-    THE BUDGET, AND WHAT IT HONESTLY COVERS. The clause asks for the trouble VISIBLE
-    within 1s of the raise. The socket is not in this loop — a proof cannot hold a
-    browser — so what is timed is the path the socket pushes: raise → poke → drain →
-    read → HTML. If that path is inside the budget the push is a transport question;
-    if it were not, no transport could rescue it. Asserted as an invariant (a bound), not
-    a snapshot, because a recorded duration is a number that reds on a loaded laptop and
-    teaches nobody."""
+def test_a_stored_trouble_reaches_the_PANE_inside_the_budget():
+    """Ticket 9579a6f9cec6 clause (5), the half that is the cairn device's (RULE 1, ticket
+    6d324d26343d). The clause asks for a raised trouble VISIBLE within 1s of the raise. The lane has
+    three owners and each times its own seam: the raise poked and folded into the store is
+    timed in trouble's proofs (test_trouble_proofs_measure_only_trouble.py), the HTML in the
+    web server's (test_the_web_server_renders_and_reads_troubles.py), and the read from the
+    store into this pane's data is timed here. Asserted as a bound, never a snapshot."""
     from cairn.devices.cairn.device import CairnDevice
-    from cairn.devices.trouble.shim import TroubleShim
-    from cairn.devices.web_server.render import render_pane
-    from cairn.tools.base.diagnostic import DiagnosticBase
-
-    class _Raiser(DiagnosticBase):
-        @property
-        def diagnostic_device(self) -> str:
-            return "a_fixture_component"
-
     with tempfile.TemporaryDirectory() as tmp:
-        from pathlib import Path
-        roots = {k: Path(tmp) for k in ("repo", "commons", "instance")}
-        shim = TroubleShim(roots=roots)  # the store the pane reads, under the roots
-
-        raiser = _Raiser()
-        raiser.set_diagnostic_roots(roots)
-        raiser.set_trouble_notifier(shim.receive_raise)
-
+        roots, _ = _store(tmp, [_row("a-fixture-trouble-for-the-pane")])
         started = time.monotonic()
-        rec = raiser.raise_trouble(
-            "a-fixture-trouble-for-the-pane",
-            why="the pane must show a trouble nobody put in the store by hand")
-        assert rec["poke"] == "sent", (
-            f"the notifier was not reached: {rec['poke']} — without the poke this tooth "
-            f"would be measuring the beat, which is a different budget")
-
         data = _pane(CairnDevice(roots=roots))["handler"]()
-        html = render_pane({"kind": "trouble", "label": "troubles", "data": data})
         elapsed = time.monotonic() - started
-
-        assert [r["id"] for r in data] == ["a-fixture-trouble-for-the-pane"], data
-        assert data[0]["standing"] == "OPEN" and data[0]["count"] == 1, data[0]
-        assert "a-fixture-trouble-for-the-pane" in html, (
-            "the raised trouble reached the pane's DATA but not its HTML — the render "
-            "dropped it, which is the panel dark while the page still loads")
-        assert "#d33" in html, "live troubles held, and the red light rendered dull"
-        assert elapsed < 1.0, (
-            f"raise → rendered pane took {elapsed:.3f}s, over the 1s budget the clause "
-            f"names; the socket is not in this loop, so no transport can recover it")
-
-        # ...and the emission is the raiser's own breadcrumb, not something the pane
-        # invented: the drain is a real read of a real file, so deleting the log home
-        # would empty the panel.
-        home = Path(tmp) / "logs" / "a_fixture_component" / "0"
-        assert len(list(home.glob("*.raise_trouble.json"))) == 1, sorted(home.iterdir())
+    assert [r["id"] for r in data] == ["a-fixture-trouble-for-the-pane"], data
+    assert data[0]["standing"] == "OPEN" and data[0]["count"] == 1, data[0]
+    assert elapsed < 1.0, f"store → pane took {elapsed:.3f}s, over the 1s budget the clause names"
 
 
-def test_a_SECOND_raise_of_one_identity_does_not_become_a_SECOND_ROW():
-    """The pane projects what the lane holds, and what the lane holds folds. Beside the
-    tooth above because the panel is where a broken fold would actually be SEEN — fifty
-    rows of one flapping defect is the shape the damping exists to prevent, and it is
-    the pane, not the store, that a human reads."""
+class _Refused(Exception):
+    pass
+
+
+def _refuse_dials():
+    """Refuse the bus client's reach() — the one door to any host — and return the undo."""
+    import cairn.tools.bus_client as bc
+    saved = bc.reach
+
+    def no_reach(*a, **kw):
+        raise _Refused(f"reach{a}")
+
+    bc.reach = no_reach
+
+    def undo():
+        bc.reach = saved
+    return undo
+
+
+def test_the_pane_and_its_probe_read_with_no_bus():
+    """The pane and the probe watching it read the store through trouble's published tool,
+    every dial refused (ticket ee04bb869795; berthed here by 6d324d26343d). A seeded store reads its
+    live rows in both; an absent store raises in the pane, and never as a bus ask."""
     from cairn.devices.cairn.device import CairnDevice
-    from cairn.devices.trouble.shim import TroubleShim
-    from cairn.tools.base.diagnostic import DiagnosticBase
+    from cairn.devices.cairn.probes import trouble_panel_surfaces_live_troubles as probe
+    undo = _refuse_dials()
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            roots, _ = _store(tmp, [_row("proof-live-a"), _row("proof-live-b")])
+            data = _pane(CairnDevice(roots=roots))["handler"]()
+            got = probe._check({"roots": roots})
+        with tempfile.TemporaryDirectory() as tmp:
+            roots, _ = _store(tmp)
+            with pytest.raises(FileNotFoundError):
+                _pane(CairnDevice(roots=roots))["handler"]()
+    finally:
+        undo()
+    assert [r["id"] for r in data] == ["proof-live-a", "proof-live-b"], data
+    assert got.get("healthy") is True and got.get("live_count") == 2, got
 
-    class _Raiser(DiagnosticBase):
-        @property
-        def diagnostic_device(self) -> str:
-            return "a_fixture_component"
 
+def test_the_30_day_sweep_reaches_the_trouble_store():
+    """The cairn device's log sweep reaches the trouble store's own address: a cleared ticket
+    31 days old under the published tool's store_root is gone after one sweep, and a fresh one
+    stays (moved here from trouble's proofs by 6d324d26343d)."""
+    from pathlib import Path
+    from cairn.devices.cairn.logs_sweep import sweep_logs
+    from cairn.devices.trouble.tools.store import store
     with tempfile.TemporaryDirectory() as tmp:
-        from pathlib import Path
-        roots = {k: Path(tmp) for k in ("repo", "commons", "instance")}
-        shim = TroubleShim(roots=roots)  # the store the pane reads, under the roots
-        raiser = _Raiser()
-        raiser.set_diagnostic_roots(roots)
-        raiser.set_trouble_notifier(shim.receive_raise)
-
-        raiser.raise_trouble("one-defect", why="a why")
-        raiser.raise_trouble("one-defect", why="a why")
-
-        data = _pane(CairnDevice(roots=roots))["handler"]()
-        assert [r["id"] for r in data] == ["one-defect"], data
-        assert data[0]["count"] == 2, (
-            f"the pane shows count {data[0]['count']} for two raises of one identity — "
-            f"either the fold or the watermark is broken, and the panel is where a human "
-            f"would meet it")
+        roots = {"instance": Path(tmp)}
+        cleared = store.store_root(roots) / "cleared"
+        cleared.mkdir(parents=True)
+        aged, fresh = cleared / "proof-aged.json", cleared / "proof-fresh.json"
+        for f in (aged, fresh):
+            f.write_text(json.dumps(_row(f.stem, standing="CLEARED")), encoding="utf-8")
+        old = time.time() - 31 * 86400
+        os.utime(aged, (old, old))
+        sweep_logs(roots=roots)
+        assert not aged.exists(), "the 30-day sweep did not reach the trouble store"
+        assert fresh.exists(), "the sweep took a cleared ticket younger than 30 days"
 
 
-# ── WebSocket route ─────────────────────────────────────────────────────────────
-
-def test_websocket_route_exists():
-    from starlette.routing import WebSocketRoute
-    from cairn.devices.web_server.listener import _make_app
-    app = _make_app()
-    ws_routes = [r for r in app.routes if isinstance(r, WebSocketRoute)]
-    assert ws_routes, "no WebSocket routes in _make_app"
-    paths = [r.path for r in ws_routes]
-    assert "/ws/troubles" in paths, f"no /ws/troubles route, got {paths}"
+def test_the_panel_owns_no_route_of_its_own():
+    """Clause (1) of 7a1265439f54: the panel is a PANE on the one web server, never its own
+    route, port or server. The pane declaration carries no route, port or server key, and no
+    module of the cairn device outside its proofs imports a web framework. The web server's
+    own proofs hold that its socket route exists."""
+    from pathlib import Path
+    from cairn.devices.cairn.device import CairnDevice
+    pane = _pane(CairnDevice())
+    assert not {"route", "port", "path", "server", "url"} & set(pane), sorted(pane)
+    here = Path(__file__).resolve().parents[1]
+    hits = [str(f) for f in here.rglob("*.py") if "proofs" not in f.parts
+            and any(w in f.read_text(encoding="utf-8") for w in ("import starlette", "from starlette",
+                                                                 "import uvicorn", "from uvicorn"))]
+    assert not hits, hits
 
 
 # ── WATCHME probe ───────────────────────────────────────────────────────────────

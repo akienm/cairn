@@ -35,7 +35,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3feb201c84ea"
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
@@ -153,6 +153,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_DAYS, "days",
+                  set_by="3feb201c84ea build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=500,
 )
 

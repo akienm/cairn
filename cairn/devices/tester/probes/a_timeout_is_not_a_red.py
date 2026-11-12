@@ -37,7 +37,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3dfceaa272ec"
 
@@ -178,5 +178,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_DAYS, "days",
+                  set_by="ticket 3dfceaa272ec names the number"),
+        Threshold(1, "1 in the predicate: once(context, 'reported', lambda: timeouts_reported(_ENOUGH_DAYS)) >= 1",
+                  set_by="ticket 3dfceaa272ec names the number"),
+    ),
     horizon=_HORIZON,
 )

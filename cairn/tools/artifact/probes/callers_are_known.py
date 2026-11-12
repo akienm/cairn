@@ -20,7 +20,7 @@ import collections
 import json
 
 from cairn.tools.artifact import artifact as door
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "30531f6e1c5d"
 
@@ -100,5 +100,13 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_WRITES, "writes",
+                  set_by="ticket 30531f6e1c5d names the number"),
+        Threshold(1, "1 in the predicate: context[\"hand_edits\"] >= 1",
+                  set_by="30531f6e1c5d build, number chosen by CC, the ticket names no number"),
+        Threshold(0, "0 in the predicate: by.get(c, 0) > 0",
+                  set_by="30531f6e1c5d build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )

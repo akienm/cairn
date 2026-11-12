@@ -34,7 +34,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "e17dc0dea64b"
 
@@ -158,6 +158,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(1, "1 in the predicate: _newly_authored_since_floor() >= 1",
+                  set_by="e17dc0dea64b build, number chosen by CC, the ticket names no number"),
+        Threshold(0, "0 in the predicate: census[\"unresolvable_count\"] > 0",
+                  set_by="e17dc0dea64b build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

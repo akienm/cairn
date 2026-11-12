@@ -77,7 +77,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.codemother.machines.clearance.clearance import GRANTED, read_attempts
 
 _TICKET_ID = "0cde908b8fbe"
@@ -319,6 +319,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when the ticket's horizon is met AND the gate is known to be a door: 20 post-era demanded crossings, every one cleared or exempt, th",
+                  set_by="ticket 0cde908b8fbe names the number"),
+        Threshold(1, "1 in the predicate: s[\"refusals_recorded\"] >= 1",
+                  set_by="0cde908b8fbe build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

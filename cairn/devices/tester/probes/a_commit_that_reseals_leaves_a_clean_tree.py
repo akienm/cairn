@@ -43,7 +43,7 @@ import subprocess
 from datetime import date, datetime
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "357c402172ca"
 
@@ -157,5 +157,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_COMMITS, "commits",
+                  set_by="ticket 357c402172ca names the number"),
+    ),
     horizon=_HORIZON,
 )

@@ -32,7 +32,7 @@ absent store is UNHEALTHY and says so, never zero troubles.
 """
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "7a1265439f54"
 
@@ -105,5 +105,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: _check(context)[\"healthy\"]",
+                  set_by="ticket 7a1265439f54 (the predicate itself; no number to move)"),
+    ),
     horizon=100,
 )

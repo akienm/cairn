@@ -19,7 +19,7 @@ import collections
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 from cairn.tools.question import question as Q
 
 _TICKET_ID = "9adc6fddf185"
@@ -122,5 +122,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_CROSSINGS, "crossings",
+                  set_by="ticket 9adc6fddf185 names the number"),
+        Threshold(ENOUGH_SPAWNED, "spawned",
+                  set_by="ticket 9adc6fddf185 names the number"),
+    ),
     horizon=1000,
 )

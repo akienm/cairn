@@ -74,7 +74,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.deviceness import HEALTH_QUERY_CLAUSE, divergence
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "74d4124bc0e7"
 
@@ -216,5 +216,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: isinstance(state, str) and \"[PROVED]\" in state; False",
+                  set_by="ticket 74d4124bc0e7 (the predicate itself; no number to move)"),
+    ),
     horizon=_HORIZON,
 )

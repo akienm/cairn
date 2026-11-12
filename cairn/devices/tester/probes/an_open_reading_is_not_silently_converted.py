@@ -39,7 +39,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.tester.isolation import OPEN, SEALED
 from cairn.tools.validation_store import validation_store as vs
 
@@ -245,5 +245,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_DAYS, "days — CLEARED once thirty days of live traffic have passed with neither half firing.",
+                  set_by="ticket 299d4f72ae40 names the number"),
+    ),
     horizon=_HORIZON,
 )

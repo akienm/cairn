@@ -57,7 +57,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.codemother.machines.clearance.clearance import (
     CAIRN_ROOT, COMMONS_ROOT, REFUSED, RetirementUnreadable,
     read_attempts, retirement_of, riders_of,
@@ -323,6 +323,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_RETIREMENTS, "retirements — CLEARED when the ticket's horizon is met: three live retirements observed, no escape among them, and no unreadable retirement standing.",
+                  set_by="ticket 2b16d2d8b056 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

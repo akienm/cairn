@@ -42,7 +42,7 @@ import tempfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "e3cf75c6dc8f"
 
@@ -206,6 +206,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CLEAN, "clean — CLEARED after ``_ENOUGH_CLEAN`` consecutive clean surveys — the ticket's fourteen days, counted in surveys because that is what the shim can",
+                  set_by="e3cf75c6dc8f build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )
 

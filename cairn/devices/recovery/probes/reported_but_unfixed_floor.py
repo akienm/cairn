@@ -52,7 +52,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "835af7f398ce"
 
@@ -215,5 +215,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_FLOOR, "floor — CLEARED once the loop has been exercised enough AND nothing survived to the patience line — the reported-to-Claude path demonstrably closes,",
+                  set_by="ticket 835af7f398ce names the number"),
+        Threshold(_PATIENCE, "patience — CLEARED once the loop has been exercised enough AND nothing survived to the patience line — the reported-to-Claude path demonstrably closes,",
+                  set_by="ticket 835af7f398ce names the number"),
+    ),
     horizon=_HORIZON,
 )

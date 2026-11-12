@@ -50,7 +50,7 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "4431cf2bc625"
 
@@ -243,5 +243,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_DAYS, "days — CLEARED once thirty days of live traffic have passed with the invariant holding: no measurement lost, and nobody having had to state their w",
+                  set_by="ticket 4431cf2bc625 names the number"),
+        Threshold(_BASELINE_SEALED, "baseline sealed — CLEARED once thirty days of live traffic have passed with the invariant holding: no measurement lost, and nobody having had to state their w",
+                  set_by="4431cf2bc625 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

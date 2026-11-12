@@ -45,7 +45,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import resolve
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "854db29ffddf"
 
@@ -209,5 +209,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_TURNED, "turned — CLEARED once enough namespaces have turned over AND none has become a peephole — 1000 survived contact with both traffic profiles, the numbe",
+                  set_by="ticket 854db29ffddf names the number"),
+    ),
     horizon=_HORIZON,
 )

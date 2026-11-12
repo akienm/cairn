@@ -42,7 +42,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "1baf0b52b218"
 
@@ -164,5 +164,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_FLOOR, "floor — CLEARED once working the queue is demonstrated AT SCALE with no standing rot: ``_FLOOR`` captures picked up through the door AND fewer than ",
+                  set_by="ticket 1baf0b52b218 names the number"),
+    ),
     horizon=_HORIZON,
 )

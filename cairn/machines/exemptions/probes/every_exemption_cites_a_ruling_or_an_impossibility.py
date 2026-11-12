@@ -26,7 +26,7 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "892a0f9cd925"
 
@@ -143,5 +143,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: False",
+                  set_by="ticket 892a0f9cd925 (the predicate itself; no number to move)"),
+    ),
     horizon=1000,
 )

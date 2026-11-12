@@ -36,7 +36,7 @@ import statistics
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "mail-arrives-and-what-cannot-marks-itself"
 _TICKET_ID = "7cb1989e7825"
@@ -203,6 +203,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_RAISED, "raised",
+                  set_by="ticket 7cb1989e7825 names the number"),
+        Threshold(_ENOUGH_CLEARED, "cleared",
+                  set_by="ticket 7cb1989e7825 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "a6cf55a6dd6d"
 
@@ -78,6 +78,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(10, "10 in the predicate: count < 10",
+                  set_by="ticket a6cf55a6dd6d names the number"),
+        Threshold(3600, "3600 in the predicate: span >= 3600",
+                  set_by="a6cf55a6dd6d build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=100,
 )
 

@@ -31,7 +31,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, watch_carry
 
 _CLASS_SPACE = Path(__file__).resolve().parents[4]
 _TICKET_ID = "72e8e3509287"
@@ -91,6 +91,10 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy"},
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: len(renders) >= 3",
+                  set_by="ticket 72e8e3509287 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

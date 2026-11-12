@@ -48,7 +48,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _OWNING_TICKET = "fb988505c5cb"
 _ENOUGH_RENDERS = 20
@@ -171,6 +171,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_RENDERS, "renders",
+                  set_by="fb988505c5cb build, number chosen by CC, the ticket names no number"),
+        Threshold(_consecutive_clean, "consecutive clean",
+                  set_by="fb988505c5cb build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=500,
 )
 

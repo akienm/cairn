@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "c5b6b128a376"
 
@@ -128,5 +128,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_READINGS, "readings",
+                  set_by="ticket c5b6b128a376 names the number"),
+    ),
     horizon=1000,
 )

@@ -20,7 +20,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "cf80bdb57205"
 
@@ -96,5 +96,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_PROVED, "proved",
+                  set_by="ticket cf80bdb57205 names the number"),
+        Threshold(ENOUGH_CLEAN, "clean",
+                  set_by="ticket cf80bdb57205 names the number"),
+    ),
     horizon=1000,
 )

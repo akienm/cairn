@@ -23,7 +23,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "201a37bf1613"
 _ENOUGH_AFTER = timedelta(days=7)
@@ -130,6 +130,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_AFTER, "after",
+                  set_by="ticket 201a37bf1613 names the number"),
+    ),
     horizon=1000,
 )
 

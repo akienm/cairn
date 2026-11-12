@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "ef58fe6fad61"
 
@@ -186,6 +186,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(5, "5 in the predicate: s[\"total_amendments\"] < 5",
+                  set_by="ef58fe6fad61 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

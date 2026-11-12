@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "078476729bca"
 
@@ -109,6 +109,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: context.get(\"diagnostics_received\", 0) >= 3",
+                  set_by="ticket 078476729bca names the number"),
+    ),
     horizon=100,
 )
 

@@ -34,7 +34,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.cast import classify
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "23089d52d805"
 
@@ -157,6 +157,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CASTS, "casts",
+                  set_by="ticket 23089d52d805 names the number"),
+        Threshold(_ENOUGH_DAYS, "days",
+                  set_by="ticket 23089d52d805 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

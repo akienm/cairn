@@ -25,7 +25,7 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _OWNING_TICKET = "96f71a89a0fa"
@@ -164,6 +164,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: not s['offenders'] and s['both'] == 0 and s['falsification_stands']",
+                  set_by="ticket 96f71a89a0fa (the predicate itself; no number to move)"),
+    ),
     horizon=_HORIZON,
 )
 

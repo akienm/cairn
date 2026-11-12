@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, watch_carry
 from cairn.tools.data_recorder.probes.reading_is_declared_and_current import _recorders
 
 TICKET = "a4c2be029f49"
@@ -106,5 +106,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(TICKET, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_READ, "read",
+                  set_by="ticket a4c2be029f49 names the number"),
+        Threshold(ENOUGH_FREQUENCIES, "frequencies",
+                  set_by="ticket a4c2be029f49 names the number"),
+    ),
     horizon=2000,
 )

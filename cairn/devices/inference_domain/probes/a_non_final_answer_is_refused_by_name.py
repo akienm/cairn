@@ -56,7 +56,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 
 def _live_rows() -> list[dict]:
@@ -186,6 +186,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when >= _ENOUGH post-era chat rows stand and NONE of them is contentless.",
+                  set_by="7397b8442b85 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

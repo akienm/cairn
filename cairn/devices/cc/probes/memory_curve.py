@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 # THE CGROUP READ IS A TOOL, NOT A COPY. This file held its own byte-identical
 # spelling of the parse until 2026-09-08, when the census in arm 6 of
 # cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py counted three of them.
@@ -101,6 +101,10 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: False",
+                  set_by="ticket a6cf55a6dd6d (the predicate itself; no number to move)"),
+    ),
     horizon=100,
 )
 

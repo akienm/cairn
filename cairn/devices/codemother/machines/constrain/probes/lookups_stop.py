@@ -51,7 +51,7 @@ import os
 from pathlib import Path
 from statistics import median
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_HEX = "c8661b8defad"
 
@@ -242,5 +242,13 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_HEX, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when the corpus is big enough to judge, the median holds at or above the bar, AND at least one check has been reported RED.",
+                  set_by="c8661b8defad build, number chosen by CC, the ticket names no number"),
+        Threshold(_BAR, "bar — CLEARED when the corpus is big enough to judge, the median holds at or above the bar, AND at least one check has been reported RED.",
+                  set_by="ticket c8661b8defad names the number"),
+        Threshold(1, "1 in the predicate: s[\"reds_ever\"] >= 1",
+                  set_by="c8661b8defad build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

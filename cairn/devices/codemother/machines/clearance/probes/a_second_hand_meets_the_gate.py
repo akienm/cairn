@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.codemother.machines.clearance.clearance import OwnerUnresolvable, boat_owner_of
 
 _TICKET_ID = "0354c0269ff7"
@@ -116,6 +116,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CROSSINGS, "crossings",
+                  set_by="0354c0269ff7 build, number chosen by CC, the ticket names no number"),
+        Threshold(2, "2 in the predicate: len(s[\"distinct_actors\"]) >= 2",
+                  set_by="0354c0269ff7 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

@@ -33,7 +33,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.settled import settled
 from cairn.tools.base.transitions import MalformedWorkflow, parse_workflow, release_lack
 
@@ -172,6 +172,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_DISTINCT, "distinct — CLEARED when the vocabulary is genuinely in use: every non-default word written on at least one live ticket, non-default phases standing on ",
+                  set_by="ticket 6ec9b384b451 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

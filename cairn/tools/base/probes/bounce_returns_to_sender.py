@@ -35,7 +35,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import resolve
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "4a105acd1190"
 
@@ -153,6 +153,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: len(s[\"bounce_sent\"]) >= 3",
+                  set_by="ticket 4a105acd1190 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

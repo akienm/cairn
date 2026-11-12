@@ -35,7 +35,7 @@ import json
 import re
 from datetime import date, datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _OWNING_TICKET = "3ed960cc402e"
 _STALE_DAYS = 14
@@ -133,6 +133,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CLEAN, "clean",
+                  set_by="3ed960cc402e build, number chosen by CC, the ticket names no number"),
+        Threshold(_PATIENCE, "patience",
+                  set_by="ticket 3ed960cc402e names the number"),
+    ),
     horizon=1000,
 )
 

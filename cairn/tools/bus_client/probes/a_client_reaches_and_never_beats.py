@@ -55,7 +55,7 @@ import ast
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.settled import settled
 
 _TICKET_ID = "fc93d8cd5961"
@@ -186,6 +186,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: s[\"count\"] == 0 and once(context, \"tooth\", _tooth_has_bitten)[\"proven\"]",
+                  set_by="ticket fc93d8cd5961 (the predicate itself; no number to move)"),
+    ),
     horizon=_HORIZON,
 )
 

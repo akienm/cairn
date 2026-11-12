@@ -43,7 +43,7 @@ import re
 import shlex
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "8e5db5f3edb2"
 _PACKETS = str(instance_path("chart", 0) / "packets")
@@ -200,5 +200,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_COUNT, "count — CLEARED at the ticket's own horizon: ten artifacts through the new door, or 2026-10-11.",
+                  set_by="ticket 8e5db5f3edb2 names the number"),
+    ),
     horizon=_HORIZON,
 )

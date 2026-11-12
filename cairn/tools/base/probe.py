@@ -229,6 +229,57 @@ def watch_carry(ticket_id: str, carry: Callable[[dict], dict] | None = None, *,
 
 
 @dataclass(frozen=True)
+class Threshold:
+    """A DECLARED number behind a probe's ``enough`` — the number AND what set it (ticket
+    336a781018ba, 2026-09-18).
+
+    Measured at the cast: 55 ``_ENOUGH_*`` constants across 47 probes, 34 of them silent
+    about where the number came from; 81 across 67 files by the build. A probe's ``enough``
+    was a typed predicate, and the number inside it — ``5000`` beats, ``1/12``, ``30`` days,
+    ``3`` observations — was folklore the moment it was typed: nothing could ask which
+    ticket or which observation set it, so nothing could ever move it against evidence.
+    This is the field that makes the number sayable, and therefore refusable.
+
+    - ``value``  — the number itself, ANY scalar: a count, a duration in beats, a rate, a
+                   ``timedelta`` window, a coverage floor, ``True`` for an existence check,
+                   ``None`` for a watch that never clears. The shape is deliberately not
+                   "how many observations" — a field shaped only for counts forces the
+                   5000-beat and 1/12-rate probes to lie (the ticket's own warning).
+    - ``of``     — what the number is OF, in the probe's own words ("beats a pulse may cost
+                   before the cost is a finding"). Blank is refused.
+    - ``set_by`` — the PROVENANCE: the ticket whose text names the number, or the
+                   observation that set it, or — honestly — "guess by CC <date>, no ticket,
+                   no observation". Blank is refused; a guess that says so is provenance of
+                   origin (Law 10 — a recorded observation of who set it is a measurement
+                   at n=1). Separating guessed from measured, and moving the number, is the
+                   confidence engine's work under I-learns-its-gates, not this field's.
+
+    The module-level ``_ENOUGH_*`` constant stays the ONE source of the number; the
+    Threshold cites it (``Threshold(_ENOUGH_BEATS, ...)``), so the predicate and the
+    declaration cannot drift apart. The primitive does NOT refuse an ``enough`` with no
+    thresholds — the build_inspector sieve ``probe_thresholds_declare_provenance`` does,
+    per component, over the source (``cairn.tools.base.threshold_census``), which is what
+    keeps the count a live number rather than a construction-time impossibility.
+    """
+
+    value: object
+    of: str
+    set_by: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.of, str) or not self.of.strip():
+            raise ValueError("a threshold says what its number is OF — blank is a number "
+                             "nobody can move against evidence")
+        if not isinstance(self.set_by, str) or not self.set_by.strip():
+            raise ValueError("a threshold carries its provenance in set_by — the ticket or "
+                             "observation that set the number, or an honest 'guess by "
+                             "<who> <date>, no observation'; blank is refused")
+        if callable(self.value):
+            raise TypeError("a threshold's value is the NUMBER behind the predicate, not the "
+                            "predicate — pass the constant, not the enough callable")
+
+
+@dataclass(frozen=True)
 class Probe:
     """An immutable "poke ``to`` when ``trigger`` is true." Frozen — it is a declaration, not
     a stateful worker; its fire-history (if any) lives on whatever fires it, never here.
@@ -255,6 +306,11 @@ class Probe:
                       kind. Absent, the probe is a standing watch with no end, which is a
                       legitimate declaration and must stay the default so no existing probe
                       acquires a stopping condition it never asked for.
+      - ``thresholds`` — the DECLARED numbers behind ``enough``, each a ``Threshold`` carrying
+                      the value, what it is of, and what set it (ticket 336a781018ba). Empty
+                      is legal at construction — an ``enough`` with no declared threshold is
+                      counted by the build_inspector sieve, not refused here, so the count
+                      stays a measurement over the corpus (the ticket's own WATCHME).
       - ``horizon`` — optional positive int: HOW MANY PULSES THIS WATCH MAY STAND WITHOUT
                       EVER HAVING FIRED before its own silence is a finding. Absent, the
                       probe is a watch with no horizon — legitimate, and the default for
@@ -289,6 +345,7 @@ class Probe:
     while_true: bool = False
     enough: Callable[[dict], bool] | None = None
     horizon: int | None = None
+    thresholds: tuple = ()
 
     def __post_init__(self) -> None:
         # CP1/CP3, at construction: a probe you cannot fire, or one with no reason, is a
@@ -309,6 +366,13 @@ class Probe:
         # A horizon of 0 or a negative one is a probe that is overdue before it is ever
         # evaluated — that reads as loud-about-everything, which is the same as loud about
         # nothing (Law 7 cuts both ways). Refused at n=1 rather than discovered as noise.
+        # A threshold is a Threshold — the frozen shape that forces the provenance. A bare
+        # number here is the silent constant the field exists to end, in a new spelling.
+        if not isinstance(self.thresholds, tuple) or any(
+                not isinstance(t, Threshold) for t in self.thresholds):
+            raise TypeError("a probe's thresholds is a tuple of Threshold(value, of, set_by) "
+                            "— the number, what it is of, and what set it; a bare number is "
+                            "the undeclared constant this field replaces")
         if self.horizon is not None and (not isinstance(self.horizon, int)
                                          or isinstance(self.horizon, bool)
                                          or self.horizon < 1):

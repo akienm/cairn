@@ -23,7 +23,7 @@ import json
 import os
 import subprocess
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.chain.chain import charted_paths, uncharted_modifications
 
 _TICKET_ID = "8529f0e413b2"
@@ -235,6 +235,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_VOYAGES, "voyages",
+                  set_by="8529f0e413b2 build, number chosen by CC, the ticket names no number"),
+        Threshold(_ENOUGH_FILES, "files",
+                  set_by="8529f0e413b2 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

@@ -41,7 +41,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.settled import settled
 from cairn.tools.base.ticket_log import read_log
 from cairn.tools.base.transitions import (
@@ -231,6 +231,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_AFTER_BATCH, "after batch — CLEARED when both halves hold: the door has been called at least three times across at least two distinct days that are NOT the batch day, A",
+                  set_by="ticket 9e7867aa1056 names the number"),
+        Threshold(_ENOUGH_DISTINCT_DAYS, "distinct days — CLEARED when both halves hold: the door has been called at least three times across at least two distinct days that are NOT the batch day, A",
+                  set_by="ticket 9e7867aa1056 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

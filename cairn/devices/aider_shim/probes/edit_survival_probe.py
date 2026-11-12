@@ -62,7 +62,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 
 TICKET = "aider-builds-a-piece"
 
@@ -235,5 +235,9 @@ PROBE = Probe(
           "consumer": "Akien at triage — offload-more vs pull-back is his call"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(5, "5 in the predicate: len(rows) >= 5",
+                  set_by="ticket 6d3e689b0bf8 names the number (enough: five driven pieces with survival recorded)"),
+    ),
     horizon=_HORIZON,
 )

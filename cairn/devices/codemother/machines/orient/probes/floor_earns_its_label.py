@@ -47,7 +47,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.codemother.machines.orient.orient import (FLOOR_AUTHORED,
                                                           measured_provenance)
 
@@ -183,5 +183,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED once the corpus is big enough to judge AND at least one field has earned ``floor`` — the floor's answer reached a packet unchanged, ",
+                  set_by="c23cc599a107 build, number chosen by CC, the ticket names no number"),
+        Threshold(1, "1 in the predicate: s[\"earned_floor\"] >= 1",
+                  set_by="c23cc599a107 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

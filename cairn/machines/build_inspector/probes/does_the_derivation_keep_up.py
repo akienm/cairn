@@ -55,7 +55,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "18f33ae50f02"
 
@@ -300,6 +300,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_SWEEPS, "sweeps — The asymmetric pair, per the ticket's spec.",
+                  set_by="ticket 18f33ae50f02 names the number"),
+        Threshold(0, "0 in the predicate: r.get(\"records\", 0) > 0",
+                  set_by="18f33ae50f02 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

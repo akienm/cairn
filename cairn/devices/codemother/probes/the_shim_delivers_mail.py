@@ -8,7 +8,7 @@ since boot.
 
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 
 
 def _trigger(now, context: dict) -> bool:
@@ -32,5 +32,9 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: context.get(\"diagnostics_received\", 0) >= 3",
+                  set_by="ticket 6b06fcb499fa names the number"),
+    ),
     horizon=100,
 )

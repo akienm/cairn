@@ -44,7 +44,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.settled import settled
 
 _TICKET_ID = "95e3b9911dd0"
@@ -205,6 +205,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_VOYAGES, "voyages — CLEARED when no ticket carries the key, the reader names no fallback to it, AND at least three voyages have crossed PROVED since the migrati",
+                  set_by="ticket 95e3b9911dd0 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

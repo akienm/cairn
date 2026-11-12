@@ -67,7 +67,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "a48f95c51a41"
 
@@ -199,5 +199,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED once enough has landed since the collapse to judge AND every file holds exactly one record.",
+                  set_by="ticket a48f95c51a41 names the number"),
+    ),
     horizon=_HORIZON,
 )

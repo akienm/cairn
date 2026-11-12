@@ -20,7 +20,7 @@ import glob
 import json
 import os
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.address import instance_path
 from cairn.tools.chain.grammar import ticket_path
 
@@ -152,6 +152,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_PACKETS, "packets",
+                  set_by="f8aab31a917d build, number chosen by CC, the ticket names no number"),
+        Threshold(1, "1 in the predicate: s[\"real_refusals\"] < 1",
+                  set_by="f8aab31a917d build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )
 

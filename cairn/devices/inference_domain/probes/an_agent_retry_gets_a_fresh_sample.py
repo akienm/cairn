@@ -42,7 +42,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 
 def _live_rows() -> list[dict]:
@@ -175,5 +175,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED once enough real agent traffic has crossed to judge AND none of it was replayed.",
+                  set_by="ticket 548dd13fb4db names the number"),
+    ),
     horizon=_HORIZON,
 )

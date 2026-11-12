@@ -34,7 +34,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.machines.learning_block.engine import RUN_EVENT, answers_five_questions, rejected_count
 
 _TICKET_ID = "4b2338feed4d"
@@ -138,5 +138,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when one block holds >= 5 training-typed engine runs that ALL answer the five questions — the parent's casting condition for child 2",
+                  set_by="ticket 4b2338feed4d names the number"),
+    ),
     horizon=_HORIZON,
 )

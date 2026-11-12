@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "075cccec5b5d"
 
@@ -48,5 +48,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: _ACTED_MARKER.is_file()",
+                  set_by="ticket 075cccec5b5d (the predicate itself; no number to move)"),
+    ),
     horizon=1000,
 )

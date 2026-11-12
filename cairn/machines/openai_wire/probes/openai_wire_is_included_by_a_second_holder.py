@@ -38,7 +38,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.import_sieve import sieve as import_sieve
 
 _TICKET_ID = "76639374d9f9"
@@ -137,6 +137,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED at TWO distinct holders: Akien's 'anybody can include it' confirmed by the world rather than by its author.",
+                  set_by="76639374d9f9 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

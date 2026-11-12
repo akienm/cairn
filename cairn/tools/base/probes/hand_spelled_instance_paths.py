@@ -58,7 +58,7 @@ that re-opens this node is the owner's act at the register (Law 6).
 from __future__ import annotations
 
 from cairn.tools.base import address_rule
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.import_sieve import HollowScan
 
 _TICKET_ID = "968fdf52a10f"
@@ -190,6 +190,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: not s[\"hollow\"] and sorted(set(_site_files(s))) == sorted(_FLOOR_SITES)",
+                  set_by="ticket 968fdf52a10f (the predicate itself; no number to move)"),
+    ),
     horizon=_HORIZON,
 )
 

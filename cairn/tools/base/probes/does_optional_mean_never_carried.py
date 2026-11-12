@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "78cab05e93af"
 
@@ -158,5 +158,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED once the corpus is big enough to judge AND some other node has carried a watch.",
+                  set_by="ticket 78cab05e93af names the number"),
+        Threshold(0, "0 in the predicate: s[\"carried\"] > 0",
+                  set_by="78cab05e93af build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

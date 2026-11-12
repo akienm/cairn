@@ -33,7 +33,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "415248fa8ee5"
 
@@ -127,5 +127,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED once BOTH edges are live: the door has refused at least once, and at least one later cast passed (fix-and-refire works).",
+                  set_by="415248fa8ee5 build, number chosen by CC, the ticket names no number"),
+        Threshold(1, "1 in the predicate: s[\"refusals\"] >= 1",
+                  set_by="415248fa8ee5 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

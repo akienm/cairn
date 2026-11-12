@@ -9,7 +9,7 @@ press_office/history.json with no hand-editing.
 import json
 import os
 
-from cairn.tools.base.probe import Probe, by_pointer, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, by_pointer, owning_ticket, watch_carry
 
 _TICKET = "eba8503cc18c"
 _HISTORY = os.path.join(os.path.dirname(__file__), "..", "history.json")
@@ -54,4 +54,8 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: len(crossings) >= 3",
+                  set_by="ticket eba8503cc18c names the number"),
+    ),
 )

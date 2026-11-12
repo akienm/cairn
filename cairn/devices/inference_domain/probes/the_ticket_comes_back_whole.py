@@ -22,7 +22,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.inference_domain import domain
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 
 def _live_rows() -> list[dict]:
@@ -159,6 +159,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(0, "0 in the predicate: result[\"whole\"] > 0",
+                  set_by="d6d20400441f build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

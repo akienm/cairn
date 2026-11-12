@@ -43,7 +43,7 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 from cairn.tools.base.address import instance_path
 
 _TICKET_ID = "59a66e1c4a1a"
@@ -234,6 +234,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_MIN_SAMPLES_FOR_ENOUGH, "min samples for enough",
+                  set_by="ticket 59a66e1c4a1a names the number"),
+        Threshold(2, "2 in the predicate: s[\"distinct_columns\"] < 2",
+                  set_by="59a66e1c4a1a build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

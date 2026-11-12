@@ -91,6 +91,7 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # same shape as sole_path_holds. It reaches ast, pathlib and import_sieve's walk, all of
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
+from cairn.tools.base import threshold_census  # noqa: E402
 from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 339a45cee6a1: the sieve's own class carries the mixin it demands)
 # (ticket e85878726213: terminal is the system's word, not the inspector's; ticket 66ee1ffc1ec7:
 # the crossing's rules lanes measure legality here)
@@ -4253,6 +4254,38 @@ def learning_declared(row: dict, comp_dir: Path) -> list[dict]:
     return found
 
 
+def probe_thresholds_declare_provenance(row: dict, comp_dir: Path) -> list[dict]:
+    """A probe's ``enough`` carries a number that says nothing of what set it.
+
+    Provenance: ticket 336a781018ba (a-probes-enough-threshold-declares-what-set-it). At the
+    build 103 of 105 probe modules carried an ``enough=`` and not one could say which ticket or
+    observation set the number inside it, so nothing could ever move the number against
+    evidence (I-learns-its-gates). The census (``cairn.tools.base.threshold_census``) reads
+    each probe's SOURCE with ``ast``, never importing it; this sieve reds every probe in the
+    component's own ``probes/`` and ``probes_disabled/`` folders whose enough carries no
+    ``Threshold`` with a non-blank ``of`` and ``set_by``. The disabled band reds beside the
+    live one, never folded in (D8): re-enabling a probe carries its threshold back with it.
+    A guess that says it is a guess is declared; only BLANK provenance reds (D3).
+    """
+    found = []
+    for folder in threshold_census.PROBE_FOLDERS:
+        d = comp_dir / folder
+        if not d.is_dir():
+            continue
+        for r in threshold_census.census(d)["probes"]:
+            if not r["provenance_less"]:
+                continue
+            band = "disabled" if r["disabled"] else "live"
+            found.append(_finding(
+                "probe_thresholds_declare_provenance", row["component"],
+                f"{r['path']} ({band}): {r['why']} — declare thresholds=(Threshold(<constant>, "
+                f"<what it is of>, set_by=<the ticket or observation that set it>),) beside enough=",
+                expected=0, actual=1,
+                file=r["path"], band=band, thresholds=r["thresholds"], error=r["error"],
+            ))
+    return found
+
+
 def claim_provenance(row: dict, comp_dir: Path) -> list[dict]:
     """A charter does not carry per-claim attribution (akien vs cc-read).
 
@@ -4921,6 +4954,7 @@ SIEVES = {
     "component_color": component_color,
     "durable_state_declared": durable_state_declared,
     "learning_declared": learning_declared,
+    "probe_thresholds_declare_provenance": probe_thresholds_declare_provenance,
     "claim_provenance": claim_provenance,
     "claim_propagates_with_provenance": claim_propagates_with_provenance,
     "runtime_role_declared": runtime_role_declared,

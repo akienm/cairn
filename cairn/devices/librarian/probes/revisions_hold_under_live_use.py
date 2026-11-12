@@ -57,7 +57,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.tools.trees.trees import NODES
 
@@ -269,6 +269,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CROSSINGS, "crossings — CLEARED by BOTH halves witnessed: the MECHANISM half — at least one refuted node returned by a later walk, present-labelled-uncounted (deriv",
+                  set_by="ticket fed44fb61986 names the number"),
+        Threshold(_ENOUGH_ADJUDICATIONS, "adjudications — CLEARED by BOTH halves witnessed: the MECHANISM half — at least one refuted node returned by a later walk, present-labelled-uncounted (deriv",
+                  set_by="ticket fed44fb61986 names the number"),
+    ),
     horizon=_HORIZON,
 )
 

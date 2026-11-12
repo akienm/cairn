@@ -54,7 +54,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "4c022c44de53"
 
@@ -304,5 +304,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_BEATS_TO_CLEAR, "beats to clear — CLEARED after two consecutive beats that each reported zero provenance-refusals over a corpus the floor had MOVED under.",
+                  set_by="ticket 4c022c44de53 names the number"),
+    ),
     horizon=_HORIZON,
 )

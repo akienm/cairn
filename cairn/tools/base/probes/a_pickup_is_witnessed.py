@@ -33,7 +33,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "54f519a1f728"
 
@@ -152,6 +152,14 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when pickups stand at a real RATE against arrivals — at least three of them, and at least one per twelve phased arrivals.",
+                  set_by="ticket 54f519a1f728 names the number"),
+        Threshold(_ENOUGH_RATE, "rate — CLEARED when pickups stand at a real RATE against arrivals — at least three of them, and at least one per twelve phased arrivals.",
+                  set_by="ticket 54f519a1f728 names the number"),
+        Threshold(_ENOUGH_PICKUPS, "pickups — CLEARED when pickups stand at a real RATE against arrivals — at least three of them, and at least one per twelve phased arrivals.",
+                  set_by="54f519a1f728 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

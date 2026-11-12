@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.transitions import verify_crossing_fingerprint
 from cairn.tools.charter import projector
 
@@ -84,5 +84,13 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CROSSINGS, "crossings",
+                  set_by="ticket fb7e5b78b99b names the number"),
+        Threshold(_ENOUGH_VERIFIED, "verified",
+                  set_by="ticket fb7e5b78b99b names the number"),
+        Threshold(0, "0 in the predicate: c[\"verified\"] > 0",
+                  set_by="fb7e5b78b99b build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )

@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket
 from cairn.tools.base.transitions import BUILD_GATE
 
 _OWNING_TICKET = "scheduled-llm-gate-inspection"
@@ -169,5 +169,9 @@ PROBE = Probe(
     body={"nexus": "hypothesize", "kind": "efficacy"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(3, "3 in the predicate: count >= 3",
+                  set_by="b0c0c47835c1 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=500,
 )

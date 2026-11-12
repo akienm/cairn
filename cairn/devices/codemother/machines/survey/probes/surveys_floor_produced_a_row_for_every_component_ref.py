@@ -27,7 +27,7 @@ import json
 import os
 
 from cairn.tools.chain.grammar import component_of, CAIRN_ROOT
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.base.address import instance_path
 
 _TICKET_ID = "743a09ca5e92"
@@ -183,6 +183,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_BERTHS, "berths",
+                  set_by="743a09ca5e92 build, number chosen by CC, the ticket names no number"),
+        Threshold(0, "0 in the predicate: s[\"missed\"] > 0",
+                  set_by="743a09ca5e92 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )
 

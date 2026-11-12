@@ -72,7 +72,7 @@ work is the owner's act.
 
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 
 TICKET = "the-apprentice-learns-its-test-failed"
 
@@ -344,5 +344,9 @@ PROBE = Probe(
                       "that would otherwise read num_reflections as convergence"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_REFLECTED, "reflected — Five reflected drives with a live second ask — the spec's number, unlowered.",
+                  set_by="ticket e9b0a8d4fb99 names the number (falsifier: over the next 5 driven pieces)"),
+    ),
     horizon=_HORIZON,
 )

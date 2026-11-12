@@ -27,7 +27,7 @@ import json
 import os
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "adc0e42b74cf"
 
@@ -116,5 +116,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(1, "1 in the predicate: s[\"both_on_return\"] >= 1",
+                  set_by="adc0e42b74cf build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _OWNING_TICKET = "65b34c57ab71"
 _OBJECT = "charter-feedback-reaches-codemother"
@@ -90,6 +90,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_OWNING_TICKET, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_RECORDS, "records",
+                  set_by="65b34c57ab71 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=500,
 )
 

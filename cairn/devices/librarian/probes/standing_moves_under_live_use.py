@@ -31,7 +31,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.tools.trees.trees import NODES, NODES_TABLE
@@ -197,6 +197,12 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CROSSINGS, "crossings — CLEARED by one witnessed instance of EACH half of the loop coexisting: an earned node whose corroborations span >= PROMOTION_THRESHOLD disti",
+                  set_by="ticket e317b0890628 names the number"),
+        Threshold(1, "1 in the predicate: len(s[\"faded_shards\"]) >= 1",
+                  set_by="e317b0890628 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

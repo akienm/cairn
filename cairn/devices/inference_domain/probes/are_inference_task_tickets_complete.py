@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "ea4a6151300f"
 
@@ -135,6 +135,14 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_NAMED, "named",
+                  set_by="ticket ea4a6151300f names the number"),
+        Threshold(_ENOUGH_TROUBLED, "troubled",
+                  set_by="ea4a6151300f build, number chosen by CC, the ticket names no number"),
+        Threshold(_GIVE_UP_AT, "give up at",
+                  set_by="ticket ea4a6151300f names the number"),
+    ),
     horizon=_HORIZON,
 )
 

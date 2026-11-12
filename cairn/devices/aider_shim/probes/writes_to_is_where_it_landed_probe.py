@@ -66,7 +66,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 
 TICKET = "a-piece-names-where-its-output-lands"
 
@@ -280,5 +280,9 @@ PROBE = Probe(
                       "knowable"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(10, "10 in the predicate: len(rows) >= 10",
+                  set_by="ticket 68f1fc073512 names the number"),
+    ),
     horizon=_HORIZON,
 )

@@ -24,7 +24,7 @@ import glob
 import json
 import re
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "ebf5392c8f93"
 
@@ -162,6 +162,14 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_COUNT, "count",
+                  set_by="ebf5392c8f93 build, number chosen by CC, the ticket names no number"),
+        Threshold(4, "4 in the predicate: s[\"total\"] >= 4",
+                  set_by="ticket ebf5392c8f93 names the number"),
+        Threshold(0.5, "0.5 in the predicate: s[\"fraction_naming_tree\"] < 0.5",
+                  set_by="ebf5392c8f93 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )
 

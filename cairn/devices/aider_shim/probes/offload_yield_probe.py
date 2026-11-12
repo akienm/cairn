@@ -66,7 +66,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.base.probe import Probe
+from cairn.tools.base.probe import Probe, Threshold
 
 TICKET = "aider-shim"
 
@@ -227,5 +227,9 @@ PROBE = Probe(
           "consumer": "Akien at triage — offload-more vs pull-back is his call"},
     carry=_carry,
     enough=_enough,
+    thresholds=(
+        Threshold(5, "5 in the predicate: len(complete) >= 5",
+                  set_by="ticket d7b4019d2407 names the number (horizon: five shimmed tickets is the watch's enough)"),
+    ),
     horizon=_HORIZON,
 )

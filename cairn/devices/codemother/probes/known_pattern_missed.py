@@ -8,7 +8,7 @@ the learning signal, not a failure.
 
 from __future__ import annotations
 
-from cairn.tools.base.probe import Probe, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "760149d5fe55"
 
@@ -41,5 +41,11 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(10, "10 in the predicate: total >= 10",
+                  set_by="ticket 760149d5fe55 names the number"),
+        Threshold(0.1, "0.1 in the predicate: missed / total < 0.1",
+                  set_by="760149d5fe55 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=200,
 )

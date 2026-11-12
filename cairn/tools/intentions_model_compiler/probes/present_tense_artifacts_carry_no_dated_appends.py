@@ -39,7 +39,7 @@ import json
 import re
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "b577a9f486dd"
 
@@ -178,5 +178,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_CLEAN_WRITES, "clean writes — CLEARED after the ticket's own horizon: 10 consecutive charter writes with zero new dated-append shapes — the house style is dead, the rule ",
+                  set_by="ticket b577a9f486dd names the number"),
+    ),
     horizon=_HORIZON,
 )

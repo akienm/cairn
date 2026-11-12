@@ -47,7 +47,7 @@ import os
 from pathlib import Path
 from statistics import median
 
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.codemother.machines.constrain.constrain import FLOOR_AUTHORED, FLOOR_KINDS
 
 _TICKET_ID = "ee2390602f52"
@@ -231,5 +231,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH, "enough — CLEARED when the corpus is big enough to judge and the ceiling's own contribution is holding at or above the pre-build floor — the claim thi",
+                  set_by="ee2390602f52 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=_HORIZON,
 )

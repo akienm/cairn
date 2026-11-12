@@ -37,7 +37,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base import address
-from cairn.tools.base.probe import Probe, owning_ticket, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET = "15b80c0c393c"
 _STAMP_FORMAT = "%Y%m%dT%H%M%S"
@@ -196,6 +196,10 @@ PROBE = Probe(
     carry=watch_carry(_TICKET, _carry_watched, holds=_holds),
     while_true=False,
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_RUN, "run",
+                  set_by="ticket 15b80c0c393c names the number"),
+    ),
     horizon=100,
 )
 

@@ -2,24 +2,25 @@
   {
     "claim": "proof test_every_base_class_reaches_the_diagnostic_mixin.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-11T23:01:49",
+    "date": "2026-11-12T05:26:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_sieve_reads_base_green  — 0 finding(s): \n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  PASS  test_base_holds_every_clause_of_the_falsifier  — 0 tooth/teeth red\n\nGREEN",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_the_sieve_reads_base_green  — 1 finding(s): cairn/tools/base/probe.py:232 class Threshold has code and does not reach DiagnosticBase\n  PASS  test_diagnostic_loads_only_the_standard_library  — stray []\n  PASS  test_every_touched_module_imports_fresh\n  PASS  test_the_exceptions_keep_their_shape\n  PASS  test_the_workflow_stays_frozen_and_can_emit\n  PASS  test_the_shim_orders_core_values_first  — BaseShim -> CoreValuesMixin -> DiagnosticBase -> ABC -> object\n  FAIL  test_base_holds_every_clause_of_the_falsifier  — 1 tooth/teeth red\n\nRED — 2 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_sieve_reads_base_green",
         "test_diagnostic_loads_only_the_standard_library",
         "test_every_touched_module_imports_fresh",
         "test_the_exceptions_keep_their_shape",
         "test_the_workflow_stays_frozen_and_can_emit",
-        "test_the_shim_orders_core_values_first",
+        "test_the_shim_orders_core_values_first"
+      ],
+      "teeth_red": [
+        "test_the_sieve_reads_base_green",
         "test_base_holds_every_clause_of_the_falsifier"
       ],
-      "teeth_red": [],
-      "test": "test-37f50001ee43",
+      "test": "test-480a6796d1a1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -46,8 +47,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-37f50001ee43",
-      "source_fingerprint": "1357c74702d269ced65cc4cc20bcf42723023c8c66eca89103c3dbfe6462427a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-480a6796d1a1",
+      "source_fingerprint": "097bf109e4f068d27a62b30a5d89c56244094c7bb69fe773a6f484dab70d03cd",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -63,13 +64,14 @@
         "cairn/tools/base/settled.py",
         "cairn/tools/base/shim.py",
         "cairn/tools/base/testing_mark.py",
+        "cairn/tools/base/threshold_census.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f4f715ad85034f02fa768c0c0f300e2183b9e896e7cfd42a25784f9424b07483",
-        "cairn/machines/build_inspector": "ee71e5ee3ab85c1d97685105e7980846502e5c68c84f0318f996aa3b2392c43f",
+        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/machines/build_inspector": "acf6fdbc9623ef6aa4efcae8fa4d4c8449066c33708d47f43a6ea1b64dd0ff1e",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c",
@@ -80,7 +82,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-839572-fh4ypf84/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1112830-2145t5f7/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,12 +91,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 527949285,
-          "disk_bytes": 569303040,
-          "entries": 15906,
+          "bytes": 528302794,
+          "disk_bytes": 571109376,
+          "entries": 16379,
           "builds": 1,
-          "reuses": 16
+          "reuses": 100
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "cd12fb7c96dcf66f0fd8e5754ec54c8e6132e35cf4dd2dbf76da1f9d53638705",
+        "opened": "2026-11-12T05:26:02",
+        "last_red": "2026-11-12T05:26:02",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base-proofs-test-every-base-class-reaches-the-diagnostic-mixin",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

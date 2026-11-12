@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 from cairn.tools.base import sail_record
-from cairn.tools.base.probe import Probe, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "c2460ae6c3d1"
 
@@ -148,6 +148,10 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,
+    thresholds=(
+        Threshold(_ENOUGH_REFUSALS, "refusals",
+                  set_by="c2460ae6c3d1 build, number chosen by CC, the ticket names no number"),
+    ),
     horizon=1000,
 )
 

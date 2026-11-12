@@ -28,7 +28,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cairn.tools.base.probe import Probe, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, once, watch_carry
 
 _TICKET_ID = "cd8096f9eeca"
 _BLOCK = "librarian-ask"
@@ -143,6 +143,10 @@ PROBE = Probe(
           "object": "ask_spares_akien"},
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(ENOUGH_RUNS, "runs",
+                  set_by="ticket cd8096f9eeca names the number"),
+    ),
     horizon=1000,
 )
 

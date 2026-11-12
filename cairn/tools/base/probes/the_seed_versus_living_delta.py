@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 
 from cairn.tools.base.address import tool_path
-from cairn.tools.base.probe import Probe, by_copy, owning_ticket, once, watch_carry
+from cairn.tools.base.probe import Probe, Threshold, by_copy, once, owning_ticket, watch_carry
 
 
 _TICKET_ID = "13758831632c"
@@ -93,5 +93,9 @@ PROBE = Probe(
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, holds=_holds),
     enough=_enough,
+    thresholds=(
+        Threshold(None, "the predicate itself, no number: False; any( v.get(\"status\") == \"diverged\" for v in d[\"deltas\"].values() )",
+                  set_by="ticket 13758831632c (the predicate itself; no number to move)"),
+    ),
     horizon=500,
 )

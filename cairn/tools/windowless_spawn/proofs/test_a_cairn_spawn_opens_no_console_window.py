@@ -60,12 +60,15 @@ def the_helper_kwargs_carry_the_windows_flags():
     assert "start_new_session" not in nt, f"start_new_session is a no-op on NT: {nt}"
     posix = ws.detached_kwargs("posix")
     assert posix.get("start_new_session") is True and "creationflags" not in posix, posix
-    # the interpreter: inside a venv on nt it must not be the launcher
-    base = Path(ws.background_python("nt"))
-    cfg = Path(sys.executable).resolve().parent.parent / "pyvenv.cfg"
-    if os.name == "nt" and cfg.exists():
-        assert base.resolve() != Path(sys.executable).resolve(), f"still the venv launcher: {base}"
+    # the interpreter must be one whose site-packages are this process's: a child spawned
+    # through it has to import what the parent imports (measured 2026-11-12: the base
+    # interpreter named by pyvenv.cfg lacked psycopg2 and the bus died at bus.py:73).
     assert ws.background_python("posix", executable="/usr/bin/python3") == "/usr/bin/python3"
+    got = subprocess.run([ws.background_python(), "-c", "import sys; print(sys.prefix)"],
+                         capture_output=True, text=True, creationflags=0x08000000 if os.name == "nt" else 0)
+    assert got.stdout.strip() == sys.prefix, (
+        f"background_python() runs under prefix {got.stdout.strip()!r}, not this process's {sys.prefix!r}: "
+        f"a spawned child would not see this venv's packages")
 
 
 def _tree(root_pid: int) -> list[dict]:

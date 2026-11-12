@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 # Values stand beside the names so a proof on Linux can read what a Windows spawn passes.
 DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
@@ -31,23 +30,12 @@ def detached_kwargs(os_name: str | None = None) -> dict:
 
 
 def background_python(os_name: str | None = None, executable: str | None = None) -> str:
-    """The interpreter to spawn a background child with.
+    """The interpreter to spawn a background child with: the caller's own, so the child
+    sees the same site-packages.
 
-    On Windows a venv's ``Scripts\\python.exe`` is a launcher that starts the real
-    interpreter as a child; that child can own a console the launcher's flags never
-    reached. So inside a venv this returns the base interpreter named by ``pyvenv.cfg``
-    ``home`` when it exists, else ``executable``. Elsewhere it is ``executable``."""
-    exe = executable or sys.executable
-    if (os_name or os.name) != "nt":
-        return exe
-    cfg = Path(exe).resolve().parent.parent / "pyvenv.cfg"
-    try:
-        lines = cfg.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return exe
-    for line in lines:
-        key, _, value = line.partition("=")
-        if key.strip() == "home":
-            base = Path(value.strip()) / "python.exe"
-            return str(base) if base.exists() else exe
-    return exe
+    This once returned the base interpreter named by ``pyvenv.cfg`` on the guess that a
+    venv launcher's child owns a console. The guess was never measured, and running the
+    base ``python.exe`` directly does not enter the venv: the bus child died at
+    ``import psycopg2`` (measured 2026-11-12, ``~/.cairn/logs/bus.log``). A console in the
+    spawned tree is tooth 2's question and stays unmeasured until it runs."""
+    return executable or sys.executable

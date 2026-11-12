@@ -92,7 +92,7 @@ def call_sites(name: str, *, root: Path | None = None) -> dict:
                 )
                 if called == name:
                     sites.append({
-                        "file": str(p.relative_to(root.parent) if root.parent in p.parents else p),
+                        "file": (p.relative_to(root.parent) if root.parent in p.parents else p).as_posix(),
                         "line": node.lineno,
                         "in_proofs": "proofs" in p.parts,
                     })
@@ -249,7 +249,7 @@ def _census_of(root: Path) -> dict:
             # census exists to prevent. The row therefore carries WHERE it was measured,
             # relative to the pkg root it was measured under, and a consumer that needs a
             # unique subject key uses this.
-            "dir": str(d.relative_to(root)),
+            "dir": d.relative_to(root).as_posix(),
             "charter_on_disk": charter_path.exists(),
             "runtime_role": runtime_role,
             "device_subclasses": subclasses,

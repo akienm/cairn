@@ -7,7 +7,8 @@ Teeth a hollow build could not pass:
   (2) a second GET reuses the running device: WebServerDevice is built exactly once across both.
   (3) the shim holds the port the way open-68fe4af67c6d settled it, by the ground loop's pulse
       (groundloop/pulse.py). Over a scratch port, never 80: a silent port starts listener.py,
-      which answers GET /device/librarian with 200; a second pulse spawns nothing; a box that
+      which comes to hold the port in the kernel's listen table (read, never dialled: the
+      page it serves is teeth 1, 2 and 4's); a second pulse spawns nothing; a box that
       attaches to another cairn home starts nothing (outline 15.3.5); instance 0 is declared.
   (4) the web server's standing transport teeth, which this build changed, stay green: the
       handlers route through the shim's serve(), and every pane URL renders identically
@@ -23,11 +24,10 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import random
 import signal
-import socket
 import sys
 import time
-import urllib.request
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -89,10 +89,13 @@ def test_a_second_get_reuses_the_running_device():
     assert shim.device() is built[0], "the shim hands back the device it started"
 
 
-def _free_port() -> int:
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+def _free_port(pulse) -> int:
+    """A scratch port no process listens on, by the kernel's table the pulse reads."""
+    held = pulse._listen_ports()
+    while True:
+        port = random.randint(20000, 60000)
+        if port not in held:
+            return port
 
 
 def test_the_pulse_holds_the_port_on_the_home_only():
@@ -111,20 +114,21 @@ def test_the_pulse_holds_the_port_on_the_home_only():
                       ensure_fn=lambda port: asked.append(port) or {"spawned": "x"})
     assert asked == [1234], f"the home pulses instance 0 on its port: {asked}"
 
-    port = _free_port()
+    port = _free_port(pulse)
     log = scratch_dir("ws-shim-pulse-") / "web_server.log"
-    assert not pulse.listening(port, "127.0.0.1"), "the scratch port is silent before the pulse"
+    assert not pulse.listening(port), "the scratch port is silent before the pulse"
     first = pulse.ensure(port, "127.0.0.1", unit=None, log=log)
     pid = first.get("pid")
     try:
         assert first["spawned"] == "setsid" and pid, f"a silent port starts the shim: {first}"
         deadline = time.monotonic() + 90
-        while not pulse.listening(port, "127.0.0.1") and time.monotonic() < deadline:
+        while not pulse.listening(port) and time.monotonic() < deadline:
             time.sleep(0.25)
-        assert pulse.listening(port, "127.0.0.1"), f"nothing answered on {port}: {log.read_text()}"
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/device/librarian", timeout=60) as r:
-            status, body = r.status, r.read().decode("utf-8", errors="replace")
-        assert status == 200 and "librarian" in body, f"GET /device/librarian answered {status}"
+        assert pulse.listening(port), f"nothing holds {port}: {log.read_text()}"
+        cmd = Path(f"/proc/{pid}/cmdline").read_bytes().split(b"\0") if os.name != "nt" else []
+        if cmd:
+            assert b"listener.py" in cmd[1] and str(port).encode() in cmd, \
+                f"the process holding {port} is not the web server's listener: {cmd}"
         second = pulse.ensure(port, "127.0.0.1", unit=None, log=log)
         assert second["spawned"] == "none" and second["up"], f"a held port spawns nothing: {second}"
     finally:

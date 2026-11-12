@@ -7,8 +7,8 @@ like every other declared instance (outline 5.8.3.4.1). Ticket 0482542c2b7c.
 - It reads its own device's DECLARED instances, the folders ``cairn/devices/web_server/<n>/``
   (outline 5.7.3.4), and pulses each one.
 - Pulsing an instance whose shim is not up starts it (5.8.3.4.3). The shim lives in
-  listener.py's process, and "up" is the port answering: the kernel's own word that some
-  process holds it, never a record's age.
+  listener.py's process, and "up" is the port in the kernel's listen table: its own word that
+  some process holds it, never a record's age, and read rather than dialled.
 - When the shim is up there is nothing more to do. Nothing inside the web server's shim needs a
   beat; every request is an event.
 - It runs on the cairn home only (outline 15.3.5): "a box that joins the instance starts no
@@ -26,7 +26,6 @@ from __future__ import annotations
 import json
 import os
 import platform
-import socket
 import subprocess
 import sys
 from datetime import datetime
@@ -84,14 +83,39 @@ def is_cairn_home(host: str, *, me: str | None = None, addresses=None) -> bool:
     return host in (addresses if addresses is not None else _addresses())
 
 
-def listening(port: int, bind: str = "0.0.0.0") -> bool:
-    """Does something answer on the port? The kernel's word, asked with a connect."""
-    host = "127.0.0.1" if bind in ("", "0.0.0.0") else bind
+def _listen_ports() -> set[int]:
+    """The TCP ports some process LISTENS on, read from the kernel's own table: /proc/net/tcp
+    and tcp6 (state 0A) on linux, ``netstat -ano -p TCP`` elsewhere. Read, never dialled, so
+    the pulse opens no second door to any host (sole_path_holds)."""
+    ports: set[int] = set()
+    found = False
+    for name in ("/proc/net/tcp", "/proc/net/tcp6"):
+        try:
+            rows = Path(name).read_text().splitlines()[1:]
+        except OSError:
+            continue
+        found = True
+        for row in rows:
+            f = row.split()
+            if len(f) > 3 and f[3] == "0A":
+                ports.add(int(f[1].rsplit(":", 1)[1], 16))
+    if found:
+        return ports
     try:
-        with socket.create_connection((host, port), timeout=1.0):
-            return True
-    except OSError:
-        return False
+        r = subprocess.run(["netstat", "-ano", "-p", "TCP"], capture_output=True, text=True,
+                           timeout=10)
+        for row in r.stdout.splitlines():
+            f = row.split()
+            if len(f) >= 4 and f[3].upper() == "LISTENING":
+                ports.add(int(f[1].rsplit(":", 1)[1]))
+    except (OSError, subprocess.SubprocessError, ValueError):
+        pass
+    return ports
+
+
+def listening(port: int) -> bool:
+    """Does some process hold the port? The kernel's word, read from its listen table."""
+    return port in _listen_ports()
 
 
 def _note(log: Path, text: str) -> None:
@@ -120,7 +144,7 @@ def ensure(port: int = 80, bind: str = "0.0.0.0", *, unit: str | None = UNIT,
     """Start the shim's process when nothing answers on ``port``. Returns
     ``{port, up, spawned, pid?, note}``, with spawned 'none' | 'unit' | 'setsid'. ``unit=None``
     skips systemd (a proof's scratch run). Never raises: every failure is a note in the log."""
-    if listening(port, bind):
+    if listening(port):
         return {"port": port, "up": True, "spawned": "none", "note": "the shim answers"}
     argv = [python, str(LISTENER), "--port", str(port), "--bind", bind]
     try:

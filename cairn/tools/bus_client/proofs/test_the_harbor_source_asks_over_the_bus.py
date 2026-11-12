@@ -5,7 +5,17 @@ The build inspector's encapsulation_holds filed, 2026-11-11, bus_client.py:93 im
 cairn.devices.cairn.machines.harbor_master.voyage. harbor_master answers get traffic since
 cd36b8e86cd3; harbor_source now asks it.
 
+NOT BLIND BY ITS OWN PLANT (ticket bfa522282b17). The first guard asked for at least one breach
+anywhere else in the live tree, and the tree went clean: measured 2026-11-12, the tooth red with
+"0 breach(es) in all". Now the sieve is first run over a scratch tree holding one planted
+bus_client file that imports harbor_master, and must name exactly that file, line and target.
+7806309a8018's planted tooth is the pattern. The plant carries harbor_master's charter file:
+measured 2026-11-12, without one the sieve names the row's target 'cairn/devices/cairn' (the
+deepest component it can see), which TARGETS would filter out, and the tooth would read blind.
+
 Teeth:
+  (0) the sieve, run over a planted fixture tree, names the planted file, line 1 and target
+      cairn/devices/cairn/machines/harbor_master, and nothing else;
   (1) no RULE 1 breach from a file under cairn/tools/bus_client lands on cairn/devices/cairn/machines/harbor_master;
   (2) the edited files name none of the forbidden modules.
 
@@ -24,7 +34,9 @@ if str(_REPO) not in sys.path:
 
 PROVES = {"a433ced0b6e8": {"1": "test_no_breach_from_bus_client_lands_on_harbor_master", "2": "test_bus_client_names_no_harbor_master_module",
                            "3": "test_the_source_asks_get_traffic_and_raises_a_refusal",
-                           "4": "test_the_live_source_answers_a_traffic_image"}}
+                           "4": "test_the_live_source_answers_a_traffic_image"},
+          "bfa522282b17": {"1": "test_the_sieve_names_a_planted_harbor_breach",
+                           "2": "test_no_breach_from_bus_client_lands_on_harbor_master"}}
 
 COMP = "cairn/tools/bus_client"
 TARGETS = ('cairn/devices/cairn/machines/harbor_master',)
@@ -39,6 +51,26 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def test_the_sieve_names_a_planted_harbor_breach() -> None:
+    """Not blind: over a scratch tree with one planted breach, the sieve names exactly it."""
+    from cairn.machines.build_inspector import inspector
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = Path(scratch_dir("testing-bfa522282b17-planted-breach-"))
+    for d in ("cairn", "cairn/devices", "cairn/tools", COMP,
+              "cairn/devices/cairn", "cairn/devices/cairn/machines", TARGETS[0]):
+        (root / d).mkdir(parents=True, exist_ok=True)
+        (root / d / "__init__.py").touch()
+    (root / TARGETS[0] / "intention+why.json").write_text("{}\n", encoding="utf-8")
+    (root / COMP / "planted.py").write_text(
+        "from cairn.devices.cairn.machines.harbor_master import x\n", encoding="utf-8")
+    found = [(b["file"], b["line"], b["target"])
+             for b in inspector.encapsulation_breaches(str(root))
+             if str(b.get("file", "")).startswith(COMP + "/")
+             and str(b.get("target", "")).startswith(TARGETS)]
+    want = [(COMP + "/planted.py", 1, TARGETS[0])]
+    check("test_the_sieve_names_a_planted_harbor_breach", found == want, f"found {found!r}")
+
+
 def test_no_breach_from_bus_client_lands_on_harbor_master() -> None:
     from cairn.machines.build_inspector import inspector
     here = os.getcwd()
@@ -49,9 +81,9 @@ def test_no_breach_from_bus_client_lands_on_harbor_master() -> None:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(COMP + "/")
             and str(b.get("target", "")).startswith(TARGETS)]
-    # Not blind: the sieve read the tree and found breaches elsewhere. A sieve that returned
-    # [] for everything would pass the first half alone.
-    check("test_no_breach_from_bus_client_lands_on_harbor_master", not mine and bool(breaches),
+    # Not blind is test_the_sieve_names_a_planted_harbor_breach's job (ticket bfa522282b17): a
+    # clean live tree is the goal, so this tooth no longer needs a breach elsewhere to pass.
+    check("test_no_breach_from_bus_client_lands_on_harbor_master", not mine,
           f"{len(breaches)} breach(es) in all; these: "
           + "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine))
 
@@ -103,7 +135,7 @@ def test_the_live_source_answers_a_traffic_image() -> None:
           f"keys {sorted(img) if isinstance(img, dict) else type(img).__name__}")
 
 
-TEETH = (test_no_breach_from_bus_client_lands_on_harbor_master, test_bus_client_names_no_harbor_master_module,
+TEETH = (test_the_sieve_names_a_planted_harbor_breach, test_no_breach_from_bus_client_lands_on_harbor_master, test_bus_client_names_no_harbor_master_module,
          test_the_source_asks_get_traffic_and_raises_a_refusal, test_the_live_source_answers_a_traffic_image)
 
 

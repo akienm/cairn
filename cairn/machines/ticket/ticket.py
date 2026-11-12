@@ -270,9 +270,11 @@ class Ticket(DiagnosticBase):
         fixme = [{"n": i, "kind": one["kind"], "missing": one["why"]}
                  for i, one in enumerate(lacks, 1)]
         gate = gate or (lacks[0]["kind"] if lacks else "unnamed")
-        if _before_repair(old):
+        if _before_repair(old) or _step(old) == "FIXME":
             # A chart stage fails a ticket still at TICKETME, and FIXME is anchored before
             # BUILDME: there is no build to kick back from, so the cursor stands and the lacks land.
+            # A ticket already AT FIXME is where the kick would send it: FIXME -> FIXME is no
+            # crossing (emit refuses it as a no-op), so the cursor stands there too.
             self._write({"fixme": fixme},
                         why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
             new = old

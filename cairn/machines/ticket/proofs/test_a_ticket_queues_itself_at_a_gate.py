@@ -46,6 +46,7 @@ PROVES = {
         "2": "test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane",
         "3": "test_a_pass_at_the_refusing_gate_clears_the_refused_trouble",
     },
+    "e5e05e96f0c0": {"1": "test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane"},
 }
 
 _TID = "fixturet2a01"
@@ -248,6 +249,35 @@ def test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane():
         assert got["queued"] is False and got["trouble"] == ident, got
         assert t._stands_raised(ident), f"{ident} does not stand: the gate= keyword was ignored"
     print("ok test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane")
+
+
+def test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane():
+    """A gate fails a ticket that already stands at FIXME (a concept-piece repaired in place,
+    measured 2026-11-12 on 0682e51ab011): FIXME -> FIXME is no crossing, so the cursor stands,
+    the lacks land, nothing is journaled, and the refusal waits in the trouble lane — never
+    ``IllegalTransition: 'FIXME' -> 'FIXME' is a no-op``."""
+    import cairn.tools.base.ticket_file as tf
+    with _world("TICKETME") as w:
+        at_fixme = ("concept-piece@v1: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> "
+                    "PROVEME -> PROVED")
+        tf.state_path(w["plan"]).write_text(json.dumps(
+            {"workflow_and_state": at_fixme, "node_class": "concept-piece"}, indent=2) + "\n")
+        t = _ticket(w)
+        hist = Path(w["history"])
+        had = hist.read_bytes() if hist.is_file() else None
+        lacks = [{"kind": "chart", "why": "decompose names no writes_to"}]
+        got = t.failed(lacks, participant=_Spy(), history_path=w["history"],
+                       state_path=w["state"], actor="codemother", why="fixture fail at FIXME",
+                       gate="decompose")
+        st = _state(w)
+        assert st["workflow_and_state"] == at_fixme and got["workflow"] == at_fixme, (st, got)
+        assert st["fixme"] == [{"n": 1, "kind": "chart",
+                                "missing": "decompose names no writes_to"}], st
+        assert (hist.read_bytes() if hist.is_file() else None) == had, "a journal was written"
+        ident = f"ticket-refused-{_TID}-at-decompose"
+        assert got["queued"] is False and got["trouble"] == ident, got
+        assert t._stands_raised(ident), f"{ident} does not stand"
+    print("ok test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane")
 
 
 def test_a_pass_at_the_refusing_gate_clears_the_refused_trouble():

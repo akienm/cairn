@@ -14,9 +14,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-DEFAULT_INTENTIONS_DIR = Path(os.path.expanduser(
-    "~/dev/src/CairnCommons/intentions-not-beside-code"
-))
+from cairn.tools.base.address import ROOTS
+
+DEFAULT_INTENTIONS_DIR = ROOTS["commons"] / "intentions-not-beside-code"
 
 ASK_USER = Path(__file__).parent / "ask_user.sh"
 
@@ -310,6 +310,11 @@ def install(
     Statuses: already_applied, offered, skipped, failed, applied.
     """
     d = intentions_dir or DEFAULT_INTENTIONS_DIR
+    if not d.is_dir():
+        # Law 7: an absent commons is a named result, not a traceback.
+        return [{"id": "intentions-dir", "status": "failed",
+                 "detail": f"RED: the intentions directory {d} does not exist — "
+                           "clone CairnCommons beside the cairn repo, then re-run"}]
     seams = gather_host_seams(d)
     results: list[dict] = []
 

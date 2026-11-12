@@ -18,12 +18,13 @@ import re
 import sys
 from pathlib import Path
 
+from cairn.tools.base.address import ROOTS
 from cairn.tools.system_word import fold, is_word
 
 CAIRN_ROOT = Path(os.environ.get(
     "CAIRN_ROOT", Path.home() / "dev" / "src" / "cairn"))
 COMMONS_ROOT = Path(os.environ.get(
-    "CAIRN_COMMONS_ROOT", Path.home() / "dev" / "src" / "CairnCommons"))
+    "CAIRN_COMMONS_ROOT", ROOTS["commons"]))
 TICKETS_DIR = Path(os.environ.get(
     "CAIRN_TICKETS_DIR", COMMONS_ROOT / "tickets"))
 IDEAS_DIR = Path(os.environ.get(

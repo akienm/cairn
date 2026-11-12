@@ -20,9 +20,11 @@ from pathlib import Path
 
 from cairn.tools.base.watchme_spec import watchme_spec_error
 
-TICKETS_DIR = Path(os.path.expanduser("~/dev/src/CairnCommons/tickets/"))
+from cairn.tools.base.address import ROOTS
+
+COMMONS_ROOT = ROOTS["commons"]
+TICKETS_DIR = COMMONS_ROOT / "tickets"
 CAIRN_ROOT = Path(os.path.expanduser("~/dev/src/cairn"))
-COMMONS_ROOT = Path(os.path.expanduser("~/dev/src/CairnCommons"))
 
 CURSOR_ORDER = ("THINKME", "TICKETME", "BUILDME", "PROVEME", "WATCHME", "PROVED")
 

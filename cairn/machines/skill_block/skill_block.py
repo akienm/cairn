@@ -421,8 +421,8 @@ def _commons_root() -> Path:
                 return Path(named["CairnCommons"])
         except json.JSONDecodeError:
             pass
-    return Path(os.environ.get("CAIRN_COMMONS_ROOT",
-                               Path.home() / "dev" / "src" / "CairnCommons"))
+    from cairn.tools.base.address import ROOTS
+    return Path(os.environ.get("CAIRN_COMMONS_ROOT", ROOTS["commons"]))
 
 
 def tickets_root(root: Path | None = None) -> Path:

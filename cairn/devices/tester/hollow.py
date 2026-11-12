@@ -216,16 +216,24 @@ def _when(at: str) -> datetime:
 
 
 def _build_commits(tid: str, files: list[str], repo_root: Path) -> list[tuple[str, str]]:
-    """[(sha, committer_iso)] oldest first: the commits that name the ticket AND change a writes_to file."""
+    """[(sha, committer_iso)] oldest first: the commits whose SUBJECT names the ticket AND that
+    change a writes_to file.
+
+    The subject, never the body (ticket 38a790293259). Measured 2026-11-12: 0115dfff ("IOU scrub:
+    ...") names 96f71a89a0fa only in its body and touched a charter that ticket later rewrote,
+    so a whole-message grep anchored the hollow at 2cc799a6 and reverted two months of other
+    work. A body mention is a passing mention; a build names its ticket in its subject
+    ('<id>: ...'). A build that does not is named in the ticket's ``build_commits``."""
     if not files:
         return []
-    proc = subprocess.run(["git", "-C", str(repo_root), "log", "--reverse", "--format=%H %cI",
+    proc = subprocess.run(["git", "-C", str(repo_root), "log", "--reverse", "--format=%H %cI %s",
                            "-F", f"--grep={tid}", "HEAD", "--", *files],
                           capture_output=True, text=True, env=git_env())
     out = []
     for line in proc.stdout.splitlines():
-        sha, _, when = line.strip().partition(" ")
-        if sha and when:
+        sha, _, rest = line.strip().partition(" ")
+        when, _, subject = rest.partition(" ")
+        if sha and when and tid in subject:
             out.append((sha, when))
     return out
 

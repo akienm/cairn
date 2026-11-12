@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_the_librarian_harvests_cross_domain_questions.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T07:15:30",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_harvest_proposes_his_recurring_questions_and_never_an_assistants\n  ok   test_a_question_the_corpus_holds_is_not_proposed\n  ok   test_proposals_are_sorted_and_carry_their_evidence\n  ok   test_two_harvests_write_the_same_bytes\n  ok   test_confirm_appends_one_verbatim_entry\n  ok   test_add_appends_today_and_refuses_a_held_question\n  ok   test_the_corpus_write_is_journaled\n  ok   test_the_bin_script_prints_one_line_per_proposal\n8/8 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_harvest_proposes_his_recurring_questions_and_never_an_assistants",
+        "test_a_question_the_corpus_holds_is_not_proposed",
+        "test_proposals_are_sorted_and_carry_their_evidence",
+        "test_two_harvests_write_the_same_bytes",
+        "test_confirm_appends_one_verbatim_entry",
+        "test_add_appends_today_and_refuses_a_held_question",
+        "test_the_corpus_write_is_journaled",
+        "test_the_bin_script_prints_one_line_per_proposal"
+      ],
+      "teeth_red": [],
+      "test": "test-5fb88557107e",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "df31de6cde5b8998a69f05c4c1c0c65f5e1cafde820993d4690854730ac6ac00",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5fb88557107e",
+      "source_fingerprint": "8eb78647c5832851f6f64bb7f7a467d5e5c06596992e7e255fc9628c295930e7",
+      "fingerprint_closure": [
+        "cairn/devices/librarian/__init__.py",
+        "cairn/devices/librarian/cross_domain_questions.py",
+        "cairn/devices/librarian/harvest_questions.py",
+        "cairn/devices/librarian/proofs/test_the_librarian_harvests_cross_domain_questions.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1324319-u8m1vz56/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 528556607,
+          "disk_bytes": 572293120,
+          "entries": 16698,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

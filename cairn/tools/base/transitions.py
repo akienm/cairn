@@ -2156,6 +2156,31 @@ def _blank(v: object) -> bool:
     return v is None or (isinstance(v, str) and not v.strip())
 
 
+def _carry_berths(doc: dict, why: str) -> list[Path]:
+    """Copy each berth the ticket cites into the commons at ``berths/<skill>/<name>``, where
+    every box's gates can read it (ticket d692ef650534). A berth fires into its box's
+    instance-space, so a ticket cast on a far box named berths the home box could not read.
+    Measured 2026-11-12: '[buildme_rides_the_sorted] sorted berth readable (expected: True,
+    actual: False)'. A ``none, because`` entry is not a path and is not copied. The copy rides
+    the artifact door, which journals it only if the jurisdiction ever declares ``berths/``."""
+    from cairn.tools.artifact import artifact as door
+    commons = door.roots().get("CairnCommons")
+    if commons is None:
+        return []
+    carried = []
+    for key in ("sorted_berth", "intent_berth"):
+        raw = doc.get(key)
+        if not isinstance(raw, str):
+            continue
+        src = Path(raw)
+        if not src.is_file():
+            continue
+        dst = Path(commons) / "berths" / src.parent.name / src.name
+        door.write(dst, src.read_bytes(), verb="cast", why=why)
+        carried.append(dst)
+    return carried
+
+
 def _berth_lacks(doc: dict) -> list[str]:
     """The berth checks (D4 d): the sorted berth must exist and be THIS cast's; the intent
     berth must exist unless it carries a judgeable exemption. Paths resolve as given."""
@@ -2477,6 +2502,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     # THE PLAN FIRST, then the state beside it, then the trail: the log door resolves the
     # ticket by its plan, and a reader that finds a plan without its state reads no cursor
     # (loud) rather than a cursor without its plan.
+    _carry_berths({**trail, **plan, **state}, why)   # before the plan: a ticket in the store has its berths beside it
     door.write(target, json.dumps(plan, indent=2, ensure_ascii=False) + "\n", verb="cast", why=why)
     if state:
         write_state(target, state, why=why, verb="cast")

@@ -290,6 +290,18 @@ def reviewed_address(path: Path | str) -> Path | None:
     return p.parent.parent.parent / "logs" / "reviewed" / p.parent.name / p.name
 
 
+def commons_address(path: Path | str) -> Path | None:
+    """Where ``cast_ticket`` carries a berth the ticket cites: ``<berths>/<skill>/<name>``
+    is copied to ``<commons>/berths/<skill>/<name>``, which every box can read (ticket
+    d692ef650534). ``None`` when the commons root is not known."""
+    from cairn.tools.artifact.artifact import roots
+    commons = roots().get("CairnCommons")
+    if commons is None:
+        return None
+    p = Path(path)
+    return Path(commons) / "berths" / p.parent.name / p.name
+
+
 def read_berth(path: Path | str) -> dict | None:
     """Read a berthed firing. ``None`` when it is missing or unreadable — the caller
     (a gate) turns that into a finding with the address in it, rather than an exception
@@ -300,8 +312,12 @@ def read_berth(path: Path | str) -> dict | None:
     from ``berths/<skill>/`` is read from its reviewed home before it is called missing.
     Measured 2026-09-06: the first BUILDME crossing attempted after an operator review
     (ticket 3feb201c84ea) was refused as 'intent berth readable: False' by the very
-    review that approved it."""
-    for candidate in (Path(path), reviewed_address(path)):
+    review that approved it.
+
+    A berth fired on another box sits in THAT box's instance-space; the cast carried a
+    copy to the commons, so a path this box cannot read falls back to the commons copy
+    (ticket d692ef650534)."""
+    for candidate in (Path(path), reviewed_address(path), commons_address(path)):
         if candidate is None:
             continue
         try:

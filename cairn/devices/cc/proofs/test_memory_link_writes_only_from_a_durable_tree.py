@@ -33,6 +33,10 @@ _SCRIPTS = _REPO / "cairn" / "devices" / "cc" / "scripts"
 PROVES = {"089ad920fcc5": {
     "1": "test_memory_link_writes_only_from_a_durable_tree",
     "2": "test_memory_link_writes_only_from_a_durable_tree",
+}, "900c227b5d81": {
+    "1": "test_memory_link_writes_only_from_a_durable_tree",
+    "2": "test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target",
+    "3": "test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target",
 }}
 
 FAILURES: list[str] = []
@@ -48,6 +52,56 @@ def _slug(folder: Path) -> str:
     return re.sub(r"[^A-Za-z0-9-]", "-", str(folder.resolve()))
 
 
+_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
+
+
+def _links_to(p: Path, target: Path) -> bool:
+    """A link to target as memory_link.py makes one on this OS: a symlink, or on nt a junction
+    (Path.is_symlink() is False for a junction, ticket 900c227b5d81). A plain directory is not a link."""
+    if not p.exists():
+        return False
+    linked = p.is_symlink()
+    if not linked and os.name == "nt":
+        try:
+            linked = bool(os.readlink(p))
+        except OSError:
+            linked = False
+    return linked and p.resolve() == target.resolve()
+
+
+def _mklink(link: Path, target: Path) -> None:
+    if os.name == "nt":
+        subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], check=True,
+                       capture_output=True, creationflags=_NO_WINDOW)
+    else:
+        os.symlink(target, link)
+
+
+def test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target() -> None:
+    lacks: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="memlink-check-") as d:
+        s = Path(d).resolve()
+        clone, other = s / "clone", s / "other"
+        clone.mkdir()
+        other.mkdir()
+        plain = s / "plain"
+        plain.mkdir()
+        if _links_to(plain, clone):
+            lacks.append("a plain directory passed as a link")
+        right, wrong = s / "right", s / "wrong"
+        _mklink(right, clone)
+        _mklink(wrong, other)
+        if not _links_to(right, clone):
+            lacks.append("a link to the clone was not accepted")
+        if _links_to(wrong, clone):
+            lacks.append("a link to a different directory passed")
+        if _links_to(s / "absent", clone):
+            lacks.append("an absent path passed as a link")
+        for p in (right, wrong):
+            os.rmdir(p) if os.name == "nt" else os.unlink(p)
+    check("test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target", not lacks, "; ".join(lacks))
+
+
 def _run(script: Path, home: Path, clone: Path, launch: Path, transient: Path) -> str:
     env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_CC_MEMORY")}
     env.update({"HOME": str(home), "USERPROFILE": str(home),
@@ -55,7 +109,7 @@ def _run(script: Path, home: Path, clone: Path, launch: Path, transient: Path) -
     home.mkdir(parents=True, exist_ok=True)
     r = subprocess.run([sys.executable, str(script), "--clone", str(clone), str(launch)],
                        env=env, capture_output=True, text=True, timeout=60,
-                       stdin=subprocess.DEVNULL)
+                       stdin=subprocess.DEVNULL, creationflags=_NO_WINDOW)
     return f"rc={r.returncode} out={r.stdout.strip()!r} err={r.stderr.strip()!r}"
 
 
@@ -92,7 +146,7 @@ def test_memory_link_writes_only_from_a_durable_tree() -> None:
                 if not any(sync in c and f" {verb} " in c for c in cmds):
                     lacks.append(f"run 2: {event} has no {verb} hook naming {sync}: {cmds}")
         mem = h2 / ".claude" / "projects" / _slug(launch) / "memory"
-        if not (mem.is_symlink() and mem.resolve() == clone):
+        if not _links_to(mem, clone):
             lacks.append(f"run 2: {mem} is not a link to {clone} [{said}]")
 
         # (3) the launch folder is transient: no link is made for it.
@@ -107,11 +161,12 @@ def test_memory_link_writes_only_from_a_durable_tree() -> None:
 
 def main() -> int:
     os.chdir(_REPO)
-    try:
-        test_memory_link_writes_only_from_a_durable_tree()
-    except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
-        check("test_memory_link_writes_only_from_a_durable_tree", False,
-              f"raised {type(exc).__name__}: {exc}")
+    for tooth in (test_memory_link_writes_only_from_a_durable_tree,
+                  test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target):
+        try:
+            tooth()
+        except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
+            check(tooth.__name__, False, f"raised {type(exc).__name__}: {exc}")
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     return 1 if FAILURES else 0
 

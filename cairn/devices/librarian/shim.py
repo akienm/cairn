@@ -20,8 +20,15 @@ clock can spin it (NO DAEMONS).
 
 from __future__ import annotations
 
+import os
+import platform
+import sys
+
 from cairn.tools.base.shim import BaseShim
 from cairn.devices.librarian.device import LibrarianDevice
+
+CHAT_PATH = "/device/librarian"
+NO_BROWSER_VAR = "CAIRN_LIBRARIAN_NO_BROWSER"
 
 
 class LibrarianShim(BaseShim):
@@ -51,3 +58,39 @@ class LibrarianShim(BaseShim):
                 return ChatSession(resolve=dual_seam(_bus), tree=_tree, dev=dev)
         device.attach_chat(factory(device))
         return device
+
+    def _resolve(self, argv: list[str]) -> dict:
+        """A bare call wakes the librarian (ticket d832a24e5144; Q#30, Akien 2026-11-06: "a bare
+        call to librarian should 1) launch that device's shim, which 2) parses the request
+        (nothing) and so 3) launches the librarian and 4) launches a browser"). The browser is
+        the caller's to open — it holds the terminal; this answer prints no URL."""
+        if not argv:
+            self._ensure_device()
+            return {"exit": 0, "text": "librarian: awake; its chat opens in your browser",
+                    "data": {"open": CHAT_PATH}, "cached": False}
+        return super()._resolve(argv)
+
+
+def chat_url() -> str:
+    """The librarian's chat page on the one web server: the cairn home (CAIRN_HOME_HOST, outline
+    15.3.5; this box when unset or when it IS the home) on CAIRN_WEB_SERVER_PORT (80)."""
+    host = os.environ.get("CAIRN_HOME_HOST", "").strip()
+    if not host or host == platform.node():
+        host = "127.0.0.1"
+    port = os.environ.get("CAIRN_WEB_SERVER_PORT", "80").strip() or "80"
+    return f"http://{host}{'' if port == '80' else ':' + port}{CHAT_PATH}"
+
+
+def open_chat(opener=None) -> int:
+    """A bare `cairn librarian`: the shim wakes the device on the bus, then this process — the
+    one holding the terminal — opens the chat page. Skipped when stdout is not a terminal or
+    CAIRN_LIBRARIAN_NO_BROWSER is set. Never prints the URL (Q#30)."""
+    from cairn.tools.base.shim import cli_main
+
+    rc = cli_main(LibrarianShim, [])
+    if rc == 0 and sys.stdout.isatty() and not os.environ.get(NO_BROWSER_VAR):
+        if opener is None:
+            import webbrowser
+            opener = webbrowser.open
+        opener(chat_url())
+    return rc

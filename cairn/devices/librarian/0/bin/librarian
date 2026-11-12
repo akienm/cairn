@@ -1,40 +1,22 @@
 #!/usr/bin/env bash
-# setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
-command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
-# cairn librarian — ensure the librarian is up and reachable on the web.
+# cairn librarian — wake the librarian and open its chat in the browser.
 #
-# Starts the web_server listener as a systemd transient unit if it is not already running.
-# The listener wires up the ground loop with the librarian's shim, so the librarian's chat
-# window is live at /device/librarian as soon as this returns. The ground loop is started
-# too (same singleton pattern — if it's already running, the new one exits 3 and the unit
-# cleans itself up via SuccessExitStatus=3).
+# A bare call goes through the librarian's shim (ticket d832a24e5144; Q#30, Akien 2026-11-06):
+# the shim parses the request (nothing), wakes the librarian, and this terminal's process opens
+# the browser at its chat page on the one web server, whose own shim starts the web server.
+# Each part is self-initializing. No URL is printed. The browser is skipped when stdout is not a
+# terminal or CAIRN_LIBRARIAN_NO_BROWSER is set.
 #
-# Modeled on the ground loop spawn in superclaude: systemd-run --user transient unit with
-# SuccessExitStatus=3, reset-failed retry, setsid fallback. NOT a daemon — a listener that
-# acts only when a browser request arrives.
-#
-#   cairn librarian           start the web surface (idempotent)
-#   cairn librarian --status  just report whether it's up
-#
-# After reboot: `cairn superclaude` or `cairn librarian` brings it up. No system-level
-# startup required (Akien's ruling 2026-08-11 — generalized from the ground loop).
+#   cairn librarian               wake it and open its chat
+#   cairn librarian show status   the root verbs, through the shim
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
-WEB_LOG="${HOME}/.cairn/logs/web_server.log"
-WEB_UNIT="${CAIRN_WEB_UNIT:-cairn-web-server}"
-
-mkdir -p "$(dirname "$WEB_LOG")" 2>/dev/null || true
-
-# --- status check -----------------------------------------------------------
-_is_listening() {
-  ss -tlnH 2>/dev/null | grep -q ':80\b'
-}
 
 # --- the root verbs (ticket b41b0c0fff0e) ------------------------------------
 # A first token that folds to one of the six root verbs (cairn.tools.base.shim.ROOT_VERBS)
 # resolves in the shim base: `cairn librarian show status hot` wakes a LibrarianDevice in
-# this process and reads it live. Anything else is the web-server start below, as always.
+# the bus process and reads it live. A bare call wakes it and opens its chat (below).
 case "${1:-}" in
   [Ll][Ii][Ss][Tt]|[Ss][Hh][Oo][Ww]|[Gg][Ee][Tt]|[Ss][Tt][Oo][Pp]|[Ss][Tt][Aa][Rr][Tt]|[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss])
     export PATH="${CAIRN_VENV:-$HOME/.cairn/venv}/bin:$PATH"
@@ -47,131 +29,12 @@ sys.exit(cli_main(LibrarianShim, sys.argv[1:]))
     ;;
 esac
 
-if [[ "${1:-}" == "--status" ]]; then
-  if _is_listening; then
-    echo "librarian: web server is listening on port 80"
-    echo "  http://127.0.0.1/"
-    echo "  http://10.0.0.229/"
-    exit 0
-  else
-    echo "librarian: web server is NOT listening" >&2
-    exit 1
-  fi
-fi
-
-# --- resolve the venv so python3 is the floor we laid -----------------------
-_venv_bin="${CAIRN_VENV:-$HOME/.cairn/venv}/bin"
-if [[ -d "$_venv_bin" ]]; then
-  export PATH="$_venv_bin:$PATH"
-fi
-# Windows (Git Bash): the venv keeps python.exe in Scripts/, and there is no python3 beside it.
-_py=python3
-if [[ ! -d "$_venv_bin" && -x "${CAIRN_VENV:-$HOME/.cairn/venv}/Scripts/python.exe" ]]; then
-  _py="${CAIRN_VENV:-$HOME/.cairn/venv}/Scripts/python.exe"
-fi
-
-# --- start function (shared by first attempt and retry) ---------------------
-_start_unit() {
-  local unit="$1" log="$2" cmd="$3"
-  shift 3
-  systemd-run --user --quiet \
-    --unit "$unit" \
-    --working-directory "$REPO_ROOT" \
-    --setenv=HOME="$HOME" \
-    --setenv=PATH="$PATH" \
-    -p SuccessExitStatus=3 \
-    -p StandardOutput=append:"$log" \
-    -p StandardError=append:"$log" \
-    -- $cmd "$@" 2>&1
-}
-
-_note() {
-  local log="$1"; shift
-  printf '%s %s\n' "$(date -Is 2>/dev/null || date)" "$*" >>"$log" 2>/dev/null || true
-}
-
-# --- ensure the web server is up --------------------------------------------
-_ensure_web() {
-  if _is_listening; then
-    echo "librarian: web server already listening on port 80"
-    return 0
-  fi
-
-  if ! command -v systemd-run >/dev/null 2>&1; then
-    echo "librarian: systemd-run unavailable — starting with setsid (will die with this terminal)" >&2
-    ( setsid "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py" \
-        >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-    disown 2>/dev/null || true
-    sleep 1
-    if _is_listening; then
-      echo "librarian: web server started (setsid fallback)"
-    else
-      echo "librarian: web server failed to start — see $WEB_LOG" >&2
-      return 1
-    fi
-    return 0
-  fi
-
-  local err path="unavailable"
-  if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
-      "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
-    path="started"
-  else
-    _note "$WEB_LOG" "$err"
-    case "$err" in
-      *"already loaded"*|*"fragment file"*|*"already exists"*|*"Unit "*"already"*)
-        systemctl --user reset-failed "${WEB_UNIT}.service" >/dev/null 2>&1 || true
-        if err="$(_start_unit "$WEB_UNIT" "$WEB_LOG" \
-            "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py")"; then
-          path="started"
-        else
-          _note "$WEB_LOG" "$err"
-          path="refused"
-        fi
-        ;;
-    esac
-  fi
-
-  case "$path" in
-    started)
-      sleep 1
-      if _is_listening; then
-        echo "librarian: web server started as ${WEB_UNIT}.service"
-      else
-        echo "librarian: unit started but port 80 not yet listening — see $WEB_LOG" >&2
-      fi
-      ;;
-    refused)
-      echo "librarian: ${WEB_UNIT}.service refused — see $WEB_LOG" >&2
-      return 1
-      ;;
-    *)
-      echo "librarian: systemd-run failed — starting with setsid" >&2
-      ( setsid "$_py" "$REPO_ROOT/cairn/devices/web_server/listener.py" \
-          >>"$WEB_LOG" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
-      disown 2>/dev/null || true
-      sleep 1
-      if _is_listening; then
-        echo "librarian: web server started (setsid fallback)"
-      else
-        echo "librarian: web server failed to start — see $WEB_LOG" >&2
-        return 1
-      fi
-      ;;
-  esac
-}
-
-# --- main -------------------------------------------------------------------
-_ensure_web
-
-if _is_listening; then
-  echo ""
-  echo "  http://127.0.0.1/"
-  echo "  http://10.0.0.229/"
-  echo "  http://10.0.0.229/device/librarian"
-  # Open the browser if this looks like an interactive launch (not --status, not piped)
-  if [[ -t 1 ]] && [[ "${1:-}" != "--status" ]]; then
-    python3 -m webbrowser "http://10.0.0.229/device/librarian" >/dev/null 2>&1 &
-    disown 2>/dev/null || true
-  fi
-fi
+export PATH="${CAIRN_VENV:-$HOME/.cairn/venv}/bin:$PATH"
+# Anything else the shim answers (a word it does not know is refused there, loud), so only a
+# bare call opens the browser.
+exec python3 -c "
+import sys; sys.path.insert(0, '$REPO_ROOT')
+from cairn.devices.librarian.shim import LibrarianShim, open_chat
+from cairn.tools.base.shim import cli_main
+sys.exit(cli_main(LibrarianShim, sys.argv[1:]) if sys.argv[1:] else open_chat())
+" "$@"

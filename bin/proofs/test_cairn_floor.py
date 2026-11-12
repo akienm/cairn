@@ -9,8 +9,9 @@ longer empty. Plus the resting case: with all three present, no lay-down runs.
 
 Every tooth runs bin/cairn as a subprocess under a scratch HOME / CAIRN_INSTANCE_ROOT /
 CAIRN_VENV / CAIRN_PG_SOCKET_DIR, so the live instance, venv and db are never touched.
-The falsifier's `cairn librarian show status` is today `cairn librarian --status` (the
-launcher's status face: prints whether port 80 listens, exits 0/1, spawns nothing), D10.
+The falsifier's `cairn librarian show status` runs as written (ticket d832a24e5144 retired the
+launcher's `--status` face); its bus is pointed at an address nobody answers (127.0.0.1:1), so
+the answer is "the bus process did not answer for librarian" and nothing is spawned.
 
 A hollow build could not pass: tooth 1 needs a real pip install into the scratch, tooth 3
 needs a floor that costs nothing on the happy path, tooth 2 needs the refusal to reach
@@ -84,19 +85,16 @@ def test_absent_venv_is_laid_then_answers() -> None:
         assert not venv.exists()
         (home / "devices").mkdir()
         t = time.monotonic()
-        r = _run(CAIRN, ["librarian", "--status"], _env(home, venv=venv))
+        env = _env(home, venv=venv)
+        env["CAIRN_BUS_HOME"] = "127.0.0.1:1"  # nobody answers there; a remote home spawns nothing
+        r = _run(CAIRN, ["librarian", "show", "status"], env)
         cost = time.monotonic() - t
         assert (venv / "bin" / "python3").exists(), f"no venv laid at {venv}: {r.stderr[-600:]}"
-        # The resolver reached the librarian and it answered. Which answer depends on whether a
-        # live web server holds port 80, so each is pinned to its own stream and exit code:
-        # up -> stdout, exit 0; down -> stderr, exit 1 (cairn/devices/librarian/0/bin/librarian
-        # --status). Reading stdout alone made this proof red whenever the box's server was down.
-        if r.returncode == 0:
-            assert r.stdout.startswith("librarian: web server is listening"), (r.stdout, r.stderr[-600:])
-        else:
-            assert r.returncode == 1, (r.returncode, r.stdout, r.stderr[-600:])
-            assert r.stderr.rstrip().endswith("librarian: web server is NOT listening"), r.stderr[-600:]
-            assert r.stdout == "", r.stdout
+        # The resolver reached the librarian and answered: on stderr, exit 1, naming the
+        # librarian and the bus it could not reach (root verbs ride bus_client's mouth).
+        assert r.returncode == 1, (r.returncode, r.stdout, r.stderr[-600:])
+        assert "did not answer" in r.stderr and "librarian" in r.stderr, r.stderr[-600:]
+        assert "floor:" not in r.stderr, r.stderr[-600:]
         # The devices root started empty, so the same one invocation laid the instance too.
         assert (home / "devices" / "cairn" / "0").is_dir(), "no cairn/0 instance home laid"
         out = subprocess.run([str(venv / "bin" / "python3"), "-c", "import cairn; print(cairn.__file__)"],
@@ -113,7 +111,7 @@ def test_down_db_refuses_named_and_never_resolves() -> None:
         _probe_device(home)
         nosock = home / "nosock"
         nosock.mkdir()
-        r = _run(CAIRN, ["librarian", "--status"], _env(home, sock=nosock))
+        r = _run(CAIRN, ["librarian", "show", "status"], _env(home, sock=nosock))
         assert r.returncode == 3, (r.returncode, r.stdout, r.stderr)
         assert r.stderr.startswith("cairn: floor: db — "), r.stderr
         assert str(nosock / ".s.PGSQL.5432") in r.stderr, r.stderr

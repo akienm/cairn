@@ -93,7 +93,7 @@ def test_superclaude_launches_through_a_failing_floor() -> None:
 def test_other_commands_are_still_refused() -> None:
     home = _scratch()
     (home / "devices" / "cairn" / "0").mkdir(parents=True)
-    r = _run(["librarian", "--status"], _env(home))
+    r = _run(["librarian", "show", "status"], _env(home))
     check("test_other_commands_are_still_refused",
           r.returncode == 3 and r.stderr.startswith("cairn: floor: db — ") and r.stdout == "",
           f"rc={r.returncode} err={r.stderr[-300:]!r}")
@@ -112,7 +112,7 @@ def test_superclaude_is_wired_even_when_cairn0_exists() -> None:
 def test_a_failed_lay_down_names_applys_cause() -> None:
     home = _scratch()
     assert not Path(UNCREATABLE).exists(), f"{UNCREATABLE} exists — this tooth would be vacuous"
-    r = _run(["librarian", "--status"], _env(home, venv=UNCREATABLE))
+    r = _run(["librarian", "show", "status"], _env(home, venv=UNCREATABLE))
     check("test_a_failed_lay_down_names_applys_cause",
           r.returncode == 3 and "floor: venv" in r.stderr and "VENV CREATE FAILED" in r.stderr,
           f"rc={r.returncode} err={r.stderr[-500:]!r}")
@@ -121,7 +121,7 @@ def test_a_failed_lay_down_names_applys_cause() -> None:
 def test_an_absent_postgres_is_named_not_installed() -> None:
     home = _scratch()
     (home / "devices" / "cairn" / "0").mkdir(parents=True)
-    r = _run(["librarian", "--status"], _env(home, unit_missing=True))
+    r = _run(["librarian", "show", "status"], _env(home, unit_missing=True))
     check("test_an_absent_postgres_is_named_not_installed",
           r.returncode == 3 and "NOT INSTALLED" in r.stderr and "apt-get install -y postgresql" in r.stderr
           and "sudoers" not in r.stderr,

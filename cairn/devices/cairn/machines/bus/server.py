@@ -114,7 +114,7 @@ def code_stamp(root: Path = ROOT) -> float:
     return newest
 
 
-class _InFlight:
+class _InFlight(DiagnosticBase):
     """The requests this process is answering (ticket 1029d5146152). A shutdown that arrives
     while any are held DRAINS: it answers at once, keeps serving (stale refusal suspended, so a
     newer caller is served rather than sent to spawn a bus that cannot claim the lock), and
@@ -122,6 +122,7 @@ class _InFlight:
     killed a 14-minute constrain ask because the daemon handler threads died with the process."""
 
     def __init__(self) -> None:
+        super().__init__()
         self._cv = threading.Condition()
         self._held: dict[int, str] = {}
         self._next = 0

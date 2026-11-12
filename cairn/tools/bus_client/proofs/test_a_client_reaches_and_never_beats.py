@@ -5,9 +5,9 @@ Five clients paid the beat to ask for one embedding. This proof pins that they n
 and that the watch which keeps it so can actually see a client.
 
 WHAT THIS PROVES, and why a hollow build could not pass it:
-  (i)   BEAT STUBBED TO RAISE, every client helper still hands back a working bus. Revert
-        any of the five client files and this tooth raises at that client — the stub is the
-        beat, and a client that beats hits it.
+  (i)   BEAT STUBBED TO RAISE, ``reach()`` and the chart's helper still hand back a working
+        bus. A reach that beats raises at the stub. The device clients are each a one-line
+        ``reach(...)`` and are held to it by (iii)'s walk, not imported (RULE 1).
   (ii)  THE WALK BITES. A fixture tree with one planted client caller, one roster file, one
         proofs/ file and one docstring-only mention comes back as exactly the planted caller,
         file and line. A walk that matched nothing would return [] over the live tree too,
@@ -74,20 +74,18 @@ def _stub_beat():
 
 
 def test_i_every_client_helper_reaches_without_beating():
+    """The client face is ``reach()``: with the beat stubbed to raise, reach hands back a working
+    bus, and so does the chart's helper (skills/, no device). Every device client named by the
+    ticket (codemother's watch and seed_trees, the librarian's and intention_extractor's
+    _wire_bus) is a one-line ``reach("inference_domain")``; that it stays one is what (iii)'s
+    walk reads over class-space, so this tooth imports no device (RULE 1, ticket 38848ed72e19)."""
     restore = _stub_beat()
     try:
         import skills.chart.live as chart_live
-        import cairn.devices.codemother.watch as cm_watch
-        from cairn.devices.librarian import live as lib_live
-        from cairn.devices.intention_extractor import live as ie_live
-        from cairn.devices.codemother import seed_trees
         chart_live._BUS = None
-        cm_watch._BUS = None
         clients = {
+            "cairn/tools/bus_client reach": lambda: bus_client.reach("inference_domain"),
             "skills/chart/live.py": chart_live._bus,
-            "cairn/devices/codemother/watch.py": cm_watch._bus,
-            "cairn/devices/librarian/live.py": lib_live._wire_bus,
-            "cairn/devices/intention_extractor/live.py": ie_live._wire_bus,
         }
         for name, helper in clients.items():
             try:
@@ -95,17 +93,10 @@ def test_i_every_client_helper_reaches_without_beating():
             except _BeatRaised as e:
                 raise AssertionError(f"{name} BEATS to ask one question: {e}") from None
             assert hasattr(bus, "request"), f"{name} returned no bus: {bus!r}"
-        try:
-            embed = seed_trees._embed_fn()
-        except _BeatRaised as e:
-            raise AssertionError(f"cairn/devices/codemother/seed_trees.py BEATS: {e}") from None
-        assert callable(embed)
     finally:
         restore()
         import skills.chart.live as chart_live
-        import cairn.devices.codemother.watch as cm_watch
         chart_live._BUS = None
-        cm_watch._BUS = None
 
 
 def test_ii_the_walk_names_a_planted_client_and_nothing_else():

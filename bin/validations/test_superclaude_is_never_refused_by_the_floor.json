@@ -1,0 +1,90 @@
+[
+  {
+    "claim": "proof test_superclaude_is_never_refused_by_the_floor.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-11T17:56:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_superclaude_launches_through_a_failing_floor\n  PASS  test_other_commands_are_still_refused\n  PASS  test_superclaude_is_wired_even_when_cairn0_exists\n  PASS  test_a_failed_lay_down_names_applys_cause\n  PASS  test_an_absent_postgres_is_named_not_installed\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_superclaude_launches_through_a_failing_floor",
+        "test_other_commands_are_still_refused",
+        "test_superclaude_is_wired_even_when_cairn0_exists",
+        "test_a_failed_lay_down_names_applys_cause",
+        "test_an_absent_postgres_is_named_not_installed"
+      ],
+      "teeth_red": [],
+      "test": "test-f2af86df66ca",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d34a157387acc5bdafe300462f4f1f46050eb0598ba50aa0456bcd7d0ec8fcad",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2af86df66ca",
+      "source_fingerprint": "d805fc9d6e24cae161e7435b6ea59a57870ac425ca7c339a31123c0459f72932",
+      "fingerprint_closure": [
+        "bin/proofs/test_superclaude_is_never_refused_by_the_floor.py",
+        "cairn/__init__.py",
+        "cairn/devices/cc/scripts/memory_link.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
+        "cairn/machines/__init__.py",
+        "cairn/machines/learning_block/__init__.py",
+        "cairn/machines/learning_block/__main__.py",
+        "cairn/machines/learning_block/learning_block.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/gate/__init__.py",
+        "cairn/tools/gate/gate.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py",
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "reached": {
+        "cairn/devices/cc": "a1e3efcc0fde3e3c8d484e2c5cce8c6ed8a5b7ad20ed65f90b7607ea8aeec7fb",
+        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
+        "cairn/machines/learning_block": "d2483c01e89e884a252e79564bfd5e2186c1f08579437d1187f1979d10d11183",
+        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: kernel.apparmor_restrict_unprivileged_userns=1 — unprivileged user namespaces are blocked, so bwrap cannot build a sandbox (fix: sysctl -w kernel.apparmor_restrict_unprivileged_userns=0) — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

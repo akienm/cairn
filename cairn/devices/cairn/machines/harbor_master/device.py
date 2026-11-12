@@ -56,7 +56,7 @@ class HarborMasterDevice(BaseDevice):
                 "crossing": self._handle_crossing}
 
     def declared_views(self) -> dict:
-        return {"map": self._fleet_map}
+        return {"map": self._fleet_map, "traffic": self._traffic_view}
 
     def _handle_crossing(self, envelope: dict) -> dict:
         super().receive(envelope)
@@ -146,6 +146,13 @@ class HarborMasterDevice(BaseDevice):
         if self._fleet_cache is None:
             self.reconcile()
         return self._fleet_cache
+
+    def _traffic_view(self) -> dict:
+        """The TRAFFIC IMAGE over the fleet register: the view behind ``get traffic`` and
+        ``show traffic`` (ticket cd36b8e86cd3). The web server asks it over the bus to draw
+        /harbor, rather than importing voyage (RULE 1; outline 9.4.1.5, status queries)."""
+        from cairn.devices.cairn.machines.harbor_master import voyage
+        return voyage.traffic_image(self._fleet_map())
 
     @classmethod
     def _filter_fleet(cls, fleet: dict, filter_name: str | None) -> dict:

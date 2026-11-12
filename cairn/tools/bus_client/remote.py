@@ -34,6 +34,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
 
 # cairn/tools/bus_client/remote.py → three parents up is the class root.
 _CLASS_ROOT = Path(__file__).resolve().parents[3]
@@ -253,24 +254,15 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
                    "systemd-run unavailable — bus spawned with setsid (dies with this session)")
 
 
-# Windows: the bus outlives the console that started it and opens no window. The values
-# stand beside the names so a proof on Linux can read the flags a Windows spawn would pass.
-_DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
-_CREATE_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
-_CREATE_NEW_PROCESS_GROUP = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0x00000200)
-
-
 def _detached(home: Path, scratch: bool, log: Path) -> str:
     """The Windows spawn (the shape of superclaude's _sc_spawn_detached): this venv's python,
     TCP loopback, no console, its own process group."""
-    cmd = [sys.executable, "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
+    cmd = [background_python(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
     if scratch:
         cmd.append("--scratch")
     with open(log, "a", encoding="utf-8") as fh:
         subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), stdin=subprocess.DEVNULL, stdout=fh,
-                         stderr=fh, close_fds=True,
-                         creationflags=_DETACHED_PROCESS | _CREATE_NO_WINDOW
-                         | _CREATE_NEW_PROCESS_GROUP)
+                         stderr=fh, **detached_kwargs("nt"))
     _note("bus spawned detached (Windows: no systemd, no AF_UNIX — loopback TCP)")
     return "detached"
 
@@ -283,7 +275,7 @@ def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
     if not hasattr(socket, "AF_UNIX"):
         cmd.append("--tcp")
     with open(log, "a", encoding="utf-8") as fh:
-        subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), start_new_session=True,
+        subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), **detached_kwargs(),
                          stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
     _note(why)
     return "setsid"

@@ -1,0 +1,36 @@
+{
+  "component": "windowless_spawn",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "spawn primitive",
+  "public_interface": [
+    "cairn.tools.windowless_spawn.windowless_spawn"
+  ],
+  "what": "detached_kwargs(os_name=None) \u2014 the Popen keywords for a background child that outlives its parent and opens no console window (Windows: DETACHED_PROCESS | CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP; elsewhere start_new_session). background_python(os_name=None, executable=None) \u2014 the interpreter to spawn with: inside a venv on Windows the base interpreter named by pyvenv.cfg home, because the venv's Scripts\\python.exe is a launcher that starts the real interpreter as a child.",
+  "why": "Measured 2026-11-12 on akiendell: Akien said 'you keep spinning up python windows, you have at least 4 open now'; of 4 python processes bin/cairn's lazy-init started, the two children owned a console window and their venv launchers did not. Six Popen sites each hand-built their own flags (start_new_session alone, a no-op on NT), and the one that passed the Windows flags still showed a window. One helper replaces six hand-built flag sets (Law 1) and a proof greps for the bare form (Law 4).",
+  "entry": "BUILT, ticket 0156856b1fae, 2026-11-12. The launcher hypothesis (the venv launcher is why the flagged site still showed a window) is a HYPOTHESIS until the proof's tooth 2 has run on Windows; the interpreter choice follows that measurement.",
+  "invoke": "`from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs`; `subprocess.Popen([background_python(), '-m', mod], **detached_kwargs(), stdout=fh, stderr=fh)`. Prove: `python cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py` (add --no-spawn to skip the tooth that spawns a process).",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it returns a dict and a path and spawns nothing itself.",
+  "proof": "proofs/test_a_cairn_spawn_opens_no_console_window.py \u2014 tooth 1: the nt kwargs carry CREATE_NO_WINDOW and DETACHED_PROCESS and no start_new_session, the posix kwargs the reverse, and background_python is not the venv launcher; tooth 2: a child spawned through the helper leaves no console host in its process tree (Windows only; UNMEASURED elsewhere); tooth 3: none of the six sites hand-builds start_new_session or creationflags.",
+  "gates": "Import gate \u2014 encapsulation_holds in build_inspector (RULE 1) reds any reach landing off this tool's declared module. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if a Cairn-spawned background process on Windows owns a console window, if any of the six sites hand-builds a flag set again, or if this charter stops declaring exactly its module.",
+  "how_it_learns": "It does not; it is a fixed primitive \u2014 one place where the spawn flags are decided.",
+  "traces_to": [
+    "CP4 and Law 3 (a measured defect on the user's box)",
+    "Law 1 and Law 4 (one helper in place of six hand-built flag sets, enforced by a proof)",
+    "Law 6 (a tool has users, not an owner)"
+  ],
+  "owner": "None \u2014 a tool has users (Law 6): every component that spawns a background child. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "cc-read"
+  }
+}

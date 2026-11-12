@@ -31,6 +31,7 @@ from pathlib import Path
 
 from cairn.tools.base import address
 from cairn.tools.base.shim import BaseShim
+from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
 
 _INSTANCE_ROOT = address.instance_path("cc", 0)
 _MAIL_DIR = _INSTANCE_ROOT / "mail"
@@ -160,7 +161,7 @@ class CCShim(BaseShim):
                 [*_CLAUDE_CMD, "-p", "--model", "haiku",
                  "--permission-mode", "bypassPermissions", prompt],
                 cwd=str(_CAIRN_ROOT), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL, start_new_session=True)
+                stderr=subprocess.DEVNULL, **detached_kwargs())
         except OSError as exc:
             reason = f"launch failed: {exc}"
             _ledger({"event": "not-poked", "reason": reason, "target": target, "at": now})

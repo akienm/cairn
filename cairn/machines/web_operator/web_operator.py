@@ -39,6 +39,7 @@ from pathlib import Path
 from cairn.tools.base.address import machine_path
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.dataref import Secret
+from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
 
 MACHINE = "web_operator"
 PROFILE_ROOT_ENV = "CAIRN_WEB_OPERATOR_PROFILE_ROOT"
@@ -166,7 +167,7 @@ class WebOperator(DiagnosticBase):
         proc = subprocess.Popen([gd, "--host", "127.0.0.1", "--port", str(port),
                                  "--websocket-port", str(ws)],
                                 stdout=log, stderr=log, stdin=subprocess.DEVNULL,
-                                start_new_session=True)
+                                **detached_kwargs())
         log.close()
         for _ in range(100):
             if self._driver_up(port):

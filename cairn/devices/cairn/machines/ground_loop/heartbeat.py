@@ -37,6 +37,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.rack.rack import rack
+from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
 
 HERE = Path(__file__).resolve().parent
 
@@ -145,7 +146,7 @@ def spawn_pulses(class_root=None, held=None) -> tuple[list[dict], list]:
                 [sys.executable, str(path)], cwd=str(cwd),
                 env={**os.environ, "PYTHONPATH": str(cwd)},
                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                start_new_session=True)
+                **detached_kwargs())
         except OSError as err:
             entry["error"] = f"{type(err).__name__}: {err}"
             continue

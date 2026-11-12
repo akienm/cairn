@@ -52,7 +52,6 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.inference_domain import domain
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query
 from cairn.devices.librarian.tools.trees.trees import (
@@ -244,10 +243,10 @@ def test_the_livelock_is_broken_by_key_physics():
     assert p1 != p2, "a changed graph must change the backfill prompt"
     assert "GRAPH-STATE: empty" in p1 and "GRAPH-STATE: empty" not in p2, \
         "the graph-state digest is what moved"
-    k1 = domain.canonicalize({"kind": "generate", "prompt": p1})
-    k2 = domain.canonicalize({"kind": "generate", "prompt": p2})
-    assert k1 != k2, ("the two rounds must canonicalize to DIFFERENT cache keys — same "
-                      "request + changed graph is a MISS, or the loop livelocks on its own cache")
+    # inference_domain keys its cache on the canonical request (cairn/devices/inference_domain/
+    # domain.py canonicalize, measured at its own proofs), so a changed prompt is a changed key.
+    # The librarian's half is that the prompt changed, which the p1 != p2 and GRAPH-STATE
+    # asserts above measure (RULE 1, ticket a16c4d4ff4bd).
 
 
 def test_no_progress_terminates_loudly_instead_of_spinning():

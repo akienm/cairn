@@ -395,36 +395,31 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
     ``domain='research'`` — a DECLARED fact about who is asking, set by rule at the seam.
     The falsifier is chat tooth 15's guessed-intent defect wearing a new coat: a prompt
     whose content screams another vertical must STILL stamp research, and a caller's own
-    declaration must survive (setdefault, never overwrite)."""
-    from cairn.devices.inference_domain import domain as domain_module
+    declaration must survive (setdefault, never overwrite). The seam is driven over a
+    recording bus, so what it SENDS is measured here; what inference_domain does with the
+    domain is measured at its own address (RULE 1, ticket a16c4d4ff4bd)."""
     from cairn.devices.librarian import live
 
-    captured: list[dict] = []
-    real = domain_module.resolve
+    class _RecordingBus:
+        def __init__(self):
+            self.calls: list[tuple[str, str, dict]] = []
 
-    def capture(request, *, resolver, **kw):
-        captured.append(dict(request))
-        return {"answer": {"text": "x", "vector": [1.0, 0.0, 0.0]},
-                "hit": False, "provenance": {}}
+        def request(self, *, sender, to, verb, why, body):
+            self.calls.append((to, verb, dict(body)))
+            return {"body": {"answer": {"text": "x", "vector": [1.0, 0.0, 0.0]},
+                             "hit": False, "provenance": {}}}
 
-    domain_module.resolve = capture
-    try:
-        from cairn.devices.cairn.machines.bus.bus import BusDevice
-        from cairn.tools.bus_client import _load_device_shim
-        # A private scratch bus IN THIS PROCESS on purpose: the capture patches resolve here,
-        # so the inference shim must answer here, never in the instance's bus process
-        # (ticket 48519f4789b1 decision 7).
-        with BusDevice.scratch("bus_libchat") as bus:
-            shim = _load_device_shim("inference_domain", bus)
-            shim._wire_delivery()
-            seam = live.dual_seam(bus)
-            seam({"kind": "generate",
-                  "prompt": "please write a python function that reverses a linked list"})
-            seam({"kind": "embed", "prompt": "what does the settled record say?"})
-            seam({"kind": "generate", "prompt": "x", "domain": "coding"})
-    finally:
-        domain_module.resolve = real
+    bus = _RecordingBus()
+    seam = live.dual_seam(bus)
+    seam({"kind": "generate",
+          "prompt": "please write a python function that reverses a linked list"})
+    seam({"kind": "embed", "prompt": "what does the settled record say?"})
+    seam({"kind": "generate", "prompt": "x", "domain": "coding"})
 
+    assert len(bus.calls) == 3, bus.calls
+    assert all(to == "inference_domain" and verb == "resolve" for to, verb, _ in bus.calls), \
+        f"the seam must ask inference_domain's resolve verb, saw {[c[:2] for c in bus.calls]}"
+    captured = [body for _, _, body in bus.calls]
     assert captured[0]["domain"] == "research", \
         "content that screams another vertical must still stamp research — the domain " \
         "is who is asking, never what the words look like (the guessed-intent defect)"

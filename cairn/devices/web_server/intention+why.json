@@ -41,5 +41,21 @@
     "what": "cc-read",
     "why": "cc-read"
   },
-  "public_interface": []
+  "public_interface": [
+    {
+      "name": "WebServerShim",
+      "at": "cairn/devices/web_server/shim.py",
+      "what": "the web server's shim: serve(path, method, body) starts WebServerDevice on the first request and reuses it (ticket 0482542c2b7c)"
+    },
+    {
+      "name": "pulse",
+      "at": "cairn/devices/web_server/groundloop/pulse.py",
+      "what": "the ground loop's beat: on the cairn home (CAIRN_HOME_HOST, outline 15.3.5) it starts listener.py for declared instance 0 when its port is silent (open-68fe4af67c6d (b))"
+    },
+    {
+      "name": "cairn web_server",
+      "at": "cairn/devices/web_server/0/bin/web_server",
+      "what": "the root verbs through the shim; the folder declares instance 0 (outline 5.7.3.4)"
+    }
+  ]
 }

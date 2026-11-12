@@ -301,7 +301,7 @@ def test_there_is_one_web_server():
     rather than by exempting a name.)"""
     import re
     binder = re.compile(r"uvicorn\.Server\(|ThreadingHTTPServer\(|HTTPServer\(|serve_forever\(")
-    face = re.compile(r"text/html|WebServerDevice|web_server\.render|web_server\.server")
+    face = re.compile(r"text/html|WebServerDevice|WebServerShim|web_server\.render|web_server\.server")
     binders, faces = [], []
     for p in _py_files_under(_REPO_ROOT / "cairn"):
         if "proofs" in p.parts:
@@ -338,7 +338,9 @@ def test_device_logic_stays_out_of_the_transport():
     assert len(handlers) >= 2, "a GET and a POST handler are the whole HTTP face"
     for h in handlers:
         calls = [ast.unparse(c.func) for c in ast.walk(h) if isinstance(c, ast.Call)]
-        assert "_device.serve" in calls, f"{h.name} must route through the device's serve(): {calls}"
+        # since ticket 0482542c2b7c the handlers hand the request to the shim, which starts the
+        # device and calls its serve(): still one call, still no logic in the transport
+        assert "_shim.serve" in calls, f"{h.name} must route through the shim's serve(): {calls}"
     for logic in ("server.py", "render.py"):
         lsrc = (_REPO_ROOT / "cairn/devices/web_server" / logic).read_text(encoding="utf-8")
         assert "starlette" not in lsrc and "uvicorn" not in lsrc, \
@@ -374,8 +376,9 @@ def test_existing_pane_urls_render_identically_through_the_asgi_app():
         {"id": "t-1", "standing": "live", "why": "a fixture trouble", "count": 2,
          "occurrences": [{"detail": "rides the store, never the socket"}]}), encoding="utf-8")
     real_rows = listener._trouble_rows
-    saved = (listener._device, listener._bus, listener._trouble_rows)
-    listener._device, listener._bus = web, _Bus()
+    from cairn.devices.web_server.shim import WebServerShim
+    saved = (listener._shim, listener._bus, listener._trouble_rows)
+    listener._shim, listener._bus = WebServerShim(device_factory=lambda: web), _Bus()
     listener._trouble_rows = lambda: real_rows(roots)  # the real read, over the scratch roots
     try:
         app = listener._make_app()
@@ -398,7 +401,7 @@ def test_existing_pane_urls_render_identically_through_the_asgi_app():
         assert listener._bus.asked == [], f"the socket asked the bus: {listener._bus.asked}"
         assert len(listener._ws_clients) == 0, "a disconnected client is dropped from the set"
     finally:
-        listener._device, listener._bus, listener._trouble_rows = saved
+        listener._shim, listener._bus, listener._trouble_rows = saved
         scratch.cleanup()
 
 

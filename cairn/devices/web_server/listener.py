@@ -42,22 +42,24 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.bus_client import connect_system, harbor_source
-from cairn.devices.web_server.server import WebServerDevice
+from cairn.devices.web_server.shim import WebServerShim
 
-_device: WebServerDevice | None = None
+# The shim every request is handed to (ticket 0482542c2b7c): the first request starts the
+# WebServerDevice, later ones reuse it (outline 5.7.3.2: a shim starts its own device).
+_shim: WebServerShim | None = None
 # The bus, held at module scope so the WebSocket handler can reach the trouble lane
 # without importing it (ticket 9579a6f9cec6 — no device imports another device).
 _bus = None
 
 
 async def _handle_get(request: Request) -> Response:
-    status, content_type, body = _device.serve(request.url.path)
+    status, content_type, body = _shim.serve(request.url.path)
     return Response(body, status_code=status, media_type=content_type)
 
 
 async def _handle_post(request: Request) -> Response:
     raw = (await request.body()).decode("utf-8", errors="replace")
-    status, content_type, body = _device.serve(
+    status, content_type, body = _shim.serve(
         request.url.path, method="POST", body=raw
     )
     return Response(body, status_code=status, media_type=content_type)
@@ -102,7 +104,7 @@ def _make_app() -> Starlette:
 
 
 def main(argv=None) -> int:
-    global _device, _bus
+    global _shim, _bus
 
     parser = argparse.ArgumentParser(description="the Cairn web presentation surface")
     parser.add_argument("--port", type=int, default=80)
@@ -113,7 +115,8 @@ def main(argv=None) -> int:
     # No device is special-cased; the roster lists every fitted device and loads a shim from
     # disk the first time its page or its mail asks for one (ticket efb670ff1dd8).
     _bus, roster = connect_system(devices=["librarian"])
-    _device = WebServerDevice(roster, harbor_source=harbor_source(), port=args.port)
+    _shim = WebServerShim(_bus, roster_source=roster, harbor_source=harbor_source(),
+                          port=args.port)
 
     app = _make_app()
     config = uvicorn.Config(

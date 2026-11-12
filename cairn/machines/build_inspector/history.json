@@ -31078,5 +31078,92 @@
     "fingerprint": "75b6438b6950c65554fd34e6981365da4d3f75cfe067fadfa8712bfc2981ed08",
     "at": "2026-11-12T00:49:33",
     "seq": 151
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(one-mouth-answers-the-learning-question) -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME",
+            "WATCHME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "96f71a89a0fa",
+    "actor": "CC",
+    "why": "the hollow reading cannot finish: it reverts each of 97 measured files and reruns test_inspector (~10 min) per reversion, ~16h; killed at 1500s and 4000s with nothing sealed",
+    "proven_by": [
+      "cairn/machines/build_inspector/proofs/test_inspector.py"
+    ],
+    "missing": [
+      "hollow: the ticket's teeth ride the whole build_inspector proof, so one reversion costs a full inspector run; they move into a proof of their own that runs in seconds"
+    ],
+    "fingerprint": "5b1c1955c4c1825433cebd995985658ab5628f1290e7db3fb43b467527bbac61",
+    "at": "2026-11-12T02:23:22",
+    "seq": 152
   }
 ]

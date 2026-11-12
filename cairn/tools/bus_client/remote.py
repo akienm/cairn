@@ -314,8 +314,16 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
     home = bus_home(home)
     found = _answers(home)
     if found is not None and found.get("stale"):
-        _replace(home)
+        reply = _replace(home)
         found = None
+        if reply and reply.get("draining"):
+            # The stale bus is draining and serves on: use it. A spawn now would lose
+            # bus.lock to it and raise (ticket 99258e9bbdb1).
+            again = _answers(home)
+            if again is not None and again.get("ok"):
+                _note(f"stale bus at {home} draining {reply['draining']} request(s); "
+                      "served by it until it exits")
+                return again["json"]
     if found is not None and found.get("ok"):
         return found["json"]
     # A bus at any home but the live instance's rides a throwaway table (decision 11): a
@@ -342,12 +350,17 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
                           f"{_last_answer(home)}; log {_LOG})")
 
 
-def _replace(home: Path) -> None:
-    """Shut a stale bus down and wait (bounded) for its socket to stop answering."""
+def _replace(home: Path) -> dict | None:
+    """Shut a stale bus down and wait (bounded) for its socket to stop answering. Returns the
+    shutdown's reply (None when the exchange raised). A bus holding requests answers
+    ``draining`` and serves on until they are answered (ticket 1029d5146152): that reply
+    returns at once, since waiting for it to stop answering would outlast the wait."""
     try:
-        exchange({"op": "shutdown"}, home, timeout=30)
+        reply = exchange({"op": "shutdown"}, home, timeout=30)
     except (OSError, ValueError):
-        pass
+        reply = None
+    if reply and reply.get("draining"):
+        return reply
     deadline = time.monotonic() + _START_WAIT_S
     while time.monotonic() < deadline and _answers(home) is not None:
         time.sleep(0.05)
@@ -357,6 +370,7 @@ def _replace(home: Path) -> None:
                        capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError):
         pass   # no systemd (Windows): nothing holds a unit name
+    return reply
 
 
 class RemoteBus(DiagnosticBase):

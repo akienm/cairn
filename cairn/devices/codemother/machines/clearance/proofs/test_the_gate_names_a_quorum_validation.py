@@ -46,6 +46,18 @@ _STORE_CHARTER = _REPO.parent / "CairnCommons" / "tickets" / "_charter+why.json"
 if not _STORE_CHARTER.is_file():
     _STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
 
+# hollow runs this proof in a worktree with no CairnCommons beside it, where transitions'
+# repo-relative class table points at nothing (measured 2026-11-12, this ticket's first hollow:
+# every tooth red at HEAD): so with no sibling, the class table reads the home checkout, for
+# this process only (the same fallback as cairn/machines/ticket/proofs/test_a_ticket_queues_itself_at_a_gate.py).
+if not (_REPO.parent / "CairnCommons").is_dir():
+    from cairn.tools.base import transitions as _transitions
+    _transitions._NODE_CLASSES = _STORE_CHARTER.parents[1] / "node_classes"
+    for _fn in (_transitions.emit, _transitions.load_class_def):
+        for _k in ("node_class_root", "root"):
+            if _k in (_fn.__kwdefaults__ or {}):
+                _fn.__kwdefaults__[_k] = _STORE_CHARTER.parents[1] / "node_classes"
+
 
 class _Heard:
     def request(self, **kw):

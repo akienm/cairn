@@ -59,13 +59,16 @@ _SLATES = _COMMONS / "slates"
 
 # The reader's closed set (bin/cmd/slate CARRIED) + the store template's envelope.
 CARRIED = ("at_sea", "next_direction", "open_threads")
-ENVELOPE = ("id", "date", "written_at", "session", "author")
+ENVELOPE = ("id", "date", "written_at", "session", "author", "host")
 
 # Envelope fields only the DOOR may mint. written_at is the rank key the reader
 # trusts (bin/cmd/slate); an author-supplied value could backdate a record of
 # truth — the same two-witness argument that killed auto-inherit (cbbadb13530f):
 # the stamp must come from the one hand the packet cannot contaminate.
-DOOR_MINTED = ("id", "date", "written_at", "author")
+# author and host name WHICH Claude wrote the slate (ticket b2e4dafc5813): four Claudes share
+# one commons, and the reader restores each its own. A packet-supplied author could claim
+# another Claude's continuity, so the door reads it from Claude Code's session record.
+DOOR_MINTED = ("id", "date", "written_at", "author", "host")
 
 # Measured at install over 50 slates: min 2211 / median 6880 / max 12878 chars.
 CEILING = 10_000
@@ -209,7 +212,7 @@ def _auto_commit_push(repo: Path, name: str) -> str | None:
 
 def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = None,
          slates_dir: Path | str | None = None, session: str = "",
-         skills_root=None, berths=None, trace_root=None) -> dict:
+         skills_root=None, berths=None, trace_root=None, sessions_dir=None) -> dict:
     """Gate the slate — flat AND semantic lacks in ONE refusal — then berth through
     the seam and WRITE the slate in the same act. A refusal writes nothing."""
     committed = {}
@@ -246,6 +249,9 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
 
     when = now or datetime.now()
     slates = Path(slates_dir) if slates_dir is not None else _SLATES
+    from cairn.tools.base import claude_identity
+    writer = claude_identity.who(session or payload.get("session") or None,
+                                 sessions_dir=sessions_dir)
     record = {
         "id": payload["slate_id"].strip(),
         "date": when.date().isoformat(),
@@ -256,7 +262,8 @@ def fire(payload: dict, *, now: datetime | None = None, heads: dict | None = Non
         # holds this instant; it was being thrown away at day granularity.
         "written_at": when.isoformat(timespec="seconds"),
         "session": session or payload.get("session", ""),
-        "author": "CC",
+        "author": writer["name"] or "CC",
+        "host": writer["host"],
         "at_sea": payload["at_sea"],
         "next_direction": payload["next_direction"],
         "open_threads": payload["open_threads"],

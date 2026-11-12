@@ -124,7 +124,7 @@ def main() -> int:
         ok("the slate is written by the same act", slate_path.exists())
         rec = json.loads(slate_path.read_text())
         ok("the slate carries exactly the template keys",
-           sorted(rec) == sorted(("id", "date", "written_at", "session", "author",
+           sorted(rec) == sorted(("id", "date", "written_at", "session", "author", "host",
                                   "at_sea", "next_direction", "open_threads"))
            and rec["session"] == "sess-1" and rec["id"] == GOOD["slate_id"], rec)
 
@@ -238,7 +238,7 @@ def main() -> int:
            not (_REPO.parent / "CairnCommons" / "slates" / f"{slate_id}.json").exists())
         slate_data = json.loads(Path(result["slate"]).read_text())
         ok("the slate carries the template keys",
-           set(slate_data.keys()) == {"id", "date", "written_at", "session", "author",
+           set(slate_data.keys()) == {"id", "date", "written_at", "session", "author", "host",
                                       "at_sea", "next_direction", "open_threads"})
 
         # 15. a non-composing-door skill still fires through the generic path

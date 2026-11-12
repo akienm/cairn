@@ -1,0 +1,36 @@
+{
+  "component": "usage",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "reader",
+  "public_interface": [
+    "cairn.tools.usage.usage"
+  ],
+  "what": "read_and_write() \u2014 one HTTPS GET of the account's usage (seven_day and five_hour utilization and reset times), written to one JSON file; last() \u2014 the stored reading with its age and whether the last fetch failed; python -m cairn.tools.usage [--fetch] [--json] prints it, and python -m cairn.tools.usage --hook is the Stop-hook entry that fetches, writes, and always exits 0. The fetch is injectable (fetch=) so a proof touches no network.",
+  "why": "Akien, 2026-11-12 (idea 1a1994e293cb): the orchestrator has to watch usage to drive the cc_0 boxes ('could be a hook again, writing a json file that you could just look at any time you wanted to'); the old update-usage.sh fed a widget that no longer exists. One reading, one file, and a file that never passes stale data off as fresh: every answer carries fetched_at and age_s, and a failed fetch is written BESIDE the last good reading, never in its place (Law 7: a record of truth never collapses an error).",
+  "entry": "BORN 2026-11-12 from idea 1a1994e293cb; the orchestrator's draft is the starting point. NOT BUILT: red until its ticket proves it (Law 9).",
+  "invoke": "`python -m cairn.tools.usage` prints the last reading and its age; `--fetch` fetches first; `--json` prints the record; `--hook` is the Stop-hook entry (wiring it into settings is the operator's act, not this tool's). Store: ~/.cairn/usage/usage.json (override CAIRN_USAGE_FILE). Credentials: ~/.claude/.credentials.json (override CAIRN_USAGE_CREDS). The OAuth token is read to send one request and is never printed, logged or written.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6). The reading file is cached state in instance-space, ~/.cairn/usage/, never in git; its holder is whatever runs the hook.",
+  "proof": "proofs/test_usage_reads_and_keeps_one_file.py \u2014 five teeth, one per falsifier clause, fetch injected and urlopen patched to raise so no network is touched.",
+  "gates": "Import gate \u2014 encapsulation_holds in build_inspector (RULE 1) reds any reach landing off this tool's declared module. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if a good fetch is not written with its time, if a failed fetch replaces the last good reading or reads as fresh, if the OAuth token ever appears in the store or in any output, if --hook exits non-zero, or if the proof reaches the network.",
+  "how_it_learns": "It does not; it is a fixed reader \u2014 one fetch, one file.",
+  "traces_to": [
+    "CP4 and Law 7 (a failed fetch is permanent in the record, never collapsed into a fresh-looking reading)",
+    "Law 3 (a usage figure is a measurement with an age, not a belief)",
+    "Law 6 (a tool has users, not an owner)"
+  ],
+  "owner": "None \u2014 a tool has users (Law 6): the orchestrator and any session that wants the usage figure. CC gates writes to its code and proofs.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read",
+    "public_interface": "cc-read",
+    "traces_to": "cc-read"
+  }
+}

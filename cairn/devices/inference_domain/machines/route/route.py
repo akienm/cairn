@@ -109,7 +109,7 @@ def kind_default(kind: str, stacks: dict | None = None) -> str:
     if kind not in defaults:
         raise RouteRefused(
             f"the request names no model and kind {kind!r} declares no default — name a "
-            f"model; kinds that declare a default: {sorted(defaults)}")
+            f"model; kinds that declare a default: {list(defaults)}")
     return defaults[kind]
 
 
@@ -224,12 +224,26 @@ def addressed(view: dict) -> list:
     return []
 
 
+def walk_rank(view: dict, stamps: dict) -> tuple:
+    """The walk order, stamped on each survivor inside the nest (outline 11.4.6; Akien
+    2026-09-15: "capabilities checked first then the post process picked the cheapest", and
+    2026-09-29, option c: the shake ranks rather than cuts). A postprocess sieve: it runs
+    after the measure band has cut, sees only what survived, and ranks it — never a cut, so
+    the survivor set is the measure band's alone. The rank is (0 if the request's domain
+    prefers this model else 1, the provider's cash_per_mtoken); the shake breaks ties by
+    subject name, which is the combos stack's own order, so the author's order stays the
+    tiebreak. ``stamps`` is the measure band's gradation, which this rank does not need."""
+    return (0 if view["combo"]["model"] in view["prefers"] else 1,
+            view["provider"].get("cash_per_mtoken"))
+
+
 SIEVES = {
     "enabled": enabled,
     "never_routed": never_routed,
     "serves_kind": serves_kind,
     "keyed": keyed,
     "addressed": addressed,
+    "walk_rank": walk_rank,
 }
 
 _NEST_CACHE: list | None = None
@@ -260,9 +274,19 @@ def route(kind: str, model: str | None = None, *, domain: str | None = None,
     ``domain`` names a vertical whose ``prefers`` REORDERS the survivors — preferred
     models sort ahead, cost order kept within each group. An ordering input, never a cut:
     the survivor set is identical with and without it, and no preference outranks a sieve
-    (a preferred never-route row was cut before ordering ever sees it)."""
+    (a preferred never-route row was cut before walk_rank ever sees it). The order is the
+    shake's own: walk_rank stamps each survivor and route reads ``order`` back, so nothing
+    sorts after the nest (ticket ae6bdf48b76d). An unknown domain refuses before the shake."""
     stacks = stacks or load_stacks()
     overlay = overlay if overlay is not None else load_overlay()
+    prefers: list = []
+    if domain is not None:
+        rows = domain_rows(stacks)["rows"]
+        if domain not in rows:
+            raise RouteRefused(
+                f"no domain row named {domain!r} in the domains stack — a vertical is an "
+                f"authored row, never an ad-hoc string; rows: {list(rows)}")
+        prefers = rows[domain].get("prefers") or []
     providers = {p["name"]: p for p in stacks["providers"]["providers"]}
     models = {m["name"]: m for m in stacks["models"]["models"]}
 
@@ -276,30 +300,21 @@ def route(kind: str, model: str | None = None, *, domain: str | None = None,
         subjects[f"{i:03d} {combo['provider']}/{combo['model']}"] = {
             "combo": combo, "provider": p, "model": models.get(combo["model"]),
             "host": overlay.get(combo["provider"]), "kind": kind, "requested_model": model,
+            "prefers": prefers,
         }
 
     shaken = base_nest.shake(the_nest(), subjects,
-                             lambda name, view: SIEVES[name](view))
+                             lambda name, view, *stamps: SIEVES[name](view, *stamps))
     survivors = []
-    for key in sorted(subjects):                      # combos-stack order
-        if shaken["roll_up"][key] == 1.0:
-            view = subjects[key]
-            survivors.append({
-                "provider": view["provider"]["name"],
-                "protocol": view["provider"].get("protocol", "ollama"),
-                "model": view["combo"]["model"],
-                "endpoint": view["host"]["endpoint"],
-                "cash_per_mtoken": view["provider"].get("cash_per_mtoken"),
-            })
-    survivors.sort(key=lambda s: s["cash_per_mtoken"])  # stable: ties keep authored order
-    if domain is not None:
-        rows = domain_rows(stacks)["rows"]
-        if domain not in rows:
-            raise RouteRefused(
-                f"no domain row named {domain!r} in the domains stack — a vertical is an "
-                f"authored row, never an ad-hoc string; rows: {sorted(rows)}")
-        prefers = rows[domain].get("prefers") or []
-        survivors.sort(key=lambda s: 0 if s["model"] in prefers else 1)  # stable reorder
+    for key in shaken["order"]:                       # walk_rank's order, read from the shake
+        view = subjects[key]
+        survivors.append({
+            "provider": view["provider"]["name"],
+            "protocol": view["provider"].get("protocol", "ollama"),
+            "model": view["combo"]["model"],
+            "endpoint": view["host"]["endpoint"],
+            "cash_per_mtoken": view["provider"].get("cash_per_mtoken"),
+        })
     if not survivors:
         raise RouteRefused(
             f"no combo survives the nest for kind={kind!r}"

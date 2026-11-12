@@ -38,6 +38,7 @@
     "why": "cc-read"
   },
   "public_interface": [
-    "bus verb 'ingest' (ticket 95f8c561e742): asks inference_domain 'calls' since the newest ingested call and deposits each resolved generate answer as a node with provenance {source: inference_calls, call_id}; idempotent on call_id"
+    "bus verb 'ingest' (ticket 95f8c561e742): asks inference_domain 'calls' since the newest ingested call and deposits each resolved generate answer as a node with provenance {source: inference_calls, call_id}; idempotent on call_id",
+    "cairn.devices.librarian.cross_domain_questions (ticket 2248911aaf05): the cross-domain question corpus beside it (cross_domain_questions.json, every question verbatim or proposed); load() validates it, raising CorpusRefused naming every lack; plant() lands it as the keyed tree librarian_cross_domain_questions, sequences linked followed-by; CLI `python3 -m cairn.devices.librarian.cross_domain_questions plant`"
   ]
 }

@@ -1,0 +1,36 @@
+{
+  "component": "scratch_bus",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "fixture bus",
+  "published_by_device": true,
+  "public_interface": [
+    "cairn.devices.cairn.tools.scratch_bus.scratch_bus"
+  ],
+  "what": "The cairn device's published fixture bus: scratch_bus(prefix) yields a BusDevice over a scratch transit table that drops when the context exits, and bus_shim(bus, heartbeat) builds the bus's own shim over it. A proof outside the cairn device that needs a bus of its own, with a real store under it and nobody live listening, reaches the bus machine through this module and nothing else.",
+  "why": "Measured 2026-11-11: the build inspector's encapsulation_holds sieve redded seven sites in five proofs (codemother's test_charter_held.py and test_codemother.py; tester's test_a_hollow_seal_is_announced.py, test_the_seal_announces_itself.py and test_the_tester_takes_its_reply.py), each importing cairn.devices.cairn.machines.bus.bus or .shim for a scratch bus and its shim. Their teeth need what only a bus of their own gives: a fixture seal that live codemother never hears, a store that flush writes and undelivered reads, and codemother genuinely unwired. RULE 1 admits a reach into a device only through a tool it publishes, so the cairn device publishes the fixture.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "cc-read"
+  },
+  "entry": "Born 2026-11-11 under ticket a695aee4d89b: two functions over BusDevice.scratch and the BusShim constructor, no new behaviour.",
+  "invoke": "from cairn.devices.cairn.tools.scratch_bus import scratch_bus; then with scratch_bus.scratch_bus('prefix') as bus: and roster.hold(scratch_bus.bus_shim(bus, roster)). Prove: bin/cairn test cairn/devices/cairn/tools/scratch_bus/proofs/test_a_proof_gets_a_bus_of_its_own.py",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): each bus it yields lives on a scratch table that drops on exit. Its voyages ride history.json and state.json beside this charter.",
+  "proof": "proofs/test_a_proof_gets_a_bus_of_its_own.py — a post on the yielded bus is read back and stands undelivered with no shim wired, flush empties the ring into the store, the scratch table is gone after exit, bus_shim returns the bus's own shim over that bus, and the encapsulation sieve admits an outside import of this module while still redding one of the bus machine.",
+  "gates": "Import gate — encapsulation_holds in build_inspector admits a reach into the cairn device through this tool because this charter says published_by_device. Seal: the tester seals the proof into validations/.",
+  "falsifier": "Red if a post on the yielded bus does not stand in its store, if the scratch table outlives the context, if bus_shim builds anything but the bus's own shim, or if this charter stops declaring published_by_device.",
+  "learns": "It does not; it is a fixture, deliberately dumb — the bus's behaviour is the bus machine's to change, and this tool only hands it out.",
+  "how_it_learns": "It does not; it is a fixture, deliberately dumb — the bus's behaviour is the bus machine's to change, and this tool only hands it out.",
+  "traces_to": [
+    "RULE 1 (encapsulation — a device's public interface is the bus plus any client tool it publishes)",
+    "Law 6 (a tool has users; the scratch table is the proof's for the length of the context)",
+    "Law 8 (a fixture bus keeps a fixture seal out of the live codemother)"
+  ],
+  "owner": "None of its own — a tool has users (Law 6): the proofs of codemother and tester that need a bus of their own. Its code is held by the cairn device, which publishes it; CC gates writes to that code and its proofs.",
+  "gated_by": [
+    "CC"
+  ]
+}

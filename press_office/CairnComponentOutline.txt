@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 88. An answered question disappears:
+      takes the next unused number, which is 89. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1130,6 +1130,21 @@ not matter here. The code catches up to this, never the reverse.
                   what a change touched belongs here; nothing hangs off the git
                   post-commit hook.
         9.4.3.3.3 Built with the nest machine (16.2).
+        [Q#88: Once build_inspector moves into CodeMother (ticket 4c4addb09adb,
+                9.4.3 to 9.4.7), how does code outside her reach it? Measured
+                2026-11-12: 105 import sites in 58 files outside her. 23 are
+                code: 18 in tools/base/transitions.py, where a crossing runs its
+                gates; 1 each in tester/hollow.py, question's both_ends_agree
+                probe and the design, intent and sorted doors. 82 are other
+                components' proofs that run a sieve over themselves. Every one
+                becomes a RULE 1 red, because only a published client tool is
+                exempt (2.3.7.1). Q#41's answer says a tool doesn't import
+                machines, so a client tool that wraps the inspector would break
+                that rule too. CC's read: a fifth exception, 2.3.7.1.5.
+                CodeMother publishes one client tool, gates, as the in-process
+                door. A crossing asks a gate there today, and the bus handlers
+                replace it when they land (open-c345). Or do the 18 crossing
+                calls and the 82 proofs go over the bus now?]
     9.4.4 plan_inspector: reads charters' own admissions of what they don't yet do,
           so nothing reads as done while it says otherwise.
     9.4.5 corrosion: catches a constraint that stopped constraining with no decision

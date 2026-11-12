@@ -36,6 +36,8 @@ if str(_REPO_ROOT) not in sys.path:
 from cairn.tools.base.transitions import parse_workflow  # noqa: E402
 from cairn.tools.base.watchme_spec import watchme_spec_error  # noqa: E402
 
+PROOF_TIMEOUT_S = 900  # measured 138 s on 2026-11-12 (every standing base probe's payload runs), over the 120 s default (ticket 8383a32d20c5)
+
 PROVES = {
     "8ecb99998254": {
         "all": "test_base_probes_report_to_the_watch",

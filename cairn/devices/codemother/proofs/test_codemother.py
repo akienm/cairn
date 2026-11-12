@@ -514,9 +514,8 @@ def _fixture_component(tag, *, seal=True, boat=None):
     Returns ``(component_dir, proof_path)``. Every field here was driven empirically
     against the LIVE gate on 2026-09-09, and each one is load-bearing:
 
-    - ``learns`` — the ``learning_declared`` sieve reads THIS key, not the
-      ``how_it_learns`` that 70 charters carry (the known IOU at CLAUDE.md's residues).
-      Writing only ``how_it_learns`` reds the gate.
+    - ``how_it_learns`` — the one key the ``learning_declared`` sieve reads; the retired
+      ``learns`` beside it reds the gate (ticket 96f71a89a0fa).
     - ``claim_provenance`` — must be a non-empty dict or ``claim_provenance`` reds.
     - ``gated_by`` — the hands the fixture's own gate admits.
     - ``state.json`` — must EQUAL ``projector.project(history)`` literally, because
@@ -539,7 +538,6 @@ def _fixture_component(tag, *, seal=True, boat=None):
         "runtime_role": "tool",
         "gated_by": ["codemother", "CC"],
         "how_it_learns": "It does not — a fixture holds no state between runs.",
-        "learns": "It does not — a fixture is born and destroyed inside one proof run.",
         "claim_provenance": {"why": "cc-read", "role": "cc-read"},
     }), encoding="utf-8")
     (comp / "fixture.py").write_text("def nothing():\n    return None\n", encoding="utf-8")

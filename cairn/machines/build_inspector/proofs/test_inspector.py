@@ -47,6 +47,9 @@ PROVES = {
     "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
     "68f1fc073512": {"b": "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket"},
     "339a45cee6a1": {"all": "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)"},
+    # The learning teeth run in order and the live census is the last of them, so it closes
+    # ok only when the one-field, retired-field, unparseable and probe teeth all held.
+    "96f71a89a0fa": {"all": "every live charter answers the learning question with one mouth"},
 }
 
 # The whole inspector runs over the live corpus here, well past the hollow reading's 120s
@@ -119,7 +122,7 @@ def _component(root: Path, name: str, *, charter=True, proof=True, device=True, 
         (d / "intention+why.json").write_text(json.dumps(
             {"component": name, "runtime_role": "tool",
              "gated_by": ["CC"],
-             "learns": "fixture component — does not learn",
+             "how_it_learns": "fixture component — does not learn",
              "public_interface": [],
              "claim_provenance": {"role": "cc-read", "what": "cc-read", "why": "cc-read"}}))
     if proof:
@@ -1046,30 +1049,98 @@ def main() -> None:
     assert inspect(root=root, component="healthy")["clean"], \
         "a charter with no durable_state field must pass silently"
 
-    # ── learning_declared (learning-as-a-pattern) ────────────────────────────
-    # A charter with a blank learns field fires; a populated one passes.
+    # ── learning_declared (learning-as-a-pattern, then one-mouth 96f71a89a0fa) ──
+    # The one field is how_it_learns: blank or absent fires; a populated one passes.
     tooth('learning_declared (learning-as-a-pattern)')
     bad_learn = _component(root, "bad_learns")
     charter = json.loads((bad_learn / "intention+why.json").read_text())
-    charter["learns"] = ""
+    charter["how_it_learns"] = ""
     (bad_learn / "intention+why.json").write_text(json.dumps(charter))
     _reseal(bad_learn)
     f = inspect(root=root, component="bad_learns")["findings"]
     assert [x["method"] for x in f] == ["learning_declared"], \
-        f"a charter with learns: '' must red exactly learning_declared: {f}"
+        f"a charter with how_it_learns: '' must red exactly learning_declared: {f}"
 
     assert inspect(root=root, component="healthy")["clean"], \
-        "a charter with a populated learns field must pass"
+        "a charter with a populated how_it_learns and no learns must pass"
 
-    # A charter with no learns key at all also fires.
+    # A charter with no how_it_learns key at all also fires.
     no_learn = _component(root, "no_learns")
     charter = json.loads((no_learn / "intention+why.json").read_text())
-    del charter["learns"]
+    del charter["how_it_learns"]
     (no_learn / "intention+why.json").write_text(json.dumps(charter))
     _reseal(no_learn)
     f = inspect(root=root, component="no_learns")["findings"]
     assert [x["method"] for x in f] == ["learning_declared"], \
-        f"a charter with no learns key must red exactly learning_declared: {f}"
+        f"a charter with no how_it_learns key must red exactly learning_declared: {f}"
+
+    # The retired key coming back is a second mouth: it reds whatever its value, even
+    # beside a populated how_it_learns (the falsification run the watch requires).
+    tooth('learning_declared refuses the retired field')
+    two = _component(root, "two_mouths")
+    charter = json.loads((two / "intention+why.json").read_text())
+    charter["learns"] = "It does not."
+    (two / "intention+why.json").write_text(json.dumps(charter))
+    _reseal(two)
+    f = inspect(root=root, component="two_mouths")["findings"]
+    assert [x["method"] for x in f] == ["learning_declared"], \
+        f"a charter carrying learns beside how_it_learns must red exactly learning_declared: {f}"
+    assert "retired" in f[0]["about"] and f[0]["values"]["retired"] == "learns", f
+
+    # An unparseable charter reds, and the inspector does not raise over it.
+    tooth('learning_declared reds an unparseable charter')
+    broken = _component(root, "bad_json")
+    (broken / "intention+why.json").write_text('{"component": "bad_json",')
+    from cairn.machines.build_inspector.inspector import learning_declared
+    f = learning_declared({"component": "bad_json"}, broken)
+    assert [x["method"] for x in f] == ["learning_declared"] and "parses" in f[0]["about"] \
+        and f[0]["values"]["error"], f"an unparseable charter must red learning_declared: {f}"
+    (broken / "intention+why.json").write_text("[]")
+    f = learning_declared({"component": "bad_json"}, broken)
+    assert len(f) == 1 and "parses" in f[0]["about"], \
+        f"a charter whose top level is not an object must red learning_declared: {f}"
+    # The whole inspector over unparseable text must not raise. (A "[]" charter raises in
+    # orient's device census, outside this sieve; it is reported there, not caught here.)
+    (broken / "intention+why.json").write_text('{"component": "bad_json",')
+    inspect(root=root, component="bad_json")  # must not raise
+
+    # The watch over the corpus: its census, its trigger and its enough, over scratch roots.
+    tooth('the one-mouth probe reads offenders and the falsification run')
+    import dataclasses
+    import tempfile
+    from cairn.machines.build_inspector.probes import one_mouth_answers_the_learning_question as OM
+    assert dataclasses.is_dataclass(OM.PROBE) and callable(OM.PROBE.carry) \
+        and callable(OM.PROBE.enough), "PROBE must be a Probe with a carry and an enough"
+    with tempfile.TemporaryDirectory() as t:
+        world = Path(t) / "repo"
+        (world / "a").mkdir(parents=True)
+        (world / "b").mkdir()
+        (world / "a" / "intention+why.json").write_text(json.dumps({"how_it_learns": "It does not."}))
+        (world / "b" / "intention+why.json").write_text(
+            json.dumps({"how_it_learns": "Yes, by counting.", "learns": "It does not."}))
+        ctx = {"roots": {"cairn": str(world)}}
+        c = OM.census(world)
+        assert (c["charters"], c["both"], c["contradictions"], c["offenders"]) == \
+            (2, 1, 1, ["b/intention+why.json"]), c
+        assert OM.PROBE.trigger(None, ctx) and not OM.PROBE.enough(ctx), \
+            "one charter with two mouths must trigger the watch and keep it open"
+        (world / "b" / "intention+why.json").write_text(json.dumps({"how_it_learns": "Yes."}))
+        ctx = {"roots": {"cairn": str(world)}}
+        assert not OM.PROBE.trigger(None, ctx) and not OM.PROBE.enough(ctx), \
+            "a clean corpus with no falsification run on record must not clear the watch"
+        v = world / OM._VALIDATION
+        v.parent.mkdir(parents=True)
+        v.write_text(json.dumps([{"verdict": "green",
+                                  "evidence": {"teeth_green": [f"9 — {OM._TOOTH}"]}}]))
+        ctx = {"roots": {"cairn": str(world)}}
+        assert OM.PROBE.enough(ctx), "a clean corpus and a green falsification run clear it"
+
+    # And the live corpus answers once: no charter in this repo carries learns or lacks
+    # how_it_learns (an invariant over live data, not a snapshot of its size).
+    tooth('every live charter answers the learning question with one mouth')
+    live = OM.census()
+    assert live["charters"] > 0 and live["offenders"] == [] and live["both"] == 0, \
+        {k: v for k, v in live.items() if k != "charters"}
 
     # ── claim_provenance (a-claim-carries-its-provenance) ────────────────────
     # A charter with missing or empty claim_provenance fires; a populated one passes.

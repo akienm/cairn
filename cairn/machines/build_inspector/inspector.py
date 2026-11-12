@@ -4202,29 +4202,55 @@ def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
 
 
 def learning_declared(row: dict, comp_dir: Path) -> list[dict]:
-    """A charter does not answer 'how does this component learn?'
+    """A charter does not answer 'how does this component learn?' with exactly one mouth.
 
-    Provenance: ticket learning-as-a-pattern — every component's charter answers
-    the question; 'it does not, because X' is valid; blank or missing is not.
-    Checks presence and non-emptiness of the 'learns' field only — content
-    quality is not this sieve's jurisdiction.
+    Provenance: ticket learning-as-a-pattern (8820913d7a09) — every component's charter
+    answers the question; 'it does not, because X' is valid; blank or missing is not. Then
+    ticket 96f71a89a0fa (one-mouth-answers-the-learning-question): the 2026-08-31 backfill
+    wrote ``learns`` beside the considered ``how_it_learns`` without reading it, and this
+    sieve read the backfill's field, so 69 charters answered twice and 19 contradicted
+    themselves flatly (measured 2026-11-11) while it read green over every one.
+
+    So the one field is ``how_it_learns``, and there are three ways to red, all under this
+    one method so the jurisdiction stays one sieve:
+      (a) ``how_it_learns`` absent, not a string, or blank;
+      (b) the retired key ``learns`` present at all, whatever its value — a retired field
+          that can be re-added is a second mouth waiting to reopen;
+      (c) the charter cannot be read or parsed, or is not a JSON object — a silent ``[]``
+          here was a green over a corrupt file.
+    Content quality is not this sieve's jurisdiction.
     """
     charter_path = comp_dir / "intention+why.json"
     if not charter_path.is_file():
         return []
     try:
         charter = json.loads(charter_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return []
-    learns = charter.get("learns")
-    if isinstance(learns, str) and learns.strip():
-        return []
-    return [_finding(
-        "learning_declared", row["component"],
-        "charter answers 'how does this component learn?'",
-        expected=True, actual=False,
-        charter=str(charter_path),
-    )]
+        if not isinstance(charter, dict):
+            raise ValueError(f"top-level value is {type(charter).__name__}, not an object")
+    except (json.JSONDecodeError, OSError, ValueError, UnicodeDecodeError) as exc:
+        return [_finding(
+            "learning_declared", row["component"],
+            "charter parses, so the learning question can be read",
+            expected=True, actual=False,
+            charter=str(charter_path), error=str(exc),
+        )]
+    found = []
+    answer = charter.get("how_it_learns")
+    if not (isinstance(answer, str) and answer.strip()):
+        found.append(_finding(
+            "learning_declared", row["component"],
+            "charter answers 'how does this component learn?'",
+            expected=True, actual=False,
+            charter=str(charter_path), field="how_it_learns",
+        ))
+    if "learns" in charter:
+        found.append(_finding(
+            "learning_declared", row["component"],
+            "charter answers the learning question with one mouth (learns is retired)",
+            expected=True, actual=False,
+            charter=str(charter_path), retired="learns",
+        ))
+    return found
 
 
 def claim_provenance(row: dict, comp_dir: Path) -> list[dict]:

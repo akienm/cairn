@@ -103,8 +103,13 @@ def _drive_dispatcher() -> list[tuple[str, bool]]:
 
 def _drive_python() -> list[tuple[str, bool]]:
     out = []
-    from cairn.devices.cairn.machines.ground_loop.cli import main as gl_main
-    out.append(("ground_loop HELP", _quiet(gl_main, ["HELP"]) != 0))
+    # The ground loop and the harbor master are the cairn device's: reached as the commands
+    # he types, never by importing their code (RULE 1).
+    def cairn(*a):
+        return subprocess.run([*bash_script_argv(_DISPATCHER), *a], capture_output=True,
+                              text=True, timeout=120)
+    gl = cairn("groundloop", "--HELP")
+    out.append(("ground_loop --HELP", gl.returncode != 0))
 
     from cairn.tools.orient import orient
     # IMPORTS, not GIT: the git verb reads the commons beside the repo, and a tree with no
@@ -138,10 +143,10 @@ def _drive_python() -> list[tuple[str, bool]]:
     got = BaseDevice._handle_show(fx, {"body": {"what": "MAP"}})
     out.append(("base _handle_show MAP", got.get("accepted") is not True))
 
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
-    fleet = {"open": [{"label": "PROVED"}, {"label": "BUILDME"}], "in_port": [], "findings": []}
-    out.append(("harbor_master filter OPEN",
-                len(HarborMasterDevice._filter_fleet(fleet, "OPEN")["open"]) != 1))
+    strip = lambda s: "\n".join(l for l in s.splitlines() if not l.startswith("Cached at:"))
+    hm_lo, hm_up = cairn("harbor_master", "show", "map", "open"), cairn("harbor_master", "show", "map", "OPEN")
+    out.append(("harbor_master show map OPEN",
+                hm_up.returncode != hm_lo.returncode or strip(hm_up.stdout) != strip(hm_lo.stdout)))
 
     return out
 

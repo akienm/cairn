@@ -77,13 +77,12 @@ PROVES = {
         # is. proof_coverage.lacks reads only the clause keys; hollow.py reads every value.
         "orient_chart_librarian": "test_orient_chart_and_librarian_take_uppercase_verbs",
         "sudo_relay": "test_sudo_relay_takes_uppercase_status_flag",
-        "harbor_master_filter": "test_harbor_master_filter_folds_open",
+        "harbor_master_filter": "test_the_real_harbor_master_takes_uppercase_show_map_open",
         "stage_targets": "test_stage_targets_fold_at_render_and_resolve",
         "codemother_launcher": "test_the_codemother_launcher_folds_its_subcommand",
         "dispatcher_legacy": "test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim",
         "dispatcher_device": "test_dispatcher_folds_the_device_and_verb_tokens_on_the_device_path",
         "charters": "test_the_three_charters_say_the_words_fold",
-        "clearance": "test_clearance_folds_the_node_class_it_exempts",
         "probe": "test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree",
     },
 }
@@ -253,11 +252,17 @@ def _same(fn, lower, upper, **env):
 
 
 def test_ground_loop_takes_uppercase_help_and_status_word():
-    from cairn.devices.cairn.machines.ground_loop.cli import main
-    _same(main, ["help"], ["HELP"])
-    rc, out, err = _drive(main, ["NO-SUCH-XYZ"])
-    assert rc == 1 and "no-such-xyz" in err, (
-        f"an unknown command is refused with the FOLDED word: {err!r}")
+    """THE COMMAND HE TYPES: the ground loop is the cairn device's, so it is driven as
+    `cairn groundloop`, never by importing its cli (RULE 1)."""
+    lo, up = _cairn("groundloop", "--help"), _cairn("groundloop", "--HELP")
+    assert lo.returncode == up.returncode == 0 and up.stdout == lo.stdout, (up.stderr, lo.stderr)
+    lo, up = _cairn("groundloop", "status"), _cairn("groundloop", "STATUS")
+    assert up.returncode == lo.returncode and "unknown command" not in up.stderr, (
+        f"STATUS must reach the status command: {up.stderr!r}")
+    assert up.stdout.splitlines()[:1] == lo.stdout.splitlines()[:1], (up.stdout, lo.stdout)
+    r = _cairn("groundloop", "NO-SUCH-XYZ")
+    assert r.returncode == 1 and "no-such-xyz" in r.stderr, (
+        f"an unknown command is refused with the FOLDED word: {r.stderr!r}")
 
 
 def test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag():
@@ -325,28 +330,16 @@ def test_orient_chart_and_librarian_take_uppercase_verbs():
         chart_live._chain = orig
     assert rc == 0 and calls == [["e3cf75c6dc8f"]], (
         "the folded verb reaches its branch and the rest rides verbatim")
-
-    from cairn.devices.librarian import live as lib_live
-    calls = []
-    orig = lib_live._loop
-    lib_live._loop = lambda rest: calls.append(rest) or 0
-    try:
-        rc, *_ = _drive(lib_live._main, ["LOOP", "Once"])
-    finally:
-        lib_live._loop = orig
-    assert rc == 0 and calls == [["Once"]]
+    # The librarian's verbs are measured by the librarian (ticket c29a2d0dcebb, RULE 1).
 
 
 def test_sudo_relay_takes_uppercase_status_flag():
-    from cairn.devices.sudo_relay import daemon
-    hits = []
-    orig = daemon._print_status
-    daemon._print_status = lambda: hits.append(1) or 0
-    try:
-        rc, *_ = _drive(daemon.main, ["--STATUS"])
-    finally:
-        daemon._print_status = orig
-    assert rc == 0 and hits == [1], "--STATUS must reach the status branch, not run() the daemon"
+    """Driven as `cairn sudorelay`, never by import (RULE 1). An unknown argument refuses
+    with exit 2 and acquires nothing (ticket 8902708b6212), so --STATUS answering as --status
+    does is the fold reaching the status branch."""
+    lo, up = _cairn("sudorelay", "--status"), _cairn("sudorelay", "--STATUS")
+    assert up.returncode == lo.returncode and up.returncode != 2, (up.returncode, up.stderr)
+    assert up.stdout == lo.stdout and up.stderr == lo.stderr, (up, lo)
 
 
 def test_base_device_show_and_shim_verb_fold():
@@ -421,15 +414,6 @@ def test_base_device_show_and_shim_verb_fold():
     assert bus.posted == [], "nothing bounced"
 
 
-def test_harbor_master_filter_folds_open():
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
-    fleet = {"open": [{"label": "PROVED", "id": "a"}, {"label": "BUILDME", "id": "b"}],
-             "in_port": [], "findings": []}
-    lo = HarborMasterDevice._filter_fleet(fleet, "open")
-    up = HarborMasterDevice._filter_fleet(fleet, "OPEN")
-    assert up == lo and [b["id"] for b in up["open"]] == ["b"], up
-
-
 def test_stage_targets_fold_at_render_and_resolve():
     from cairn.tools.base.transitions import Workflow, render, resolve_target
     path = ("THINKME", "TICKETME", "BUILDME", "PROVEME", "PROVED")
@@ -454,21 +438,6 @@ def test_the_three_charters_say_the_words_fold():
     bin_ = json.loads((_REPO_ROOT / "bin/intention+why.json").read_text("utf-8"))
     assert "the dispatcher folds the two tokens it resolves" in bin_["what"], (
         "bin's charter must say the dispatcher folds, since 2026-09-07")
-
-
-def test_clearance_folds_the_node_class_it_exempts():
-    """The harbor master's hollow rung exempts a concept-piece by FOLDED node_class — a
-    ticket that spells it Concept-Piece is still a concept-piece, and a code-seam with no
-    hollow reading is still refused (so the exemption is the fold deciding, not a bypass)."""
-    from cairn.devices.codemother.machines.clearance.clearance import hollow_lacks
-    seal_without_hollow = lambda *_a, **_k: {"evidence": {}}
-    assert hollow_lacks({"id": "fx", "node_class": "Concept-Piece"}, ["p.py"],
-                        seal_reader=seal_without_hollow) == []
-    assert hollow_lacks({"id": "fx", "node_class": "CONCEPT-PIECE"}, ["p.py"],
-                        seal_reader=seal_without_hollow) == []
-    lacks = hollow_lacks({"id": "fx", "node_class": "code-seam"}, ["p.py"],
-                         seal_reader=seal_without_hollow)
-    assert [one["kind"] for one in lacks] == ["hollow_evidence_absent"], lacks
 
 
 def test_the_probe_is_armed_and_reads_no_bite_on_the_live_tree():

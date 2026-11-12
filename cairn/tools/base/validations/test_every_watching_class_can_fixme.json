@@ -2,19 +2,20 @@
   {
     "claim": "proof test_every_watching_class_can_fixme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-11T09:13:49",
+    "date": "2026-11-11T22:13:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_every_watching_class_that_builds_declares_the_fixme_edge\n.\n  ok   test_a_back_edge_lands_at_fixme_on_every_watching_class\n                                                                       [100%]\n2 passed in 0.06s",
+      "stdout_tail": ".\n  ok   test_every_watching_class_that_builds_declares_the_fixme_edge\n.\n  ok   test_a_back_edge_lands_at_fixme_on_every_watching_class\n.\n  ok   test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme\n                                                                      [100%]\n3 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_every_watching_class_that_builds_declares_the_fixme_edge",
-        "test_a_back_edge_lands_at_fixme_on_every_watching_class"
+        "test_a_back_edge_lands_at_fixme_on_every_watching_class",
+        "test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme"
       ],
       "teeth_red": [],
-      "test": "test-561741901cce",
+      "test": "test-995be2538dd7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "4f6c8b4854cceb99803a05bd486330d5bca7188dcbc8cc7ec825fb1084aec378",
+        "proof": "8f3fe45562723e8785fb6600f5b3dd5438706e08039fa114717baec04e940454",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -41,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-561741901cce",
-      "source_fingerprint": "190e0ff18157df41b499eb705853fd39326fc3881f3511083fc80b4e74d7f03d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-995be2538dd7",
+      "source_fingerprint": "29a89ebf7ea1f48f5892420efd880e512f32974f8480af692d939e35ec1e0231",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -59,7 +60,7 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
+        "cairn/devices/tester": "f4f715ad85034f02fa768c0c0f300e2183b9e896e7cfd42a25784f9424b07483",
         "cairn/machines/build_inspector": "ee71e5ee3ab85c1d97685105e7980846502e5c68c84f0318f996aa3b2392c43f",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "6e57b7a3d3ae2c732904987331124f8054184f31e7c75ea11bf7447e7739efe7",
@@ -70,31 +71,34 @@
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
         "cairn/tools/proof_coverage": "78cf131ddc73f34c0245a0c995a8822723df65d5eee04e1f13cae7ceda01a500",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef"
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/system_word": "4b17e1dca968731b5db13abddbd411e856a5fad29f2a360e0a7485223ce841b6"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-410756-ue346v7h/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-813963-n70bbesh/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 8,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261111.161347.640307.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161347.650823.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161347.656650.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261111.161347.662202.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261112.051333.591922.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.603156.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.609131.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.616322.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.622404.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.629121.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261112.051333.635906.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 525721936,
-          "disk_bytes": 562102272,
-          "entries": 14221,
+          "bytes": 527827279,
+          "disk_bytes": 568733696,
+          "entries": 15743,
           "builds": 1,
-          "reuses": 19
+          "reuses": 1
         }
       }
     },

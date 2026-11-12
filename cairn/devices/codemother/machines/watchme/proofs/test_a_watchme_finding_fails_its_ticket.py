@@ -45,6 +45,9 @@ PROVES = {
     "794835a34ec9": {
         "4": "test_a_red_finding_fails_the_ticket_into_the_trouble_lane",
     },
+    "3ee0d23164e6": {
+        "all": "test_a_red_finding_fails_a_host_seam_back_to_fixme_before_pocme",
+    },
 }
 
 _TID = "fe12dc34ba56"
@@ -102,8 +105,12 @@ class _Spy:
         return {"id": f"post-{len(self.posts)}"}
 
 
+_HOST_SEAM_AT_WATCHME = ("host-seam@v1: THINKME -> TICKETME -> RESEARCHME -> POCME -> PROVEME -> "
+                         "[WATCHME(the host still holds)] -> PROVED")
+
+
 @contextmanager
-def _world(cursor: str = "PROVED", *, watchme=None):
+def _world(cursor: str = "PROVED", *, watchme=None, workflow=None):
     import cairn.tools.base.ticket_file as tf
     tmp = scratch_dir("watchme-gate-")
     roots = {"repo": tmp / "repo", "commons": tmp / "commons", "instance": tmp / "instance"}
@@ -121,8 +128,9 @@ def _world(cursor: str = "PROVED", *, watchme=None):
     plan.write_text(json.dumps({"id": _TID, "title": "a watched fixture",
                                 "owning_intention": "comp/intention+why.json"}, indent=2) + "\n")
     spec = {"probe": "comp/probes/p.py"} if watchme is None else watchme
-    tf.state_path(plan).write_text(json.dumps({"workflow_and_state": _wf(cursor),
-                                               "node_class": "code-seam", "watchme": spec},
+    wf = workflow or _wf(cursor)
+    tf.state_path(plan).write_text(json.dumps({"workflow_and_state": wf,
+                                               "node_class": wf.split("@")[0], "watchme": spec},
                                               indent=2) + "\n")
     was = tf._TICKETS
     tf._TICKETS = store
@@ -189,6 +197,21 @@ def test_a_red_finding_fails_the_ticket_into_the_trouble_lane():
         found = "\n".join(p.read_text("utf-8", errors="replace") for p in w["tmp"].rglob("*")
                           if p.is_file() and p.suffix in (".json", ".jsonl"))
         assert ident in found, f"no trouble {ident} in the fixture roots"
+
+
+def test_a_red_finding_fails_a_host_seam_back_to_fixme_before_pocme():
+    """Ticket 3ee0d23164e6: host-seam v1 has no BUILDME, and Akien's answer to open-8bc1eaf1f568
+    puts its FIXME before POCME. A red finding over a host-seam@v1 ticket at WATCHME answers
+    acted='fixme' and stands the cursor at [FIXME] directly before POCME."""
+    import cairn.tools.base.ticket_file as tf
+    from cairn.tools.base.transitions import parse_workflow
+    with _world(workflow=_HOST_SEAM_AT_WATCHME) as w:
+        reply, _spy = _watch(w, {"ticket": _TID, "holds": False, "finding": "fixture finding"})
+        assert reply.get("accepted") is True and reply.get("acted") == "fixme", reply
+        st = json.loads(tf.state_path(w["plan"]).read_text("utf-8"))
+        got = parse_workflow(st["workflow_and_state"])
+        assert got.here == "FIXME", st["workflow_and_state"]
+        assert got.path[got.cursor + 1] == "POCME", st["workflow_and_state"]
 
 
 def test_a_green_finding_or_a_ticket_not_at_rest_moves_nothing():
@@ -278,6 +301,7 @@ if __name__ == "__main__":
     checks = [
         test_codemother_holds_the_watch_and_the_harbor_does_not,
         test_a_red_finding_fails_the_ticket_into_the_trouble_lane,
+        test_a_red_finding_fails_a_host_seam_back_to_fixme_before_pocme,
         test_a_green_finding_or_a_ticket_not_at_rest_moves_nothing,
         test_a_malformed_watch_is_refused_by_name,
         test_no_standing_probe_still_posts_to_the_harbor,

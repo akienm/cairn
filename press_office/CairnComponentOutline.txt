@@ -73,7 +73,13 @@ not matter here. The code catches up to this, never the reverse.
                   boundaries in the way (4.5.2).
         2.3.7.1.3 Trouble: it has to be able to report when nothing else can, so a
                   direct line makes sense for recovery (6.3.4).
-    2.3.8 Every device has the panes the base shim defines (17.1.3.5.2), drawn by
+        2.3.7.1.4 Scratch bus: a proof needs a bus it controls (a real store, stub
+                  devices, nobody live listening), so the cairn device publishes
+                  scratch_bus, the way db_domain's client carries scratch(). Akien
+                  2026-11-12, answering Q#86 (8 proof imports of the bus machine
+                  in tester, codemother and librarian, measured 2026-11-11):
+                  "works for me".
+    2.3.8Every device has the panes the base shim defines (17.1.3.5.2), drawn by
           the web server (15):
       2.3.8.1 status: lights, switches, values.
       2.3.8.2 controls: settings, or whatever the device can be told to change.
@@ -663,16 +669,7 @@ not matter here. The code catches up to this, never the reverse.
                    2026-11-09, answering Q#76 (ticket 5183005fa134's two gaps: where
                    bus_client's public interface is written and what the artifact
                    door is; the build's starting commit 9b327b6a): "yes write them in".
-    5.5.4 TOOLS: base, public_feed. VERBS: none.
-      [Q#86: Proofs in tester, codemother and librarian (8 imports, measured
-              2026-11-11) stand up a scratch bus in their own process by importing
-              the cairn device's bus machine (BusDevice.scratch, BusShim), so they
-              can drive their shim against stub devices. Does the cairn device get
-              a fourth exception at 2.3.7.1, a published scratch-bus tool for proofs? Or
-              do those teeth ride the live bus through bus_client and lose their
-              stubs? CC's read: publish it. A proof needs a bus it controls, and
-              db_domain's published client already carries scratch() the same
-              way.]
+    5.5.4 TOOLS: base, public_feed, scratch_bus (2.3.7.1.4). VERBS: none.
   5.6 ground_loop (machine): the heartbeat
     5.6.1 PURPOSE: The one timed thing in an event driven system.
     5.6.2 WHY: "I once made daemons for everything and couldn't shut them down." So

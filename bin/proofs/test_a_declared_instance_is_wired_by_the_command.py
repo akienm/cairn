@@ -70,7 +70,9 @@ def tooth_6() -> None:
         mouth = base / "mouth"                                     # never the live bus
         mouth.write_text("#!/usr/bin/env bash\necho \"BUS $*\" >&2; exit 3\n")
         mouth.chmod(0o755)
-        env = {**os.environ, "CAIRN_BUS_MOUTH": str(mouth), "CAIRN_INSTANCE_ROOT": str(root), "CAIRN_BOOT_LOG": str(base / "bootlog"),
+        # no CAIRN_BUS_* rides in from the caller; the box names its own bus home (96c1 FIXME 1)
+        env = {**{k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")},
+               "CAIRN_BUS_HOME": str(base / "bus"), "CAIRN_BUS_MOUTH": str(mouth), "CAIRN_INSTANCE_ROOT": str(root), "CAIRN_BOOT_LOG": str(base / "bootlog"),
                "CAIRN_CMD_DIR": str(base / "nocmd")}
 
         def run(*args: str) -> subprocess.CompletedProcess:
@@ -83,8 +85,16 @@ def tooth_6() -> None:
         got["declared"] = (r.returncode == 0 and r.stdout.strip() == want,
                            f"rc={r.returncode} out={r.stdout!r} err={r.stderr[-300:]!r}")
         b0 = root / DEV / "0" / "bin"                              # (b) a real bin lacking a new verb
-        b0.mkdir(parents=True)
-        (b0 / "stub").symlink_to(cls / "stub")
+        # Since ticket 96c1c2ea5ce9 run (a) walks the floor and lays every declared instance's
+        # bin, instance 0's included, so b0 may already stand. Whatever stands there must be the
+        # walk's link to the class stub; only an absent one is laid here (Linux, 2026-11-13:
+        # FileExistsError on the old bare mkdir).
+        b0.mkdir(parents=True, exist_ok=True)
+        if not (b0 / "stub").is_symlink() and not (b0 / "stub").exists():
+            (b0 / "stub").symlink_to(cls / "stub")
+        got["stub_is_the_walks"] = ((b0 / "stub").is_symlink()
+                                    and (b0 / "stub").resolve() == (cls / "stub").resolve(),
+                                    f"stub at {b0 / 'stub'} is_link={(b0 / 'stub').is_symlink()}")
         _stub(cls / "second")
         r = run(DEV, "second")
         want = str(b0 / "second")

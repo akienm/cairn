@@ -49,7 +49,10 @@ def _env(home: Path) -> dict:
     d.mkdir(exist_ok=True)
     (d / "sudo").write_text("#!/bin/sh\necho 'sudo: a password is required' >&2\nexit 1\n")
     (d / "sudo").chmod(0o755)
-    env = dict(os.environ)
+    # the box owns its bus (FIXME 1, 2026-11-13): no CAIRN_BUS_* rides in from the caller, so a
+    # scratch box never dials a far or live bus (the other-root eviction 50ca14d4489e measured)
+    env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
+    env["CAIRN_BUS_HOME"] = str(home / "bus")
     env["PATH"] = f"{d}:{env.get('PATH', '')}"
     env["CAIRN_INSTANCE_ROOT"] = str(home / "devices")
     env.setdefault("CAIRN_VENV", str(Path.home() / ".cairn" / "venv"))

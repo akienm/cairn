@@ -1,29 +1,29 @@
 [
   {
     "claim": "proof test_a_host_seam_seals_on_this_box_only.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T14:47:15",
+    "caller": "cairn test",
+    "date": "2026-11-13T16:45:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "         green  /tmp/dfe6-host-seam-scratch.4026531836-3609511-m7_5f75f/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3609511-m7_5f75f/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n  ok   test_a_green_verify_seals_this_box_and_stands_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3609511-i39x0hkn/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3609511-i39x0hkn/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n       why: the seal on the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3609511-i39x0hkn/host-testing-dfe6c1432fc8.json is green, dated 2026-11-13T21:47:14+00:00 — and the HOST HAS DRIFTED since: kernel was '7.0.0-43-generic', is 'testing-dfe6c1432fc8-kernel'. Re-run the verify (the host-seam RE-VERIFY gate: the seal expires)\n  ok   test_a_moved_host_fact_reads_not_proven\n         red  /tmp/dfe6-host-seam-scratch.4026531836-3609511-1es8pfcv/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed red -> /tmp/dfe6-host-seam-scratch.4026531836-3609511-1es8pfcv/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n  ok   test_a_red_verify_seals_red_and_is_not_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3609511-laclsu8k/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3609511-laclsu8k/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n       why: the seal on the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3609511-laclsu8k/host-testing-dfe6c1432fc8.json is green, dated 2026-11-13T21:47:14+00:00 — but the intention moved since: its fingerprint was 39340d8aa2e1… and is 4c97abfd6f5a… now. Re-run the verify (Law 3)\n  ok   test_an_edited_intention_reads_not_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/host-testing-dfe6c1432fc8.json on testing-dfe6-other-box\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/validations/host-testing-dfe6c1432fc8/testing-dfe6-other-box.json\n       why: no VALIDATION has sealed the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/host-testing-dfe6c1432fc8.json on 'akiendelllinux' — /tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/validations/host-testing-dfe6c1432fc8/akiendelllinux.json does not exist. A host-seam is proven per box: run `cairn test --host-seam /tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/host-testing-dfe6c1432fc8.json --seal` on this box (Law 8)\n  ok   test_another_boxs_record_is_not_proven_here\n\nGREEN",
+      "stdout_tail": "         green  /tmp/dfe6-host-seam-scratch.4026531836-3744829-hrcie0x2/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3744829-hrcie0x2/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n  ok   test_a_green_verify_seals_this_box_and_stands_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3744829-evlwk8rz/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3744829-evlwk8rz/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n       why: the seal on the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3744829-evlwk8rz/host-testing-dfe6c1432fc8.json is green, dated 2026-11-13T23:45:41+00:00 — and the HOST HAS DRIFTED since: kernel was '7.0.0-43-generic', is 'testing-dfe6c1432fc8-kernel'. Re-run the verify (the host-seam RE-VERIFY gate: the seal expires)\n  ok   test_a_moved_host_fact_reads_not_proven\n         red  /tmp/dfe6-host-seam-scratch.4026531836-3744829-oxsi66gi/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed red -> /tmp/dfe6-host-seam-scratch.4026531836-3744829-oxsi66gi/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n  ok   test_a_red_verify_seals_red_and_is_not_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3744829-8_gyvrl0/host-testing-dfe6c1432fc8.json on akiendelllinux\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3744829-8_gyvrl0/validations/host-testing-dfe6c1432fc8/akiendelllinux.json\n       why: the seal on the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3744829-8_gyvrl0/host-testing-dfe6c1432fc8.json is green, dated 2026-11-13T23:45:41+00:00 — but the intention moved since: its fingerprint was 39340d8aa2e1… and is 4c97abfd6f5a… now. Re-run the verify (Law 3)\n  ok   test_an_edited_intention_reads_not_proven\n         green  /tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/host-testing-dfe6c1432fc8.json on testing-dfe6-other-box\n         sealed green -> /tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/validations/host-testing-dfe6c1432fc8/testing-dfe6-other-box.json\n       why: no VALIDATION has sealed the host-seam /tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/host-testing-dfe6c1432fc8.json on 'akiendelllinux' — /tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/validations/host-testing-dfe6c1432fc8/akiendelllinux.json does not exist. A host-seam is proven per box: run `cairn test --host-seam /tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/host-testing-dfe6c1432fc8.json --seal` on this box (Law 8)\n  ok   test_another_boxs_record_is_not_proven_here\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "/tmp/dfe6-host-seam-scratch.4026531836-3609511-m7_5f75f/host-testing-dfe6c1432fc8.json on akiendelllinux",
+        "/tmp/dfe6-host-seam-scratch.4026531836-3744829-hrcie0x2/host-testing-dfe6c1432fc8.json on akiendelllinux",
         "test_a_green_verify_seals_this_box_and_stands_proven",
-        "/tmp/dfe6-host-seam-scratch.4026531836-3609511-i39x0hkn/host-testing-dfe6c1432fc8.json on akiendelllinux",
+        "/tmp/dfe6-host-seam-scratch.4026531836-3744829-evlwk8rz/host-testing-dfe6c1432fc8.json on akiendelllinux",
         "test_a_moved_host_fact_reads_not_proven",
         "test_a_red_verify_seals_red_and_is_not_proven",
-        "/tmp/dfe6-host-seam-scratch.4026531836-3609511-laclsu8k/host-testing-dfe6c1432fc8.json on akiendelllinux",
+        "/tmp/dfe6-host-seam-scratch.4026531836-3744829-8_gyvrl0/host-testing-dfe6c1432fc8.json on akiendelllinux",
         "test_an_edited_intention_reads_not_proven",
-        "/tmp/dfe6-host-seam-scratch.4026531836-3609511-xvtjzb50/host-testing-dfe6c1432fc8.json on testing-dfe6-other-box",
+        "/tmp/dfe6-host-seam-scratch.4026531836-3744829-u7m2wa_1/host-testing-dfe6c1432fc8.json on testing-dfe6-other-box",
         "test_another_boxs_record_is_not_proven_here"
       ],
       "teeth_red": [
-        "/tmp/dfe6-host-seam-scratch.4026531836-3609511-1es8pfcv/host-testing-dfe6c1432fc8.json on akiendelllinux"
+        "/tmp/dfe6-host-seam-scratch.4026531836-3744829-oxsi66gi/host-testing-dfe6c1432fc8.json on akiendelllinux"
       ],
-      "test": "test-8c33722a1ea4",
+      "test": "test-5c55f3302c1d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +33,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e7a6d65fce17d0b18e3d7bd768d2f40d632ffa2622f717986e4d4a885dfa65c6",
+        "proof": "7902430a5f0061ee47da796f673b2887b4c7479dc441eead45f602c581fa7481",
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -45,13 +45,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8c33722a1ea4",
-      "source_fingerprint": "18b3ba38454ce416952d170746eda3b5f38eedef79b8bd511d0529dbd07f4151",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5c55f3302c1d",
+      "source_fingerprint": "5fc8b339f5cbcfd41cab00f96f2c096f8f7a7a4bf5cad0a0b8b64d02e23d3cc5",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -66,16 +67,16 @@
       ],
       "reached": {
         "cairn/tools/artifact": "0e2b00e166adc243defac562d7da4d2074dc9ccb6719a4c0cd7a748db5f981b3",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
+        "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
         "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
         "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
-        "cairn/tools/validation_store": "e35b3cf866d5402f4d23e18048570e75111a506e35ce3fa599bad1530d0a7e93"
+        "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-8d3hwumv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3744600-7d8a58gy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -84,11 +85,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 531911073,
+          "disk_bytes": 575983616,
+          "entries": 16888,
           "builds": 1,
-          "reuses": 102
+          "reuses": 0
         }
       }
     },

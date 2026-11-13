@@ -248,7 +248,7 @@ def _mod(name: str):
 
 
 def r_inbox(t, patch):
-    got = [(x.get("id"), x.get("title"), str(x.get("source", "")).rsplit("/", 1)[-1])
+    got = [(x.get("id"), x.get("title"), Path(str(x.get("source", ""))).name)
            for x in _mod("cairn.tools.operator_inbox.inbox")._scan_tickets(t)]
     return got == [(TID, "a split fixture", PLAN + ".json")], got
 
@@ -280,7 +280,7 @@ def r_skill_block(t, patch):
     i.mkdir()
     (i / "2026-10-30-a-fixture-idea.json").write_text(json.dumps({"berth": "/nowhere/idea-berth.json"}))
     got = _mod("cairn.machines.skill_block.skill_block").berth_ticket_cursors(tickets=t, ideas=i)
-    return "/nowhere/idea-berth.json" in repr(got), got
+    return str(Path("/nowhere/idea-berth.json").resolve()) in got, got
 
 
 def r_does_optional(t, patch):
@@ -494,7 +494,7 @@ def r_whatsnext(t, patch):
     (fake / "bin" / "cmd").mkdir(parents=True)
     shutil.copy2(REPO / "bin" / "cmd" / "whatsnext", fake / "bin" / "cmd" / "whatsnext")
     (fake / "cairn").symlink_to(REPO / "cairn", target_is_directory=True)
-    p = subprocess.run(["bash", str(fake / "bin" / "cmd" / "whatsnext")], capture_output=True,
+    p = subprocess.run([shutil.which("bash") or "bash", (fake / "bin" / "cmd" / "whatsnext").as_posix()], capture_output=True,
                        text=True, timeout=120)
     got = (p.stdout + p.stderr).strip()[-300:]
     return got == "no open tickets carry stage_needs.", got

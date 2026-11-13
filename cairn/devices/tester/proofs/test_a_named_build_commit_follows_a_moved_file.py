@@ -31,6 +31,10 @@ PROVES = {
         "3": "test_a_commit_on_the_charted_path_is_still_accepted",
         "4": "test_the_live_87a7_build_anchors_at_its_parent",
     },
+    "18cd321cd045": {
+        "1": "test_off_the_charting_box_the_fixture_anchors_87a7",
+        "2": "test_a_berth_that_moved_from_the_fixture_reds",
+    },
 }
 
 FIXTURE = "f1x75e1b7302"
@@ -120,7 +124,24 @@ def test_the_live_87a7_build_anchors_at_its_parent():
     """Clause 4, live: 87a7f1c7ae21 charts cairn/tools/base/bus_client.py, which moved to
     cairn/tools/bus_client/bus_client.py before its build 18e1923d. Its named build_commits
     anchor at 18e1923d^ — never a refusal, never a later commit (Law 8). Invariant, not a
-    snapshot: the parent is read from git, not written here."""
+    snapshot: the parent is read from git, not written here. The list is the measured fixture
+    (ticket 18cd321cd045); where the berth answers, it must equal the fixture."""
+    _live_87a7()
+
+
+# MEASURED 2026-11-13 on akiendelllinux (ticket 18cd321cd045): hollow.writes_to over 87a7's
+# decompose berth. Berths are instance-space and stand only on the charting box, so off it
+# writes_to raised HollowUnmeasurable and the tooth read red for a reason about the box.
+_BERTH_WRITES_TO_87A7 = {
+    "berth": "decompose-20260906T111035-2a7c006fa92f",
+    "measured": "2026-11-13 on akiendelllinux",
+    "writes_to": ["cairn/devices/inference_domain/device.py",
+                  "cairn/devices/inference_domain/proofs/test_bus_infer.py",
+                  "cairn/tools/base/bus_client.py"],
+}
+
+
+def _live_87a7(berths_root=None) -> None:
     from cairn.devices.tester.hollow import (COMMONS, _roots, instrument_set, proven_by,
                                              writes_to)
     tid, first = "87a7f1c7ae21", "18e1923d06e13995084b72751801d4ccfd5d9f17"
@@ -130,7 +151,13 @@ def test_the_live_87a7_build_anchors_at_its_parent():
     # The files are what 87a7's chart CLAIMS and the instrument is its proofs, read the way
     # ``measure`` reads them — never typed here, so the departed path stays in the chart that
     # named it rather than living on as a literal in class-space (ticket 05662f9e9bc9).
-    files = writes_to(ticket)
+    files = list(_BERTH_WRITES_TO_87A7["writes_to"])
+    try:
+        live = writes_to(ticket, berths_root=berths_root)
+    except HollowUnmeasurable:
+        live = None
+    assert live is None or live == files, (
+        f"{tid}: the berth's writes_to moved from the fixture: {live} != {files}")
     instrument = instrument_set(proven_by(ticket), _REPO_ROOT)
     try:
         f = build_anchor(ticket, files, roots=_roots(), repo_root=_REPO_ROOT, instrument=instrument)
@@ -139,6 +166,29 @@ def test_the_live_87a7_build_anchors_at_its_parent():
     parent = subprocess.run(["git", "-C", str(_REPO_ROOT), "rev-parse", f"{first}^"],
                             capture_output=True, text=True, env=git_env()).stdout.strip()
     assert f["commit"] == parent, (f, parent)
+
+
+def test_off_the_charting_box_the_fixture_anchors_87a7():
+    """18cd321cd045 clause 1: with a berth store that holds no 87a7 berth (every box but the one
+    that charted it), the tooth is green and anchors 87a7 at 18e1923d^."""
+    _live_87a7(berths_root=scratch_dir("testing-18cd321cd045-empty-"))
+
+
+def test_a_berth_that_moved_from_the_fixture_reds():
+    """18cd321cd045 clause 2: a decompose berth claiming 87a7f1c7ae21 with a writes_to that
+    differs from the fixture reds, naming the ticket."""
+    berths = scratch_dir("testing-18cd321cd045-moved-")
+    berth = berths / "0" / "packets" / "decompose-20260906T111035-18cd321cd045.json"
+    berth.parent.mkdir(parents=True)
+    berth.write_text(json.dumps({"ticket": "87a7f1c7ae21", "stage": "decompose",
+                                 "sub_problems": [{"what": "moved", "kind": "build",
+                                                   "writes_to": ["cairn/tools/base/bus_client.py"]}]}))
+    try:
+        _live_87a7(berths_root=berths)
+    except AssertionError as e:
+        assert "87a7f1c7ae21" in str(e) and "moved from the fixture" in str(e), str(e)
+    else:
+        raise AssertionError("a berth whose writes_to differs from the fixture read green")
 
 
 if __name__ == "__main__":

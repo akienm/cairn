@@ -43,6 +43,10 @@ PROVES = {
     },
     # 45c168cc1ff1 clause (1): no row from the loop proof reaches into the tester.
     "45c168cc1ff1": {"1": "test_no_foreign_row_lands_on_the_tester"},
+    "4356ea1d8755": {
+        "1": "test_the_run_verb_tooth_ignores_a_far_session_bus",
+        "2": "test_the_scratch_bus_goes_with_its_home",
+    },
 }
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -57,15 +61,47 @@ def test_no_foreign_row_lands_on_the_tester():
         f"{b['file']}:{b['line']} {b['module']}" for b in rows[:10])
 
 
-def _ask_run(proof: Path) -> dict:
+def _ask_run(proof: Path, home: Path | None = None) -> dict:
+    """The tester's ``run`` verb, asked of a bus on THIS box (ticket 4356ea1d8755).
+
+    MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME is akiendelllinux.local:7419,
+    so an in-process ``reach("tester")`` asked the Dell's tester, which refused "no proof file at
+    '/home/akien/cairn/.../fixtures/green_proof.py'". A path in a bus body names one box's disk.
+    So the ask runs in a child under a scratch HOME (``scratch.home_env`` drops every CAIRN_BUS_*),
+    whose ``reach`` lazy-inits a throwaway-table bus beside the fixture, and that bus goes with the
+    HOME. The prefix is short: the bus socket path must fit AF_UNIX."""
+    import json
+    import subprocess
+    from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    home = home if home is not None else scratch_dir("testing-4356-")
+    try:
+        done = subprocess.run([sys.executable, __file__, "--ask-run", str(proof)],
+                              env=home_env(home, PYTHONPATH=str(_REPO_ROOT)),
+                              capture_output=True, text=True, timeout=240, cwd=str(_REPO_ROOT))
+        assert done.returncode == 0, (
+            f"the scratch-HOME ask exited {done.returncode}: {done.stderr[-1500:]}")
+        reply = json.loads(done.stdout.strip().splitlines()[-1])
+    finally:
+        try:
+            RemoteBus(home / ".cairn/devices/cairn/machines/bus/0").shutdown()
+        except OSError:
+            pass
+    assert isinstance(reply, dict) and isinstance(reply.get("body"), dict), reply
+    return reply["body"]
+
+
+def _ask_run_child(proof: str) -> int:
+    """The child half of ``_ask_run``: one ask, its reply on the last stdout line."""
+    import json
     from cairn.tools.bus_client.bus_client import reach
     reply = reach("tester").request(
         sender="tester-proof-67b78ae59c1d", to="tester", verb="run",
         why="the run verb's own tooth asks for a fixture's verdict",
-        body={"path": str(proof), "caller": "test_the_tester_is_reached_only_through_its_interface"},
+        body={"path": proof, "caller": "test_the_tester_is_reached_only_through_its_interface"},
         timeout=120)
-    assert isinstance(reply, dict) and isinstance(reply.get("body"), dict), reply
-    return reply["body"]
+    print(json.dumps(reply))
+    return 0
 
 
 def test_the_run_verb_answers_with_the_testers_verdict():
@@ -119,5 +155,36 @@ def test_the_tool_floor_stands_on_no_device():
     assert not stale, f"code still imports discovery from the tester device: {stale}"
 
 
+def test_the_run_verb_tooth_ignores_a_far_session_bus():
+    """4356ea1d8755 clause 1: with the session's CAIRN_BUS_HOME naming a bus on another box (one
+    that never answers, so every box reads the same), the run-verb tooth still reads its fixtures'
+    verdicts and the refusal of the missing path."""
+    import os
+    saved = os.environ.get("CAIRN_BUS_HOME")
+    os.environ["CAIRN_BUS_HOME"] = "far-box.invalid:7419"
+    try:
+        test_the_run_verb_answers_with_the_testers_verdict()
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_BUS_HOME", None)
+        else:
+            os.environ["CAIRN_BUS_HOME"] = saved
+
+
+def test_the_scratch_bus_goes_with_its_home():
+    """4356ea1d8755 clause 2: the bus the scratch-HOME ask lazy-inits answers no longer once the
+    ask returns, so no scratch bus process outlives the proof."""
+    from cairn.tools.bus_client.remote import _answers
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("testing-4356-")
+    bus = home / ".cairn/devices/cairn/machines/bus/0"
+    body = _ask_run(FIXTURES / "green_proof.py", home=home)
+    assert isinstance(body.get("record"), dict), f"no record came back, so no bus was measured: {body}"
+    assert bus.is_dir(), f"the ask lazy-inited no bus under its scratch HOME at {bus}"
+    assert _answers(bus) is None, f"the scratch bus at {bus} still answers after the ask"
+
+
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["--ask-run"]:
+        raise SystemExit(_ask_run_child(sys.argv[2]))
     raise SystemExit(print_teeth_main(__file__))

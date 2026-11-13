@@ -28,6 +28,14 @@ class HarborMasterShim(BaseShim):
         from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
         return HarborMasterDevice()
 
+    def _bare(self) -> dict:
+        """A bare ``cairn codemother harbor_master`` answers the fleet's one-line count (outline
+        9.4.1.5, ticket f30daa73a599) through the base's one bare hook (59f7456dd9f5)."""
+        self._ensure_device()
+        c = self._device._fleet_map().get("counts", {})
+        return {"exit": 0, "text": f"{c['fleet']} boats ({c['open']} open, {c['in_port']} in port)",
+                "data": c, "cached": False}
+
     def on_pulse(self, now, context=None):
         record = super().on_pulse(now, context)
         if self._device is not None:

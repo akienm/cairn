@@ -8,9 +8,10 @@ hand (c2172127d7a4) is an operator's closes it. A gate or unknown hand clears as
 
 1. a trouble notified ['cc'], cleared through a clear emission whose hand.class is 'akien',
    is CLEARED after the drain and its cleared_by entry carries that hand;
-2. the same with hand.class 'gate' and by 'akien' stays OPEN (today's rule);
-3. the 'clears' verb with prefix 'who-writes-what-' answers one row per cleared_by entry with
-   hand_class, and no occurrences key.
+2. the same with hand.class 'gate' and by 'akien' stays OPEN (today's rule).
+
+Clause 3 (the 'clears' verb answered one small row per clear) retired with the verb: ticket
+6935a4a71f93 deleted store.clears on 2026-11-08, and ticket d51aa52bfca2 took its tooth out.
 
 Scratch world and store. The clear emissions are written with ``emit`` in the shape
 c2172127d7a4's clear_trouble writes, so this proof measures the holder alone (RULE 1).
@@ -33,7 +34,6 @@ PROVES = {
     "1c1b18bac2eb": {
         "1": "an_akien_hand_closes_a_cc_notified_trouble",
         "2": "a_gate_hand_by_akien_stays_open",
-        "3": "the_clears_verb_answers_one_small_row_per_clear",
     },
 }
 
@@ -94,22 +94,6 @@ def main() -> int:
         check(PROVES["1c1b18bac2eb"]["2"],
               two.get("standing") != CLEARED and len(two.get("cleared_by") or []) == 1,
               json.dumps({"standing": two.get("standing"), "cleared_by": len(two.get("cleared_by") or [])}))
-
-        name = PROVES["1c1b18bac2eb"]["3"]
-        try:
-            # The clears read is the store tool's since ticket ee04bb869795 (it was the bus verb).
-            from cairn.devices.trouble.tools.store import store as tool
-            rows = tool.clears("who-writes-what-", root=store)
-            by_id = {r["id"]: r for r in rows}
-            check(name,
-                  len(rows) == 2 and set(by_id) == {"who-writes-what-one", "who-writes-what-two"}
-                  and by_id["who-writes-what-one"]["hand_class"] == "akien"
-                  and by_id["who-writes-what-two"]["hand_class"] == "gate"
-                  and all(set(r) == {"id", "standing", "by", "hand_class", "at"} for r in rows)
-                  and "occurrences" not in json.dumps(rows),
-                  json.dumps(rows))
-        except Exception as exc:  # noqa: BLE001
-            check(name, False, f"{type(exc).__name__}: {exc}")
 
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     for f in FAILURES:

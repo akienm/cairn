@@ -226,6 +226,11 @@ def _rung(ref: str) -> tuple[str, str] | None:
         return None
     if parts[0] == "CairnCommons":
         return ("CairnCommons", "commons")
+    # Outline 5.4.3.3: "top-level shortcuts are the cairn device's bin/" — so a top-level bin/
+    # is held by the cairn device, never a rung of its own (open-be3fe60cd353). A
+    # <component>/bin/ ref falls through to its component's rung below.
+    if parts[0] == "bin":
+        return ("bin", "bin of device cairn")
     if parts[0] == "skills" and len(parts) > 1:
         return ("skills/" + parts[1], "skill")
     if parts[:2] == ["cairn", "tools"] and len(parts) > 2:

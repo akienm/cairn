@@ -441,6 +441,30 @@ def ensure_dev_extra(*, dry_run: bool = False, venv: Path | None = None, repo: P
     return {"id": sid, "status": "applied", "detail": f"installed {repo}[dev]; was missing {', '.join(lacking)}"}
 
 
+def check_spawn_interpreter(*, dry_run: bool = False, run=subprocess.run, python: str | None = None,
+                            caller_prefix: str | None = None) -> dict:
+    """Ticket 404f193284ac: the interpreter a background child is spawned with shares its caller's prefix.
+
+    background_python() once named the base interpreter and a child died at `import psycopg2`
+    (measured 2026-11-12). The spawn interpreter is asked for its sys.prefix and compared with the
+    caller's. The installer cannot change which interpreter a caller spawns, so a mismatch is
+    offered on a dry run and a named failure otherwise. `run`, `python` and `caller_prefix` are the
+    seams a proof injects."""
+    from cairn.tools.windowless_spawn.windowless_spawn import background_python
+    sid = "spawn_interpreter"
+    py = python or background_python()
+    mine = caller_prefix or sys.prefix
+    r = run([py, "-c", "import sys; print(sys.prefix)"], capture_output=True, text=True)
+    if r.returncode:
+        return {"id": sid, "status": "failed",
+                "detail": f"RED: the spawn interpreter {py} exited {r.returncode}: {(r.stderr or r.stdout or '').strip()[-300:]}"}
+    theirs = (r.stdout or "").strip()
+    if Path(theirs) == Path(mine):
+        return {"id": sid, "status": "already_applied", "detail": f"{py} reports the caller's prefix {mine}"}
+    detail = f"the spawn interpreter {py} reports prefix {theirs}; its caller's prefix is {mine}"
+    return {"id": sid, "status": "offered" if dry_run else "failed", "detail": detail}
+
+
 def install(
     *,
     intentions_dir: Path | None = None,

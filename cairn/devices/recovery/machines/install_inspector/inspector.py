@@ -22,6 +22,7 @@ CHECKS: list = [
     "cairn.devices.recovery.machines.installer.installer:ensure_journal_merge_driver",
     "cairn.devices.recovery.machines.installer.installer:ensure_skill_links",
     "cairn.devices.recovery.machines.installer.installer:ensure_dev_extra",
+    "cairn.devices.recovery.machines.installer.installer:check_spawn_interpreter",
 ]
 
 

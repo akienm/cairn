@@ -6,7 +6,7 @@ without one of us investing the cognition to go look."* So the cheapest reader r
 outline as it stands and the ticket, once, and names the outline lines the ticket touches and
 the ones it contradicts. Everything after that read is deterministic: the numbers are resolved
 against the parsed file (the line's text is always the FILE's, never the reader's), each
-contradiction and each open [Q#n] in a touched section becomes one question bound to the
+contradiction and each open [Q#n] on a touched line, or above one, becomes one question bound to the
 ticket through the question door (never twice), and every run leaves one record under
 ``<commons>/outline_checks/`` through the artifact door.
 
@@ -71,11 +71,6 @@ def open_questions(entries: list[dict]) -> list[dict]:
             out.append({"n": int(m.group(1)), "number": e["number"],
                         "text": BARE.sub("", e["text"]).strip()})
     return out
-
-
-def section(number: str) -> str:
-    """D8: the section of a number is its first two dot components."""
-    return ".".join(number.split(".")[:2])
 
 
 # ---------------------------------------------------------------------------
@@ -233,17 +228,17 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
             if resolves(c["number"]):
                 record["conflicts"].append({"number": c["number"], "text": text_of[c["number"]],
                                             "ticket_says": c["ticket_says"], "why": c["why"]})
-        sections = []
-        for t in record["touches"]:
-            if section(t["number"]) not in sections:
-                sections.append(section(t["number"]))
-        seen = set()
+        # D8 (ticket 0d3b8a51c9df): an open [Q#n] bears on the ticket when the ticket touches
+        # the question's own line or a line beneath it. A touched sibling or a touched heading
+        # above it does not: widening to two components made 9.4 (all of CodeMother) one
+        # section, and 99 of 139 opens measured over 295 records came from that widening.
+        touched = [t["number"] for t in record["touches"]]
         for oq in open_questions(entries):
-            for s in sections:
-                if oq["n"] not in seen and (oq["number"] == s or oq["number"].startswith(s + ".")):
-                    seen.add(oq["n"])
-                    record["open_questions"].append({"n": oq["n"], "number": oq["number"],
-                                                     "section": s, "text": oq["text"]})
+            q = oq["number"]
+            hit = next((t for t in touched if t == q or t.startswith(q + ".")), None)
+            if hit is not None:
+                record["open_questions"].append({"n": oq["n"], "number": q,
+                                                 "section": hit, "text": oq["text"]})
         record["unresolved"] = unresolved
         qids = _open_what_stands(ticket, record, base / "questions")
 

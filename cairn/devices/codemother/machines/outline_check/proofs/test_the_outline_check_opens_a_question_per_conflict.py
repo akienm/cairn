@@ -1,5 +1,5 @@
 """Proof for ticket 6541ccd1594c — the outline check reads a ticket beside the component outline
-and opens a question for each conflict, and for each open [Q#n] in a section the ticket touches.
+and opens a question for each conflict, and for each open [Q#n] on a line the ticket touches or beneath it.
 
 Every tooth runs over a SCRATCH world handed to the artifact door (``set_diagnostic_roots``): a
 fixture commons with a small outline, one ticket, its own journal, questions/ and outline_checks/.
@@ -14,7 +14,8 @@ The teeth, one per falsifier clause:
   2. a conflict on 2.1 opens exactly one question, source outline_check, quoting 2.1's text as
      the FILE says it — never the reader's words for the line;
   3. a rerun opens nothing new and lists the first question under questions_already_open;
-  4. a touched 2.1 with Q#7 open on 2.1.2 opens one question naming Q#7; Q#9 on 2.2 opens none;
+  4. a touched 2.1.2 with Q#7 open on it opens one question naming Q#7; a touched heading (2.1,
+     2) above Q#7 or Q#9 opens none (D8, ticket 0d3b8a51c9df);
   5. a number the outline does not carry (9.9) opens nothing and is listed under unresolved;
   6. the record lands under outline_checks/ with a journal entry of verb outline_check, and
      carries the outline's and the ticket's sha256;
@@ -55,7 +56,7 @@ PROVES = {
         "1": "test_parse_joins_continuations_and_finds_tagged_and_bare_questions_but_not_a_digitless_one",
         "2": "test_a_conflict_opens_one_question_quoting_the_files_line_not_the_readers",
         "3": "test_a_rerun_opens_nothing_new_and_names_the_question_already_open",
-        "4": "test_an_open_question_in_a_touched_section_opens_one_question_and_one_elsewhere_opens_none",
+        "4": "test_an_open_question_on_a_touched_line_opens_one_question_and_one_under_a_touched_heading_opens_none",
         "5": "test_a_number_the_outline_does_not_carry_opens_nothing_and_is_listed_unresolved",
         "6": "test_the_record_is_journaled_under_outline_checks_with_both_hashes",
         "7": "test_a_reader_failing_the_schema_twice_writes_ran_false_opens_nothing_and_the_cli_returns_2",
@@ -188,17 +189,19 @@ def test_a_rerun_opens_nothing_new_and_names_the_question_already_open():
         assert len(w.records()) == 2, w.records()
 
 
-def test_an_open_question_in_a_touched_section_opens_one_question_and_one_elsewhere_opens_none():
+def test_an_open_question_on_a_touched_line_opens_one_question_and_one_under_a_touched_heading_opens_none():
     with World() as w:
-        rec = w.check(Stub(_read(touches=["2.1"])))["record"]
+        rec = w.check(Stub(_read(touches=["2.1.2"])))["record"]
         qs = w.questions()
         assert len(qs) == 1, qs
         assert "Q#7" in qs[0]["question"] and "Q#9" not in qs[0]["question"], qs[0]["question"]
-        assert [(o["n"], o["section"]) for o in rec["open_questions"]] == [(7, "2.1")], rec["open_questions"]
-        # a section is two dot-components (D8): '2.1' reaches 2.1.2 and not its sibling 2.2;
-        # a touched chapter '2' is its own section and reaches both
-        w2 = w.check(Stub(_read(touches=["2"])))["record"]
-        assert sorted(o["n"] for o in w2["open_questions"]) == [7, 9], w2["open_questions"]
+        assert [(o["n"], o["section"]) for o in rec["open_questions"]] == [(7, "2.1.2")], rec["open_questions"]
+        # D8 (ticket 0d3b8a51c9df): a question bears on the ticket when the ticket touches its
+        # line or a line beneath it; a touched heading above it ('2.1', or chapter '2') reaches
+        # neither Q#7 on 2.1.2 nor Q#9 on 2.2
+        for heading in ("2.1", "2"):
+            w2 = w.check(Stub(_read(touches=[heading])))["record"]
+            assert w2["open_questions"] == [], (heading, w2["open_questions"])
 
 
 def test_a_number_the_outline_does_not_carry_opens_nothing_and_is_listed_unresolved():
@@ -292,7 +295,7 @@ def main() -> int:
         return 1
     print(f"green — {len(teeth)} teeth: the outline check parses the outline, resolves the reader's "
           "numbers against the file, opens one de-duplicated question per conflict and per open Q#n "
-          "in a touched section, writes a journaled record with both hashes, and stands only on a run "
+          "on a touched line, writes a journaled record with both hashes, and stands only on a run "
           "that read")
     return 0
 

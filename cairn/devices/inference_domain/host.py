@@ -61,7 +61,6 @@ itself an injected ``transport`` so the code-seam proofs run with no host presen
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
@@ -71,6 +70,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from cairn.tools.base import flock
 from cairn.tools.base.diagnostic import DiagnosticBase
 
 # The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
@@ -185,11 +185,11 @@ def _urllib_transport(url: str, body: bytes, timeout: float) -> tuple[int, bytes
     fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
     started = time.monotonic()
     if timeout is None:
-        fcntl.flock(fd, fcntl.LOCK_EX)
+        flock.lock(fd)
     else:
         while True:
             try:
-                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                flock.lock(fd, block=False)
                 break
             except BlockingIOError:
                 if time.monotonic() - started >= timeout:

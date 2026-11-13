@@ -26,6 +26,7 @@ import importlib.util
 import os
 import random
 import signal
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -89,6 +90,18 @@ def test_a_second_get_reuses_the_running_device():
     assert shim.device() is built[0], "the shim hands back the device it started"
 
 
+def _stop_tree(pid: int) -> None:
+    """Stop the listener and every child it started: os.killpg does not exist on Windows."""
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(pid)], capture_output=True,
+                           creationflags=0x08000000)
+        else:
+            os.killpg(pid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError, AttributeError, OSError):
+        pass
+
+
 def _free_port(pulse) -> int:
     """A scratch port no process listens on, by the kernel's table the pulse reads."""
     held = pulse._listen_ports()
@@ -133,10 +146,7 @@ def test_the_pulse_holds_the_port_on_the_home_only():
         assert second["spawned"] == "none" and second["up"], f"a held port spawns nothing: {second}"
     finally:
         if pid:
-            try:
-                os.killpg(pid, signal.SIGTERM)
-            except (ProcessLookupError, PermissionError, AttributeError):
-                pass
+            _stop_tree(pid)
 
 
 def test_the_standing_transport_teeth_stay_green():

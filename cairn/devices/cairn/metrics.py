@@ -9,7 +9,6 @@ deleted here (17.27.5): the table is the history.
 """
 from __future__ import annotations
 
-import fcntl
 import re
 import threading
 from contextlib import contextmanager
@@ -17,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.db_domain.tools.client import store
+from cairn.tools.base import flock
 from cairn.tools.base.address import resolve
 from cairn.tools.metric import metric
 
@@ -52,11 +52,11 @@ def _single_flight(roots: dict | None):
     path = resolve(LOCK, roots)
     path.parent.mkdir(parents=True, exist_ok=True)
     with _FLIGHT, open(path, "a") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        flock.lock(fh)
         try:
             yield
         finally:
-            fcntl.flock(fh, fcntl.LOCK_UN)
+            flock.unlock(fh)
 
 
 def collect(table: str = TABLE, roots: dict | None = None) -> int:

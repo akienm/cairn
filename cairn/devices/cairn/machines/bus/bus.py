@@ -220,6 +220,10 @@ class BusDevice(BaseDevice):
         # (ticket cd2d27fe3261): a reply landing later has nobody to take it, so the bus
         # receipts it as given up rather than let it stand for report_stood to raise.
         self._abandoned: dict[str, str] = {}
+        # Ids ``undelivered(to=<its addressee>)`` has handed to a deliverer (ticket
+        # ee88c2126abc): a shim holds them until it receipts, so the given-up gate leaves them
+        # be. A handler already running is never cancelled; only one never handed is refused.
+        self._handed: set[str] = set()
         self._channel_toggles: dict[str, dict[str, bool]] = {}
         self._ring: list[dict] = []
         self._ring_receipts: list[dict] = []
@@ -535,6 +539,11 @@ class BusDevice(BaseDevice):
                 replies = self.read(reply_to=envelope["id"])
                 if replies:
                     return self._taken(replies[0], sender)
+        except BaseException:
+            # The asker left before its reply (ticket ee88c2126abc): its client closed, or the
+            # wait raised. Nobody will take the answer, so the request is held as given up.
+            self._abandoned[envelope["id"]] = sender
+            raise
         finally:
             self._asked.pop(envelope["id"], None)
         self._abandoned[envelope["id"]] = sender
@@ -585,10 +594,31 @@ class BusDevice(BaseDevice):
                     self._loaded_all = True
                 else:
                     self._loaded.add(to)
+        self._refuse_the_given_up(to)
         with self._lock:
             waiting = [env for env in self._pending.values()
-                       if to is None or env.get("addressee") == to]
-        return waiting[:limit]
+                       if to is None or env.get("addressee") == to][:limit]
+            if to is not None:
+                self._handed.update(env["id"] for env in waiting)
+        return waiting
+
+    def _refuse_the_given_up(self, to: str | None) -> None:
+        """Receipt ``bus-asker-gave-up`` every waiting request whose asker has gone, before a
+        deliverer is handed it (ticket ee88c2126abc). Gone means its ``request()`` reached its
+        deadline or lost its client, or a stopped bus handed it over (``take_over_asks``).
+        Measured 2026-11-12: requests queued behind codemother's gate ran to their end after
+        their askers had gone, and the next bus's backlog replayed every handed-over ask. An
+        envelope already handed out is in a shim's hand and runs; its reply is receipted given
+        up as before (ticket cd2d27fe3261)."""
+        with self._lock:
+            gone = [env for env in self._pending.values()
+                    if env["id"] in self._abandoned and env["id"] not in self._handed
+                    and (to is None or env.get("addressee") == to)]
+            for env in gone:
+                self._abandoned.pop(env["id"], None)
+                self._ask_since.pop(env["id"], None)
+        for env in gone:
+            self.record_delivery(env["id"], to=env.get("addressee", ""), by="bus-asker-gave-up")
 
     def record_delivery(self, envelope_id: str, *, to: str, by: str) -> dict:
         """Write the receipt to the in-memory ring. APPEND, never a rewrite.
@@ -605,6 +635,7 @@ class BusDevice(BaseDevice):
             self._ring_receipts.append(receipt)
             self._ring_delivered.add(envelope_id)
             self._pending.pop(envelope_id, None)
+            self._handed.discard(envelope_id)
             self._delivered += 1
         self.emit("delivered", pointer=envelope_id, values={"addressee": to, "by": by})
         return receipt

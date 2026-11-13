@@ -38,6 +38,7 @@ import json
 import os
 import platform
 import secrets
+import select
 import signal
 import socketserver
 import struct
@@ -214,7 +215,7 @@ class BusProcess(DiagnosticBase):
         # back to its sender. Installed at construction so no post can slip past it.
         bus.set_no_receiver(self.no_receiver)
         bus.set_delivery_wrapper(self._locked_hook)
-        bus.set_while_waiting(self._serve_held)
+        bus.set_while_waiting(self._while_asking)
 
     # --- holding ----------------------------------------------------------------------
 
@@ -315,6 +316,14 @@ class BusProcess(DiagnosticBase):
         request() while it waits for a reply (``set_while_waiting``)."""
         for device_id in list(dict.fromkeys(self._held())):
             self._drain(device_id)
+
+    def _while_asking(self) -> None:
+        """Each wait of a ``request()`` running on this thread: serve the held queues, then end
+        the wait if the client that asked has closed its socket (ticket ee88c2126abc). Ending it
+        holds the request as given up, so it is never delivered once its asker is gone."""
+        self._serve_held()
+        if _closed(getattr(self._local, "client", None)):
+            raise ConnectionAbortedError("the client that asked closed its socket")
 
     def hold_name(self, name: str, *, wire: bool = True):
         """The shim that answers to ``name``, held here. ``wire`` holds it for MAIL (its
@@ -564,6 +573,23 @@ class BusProcess(DiagnosticBase):
             return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
 
+_GONE = select.POLLHUP | select.POLLERR | getattr(select, "POLLRDHUP", 0) if hasattr(select, "poll") else 0
+
+
+def _closed(conn) -> bool:
+    """Has the peer of ``conn`` closed it? A client sends one line and waits for one back, so
+    a hangup on its socket while its request runs means it has gone (ticket ee88c2126abc).
+    No poll on this platform, or no connection: not known closed."""
+    if conn is None or not _GONE:
+        return False
+    try:
+        poller = select.poll()
+        poller.register(conn.fileno(), _GONE)
+        return bool(poller.poll(0))
+    except (OSError, ValueError):
+        return True
+
+
 class _Handler(DiagnosticBase, socketserver.StreamRequestHandler):
     """One JSON line in, one out. ``admit`` may refuse a request before it is answered;
     ``reply_to`` answers an admitted one — the two seams the loopback and LAN doors fill."""
@@ -607,11 +633,14 @@ class _Handler(DiagnosticBase, socketserver.StreamRequestHandler):
         if req.get("op") == "stats":
             self._send(self.reply_to(req))
             return
-        held = self.server.process.in_flight
+        process = self.server.process
+        held = process.in_flight
         ticket = held.enter(str(req.get("op")))
+        process._local.client = self.request
         try:
             reply = self.reply_to(req)
         finally:
+            process._local.client = None
             held.leave(ticket)
         self._send(reply)
 

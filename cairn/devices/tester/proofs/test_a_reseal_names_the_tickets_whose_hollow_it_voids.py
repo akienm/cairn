@@ -34,6 +34,10 @@ PROVES = {
         "2": "test_a_seal_over_unchanged_code_carries_the_hollow_and_names_nobody",
         "3": "test_a_reseal_names_the_ticket_whose_hollow_it_voided",
     },
+    "c48dd10d976a": {
+        "1": "test_a_seal_with_an_unanswering_far_bus_runs_clean",
+        "2": "test_a_seal_over_moved_code_names_the_ticket_whose_hollow_it_voided",
+    },
 }
 
 TID = "d5a0f1x70001"   # a scratch ticket id: never a real ticket's
@@ -86,8 +90,28 @@ class _Raiser:
         pass
 
 
+class _QuietBus:
+    """The bus a seal announces on, stubbed (ticket c48dd10d976a): these teeth measure what the
+    seal PRINTS about a voided hollow, never what a live bus answers, so the verdict is the
+    same whichever bus home the run inherits."""
+
+    def post(self, **_kw):
+        return "testing-c48d-envelope"
+
+    def flush(self):
+        return {}
+
+    def undelivered(self, **_kw):
+        return []
+
+    def record_delivery(self, *_a, **_kw):
+        return None
+
+
 def _seal(monkeypatch, proof: Path) -> tuple[int, str]:
     from cairn.devices.tester import cli
+    import cairn.tools.bus_client as bus_client
+    monkeypatch.setattr(bus_client, "reach", lambda *names, **kw: _QuietBus())
     monkeypatch.setattr(cli, "TesterDevice", lambda: _Tester())
     monkeypatch.setattr(cli, "sweep_scratch", lambda: {"dropped": 0, "tables": []})
     out = io.StringIO()
@@ -126,6 +150,16 @@ def test_a_reseal_names_the_ticket_whose_hollow_it_voided():
     assert results and results[0].get("hollow_voided") == [TID], f"reseal named {results}"
     lines = "\n".join(hollow_voided_lines(results[0]["proof"], results[0]["hollow_voided"]))
     assert f"cairn test --hollow {TID} --seal" in lines, lines
+
+
+def test_a_seal_with_an_unanswering_far_bus_runs_clean(monkeypatch):
+    """Ticket c48dd10d976a: the seal this proof drives never posts to a live bus, so its
+    verdict is the same whichever bus home the run inherits. 127.0.0.1:9 answers nobody."""
+    monkeypatch.setenv("CAIRN_BUS_HOME", "127.0.0.1:9")
+    _root, proof = _hollowed()
+    rc, out = _seal(monkeypatch, proof)
+    assert "could not be told" not in out, f"the seal reached for a bus:\n{out}"
+    assert rc == 0, f"rc={rc}\n{out}"
 
 
 if __name__ == "__main__":

@@ -123,6 +123,43 @@ def _sealable(proof: str, verdict: str) -> dict:
     return dict(real, evidence=evidence)
 
 
+def _ask_run_on_this_box(proof: str) -> dict:
+    """The tester's ``run`` verb, asked of a bus on THIS box (ticket 42ddfe3b7256).
+
+    MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME is akiendelllinux.local:7419,
+    so ``reach("tester")`` asked the Dell's tester, which answered "no proof file at
+    '/tmp/...'". The run verb carries a path, and that path names this box's disk. So the ask
+    runs in a child under a scratch HOME (``scratch.home_env`` drops every CAIRN_BUS_*), whose
+    ``reach`` lazy-inits a throwaway-table bus beside the fixture. That bus goes with the HOME."""
+    import subprocess
+    from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    home = scratch_dir("testing-42ddfe3b7256-")
+    try:
+        done = subprocess.run([sys.executable, __file__, "--ask-run", proof],
+                              env=home_env(home, PYTHONPATH=str(_REPO_ROOT)),
+                              capture_output=True, text=True, timeout=240, cwd=str(_REPO_ROOT))
+        assert done.returncode == 0, (
+            f"the scratch-HOME ask exited {done.returncode}: {done.stderr[-1500:]}")
+        return json.loads(done.stdout.strip().splitlines()[-1])
+    finally:
+        try:
+            RemoteBus(home / ".cairn/devices/cairn/machines/bus/0").shutdown()
+        except OSError:
+            pass
+
+
+def _ask_run(proof: str) -> int:
+    """The child half of ``_ask_run_on_this_box``: one ask, its reply on the last stdout line."""
+    from cairn.tools.bus_client.bus_client import reach
+    reply = reach("tester").request(
+        sender="tester", to="tester", verb="run",
+        why="the coverage tooth seals a run verb record over a standing sealed reading",
+        body={"path": proof, "caller": "the coverage tooth"}, timeout=180)
+    print(json.dumps(reply))
+    return 0
+
+
 def _standing_verdict(proof: str) -> str | None:
     """Read the seal verdict off disk DIRECTLY, not through the reader under test.
 
@@ -404,11 +441,7 @@ def test_the_guard_covers_every_persisting_caller_not_only_the_flag():
         Path(proof).write_text(_GREEN_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
         vs.persist_validation(_sealable(proof, SEALED), proof_path=proof)
 
-        from cairn.tools.bus_client.bus_client import reach
-        reply = reach("tester").request(
-            sender="tester", to="tester", verb="run",
-            why="the coverage tooth seals a run verb record over a standing sealed reading",
-            body={"path": proof, "caller": "the coverage tooth"}, timeout=180)
+        reply = _ask_run_on_this_box(proof)
         record = (reply.get("body") or {}).get("record")
         assert isinstance(record, dict), f"the run verb returned no record: {reply!r}"
         raised = None
@@ -488,4 +521,6 @@ def _main() -> int:
 
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["--ask-run"]:
+        raise SystemExit(_ask_run(sys.argv[2]))
     raise SystemExit(_main())

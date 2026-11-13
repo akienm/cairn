@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_fleet_cache.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T07:23:26",
+    "caller": "cairn test",
+    "date": "2026-11-13T11:11:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,7 +20,7 @@
         "test_in_port_boat_patched_by_component"
       ],
       "teeth_red": [],
-      "test": "test-a434fe203eb6",
+      "test": "test-34976da747d2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,78 +30,72 @@
         "tables": []
       },
       "conditions": {
-        "proof": "6e079bb6d1a94b3cdbdbb12d4ee279378a1c31a50b7f9990502ddedcb7909308",
+        "proof": "40ce166e9131da678aa41209c0b8855f1481cb5401f954313999333d0462fbc4",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "3db5aa5642d2"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a434fe203eb6",
-      "source_fingerprint": "67572b9ef5d86ed1fbc774a72c801fd14f5d58b44c42b248ca6f4b200b6a01ae",
+      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-34976da747d2",
+      "source_fingerprint": "ec2ffeb2f94130cb142c29190d475d68b8ad735d94131eb67378ea4be0d98bb8",
       "fingerprint_closure": [
-        "cairn/devices/cairn/machines/harbor_master/__init__.py",
-        "cairn/devices/cairn/machines/harbor_master/device.py",
-        "cairn/devices/cairn/machines/harbor_master/proofs/test_fleet_cache.py",
-        "cairn/devices/cairn/machines/harbor_master/register.py"
+        "cairn/devices/codemother/machines/harbor_master/__init__.py",
+        "cairn/devices/codemother/machines/harbor_master/device.py",
+        "cairn/devices/codemother/machines/harbor_master/proofs/test_fleet_cache.py",
+        "cairn/devices/codemother/machines/harbor_master/register.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "2651275156ea90f771634511dd63ba5a4462396897556c1e0825bbbad0290860",
-        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
-        "cairn/tools/base": "ef9c021f538f4f0a9d5c499863b372d971517885826633149cc7124333e2755d",
+        "cairn/devices/codemother": "455fd7257dc7728336abcb6b128542409d05377ea111ef94d95179a033ed4a2e",
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "e3f995bae1d49dff59a0b21c0a5029cca7ca6f689e5ab12b762be60cacbc2bc2",
+        "cairn/tools/operator_inbox": "e30a665f701541588bf578e09954ef63e86eb77d12d75e595bd3e090ba7296c1",
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2936005-oakgpox_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3324121-g9y0sn26/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 21,
           "paths": [
-            "logs/harbor_master/0/20261113.142320.749584.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142321.729722.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142321.730003.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142321.730181.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20261113.142322.245211.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142322.726874.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142323.251729.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142323.723961.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142323.724120.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20261113.142324.243691.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142324.723466.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142324.723657.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142324.723841.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20261113.142324.723945.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142324.724100.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20261113.142324.724197.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142324.724346.HarborMasterDevice.crossing_patched.json",
-            "logs/harbor_master/0/20261113.142325.250240.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142325.733996.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.142325.734190.HarborMasterDevice.received.json",
-            "logs/harbor_master/0/20261113.142325.734298.HarborMasterDevice.crossing_patched.json"
+            "logs/harbor_master/0/20261113.181148.465628.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181149.631213.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181149.631502.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181149.631709.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20261113.181150.248359.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181150.793418.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181151.358740.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181151.915420.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181151.915587.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20261113.181152.506477.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181153.100476.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181153.101014.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181153.101311.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20261113.181153.101433.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181153.101637.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20261113.181153.101771.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181153.102045.HarborMasterDevice.crossing_patched.json",
+            "logs/harbor_master/0/20261113.181153.676270.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181154.273842.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.181154.274055.HarborMasterDevice.received.json",
+            "logs/harbor_master/0/20261113.181154.274170.HarborMasterDevice.crossing_patched.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 530784426,
-          "disk_bytes": 573505536,
-          "entries": 16397,
+          "bytes": 45389,
+          "disk_bytes": 172032,
+          "entries": 125,
           "builds": 1,
-          "reuses": 0
+          "reuses": 14
         }
       }
     },

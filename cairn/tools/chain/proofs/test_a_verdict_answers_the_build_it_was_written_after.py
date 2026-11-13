@@ -36,7 +36,12 @@ PROVES = {
         "4": "test_build_commits_bound_freshness_when_no_buildme",
         "5": "test_the_read_runs_no_instrument_and_reaches_no_tree",
         "6": "test_live_6890_old_verdict_is_refused",
-    }
+    },
+    # ticket df89ed9dff44 (2026-11-13): the live tooth stands where the berth does not.
+    "df89ed9dff44": {
+        "1": "test_live_6890_old_verdict_is_refused",
+        "2": "test_live_6890_old_verdict_is_refused",
+    },
 }
 
 T = "2026-10-01T12:00:00"
@@ -206,11 +211,19 @@ def test_the_read_runs_no_instrument_and_reaches_no_tree():
 def test_live_6890_old_verdict_is_refused():
     import time
     from cairn.tools.base import crossings
-    assert Path(LIVE_6890).is_file(), f"the live 6890 verdict is gone: {LIVE_6890}"
+    # The verdict berth is instance-space and stands only on the charting box (ticket
+    # df89ed9dff44; measured 2026-11-13: absent on akienasus). predates_the_build reads only
+    # the verdict's basename, so where the berth is absent an empty file of the same name
+    # stands in; the BUILDME crossing is still read from the commons journal.
+    verdict = LIVE_6890
+    if not Path(verdict).is_file():
+        from cairn.tools.scratch.scratch import scratch_dir
+        verdict = str(Path(scratch_dir("testing-df89-")) / Path(LIVE_6890).name)
+        Path(verdict).write_text("", encoding="utf-8")
     entry = crossings.buildme_crossing("6890cf7e4053")
     assert entry is not None, "6890cf7e4053 has no forward BUILDME crossing journaled"
     assert entry["at"] > "2026-09-02T05:33:26", entry
-    f = _fresh("6890cf7e4053", LIVE_6890)
+    f = _fresh("6890cf7e4053", verdict)
     assert len(f) == 1 and "predates the build" in f[0], f
     assert "2026-09-02T05:33:26" in f[0], f"names the verdict's time: {f[0]}"
     assert time.strftime("%Y-%m-%dT%H:%M:%S",

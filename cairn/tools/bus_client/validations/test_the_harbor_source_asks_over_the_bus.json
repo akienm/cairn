@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_harbor_source_asks_over_the_bus.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-12T21:01:59",
+    "caller": "cairn test",
+    "date": "2026-11-12T21:19:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_live_source_answers_a_traffic_image"
       ],
       "teeth_red": [],
-      "test": "test-05806855d0c5",
+      "test": "test-bde739515179",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,19 +39,20 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [
         {
-          "pid": 2172373,
+          "pid": 2184016,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-05806855d0c5",
-      "source_fingerprint": "70747bf2f62394f9ac444420282e278c0cba3695dd7e7dac6f9be1a3a923d0c1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bde739515179",
+      "source_fingerprint": "4ad22238fa94eaab5d4885225e916b034d63d73a8ded2a7fab73598891c23f33",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -85,7 +86,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2172118-_hinkbii/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2183985-_32yeqlj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 14,
@@ -94,26 +95,26 @@
             "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/harbor_master/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261113.040157.222090.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.040157.714145.BusDevice.post.json",
-            "logs/bus/0/20261113.040157.726792.BusDevice.post.json",
-            "logs/bus/0/20261113.040158.231335.BusDevice.post.json",
-            "logs/bus/0/20261113.040158.231545.BusDevice.delivered.json",
-            "logs/bus/0/20261113.040158.235451.BusDevice.delivered.json",
+            "logs/bus/0/20261113.041859.553841.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261113.041900.083005.BusDevice.post.json",
+            "logs/bus/0/20261113.041900.096325.BusDevice.post.json",
+            "logs/bus/0/20261113.041900.580531.BusDevice.post.json",
+            "logs/bus/0/20261113.041900.580702.BusDevice.delivered.json",
+            "logs/bus/0/20261113.041900.584416.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261113.040158.218445.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.040158.234027.HarborMasterShim.clear_trouble.json",
-            "logs/harbor_master/0/20261113.040158.234975.HarborMasterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261113.041900.569064.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261113.041900.583062.HarborMasterShim.clear_trouble.json",
+            "logs/harbor_master/0/20261113.041900.584014.HarborMasterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529526695,
-          "disk_bytes": 570253312,
-          "entries": 15723,
+          "bytes": 529595042,
+          "disk_bytes": 570392576,
+          "entries": 15747,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
       }
     },

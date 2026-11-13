@@ -40,7 +40,7 @@ SKILL_DIR = HERE.parent
 REPO = SKILL_DIR.parents[1]
 sys.path.insert(0, str(REPO))
 
-from cairn.machines.learning_block.learning_block import DoorRefused  # noqa: E402
+from cairn.machines.learning_block.learning_block import DoorRefused, trace_path  # noqa: E402
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
@@ -91,6 +91,8 @@ GOOD = {
 # command lane and retired with it (ticket d547b4859f9a); clause (3) retired with the
 # ruling intake (ticket 640a7a48e1c5).
 PROVES = {
+    # d23e1221c499: the trace is read through learning_block's name for it (a9709b744bf5).
+    "d23e1221c499": {"2": "test_a_real_firing_against_the_REAL_charter_traces_and_finds"},
     "c691e19d5464": {
         "2": "test_clause_2_the_five_are_named_with_real_usage",
         "4": "test_clause_4_no_charter_was_minted_under_bin_cmd",
@@ -192,7 +194,7 @@ def test_a_real_firing_against_the_REAL_charter_traces_and_finds():
     assert out["block"] == "skill:intent"
 
     events = [json.loads(l) for l in
-              (traces / "skill:intent.jsonl").read_text().splitlines() if l.strip()]
+              trace_path("skill:intent", traces).read_text().splitlines() if l.strip()]
     kinds = [e["event"] for e in events]
     assert "door_pass" in kinds, f"the GREEN is traced — that is the denominator: {kinds}"
 

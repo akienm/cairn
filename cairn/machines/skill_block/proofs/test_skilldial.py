@@ -30,6 +30,11 @@ from cairn.machines.skill_block import skill_block as sb          # noqa: E402
 from cairn.machines.skill_block import counters                    # noqa: E402
 from cairn.machines.skill_block import skilldial                   # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir                # noqa: E402
+from cairn.machines.learning_block.learning_block import trace_path  # noqa: E402
+
+# Ticket d23e1221c499: the trace file is named by learning_block (a9709b744bf5 made the name
+# NTFS-legal, skill__<name>.jsonl), never by a literal here.
+PROVES = {"d23e1221c499": {"1": "main"}}
 
 PASSES = 0
 
@@ -112,7 +117,7 @@ def main() -> int:
        after["wired"]["match_rate"] is None)
 
     # ── reading never writes ──────────────────────────────────────────────────
-    trace_file = traces / "skill:wired.jsonl"
+    trace_file = trace_path("skill:wired", traces)
     before = trace_file.read_bytes()
     for _ in range(3):
         skilldial.roster(skills_root=skills, traces=traces)

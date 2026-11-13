@@ -248,6 +248,24 @@ def test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates():
     assert seen and seen[0].get("anchor") == anchor, seen
 
 
+# hollow.writes_to for each ticket, read on akiendelllinux 2026-11-13 (the boxes without the
+# berths cannot read it; see the tooth below).
+_BERTH_WRITES_TO = {
+    "68f563403c8f": {"berth": "decompose-20260906T111005-e6c3a299ab9a",
+                     "writes_to": ["skills/sail/reflection.py", "skills/sail/SKILL.md",
+                                   "cairn/devices/codemother/shim.py",
+                                   "cairn/devices/codemother/ingest.py",
+                                   "cairn/devices/codemother/proofs/test_feedback_verb.py"]},
+    "c691e19d5464": {"berth": "decompose-20260911T120642-bdf2ac680def",
+                     "writes_to": ["cairn/devices/cairn/machines/ground_loop/intention+why.json",
+                                   "cairn/devices/cc/intention+why.json",
+                                   "cairn/tools/operator_inbox/intention+why.json",
+                                   "cairn/machines/skill_block/intention+why.json",
+                                   "skills/ruled/intention+why.json",
+                                   "skills/intent/proofs/test_intent_skill.py"]},
+}
+
+
 def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
     """Over the live repo and journals: the two tickets the rule was measured on anchor at the
     parents of their build commits (edb4e137 and 448601ca). These are historical commits, so the
@@ -259,7 +277,14 @@ def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
     ('first-build-commit-no-crossing'), which takes the same parent. Clause (5) is the
     commit, "reverts c691 to anything but 448601ca^", so each ticket asserts that commit by a
     first-build rule: 68f5, whose journal stands, by 'first-build-commit' itself; c691 by
-    either first-build rule. A 'journal' anchor still reds both. Measured 2026-11-11."""
+    either first-build rule. A 'journal' anchor still reds both. Measured 2026-11-11.
+
+    THE FILE LIST IS A MEASURED FIXTURE, NOT A LIVE READ (ticket c8e421aac06e). The
+    decompose berths live in instance-space on the box that charted them, so on akienasus both
+    chains read all-None and ``hollow.writes_to`` raised "names no decompose berth" while the
+    Dell sealed green. The lists below are ``hollow.writes_to`` read on akiendelllinux on
+    2026-11-13 from the berths named. On a box that holds a berth, the live read must still
+    equal the fixture, so the fixture cannot drift from the berth unnoticed."""
     build_anchor = getattr(hollow, "build_anchor", None)
     assert build_anchor is not None, "hollow.build_anchor does not exist"
     roots = hollow._roots()
@@ -267,7 +292,14 @@ def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
              "c691e19d5464": {"first-build-commit", "first-build-commit-no-crossing"}}
     for tid, build in (("68f563403c8f", "edb4e137"), ("c691e19d5464", "448601ca")):
         ticket = json.loads(hollow._ticket_path(tid).read_text(encoding="utf-8"))
-        files = [hollow._inside(p, _REPO_ROOT) for p in hollow.writes_to(ticket)]
+        measured = _BERTH_WRITES_TO[tid]["writes_to"]
+        try:
+            live = hollow.writes_to(ticket)
+        except hollow.HollowUnmeasurable:
+            live = None                      # this box never charted it: the fixture stands in
+        assert live is None or live == measured, (
+            f"{tid}: the berth's writes_to moved from the fixture: {live} != {measured}")
+        files = [hollow._inside(p, _REPO_ROOT) for p in measured]
         a = build_anchor(ticket, files, roots=roots, repo_root=_REPO_ROOT)
         parent = _git(_REPO_ROOT, "rev-parse", f"{build}^").stdout.strip()
         assert a["commit"] == parent, (tid, a)

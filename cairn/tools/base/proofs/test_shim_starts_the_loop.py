@@ -56,6 +56,8 @@ PROVES = {
         "resting": "test_a_held_lock_spawns_nothing",  # a held lock spawns nothing
     },
     "6208d0a27d6e": {"5": "test_a_held_lock_spawns_nothing"},
+    "ea6e465680a3": {"1": "test_the_setsid_path_leaves_no_scratch_process",
+                     "2": "test_the_setsid_path_leaves_no_scratch_process"},
 }
 
 # The loop's first beat on this machine costs ~90-105s (cairn/tools/bus_client/bus_client.py:86,
@@ -66,6 +68,8 @@ LIVE_WITHIN_S = 300.0
 # (ticket 6208d0a27d6e: a reverted world never writes beat.json), so the budget outlasts both.
 PROOF_TIMEOUT_S = 1200
 
+NOT_THE_HOME = "not-this-box.invalid"
+
 CONSTRUCT = (
     "import json, sys; sys.path.insert(0, %r); "
     "from cairn.devices.tester.shim import TesterShim; "
@@ -75,7 +79,10 @@ CONSTRUCT = (
 
 def _env(home: Path, unit: str) -> dict:
     from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
-    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT))
+    # CAIRN_HOME_HOST names no box (ticket ea6e465680a3): the scratch loop's web_server pulse reads
+    # this box as not the cairn home and starts no listener, on any OS, so nothing outlives the loop.
+    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT),
+                   CAIRN_HOME_HOST=NOT_THE_HOME)
     return env
 
 
@@ -106,21 +113,34 @@ def _unit_active(unit: str) -> bool:
     return r.stdout.strip() == "active"
 
 
-def _kill_setsid_children(home: Path) -> None:
-    # A fall-through spawn is a python process whose HOME is the scratch — find it by its
-    # environment, never by name alone.
+def _kill_setsid_children(home: Path) -> list[int]:
+    """Reap every process whose environment holds HOME=<scratch>, whatever it runs (ticket
+    ea6e465680a3: the setsid path left a web_server listener and a scratch bus standing, because
+    this once matched ground_loop cmdlines only). Returns the pids it signalled."""
+    signalled = []
+    for pid in _scratch_processes(home):
+        try:
+            os.kill(pid, 15)
+            signalled.append(pid)
+        except OSError:
+            pass
+    return signalled
+
+
+def _scratch_processes(home: Path) -> list[int]:
+    """Every /proc process whose environ holds HOME=<scratch> exactly, this one excepted."""
+    want = f"HOME={home}".encode()
+    found = []
     for p in Path("/proc").iterdir():
-        if not p.name.isdigit():
+        if not p.name.isdigit() or int(p.name) == os.getpid():
             continue
         try:
             env = (p / "environ").read_bytes()
         except OSError:
             continue
-        if f"HOME={home}".encode() in env and b"cairn.devices.cairn.machines.ground_loop" in (p / "cmdline").read_bytes():
-            try:
-                os.kill(int(p.name), 15)
-            except OSError:
-                pass
+        if want in env.split(b"\0"):
+            found.append(int(p.name))
+    return found
 
 
 def test_dead_to_live_one_shim() -> None:
@@ -257,12 +277,71 @@ def test_check_lives_in_the_base_only() -> None:
     print("ok test_check_lives_in_the_base_only")
 
 
+def _path_without_systemd_run(where: Path) -> str:
+    """A PATH dir holding what the loop runs, with no systemd-run, so the shim takes the setsid
+    fall-through. python3 is an exec wrapper to this interpreter (a bare symlink loses the venv's
+    site-packages); the rest are links to the real tools."""
+    bin_ = where / "bin"
+    bin_.mkdir(parents=True)
+    py = bin_ / "python3"
+    py.write_text(f'#!/bin/sh\nexec "{sys.executable}" "$@"\n')
+    py.chmod(0o755)
+    for tool in ("systemctl", "git", "env", "sh", "bash", "hostname"):
+        real = shutil.which(tool)
+        if real:
+            (bin_ / tool).symlink_to(real)
+    return str(bin_)
+
+
+def test_the_setsid_path_leaves_no_scratch_process() -> None:
+    """ea6e465680a3 clause 1: with systemd-run off PATH, the shim spawns the loop with setsid; after
+    the teardown no process carrying HOME=<scratch> stands. Clause 2: the scratch loop reads this
+    box as not the cairn home, so its web_server.log records no listener started."""
+    home = scratch_dir("ea6e-home-")
+    unit = f"cairn-ground-loop-proof-{os.getpid()}-setsid"
+    env = _env(home, unit)
+    env["PATH"] = _path_without_systemd_run(home)
+    env["CAIRN_WEB_SERVER_PORT"] = "1"
+    try:
+        r = subprocess.run([sys.executable, "-c", CONSTRUCT % str(ROOT)], env=env,
+                           capture_output=True, text=True, timeout=120, cwd=str(ROOT))
+        assert r.returncode == 0, r.stderr[-800:]
+        out = json.loads(r.stdout.strip().splitlines()[-1])
+        assert out["spawned"] == "setsid", f"the shim did not take the setsid path: {out}"
+        deadline = time.monotonic() + LIVE_WITHIN_S
+        while time.monotonic() < deadline and not _beating(home):
+            time.sleep(1)
+        assert _beating(home), f"no loop beats under {home} within {LIVE_WITHIN_S}s"
+        time.sleep(15)                      # the beat's pulses act
+        log = home / ".cairn" / "logs" / "web_server" / "0" / "web_server.log"
+        lines = log.read_text(errors="replace").splitlines() if log.exists() else []
+        started = [ln for ln in lines if "started the shim" in ln]
+        assert started == [], f"a scratch loop started a web_server listener: {started}"
+        _stop(unit)
+        _kill_setsid_children(home)
+        time.sleep(3)
+        left = []
+        for pid in _scratch_processes(home):
+            try:
+                cmd = (Path("/proc") / str(pid) / "cmdline").read_bytes().replace(b"\0", b" ")[:120]
+            except OSError:
+                continue
+            left.append((pid, cmd))
+        assert left == [], f"processes of {home} outlived the teardown: {left}"
+        print("ok test_the_setsid_path_leaves_no_scratch_process")
+    finally:
+        _stop(unit)
+        _kill_setsid_children(home)
+        shutil.rmtree(home, ignore_errors=True)
+
+
 if __name__ == "__main__":
     # The house runner: every tooth runs and prints PASS or FAIL by name, so a hollow reading
     # that takes shim.py's build away reads each tooth failing rather than one crash (UNREAD).
     rc = 0
     for t in (test_check_lives_in_the_base_only, test_ground_loop_package_untouched,
-              test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
+              test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop,
+              test_the_setsid_path_leaves_no_scratch_process):
         try:
             t()
             print(f"  PASS  {t.__name__}", flush=True)

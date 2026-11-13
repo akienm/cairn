@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_unit_a_test_run_starts_is_the_runs.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T10:19:39",
+    "caller": "cairn test",
+    "date": "2026-11-13T10:21:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_the_scratch_env_names_no_far_box\n  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-42ff33681b54', want 'test-42ff33681b54'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 3204061) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-3204856-1']; left after its kill=[]\n\nGREEN — 6/6",
+      "stdout_tail": "  ok   test_the_scratch_env_names_no_far_box\n  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-01f4411514c4', want 'test-01f4411514c4'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 3205934) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-3206471-1']; left after its kill=[]\n\nGREEN — 6/6",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_scratch_env_names_no_far_box",
@@ -18,7 +18,7 @@
         "test_a_killed_run_leaves_no_unit_of_its_own"
       ],
       "teeth_red": [],
-      "test": "test-42ff33681b54",
+      "test": "test-01f4411514c4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-42ff33681b54",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-01f4411514c4",
       "source_fingerprint": "15a90bd5de6f41bd574cc0399f787521299867cf9587bbc0684469fc089c80ed",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py"
@@ -63,17 +64,17 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3203977-zl_rg8gd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3205843-i4d_upm_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261113.171844.821245.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.171934.284629.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-72852c9b38b4/stderr.txt",
-            "logs/tester/0/runs/test-72852c9b38b4/stdout.txt",
-            "logs/tester/0/runs/test-e30bec6f1ab5/stderr.txt",
-            "logs/tester/0/runs/test-e30bec6f1ab5/stdout.txt"
+            "logs/tester/0/20261113.172048.860543.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.172138.292314.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-6273f2a4a2be/stderr.txt",
+            "logs/tester/0/runs/test-6273f2a4a2be/stdout.txt",
+            "logs/tester/0/runs/test-715c405e144d/stderr.txt",
+            "logs/tester/0/runs/test-715c405e144d/stdout.txt"
           ],
           "elided": 0
         },

@@ -265,7 +265,7 @@ def test_the_door_refuses_a_caller_that_has_not_decided_what_it_seals():
         try:
             persist_validation(rec, **kwargs)
         except ValueError as e:
-            assert "EITHER" in str(e)
+            assert "EXACTLY ONE" in str(e), f"refused, but not as the door refuses: {e}"
         else:
             raise AssertionError("naming both addresses, or neither, must be refused")
 

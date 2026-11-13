@@ -27,6 +27,8 @@ teeth green — that ordering is recorded in the ticket's history as the proof's
 
 from __future__ import annotations
 
+import shutil
+
 import io
 import json
 import os
@@ -56,6 +58,8 @@ except ImportError as _exc:  # noqa: E402
     canon = fold = fold_flags = fold_head = is_word = pick = _missing
 
 from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 6f2fb0aec8dc: a bare bash is the WSL launcher on Windows
 
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 
@@ -155,7 +159,7 @@ def test_bin_cairn_the_file_and_cairn_the_command_are_untouched():
     still executable, and ``cairn`` on PATH is that same file, not a wrapper beside it."""
     assert _DISPATCHER.is_file() and os.access(_DISPATCHER, os.X_OK), _DISPATCHER
     assert _DISPATCHER.name == "cairn" and _DISPATCHER.parent.name == "bin"
-    found = subprocess.run(["bash", "-lc", "command -v cairn"], capture_output=True, text=True,
+    found = subprocess.run([_BASH, "-lc", "command -v cairn"], capture_output=True, text=True,
                            timeout=30).stdout.strip()
     # the name and the berth, not the inode: a hollow worktree's PATH still points at the
     # live checkout, and the clause is about what the command is CALLED and where it sits

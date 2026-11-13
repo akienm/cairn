@@ -21,12 +21,16 @@ Scratch roots only: no live bus and no live store. Run serially.
 """
 from __future__ import annotations
 
+import shutil
+
 import os
 import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 9ed49c8d5475: a bare bash is the WSL launcher on Windows
 
 _REPO = Path(__file__).resolve().parents[4]
 _BIN = _REPO / "cairn" / "devices" / "codemother" / "0" / "bin"
@@ -79,7 +83,7 @@ def clause_1_each_word_is_a_named_executable_in_the_bin() -> None:
 
 
 def _wire(root: Path) -> None:
-    subprocess.run(["bash", "-c", f"source '{_REPO}/cairn/devices/recovery/bootstrap.sh' "
+    subprocess.run([_BASH, "-c", f"source '{_REPO}/cairn/devices/recovery/bootstrap.sh' "
                     "&& cairn_wire_instances"],
                    env={**os.environ, "CAIRN_INSTANCE_ROOT": str(root)},
                    capture_output=True, text=True, timeout=120, check=False)
@@ -87,7 +91,7 @@ def _wire(root: Path) -> None:
 
 def _via_cairn(root: Path, argv: list[str]) -> subprocess.CompletedProcess:
     env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(root), "PYTHONPATH": str(_REPO)}
-    return subprocess.run(["bash", "-x", str(_REPO / "bin" / "cairn"), "codemother", *argv],
+    return subprocess.run([_BASH, "-x", str(_REPO / "bin" / "cairn"), "codemother", *argv],
                           capture_output=True, text=True, env=env, cwd=str(_REPO), timeout=300)
 
 

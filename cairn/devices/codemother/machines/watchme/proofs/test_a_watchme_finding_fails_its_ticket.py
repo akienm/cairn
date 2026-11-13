@@ -164,7 +164,7 @@ def test_codemother_holds_the_watch_and_the_harbor_does_not():
     verbs = CodeMotherDevice().declared_verbs()
     assert _VERB in verbs, f"codemother declares no {_VERB}: {sorted(verbs)}"
     # read the harbor's verb table as text, never by import (RULE 1)
-    src = (_REPO_ROOT / "cairn/devices/cairn/machines/harbor_master/device.py").read_text("utf-8")
+    src = (_REPO_ROOT / "cairn/devices/codemother/machines/harbor_master/device.py").read_text("utf-8")
     keys: list[str] = []
     for node in ast.walk(ast.parse(src)):
         if isinstance(node, ast.FunctionDef) and node.name == "declared_verbs":

@@ -2,7 +2,7 @@
 """Proof that bus_client's harbor_source asks harbor_master over the bus (RULE 1, ticket a433ced0b6e8).
 
 The build inspector's encapsulation_holds filed, 2026-11-11, bus_client.py:93 importing
-cairn.devices.cairn.machines.harbor_master.voyage. harbor_master answers get traffic since
+cairn.devices.codemother.machines.harbor_master.voyage. harbor_master answers get traffic since
 cd36b8e86cd3; harbor_source now asks it.
 
 NOT BLIND BY ITS OWN PLANT (ticket bfa522282b17). The first guard asked for at least one breach
@@ -15,8 +15,8 @@ deepest component it can see), which TARGETS would filter out, and the tooth wou
 
 Teeth:
   (0) the sieve, run over a planted fixture tree, names the planted file, line 1 and target
-      cairn/devices/cairn/machines/harbor_master, and nothing else;
-  (1) no RULE 1 breach from a file under cairn/tools/bus_client lands on cairn/devices/cairn/machines/harbor_master;
+      cairn/devices/codemother/machines/harbor_master, and nothing else;
+  (1) no RULE 1 breach from a file under cairn/tools/bus_client lands on cairn/devices/codemother/machines/harbor_master;
   (2) the edited files name none of the forbidden modules.
 
     bin/cairn test cairn/tools/bus_client/proofs/test_the_harbor_source_asks_over_the_bus.py
@@ -39,8 +39,8 @@ PROVES = {"a433ced0b6e8": {"1": "test_no_breach_from_bus_client_lands_on_harbor_
                            "2": "test_no_breach_from_bus_client_lands_on_harbor_master"}}
 
 COMP = "cairn/tools/bus_client"
-TARGETS = ('cairn/devices/cairn/machines/harbor_master',)
-FORBID = {'cairn/tools/bus_client/bus_client.py': ['cairn.devices.cairn.machines.harbor_master']}
+TARGETS = ('cairn/devices/codemother/machines/harbor_master',)
+FORBID = {'cairn/tools/bus_client/bus_client.py': ['cairn.devices.codemother.machines.harbor_master']}
 
 FAILURES: list[str] = []
 
@@ -62,7 +62,7 @@ def test_the_sieve_names_a_planted_harbor_breach() -> None:
         (root / d / "__init__.py").touch()
     (root / TARGETS[0] / "intention+why.json").write_text("{}\n", encoding="utf-8")
     (root / COMP / "planted.py").write_text(
-        "from cairn.devices.cairn.machines.harbor_master import x\n", encoding="utf-8")
+        "from cairn.devices.codemother.machines.harbor_master import x\n", encoding="utf-8")
     found = [(b["file"], b["line"], b["target"])
              for b in inspector.encapsulation_breaches(str(root))
              if str(b.get("file", "")).startswith(COMP + "/")

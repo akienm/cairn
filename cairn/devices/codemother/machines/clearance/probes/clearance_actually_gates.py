@@ -1,7 +1,7 @@
 """PROBE — the sixth seat is wired; do real crossings actually go THROUGH it?
 
 Berth for the WATCHME that ticket ``emit-refuses-an-uncleared-crossing`` carries
-(object ``clearance-actually-gates``). Berthed beside ``cairn/devices/cairn/machines/harbor_master`` because
+(object ``clearance-actually-gates``). Berthed beside ``cairn/devices/codemother/machines/harbor_master`` because
 that is WHAT IT WATCHES: harbor_master owns the authority rung, its charter states
 its own falsifier — *"if devices advance workflows AROUND it once the clearance gate
 lands (ambient transitions), the authority rung has failed (Law 6)"* — and Law 6 says

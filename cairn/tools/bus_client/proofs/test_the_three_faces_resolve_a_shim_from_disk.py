@@ -230,10 +230,10 @@ def test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says():
     ``cairn/devices/<name>/`` must still resolve, because discovery derives device-ness from
     the parent of a probes/ folder at ANY depth."""
     dotted = bus_client._device_shim_module("harbor_master")
-    assert dotted == "cairn.devices.cairn.machines.harbor_master.shim", \
+    assert dotted == "cairn.devices.codemother.machines.harbor_master.shim", \
         "the loader resolved harbor_master to %r — the assumed shape is back and the " \
         "concrete HarborMasterShim has zero callers again" % (dotted,)
-    expected = (_REPO_ROOT / "cairn" / "devices" / "cairn" / "machines"
+    expected = (_REPO_ROOT / "cairn" / "devices" / "codemother" / "machines"
                 / "harbor_master" / "shim.py")
     assert expected.is_file(), "the address this tooth pins does not exist on disk: %s" % expected
     print("  PASS  test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says")

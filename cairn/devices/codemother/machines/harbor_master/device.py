@@ -127,7 +127,7 @@ class HarborMasterDevice(BaseDevice):
 
         The register walks every ticket and every history — the honest source.
         This is the BACKSTOP; crossing notifications patch between scans."""
-        from cairn.devices.cairn.machines.harbor_master.register import register
+        from cairn.devices.codemother.machines.harbor_master.register import register
         self._fleet_cache = register()
         self._cache_at = datetime.now(timezone.utc).isoformat()
         patched = self._crossings_since_reconcile
@@ -153,7 +153,7 @@ class HarborMasterDevice(BaseDevice):
         """The TRAFFIC IMAGE over the fleet register: the view behind ``get traffic`` and
         ``show traffic`` (ticket cd36b8e86cd3). The web server asks it over the bus to draw
         /harbor, rather than importing voyage (RULE 1; outline 9.4.1.5, status queries)."""
-        from cairn.devices.cairn.machines.harbor_master import voyage
+        from cairn.devices.codemother.machines.harbor_master import voyage
         return voyage.traffic_image(self._fleet_map())
 
     @classmethod
@@ -248,7 +248,7 @@ class HarborMasterDevice(BaseDevice):
                 "crossings_since_reconcile": self._crossings_since_reconcile,
             }
         try:
-            from cairn.devices.cairn.machines.harbor_master.register import register
+            from cairn.devices.codemother.machines.harbor_master.register import register
             reg = register()
             return {
                 "total_boats": reg["counts"]["fleet"],

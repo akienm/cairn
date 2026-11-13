@@ -33,7 +33,7 @@ Five claims, each a tooth a hollow view could not pass:
 
 Dependency-light: the register + voyage.py. Runs bare.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_voyage.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_voyage.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.harbor_master import voyage, register
+from cairn.devices.codemother.machines.harbor_master import voyage, register
 
 
 def test_gates_are_emergent_and_shared():

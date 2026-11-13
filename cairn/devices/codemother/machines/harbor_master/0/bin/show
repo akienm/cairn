@@ -13,7 +13,7 @@ if [ -z "$view" ]; then
   echo "usage: cairn harbor_master show <view>" >&2
   python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
 views = HarborMasterDevice().declared_views()
 print('available views:', ', '.join(sorted(views)) if views else '(none)')
 " >&2
@@ -23,7 +23,7 @@ fi
 shift
 exec python3 -c "
 import sys; sys.path.insert(0, '$REPO_ROOT')
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
 dev = HarborMasterDevice()
 args = sys.argv[2:] if len(sys.argv) > 2 else []
 envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',

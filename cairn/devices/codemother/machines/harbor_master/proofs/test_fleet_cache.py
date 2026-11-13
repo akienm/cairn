@@ -19,7 +19,7 @@ What a hollow build cannot pass (Law 8):
 Runs against the real fleet (register.register) for reconciliation; crossing patches
 use fixture envelopes against the live cache.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_fleet_cache.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_fleet_cache.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ _SRC_ROOT = _REPO_ROOT.parent   # ~/dev/src — the root a register source is re
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
-from cairn.devices.cairn.machines.harbor_master import register  # noqa: E402
+from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
+from cairn.devices.codemother.machines.harbor_master import register  # noqa: E402
 from cairn.tools.operator_inbox.inbox import cursor_of, status_label  # noqa: E402
 
 

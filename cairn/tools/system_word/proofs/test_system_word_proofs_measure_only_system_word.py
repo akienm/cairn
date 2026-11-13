@@ -5,7 +5,7 @@ Until this ticket they imported the ground loop's cli, the librarian, sudo_relay
 harbor master and codemother's clearance to drive their folds.
 
 Teeth:
-  (1) no RULE 1 breach from a file under cairn/tools/system_word lands on cairn/devices/cairn/machines/ground_loop, cairn/devices/cairn/machines/harbor_master, cairn/devices/librarian, cairn/devices/sudo_relay, cairn/devices/codemother;
+  (1) no RULE 1 breach from a file under cairn/tools/system_word lands on cairn/devices/cairn/machines/ground_loop, cairn/devices/codemother/machines/harbor_master, cairn/devices/librarian, cairn/devices/sudo_relay, cairn/devices/codemother;
   (2) the edited files name none of the forbidden modules.
 
     bin/cairn test cairn/tools/system_word/proofs/test_system_word_proofs_measure_only_system_word.py
@@ -24,8 +24,8 @@ if str(_REPO) not in sys.path:
 PROVES = {"5dc8f2efcd47": {"1": "test_no_system_word_file_reaches_a_device", "2": "test_the_proof_and_probe_name_no_device_module"}}
 
 COMP = "cairn/tools/system_word"
-TARGETS = ('cairn/devices/cairn/machines/ground_loop', 'cairn/devices/cairn/machines/harbor_master', 'cairn/devices/librarian', 'cairn/devices/sudo_relay', 'cairn/devices/codemother')
-FORBID = {'cairn/tools/system_word/proofs/test_system_word.py': ['cairn.devices.cairn.machines.ground_loop', 'cairn.devices.cairn.machines.harbor_master', 'cairn.devices.librarian', 'cairn.devices.sudo_relay', 'cairn.devices.codemother'], 'cairn/tools/system_word/probes/his_case_never_bites.py': ['cairn.devices.cairn.machines.ground_loop', 'cairn.devices.cairn.machines.harbor_master']}
+TARGETS = ('cairn/devices/cairn/machines/ground_loop', 'cairn/devices/codemother/machines/harbor_master', 'cairn/devices/librarian', 'cairn/devices/sudo_relay', 'cairn/devices/codemother')
+FORBID = {'cairn/tools/system_word/proofs/test_system_word.py': ['cairn.devices.cairn.machines.ground_loop', 'cairn.devices.codemother.machines.harbor_master', 'cairn.devices.librarian', 'cairn.devices.sudo_relay', 'cairn.devices.codemother'], 'cairn/tools/system_word/probes/his_case_never_bites.py': ['cairn.devices.cairn.machines.ground_loop', 'cairn.devices.codemother.machines.harbor_master']}
 
 FAILURES: list[str] = []
 

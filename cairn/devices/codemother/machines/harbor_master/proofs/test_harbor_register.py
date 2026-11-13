@@ -16,7 +16,7 @@ never a status. Drift on any side reds this proof.
 Deliberately dependency-light: pure file reads + the projector's pure core + register.py.
 Runs bare.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_harbor_register.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_harbor_register.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from cairn.tools.charter import projector
 from cairn.tools.operator_inbox.inbox import (
     cursor_of, is_stage_token, status_label, with_derived_phase,
 )
-from cairn.devices.cairn.machines.harbor_master import register
+from cairn.devices.codemother.machines.harbor_master import register
 
 _SRC_ROOT = _REPO_ROOT.parent   # ~/dev/src — the root the register's source pointers are relative to
 

@@ -25,7 +25,7 @@ class HarborMasterShim(BaseShim):
         return "harbor_master"
 
     def _start_device(self):
-        from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+        from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
         return HarborMasterDevice()
 
     def _bare(self) -> dict:

@@ -2,7 +2,7 @@
 
 Berth for the WATCHME that ticket ``a-superseded-intention-is-never-silent`` carries
 (object ``a_superseded_intention_is_never_silent``). It berths beside
-``cairn/devices/cairn/machines/harbor_master`` because that is WHAT IT WATCHES: the retirement key is read
+``cairn/devices/codemother/machines/harbor_master`` because that is WHAT IT WATCHES: the retirement key is read
 in ``clearance.retirement_of``, the refusal is raised in ``clearance._decide``, and the
 reverse read that is supposed to have warned the retiring hand is ``clearance.riders_of``.
 The ticket itself sits in the commons; the instrument sits at the seam it measures.

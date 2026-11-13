@@ -62,12 +62,12 @@ boat needing an eye is a line you can read. The grouping is derived, not stored 
 
 Deliberately dependency-light: the register + pure grouping. Runs bare.
 
-    python3 -m cairn.devices.cairn.machines.harbor_master.voyage        # prints the traffic image as a human summary
+    python3 -m cairn.devices.codemother.machines.harbor_master.voyage        # prints the traffic image as a human summary
 """
 
 from __future__ import annotations
 
-from cairn.devices.cairn.machines.harbor_master import register
+from cairn.devices.codemother.machines.harbor_master import register
 
 
 # What the traffic image will grow to carry. Each entry names the ONE thing that marker is

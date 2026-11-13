@@ -16,7 +16,7 @@ Teeth, each importing the code under test at call time:
   (2) no class-space file outside history, state, validations and journals names the old
       module, its probes or its moved proofs, dotted, slashed or path-joined;
   (3) lives at the harbor's own address (RULE 1: this proof may not import the harbor):
-      cairn/devices/cairn/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py;
+      cairn/devices/codemother/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py;
   (4) CodeMother declares no cross verb and holds the clearance gate; the gate, asked queueme
       <fileref> over a scratch world, derives the crossing and answers a clearance refusal;
   (5) no RULE 1 breach between codemother and harbor_master names clearance, and the total

@@ -2,7 +2,7 @@
 
 835b5736bf2b's decision D2 names the receiver for every standing WATCHME probe: harbor_master's
 ``watch`` verb (a88d6a368cfb), which reads ``{ticket, holds, finding}`` and sends a red ticket to
-FIXME. This proof measures the cairn/devices/cairn/machines/harbor_master child: every standing harbor_master probe posting through watch_carry to its own machine's watch verb, and every such spec naming the receiver.
+FIXME. This proof measures the cairn/devices/codemother/machines/harbor_master child: every standing harbor_master probe posting through watch_carry to its own machine's watch verb, and every such spec naming the receiver.
 
 What a hollow build cannot pass (Law 8):
   - A probe left verbless, or carrying its ticket's PATH as

@@ -1,7 +1,7 @@
 """PROBE — the owner is READ off the boat now; does the refusal actually bind anything?
 
 Berth for the WATCHME that ticket ``boat-owner-is-read-not-stated`` carries (object
-``boat-owner-comes-from-the-boat``). Berthed beside ``cairn/devices/cairn/machines/harbor_master`` because that
+``boat-owner-comes-from-the-boat``). Berthed beside ``cairn/devices/codemother/machines/harbor_master`` because that
 is WHAT IT WATCHES: harbor_master owns the authority rung, and Law 6 says the back-edge
 that re-opens this node is the OWNER's act, never the probe's.
 

@@ -37,8 +37,8 @@ exactly as inference_domain and db_domain deferred their faces. A filed edge, be
 
 Deliberately dependency-light: pure file reads + the projector's pure core. Runs bare.
 
-    python3 -m cairn.devices.cairn.machines.harbor_master.register     # prints a human fleet summary
-    python3 -m cairn.devices.cairn.machines.harbor_master.register <intention-address>   # deprecation report
+    python3 -m cairn.devices.codemother.machines.harbor_master.register     # prints a human fleet summary
+    python3 -m cairn.devices.codemother.machines.harbor_master.register <intention-address>   # deprecation report
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ from cairn.tools.operator_inbox.inbox import (
     read_tickets,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parents[5]   # cairn/devices/cairn/machines/harbor_master/register.py -> repo root
+_REPO_ROOT = Path(__file__).resolve().parents[5]   # cairn/devices/codemother/machines/harbor_master/register.py -> repo root
 _CAIRN = _REPO_ROOT / "cairn"
 _SRC_ROOT = _REPO_ROOT.parent                        # ~/dev/src — the common parent of the two repos
 # The tickets are read from where the ONE reader reads them (3feb201c84ea: one status,
@@ -95,7 +95,7 @@ def _open_boats(tickets_dir: Path) -> list[dict]:
 
 def _component_key(d: Path, cairn_root: Path) -> str:
     """The component address the way a ticket's ``owning_component`` spells it:
-    ``devices/cairn/machines/harbor_master``, ``bin``."""
+    ``devices/codemother/machines/harbor_master``, ``bin``."""
     try:
         return str(d.relative_to(cairn_root))
     except ValueError:

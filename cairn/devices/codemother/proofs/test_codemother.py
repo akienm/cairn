@@ -994,6 +994,11 @@ def test_codemother_never_imports_the_harbor():
     for py in sorted(device_root.rglob("*.py")):
         if "proofs" in py.parts or "validations" in py.parts:
             continue
+        # The harbor berths among her machines (ticket 2c2636f52094, outline 9.4.1) but runs
+        # as its own process; its own modules importing each other are the harbor's code, not
+        # hers reaching into it.
+        if py.relative_to(device_root).parts[:2] == ("machines", "harbor_master"):
+            continue
         for n, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
             stripped = line.strip()
             if not (stripped.startswith("import ") or stripped.startswith("from ")):
@@ -1009,7 +1014,7 @@ def test_the_harbor_shim_is_reachable_by_its_own_name():
     """``reach('harbor_master')`` must find a shim that lives under a MACHINE tree.
 
     The resolver walked ``cairn/devices/<name>/shim.py`` and nothing else, so the
-    harbor — which berths at ``cairn/devices/cairn/machines/harbor_master/`` — was
+    harbor — which berths at ``cairn/devices/codemother/machines/harbor_master/`` — was
     unreachable by name and every caller had to know its path. A device that can only
     be reached by those who already know where it lives is not on the bus."""
     from cairn.tools.bus_client import reach

@@ -63,8 +63,8 @@ _GROUP = re.compile(r"^\s*(\S+) \((\d+)\):$")
 _READERS = (
     "cairn/tools/operator_inbox/inbox.py",
     "cairn/devices/codemother/dashboard.py",
-    "cairn/devices/cairn/machines/harbor_master/register.py",
-    "cairn/devices/cairn/machines/harbor_master/device.py",
+    "cairn/devices/codemother/machines/harbor_master/register.py",
+    "cairn/devices/codemother/machines/harbor_master/device.py",
 )
 # Which components' history standing is prose is MEASURED each run from the map's own
 # FINDING lines, never listed here: the list of five frozen at 3feb201c84ea went stale when cc

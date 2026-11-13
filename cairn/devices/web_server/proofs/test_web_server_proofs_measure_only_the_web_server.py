@@ -3,10 +3,10 @@
 
 The build inspector's encapsulation_holds filed, 2026-11-11, test_web_server_chat.py:45
 importing cairn.devices.librarian.shim and test_voyage_pane.py:43 importing
-cairn.devices.cairn.machines.harbor_master.voyage. Both now drive the web server with spec devices.
+cairn.devices.codemother.machines.harbor_master.voyage. Both now drive the web server with spec devices.
 
 Teeth:
-  (1) no RULE 1 breach from a file under cairn/devices/web_server lands on cairn/devices/librarian, cairn/devices/cairn/machines/harbor_master;
+  (1) no RULE 1 breach from a file under cairn/devices/web_server lands on cairn/devices/librarian, cairn/devices/codemother/machines/harbor_master;
   (2) the edited files name none of the forbidden modules.
 
     bin/cairn test cairn/devices/web_server/proofs/test_web_server_proofs_measure_only_the_web_server.py
@@ -25,8 +25,8 @@ if str(_REPO) not in sys.path:
 PROVES = {"3650ce94445b": {"1": "test_no_breach_from_web_server_lands_on_librarian_or_harbor", "2": "test_the_web_server_proofs_name_no_librarian_or_harbor_module"}}
 
 COMP = "cairn/devices/web_server"
-TARGETS = ('cairn/devices/librarian', 'cairn/devices/cairn/machines/harbor_master')
-FORBID = {'cairn/devices/web_server/proofs/test_web_server_chat.py': ['cairn.devices.librarian', 'cairn.devices.cairn.machines.harbor_master'], 'cairn/devices/web_server/proofs/test_voyage_pane.py': ['cairn.devices.librarian', 'cairn.devices.cairn.machines.harbor_master']}
+TARGETS = ('cairn/devices/librarian', 'cairn/devices/codemother/machines/harbor_master')
+FORBID = {'cairn/devices/web_server/proofs/test_web_server_chat.py': ['cairn.devices.librarian', 'cairn.devices.codemother.machines.harbor_master'], 'cairn/devices/web_server/proofs/test_voyage_pane.py': ['cairn.devices.librarian', 'cairn.devices.codemother.machines.harbor_master']}
 
 FAILURES: list[str] = []
 

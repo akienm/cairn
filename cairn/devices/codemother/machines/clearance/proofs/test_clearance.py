@@ -1497,7 +1497,7 @@ def test_the_reverse_read_PARTITIONS_the_fleet_and_agrees_with_the_register():
     Two invariants: the four buckets partition the in-flight population exactly, and every
     boat the reverse read returns is one the fleet register also calls open. If the two
     disagree about what a boat IS, that disagreement is the finding."""
-    r = riders_of("cairn/devices/cairn/machines/harbor_master/intention+why.json")
+    r = riders_of("cairn/devices/codemother/machines/harbor_master/intention+why.json")
     assert isinstance(r, Riders)
     assert r.attributable + len(r.unattributed) + len(r.unresolvable) == r.in_flight, \
         f"the buckets do not partition the fleet: {r.blind} over {r.in_flight}"
@@ -1548,7 +1548,7 @@ def test_the_read_face_prints_only_numbers_the_library_returned():
     """A presentation surface may arrange; it may not compute a second version of the truth
     (Law 7). Every integer the report prints is checked against the one the library returned
     on the same corpus — so the printed answer and the programmatic answer cannot drift."""
-    addr = "cairn/devices/cairn/machines/harbor_master/intention+why.json"
+    addr = "cairn/devices/codemother/machines/harbor_master/intention+why.json"
     r = riders_of(addr)
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):

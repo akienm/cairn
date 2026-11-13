@@ -5,7 +5,7 @@ Until this ticket they imported codemother's dashboard and the harbor master's d
 to render the three reports. The fixture halves berth at their owners (0c6f774d9ad8, cbbb651f4552).
 
 Teeth:
-  (1) no RULE 1 breach from a file under cairn/tools/operator_inbox lands on cairn/devices/codemother, cairn/devices/cairn/machines/harbor_master;
+  (1) no RULE 1 breach from a file under cairn/tools/operator_inbox lands on cairn/devices/codemother, cairn/devices/codemother/machines/harbor_master;
   (2) the edited files name none of the forbidden modules.
 
     bin/cairn test cairn/tools/operator_inbox/proofs/test_operator_inbox_proofs_measure_only_operator_inbox.py
@@ -24,8 +24,8 @@ if str(_REPO) not in sys.path:
 PROVES = {"96afb3586d2e": {"1": "test_no_operator_inbox_file_reaches_a_device", "2": "test_the_proofs_and_probe_name_no_device_module"}}
 
 COMP = "cairn/tools/operator_inbox"
-TARGETS = ('cairn/devices/codemother', 'cairn/devices/cairn/machines/harbor_master')
-FORBID = {'cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py': ['cairn.devices.codemother', 'cairn.devices.cairn.machines.harbor_master'], 'cairn/tools/operator_inbox/proofs/test_operator_inbox.py': ['cairn.devices.codemother'], 'cairn/tools/operator_inbox/probes/one_status_everywhere.py': ['cairn.devices.codemother', 'cairn.devices.cairn.machines.harbor_master']}
+TARGETS = ('cairn/devices/codemother', 'cairn/devices/codemother/machines/harbor_master')
+FORBID = {'cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py': ['cairn.devices.codemother', 'cairn.devices.codemother.machines.harbor_master'], 'cairn/tools/operator_inbox/proofs/test_operator_inbox.py': ['cairn.devices.codemother'], 'cairn/tools/operator_inbox/probes/one_status_everywhere.py': ['cairn.devices.codemother', 'cairn.devices.codemother.machines.harbor_master']}
 
 FAILURES: list[str] = []
 

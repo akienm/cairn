@@ -7,7 +7,7 @@ and crossing; it answers no gate and moves no ticket, and `clear` leaves. Ticket
 clearance); this tooth stands at the harbor's own address because no other component may
 import the harbor (RULE 1).
 
-    bin/cairn test cairn/devices/cairn/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py
+    bin/cairn test cairn/devices/codemother/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_the_harbor_answers_no_clear() -> None:
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+    from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
     verbs = HarborMasterDevice().declared_verbs()
     check("test_the_harbor_answers_no_clear", "clear" not in verbs and "crossing" in verbs,
           f"verbs: {sorted(verbs)}")

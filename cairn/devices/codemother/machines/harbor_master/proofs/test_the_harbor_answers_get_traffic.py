@@ -13,7 +13,7 @@ Teeth a hollow build could not pass:
   (2) ``show traffic`` is accepted and carries the same data plus a text rendering.
   (3) the ``get traffic`` data survives a JSON round trip unchanged: the bus carries JSON.
 
-    bin/cairn test cairn/devices/cairn/machines/harbor_master/proofs/test_the_harbor_answers_get_traffic.py
+    bin/cairn test cairn/devices/codemother/machines/harbor_master/proofs/test_the_harbor_answers_get_traffic.py
 """
 from __future__ import annotations
 
@@ -49,8 +49,8 @@ _PINNED: dict = {}
 def _device():
     """A harbor master whose fleet cache is pinned to one register read, so the expected image
     is computed over exactly the register the view reads."""
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
-    from cairn.devices.cairn.machines.harbor_master.register import register
+    from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
+    from cairn.devices.codemother.machines.harbor_master.register import register
     if not _PINNED:
         _PINNED.update(register())
     dev = HarborMasterDevice()
@@ -59,7 +59,7 @@ def _device():
 
 
 def _expected() -> dict:
-    from cairn.devices.cairn.machines.harbor_master import voyage
+    from cairn.devices.codemother.machines.harbor_master import voyage
     return voyage.traffic_image(json.loads(json.dumps(_PINNED)))
 
 

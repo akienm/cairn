@@ -14,7 +14,7 @@ What a hollow build cannot pass (Law 8):
     test_show_map_renders_human_readable, which checks the text contains fleet
     counts and boat ids.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_fleet_map.py     # exit 0 = green
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_fleet_map.py     # exit 0 = green
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
+from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
 
 
 def _envelope(verb: str, what: str) -> dict:

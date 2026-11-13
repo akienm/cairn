@@ -15,7 +15,7 @@ cursor, a PROVED ticket, a component whose history standing is prose) and over t
   - a prose history standing is a FINDING line, never a status group;
   - a crossing patch reloads the ticket, so the cache wears the phase, not the bare target.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_the_map_wears_the_one_label.py
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_the_map_wears_the_one_label.py
 """
 
 from __future__ import annotations
@@ -91,8 +91,8 @@ def _build_fixture(root: Path) -> tuple[Path, Path]:
 
 def _map(tickets_dir: Path, cairn_root: Path):
     """The harbor's open map over the fixture, and the device that rendered it."""
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
-    from cairn.devices.cairn.machines.harbor_master.register import register
+    from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
+    from cairn.devices.codemother.machines.harbor_master.register import register
     dev = HarborMasterDevice()
     dev._fleet_cache = register(cairn_root=cairn_root, tickets_dir=tickets_dir)
     return dev._render_fleet_map(dev._filter_fleet(dev._fleet_cache, "open")), dev
@@ -219,7 +219,7 @@ def test_crossing_patch_reloads_the_ticket_not_the_target():
 
 
 def test_live_map_rows_wear_the_reader_label():
-    from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+    from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
     labels = _labels()
     assert labels, "no live tickets — a green here would be hollow"
     hmap = HarborMasterDevice()._handle_show({

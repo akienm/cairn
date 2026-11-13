@@ -15,7 +15,7 @@ What a hollow build cannot pass (Law 8): a constant line passes the shape in cla
 fails clause 2, which compares it with the live register's counts, and the live fleet is
 never empty.
 
-    python3 cairn/devices/cairn/machines/harbor_master/proofs/test_a_bare_harbor_counts_its_boats.py
+    python3 cairn/devices/codemother/machines/harbor_master/proofs/test_a_bare_harbor_counts_its_boats.py
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def test_the_bare_command_prints_one_count_line():
 
 
 def test_the_count_is_the_registers_own():
-    from cairn.devices.cairn.machines.harbor_master.shim import HarborMasterShim
+    from cairn.devices.codemother.machines.harbor_master.shim import HarborMasterShim
     shim = HarborMasterShim()
     got = shim._resolve([])
     text = got.get("text") or ""

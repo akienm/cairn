@@ -24,7 +24,7 @@ the ticket's crossing names all three proofs:
       code (not the proofs) of bus_client, tools/base or bin/probes onto the ground loop's
       old roster walk;
   (8) mail to a nested machine still resolves its own shim: ``rack.shim_of('harbor_master')``
-      is ``cairn/devices/cairn/machines/harbor_master/shim.py`` (83 probes post to it,
+      is ``cairn/devices/codemother/machines/harbor_master/shim.py`` (83 probes post to it,
       measured 2026-10-03) — the roster narrowing must not cut a delivery address.
 
 Every face is called inside a tooth, never at import, so a build taken away reds teeth
@@ -146,7 +146,7 @@ def tooth_8(T) -> None:
         ok(T["8"], False, f"shim_of raised {type(exc).__name__}: {exc}")
         return
     devs = _REPO / "cairn" / "devices"
-    ok(T["8"], got == devs / "cairn" / "machines" / "harbor_master" / "shim.py"
+    ok(T["8"], got == devs / "codemother" / "machines" / "harbor_master" / "shim.py"
        and top == devs / "trouble" / "shim.py" and none is None,
        f"harbor_master={got} trouble={top} unknown={none}")
 

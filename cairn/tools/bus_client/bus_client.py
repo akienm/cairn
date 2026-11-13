@@ -172,7 +172,7 @@ def _device_shim_module(device_name: str) -> str | None:
     THE MEASUREMENT THAT BORE IT (2026-09-09, ticket 8754ae677af6): ``reach("harbor_master")``
     raised ``LookupError`` because this loader spelled the address
     ``cairn.devices.<name>.shim``, and ``harbor_master`` is a machine held by the ``cairn``
-    device, its shim at ``cairn/devices/cairn/machines/harbor_master/shim.py``. Probes posting
+    device, its shim at ``cairn/devices/codemother/machines/harbor_master/shim.py``. Probes posting
     ``to="harbor_master"`` landed in a mailbox and its ``crossing`` verb was unreachable.
 
     The mail address is NOT the roster (ticket a808e21d646f): a held machine is not a rack

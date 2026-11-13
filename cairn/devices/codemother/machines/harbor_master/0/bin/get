@@ -16,7 +16,7 @@ fi
 shift
 exec python3 -c "
 import json, sys; sys.path.insert(0, '$REPO_ROOT')
-from cairn.devices.cairn.machines.harbor_master.device import HarborMasterDevice
+from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice
 dev = HarborMasterDevice()
 args = sys.argv[2:] if len(sys.argv) > 2 else []
 envelope = {'id': 'cli', 'sender': 'cli', 'to': 'harbor_master',

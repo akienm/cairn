@@ -31791,5 +31791,93 @@
     "fingerprint": "8eaad80f376b7e5f4ef7366a7946979d8e963c96a179e0fac123b5ed443ea3b3",
     "at": "2026-11-12T23:30:10",
     "seq": 107
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "96c1c2ea5ce9",
+    "actor": "CC",
+    "why": "kicked back from PROVEME: its floor walk now lays instance 0's bin on the first run, so f0ffa0db0952's fixture proof (bin/proofs/test_a_declared_instance_is_wired_by_the_command.py, part b) raises FileExistsError on its bare mkdir on Linux; and both 96c1 boxes inherit the caller's CAIRN_BUS_* (this session: akiendelllinux.local:7419), the other-root eviction shape 50ca just fixed",
+    "proven_by": [
+      "bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py",
+      "bin/proofs/test_a_declared_instance_is_wired_by_the_command.py"
+    ],
+    "missing": [
+      "the declared-instance fixture's part (b) mkdirs instance 0's bin bare, and the 96c1 walk already laid it: FileExistsError on Linux, 2026-11-13",
+      "the floor proof's _env and the fixture's env carry the caller's CAIRN_BUS_*: a scratch box can dial a far or live bus"
+    ],
+    "fingerprint": "2426ca8a76e53f4969105d00599b11782f453dac0c5353769d84f4a6577dbd9b",
+    "at": "2026-11-13T02:39:24",
+    "seq": 108
   }
 ]

@@ -35,11 +35,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CAIRN = ROOT / "bin" / "cairn"
 # A path that cannot be created on any host: beneath a regular file, so a mkdir is refused
 # (ticket eb1b46bed3d8; /proc is C:\proc on Windows, where it exists).
-import atexit as _atexit
-import shutil as _shutil
-import tempfile as _tempfile
-_BLOCK_DIR = _tempfile.mkdtemp(prefix="cairn-uncreatable-")
-_atexit.register(_shutil.rmtree, _BLOCK_DIR, ignore_errors=True)
+from cairn.tools.scratch.scratch import scratch_dir as _scratch_dir  # noqa: E402
+_BLOCK_DIR = str(_scratch_dir("cairn-uncreatable-"))   # swept by the scratch tool
 Path(_BLOCK_DIR, "blocker").write_text("a regular file", encoding="utf-8")
 UNCREATABLE = (Path(_BLOCK_DIR) / "blocker" / "venv").as_posix()
 

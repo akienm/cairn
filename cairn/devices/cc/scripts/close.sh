@@ -26,6 +26,7 @@ fi
 # over a refused crossing is a false record (2026-11-09).
 cd $C && OUT=$(python3 $X cross $ID 2>&1); RC=$?; echo "$OUT" | tail -2
 if [ $RC -ne 0 ] || ! echo "$OUT" | grep -q -- '-> \[PROVED\]'; then
+  echo "$OUT" | grep -E '^\s*\[|refused|Red|Error' | cut -c1-700 | head -20
   commit_all "PROVED refused at clearance"; echo "--- PROVED REFUSED"; exit 1
 fi
 cd $C && bin/cairn cleanup 2>&1 | tail -1

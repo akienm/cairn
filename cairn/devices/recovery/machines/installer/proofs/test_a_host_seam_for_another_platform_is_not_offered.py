@@ -28,6 +28,7 @@ PROVES = {"45a6331971fd": {
     "1": "test_a_seam_for_another_platform_is_skipped_by_name_and_never_verified",
     "2": "test_a_seam_without_a_declaration_or_for_this_platform_is_judged_as_before",
     "3": "test_the_usage_widget_seam_declares_linux_and_this_box_does_not_offer_it",
+    "4": "test_the_gate_passes_a_not_applicable_seam_and_still_refuses_a_red_one",
 }}
 
 NEVER = "not-a-platform-anyone-runs"
@@ -53,11 +54,25 @@ def test_a_seam_for_another_platform_is_skipped_by_name_and_never_verified() -> 
     results = install(intentions_dir=_corpus(other), dry_run=True)
     (r,) = results
     assert r["id"] == "other-platform", r
-    assert r["status"] != "offered", r
+    assert r["status"] == "not_applicable", r
+    assert r["status"] != "already_applied", f"a seam never applied here must not read applied: {r}"
     assert r.get("skipped") == "platform", r
     assert NEVER in r["detail"] and sys.platform in r["detail"], r
     assert not marker.exists(), "the verify of a seam for another platform ran"
     assert red_of(results) == [], f"a skipped seam must not stand as a red: {results}"
+
+
+def test_the_gate_passes_a_not_applicable_seam_and_still_refuses_a_red_one() -> None:
+    import functools
+
+    from cairn.devices.recovery.machines.install_inspector.inspector import installed
+    from cairn.devices.recovery.machines.installer.installer import install
+    only_other = _corpus(_seam("other-platform", "exit 1", platforms=[NEVER]))
+    ok, reds = installed([functools.partial(install, intentions_dir=only_other)])
+    assert ok and reds == [], (ok, reds)
+    with_red = _corpus(_seam("other-platform", "exit 1", platforms=[NEVER]), _seam("here-red", "exit 1"))
+    ok, reds = installed([functools.partial(install, intentions_dir=with_red)])
+    assert not ok and [r["id"] for r in reds] == ["here-red"], (ok, reds)
 
 
 def test_a_seam_without_a_declaration_or_for_this_platform_is_judged_as_before() -> None:
@@ -79,7 +94,7 @@ def test_the_usage_widget_seam_declares_linux_and_this_box_does_not_offer_it() -
     assert seam.get("platforms") == ["linux"], seam.get("platforms")
     if sys.platform != "linux":
         r = next(x for x in install(dry_run=True) if x["id"] == "usage-widget-hook")
-        assert r["status"] != "offered" and r.get("skipped") == "platform", r
+        assert r["status"] == "not_applicable" and r.get("skipped") == "platform", r
 
 
 def _main() -> int:

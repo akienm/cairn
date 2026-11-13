@@ -4,7 +4,7 @@ A box's install is measured, not remembered. CHECKS lists the install checks; ea
 'module:function' string or a callable (functools.partial included, so a proof can aim one at a
 scratch repo) shaped `check(dry_run=...) -> {id, status, detail}`, or a list of those (the
 host-seam install()). inspect() runs every check with dry_run=True, writes nothing, and returns
-the reds: every status but already_applied, and a check that raises, its exception in the detail.
+the reds: every status but already_applied and not_applicable, and a check that raises, its exception in the detail.
 installed() is the gate: (False, reds) while any red stands, (True, []) once all are green.
 The installer's fix_reds calls each red check once with dry_run=False.
 """
@@ -16,6 +16,10 @@ import importlib
 from typing import Callable
 
 GREEN = "already_applied"
+# Ticket 45a6331971fd: a step that cannot apply on this box's platform was never applied, so it must not read
+# already_applied (a reader trusting that word would believe it is on the box); it reads not_applicable, which
+# the gate counts green because there is nothing here to apply.
+NOT_APPLICABLE = "not_applicable"
 
 CHECKS: list = [
     "cairn.devices.recovery.machines.installer.installer:install",
@@ -57,7 +61,7 @@ def measure(checks=None) -> list[tuple]:
 
 
 def red_of(results: list[dict]) -> list[dict]:
-    return [r for r in results if r.get("status") != GREEN]
+    return [r for r in results if r.get("status") not in (GREEN, NOT_APPLICABLE)]
 
 
 def inspect(checks=None) -> list[dict]:

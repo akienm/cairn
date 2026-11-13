@@ -474,7 +474,7 @@ def install(
     """Run the installer projection.
 
     Returns a list of result dicts, each with: id, status, detail.
-    Statuses: already_applied, offered, skipped, failed, applied.
+    Statuses: already_applied, not_applicable, offered, skipped, failed, applied.
     """
     d = intentions_dir or DEFAULT_INTENTIONS_DIR
     if not d.is_dir():
@@ -489,13 +489,13 @@ def install(
         sid = seam.get("id", "<unknown>")
 
         # Ticket 45a6331971fd: a seam declaring other platforms than this box's cannot apply here, so its
-        # verify is not run and it is not offered. It reads green (the gate refuses any red, and a Windows
-        # box could never read installed for a KDE seam), carrying skipped="platform" and the reason named.
+        # verify is not run and it is not offered. It reads not_applicable, never already_applied (it was
+        # never applied here), which the gate counts green so a Windows box can read installed.
         platforms = seam.get("platforms")
         if platforms and sys.platform not in platforms:
             results.append({
                 "id": sid,
-                "status": "already_applied",
+                "status": "not_applicable",
                 "skipped": "platform",
                 "detail": f"skipped: this seam applies on {', '.join(platforms)} only; this box is {sys.platform}",
             })

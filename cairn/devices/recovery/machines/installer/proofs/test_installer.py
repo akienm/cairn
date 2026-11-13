@@ -40,6 +40,7 @@ assert (REPO / "bin" / "cairn").exists(), f"REPO {REPO} does not hold bin/cairn"
 sys.path.insert(0, str(REPO))
 
 from cairn.devices.recovery.machines.installer.installer import (
+    bash_exe,
     gather_host_seams,
     install,
     run_verify,
@@ -202,7 +203,7 @@ def test_ask_user_yn():
     """ask_user.sh forks on Y/N and runs the right branch."""
     for answer, expect in [("Y", "yes-branch"), ("N", "no-branch")]:
         result = subprocess.run(
-            ["bash", str(ASK_USER), "question?", "YN",
+            [bash_exe(), str(ASK_USER), "question?", "YN",
              "echo yes-branch", "echo no-branch"],
             input=f"{answer}\n", capture_output=True, text=True,
         )
@@ -216,7 +217,7 @@ def test_ask_user_yn():
 def test_ask_user_bad_type():
     """ask_user.sh exits non-zero on an unknown type."""
     result = subprocess.run(
-        ["bash", str(ASK_USER), "question?", "MENU", "echo y", "echo n"],
+        [bash_exe(), str(ASK_USER), "question?", "MENU", "echo y", "echo n"],
         input="Y\n", capture_output=True, text=True,
     )
     if result.returncode == 0:
@@ -226,7 +227,7 @@ def test_ask_user_bad_type():
 def test_ask_user_bad_input():
     """ask_user.sh exits non-zero on input that is neither Y nor N."""
     result = subprocess.run(
-        ["bash", str(ASK_USER), "question?", "YN", "echo y", "echo n"],
+        [bash_exe(), str(ASK_USER), "question?", "YN", "echo y", "echo n"],
         input="maybe\n", capture_output=True, text=True,
     )
     if result.returncode == 0:
@@ -239,8 +240,8 @@ def test_applied_and_verified():
         d = Path(td)
         marker = Path(td) / "applied_marker"
         write_seam(d, make_seam(
-            "good-seam", f"test -f {marker}",
-            apply_steps={"1_create": f"touch {marker}"},
+            "good-seam", f"test -f {marker.as_posix()}",
+            apply_steps={"1_create": f"touch {marker.as_posix()}"},
         ))
 
         # The operator says yes; verify fails initially but the test

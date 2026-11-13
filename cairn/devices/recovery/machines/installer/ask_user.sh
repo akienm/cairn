@@ -15,6 +15,8 @@ case "$TYPE" in
     YN)
         printf '%s [Y/N] ' "$QUESTION" >&2
         read -r ANSWER
+        ANSWER="${ANSWER%$'\r'}"  # a Windows pipe in text mode sends Y\r\n
+
         case "$ANSWER" in
             [Yy]|[Yy][Ee][Ss])
                 exec bash -c "$ON_YES"

@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +39,13 @@ def gather_host_seams(intentions_dir: Path) -> list[dict]:
     return seams
 
 
+def bash_exe() -> str:
+    """The bash to spawn. Measured 2026-11-12: on Windows a bare "bash" handed to CreateProcess resolves to
+    C:\Windows\System32\bash.exe (the WSL launcher), which strips the backslashes from a Windows path
+    (rc 127); shutil.which answers the PATH-first bash (Git's). Elsewhere it is plain "bash"."""
+    return shutil.which("bash") or "bash"
+
+
 def run_verify(seam: dict) -> tuple[bool, str]:
     """Run a seam's verify.command.  Returns (passed, output)."""
     verify = seam.get("verify", {})
@@ -46,7 +54,7 @@ def run_verify(seam: dict) -> tuple[bool, str]:
         return False, "no verify command declared"
     try:
         result = subprocess.run(
-            ["bash", "-c", cmd],
+            [bash_exe(), "-c", cmd],
             capture_output=True, text=True, timeout=30,
         )
         output = result.stdout.strip() or result.stderr.strip()

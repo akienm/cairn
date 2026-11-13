@@ -858,6 +858,34 @@ def run_or_record(run, *, raiser=None, standing=None) -> int:
     return code
 
 
+def hollow_tickets(proof_path) -> set[str]:
+    """The tickets whose hollow reading rides this proof's STANDING validation."""
+    trail = read_validations(str(proof_path))
+    hollow = ((trail[-1].get("evidence") or {}).get("hollow") if trail else None)
+    return set(hollow) if isinstance(hollow, dict) else set()
+
+
+def voided_hollows(proof_path, before: set[str]) -> list[str]:
+    """The tickets in ``before`` whose hollow reading the seal just taken no longer carries.
+
+    WHY IT IS SAID AND NOT REFUSED (ticket d5a05b6d1752). ``persist_validation`` carries
+    ``evidence.hollow`` forward only while the fingerprint is unchanged, so a seal over moved
+    code drops the reading, and that is right (Law 3: the code it measured is gone). Refusing
+    would block a legitimate reseal. What was missing, measured 2026-11-12 at n=5, is the ticket
+    being told: its next PROVED crossing bounced to FIXME on ``hollow_evidence_absent`` with
+    nobody having said the reading was gone."""
+    return sorted(before - hollow_tickets(proof_path))
+
+
+def hollow_voided_lines(rel, tickets: list[str]) -> list[str]:
+    """The lines a seal writer prints for a proof whose seal voided ``tickets``' hollow."""
+    return [f"\n─── HOLLOW VOIDED: {rel} " + "─" * 20,
+            f"    this seal replaced the one the hollow reading of {', '.join(tickets)} was taken "
+            f"over, and the code moved, so the reading expired with it (Law 3).",
+            *(f"    {t}: its PROVED crossing will bounce on hollow_evidence_absent; after PROVEME, "
+              f"retake it: cairn test --hollow {t} --seal" for t in tickets)]
+
+
 def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None,
                skip_settled: bool = False, timeout: int = 120,
                index_only: bool = False, trouble_root=None) -> dict:
@@ -869,9 +897,12 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
     results, refusals = [], []
     for proof in proofs:
         try:
-            results.append(reseal(proof, ruling_id=ruling_id, tester=tester, raiser=raiser,
-                                  skip_settled=skip_settled, timeout=timeout,
-                                  index_only=index_only, trouble_root=trouble_root))
+            before = hollow_tickets(proof)
+            r = reseal(proof, ruling_id=ruling_id, tester=tester, raiser=raiser,
+                       skip_settled=skip_settled, timeout=timeout,
+                       index_only=index_only, trouble_root=trouble_root)
+            r["hollow_voided"] = voided_hollows(proof, before)
+            results.append(r)
         except ResealRefused as refusal:
             refusals.append({"proof": _rel(proof), "refusal": str(refusal)})
     counts = {}

@@ -264,6 +264,10 @@ def _reseal_ladder(args) -> int:
             continue
         else:
             print(f"  RESEAL  {r['proof']}  (rung {r['rung']})")
+    from cairn.devices.tester.reseal import hollow_voided_lines
+    for r in outcome["results"]:
+        if r.get("hollow_voided"):
+            print("\n".join(hollow_voided_lines(r["proof"], r["hollow_voided"])))
     for red in outcome["red"]:
         print(f"\n─── RUNG 3: {red['proof']} " + "─" * 20)
         for line in (red.get("stderr_tail") or "").splitlines():
@@ -565,6 +569,7 @@ def main(argv: list[str] | None = None) -> int:
     persisted_seals: Counter[str] = Counter()
     sealed_green: list[tuple[Path, dict]] = []
     isolations: Counter[str] = Counter()
+    hollow_before: dict[Path, set[str]] = {}
 
     def isolation_for(proof: Path) -> str:
         """Every proof runs at isolation ``none``: the network seal is retired (ticket
@@ -597,6 +602,9 @@ def main(argv: list[str] | None = None) -> int:
             ladder = read_ladder(proof)
         isolation = isolation_for(proof)
         isolations[isolation] += 1
+        if sink == "validations":   # ticket d5a05b6d1752: whose hollow stands before this seal
+            from cairn.devices.tester.reseal import hollow_tickets
+            hollow_before[proof] = hollow_tickets(proof)
         try:
             record = tester.run_proof(proof, sink="none" if ladder else sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation,
@@ -701,6 +709,14 @@ def main(argv: list[str] | None = None) -> int:
               + (f" — seal {spread_seals}" if spread_seals else "")
               + (". A record reading `open` means the route was never measured, not that it "
                  "was measured shut." if persisted_seals.get("sealed", 0) != persisted else "."))
+        # A RESEAL THAT VOIDS A HOLLOW READING SAYS WHOSE (ticket d5a05b6d1752). Printed, never
+        # refused: a reseal over moved code is legitimate, and the reading expiring with the
+        # code is right (Law 3). What was missing is that the ticket losing it was told.
+        from cairn.devices.tester.reseal import hollow_voided_lines, voided_hollows
+        for proof, before in hollow_before.items():
+            lost = voided_hollows(proof, before) if before else []
+            if lost:
+                print("\n".join(hollow_voided_lines(_rel(proof), lost)))
         for proof, why in refused:
             rel = proof.relative_to(REPO_ROOT) if proof.is_relative_to(REPO_ROOT) else proof
             print(f"\n─── SEAL REFUSED: {rel} " + "─" * 20)

@@ -77,7 +77,8 @@ WANT = [{"name": "frob", "about": "frob — turns the fixture's crank"},
 
 
 def _drive(home: Path, root: Path, mode: str) -> subprocess.CompletedProcess:
-    env = dict(os.environ, HOME=str(home), CAIRN_INSTANCE_ROOT=str(root), PYTHONPATH=str(REPO))
+    from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
+    env = home_env(home, CAIRN_INSTANCE_ROOT=str(root), PYTHONPATH=str(REPO))
     return subprocess.run([sys.executable, __file__, "--drive", mode], env=env, capture_output=True,
                           text=True, timeout=120, cwd=str(REPO))
 

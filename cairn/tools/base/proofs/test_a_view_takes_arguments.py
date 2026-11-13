@@ -119,7 +119,8 @@ def _scratch() -> Path:
 
 
 def _run(home: Path, *argv: str) -> dict:
-    env = dict(os.environ, HOME=str(home), PYTHONPATH=str(ROOT))
+    from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
+    env = home_env(home, PYTHONPATH=str(ROOT))
     r = subprocess.run([sys.executable, __file__, "--drive", *argv], env=env,
                        capture_output=True, text=True, timeout=120, cwd=str(ROOT))
     for line in r.stdout.splitlines():

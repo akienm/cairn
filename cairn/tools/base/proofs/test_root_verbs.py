@@ -141,7 +141,8 @@ def _scratch() -> Path:
 
 
 def _run(home: Path, which: str, *argv: str) -> subprocess.CompletedProcess:
-    env = dict(os.environ, HOME=str(home), PYTHONPATH=str(ROOT))
+    from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
+    env = home_env(home, PYTHONPATH=str(ROOT))
     return subprocess.run([sys.executable, __file__, "--drive", which, *argv], env=env,
                           capture_output=True, text=True, timeout=120, cwd=str(ROOT))
 

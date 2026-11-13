@@ -67,8 +67,9 @@ def _unit(n: int) -> str:
 
 def _env(n: int, unit: str, test_id: str | None) -> dict:
     home = scratch_dir(f"cairn-proof-loopmark-home-{n}-")
-    env = {k: v for k, v in os.environ.items() if k != _ENV}
-    env.update({"HOME": str(home), "CAIRN_GROUND_LOOP_UNIT": unit, "PYTHONPATH": str(ROOT)})
+    from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
+    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT))
+    env.pop(_ENV, None)
     if test_id:
         env[_ENV] = test_id
     return env

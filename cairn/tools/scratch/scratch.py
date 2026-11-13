@@ -194,6 +194,24 @@ def git_env() -> dict:
     return {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
 
 
+def home_env(home: str | Path, **extra: str) -> dict:
+    """The caller's environment for a child given a scratch HOME: every ``CAIRN_BUS_*`` variable
+    removed, ``HOME=home``, then the caller's ``extra`` applied last (ticket 3301915df481).
+
+    MEASURED 2026-11-12 on akienasus: the session env carried
+    ``CAIRN_BUS_HOME=akiendelllinux.local:7419``, and a proof built its child's env as
+    ``dict(os.environ, HOME=scratch)``. The scratch-HOME child dialled the Dell's live bus, and a
+    tooth red over the Dell's status while the Dell's own seal read it green. A scratch HOME is no
+    isolation while the bus address rides an env var. Same shape as ``git_env``: a caller who
+    remembers to scrub is the caller who forgets, so the scrub is a named import. A proof that
+    wants a bus names it in ``extra`` (``CAIRN_BUS_HOME=...``), and that one survives.
+    """
+    env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
+    env["HOME"] = str(home)
+    env.update({k: str(v) for k, v in extra.items()})
+    return env
+
+
 def bare_temp_reach(root: str | Path) -> list[str]:
     """Every live line under ``root``'s ``proofs/test_*.py`` that reaches the system temp
     directory bare — ``mkdtemp`` or ``gettempdir`` — as ``'<relpath>:<line>: <stripped line>'``.

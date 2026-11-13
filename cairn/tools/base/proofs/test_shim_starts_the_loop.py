@@ -74,10 +74,8 @@ CONSTRUCT = (
 
 
 def _env(home: Path, unit: str) -> dict:
-    env = dict(os.environ)
-    env["HOME"] = str(home)
-    env["CAIRN_GROUND_LOOP_UNIT"] = unit
-    env["PYTHONPATH"] = str(ROOT)
+    from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
+    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT))
     return env
 
 

@@ -1,14 +1,14 @@
 [
   {
-    "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T00:52:15",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_scratch.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T06:24:34",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
-      "stderr_tail": "",
+      "stderr_tail": "scratch: could not sweep C:\\Users\\akien\\AppData\\Local\\Temp\\ws-shim-pulse-scratch.0-7060-fdg43py2: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\akien\\\\AppData\\\\Local\\\\Temp\\\\ws-shim-pulse-scratch.0-7060-fdg43py2\\\\web_server.log'",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
         "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
@@ -20,7 +20,7 @@
         "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
       "teeth_red": [],
-      "test": "test-986e20492937",
+      "test": "test-fe1f2f769ead",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,50 +30,50 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3a255ea0277e2ec8f211b7788bf0ce8413faf1d615ba2d5c73cf460b933794b8",
+        "proof": "8396bd4f0f4d470a571087a922a21ca3039d17b02c083cf2be62cf8576c32f6d",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-986e20492937",
-      "source_fingerprint": "17c9eaaaccbef54eb413791e12a637d32cba1318ff24a29bc0beabfdc04c8ed5",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-fe1f2f769ead",
+      "source_fingerprint": "2d87c01091a0fbad86a9b0462712b7e48ee71f96f3a251f5d7e790b337800c2c",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch.py",
         "cairn/tools/scratch/scratch.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5"
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2427720-t8fr1sx5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 529872755,
-          "disk_bytes": 571166720,
-          "entries": 15918,
-          "builds": 1,
-          "reuses": 2
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       }
     },

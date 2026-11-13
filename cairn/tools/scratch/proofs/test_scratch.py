@@ -23,6 +23,7 @@ the same cleanup. Teeth a hollow door could not pass:
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -31,7 +32,9 @@ PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
                             "2": "test_a_with_block_holds_the_scratch",
                             "3": "test_a_with_block_holds_the_scratch",
                             "4": "test_every_with_scratch_dir_site_in_the_repo_enters"},
-          "b4d39f3610f3": {"all": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one"}}
+          "b4d39f3610f3": {"all": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one"},
+          "852b6b5fa4bd": {"1": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one",
+                           "2": "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal"}}
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
@@ -130,15 +133,17 @@ def test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal():
             "d = scratch_dir('scratch-proof-stuck-')\n"
             "(d / 'child').mkdir()\n"
             "print(d)\n"
-            "os.chmod(d, 0o500)\n")
+            "os.chmod(d, 0o500)\n"
+            # chmod does not lock a directory on NTFS; an open handle does, and it stays
+            # open through the atexit sweep because the interpreter closes it at teardown.
+            "_held = open(d / 'child' / 'held', 'w')\n")
     path, stderr = _in_a_dead_process(body)     # returncode 0 is asserted in the helper
     stuck = Path(path)
     assert "could not remove" in stderr, \
         f"a failed sweep said NOTHING — the leak would be invisible again. stderr: {stderr!r}"
     assert path in stderr, f"the complaint does not name the directory it is about: {stderr!r}"
     stuck.chmod(0o700)                          # leave the box as we found it
-    (stuck / "child").rmdir()
-    stuck.rmdir()
+    shutil.rmtree(stuck, ignore_errors=True)
 
 
 def test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one():
@@ -170,7 +175,7 @@ def test_no_proof_in_this_repo_calls_mkdtemp_bare():
     # mechanism built ahead of any entry) — it is the scanner declining to indict its own
     # control group.
     from cairn.tools.scratch.scratch import bare_temp_reach
-    me = str(Path(__file__).resolve().relative_to(REPO))
+    me = Path(__file__).resolve().relative_to(REPO).as_posix()
     offenders = [o for o in bare_temp_reach(REPO) if not o.startswith(me + ":")]
     assert not offenders, (
         "a proof reaches the system temp directory directly, so what it makes there outlives "

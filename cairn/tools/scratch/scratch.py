@@ -235,7 +235,7 @@ def bare_temp_reach(root: str | Path) -> list[str]:
             continue
         for n, line in enumerate(py.read_text(errors="replace").splitlines(), 1):
             if not line.lstrip().startswith("#") and ("mkdtemp" in line or "gettempdir" in line):
-                out.append(f"{py.relative_to(root)}:{n}: {line.strip()}")
+                out.append(f"{py.relative_to(root).as_posix()}:{n}: {line.strip()}")
     return out
 
 

@@ -1080,7 +1080,7 @@ def test_ingest_asks_and_never_imports():
             names = ([a.name for a in node.names] if isinstance(node, ast.Import)
                      else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
             for name in names:
-                assert not name.startswith("cairn.devices.inference_domain"), (
+                assert not name.startswith("cairn.devices.inferenceproxy"), (
                     f"{Path(mod.__file__).name} imports {name}: the librarian asks over the bus "
                     "and never imports the inference domain (RULE 1)")
     assert "ingest" in _fresh_librarian().declared_verbs(), "the librarian must declare 'ingest'"

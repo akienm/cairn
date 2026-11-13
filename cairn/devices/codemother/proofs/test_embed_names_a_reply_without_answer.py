@@ -3,8 +3,8 @@
 MEASURED 2026-11-12 on akiendell: ``chart learn`` raised a bare ``KeyError: 'answer'``.
 deposit.embed and deposit.embed_metered index ``reply["body"]["answer"]["vector"]`` with no
 guard. A body with no ``answer`` key is what the bus returns when no handler took the ask
-(``is_bounce`` with a ``reason``). inference_domain's own refusal carries ``answer: None`` with
-``outcome``, ``refused`` and ``detail`` (cairn/devices/inference_domain/device.py,
+(``is_bounce`` with a ``reason``). inferenceproxy's own refusal carries ``answer: None`` with
+``outcome``, ``refused`` and ``detail`` (cairn/devices/inferenceproxy/device.py,
 _handle_resolve), which crashes with a TypeError on the same line instead.
 
   1. test_a_reply_without_answer_is_named: for each reply shape (a bus bounce, the domain's
@@ -81,7 +81,7 @@ def test_a_reply_with_a_vector_is_unchanged():
     assert deposit.embed(bus)("some text") == vec, "embed changed the vector"
     got = deposit.embed_metered(bus)("some text")
     assert got == {"vector": vec, "tokens": 7, "hit": True}, f"embed_metered returned {got}"
-    assert len(bus.asked) == 2 and all(a["to"] == "inference_domain" and a["verb"] == "resolve"
+    assert len(bus.asked) == 2 and all(a["to"] == "inference" and a["verb"] == "resolve"
                                        for a in bus.asked), bus.asked
 
 

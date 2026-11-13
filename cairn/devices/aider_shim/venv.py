@@ -98,7 +98,7 @@ FUNCTIONAL = ("gitpython==3.1.46",)
 #: store` -> ModuleNotFoundError: psycopg2. A dependency closure measured over the FOREIGN
 #: program answers what aider needs and is silent about what WE need in the same process.
 #: Measured by the same guard-aware closure pointed at our own entry modules (holder,
-#: interceptor, inference_domain.domain, inference_domain.host): 8 Cairn modules reached,
+#: interceptor, inferenceproxy.domain, inferenceproxy.host): 8 Cairn modules reached,
 #: exactly one third-party root, no guarded ones. Version matches the host interpreter's.
 CAIRN_RUNTIME = ("psycopg2-binary==2.9.12",)
 

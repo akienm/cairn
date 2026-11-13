@@ -167,7 +167,7 @@ def host_name() -> str:
 
     The same comparison ``bus/server.py`` and ``groundloop/pulse.py`` make, so a host-seam seal
     lands under the name every other surface already calls this box (ticket dfe6c1432fc8)."""
-    import platform   # never socket: a store has no business near the mesh (inference_domain's sole-path tooth)
+    import platform   # never socket: a store has no business near the mesh (inferenceproxy's sole-path tooth)
     return platform.node().split(".")[0].lower()
 
 
@@ -1025,7 +1025,7 @@ def persist_validation(
                 # 2026-09-08). This was a bus request, on the reasoning that a clear is a
                 # read-modify-write and so belongs to the hand that owns the store. The
                 # reasoning holds; the bus was the wrong way to reach that hand. Dialing it
-                # pulls in ``bus_client``, which imports ``inference_domain`` and reaches
+                # pulls in ``bus_client``, which imports ``inferenceproxy`` and reaches
                 # ``db_domain`` through the bus device — and this module sits on the build
                 # inspector's own import path (``transitions -> validation_store``), so the
                 # tester's clear was half of why the inspector could statically reach a

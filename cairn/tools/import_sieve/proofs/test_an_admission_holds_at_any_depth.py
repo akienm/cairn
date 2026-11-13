@@ -41,7 +41,7 @@ DIALS = ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
 # question open-10941757e6b7 (remote.py), open-06cfefbe745e (tls.py, the bus TCP proof),
 # open-52b86b71a12d (web_operator, Q#74).
 INFERENCE = {"kind": "sole_path", "capability": "the inference host", "modules": DIALS,
-             "only": ("inference_domain/", "bus_client/remote.py", "bus_client/tls.py",
+             "only": ("inferenceproxy/", "bus_client/remote.py", "bus_client/tls.py",
                       "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/")}
 
 FAILURES: list[str] = []

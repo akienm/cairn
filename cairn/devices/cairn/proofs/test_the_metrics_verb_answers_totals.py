@@ -56,8 +56,8 @@ def _world():
     charter.write_text(json.dumps({"metrics": {
         n: {"consumer": "the yield report (outline 11.4.4.2)", "unit": "tokens"}
         for n in ("spent", "saved", "latency")}}), encoding="utf-8")
-    m = metric.Metric(roots["instance"] / "devices" / "inference_domain" / "0", charter,
-                      source="inference_domain")
+    m = metric.Metric(roots["instance"] / "devices" / "inferenceproxy" / "0", charter,
+                      source="inferenceproxy")
     for at, verdict, spent, saved in ((T1, "miss", 10.0, 0.0), (T2, "hit", 0.0, 4.0),
                                       (T3, "miss", 6.0, 0.0)):
         kw = {"at": at, "info": {"verdict": verdict}}
@@ -125,7 +125,7 @@ def test_the_device_answers_totals() -> None:
     with store.scratch("cairn", "mtot", _COLUMNS()) as t:
         dev = CairnDevice(roots=roots, metrics_table=t)
         out = dev.declared_verbs()["metrics"]({"body": {"totals": True, "by": "verdict",
-                                                         "source": "inference_domain"}})
+                                                         "source": "inferenceproxy"}})
         text = json.dumps(out)
         got = {(r["name"], r["by"]): r["count"] for r in out.get("totals", [])}
         ok = "rows" not in out and got.get(("latency", "miss")) == 2 and got.get(("latency", "hit")) == 1

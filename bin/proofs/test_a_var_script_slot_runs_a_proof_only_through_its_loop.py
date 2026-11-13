@@ -74,8 +74,8 @@ def test_a_proof_as_the_scripts_argument_binds_no_var():
 
 
 def test_the_loop_over_a_proofs_glob_still_binds():
-    for c in ('for p in cairn/devices/inference_domain/proofs/test_*.py; do python3 "$p"; done',
-              'for p in cairn/devices/inference_domain/proofs/test_*.py; do python3 "${p}"; done'):
+    for c in ('for p in cairn/devices/inferenceproxy/proofs/test_*.py; do python3 "$p"; done',
+              'for p in cairn/devices/inferenceproxy/proofs/test_*.py; do python3 "${p}"; done'):
         got = (_gate().judge(c) or {}).get("command")
         assert got == _wrapped(c), f"{c!r}: the loop over a proofs glob must be rewritten under the seal, got {got!r}"
 

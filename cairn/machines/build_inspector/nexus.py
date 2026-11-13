@@ -30,7 +30,7 @@ falsifier. What grafts is the GROWTH:
                               SIEVE QUESTIONS already filed — seeded but unbuilt is
                               exactly what a question nexus holds well. Idempotent.
 
-Vectors arrive as DATA; the embed call is the caller's, through inference_domain (this
+Vectors arrive as DATA; the embed call is the caller's, through inferenceproxy (this
 module never opens the host).
 """
 from __future__ import annotations
@@ -126,7 +126,7 @@ def propose_sieve(failure: str, vector, *, conn=None) -> dict:
 
 def seed_founding(embed, *, conn=None) -> list[dict]:
     """Edge (a): the candidate questions take residence. ``embed`` is the injected seam
-    (text → vector through inference_domain); reseeding dedups to no-ops."""
+    (text → vector through inferenceproxy); reseeding dedups to no-ops."""
     return [
         deposit_failure(q["content"], embed(q["content"]),
                         {**q["provenance"], "candidate_sieve": q["candidate_sieve"]},

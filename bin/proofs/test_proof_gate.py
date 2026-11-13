@@ -120,18 +120,18 @@ def _rewritten(command: str) -> str:
     return out.get("updatedInput", {}).get("command", "")
 
 
-P = "cairn/devices/inference_domain/proofs/test_inference_domain.py"
+P = "cairn/devices/inferenceproxy/proofs/test_inferenceproxy.py"
 
 BY_PATH = [
     f"python3 {P}",
-    "cd cairn && python3 devices/inference_domain/proofs/test_inference_domain.py",
+    "cd cairn && python3 devices/inferenceproxy/proofs/test_inferenceproxy.py",
     f"PYTHONPATH=. python3 {P}",
     f"PYTHONPATH=$PWD timeout 600 python3 -u {P} 2>&1 | tail -5",
     f"strace -f -o /tmp/x.strace python3 {P}",
     f"/usr/bin/python3 {P}",
     f"{_REPO_ROOT}/.venv/bin/python {_REPO_ROOT}/{P}",
-    "python3 -m cairn.devices.inference_domain.proofs.test_inference_domain",
-    "for p in cairn/devices/inference_domain/proofs/test_*.py; do python3 \"$p\"; done",
+    "python3 -m cairn.devices.inferenceproxy.proofs.test_inferenceproxy",
+    "for p in cairn/devices/inferenceproxy/proofs/test_*.py; do python3 \"$p\"; done",
     f"git status; python3 {P}",
     f"python3 {P} | PYTHONPATH=. python3 -c \"import sys; print('test_x' in sys.stdin.read())\"",
 ]

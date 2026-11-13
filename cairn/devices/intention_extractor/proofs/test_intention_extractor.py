@@ -63,11 +63,11 @@ def _fresh_extractor() -> IntentionExtractorDevice:
 
 
 def _resolver_returning(text: str, counter: list | None = None):
-    """A fake resolve seam in inference_domain.resolve's return shape, optionally counting calls."""
+    """A fake resolve seam in inferenceproxy.resolve's return shape, optionally counting calls."""
     def resolve(request: dict) -> dict:
         if counter is not None:
             counter.append(request)
-        assert request["kind"] == "generate", "the seam speaks inference_domain's request shape"
+        assert request["kind"] == "generate", "the seam speaks inferenceproxy's request shape"
         return {"answer": {"text": text}, "hit": False, "canonical": "x"}
     return resolve
 
@@ -240,7 +240,7 @@ def test_device_hood_and_owned_state():
 def test_the_extractor_opens_no_door_of_its_own():
     """extractor.py is import-pure: no outbound-capable module — the host is reached only
     through the caller-injected seam (live wiring lives in live.py, through
-    inference_domain). Same tooth-shape as orient's tooth 15."""
+    inferenceproxy). Same tooth-shape as orient's tooth 15."""
     tree = ast.parse(Path(extractor.__file__).read_text(encoding="utf-8"))
     # cairn.tools.gate joined the allowlist 2026-08-13: it mints the seed's proof-record
     # entry and reads a pass back out — pure data shaping, no outbound capability, and it

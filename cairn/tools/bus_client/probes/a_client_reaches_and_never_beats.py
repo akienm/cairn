@@ -7,7 +7,7 @@ dd8ad9702b49, and this probe moved with it — a probe berths with what it watch
 ``DeviceRoster.pulse``) and ``reach`` (USE it: wire, pulse only the shims addressed).
 
 THE MEASUREMENT THAT BORE IT (2026-09-09, the efficiency eval Akien asked for): one
-``connect_bus()`` on this machine costs **23.5s** and one ``reach("inference_domain")``
+``connect_bus()`` on this machine costs **23.5s** and one ``reach("inference")``
 costs **0.23s**, and five clients — the chart's ``live.py``, the librarian's ``live.py``,
 the intention extractor's ``live.py``, codemother's ``watch.py`` and ``seed_trees.py`` —
 were paying the beat to ask for one embedding. A voyage's chart chain calls ``counsel`` and

@@ -253,9 +253,9 @@ def main() -> None:
         assert set(x) - {"values"} == _FINDING_SHAPE, x
     assert real["clean"] == (not real["findings"])
 
-    # 12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,
+    # 12 — the inspector is inference-free BY IMPORT: no deepen, no inferenceproxy,
     #      no outbound-capable module in inspector.py.
-    tooth('12 — the inspector is inference-free BY IMPORT: no deepen, no inference_domain,')
+    tooth('12 — the inspector is inference-free BY IMPORT: no deepen, no inferenceproxy,')
     import ast as _ast
     src = (_REPO_ROOT / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text()
     tree = _ast.parse(src)
@@ -1033,13 +1033,13 @@ def main() -> None:
     # the rogue's door reds the ROGUE's row alone — healthy keeps its clean.
     assert inspect(root=root, component="healthy")["clean"], \
         "another component's door must never red a clean component's row"
-    # and the mesh's own exemption: the same import INSIDE inference_domain is the
+    # and the mesh's own exemption: the same import INSIDE inferenceproxy is the
     # sole path itself, not a second door.
-    dom = _component(root, "inference_domain")
+    dom = _component(root, "inferenceproxy")
     (dom / "host.py").write_text("import urllib.request\n")
     _reseal(dom)
-    assert inspect(root=root, component="inference_domain")["clean"], \
-        "inference_domain IS the door — the mesh's 'only' must spare it"
+    assert inspect(root=root, component="inferenceproxy")["clean"], \
+        "inferenceproxy IS the door — the mesh's 'only' must spare it"
 
     # ── durable_state_declared (relational-state-goes-through-the-one-door) ──
     # A charter declaring durable_state outside db_domain reds; one declaring

@@ -16,10 +16,18 @@ Two questions, two functions, both answered from paths and never from device cod
   6d667ccebfeb, has 83 probes posting to it and self-serves its mail), so this resolves
   ``cairn/devices/<d>/machines/<name>/shim.py`` too. The roster is narrower than the address
   book on purpose; narrowing the roster must not cut a delivery address.
+- ``answers_as(folder)`` / ``folder_of(name)`` — the name a device answers to on the command
+  line and the bus, when it is not its folder's. The outline names a device's folder and its
+  name apart (11.4: ``cairn/devices/inferenceproxy/``, "Device name on the command line and
+  bus: inference"; 11.3 the same for dbproxy and database). The folder stays the identity the
+  rack lists and every root's address follows; the declared name is one more entry in the
+  address book, read from the device's own charter (``answers_as``), so a name is declared once,
+  at the device, and never in a table here (ticket f942a413f26d).
 """
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 _SKIP = {"__pycache__"}
@@ -64,8 +72,32 @@ def shim_of(name: str, root: Path | str | None = None) -> Path | None:
         return top
     if not devices.is_dir():
         return None
+    folder = folder_of(name, root)
+    if folder is not None and (folder / "shim.py").is_file():
+        return folder / "shim.py"
     for d, _folder, _shim in rack(root):
         nested = devices / d / "machines" / name / "shim.py"
         if nested.is_file():
             return nested
+    return None
+
+
+def answers_as(folder: Path | str) -> str | None:
+    """The name ``folder``'s device answers to on the command line and bus, declared as
+    ``answers_as`` in its ``intention+why.json``; None when it declares none (its folder name is
+    its name) or its charter cannot be read."""
+    try:
+        doc = json.loads((Path(folder) / "intention+why.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    name = doc.get("answers_as") if isinstance(doc, dict) else None
+    return name if isinstance(name, str) and name else None
+
+
+def folder_of(name: str, root: Path | str | None = None) -> Path | None:
+    """The rack folder whose device answers to ``name`` by declaration, or None. A folder that
+    is itself named ``name`` is not looked up here: its name needs no declaring."""
+    for _d, folder, _shim in rack(root):
+        if answers_as(folder) == name:
+            return folder
     return None

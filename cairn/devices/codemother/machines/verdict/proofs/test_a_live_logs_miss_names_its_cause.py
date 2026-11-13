@@ -39,7 +39,7 @@ PROVES = {
 _CLAIM = "the live tickets dir holds this run's ticket"
 _LOGS_MISS = ("Traceback (most recent call last):\n  File \"<string>\", line 1\n"
               "FileNotFoundError: [Errno 2] No such file or directory: "
-              "'/home/someone/.cairn/logs/inference_domain/0/tickets'")
+              "'/home/someone/.cairn/logs/inferenceproxy/0/tickets'")
 
 
 def _world():
@@ -91,7 +91,7 @@ def _refusal_for(tail: str) -> str:
 def test_a_live_logs_miss_names_its_cause():
     err = _refusal_for(_LOGS_MISS)
     assert "live logs tree" in err, "the refusal does not name the seal's empty logs tree: " + err
-    assert "/home/someone/.cairn/logs/inference_domain/0/tickets" in err, \
+    assert "/home/someone/.cairn/logs/inferenceproxy/0/tickets" in err, \
         "the cause line does not carry the path the instrument could not find"
 
 

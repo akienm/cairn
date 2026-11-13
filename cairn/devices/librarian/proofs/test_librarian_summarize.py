@@ -16,7 +16,7 @@ transducer could not pass:
   - Depth travels with the artifact; the crossing breadcrumbs; a markdown fence is
     wrapping, not content; import purity by AST allowlist.
 
-The dual seam is a fake in inference_domain's shape (deterministic embeds, scripted
+The dual seam is a fake in inferenceproxy's shape (deterministic embeds, scripted
 drafts, every generate prompt recorded); the DB is the real one through db_domain
 (nonce table, self-cleaning), as in the trees, loop, and library proofs.
 
@@ -73,7 +73,7 @@ def _fresh_librarian() -> LibrarianDevice:
 
 
 def fake_seam(script: list[str], overrides: dict | None = None):
-    """Both verbs, one fake door, inference_domain's shape. Embeds are deterministic —
+    """Both verbs, one fake door, inferenceproxy's shape. Embeds are deterministic —
     exact-text overrides for teeth needing controlled geometry, else a nonzero 3-dim
     direction from the content's hash. Generates pop the script (last entry repeats,
     which is what a cache would do for an identical request) and every prompt is

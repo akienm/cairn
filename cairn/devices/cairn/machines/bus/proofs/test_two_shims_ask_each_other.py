@@ -2,8 +2,8 @@
 
 Measured 2026-10-17 before the build (py-spy on scratch bus pid 87681): an ABBA deadlock
 between the per-shim RLocks ``BusProcess._wire`` puts around each delivery hook. One thread
-held codemother's lock (on_commit -> watch._escalate_to_hex -> a request to inference_domain)
-and waited on inference_domain's; another held inference_domain's (an infer; its
+held codemother's lock (on_commit -> watch._escalate_to_hex -> a request to inferenceproxy)
+and waited on inferenceproxy's; another held inferenceproxy's (an infer; its
 ``_check_mail`` delivered codemother's queued request and ``deliver`` posted the reply to
 codemother) and waited on codemother's. The asker hung the full 900s client timeout.
 

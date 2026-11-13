@@ -131,14 +131,14 @@ def test_hollow_contract_is_refused():
 
 def test_module_imports_no_inference_client():
     """Scoped to IMPORT LINES, not prose — the docstring rightly NAMES
-    inference_domain as where the seam points; only an import would wire it
+    inferenceproxy as where the seam points; only an import would wire it
     (the leak-scan lesson: scope the scan to where the defect can actually live)."""
     src = (REPO / "cairn" / "machines" / "learning_block" / "learning_block.py").read_text()
     imports = [l for l in src.splitlines() if l.strip().startswith(("import ", "from "))]
-    for word in ("inference_domain", "ollama", "requests", "urllib", "http", "socket"):
+    for word in ("inferenceproxy", "ollama", "requests", "urllib", "http", "socket"):
         hit = [l for l in imports if word in l]
         assert not hit, \
-            f"the seam POINTS at inference_domain; the wiring stays behind that door: {hit}"
+            f"the seam POINTS at inferenceproxy; the wiring stays behind that door: {hit}"
 
 
 # ── dial teeth ───────────────────────────────────────────────────────────────

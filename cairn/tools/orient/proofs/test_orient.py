@@ -262,7 +262,7 @@ def main() -> None:
     }
     assert not (imported & outbound), (
         f"orient.py imports {imported & outbound} — the failover must go through the "
-        "injected inference_domain seam, never a direct line to the host"
+        "injected inferenceproxy seam, never a direct line to the host"
     )
 
     # 16 — IMPORT_MAP measures the CAPABILITY, not the spelling: the loose package

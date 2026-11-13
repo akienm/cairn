@@ -17,7 +17,7 @@ shelf could not pass:
     loudly at learn; the learn crossing breadcrumbs; import purity by AST allowlist.
 
 The shelf is a TEMP directory (instance-space physics without touching the real room);
-the embed seam is a fake in inference_domain's shape; the DB is the real one through
+the embed seam is a fake in inferenceproxy's shape; the DB is the real one through
 db_domain (nonce table, self-cleaning), as in the trees and loop proofs.
 
     python3 cairn/devices/librarian/proofs/test_librarian_library.py     # exit 0 = green
@@ -84,7 +84,7 @@ def _source(name: str, text: str) -> Path:
 
 
 def fake_embed(overrides: dict | None = None):
-    """An embed-only seam in inference_domain's shape: exact-text overrides for teeth
+    """An embed-only seam in inferenceproxy's shape: exact-text overrides for teeth
     that need controlled geometry, else a deterministic nonzero 3-dim direction from the
     content's hash (distinct text, distinct direction — no host)."""
     overrides = overrides or {}

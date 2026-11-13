@@ -1,0 +1,326 @@
+"""inferenceproxy/route.py — the FOURTH STACK: the nest of sieves that lets out the route.
+
+The ruling, verbatim (CairnCommons/decisions/2026-08-08-inference-proxy-is-a-rules-stack.json):
+"The fourth 'stack' is the nest. a mesh built of seives that allow out the lowest cost answer.
+And the lowest cost answer is NEVER 127.0.0.1."
+
+Three authored stacks live beside this module in ``stacks/`` — providers (costs, connection
+handling, enabled+why), models (names, parameters, pros/cons, scores, serves), combos (the
+provider/model pairings and their specifics). The machine half — THIS LAN's endpoints, API
+keys — lives in ``~/.cairn/devices/inferenceproxy/0/hosts.json`` (instance-space, never git;
+moved there 2026-08-17 on Akien's ruling — a device's own state lives in that device's own
+space, and the address is now resolved rather than spelled; the edge
+host.py filed 2026-07-26 closes here). This module composes ``cairn.machines.nest.nest`` over the
+combos: every sieve is a rule a combo must pass, the shake is one pass coarse-first, and
+what survives is ordered cheapest-first for the resolver to dial — the second carrier of
+the block-general nest (build_inspector is the first).
+
+A sieve CUTS with a finding that names itself, so "why didn't this route?" is always
+answered by the trace, never by silence: an unkeyed cloud rung is listed and loudly
+refusing (cut by ``keyed``, the finding says so and names the overlay path where the key
+would land), and loopback is cut by ``never_routed`` categorically — the rule is a row a
+sieve reads, not a comment (Law 4).
+
+BANDS ARE SCAFFOLDING, NOT THE SPEC (Akien, 2026-08-11, ruling
+2026-08-11-a-sieve-is-one-true-false-rule): "a seive is something that evaluates to true
+based on whatever it's inspecting. it's specific to the device being inspected and
+provides a true false ruling." The sentence above about a sieve CUTTING with a
+self-naming finding is the part that matters; the banding is CC's, kept only by leave
+to remain and not to be grown. See cairn/machines/nest/nest.py's header.
+
+Bands are PHASES (Akien, 2026-08-12, ruled; confirmed 2026-08-21), derived from what
+each sieve reads (import_sieve.phase_of) — a hand-set phase would be a learned value
+stranded in a head. Every sieve here takes the subject, so the nest is one band (record);
+that is a measurement, not a design constraint.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from cairn.machines.nest import nest as base_nest
+from cairn.tools.base.address import instance_path
+from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.import_sieve import sieve as import_sieve
+
+STACKS_DIR = Path(__file__).resolve().parent / "stacks"
+
+# TRANSCRIBING A RULING, NOT SETTLING A QUESTION (2026-08-17). This constant sat off the
+# devices/ ladder at ``~/.cairn/inference/hosts.json`` and was held back at the parent
+# ticket as "a spec question about whether all instance-space is device-space, which an
+# edit would answer invisibly". Akien answered it the same day, and the answer is recorded
+# verbatim in the resolver's own docstring: *"devices/inferenceproxy/0/ is exactly right.
+# ruled with a smile"* — hosts.json is this device's own state, so it lives in this
+# device's own space. The 673-byte overlay was moved to the ruled address by hand in the
+# same act, because the resolver may not provision and an address that moves without its
+# file is a device that comes up with no overlay.
+OVERLAY_PATH = instance_path("inferenceproxy", 0) / "hosts.json"
+
+
+class RouteRefused(DiagnosticBase, RuntimeError):
+    """No combo survived the shake (or the rules themselves are unreadable). Loud, with the
+    full sieve trace carried in ``.findings`` — a diagnostic surface delivers ALL the data
+    in its first report, never 'no route' alone."""
+
+    def __init__(self, message: str, findings: list | None = None):
+        super().__init__(message)
+        self.findings = findings or []
+
+
+def load_stacks(stacks_dir: str | Path | None = None) -> dict:
+    """The four authored stacks, loaded and cross-indexed. Refuses loudly on absence —
+    a router without its rules must never quietly fall back to a literal (the defect
+    this module exists to end)."""
+    d = Path(stacks_dir) if stacks_dir else STACKS_DIR
+    out = {}
+    for name in ("providers", "models", "combos", "domains"):
+        path = d / f"{name}.json"
+        if not path.exists():
+            raise RouteRefused(
+                f"the {name} stack is missing at {path} — the rules stack routes or nothing "
+                "does; there is no literal to fall back to (ruling 2026-08-08)")
+        out[name] = json.loads(path.read_text())
+    _check_kind_defaults(out["models"])
+    return out
+
+
+def _check_kind_defaults(models_stack: dict) -> None:
+    """A declared default must name a model that serves its kind (ticket 959bb65192a1): a
+    default that does not would hand a request a model the route then refuses — the wrong
+    cause told to the asker, the defect the table exists to end. Refused at load, by name."""
+    rows = {m["name"]: m for m in models_stack.get("models") or []}
+    for kind, name in (models_stack.get("kind_defaults") or {}).items():
+        row = rows.get(name)
+        if row is None or kind not in (row.get("serves") or []):
+            raise RouteRefused(
+                f"kind_defaults declares {name!r} for kind {kind!r}, but "
+                + ("the models stack carries no such row" if row is None
+                   else f"that model serves {row.get('serves')}, not {kind!r}")
+                + " — fix the default in the models stack")
+
+
+def kind_default(kind: str, stacks: dict | None = None) -> str:
+    """The model a request of ``kind`` gets when it names none, read from the models stack's
+    ``kind_defaults``. A kind that declares none is REFUSED, naming the kind and the kinds that
+    do — the code never picks a model (ticket 959bb65192a1)."""
+    stacks = stacks or load_stacks()
+    defaults = stacks["models"].get("kind_defaults") or {}
+    if kind not in defaults:
+        raise RouteRefused(
+            f"the request names no model and kind {kind!r} declares no default — name a "
+            f"model; kinds that declare a default: {list(defaults)}")
+    return defaults[kind]
+
+
+_DOMAIN_ROW_FIELDS = ("name", "why", "prompts", "escalation")
+
+
+def domain_rows(stacks: dict | None = None) -> dict:
+    """The domain verticals, validated: ``{"rows": {name: row}, "default": name}``.
+
+    A row is a FIELD SET (ticket the-domain-carries-the-inference-side, falsifier tell 6)
+    and the loader refuses malformed rows loudly: exactly one default (a bare call must
+    have exactly one place to land), and every row complete — a row missing its why or its
+    prompts is a vertical that cannot be adjudicated, not a vertical with defaults."""
+    stacks = stacks or load_stacks()
+    rows = (stacks.get("domains") or {}).get("domains") or []
+    lacks = []
+    for row in rows:
+        missing = [f for f in _DOMAIN_ROW_FIELDS if f not in row]
+        if missing:
+            lacks.append(f"row {row.get('name', '(unnamed)')!r} lacks {missing}")
+    defaults = [r["name"] for r in rows if r.get("default")]
+    if len(defaults) != 1:
+        lacks.append(f"exactly one row must be default; found {defaults or 'none'}")
+    if lacks:
+        raise RouteRefused(
+            "the domains stack is malformed — " + "; ".join(lacks)
+            + " — a vertical is a complete field set or it is not a vertical")
+    return {"rows": {r["name"]: r for r in rows}, "default": defaults[0]}
+
+
+def load_overlay(path: str | Path | None = None) -> dict:
+    """The machine half: ``{provider name: {endpoint, api_key?}}`` from instance-space."""
+    p = Path(path) if path else OVERLAY_PATH
+    if not p.exists():
+        raise RouteRefused(
+            f"the machine-facts overlay is missing at {p} — endpoints are facts about this "
+            "machine, not about the code (three-roots law); write hosts.json there with at "
+            "least {'hosts': {'hex': {'endpoint': ...}}} before anything can route")
+    return json.loads(p.read_text()).get("hosts", {})
+
+
+# ---- the sieves. Each fires on one combo VIEW (combo row + its provider/model/host rows)
+# and returns findings — empty means the combo passes this mesh. The finding shape names
+# the sieve, the combo, and the fix, so the trace answers the operator without a re-run.
+
+def _finding(method: str, view: dict, about: str, expected, actual,
+             compare: str = "exact") -> dict:
+    return {
+        "about": about,
+        "expected": expected,
+        "actual": actual,
+        "compare": compare,
+        "method": method,
+        "component": f"{view['combo']['provider']}/{view['combo']['model']}",
+    }
+
+
+def enabled(view: dict) -> list:
+    """The provider is switched on. OpenRouter sits here: listed, disabled, with Akien's
+    why on the row — the stack remembering what a comment would forget."""
+    p = view["provider"]
+    if not p.get("enabled"):
+        return [_finding("enabled", view,
+                         "provider enabled", expected=True, actual=False)]
+    return []
+
+
+def never_routed(view: dict) -> list:
+    """The ruled NEVER: 'the lowest cost answer is NEVER 127.0.0.1.' Categorical — this
+    sieve reads the row's standing, not its price, so no cost table can ever let it out."""
+    p = view["provider"]
+    if p.get("never_route"):
+        return [_finding("never_routed", view,
+                         "provider not never-route", expected=True, actual=False)]
+    return []
+
+
+def serves_kind(view: dict) -> list:
+    """The model actually serves the requested verb, and a request that names a model
+    routes only through that model's combos — the resolver never substitutes an answer
+    from a different model (the cache canonicalizes on the request)."""
+    m, want = view["model"], view["kind"]
+    if m is None:
+        return [_finding("serves_kind", view,
+                         "model row exists", expected=True, actual=False)]
+    if want not in (m.get("serves") or []):
+        return [_finding("serves_kind", view,
+                         "model serves kind", expected=want, actual=m.get("serves"))]
+    asked = view["requested_model"]
+    if asked and m["name"] != asked:
+        return [_finding("serves_kind", view,
+                         "combo carries requested model", expected=asked, actual=m["name"])]
+    return []
+
+
+def keyed(view: dict) -> list:
+    """A provider that needs a key has one in the overlay. An unkeyed rung is listed and
+    loudly refusing — dead until the key lands in instance-space, visible the whole time."""
+    p = view["provider"]
+    if p.get("needs_key") and not (view["host"] or {}).get("api_key"):
+        return [_finding("keyed", view,
+                         "provider keyed", expected=True, actual=False)]
+    return []
+
+
+def addressed(view: dict) -> list:
+    """The overlay names an endpoint for the provider on THIS machine — a combo without a
+    machine address cannot be dialed, however sound its rules."""
+    if not (view["host"] or {}).get("endpoint"):
+        return [_finding("addressed", view,
+                         "provider addressed", expected=True, actual=False)]
+    return []
+
+
+def walk_rank(view: dict, stamps: dict) -> tuple:
+    """The walk order, stamped on each survivor inside the nest (outline 11.4.6; Akien
+    2026-09-15: "capabilities checked first then the post process picked the cheapest", and
+    2026-09-29, option c: the shake ranks rather than cuts). A postprocess sieve: it runs
+    after the measure band has cut, sees only what survived, and ranks it — never a cut, so
+    the survivor set is the measure band's alone. The rank is (0 if the request's domain
+    prefers this model else 1, the provider's cash_per_mtoken); the shake breaks ties by
+    subject name, which is the combos stack's own order, so the author's order stays the
+    tiebreak. ``stamps`` is the measure band's gradation, which this rank does not need."""
+    return (0 if view["combo"]["model"] in view["prefers"] else 1,
+            view["provider"].get("cash_per_mtoken"))
+
+
+SIEVES = {
+    "enabled": enabled,
+    "never_routed": never_routed,
+    "serves_kind": serves_kind,
+    "keyed": keyed,
+    "addressed": addressed,
+    "walk_rank": walk_rank,
+}
+
+_NEST_CACHE: list | None = None
+
+
+def the_nest() -> list:
+    """The sieves assembled by phase — derived from what each sieve reads,
+    never hand-set (the inspector's the_nest() precedent, and the same one-shake word)."""
+    global _NEST_CACHE
+    if _NEST_CACHE is None:
+        phases = import_sieve.phase_of(Path(__file__).read_text())
+        _NEST_CACHE = base_nest.nest(
+            {name: phases.get(fn.__name__, 1) for name, fn in SIEVES.items()})
+    return _NEST_CACHE
+
+
+def route(kind: str, model: str | None = None, *, domain: str | None = None,
+          stacks: dict | None = None, overlay: dict | None = None) -> dict:
+    """One shake of the nest over the combos: what may this request dial, cheapest first?
+
+    Returns ``{"survivors": [...], "gradation": ..., "findings": [...]}`` where survivors
+    are ``{"provider", "model", "endpoint", "cash_per_mtoken"}`` ordered by authored cost
+    (ties keep the combos stack's own order — the author's preference is the tiebreak).
+    The resolver dials survivors in order and walks on HostUnreachable: the nest decides
+    WHO may be dialed, the walk discovers who ANSWERS — reachability is a per-call fact,
+    never a snapshot. No survivors is a loud RouteRefused carrying the full trace.
+
+    ``domain`` names a vertical whose ``prefers`` REORDERS the survivors — preferred
+    models sort ahead, cost order kept within each group. An ordering input, never a cut:
+    the survivor set is identical with and without it, and no preference outranks a sieve
+    (a preferred never-route row was cut before walk_rank ever sees it). The order is the
+    shake's own: walk_rank stamps each survivor and route reads ``order`` back, so nothing
+    sorts after the nest (ticket ae6bdf48b76d). An unknown domain refuses before the shake."""
+    stacks = stacks or load_stacks()
+    overlay = overlay if overlay is not None else load_overlay()
+    prefers: list = []
+    if domain is not None:
+        rows = domain_rows(stacks)["rows"]
+        if domain not in rows:
+            raise RouteRefused(
+                f"no domain row named {domain!r} in the domains stack — a vertical is an "
+                f"authored row, never an ad-hoc string; rows: {list(rows)}")
+        prefers = rows[domain].get("prefers") or []
+    providers = {p["name"]: p for p in stacks["providers"]["providers"]}
+    models = {m["name"]: m for m in stacks["models"]["models"]}
+
+    subjects = {}
+    for i, combo in enumerate(stacks["combos"]["combos"]):
+        p = providers.get(combo["provider"])
+        if p is None:
+            raise RouteRefused(
+                f"combo {combo['provider']}/{combo['model']} names a provider the providers "
+                "stack does not carry — the stacks have drifted apart; fix the rules, not the router")
+        subjects[f"{i:03d} {combo['provider']}/{combo['model']}"] = {
+            "combo": combo, "provider": p, "model": models.get(combo["model"]),
+            "host": overlay.get(combo["provider"]), "kind": kind, "requested_model": model,
+            "prefers": prefers,
+        }
+
+    shaken = base_nest.shake(the_nest(), subjects,
+                             lambda name, view, *stamps: SIEVES[name](view, *stamps))
+    survivors = []
+    for key in shaken["order"]:                       # walk_rank's order, read from the shake
+        view = subjects[key]
+        survivors.append({
+            "provider": view["provider"]["name"],
+            "protocol": view["provider"].get("protocol", "ollama"),
+            "model": view["combo"]["model"],
+            "endpoint": view["host"]["endpoint"],
+            "cash_per_mtoken": view["provider"].get("cash_per_mtoken"),
+        })
+    if not survivors:
+        raise RouteRefused(
+            f"no combo survives the nest for kind={kind!r}"
+            + (f", model={model!r}" if model else "")
+            + " — the trace names what cut each rung: "
+            + "; ".join(f"[{f['method']}] {f['component']}: {f['about']}" for f in shaken["findings"]),
+            findings=shaken["findings"])
+    return {"survivors": survivors, "gradation": shaken["gradation"],
+            "findings": shaken["findings"]}

@@ -13,7 +13,7 @@ One tooth per numbered falsifier clause, over the LIVE system (invariants, never
   3. THE CODE MOVED, ONCE. cairn/devices/codemother/deposit.py defines deposit_berth,
      deposit_verdict and drain_pending and imports nothing of librarian's; live.py defines
      neither of the last two and calls no deposit_<stage> function.
-  4. A REAL DEPOSIT RIDES THE BUS. Over reach('codemother', 'inference_domain'), a deposit
+  4. A REAL DEPOSIT RIDES THE BUS. Over reach('codemother', 'inference'), a deposit
      request carrying the fixture orient packet by value, with body.scratch (a nexus she mints
      on her side and drops before replying, the testing mark), replies accepted with that
      nexus and a node, from any box (ticket 99ef0135b9b6 clause 4).
@@ -119,7 +119,7 @@ def a_real_deposit_rides_the_bus():
     from cairn.tools.bus_client import reach
     fixture = Path(__file__).resolve().parent / "fixtures" / "orient-testing-e8fe361a5b2f.json"
     packet = json.loads(fixture.read_text(encoding="utf-8"))
-    bus = reach("codemother", "inference_domain")
+    bus = reach("codemother", "inference")
     reply = bus.request(sender=SENDER, to="codemother", verb="deposit",
                         why="testing: e8fe361a5b2f proof deposits by value into a scratch nexus",
                         body={"packet": packet, "name": fixture.name, "scratch": "testing_e8fe"})

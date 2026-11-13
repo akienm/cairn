@@ -65,7 +65,7 @@ def _records(holder: Path) -> list[dict]:
 def test_a_declared_name_lands_in_the_holders_recorder() -> None:
     from cairn.tools.metric import metric
     holder, charter = _scratch()
-    m = metric.Metric(holder, charter, source="inference_domain")
+    m = metric.Metric(holder, charter, source="inferenceproxy")
     m.record("spent", 412.0, subject="call-7", info={"model": "m"})
     recs = _records(holder)
     lacks = []
@@ -73,7 +73,7 @@ def test_a_declared_name_lands_in_the_holders_recorder() -> None:
         lacks.append(f"{len(recs)} records, wanted 1")
     else:
         r = recs[0]
-        want = {"finding": "spent", "probe_source": "inference_domain", "value": 412.0,
+        want = {"finding": "spent", "probe_source": "inferenceproxy", "value": 412.0,
                 "unit": "tokens", "subject": "call-7", "info": {"model": "m"}}
         lacks += [f"{k}={r.get(k)!r}, wanted {v!r}" for k, v in want.items() if r.get(k) != v]
     tree = ast.parse(_TOOL.read_text(encoding="utf-8"))

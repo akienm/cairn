@@ -15,7 +15,7 @@ doors — and all seven are GATES, so whatever this module can reach, a gate can
 reach. Akien ruled 2026-08-13: NO GATES MAY CONSULT ORACLES EVER PERIOD. On
 2026-09-09 ``bin/cmd/determinism`` read eight violations of that ruling and seven
 were this one module, reaching ``cairn/devices/tester/cli.py``, which had just
-acquired a bus dial and with it a static path to ``inference_domain``.
+acquired a bus dial and with it a static path to ``inferenceproxy``.
 
 So the rule this file follows is narrower than "tools may import devices": REACH
 FOR THE NARROWEST MODULE THAT HOLDS WHAT YOU NEED. ``discover`` comes from

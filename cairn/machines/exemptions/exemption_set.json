@@ -92,7 +92,7 @@
   {
    "id": "inference-sole-path-admits-bus-client-host-proof",
    "kind": "sieve-scope",
-   "path": "cairn/devices/inference_domain/proofs/test_host.py",
+   "path": "cairn/devices/inferenceproxy/proofs/test_host.py",
    "symbol": "\"cairn/tools/bus_client/remote.py\"",
    "description": "the inference sole-path rule's \"only\" admits cairn/tools/bus_client/remote.py, whose socket opens only the bus: the local AF_UNIX socket, the loopback TCP port a keyed bus.port names, or (through tls.py) a pinned box over TLS (tickets f5a344e6c629, 5183005fa134)",
    "justification_kind": "question",
@@ -128,7 +128,7 @@
   {
    "id": "inference-sole-path-admits-bus-tls-host-proof",
    "kind": "sieve-scope",
-   "path": "cairn/devices/inference_domain/proofs/test_host.py",
+   "path": "cairn/devices/inferenceproxy/proofs/test_host.py",
    "symbol": "\"cairn/tools/bus_client/tls.py\"",
    "description": "the inference sole-path rule's \"only\" admits cairn/tools/bus_client/tls.py, the bus's pinned mutual-TLS box-to-box door: its socket dials only a box whose certificate fingerprint is pinned (ticket 5183005fa134)",
    "justification_kind": "question",
@@ -137,7 +137,7 @@
   {
    "id": "inference-sole-path-admits-bus-tcp-host-proof",
    "kind": "sieve-scope",
-   "path": "cairn/devices/inference_domain/proofs/test_host.py",
+   "path": "cairn/devices/inferenceproxy/proofs/test_host.py",
    "symbol": "\"cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py\"",
    "description": "the inference sole-path rule's \"only\" admits the bus TCP proof, whose raw socket dials only the loopback and LAN doors of a bus it started itself, to show they refuse plain TCP and a wrong key (ticket 5183005fa134)",
    "justification_kind": "question",

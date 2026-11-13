@@ -44,7 +44,7 @@ _VEC = [1.0, 0.0, 0.0]
 
 
 class _EmbedBus:
-    """Answers inference_domain's embed resolve with a fixed vector."""
+    """Answers inferenceproxy's embed resolve with a fixed vector."""
 
     def request(self, **kw):
         return {"body": {"answer": {"vector": list(_VEC)}, "hit": False,

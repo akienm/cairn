@@ -45,17 +45,17 @@ class LibrarianDevice(BaseDevice):
         return {**super().declared_verbs(), "ingest": self._handle_ingest}
 
     def _handle_ingest(self, envelope: dict) -> dict:
-        """Ask inference_domain's ``calls`` verb over the bus and deposit each resolved
+        """Ask inferenceproxy's ``calls`` verb over the bus and deposit each resolved
         answer once (cairn/devices/librarian/ingest.py). The domain is reached only by the
         bus, never imported (RULE 1)."""
         from cairn.devices.librarian import ingest
         from cairn.devices.librarian.live import embed_via_bus
         from cairn.tools.bus_client import reach
 
-        bus = reach("inference_domain")
+        bus = reach("inference")
 
         def ask(body: dict) -> dict:
-            return bus.request(sender="librarian", to="inference_domain", verb="calls",
+            return bus.request(sender="librarian", to="inference", verb="calls",
                                why="librarian ingest", body=body)["body"]
 
         return ingest.ingest(ask, embed_via_bus(bus))
@@ -220,5 +220,5 @@ class LibrarianDevice(BaseDevice):
                     "add a learned layer reinforced by traversal",
             "calve_threshold": CALVE_THRESHOLD,
             "seam": "vectors arrive as data; the embed call is the caller's, through "
-                    "inference_domain (live wiring in live.py, never here)",
+                    "inferenceproxy (live wiring in live.py, never here)",
         }

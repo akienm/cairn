@@ -2,7 +2,7 @@
 
 Reads accumulated corrections/negative types, consolidates by why, updates
 type definitions, and notices which error classes die off. Runs on Hex via
-inference_domain for economics — Hex processes the batch cheaper than Claude
+inferenceproxy for economics — Hex processes the batch cheaper than Claude
 would interactively.
 """
 
@@ -72,7 +72,7 @@ def find_dying_classes(current: list[PatternType], previous: list[PatternType]) 
 def digest(project: str, use_hex: bool = True) -> dict[str, Any]:
     """Run the digest cycle: consolidate, detect dying classes, update library.
 
-    When use_hex is True, classification runs through inference_domain targeting
+    When use_hex is True, classification runs through inferenceproxy targeting
     Hex. When False, runs locally (fallback for when Hex is unreachable).
     """
     types = load_types(project)

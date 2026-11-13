@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""aider_shim reaches inference_domain only through a door — never by import, never by path.
+"""aider_shim reaches inferenceproxy only through a door — never by import, never by path.
 
 TICKET 50ad391f4e95. The falsifier: done when aider_shim contains zero imports from
-``cairn.devices.inference_domain`` and zero hardcoded paths into inference_domain's file
+``cairn.devices.inferenceproxy`` and zero hardcoded paths into inferenceproxy's file
 tree; wrong intent if the fix just updates the path to the new location. So the teeth
 here are two measurements over the device's OWN SOURCE (an ast walk for the import, a
 literal scan for the path — the same instrument would red a "moved" path exactly as it
 reds the old one, which is what makes the wrong-intent clause falsifiable) and two over
 the door that replaced the reach: the surface asks the bus ``get`` / ``what=models`` and
-sizes its model table off the answer, and inference_domain, asked over the bus through
+sizes its model table off the answer, and inferenceproxy, asked over the bus through
 bus_client (ticket ea19fc079c0b), actually answers that view with the parsed stack.
 
 A HOLLOW BUILD COULD NOT PASS THESE: the source teeth are satisfied by deleting the reach,
@@ -24,8 +24,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 DEVICE = Path(__file__).resolve().parents[1]
-FORBIDDEN_MODULE = "cairn.devices.inference_domain"
-FORBIDDEN_PATH_PARTS = ("inference_domain",)
+FORBIDDEN_MODULE = "cairn.devices.inferenceproxy"
+FORBIDDEN_PATH_PARTS = ("inferenceproxy",)
 
 # 50ad391f4e95's falsifier numbers no clauses — proof_coverage.clauses() reads it as the one
 # clause ``all`` — so ONE tooth is declared for it, and that tooth is the ticket's whole claim
@@ -33,11 +33,11 @@ FORBIDDEN_PATH_PARTS = ("inference_domain",)
 # bus. It is composed from the narrow teeth below (each of which still prints on its own so a
 # red names WHICH half fell), and it reds when ANY of the build's three files is reverted —
 # measured 2026-09-17: with the first draft's three narrow declarations, the hollow reading
-# reverted inference_domain/device.py and no declared tooth redded, because the view tooth
+# reverted inferenceproxy/device.py and no declared tooth redded, because the view tooth
 # was not among them.
 PROVES = {
     "50ad391f4e95": {
-        "all": "test_aider_shim_reaches_inference_domain_only_through_a_door",
+        "all": "test_aider_shim_reaches_inferenceproxy_only_through_a_door",
     },
 }
 
@@ -59,12 +59,12 @@ def _imports_of(path: Path):
 
 
 def _path_literals_of(path: Path):
-    """String constants that spell a path into inference_domain's tree.
+    """String constants that spell a path into inferenceproxy's tree.
 
-    Two shapes, and only these two: ``"inference_domain"`` as an operand of ``/`` (the
-    ``Path(...) / "devices" / "inference_domain" / ...`` walk the old code did), or any
-    string carrying ``inference_domain/`` (a joined path). A bare ``"inference_domain"``
-    elsewhere is NOT a path — it is the device's bus address, and ``to="inference_domain"``
+    Two shapes, and only these two: ``"inferenceproxy"`` as an operand of ``/`` (the
+    ``Path(...) / "devices" / "inferenceproxy" / ...`` walk the old code did), or any
+    string carrying ``inferenceproxy/`` (a joined path). A bare ``"inferenceproxy"``
+    elsewhere is NOT a path — it is the device's bus address, and ``to="inference"``
     is exactly the door this ticket wants the reach replaced with.
     """
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -89,39 +89,39 @@ def test_the_device_has_modules_to_measure():
     assert any(m.name == "interceptor.py" for m in mods)
 
 
-def test_no_module_in_aider_shim_imports_inference_domain():
+def test_no_module_in_aider_shim_imports_inferenceproxy():
     offenders = []
     for m in _device_modules():
         for name in _imports_of(m):
             if name == FORBIDDEN_MODULE or name.startswith(FORBIDDEN_MODULE + "."):
                 offenders.append(f"{m.relative_to(DEVICE)}: {name}")
-    assert not offenders, "aider_shim imports inference_domain directly:\n  " + "\n  ".join(offenders)
+    assert not offenders, "aider_shim imports inferenceproxy directly:\n  " + "\n  ".join(offenders)
 
 
-def test_no_module_in_aider_shim_spells_a_path_into_inference_domain():
+def test_no_module_in_aider_shim_spells_a_path_into_inferenceproxy():
     offenders = []
     for m in _device_modules():
         for lit in _path_literals_of(m):
             offenders.append(f"{m.relative_to(DEVICE)}: {lit!r}")
-    assert not offenders, "aider_shim names a path into inference_domain's tree:\n  " + "\n  ".join(offenders)
+    assert not offenders, "aider_shim names a path into inferenceproxy's tree:\n  " + "\n  ".join(offenders)
 
 
 def test_the_instrument_would_catch_a_repointed_path(tmp_path):
     """The wrong-intent clause: 'the fix just updates the path to the new location'. The
-    literal scan must red a path into inference_domain wherever it points."""
+    literal scan must red a path into inferenceproxy wherever it points."""
     bad = tmp_path / "repointed.py"
     bad.write_text(
         'from pathlib import Path\n'
-        'HERE = Path(__file__).parents[3] / "somewhere_else" / "inference_domain" / "stacks"\n',
+        'HERE = Path(__file__).parents[3] / "somewhere_else" / "inferenceproxy" / "stacks"\n',
         encoding="utf-8",
     )
-    assert list(_path_literals_of(bad)) == ["inference_domain"]
+    assert list(_path_literals_of(bad)) == ["inferenceproxy"]
     bad2 = tmp_path / "joined.py"
-    bad2.write_text('P = "cairn/devices/inference_domain/machines/route/stacks/models.json"\n',
+    bad2.write_text('P = "cairn/devices/inferenceproxy/machines/route/stacks/models.json"\n',
                     encoding="utf-8")
     assert list(_path_literals_of(bad2))
     fine = tmp_path / "address.py"
-    fine.write_text('bus.request(sender="aider_shim", to="inference_domain", verb="get")\n',
+    fine.write_text('bus.request(sender="aider_shim", to="inference", verb="get")\n',
                     encoding="utf-8")
     assert list(_path_literals_of(fine)) == [], "a bus address is not a path"
 
@@ -135,11 +135,11 @@ class _FakeBus:
 
     def request(self, **kw):
         self.seen.append(kw)
-        assert kw["to"] == "inference_domain"
+        assert kw["to"] == "inference"
         assert kw["verb"] == "get"
         assert kw["body"] == {"what": "models"}
         return {"body": {"accepted": True, "verb": "get", "view": "models",
-                         "device": "inference_domain", "data": self.stack}}
+                         "device": "inference", "data": self.stack}}
 
 
 def test_the_surface_asks_the_bus_for_the_models_stack():
@@ -175,16 +175,16 @@ def test_an_injected_stack_never_touches_the_bus():
     assert set(mod.model_cost) == {"fixture-model:1b"}
 
 
-def test_inference_domain_answers_the_models_view_over_the_bus():
+def test_inferenceproxy_answers_the_models_view_over_the_bus():
     """The owner's half, asked the way every consumer asks it — over the bus, through
     bus_client (ticket ea19fc079c0b). Until 2026-11-05 this was two teeth that imported
     InferenceDomainDevice and called its get verb in-process: a RULE 1 reach from aider_shim's
-    proof into another device's code. Asked over the bus, reverting inference_domain's models
+    proof into another device's code. Asked over the bus, reverting inferenceproxy's models
     view still reds here — the get verb refuses and the body carries no models view."""
     from cairn.tools.bus_client import inference_bus, models_stack
 
     reply = inference_bus().request(
-        sender="aider_shim", to="inference_domain", verb="get",
+        sender="aider_shim", to="inference", verb="get",
         why="aider_shim proof: the models view, asked of its owner over the bus",
         body={"what": "models"},
     )
@@ -195,16 +195,16 @@ def test_inference_domain_answers_the_models_view_over_the_bus():
     assert models_stack() == body["data"], "bus_client.models_stack answers a different stack"
 
 
-def test_aider_shim_reaches_inference_domain_only_through_a_door():
+def test_aider_shim_reaches_inferenceproxy_only_through_a_door():
     """The declared tooth: the falsifier whole. Reverting interceptor.py restores the path walk
     (the scan reds) and stops the bus ask (the fake bus sees zero asks); reverting
-    inference_domain/device.py removes the view (the get verb refuses); reverting bus_client
+    inferenceproxy/device.py removes the view (the get verb refuses); reverting bus_client
     removes the seam (the import fails)."""
     test_the_device_has_modules_to_measure()
-    test_no_module_in_aider_shim_imports_inference_domain()
-    test_no_module_in_aider_shim_spells_a_path_into_inference_domain()
+    test_no_module_in_aider_shim_imports_inferenceproxy()
+    test_no_module_in_aider_shim_spells_a_path_into_inferenceproxy()
     test_the_surface_asks_the_bus_for_the_models_stack()
-    test_inference_domain_answers_the_models_view_over_the_bus()
+    test_inferenceproxy_answers_the_models_view_over_the_bus()
 
 
 if __name__ == "__main__":

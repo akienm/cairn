@@ -1,21 +1,22 @@
 [
   {
     "claim": "proof test_the_bus_client_is_admitted_to_the_sole_path.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-10T02:13:33",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T11:11:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_the_real_repo_has_one_door\n  ok   test_a_planted_dialer_is_still_caught\n  ok   test_the_charter_names_the_answer\n  ok   test_the_charter_names_the_answer\nGREEN",
+      "returncode": 1,
+      "stdout_tail": "  FAIL test_the_real_repo_has_one_door: AssertionError: [\"cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\", \"cairn/tools/usage/usage.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\", \"cairn/tools/validation_store/validation_store.py imports ['socket'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\"]\n  ok   test_a_planted_dialer_is_still_caught\n  ok   test_the_charter_names_the_answer\n  ok   test_the_charter_names_the_answer\nRED",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_real_repo_has_one_door",
         "test_a_planted_dialer_is_still_caught",
         "test_the_charter_names_the_answer"
       ],
-      "teeth_red": [],
-      "test": "test-4f68010e5721",
+      "teeth_red": [
+        "test_the_real_repo_has_one_door"
+      ],
+      "test": "test-4a5892cd923c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,27 +38,26 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4f68010e5721",
-      "source_fingerprint": "36847c0aa86f754ec37ec4f3ff4899d5ad652deb76fa1695cc870026bc9e0202",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4a5892cd923c",
+      "source_fingerprint": "c2a074db55206741fbb750c06eaa1bf62890c1d5bc9f52fb8c862d94562fd38f",
       "fingerprint_closure": [
         "cairn/devices/inference_domain/__init__.py",
         "cairn/devices/inference_domain/host.py",
         "cairn/devices/inference_domain/proofs/test_the_bus_client_is_admitted_to_the_sole_path.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/base": "44b4b6de4e30c5d60770bc3a6d79ba22fe2211d0f056ca4f173cc436a22e7e2c",
-        "cairn/tools/import_sieve": "dca320912a1bc943fdab85979cdc790ddc4897342afa2cf594db7d0f2d9d97b8"
+        "cairn/devices/tester": "858a5a00e8a47538591daaeb7f1515b18837bd8d226d3310394a97f53f5ebc04",
+        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1783695-g85e967o/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3323695-kdeflj_w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,12 +66,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 523963519,
-          "disk_bytes": 559448064,
-          "entries": 13832,
+          "bytes": 531487817,
+          "disk_bytes": 574869504,
+          "entries": 16650,
           "builds": 1,
-          "reuses": 0
+          "reuses": 10
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "90575ec00984f17df4391be23c812d7e1123b00265544256e76d43e1db9ce805",
+        "opened": "2026-11-13T11:11:00",
+        "last_red": "2026-11-13T11:11:00",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-inference-domain-proofs-test-the-bus-client-is-admitted-to-the-sole-path",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

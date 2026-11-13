@@ -144,7 +144,7 @@ def test_queueme_asks_codemother_with_the_fileref_and_logs_it():
         got = t.queueme("gate_x", participant=spy)
         assert got["queued"] is True, got
         assert spy.requests == [{"to": "codemother", "verb": "machines/gate_x/queueme",
-                                 "body": {"fileref": str(w["plan"])},
+                                 "body": {"fileref": _TID},  # by id since 8bb8b4729f17
                                  "why": spy.requests[0]["why"]}], spy.requests
         log = _dialog(w)
         assert len(log) == 1 and log[0]["gate"] == "gate_x" and log[0]["queued"] is True, log

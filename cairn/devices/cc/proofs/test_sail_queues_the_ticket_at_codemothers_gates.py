@@ -188,7 +188,7 @@ def test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail():
         assert [r["verb"] for r in bus.requests] == [f"machines/{s}/queueme" for s in _CHART]
         for r in bus.requests:
             assert (r["to"], r["sender"], r["body"]) == ("codemother", "CC",
-                                                         {"fileref": str(w["plan"])}), r
+                                                         {"fileref": _TID}), r
     with _world() as w:
         lacks = [{"kind": "survey", "why": "no constrain_berth"}]
         bus = _Bus([{"body": {"accepted": True, "passed": True, "berth": "/b/o"}},
@@ -211,7 +211,7 @@ def test_cross_with_no_target_queues_at_clearance():
         assert sail.cross(_TID, participant=sail.Asker(bus), tickets_dir=w["store"],
                           out=out, err=out) == 0, said
         assert [(r["to"], r["verb"], r["sender"], r["body"]) for r in bus.requests] == [
-            ("codemother", "machines/clearance/queueme", "CC", {"fileref": str(w["plan"])})]
+            ("codemother", "machines/clearance/queueme", "CC", {"fileref": _TID})]
         assert wf in said, said
     with _world("BUILDME") as w:
         bus = _Bus([{"body": {"accepted": False, "reason": "ExitGateRed: no verdict"}}])
@@ -302,7 +302,7 @@ def test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate():
                                   "the hollow reds every tooth") for c in criteria], vs
         assert "dispositions" not in got, "a disposition is the gate's to observe"
         assert [(r["verb"], r["sender"], r["body"]) for r in bus.requests] == [
-            ("machines/verdict/queueme", "CC", {"fileref": str(w["plan"])})], bus.requests
+            ("machines/verdict/queueme", "CC", {"fileref": _TID})], bus.requests
     with _world("PROVEME") as w:
         bus = _Bus()
         said, out = _quiet()

@@ -148,7 +148,7 @@ def test_queue_asks_the_stage_gate_once_and_prints_the_berth():
         assert len(spy.asked) == 1, f"queue asked {len(spy.asked)} times: {spy.asked}"
         ask = spy.asked[0]
         assert ask.get("to") == "codemother" and ask.get("verb") == "machines/survey/queueme", ask
-        assert ask.get("body") == {"fileref": str(plan)}, ask
+        assert ask.get("body") == {"fileref": _TID}, ask
         assert "/scratch/survey-1.json" in out, f"the berth is not printed: {out!r}"
 
 

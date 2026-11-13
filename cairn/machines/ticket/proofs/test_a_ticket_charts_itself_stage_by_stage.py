@@ -142,7 +142,7 @@ def test_chart_queues_at_every_stage_in_order_with_only_the_fileref():
         got = t.chart(participant=spy)
         assert [r["verb"] for r in spy.requests] == [f"machines/{s}/queueme" for s in _STAGES], spy.requests
         assert all(r["to"] == "codemother" for r in spy.requests), spy.requests
-        assert all(r["body"] == {"fileref": str(w["plan"])} for r in spy.requests), spy.requests
+        assert all(r["body"] == {"fileref": _TID} for r in spy.requests), spy.requests  # by id since 8bb8b4729f17
         assert got["charted"] is True and got["stopped_at"] is None, got
         assert [s["stage"] for s in got["stages"]] == _STAGES, got
     print("ok test_chart_queues_at_every_stage_in_order_with_only_the_fileref")

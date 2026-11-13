@@ -179,7 +179,9 @@ class Ticket(DiagnosticBase):
         (returns ``queued`` False) — it never retries on its own and never goes quiet."""
         tid = self.id
         verb = f"machines/{gate}/queueme"
-        sent = {"fileref": self.fileref}
+        # The id, not this box's path: the gate may sit on another box, which resolves the id
+        # from its own commons (ticket 8bb8b4729f17). A doc with no id still sends its path.
+        sent = {"fileref": tid or self.fileref}
         try:
             reply = participant.request(to=GATE_HOLDER, verb=verb, body=sent, timeout=timeout,
                                         why=f"ticket {tid} asks to be queued at {gate}")

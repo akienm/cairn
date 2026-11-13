@@ -11,15 +11,15 @@ The proof installs into a scratch git repo and reads the installed BYTES.
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"383ac6351996": {
     "1": "test_the_installed_hook_has_no_cr_and_equals_the_source",
@@ -45,9 +45,8 @@ def test_the_installed_hook_has_no_cr_and_equals_the_source(repo: Path) -> None:
 
 
 def main() -> int:
-    tmp = None
     try:
-        tmp = Path(tempfile.mkdtemp(prefix="cairn-hook-lf-proof-"))
+        tmp = scratch_dir("cairn-hook-lf-proof-")
         subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
         test_the_installed_hook_has_no_cr_and_equals_the_source(tmp)
     except Exception as exc:  # noqa: BLE001
@@ -55,9 +54,6 @@ def main() -> int:
         for n in PROVES["383ac6351996"].values():
             if n not in FAILURES:
                 check(n, False, f"aborted: {type(exc).__name__}")
-    finally:
-        if tmp is not None:
-            shutil.rmtree(tmp, ignore_errors=True)
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")
     return 1 if FAILURES else 0
 

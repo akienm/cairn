@@ -84,6 +84,12 @@ PROVES = {
     "67b78ae59c1d": {
         "2": "test_one_red_check_does_not_blanket_the_report",
     },
+    # 2026-11-12, ticket 1b5e86aeec14 — a fixture planted off the home box is still seen: the
+    # floor reads the seals planted beside it on this box (5243cf9dc630's D3), so the tooth that
+    # plants a green, a red and a moved seal reads all three wherever the proof runs.
+    "1b5e86aeec14": {
+        "1": "test_one_red_check_does_not_blanket_the_report",
+    },
 }
 
 

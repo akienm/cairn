@@ -38,6 +38,10 @@ PROVES = {
         "5": "test_the_verdict_gate_disposes_from_the_observed_runs_not_the_draft",
         "6": "test_gates_carries_eight_stages_and_the_shim_holds_them",
     },
+    "446e42bb2b17": {
+        "1": "test_the_stage_gates_proof_raises_no_floor_guard",
+        "2": "test_no_code_under_cairn_names_the_deleted_guard",
+    },
 }
 
 _TID = "fa4462c803d6"
@@ -336,9 +340,35 @@ def test_gates_carries_eight_stages_and_the_shim_holds_them():
     print("ok test_gates_carries_eight_stages_and_the_shim_holds_them")
 
 
+# Ticket 446e42bb2b17: 5243cf9dc630 deleted constrain's re-entry guard and its persisted-verdicts tuple.
+# The names are split here so this file does not name what its teeth look for.
+_GUARD = "CAIRN_CONSTRAIN_" + "FLOOR_RUNNING"
+_GUARD_NAMES = (_GUARD, "_PER" + "SISTED")
+
+
+def test_the_stage_gates_proof_raises_no_floor_guard():
+    src = Path(__file__).read_text(encoding="utf-8")
+    assert _GUARD not in src, f"the stage-gates proof still names {_GUARD}"
+    print("ok test_the_stage_gates_proof_raises_no_floor_guard")
+
+
+def test_no_code_under_cairn_names_the_deleted_guard():
+    import re
+    pat = re.compile(r"\b(?:" + "|".join(map(re.escape, _GUARD_NAMES)) + r")\b")
+    hits, scanned = [], 0
+    for f in sorted((_REPO_ROOT / "cairn").rglob("*.py")):
+        scanned += 1
+        for n, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            if pat.search(line):
+                hits.append(f"{f.relative_to(_REPO_ROOT)}:{n}")
+    assert scanned > 100, f"scanned only {scanned} files under cairn/ — the scan saw nothing"
+    assert not hits, f"code under cairn/ still names the deleted guard: {hits[:5]}"
+    print(f"ok test_no_code_under_cairn_names_the_deleted_guard ({scanned} files)")
+
+
 def main() -> int:
     failed = 0
-    for name in PROVES[_TID].values():
+    for name in dict.fromkeys(t for teeth in PROVES.values() for t in teeth.values()):
         try:
             globals()[name]()
         except Exception as exc:  # noqa: BLE001 — a proof reports every tooth

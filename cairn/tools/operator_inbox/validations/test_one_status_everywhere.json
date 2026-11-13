@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_status_everywhere.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T11:14:19",
+    "date": "2026-11-13T11:19:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 80 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 112 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n  FAIL  test_live_one_label_per_id_across_the_three_reports: AssertionError: the dashboard, the map and the reader list different tickets: dash-only [], map-only [], reader-only ['06f4cff87495', '0f8aefbba1d0', '17d4d1899545', '18cd321cd045', '2c2636f52094']\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\nRED — 1 tooth/teeth bit",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_fixture_one_label_per_id_across_all_three\n  PASS  test_fixture_headers_sum_with_no_other\n  PASS  test_source_one_label_deriving_function_no_private_cursor_regex\n    (live map: 112 rows, groups ['TICKETME:waiting', 'PROVEME:waiting', 'BUILDME:waiting', 'BUILDME:queued', 'WATCHME:waiting', 'FIXME:waiting'])\n  PASS  test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary\n    (live: 112 open tickets, every one owned)\n  PASS  test_live_every_open_ticket_carries_owning_intention\n    (live: 112 open tickets, one label each across dashboard + map)\n  PASS  test_live_one_label_per_id_across_the_three_reports\n    (akienupdate: 88 ids on 2+ reports, all agree)\n  PASS  test_live_akienupdate_reports_agree\ngreen — one reader, one label per ticket, on the inbox, the dashboard and the map",
       "stderr_tail": "",
       "teeth_green": [
         "test_fixture_one_label_per_id_across_all_three",
@@ -15,12 +15,11 @@
         "test_source_one_label_deriving_function_no_private_cursor_regex",
         "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
         "test_live_every_open_ticket_carries_owning_intention",
+        "test_live_one_label_per_id_across_the_three_reports",
         "test_live_akienupdate_reports_agree"
       ],
-      "teeth_red": [
-        "test_live_one_label_per_id_across_the_three_reports"
-      ],
-      "test": "test-82515a49bbf9",
+      "teeth_red": [],
+      "test": "test-2e6b5cf35d07",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,22 +31,29 @@
       "conditions": {
         "proof": "0106a36af99b8ccd892edbb6e0be40c1bfba04bc3eb4f9c414276d69f1fc1c19",
         "fixtures": "eeacd816291bfee34935b0d9a31efaa75693a7e7928f978e947bc96f9fc333e0",
-        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "3db5aa5642d2"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [
         {
-          "pid": 3332369,
-          "cmdline": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.akien/temp/cnh/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "pid": 3343535,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-82515a49bbf9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2e6b5cf35d07",
       "source_fingerprint": "3299bef8e4a55cee25362fa1d71831a1350b0067cb1140dfd04da70d7485bb28",
       "fingerprint_closure": [
         "cairn/tools/operator_inbox/__init__.py",
@@ -55,15 +61,32 @@
         "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py"
       ],
       "reached": {
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
-        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/devices/cairn": "e6baf09ad941df1545006e3591e850ba81ae420ed26b34c03ba4d36c63d75e39",
+        "cairn/devices/cairn/machines/bus": "0992312e2fb570fb454252b8e89084fba91c0112645ab5d73ac85d52b62386d5",
+        "cairn/devices/codemother": "2416105a09777a4085e93f2fcbcccfb128dfa95d146d6bb3fa5dfe9d031950a8",
+        "cairn/devices/codemother/machines/harbor_master": "dbd061086f8ccfe0b547cd00129251073812344fb907bed9a44d4a106a7038a7",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/tester": "858a5a00e8a47538591daaeb7f1515b18837bd8d226d3310394a97f53f5ebc04",
+        "cairn/devices/trouble": "8ec40e40ed386cf5056a5f064655632f49117e5bb7aa0da2c08cc5f2d91821d9",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/machines/learning_block": "7cc4b5a907675c45852793d82383d2231ad5c8d6a04c005f54381edab2602370",
+        "cairn/machines/skill_block": "f02dc9cb9434cc8f3e66bc4be0c549f1ba73230afc92673cc12b33e1ff795e6f",
+        "cairn/tools/artifact": "08a02d9a5b2d53f82528140e4388ee7ddb6c75b5b192307d41608943bb4ef98f",
+        "cairn/tools/base": "30ecb8f9cb99ae26a9f5cec14a5bee5ca7f12ce8f99c3c5e11c24059c24be7d0",
+        "cairn/tools/bus_client": "60471d8d10cf0916bfdab8fef8c313be5826033cb3bc09736a29c3db4854168d",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/rack": "fe45b219b610318cd1638a6d004e124dc82b06731d634147b48f2c2067012bdc",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
+        "cairn/tools/validation_store": "fefc6de89370c0bdc3eada25f7ad6d80f9110804e5f0b8fa8fdb2bb9f26a05c3",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3324121-u6nrac5m/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3343490-kg0fv3r5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
@@ -73,27 +96,34 @@
             "devices/harbor_master/0/last_known.json",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261113.181413.005308.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.181417.273699.BusDevice.post.json",
-            "logs/bus/0/20261113.181417.295770.BusDevice.post.json",
-            "logs/bus/0/20261113.181417.297350.BusDevice.post.json",
-            "logs/bus/0/20261113.181417.297565.BusDevice.delivered.json",
-            "logs/bus/0/20261113.181417.301233.BusDevice.delivered.json",
+            "logs/bus/0/20261113.181922.643956.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261113.181925.741798.BusDevice.post.json",
+            "logs/bus/0/20261113.181925.755341.BusDevice.post.json",
+            "logs/bus/0/20261113.181925.881672.BusDevice.post.json",
+            "logs/bus/0/20261113.181925.881909.BusDevice.delivered.json",
+            "logs/bus/0/20261113.181925.884621.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/harbor_master/0/20261113.181416.130506.HarborMasterDevice.reconciled.json",
-            "logs/tester/0/20261113.181417.300340.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261113.181417.300933.TesterShim.clear_trouble.json"
+            "logs/harbor_master/0/20261113.181924.740054.HarborMasterDevice.reconciled.json",
+            "logs/tester/0/20261113.181925.883545.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261113.181925.883849.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 44880,
-          "disk_bytes": 131072,
-          "entries": 119,
+          "bytes": 531510817,
+          "disk_bytes": 574947328,
+          "entries": 16674,
           "builds": 1,
-          "reuses": 26
+          "reuses": 0
         }
+      },
+      "conditions_moved": {
+        "notified": "n-2a0bdf2eb59c",
+        "changed": [
+          "env",
+          "interpreter"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

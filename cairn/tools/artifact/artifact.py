@@ -47,6 +47,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import traceback
@@ -646,11 +647,23 @@ def write_json(path, doc, *, verb: str, why: str, indent: int = 2, ensure_ascii:
     return write(path, body + ("\n" if newline else ""), verb=verb, why=why, mode=mode)
 
 
+def _clear_read_only(p: Path) -> None:
+    """The validation store writes seals read-only on purpose; Windows will not unlink a read-only
+    file (WinError 5), so the door clears the bit before it removes one. Every OS, same act."""
+    try:
+        mode = p.stat().st_mode
+    except FileNotFoundError:
+        return
+    if not mode & stat.S_IWRITE:
+        os.chmod(p, mode | stat.S_IWRITE)
+
+
 def remove(path: str | os.PathLike, *, why: str) -> dict:
     """Delete a record through the door: journaled with ``sha_after: absent``."""
     p = Path(path).resolve()
     hit = locate(p)
     if hit is None:
+        _clear_read_only(p)
         p.unlink(missing_ok=True)
         return {"path": str(p), "journaled": False}
     name, root, rel = hit
@@ -659,6 +672,7 @@ def remove(path: str | os.PathLike, *, why: str) -> dict:
     if before is None:
         raise Refused(f"{p} does not exist — nothing to remove")
     entry = _entry(rel, "remove", why, before, None)
+    _clear_read_only(p)
     p.unlink()
     return {"path": str(p), "journaled": True, "root": name, "entry": _append(root, entry)}
 

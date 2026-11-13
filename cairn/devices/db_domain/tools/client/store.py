@@ -50,6 +50,7 @@ import json
 import os
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 import psycopg2
 from psycopg2 import sql
@@ -64,6 +65,10 @@ SOCKET_DIR = "/var/run/postgresql"
 # libpq reads its own pgpass format from it, and ignores a passfile that is absent.
 _TCP_HOST, _TCP_PORT = "127.0.0.1", 5432
 _SOCKET_FILE = ".s.PGSQL.5432"
+# The box's own instance root, derived the way address derives it and independent of import order: a proof
+# may repoint address.ROOTS["instance"] at a scratch dir, and a credential the scratch dir does not hold is
+# still the box's (ticket fc4bb2062253).
+_STARTUP_INSTANCE = Path.home() / ".cairn"
 DB_NAME = "cairn"
 _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to create ours
 
@@ -93,8 +98,12 @@ def _conn_args() -> dict:
     if os.path.exists(os.path.join(sock, _SOCKET_FILE)):
         return {"host": sock}
     from cairn.tools.base.address import instance_path
-    return {"host": _TCP_HOST, "port": _TCP_PORT,
-            "passfile": str(instance_path("db_domain", 0) / "pgpass")}
+    passfile = instance_path("db_domain", 0) / "pgpass"
+    if not passfile.is_file():
+        startup = _STARTUP_INSTANCE / "devices" / "db_domain" / "0" / "pgpass"
+        if startup.is_file():
+            passfile = startup
+    return {"host": _TCP_HOST, "port": _TCP_PORT, "passfile": str(passfile)}
 
 
 

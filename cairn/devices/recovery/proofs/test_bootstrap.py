@@ -167,13 +167,18 @@ def test_a_half_built_venv_is_rebuilt_not_installed_into() -> None:
     venv = scratch_dir("cairn-proof-halfvenv-") / "venv"
     subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(venv)], check=True,
                    capture_output=True, env=_env())
-    assert (venv / "bin" / "python3").exists(), "the half-built fixture has no interpreter"
-    gone = subprocess.run([str(venv / "bin" / "python3"), "-m", "pip", "--version"], capture_output=True,
+    # The venv's interpreter wherever the host puts it: bin/python3 on POSIX, Scripts/python.exe on
+    # Windows (measured 2026-11-13: this fixture, built by `python -m venv`, has no bin/ there).
+    vpy = venv / "bin" / "python3"
+    if not vpy.exists() and (venv / "Scripts" / "python.exe").exists():
+        vpy = venv / "Scripts" / "python.exe"
+    assert vpy.exists(), "the half-built fixture has no interpreter"
+    gone = subprocess.run([str(vpy), "-m", "pip", "--version"], capture_output=True,
                           env=_env())
     assert gone.returncode != 0, "the half-built fixture has pip — the tooth would be vacuous"
     r = _sh('cairn_bootstrap_apply >/dev/null 2>&1; printf "%s\\n" "${CAIRN_BOOTSTRAP_FINDINGS[@]}"',
             env={"CAIRN_VENV": str(venv), "PIP_NO_INDEX": "1"})
-    has_pip = subprocess.run([str(venv / "bin" / "python3"), "-m", "pip", "--version"],
+    has_pip = subprocess.run([str(vpy), "-m", "pip", "--version"],
                              capture_output=True, env=_env()).returncode == 0
     assert has_pip, f"apply left the half-built venv without pip — findings: {r.stdout!r}"
     assert "No module named pip" not in r.stdout, f"apply installed into a pip-less venv: {r.stdout!r}"

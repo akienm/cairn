@@ -977,6 +977,91 @@ def check_staged(name: str) -> list[str]:
     return faults
 
 
+# A COMMIT TAKES ONLY THE PATHS ITS AUTHOR NAMES (ticket 23c822fe8095). Sessions share one
+# working tree and one index, so a commit of the shared index carries whatever another session
+# staged. Inside a pre-commit hook git names the index it hands over in GIT_INDEX_FILE, measured
+# on Linux and git for Windows: plain commit and --amend = ``index``, -a/-i = ``index.lock``,
+# ``git commit -- <paths>`` = a temp ``next-index-<pid>.lock`` built from HEAD plus the paths.
+ONLY_INDEX_PREFIX = "next-index-"
+_SEQUENCER_HEADS = ("MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD")
+PATH_COMMIT = "git commit -m ... -- <paths>"
+
+
+def _git_dir(root: Path) -> Path:
+    return Path(_git(root, "rev-parse", "--absolute-git-dir").decode().strip())
+
+
+def check_shared_index(root: Path, index_file: str | None) -> list[str]:
+    """A fault when a hook was handed a shared index (anything but git's --only temp index),
+    unless a merge, cherry-pick or revert is in progress: those commit what git itself staged.
+    ``index_file`` None (a hand `cairn artifact check`, not a hook) is never a fault."""
+    if not index_file or Path(index_file).name.startswith(ONLY_INDEX_PREFIX):
+        return []
+    gd = _git_dir(root)
+    if any((gd / h).exists() for h in _SEQUENCER_HEADS):
+        return []
+    return [f"commit names its paths: {PATH_COMMIT}; another session's staged work is in "
+            f"this index ({Path(index_file).name}), and a commit of it would carry that work"]
+
+
+def _index_entries(root: Path, index_file: str | os.PathLike) -> dict[str, tuple[str, str]]:
+    out = subprocess.run(["git", "-C", str(root), "ls-files", "-s", "-z"], check=True,
+                         capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(index_file)}).stdout
+    entries = {}
+    for rec in out.decode("utf-8", "surrogateescape").split("\0"):
+        if not rec:
+            continue
+        meta, path = rec.split("\t", 1)
+        mode, sha, stage = meta.split()
+        if stage == "0":
+            entries[path] = (mode, sha)
+    return entries
+
+
+def _head_entries(root: Path) -> dict[str, tuple[str, str]]:
+    r = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "-z", "HEAD"], capture_output=True)
+    if r.returncode:
+        return {}  # the first commit: HEAD has no tree yet
+    entries = {}
+    for rec in r.stdout.decode("utf-8", "surrogateescape").split("\0"):
+        if rec:
+            meta, path = rec.split("\t", 1)
+            mode, _kind, sha = meta.split()
+            entries[path] = (mode, sha)
+    return entries
+
+
+def refresh_shared_index(root: Path, index_file: str | None) -> list[str]:
+    """After a path commit's hook staged into the temp index, bring the shared index along.
+
+    Under ``git commit -- <paths>`` git holds the shared index as ``index.lock`` (it becomes
+    ``index`` when the commit lands) and has already written the named paths into it. A path
+    the HOOK staged (the journal, a reseal's seals) went only into the temp index, so the shared
+    index would keep its pre-commit blob and `git status` would show a staged change nobody made.
+    Each path the commit writes (temp index differs from HEAD) whose shared entry still equals
+    HEAD's is set to the temp blob. A shared entry that differs from HEAD is another session's
+    staging and is left alone. It runs inside pre-commit, so nothing hangs off post-commit
+    (Q#60). Returns the refreshed paths."""
+    if not index_file or not Path(index_file).name.startswith(ONLY_INDEX_PREFIX):
+        return []
+    shared = _git_dir(root) / "index.lock"
+    if not shared.exists():
+        return []
+    temp, head, now = _index_entries(root, index_file), _head_entries(root), _index_entries(root, shared)
+    lines, done = [], []
+    for path in sorted(set(temp) | set(head)):
+        want = temp.get(path)
+        if want == head.get(path) or now.get(path) != head.get(path) or now.get(path) == want:
+            continue
+        lines.append(f"{want[0]} {want[1]}\t{path}" if want else f"0 {'0' * len(head[path][1])}\t{path}")
+        done.append(path)
+    if lines:
+        subprocess.run(["git", "-C", str(root), "update-index", "-z", "--index-info"], check=True,
+                       input=("\0".join(lines) + "\0").encode("utf-8", "surrogateescape"),
+                       capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(shared)})
+    return done
+
+
 # A records commit's title is a record too: git log is read as the history of crossings, so a
 # title naming a state the ticket never reached is a false record (ticket cdac80129536).
 _RECORDS_TITLE = re.compile(r"^records:\s+([0-9a-f]{12})\s+([A-Z]+)\b")

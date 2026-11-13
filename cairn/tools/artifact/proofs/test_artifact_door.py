@@ -361,14 +361,17 @@ def teeth_hook(tmp: Path) -> None:
            "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(commons)})}
     (commons / "tickets" / "sneaky.json").write_text("{}")
     _git(commons, "add", "-A")
-    c = subprocess.run(["git", "-C", str(commons), "commit", "-qm", "sneak"], capture_output=True,
-                       text=True, env=env)
+    # Every commit here names its paths (ticket 23c822fe8095 refuses a shared-index commit),
+    # and the refusal asserted is the record check's own, not the shared-index one.
+    c = subprocess.run(["git", "-C", str(commons), "commit", "-qm", "sneak", "--", "tickets/sneaky.json"],
+                       capture_output=True, text=True, env=env)
     check("test_the_hook_blocks_a_commit_made_around_the_door", c.returncode != 0 and
-          "REFUSED" in c.stderr, c.stderr.strip().splitlines()[-1][:100] if c.stderr else "")
+          "around the artifact door" in c.stderr, c.stderr.strip().splitlines()[-1][:100] if c.stderr else "")
     (commons / "tickets" / "sneaky.json").unlink()
     _git(commons, "add", "-A")
-    c = subprocess.run(["git", "-C", str(commons), "commit", "-qm", "clean"], capture_output=True,
-                       text=True, env=env)
+    staged = _git(commons, "diff", "--cached", "--name-only").split()
+    c = subprocess.run(["git", "-C", str(commons), "commit", "-qm", "clean", "--", *staged],
+                       capture_output=True, text=True, env=env)
     check("git commit of a journaled tree passes the hook", c.returncode == 0, c.stderr[-200:])
 
     print("THE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks")
@@ -398,10 +401,11 @@ def teeth_hook(tmp: Path) -> None:
     _git(cairn, "add", "-A")
     env_cairn = {**os.environ, "PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
                  "CAIRN_ARTIFACT_ROOTS": json.dumps({"cairn": str(cairn), "CairnCommons": str(commons)})}
-    c = subprocess.run(["git", "-C", str(cairn), "commit", "-qm", "sneak a state"], capture_output=True,
-                       text=True, env=env_cairn, timeout=120)
+    c = subprocess.run(["git", "-C", str(cairn), "commit", "-qm", "sneak a state", "--",
+                        "cairn/tools/x/" + "state.json"], capture_output=True, text=True,
+                       env=env_cairn, timeout=120)
     check("test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
-          c.returncode != 0 and "REFUSED" in c.stderr and "reseal" not in c.stdout.lower(),
+          c.returncode != 0 and "around the artifact door" in c.stderr and "reseal" not in c.stdout.lower(),
           (c.stderr.strip().splitlines() or [""])[-1][:100])
 
 

@@ -23,6 +23,7 @@ this file only parses and prints, so a proof measures the module and the CLI sta
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import shlex
 import shutil
@@ -162,6 +163,17 @@ def main(argv=None) -> int:
             _out(A.genesis(args.root, why=args.why))
         elif args.verb == "check":
             name = args.root if args.root in A.roots() else A.root_name_of(args.root)
+            # Inside a hook git names its index (ticket 23c822fe8095): a shared one is refused
+            # BEFORE check_staged stages the journal into it; a hand check sets none.
+            index_file = os.environ.get("GIT_INDEX_FILE")
+            shared = A.check_shared_index(A.roots()[name], index_file)
+            for f_ in shared:
+                print(f"artifact check: {f_}", file=sys.stderr)
+            if shared:
+                print(f"\nREFUSED — this commit would take the whole shared index, another "
+                      f"session's staged work included. Name your paths: {A.PATH_COMMIT}",
+                      file=sys.stderr)
+                return 2
             faults = A.check_staged(name)
             for f_ in faults:
                 print(f"artifact check: {f_}", file=sys.stderr)
@@ -171,6 +183,7 @@ def main(argv=None) -> int:
                       f"a hand edit is parked for Akien, never committed as truth.",
                       file=sys.stderr)
                 return 2
+            A.refresh_shared_index(A.roots()[name], index_file)
             print("artifact check: every staged record is journaled; chain intact")
         elif args.verb == "verify":
             faults = A.verify_chain(A.roots()[args.root])

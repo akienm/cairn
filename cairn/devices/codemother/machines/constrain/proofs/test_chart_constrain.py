@@ -401,7 +401,11 @@ def test_import_allowlist(root, orient_berth):
              "cairn.tools.bus_client.bus_client",
              # THE SHARED RUN CACHE'S LOCK (2026-11-11, ticket 070c5fc9624c D4): two firings
              # asking for one proof's bytes take an exclusive flock, so the tester runs once.
-             "fcntl")
+             "fcntl",
+             # THE STAGE'S BUDGET (2026-11-12, ticket d58e7887cc99): the floor waits the
+             # tester's run for STAGE_BUDGET_S, imported from the ticket machine that owns
+             # it rather than copied, so there is one number (orchestrator's ruling).
+             "cairn.machines.ticket.ticket")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

@@ -320,12 +320,20 @@ def _write_entry(path: str, rel_path: str, fingerprint: str, state: dict) -> Non
 def _ask_tester(abs_path: str) -> dict:
     """The tester's record for one run, asked over the bus (its public interface, RULE 1,
     ticket 67b78ae59c1d); the run verb runs with sink none and hands the record back. No
-    record raises, with the tester's reason."""
+    record raises, with the tester's reason.
+
+    THE WAIT IS THE STAGE'S BUDGET, imported, never copied (ticket d58e7887cc99). The
+    tester's run verb is handled inside the bus process, and since 4d597cac9f5d the request's
+    timeout bounds that handler. At the old 180 s every proof over three minutes read as
+    unrunnable; measured 2026-11-12, b0e65cf8a77e's floor ran 5 of 55 over 180 s, the longest
+    1040.8 s. The stage runs off codemother's lock (e4714e460e32), so the wait holds no lock.
+    It is read at call time so the one number in ticket.py is the only one."""
+    from cairn.machines.ticket import ticket
     from cairn.tools.bus_client.bus_client import reach
     reply = reach("tester").request(
         sender="constrain", to="tester", verb="run",
         why="the chart floor reads an instrument verdict",
-        body={"path": abs_path, "caller": "constrain_floor"}, timeout=180)
+        body={"path": abs_path, "caller": "constrain_floor"}, timeout=ticket.STAGE_BUDGET_S)
     body = (reply or {}).get("body") or {}
     record = body.get("record")
     if not isinstance(record, dict):

@@ -73,6 +73,9 @@ PROVES = {"1af0564c0db3": {
     "1": "test_a_proof_fed_through_xargs_is_rewritten",
     "2": "test_pytest_through_xargs_is_refused",
     "3": "test_xargs_feeding_no_proof_passes_untouched",
+}, "ab9fb2892d12": {
+    "1": "test_a_heredoc_written_to_a_file_passes_untouched",
+    "2": "test_a_heredoc_fed_to_a_shell_is_still_judged",
 }}
 
 _HELD: list = []
@@ -382,6 +385,34 @@ def test_xargs_feeding_no_proof_passes_untouched():
     assert not judged, f"xargs feeding no proof was judged: {judged}"
 
 
+_HPROOF = "cairn/devices/tester/proofs/test_x.py"
+HEREDOC_TO_FILE = [
+    f"cat > /tmp/s.sh <<'EOF'\n#!/bin/bash\ntimeout 900 python3 -u {_HPROOF}\nEOF\nchmod +x /tmp/s.sh",
+    f"tee /tmp/s.sh <<EOF\npython3 {_HPROOF}\nEOF",
+    f'cat > /tmp/s.sh <<"END"\npython3 {_HPROOF}\nEND\necho done',
+]
+HEREDOC_TO_SHELL = [
+    f"bash <<'EOS'\npython3 {_HPROOF} heredoc\nEOS",
+    f"sh <<EOS\npython3 {_HPROOF}\nEOS",
+    f"bash <<-EOS\n\tpython3 {_HPROOF}\n\tEOS",
+]
+HEREDOC_PYTEST_TO_SHELL = [f"bash <<EOF\npytest {_HPROOF}\nEOF"]
+
+
+def test_a_heredoc_written_to_a_file_passes_untouched():
+    g = _gate()
+    judged = [c for c in HEREDOC_TO_FILE if g.judge(c) is not None]
+    assert not judged, f"a heredoc written to a file was judged: {judged}"
+
+
+def test_a_heredoc_fed_to_a_shell_is_still_judged():
+    g = _gate()
+    bare = [c for c in HEREDOC_TO_SHELL if (g.judge(c) or {}).get("command") != _wrapped(c)]
+    assert not bare, f"a heredoc fed to a shell was not rewritten: {bare}"
+    let = [c for c in HEREDOC_PYTEST_TO_SHELL if (g.judge(c) or {}).get("action") != "refuse"]
+    assert not let, f"pytest in a heredoc fed to a shell was not refused: {let}"
+
+
 def test_the_whole_fix_holds_end_to_end():
     test_the_word_as_an_argument_passes_untouched()
     test_pytest_as_a_command_word_is_still_refused()
@@ -421,6 +452,8 @@ def _main() -> int:
         test_a_proof_fed_through_xargs_is_rewritten,
         test_pytest_through_xargs_is_refused,
         test_xargs_feeding_no_proof_passes_untouched,
+        test_a_heredoc_written_to_a_file_passes_untouched,
+        test_a_heredoc_fed_to_a_shell_is_still_judged,
     ]
     # EVERY TOOTH PRINTS, red ones too, so a red names which clause fell.
     failed = []

@@ -71,6 +71,7 @@ PROOF_MODULE = re.compile(r"(?:^|\.)proofs\.(?:\w+\.)*test_\w+$")
 PROOF_GLOB = re.compile(r"proofs/\S*test_")
 PY_OPTS_WITH_ARG = {"-W", "-X", "-Q"}
 PROOFS_DIR = re.compile(r"(?:^|/)proofs(?:/|$)")
+HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\2")
 
 REFUSAL = """REFUSED — pytest runs a proof outside the tester's instance seal.
 
@@ -183,12 +184,45 @@ def _xargs_feeds_a_proof(toks: list[str], at: int, earlier: list[list[str]]) -> 
                for seg in earlier for w in seg)
 
 
+def _lift_heredocs(command: str) -> tuple[str, list[tuple[str, str]]]:
+    """The command with every heredoc BODY taken out, and the bodies with the command word each
+    one feeds (ticket ab9fb2892d12). A body is data to its command: ``cat > f <<EOF`` writes it
+    and runs nothing, so its lines are not segments. A body fed to a shell is the command it is,
+    and the caller judges it, as ``bash -c`` is judged."""
+    lines = command.split("\n")
+    kept, bodies, i = [], [], 0
+    while i < len(lines):
+        line = lines[i]
+        kept.append(line)
+        i += 1
+        for m in HEREDOC.finditer(line):
+            strip, word = m.group(1) == "-", m.group(3)
+            before = SEGMENT.split(line[:m.start()])[-1]
+            toks = before.split()
+            at = _command_word(toks) if toks else None
+            feeds = os.path.basename(toks[at]) if at is not None else ""
+            body = []
+            while i < len(lines) and (lines[i].lstrip("\t") if strip else lines[i]) != word:
+                body.append(lines[i].lstrip("\t") if strip else lines[i])
+                i += 1
+            i += 1   # the closing line, when there is one
+            bodies.append((feeds, "\n".join(body)))
+    return "\n".join(kept), bodies
+
+
 def _verdict(command: str, depth: int = 0) -> str | None:
     """``"refuse"``, ``"rewrite"`` or ``None``, judged segment by segment by the command word —
     both directions: the word pytest as an argument is nobody's business, and a segment that is
     ``cairn test`` seals only itself. A ``bash -c``/``sh -c``/``eval`` string is judged as the
     command it is."""
     found = None
+    command, bodies = _lift_heredocs(command)
+    for feeds, body in bodies:
+        if feeds in SHELLS and depth < 4:
+            inner = _verdict(body, depth + 1)
+            if inner == "refuse":
+                return "refuse"
+            found = found or inner
     segments = _segments(command)
     loop_vars = _loop_vars(segments)
     for n, toks in enumerate(segments):

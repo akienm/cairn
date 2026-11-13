@@ -16,7 +16,6 @@ for the verdict, an injected runner so no instrument forks. The gate is bound in
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import sys
 from cairn.tools.scratch.scratch import scratch_dir
@@ -42,7 +41,6 @@ PROVES = {
 }
 
 _TID = "fa4462c803d6"
-_FLOOR_GUARD = "CAIRN_CONSTRAIN_FLOOR_RUNNING"  # constrain.py _REENTRY
 _LIVE_STORE_CHARTER = _REPO_ROOT.parent / "CairnCommons" / "tickets" / "_charter+why.json"
 if not _LIVE_STORE_CHARTER.is_file():
     _LIVE_STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
@@ -182,20 +180,13 @@ def _world(chart: dict | None = None, claim: dict | None = None):
     packets = tmp / "packets"
     was = tf._TICKETS
     tf._TICKETS = store
-    # The constrain door's floor runs every proof its refs discover, over the bus to the tester.
-    # This proof measures the gate, not that floor, so the floor's own re-entry guard is raised:
-    # each discovered instrument reads "not-run" and nothing is dialled.
-    guard_was = os.environ.get(_FLOOR_GUARD)
-    os.environ[_FLOOR_GUARD] = "1"
+    # The constrain door's floor reads the seals of the proofs its refs discover and asks the
+    # tester nothing (ticket 5243cf9dc630), so this proof needs no guard to keep it off the bus.
     try:
         yield {"tmp": tmp, "store": store, "plan": plan, "roots": roots, "packets": packets,
                "spy": _Spy()}
     finally:
         tf._TICKETS = was
-        if guard_was is None:
-            os.environ.pop(_FLOOR_GUARD, None)
-        else:
-            os.environ[_FLOOR_GUARD] = guard_was
         shutil.rmtree(tmp, ignore_errors=True)
 
 

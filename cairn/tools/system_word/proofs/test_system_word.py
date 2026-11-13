@@ -32,6 +32,7 @@ import shutil
 import io
 import json
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -337,13 +338,22 @@ def test_orient_chart_and_librarian_take_uppercase_verbs():
     # The librarian's verbs are measured by the librarian (ticket c29a2d0dcebb, RULE 1).
 
 
+_STAMP = re.compile(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:?\d\d)?")
+
+
+def _untimed(text: str) -> str:
+    """The text with every ISO timestamp taken out (ticket 4fb08cadf1be): the relay stamps each
+    line, so two calls a second apart differ by the clock alone (measured 00:29:29 vs 00:29:30)."""
+    return _STAMP.sub("<t>", text)
+
+
 def test_sudo_relay_takes_uppercase_status_flag():
     """Driven as `cairn sudorelay`, never by import (RULE 1). An unknown argument refuses
     with exit 2 and acquires nothing (ticket 8902708b6212), so --STATUS answering as --status
-    does is the fold reaching the status branch."""
+    does is the fold reaching the status branch. Compared with the clock out (_untimed)."""
     lo, up = _cairn("sudorelay", "--status"), _cairn("sudorelay", "--STATUS")
     assert up.returncode == lo.returncode and up.returncode != 2, (up.returncode, up.stderr)
-    assert up.stdout == lo.stdout and up.stderr == lo.stderr, (up, lo)
+    assert _untimed(up.stdout) == _untimed(lo.stdout) and _untimed(up.stderr) == _untimed(lo.stderr), (up, lo)
 
 
 def test_base_device_show_and_shim_verb_fold():

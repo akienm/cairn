@@ -59,7 +59,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cairn.devices.tester.device import GREEN, TIMEOUT, SealUnavailable, TesterDevice
+from cairn.devices.tester.device import GREEN, PROOF_BUDGET_ENV, TIMEOUT, SealUnavailable, TesterDevice
 from cairn.devices.tester.working_bytes import UnnormalizedClosure
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
@@ -77,6 +77,18 @@ from cairn.tools.system_word import fold_flags
 from cairn.tools.proof_discovery.proof_discovery import REPO_ROOT, discover  # noqa: E402
 
 __all__ = ["REPO_ROOT", "discover", "main"]
+
+
+def default_proof_budget(env=None) -> int:
+    """The per-proof budget when no --timeout is given (ticket e6b25d61abc4): the enclosing
+    exec's bound when one exported a positive integer, else 120. A proof's PROOF_TIMEOUT_S
+    still beats it, in run_proof."""
+    raw = (os.environ if env is None else env).get(PROOF_BUDGET_ENV, "")
+    try:
+        n = int(raw)
+    except ValueError:
+        return 120
+    return n if n > 0 else 120
 
 
 def _rel(proof) -> object:
@@ -474,7 +486,7 @@ def main(argv: list[str] | None = None) -> int:
         help="persist each verdict as a VALIDATION through the store's door "
              "(default: run and report only, sealing nothing)",
     )
-    ap.add_argument("--timeout", type=int, default=None, help="per-proof timeout in seconds for proofs that declare no PROOF_TIMEOUT_S (default 120; 3600 with --exec)")
+    ap.add_argument("--timeout", type=int, default=None, help="per-proof timeout in seconds for proofs that declare no PROOF_TIMEOUT_S (default 120, or an enclosing --exec's bound via CAIRN_TESTER_PROOF_BUDGET; 3600 with --exec)")
     ap.add_argument(
         "--exec",
         metavar="COMMAND",
@@ -550,7 +562,7 @@ def main(argv: list[str] | None = None) -> int:
                                        timeout=3600 if args.timeout is None else args.timeout,
                                        cwd=os.environ.get("CAIRN_TESTER_CALLER_CWD") or None)
     if args.timeout is None:
-        args.timeout = 120
+        args.timeout = default_proof_budget()
 
     if args.reseal_install or args.reseal_verify:
         return _reseal_hook_admin(args)

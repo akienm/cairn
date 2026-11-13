@@ -70,6 +70,10 @@ from cairn.devices.tester.isolation import (
 
 from cairn.tools.validation_store.validation_store import GREEN, RED  # the record vocabulary (fe1cba85cb12)
 
+# e6b25d61abc4: run_exec exports its bound here, so a `cairn test <proof>` inside it runs at
+# the exec's budget (the chart's declared timeout_s) rather than the cli's 120 s default.
+PROOF_BUDGET_ENV = "CAIRN_TESTER_PROOF_BUDGET"
+
 # THE THIRD OUTCOME, AND IT IS NOT RECORD VOCABULARY (ticket 3dfceaa272ec). A run that outlived
 # its budget measured the budget, not the proof, so it is neither green nor red. It rides
 # record["verdict"] out of run_proof and is never persisted, which is why it lives here and
@@ -959,6 +963,8 @@ class TesterDevice(BaseDevice):
             test = mint_test_id()
             env = {k: v for k, v in os.environ.items() if k != TEST_ID_ENV}
             env[TEST_ID_ENV] = test
+            if timeout is not None:
+                env[PROOF_BUDGET_ENV] = str(timeout)  # e6b25d61abc4
             argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap)
             try:
                 rc = subprocess.run(argv, env=env, cwd=cwd, timeout=timeout).returncode

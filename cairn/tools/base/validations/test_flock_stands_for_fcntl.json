@@ -1,0 +1,94 @@
+[
+  {
+    "claim": "proof test_flock_stands_for_fcntl.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T02:22:21",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  host_and_metrics_import_with_fcntl_hidden\n  green  neither_module_imports_fcntl_at_top_level\n  green  a_contended_nonblocking_take_raises_and_frees_on_unlock\n\n3/3 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "host_and_metrics_import_with_fcntl_hidden",
+        "neither_module_imports_fcntl_at_top_level",
+        "a_contended_nonblocking_take_raises_and_frees_on_unlock"
+      ],
+      "teeth_red": [],
+      "test": "test-1ac81f5d341a",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 16,
+        "tables": [
+          "bus_drain_proof_5420_0146213489_delivery",
+          "bus_drain_proof_5420_0146213489",
+          "bus_drain_proof_27696_0146513829_delivery",
+          "bus_drain_proof_27696_0146513829",
+          "bus_drain_proof_13436_0147216917_delivery",
+          "bus_drain_proof_13436_0147216917",
+          "bus_drain_proof_27232_0147516876_delivery",
+          "bus_drain_proof_27232_0147516876",
+          "bus_drain_proof_21320_0148216464_delivery",
+          "bus_drain_proof_21320_0148216464",
+          "bus_proc_18396_0150227280_delivery",
+          "bus_proc_18396_0150227280",
+          "bus_proc_7812_0150528522_delivery",
+          "bus_proc_7812_0150528522",
+          "bus_proc_29000_0151235105_delivery",
+          "bus_proc_29000_0151235105"
+        ]
+      },
+      "conditions": {
+        "proof": "cbaad5fdfc2566d642128c13dee8d905006586b8f5afb0227edd0b3b15f642f0",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1ac81f5d341a",
+      "source_fingerprint": "133032682e1183898be6c58a084392f7119b49872786060e788f1eb6157777cc",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/flock.py",
+        "cairn/tools/base/proofs/test_flock_stands_for_fcntl.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -191,7 +191,7 @@ comes from one corpus and should be re-measured elsewhere.
 
 **Gates that fire on you are gates that cost you.** On 2026-08-11 a ticket whose whole purpose
 was *"a refused clearance must leave a durable record"* was refused at its own `PROVED`
-crossing, because retiring an unrelated prose IOU had edited a file after its proof was sealed,
+crossing, because retiring an unrelated prose rule had edited a file after its proof was sealed,
 moving the source fingerprint and closing the validation's horizon. Correct, and it cost a
 re-seal.
 

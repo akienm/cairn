@@ -44,7 +44,7 @@ Three moves do most of the work:
    separate map.
 
 2. **Every rule that matters is a gate that refuses**, and every rule that is *not* yet a
-   gate is on an explicit, monotonically shrinking IOU list that the system carries about
+   gate is on an explicit, monotonically shrinking list, each rule naming its ticket, that the system carries about
    itself. A rule in prose is a rule that is not real, and the document says so about itself.
 
 3. **A re-derived answer is a defect.** Not an inefficiency — a defect, with the same
@@ -192,7 +192,7 @@ Present-tense contracts in dependency order. Abridged; the full text is in `CLAU
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and is labeled
    as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the schema.
-   Until it is, it is a tracked debt, not a resting state.
+   Until it is, it is a ticket, not a resting state.
 5. **Intent, its voyage, and its proofs share an address.**
 6. **Everything has exactly one owner.** The owner alone gates writes; delegation and
    transfer happen only through the owner's gate, never ambiently.
@@ -321,8 +321,10 @@ This is exactly the quarry's failure inverted. There, an inference proxy was man
 month and six files ignored it. Here, ignoring it reds the build.
 
 **And the sieve's own limits are stated, not hidden.** A `subprocess` dials and imports
-nothing; a dynamic import is invisible to a static graph. Those gaps are written down in
-`CLAUDE.md`'s IOU list rather than left for someone to discover. A gate that overstates its
+nothing; a dynamic import is invisible to a static graph. Those gaps were written down in
+`CLAUDE.md` rather than left for someone to discover, and both are physics now: the
+`subprocess_dial` and `dynamic_import` rule kinds (`cairn/tools/import_sieve/sieve.py`,
+ticket f6ecce0822eb). A gate that overstates its
 own coverage is worse than no gate, because it converts an open question into a false
 assurance.
 
@@ -461,7 +463,7 @@ dispositions.
 The system caught itself with this machinery on 2026-08-11, which is the best single
 illustration available. A ticket whose whole purpose was *"a refused clearance must leave a
 durable record"* went to cross into `PROVED` — and **was refused**. Retiring an unrelated
-prose IOU had edited a file after its proof was sealed, moving the source fingerprint and
+prose rule had edited a file after its proof was sealed, moving the source fingerprint and
 closing the validation's horizon. The refusal was recorded in the very store the ticket had
 just built, carrying the actor, the target, the timestamp, the reason class, both
 fingerprints, and the fix. The falsifier was answered by a real refusal rather than a fixture.
@@ -594,7 +596,7 @@ zero, inference compilation is a property of this corpus and not of the method. 
 far is positive: from 34.3% at 1,400 calls to 36.1% at 2,858 — the cache pays more as the
 corpus deepens.
 
-**The physics claim fails** if rules keep migrating *into* the prose IOU list faster than they
+**The physics claim fails** if rules keep migrating *into* the list of prose rules faster than they
 migrate out. That list is designed to shrink monotonically. It is currently six entries plus
 four residues. If it grows across a quarter, "enforced by physics, not policy" has become the
 thing it was built to replace.

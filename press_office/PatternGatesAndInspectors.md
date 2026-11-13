@@ -168,7 +168,7 @@ actually needed is that each one is reachable and owned.
 ## 4. What it costs
 
 **Gates fire on you.** The system refused its own `PROVED` crossing on 2026-08-11 because
-retiring an unrelated prose IOU had edited a file after its proof was sealed. That was correct
+retiring an unrelated prose rule had edited a file after its proof was sealed. That was correct
 and it also cost a re-seal. A gate you can talk past is not a gate; a gate you cannot talk past
 will occasionally be right about something inconvenient.
 

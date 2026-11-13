@@ -15,9 +15,11 @@ the point of creation).
   Recorded as a VALIDATION when the tester's notary role is live: `method = "review
   by N readers"`, `caller = the reviewers`, `verdict`, `evidence = their restated-
   back summary`.
-- **status** — IOU. The VALIDATIONS store and the tester's notary role are not
-  built yet; until then the review is hand-run and its outcome noted here. Debt
-  tracked (Law 4), not a resting state.
+- **status** — hand-run. Akien reviewed it 2026-09-03, and its ticket crossed PROVED
+  on that review (b4c4a0e48287). The review is not recorded as a quorum VALIDATION —
+  none sits in `press_office/validations/` — though the notary (the tester) and the
+  clearance gate that reads a human-proved piece's quorum validation (b548983a15ba)
+  are both built.
 
 ## GraphTreeMemoryTechnicalBrief.md
 
@@ -41,7 +43,8 @@ which makes its quorum unusually concrete: **the reader is the gate.**
 - **method** — review by Akien first (signature gate), then the named reader. His
   restated-back summary is the evidence. A follow-up question that reveals a
   misunderstanding is data routed back here, not a conversation to have and drop.
-- **status** — IOU, hand-run. Not signed. **Revision 2026-08-05, and the gate is
+- **status** — hand-run. Akien reviewed it 2026-09-03 (ticket 2e46956c5687, PROVED);
+  the named reader has not. **Revision 2026-08-05, and the gate is
   already earning its keep:** Akien's first pass found that the draft (and the
   ticket behind it, and the running store) had collapsed **node** and **leaf** into
   one thing — writing `node` where the design means `leaf`, and treating
@@ -73,4 +76,5 @@ which makes its quorum unusually concrete: **the reader is the gate.**
   the three fields named in §2, in the order §5.8 of the companion brief gives:
   cognitive architecture, neuro-symbolic, dynamic graph learning. "This is new"
   and "we solved that in 2003" are both passing outcomes; silence is not.
-- **status** — IOU, hand-run. Not signed. Not submitted anywhere.
+- **status** — hand-run. Akien reviewed it 2026-09-03 (ticket 79ba62aee24f, PROVED);
+  no reader from the three fields has, and it is not submitted anywhere.

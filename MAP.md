@@ -136,7 +136,7 @@ Present-tense contracts, dependency order; telos at the root:
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the
-   schema. Until it is, it is a tracked debt (an IOU), not a resting state.
+   schema. Until it is, it is a ticket, not a resting state.
 5. **Intent and implementation share an address.** Every component carries its
    intention and proofs beside its code; a component without an intention
    doesn't run.
@@ -385,7 +385,7 @@ Companion trees (drawn once, here, for orientation):
 ~/dev/src/CairnCommons/           # knowledge; own git repo
   intentions-not-beside-code/ _charter+why.json + telos.md + core-values.md + …
                                   # the homeless: no ONE code address. Roots first by date.
-  intentions-congruency-lab/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: IOU)
+  intentions-congruency-lab/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: intentions_model_compiler's copy_to_lab)
   questions/   _charter+why.json  # the PROBE corpus, yield-tracked. Probes only — see below.
   node_classes/ tickets/ learning/ notes/ slates/
                                   # a type dir EXISTS only once its _charter+why.json does
@@ -480,7 +480,7 @@ because sink-wiring was per-device; anything hand-wired can be un-wired).
 UU's banners (NO-IMAP, NO-SQLITE) were compensations for missing enforcement —
 prose shouting where physics was absent. Cairn's CLAUDE.md rules:
 
-- **A prose rule is an IOU for enforcement.** The file may contain only: the
+- **A prose rule names the ticket that makes it physics.** The file may contain only: the
   Laws, pointers to charters, and rules not YET enforceable by physics — each
   of the third class carries a ticket to become physics and leaves the file
   when it does. (SQLite: "durable state goes through db_domain / store

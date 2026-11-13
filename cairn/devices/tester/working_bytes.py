@@ -21,12 +21,14 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 __all__ = ["UnnormalizedClosure", "refusal_text", "unnormalized"]
 
 _REGULAR = ("100644", "100755")
 
 
-class UnnormalizedClosure(Exception):
+class UnnormalizedClosure(DiagnosticBase, Exception):
     """A seal refused because its closure holds working bytes no checkout of the index writes."""
 
     def __init__(self, files: list[str]):

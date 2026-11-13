@@ -10,8 +10,8 @@ intention, and rule 2b takes that intention's box-local standing as the coverage
 Every tooth stands a SCRATCH world: a commons holding one fixture host-seam intention, the
 owner read (``boat_owner_of``) and the crossing world (``_crossing_roots``) substituted, as
 test_the_proven_space_rule_follows_the_ticket_kind.py does. The seal is taken by the REAL
-``cli.main(["--host-seam", ..., "--seal"])`` and read by the REAL ``standing()``. Clearance,
-the gate and the tester CLI are bound at call time, never at import.
+``bin/cairn test --host-seam ... --seal`` (the tester's door, RULE 1) and read by the REAL ``standing()``. Clearance
+and the gate are bound at call time, never at import.
 
     bin/cairn test cairn/devices/codemother/machines/clearance/proofs/test_a_host_seam_crossing_clears_on_this_boxs_seal.py
 """
@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import contextlib
 import importlib
-import io
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -76,11 +76,12 @@ class _Ticket:
 
 
 def _seal(seam: Path) -> None:
-    from cairn.devices.tester import cli
-    out = io.StringIO()
-    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
-        rc = cli.main(["--host-seam", str(seam), "--seal"])
-    assert rc == 0, f"fixture: the host-seam seal ran {rc}:\n{out.getvalue()}"
+    """Seal through the tester's door, ``bin/cairn test`` — never its module (RULE 1)."""
+    from cairn.tools.base.script_argv import bash_script_argv
+    argv = bash_script_argv(_REPO_ROOT / "bin" / "cairn") + ["test", "--host-seam", str(seam), "--seal"]
+    r = subprocess.run(argv, cwd=str(_REPO_ROOT), stdin=subprocess.DEVNULL,
+                       capture_output=True, text=True, timeout=300)
+    assert r.returncode == 0, f"fixture: the host-seam seal ran {r.returncode}:\n{r.stdout}{r.stderr}"
 
 
 @contextlib.contextmanager

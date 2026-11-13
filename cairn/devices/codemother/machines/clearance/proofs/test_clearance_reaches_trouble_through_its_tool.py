@@ -24,7 +24,7 @@ PROVES = {
 
 _DEVICE = "cairn.devices.trouble"
 _TOOL = "cairn.devices.trouble.tools.store.store"
-_SITES = [["cairn/devices/codemother/machines/clearance/proofs/test_clearance.py", 2012]]
+_SITES = [["cairn/devices/codemother/machines/clearance/proofs/test_clearance.py", 2088]]
 
 
 def _imports_at(rel: str, line: int) -> list[str]:

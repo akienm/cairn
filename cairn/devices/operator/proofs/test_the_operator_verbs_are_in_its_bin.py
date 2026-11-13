@@ -25,6 +25,8 @@ reads the live inbox and writes nothing.
 """
 from __future__ import annotations
 
+import shutil
+
 import json
 import os
 import re
@@ -32,6 +34,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket e0932154c158: a bare bash is the WSL launcher on Windows
 
 _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
@@ -104,7 +108,7 @@ def _first_line(text: str) -> str:
 
 def clause_2_show_inbox_runs_through_the_device_bin() -> None:
     env = {**os.environ, "PYTHONPATH": str(_REPO)}
-    r = subprocess.run(["bash", "-x", str(_REPO / "bin" / "cairn"), "operator", "show", "inbox"],
+    r = subprocess.run([_BASH, "-x", str(_REPO / "bin" / "cairn"), "operator", "show", "inbox"],
                        capture_output=True, text=True, env=env, cwd=str(_REPO), timeout=600)
     direct = subprocess.run([sys.executable, "-m", "cairn.tools.operator_inbox.inbox", "show", "inbox"],
                             capture_output=True, text=True, env=env, cwd=str(_REPO), timeout=600)

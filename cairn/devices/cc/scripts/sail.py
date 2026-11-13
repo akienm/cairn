@@ -47,6 +47,10 @@ CONFIDENCE = 0.85
 # The longest a gate may take to answer: the verdict gate runs every instrument (the bus
 # socket itself waits 900 s, cairn/tools/bus_client/remote.py _TIMEOUT_S).
 VERDICT_TIMEOUT_S = 890.0
+# A chart waits as long as a gate's answer can take too: codemother's constrain gate runs every
+# proof of the component as instruments, which took many minutes for the tester (2026-11-12),
+# so a 120 s wait gave up while she kept going and the caller retried (ticket 8b171277190c).
+CHART_TIMEOUT_S = 890.0
 GATE_TIMEOUT_S = 120.0
 
 
@@ -137,7 +141,7 @@ def _said(reply: dict) -> str:
 def chart(tid: str, *, participant=None, tickets_dir=None, out=print, err=None) -> int:
     err = err or (lambda s: print(s, file=sys.stderr))
     got = _ticket(tid, tickets_dir).chart(participant=participant or Asker(),
-                                          timeout=GATE_TIMEOUT_S, stages=CHART)
+                                          timeout=CHART_TIMEOUT_S, stages=CHART)
     for one in got["stages"]:
         if one["passed"]:
             out(f"{one['stage']}: {one['reply'].get('berth')}")

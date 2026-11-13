@@ -72,195 +72,17 @@
       }
     ],
     "checks_proved": 3,
-    "ticket": "8e73a9efa04a",
+    "ticket": "ae0d88a55edb",
     "actor": "codemother",
     "missing": [
-      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'the call-time-binding sieve still holds' reports pass, but 'bin/cairn test cairn/tools/proof_coverage/proofs/test_call_time_binding.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  TIMEOUT cairn/tools/proof_coverage/proofs/test_call_time_binding.py  (exceeded the 120s budget; nothing written — the standing seal is untouched)\n\n1 proof · 0 green · 0 red · 1 timeout\n1 TIMEOUT(s) exceeded the 120s budget: nothing was written for them — neither green nor red; raise --timeout (or declare PROOF_TIMEOUT_S) to measure them.\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'every tooth of test_proof_coverage.py passes, one per falsifier clause' reports pass, but 'bin/cairn test cairn/tools/proof_coverage/proofs/test_proof_coverage.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/proof_coverage/proofs/test_proof_coverage.py\n\n─── RED: cairn/tools/proof_coverage/proofs/test_proof_coverage.py (exit 1) ────────────────────\n  [stdout_tail]\n      ok   test_a_red_tooth_is_never_recorded_green\n      ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n      ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n      ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n      ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n      ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n      ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n      ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n      ok   test_an_undeclared_clause_is_named_by_its_number\n      ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n      ok   test_every_printing_style_in_the_corpus_is_read\n      ok   test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing\n      ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n      ok   test_the_live_corpus_reds_every_ticket_at_proveme\n      ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n      ok   test_the_scratch_bus_goes_with_its_home\n      ok   test_this_very_proof_declares_the_ticket_that_built_it\n      ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n    \n    29/30 green\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
     ],
-    "why": "8e73a9efa04a failed at the verdict gate",
-    "fingerprint": "89994b60484b56d3a2b14e9dbedbbac5afc57aecb03262c155a3c28c653f5002",
-    "at": "2026-11-13T10:10:18",
-    "seq": 35
+    "why": "ae0d88a55edb failed at the verdict gate",
+    "fingerprint": "a7c5ea8a60144d268e6bfdeb7051e2a247e4236a970f83c2a022dfb50fef31a9",
+    "at": "2026-11-13T11:05:52",
+    "seq": 36
   },
   "window": [
-    {
-      "from": "TICKETME",
-      "to": "BUILDME",
-      "standing": "BUILDME",
-      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
-      "direction": "forward",
-      "entry_gate": "clean — a berthed chart chain claims ticket 'ae0d88a55edb', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
-      "proved": [
-        {
-          "identity": "the_target_is_in_the_vocabulary",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
-          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "vocabulary": [
-              "THINKME",
-              "TICKETME",
-              "BUILDME",
-              "PROVEME",
-              "PROVED"
-            ],
-            "dispositions": [
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED"
-            ]
-          }
-        },
-        {
-          "identity": "the_crossing_moves_the_cursor",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
-          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "cursor": 1,
-            "resolved": 2
-          }
-        },
-        {
-          "identity": "the_crossing_is_a_legal_edge",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_rules",
-          "expected": "TICKETME -> BUILDME",
-          "actual": "TICKETME -> BUILDME",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_rules",
-          "values": {
-            "target": "BUILDME",
-            "legal_from_here": [
-              "BUILDME",
-              "DROPPED",
-              "RETIRED",
-              "SUPERSEDED",
-              "THINKME"
-            ],
-            "direction": "forward"
-          }
-        },
-        {
-          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "a ticket named on the BUILDME crossing, or 'proof_coverage' on _EXEMPT_ROSTER",
-          "actual": "a ticket named on the BUILDME crossing, or 'proof_coverage' on _EXEMPT_ROSTER",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "ae0d88a55edb",
-            "component": "proof_coverage",
-            "exempt": false,
-            "roster": []
-          }
-        },
-        {
-          "identity": "the_named_ticket_is_cast",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_named_ticket",
-          "expected": "named ticket 'ae0d88a55edb' is cast",
-          "actual": "named ticket 'ae0d88a55edb' is cast",
-          "fatality": "none",
-          "source": "build_inspector.inspector.crossing_named_ticket",
-          "values": {
-            "target": "BUILDME",
-            "ticket": "ae0d88a55edb",
-            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/ae0d88a55edb-proof-coverage-s-forty-teeth-tooth-asks-a-tester-on-its-own-box.json"
-          }
-        },
-        {
-          "identity": "a_berthed_chart_chain_claims_the_ticket",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "ae0d88a55edb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_intent_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "ae0d88a55edb"
-          }
-        },
-        {
-          "identity": "the_ticket_names_its_sorted_door_firing",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "ae0d88a55edb"
-          }
-        },
-        {
-          "identity": "the_ticket_has_every_answer_it_needs",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "ae0d88a55edb"
-          }
-        },
-        {
-          "identity": "the_ticket_was_checked_against_the_outline",
-          "location": "cairn/tools/base/transitions.py",
-          "code": "transitions.py::inspect_entry",
-          "expected": [],
-          "actual": [],
-          "fatality": "none",
-          "source": "transitions.inspect_entry",
-          "values": {
-            "findings": [],
-            "ticket": "ae0d88a55edb"
-          }
-        }
-      ],
-      "checks_proved": 10,
-      "certificate": "certificates/ae0d88a55edb-BUILDME-20261113T162343Z-58df.cert.json",
-      "cleared_by": "CC",
-      "actor": "CC",
-      "proven_by": [
-        "cairn/tools/proof_coverage/proofs/test_proof_coverage.py"
-      ],
-      "proven_seal_date": "2026-11-13T09:02:48",
-      "delegated": false,
-      "ticket": "ae0d88a55edb",
-      "why": "ae0d88a55edb queued at clearance by CC",
-      "asked_by": "CC",
-      "fingerprint": "90347c5b6323a2e0b0e372fa554cf9ddaadafd99a9385277e1943e28079c01d7",
-      "at": "2026-11-13T09:23:43",
-      "seq": 31
-    },
     {
       "from": "BUILDME",
       "to": "PROVEME",
@@ -905,7 +727,90 @@
       "fingerprint": "89994b60484b56d3a2b14e9dbedbbac5afc57aecb03262c155a3c28c653f5002",
       "at": "2026-11-13T10:10:18",
       "seq": 35
+    },
+    {
+      "from": "PROVEME",
+      "to": "FIXME",
+      "standing": "FIXME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+      "direction": "back",
+      "severity": 2,
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'FIXME' in the code-seam@v2 vocabulary",
+          "actual": "'FIXME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> FIXME moves the cursor off position 4",
+          "actual": "PROVEME -> FIXME moves the cursor off position 4",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "cursor": 4,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "PROVEME -> FIXME",
+          "actual": "PROVEME -> FIXME",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "FIXME",
+              "PROVED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "back"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "ae0d88a55edb",
+      "actor": "codemother",
+      "missing": [
+        "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'every tooth of test_proof_coverage.py passes, one per falsifier clause' reports pass, but 'bin/cairn test cairn/tools/proof_coverage/proofs/test_proof_coverage.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/proof_coverage/proofs/test_proof_coverage.py\n\n─── RED: cairn/tools/proof_coverage/proofs/test_proof_coverage.py (exit 1) ────────────────────\n  [stdout_tail]\n      ok   test_a_red_tooth_is_never_recorded_green\n      ok   test_a_seal_that_is_not_a_reading_does_not_prove_a_concept_piece\n      ok   test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail\n      ok   test_a_seam_ticket_is_covered_by_teeth_in_more_than_one_proof\n      ok   test_a_stale_fingerprint_reds_a_ticket_that_is_otherwise_covered\n      ok   test_a_ticket_below_proveme_is_not_asked_for_coverage\n      ok   test_a_ticket_with_no_crossings_is_named_differently_from_one_that_forgot\n      ok   test_an_ok_style_PROSE_LABEL_is_recorded_as_a_tooth_not_only_a_test_identifier\n      ok   test_an_undeclared_clause_is_named_by_its_number\n      ok   test_each_proof_in_a_list_is_still_checked_on_its_own_terms\n      ok   test_every_printing_style_in_the_corpus_is_read\n      ok   test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing\n      ok   test_the_latest_crossing_wins_when_a_ticket_was_kicked_back\n      ok   test_the_live_corpus_reds_every_ticket_at_proveme\n      ok   test_the_printer_writes_names_THIS_MODULE_can_read_back\n      ok   test_the_scratch_bus_goes_with_its_home\n      ok   test_this_very_proof_declares_the_ticket_that_built_it\n      ok   test_wrong_intent_clauses_are_not_demanded_as_teeth\n    \n    29/30 green\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+      ],
+      "why": "ae0d88a55edb failed at the verdict gate",
+      "fingerprint": "a7c5ea8a60144d268e6bfdeb7051e2a247e4236a970f83c2a022dfb50fef31a9",
+      "at": "2026-11-13T11:05:52",
+      "seq": 36
     }
   ],
-  "count": 36
+  "count": 37
 }

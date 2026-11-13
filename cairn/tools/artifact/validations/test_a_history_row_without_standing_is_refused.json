@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_history_row_without_standing_is_refused.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-11T23:22:31",
+    "caller": "cairn test",
+    "date": "2026-11-13T10:15:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-1lc9w1is/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_row_without_standing_is_refused_and_nothing_lands  — refused: /tmp/cairn-history-standing-proof-1s_8hef9/cairn/tools/refuse_component/history.json is a history record and the row it introduces (seq 2) lacks ['standing'], t\n  PASS  test_a_row_carrying_standing_lands\n  PASS  test_an_old_row_already_standing_is_not_re_judged\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_row_without_standing_is_refused_and_nothing_lands",
@@ -15,7 +15,7 @@
         "test_an_old_row_already_standing_is_not_re_judged"
       ],
       "teeth_red": [],
-      "test": "test-07ba8b97b3f8",
+      "test": "test-162ec42804fa",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,37 +27,31 @@
       "conditions": {
         "proof": "e849e8cc9092f205839a2d9d3d8f23221496782b3200f5de24b22d67b8c03026",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "1c33651abf0c"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-07ba8b97b3f8",
-      "source_fingerprint": "293f3c6c64072fb280289828261c721b6fa492bd6000c0e710753eca12300fe6",
+      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-162ec42804fa",
+      "source_fingerprint": "f3b003cb6b962ec7ba79610d988855d648658cbd7d3a2fa68ee5844901fe71ac",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_history_row_without_standing_is_refused.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f4f715ad85034f02fa768c0c0f300e2183b9e896e7cfd42a25784f9424b07483",
-        "cairn/tools/base": "5bf74d5cdb08f39c3856c832682b27c4b248f9c6d50bc65dd194835908f8b760",
+        "cairn/devices/tester": "8f6d9da7e4a3ddf051514d570848d630d99bcda797b0bbae60074448f10f47b1",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/charter": "52d219df16a6ec3e3f1d976cec5206a16fd0bb0556022a0ee984972cd117d57c"
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-858983-5rzz878j/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3200921-wn_8gxpj/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,9 +60,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528037469,
-          "disk_bytes": 569839616,
-          "entries": 16041,
+          "bytes": 31743,
+          "disk_bytes": 73728,
+          "entries": 100,
           "builds": 1,
           "reuses": 0
         }

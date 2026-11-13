@@ -1,0 +1,71 @@
+[
+  {
+    "claim": "proof test_remove_clears_the_read_only_bit.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T10:15:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  [linux] test_a_read_only_record_is_removed_through_the_door  — gone=True journaled=True remove entries=1\n  PASS  [linux] test_a_writable_record_still_removes_and_a_seal_is_still_written_read_only  — seal read-only after write=True plain gone=True\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "[linux] test_a_read_only_record_is_removed_through_the_door  — gone=True journaled=True remove entries=1",
+        "[linux] test_a_writable_record_still_removes_and_a_seal_is_still_written_read_only  — seal read-only after write=True plain gone=True"
+      ],
+      "teeth_red": [],
+      "test": "test-9dabe1ad4558",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7ce2592608db39c6a08a744219189282489c6236ed57d158f5073b2d9be0c71a",
+        "fixtures": null,
+        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "1c33651abf0c"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-9dabe1ad4558",
+      "source_fingerprint": "c5a4890c1643fbcb2a7c3206b5ca1c143eb590da88007fdeb0407cd1ad37165b",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_remove_clears_the_read_only_bit.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8f6d9da7e4a3ddf051514d570848d630d99bcda797b0bbae60074448f10f47b1",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3200921-_fkd1xyj/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 31743,
+          "disk_bytes": 73728,
+          "entries": 100,
+          "builds": 1,
+          "reuses": 10
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

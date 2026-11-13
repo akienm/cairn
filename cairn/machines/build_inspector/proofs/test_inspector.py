@@ -47,6 +47,8 @@ PROVES = {
     "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
     "68f1fc073512": {"b": "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket"},
     "339a45cee6a1": {"all": "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)"},
+    "9cfcc27ca2d3": {"1": "NO RETRO-RED, ASSERTED OVER THE REAL STANDING CORPUS AS AN INVARIANT",
+                     "2": "NO RETRO-RED, A FIXTURE BERTH THAT PREDATES THE FIELD IS JUDGED (ticket 9cfcc27ca2d3)"},
 }
 
 # The whole inspector runs over the live corpus here, well past the hollow reading's 120s
@@ -481,10 +483,27 @@ def main() -> None:
         # they were written (tooth 1, and Law 9's bound read the other way). The
         # count it actually saw is asserted non-zero: an invariant over zero berths
         # is a hollow green, and this proof's whole exposure is exactly that.
+        # THE FIXTURE BERTH FIRST (ticket 9cfcc27ca2d3): chart berths are instance-space and
+        # stand only on the charting box — measured 2026-11-13 on akienasus, ZERO decompose
+        # berths, so the live glob alone reds there on the guard below. One pre-field berth
+        # written to this proof's tmp is judged ahead of the live corpus, so the silence is
+        # exercised on every box; the live berths still join where they stand.
+        tooth('NO RETRO-RED, A FIXTURE BERTH THAT PREDATES THE FIELD IS JUDGED (ticket 9cfcc27ca2d3)')
+        retro = tmp / "retro_berths" / "0" / "packets" / "decompose-20260801T000000-9cfcc27ca2d3.json"
+        retro.parent.mkdir(parents=True)
+        retro.write_text(json.dumps(dict(derived, sub_problems=[
+            {k: v for k, v in derived["sub_problems"][0].items() if k != "writes_to"}])))
+        pre_field = json.loads(retro.read_text())
+        assert not any("writes_to" in sp for sp in pre_field["sub_problems"]), pre_field
+        said = [x["finding"] for x in _jfindings(judge_decompose(pre_field))
+                if "writes_to" in x["finding"]]
+        assert not said, ("a berth that predates writes_to is red for lacking it", said)
+
         tooth('NO RETRO-RED, ASSERTED OVER THE REAL STANDING CORPUS AS AN INVARIANT')
         corpus, silent = 0, 0
-        # The same glob _charted_packets sweeps: <instance>/packets/ under the root.
-        for real in sorted(Path(saved_berths).glob("*/packets/decompose-*.json")):
+        # The same glob _charted_packets sweeps: <instance>/packets/ under the root, after
+        # the fixture berth above.
+        for real in [retro] + sorted(Path(saved_berths).glob("*/packets/decompose-*.json")):
             try:
                 pkt = json.loads(real.read_text())
             except (OSError, ValueError):

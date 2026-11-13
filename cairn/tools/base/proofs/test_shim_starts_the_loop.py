@@ -56,6 +56,8 @@ PROVES = {
         "resting": "test_a_held_lock_spawns_nothing",  # a held lock spawns nothing
     },
     "6208d0a27d6e": {"5": "test_a_held_lock_spawns_nothing"},
+    "ea6e465680a3": {"1": "test_the_setsid_path_leaves_no_scratch_process",
+                     "2": "test_the_setsid_path_leaves_no_scratch_process"},
 }
 
 # The loop's first beat on this machine costs ~90-105s (cairn/tools/bus_client/bus_client.py:86,
@@ -75,7 +77,11 @@ CONSTRUCT = (
 
 def _env(home: Path, unit: str) -> dict:
     from cairn.tools.scratch.scratch import home_env  # ticket 3301915df481: no caller bus address
-    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT))
+    # ticket ea6e465680a3: a scratch loop never reads itself as the home host, so its web_server
+    # pulse starts no listener (and the listener no scratch bus) on any OS. The pin is what reaches
+    # Windows, where the reap below cannot read another process's environment.
+    env = home_env(home, CAIRN_GROUND_LOOP_UNIT=unit, PYTHONPATH=str(ROOT),
+                   CAIRN_HOME_HOST="not-this-box.invalid")
     return env
 
 
@@ -106,21 +112,32 @@ def _unit_active(unit: str) -> bool:
     return r.stdout.strip() == "active"
 
 
-def _kill_setsid_children(home: Path) -> None:
-    # A fall-through spawn is a python process whose HOME is the scratch — find it by its
-    # environment, never by name alone.
+def _scratch_procs(home: Path) -> list[str]:
+    """Every process whose environment carries HOME=<scratch>, this one excepted."""
+    mark, out = f"HOME={home}\0".encode(), []
     for p in Path("/proc").iterdir():
-        if not p.name.isdigit():
+        if not p.name.isdigit() or int(p.name) == os.getpid():
             continue
         try:
-            env = (p / "environ").read_bytes()
+            if mark in (p / "environ").read_bytes():
+                out.append(p.name)
         except OSError:
             continue
-        if f"HOME={home}".encode() in env and b"cairn.devices.cairn.machines.ground_loop" in (p / "cmdline").read_bytes():
-            try:
-                os.kill(int(p.name), 15)
-            except OSError:
-                pass
+    return out
+
+
+def _kill_setsid_children(home: Path) -> list[str]:
+    # A fall-through spawn is a process whose HOME is the scratch, found by its environment and
+    # never by name. Ticket ea6e465680a3: EVERY such process, not only ground_loop cmdlines, since
+    # the loop's pulses start detached children (web_server's listener.py, the scratch bus it
+    # wakes) that outlived a ground_loop-only kill (measured 2026-11-12, setsid path).
+    pids = _scratch_procs(home)
+    for pid in pids:
+        try:
+            os.kill(int(pid), 15)
+        except OSError:
+            pass
+    return pids
 
 
 def test_dead_to_live_one_shim() -> None:
@@ -229,6 +246,55 @@ def test_a_held_lock_spawns_nothing() -> None:
         shutil.rmtree(home, ignore_errors=True)
 
 
+def _no_systemd_run_path(home: Path) -> str:
+    """A PATH holding what a loop needs and no systemd-run, as a box without systemd is. python3 is
+    an exec wrapper: a bare symlink to the venv's interpreter loses the venv's site-packages."""
+    nb = home / "nosysd-bin"
+    nb.mkdir()
+    (nb / "python3").write_text(f'#!/bin/sh\nexec {sys.executable} "$@"\n')
+    (nb / "python3").chmod(0o755)
+    for tool in ("systemctl", "git", "env", "sh", "bash"):
+        w = shutil.which(tool)
+        if w:
+            (nb / tool).symlink_to(w)
+    return str(nb)
+
+
+def test_the_setsid_path_leaves_no_scratch_process() -> None:
+    # ticket ea6e465680a3 clauses 1 and 2, on the path that orphaned listener.py and a scratch bus
+    home = scratch_dir("ea6e-home-")
+    unit = f"cairn-ground-loop-proof-{os.getpid()}-setsid"
+    try:
+        env = _env(home, unit)
+        env["PATH"] = _no_systemd_run_path(home)
+        env["CAIRN_WEB_SERVER_PORT"] = "18997"
+        r = subprocess.run([sys.executable, "-c", CONSTRUCT % str(ROOT)], env=env,
+                           capture_output=True, text=True, timeout=120, cwd=str(ROOT))
+        assert r.returncode == 0, r.stderr[-800:]
+        out = json.loads(r.stdout.strip().splitlines()[-1])
+        assert out["spawned"] == "setsid", f"systemd-run was reached, so the setsid path is untested: {out}"
+        deadline = time.monotonic() + LIVE_WITHIN_S
+        while time.monotonic() < deadline and not _beating(home):
+            time.sleep(1)
+        assert _beating(home), f"no scratch loop beat within {LIVE_WITHIN_S}s: {out}"
+        time.sleep(15)  # the beat's detached pulses act
+        _stop(unit)
+        _kill_setsid_children(home)
+        time.sleep(3)
+        left = _scratch_procs(home)
+        logs = list(home.glob(".cairn/**/web_server*.log"))
+        started = [str(lg) for lg in logs if "started the shim" in lg.read_text(errors="replace")]
+        assert left == [], f"clause 1: processes carrying HOME={home} stand after teardown: {left}"
+        assert started == [], f"clause 2: a scratch loop read itself as the home host: {started}"
+        print("ok test_the_setsid_path_leaves_no_scratch_process")
+    finally:
+        _stop(unit)
+        _kill_setsid_children(home)
+        time.sleep(1)
+        _kill_setsid_children(home)
+        shutil.rmtree(home, ignore_errors=True)
+
+
 def test_ground_loop_package_untouched() -> None:
     # The package's CODE, top level only (:(glob) keeps * off the slash) — its proofs and
     # validations are other tickets' to move, and one of them stands uncommitted today.
@@ -262,7 +328,8 @@ if __name__ == "__main__":
     # that takes shim.py's build away reads each tooth failing rather than one crash (UNREAD).
     rc = 0
     for t in (test_check_lives_in_the_base_only, test_ground_loop_package_untouched,
-              test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop):
+              test_a_held_lock_spawns_nothing, test_dead_to_live_one_shim, test_two_shims_one_loop,
+              test_the_setsid_path_leaves_no_scratch_process):
         try:
             t()
             print(f"  PASS  {t.__name__}", flush=True)

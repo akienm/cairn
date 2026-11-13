@@ -14,7 +14,6 @@ from __future__ import annotations
 import importlib.util
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -49,7 +48,8 @@ def test_a_probe_stub_has_no_cr_byte(scratch: Path) -> None:
 def main() -> int:
     tmp = None
     try:
-        tmp = Path(tempfile.mkdtemp(prefix="cairn-stub-lf-proof-"))
+        from cairn.tools.scratch.scratch import scratch_dir
+        tmp = scratch_dir("cairn-stub-lf-proof-")
         test_a_probe_stub_has_no_cr_byte(tmp)
     except Exception as exc:  # noqa: BLE001
         print(f"the tooth could not run to the end: {exc!r}")

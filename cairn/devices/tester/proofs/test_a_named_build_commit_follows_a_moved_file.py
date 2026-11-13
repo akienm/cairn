@@ -131,14 +131,21 @@ def test_the_live_87a7_build_anchors_at_its_parent():
 
 # MEASURED 2026-11-13 on akiendelllinux (ticket 18cd321cd045): hollow.writes_to over 87a7's
 # decompose berth. Berths are instance-space and stand only on the charting box, so off it
-# writes_to raised HollowUnmeasurable and the tooth read red for a reason about the box.
-_BERTH_WRITES_TO_87A7 = {
-    "berth": "decompose-20260906T111035-2a7c006fa92f",
-    "measured": "2026-11-13 on akiendelllinux",
-    "writes_to": ["cairn/devices/inference_domain/device.py",
-                  "cairn/devices/inference_domain/proofs/test_bus_infer.py",
-                  "cairn/tools/base/bus_client.py"],
-}
+# writes_to raised HollowUnmeasurable and the tooth read red for a reason about the box. The
+# measured list berths in the commons, on 18cd321cd045's own ``measured`` record, not here: it
+# names the departed bus_client path, and no class-space file may carry that as a literal
+# (ticket 05662f9e9bc9, guarded by bus_client's three_faces test_v).
+_FIXTURE_TICKET = "18cd321cd045"
+
+
+def _fixture_87a7() -> list[str]:
+    from cairn.devices.tester.hollow import COMMONS
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    t = read_ticket(next(p for p in plans(Path(COMMONS) / "tickets")
+                         if p.name.startswith(f"{_FIXTURE_TICKET}-")))
+    rows = [m for m in t.get("measured") or [] if isinstance(m.get("writes_to"), list)]
+    assert len(rows) == 1, f"{_FIXTURE_TICKET} carries {len(rows)} measured writes_to fixture(s), not 1"
+    return list(rows[0]["writes_to"])
 
 
 def _live_87a7(berths_root=None) -> None:
@@ -151,7 +158,7 @@ def _live_87a7(berths_root=None) -> None:
     # The files are what 87a7's chart CLAIMS and the instrument is its proofs, read the way
     # ``measure`` reads them — never typed here, so the departed path stays in the chart that
     # named it rather than living on as a literal in class-space (ticket 05662f9e9bc9).
-    files = list(_BERTH_WRITES_TO_87A7["writes_to"])
+    files = _fixture_87a7()
     try:
         live = writes_to(ticket, berths_root=berths_root)
     except HollowUnmeasurable:
@@ -182,7 +189,7 @@ def test_a_berth_that_moved_from_the_fixture_reds():
     berth.parent.mkdir(parents=True)
     berth.write_text(json.dumps({"ticket": "87a7f1c7ae21", "stage": "decompose",
                                  "sub_problems": [{"what": "moved", "kind": "build",
-                                                   "writes_to": ["cairn/tools/base/bus_client.py"]}]}))
+                                                   "writes_to": _fixture_87a7()[:1]}]}))
     try:
         _live_87a7(berths_root=berths)
     except AssertionError as e:

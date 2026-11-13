@@ -405,7 +405,7 @@ def ensure_dev_extra(*, dry_run: bool = False, venv: Path | None = None, repo: P
     is offered on a dry run, and otherwise the editable checkout is installed with [dev] through
     the venv's own pip and measured again. `run` is the one seam to the OS, so a proof can hand
     it a recording stub."""
-    venv = Path(venv) if venv else Path.home() / ".cairn" / "venv"
+    venv = Path(venv) if venv else ROOTS["instance"] / "venv"
     repo = Path(repo) if repo else _REPO
     sid = "dev_extra"
     try:

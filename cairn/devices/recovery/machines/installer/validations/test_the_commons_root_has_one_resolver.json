@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_the_commons_root_has_one_resolver.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T17:18:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  no_production_source_spells_the_home_commons\n  green  the_sites_default_to_the_one_resolver_and_keep_their_overrides\n  green  install_over_an_absent_commons_is_a_named_failed_result\n\n3/3 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "no_production_source_spells_the_home_commons",
+        "the_sites_default_to_the_one_resolver_and_keep_their_overrides",
+        "install_over_an_absent_commons_is_a_named_failed_result"
+      ],
+      "teeth_red": [],
+      "test": "test-8254b1500838",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "df8c178544b0c11185ec3c750edce8f0617da847ac86531704e1d28df446da15",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8254b1500838",
+      "source_fingerprint": "69742431899d705fbf08c328f5aae27cec50d54eb82c31b6214f58aeff9928fd",
+      "fingerprint_closure": [
+        "cairn/devices/recovery/machines/installer/__init__.py",
+        "cairn/devices/recovery/machines/installer/installer.py",
+        "cairn/devices/recovery/machines/installer/proofs/test_the_commons_root_has_one_resolver.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1926932-s0qn2ynh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 530076389,
+          "disk_bytes": 578035712,
+          "entries": 18234,
+          "builds": 1,
+          "reuses": 5
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

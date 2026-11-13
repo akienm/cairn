@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_install_carries_the_dev_extra.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T17:18:19",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_venv_missing_a_dev_module_is_offered_and_nothing_is_installed\n  PASS  test_a_run_installs_the_editable_checkout_with_dev_through_the_venvs_pip\n  PASS  test_a_venv_with_every_dev_module_reads_applied_and_runs_no_pip\n\nGREEN — all 3 teeth pass",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_venv_missing_a_dev_module_is_offered_and_nothing_is_installed",
+        "test_a_run_installs_the_editable_checkout_with_dev_through_the_venvs_pip",
+        "test_a_venv_with_every_dev_module_reads_applied_and_runs_no_pip"
+      ],
+      "teeth_red": [],
+      "test": "test-93bdfd386eb5",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "36ddb29b855bea3124630aa6e63e2a3d4225ec3252b3f27c577b765062ece923",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-93bdfd386eb5",
+      "source_fingerprint": "942b6d7b135dd5b17bb487b617e957492903d5eddac33f0990fae254a53d28b4",
+      "fingerprint_closure": [
+        "cairn/devices/recovery/machines/installer/__init__.py",
+        "cairn/devices/recovery/machines/installer/installer.py",
+        "cairn/devices/recovery/machines/installer/proofs/test_install_carries_the_dev_extra.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1926932-1yhflc8v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 530076389,
+          "disk_bytes": 578035712,
+          "entries": 18234,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

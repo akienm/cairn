@@ -429,6 +429,9 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
     # exists — one report, every lack, and nothing new for a gate to remember to call.
     found.extend(proof_binds_its_subject_at_call_time(ticket, repo_root=repo_root, roots=roots,
                                                       named=named))
+    # And the root sieve (ticket 8e73a9efa04a): a proof that roots short measures main's code.
+    found.extend(proof_roots_its_imports_at_its_checkout(ticket, repo_root=repo_root,
+                                                         roots=roots, named=named))
     return found
 
 
@@ -957,3 +960,142 @@ def run_teeth(checks) -> int:
         print(f"{len(red)} of {len(checks)} teeth red — {', '.join(red)}")
         return 1
     return 0
+
+
+# ── the root sieve: does the proof put ITS OWN checkout on sys.path? ─────────────────────
+# Ticket 8e73a9efa04a, 2026-11-12. A proof that computes its root one level short
+# (``parents[5]`` where the checkout is ``parents[6]``) inserts ``<repo>/cairn``, which holds
+# no ``cairn`` package, so ``import cairn`` falls through to whatever else is on the path: in
+# the house venv, the editable install of the MAIN checkout. Under the tester that is masked
+# (``_env_pinned_to`` puts the proof's checkout first on PYTHONPATH); run any other way it is
+# hollow. Measured on 0d3b8a51c9df's proof at 1bfc8f29f: run directly in a worktree holding
+# the OLD outline_check, it printed 3/3 green off main's new code; at parents[6] it reds 3/3.
+# Six more proofs carried the same short root. The sieve reads the source, never runs it.
+
+def _eval_path(node, *, here: Path, names: dict):
+    """The directory a path expression names, or None where it is not a plain function of
+    ``__file__``. Names resolve through the module's own top-level assignments."""
+    if isinstance(node, ast.Call):
+        f = node.func
+        fname = f.id if isinstance(f, ast.Name) else (f.attr if isinstance(f, ast.Attribute) else "")
+        if fname == "str" and len(node.args) == 1:
+            return _eval_path(node.args[0], here=here, names=names)
+        if fname == "Path" and len(node.args) == 1:
+            return _eval_path(node.args[0], here=here, names=names)
+        if fname in ("resolve", "absolute") and isinstance(f, ast.Attribute) and not node.args:
+            return _eval_path(f.value, here=here, names=names)
+        if fname in ("abspath", "realpath", "normpath") and len(node.args) == 1:
+            return _eval_path(node.args[0], here=here, names=names)
+        if fname == "dirname" and len(node.args) == 1:
+            p = _eval_path(node.args[0], here=here, names=names)
+            return p.parent if p is not None else None
+        return None
+    if isinstance(node, ast.Name):
+        if node.id == "__file__":
+            return here
+        bound = names.get(node.id)
+        return _eval_path(bound, here=here, names={k: v for k, v in names.items() if k != node.id}) \
+            if bound is not None else None
+    if isinstance(node, ast.Attribute) and node.attr == "parent":
+        p = _eval_path(node.value, here=here, names=names)
+        return p.parent if p is not None else None
+    if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Attribute) \
+            and node.value.attr == "parents" and isinstance(node.slice, ast.Constant) \
+            and isinstance(node.slice.value, int):
+        p = _eval_path(node.value.value, here=here, names=names)
+        if p is None:
+            return None
+        ps = p.parents
+        return ps[node.slice.value] if node.slice.value < len(ps) else None
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div) \
+            and isinstance(node.right, ast.Constant) and isinstance(node.right.value, str):
+        p = _eval_path(node.left, here=here, names=names)
+        return p / node.right.value if p is not None else None
+    return None
+
+
+def misrooted_inserts(proof_path, repo_root) -> list[dict]:
+    """Each ``sys.path`` entry a proof computes inside ``repo_root`` when NONE of the entries it
+    computes is ``repo_root`` itself and the proof imports ``cairn`` — one dict per entry,
+    ``{"line", "resolves_to", "source"}``. Empty when the proof roots at its checkout, imports
+    no ``cairn``, computes nothing it can be read for, or cannot be parsed (an unparseable
+    proof is the runner's red to name, not this one's). Only real calls count: a
+    ``sys.path.insert`` inside a fixture's source string is text, not a call."""
+    proof_path, repo_root = Path(proof_path), Path(repo_root).resolve()
+    try:
+        source = proof_path.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+    except (OSError, SyntaxError, ValueError):
+        return []
+    imports_cairn = any(
+        (isinstance(n, ast.Import) and any(a.name == "cairn" or a.name.startswith("cairn.")
+                                           for a in n.names))
+        or (isinstance(n, ast.ImportFrom) and not n.level and n.module
+            and (n.module == "cairn" or n.module.startswith("cairn.")))
+        or (isinstance(n, ast.Constant) and isinstance(n.value, str)
+            and n.value.startswith("cairn.") and " " not in n.value)
+        for n in ast.walk(tree))
+    if not imports_cairn:
+        return []
+    names = {}
+    for n in tree.body:
+        if isinstance(n, ast.Assign) and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name):
+            names[n.targets[0].id] = n.value
+        elif isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name) and n.value is not None:
+            names[n.target.id] = n.value
+    here = proof_path.resolve()
+    entries = []
+    for n in ast.walk(tree):
+        if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                and n.func.attr in ("insert", "append")
+                and isinstance(n.func.value, ast.Attribute) and n.func.value.attr == "path"
+                and isinstance(n.func.value.value, ast.Name) and n.func.value.value.id == "sys"):
+            continue
+        arg = n.args[1] if n.func.attr == "insert" and len(n.args) == 2 else \
+            (n.args[0] if n.func.attr == "append" and n.args else None)
+        if arg is None:
+            continue
+        target = _eval_path(arg, here=here, names=names)
+        if target is not None:
+            entries.append((n.lineno, target, ast.get_source_segment(source, n) or ""))
+    inside = [(ln, t, s) for ln, t, s in entries if t == repo_root or repo_root in t.parents]
+    if not inside or any(t == repo_root for _, t, _ in inside):
+        return []
+    return [{"line": ln, "resolves_to": str(t.relative_to(repo_root)), "source": s}
+            for ln, t, s in inside]
+
+
+def misrooted_proofs(repo_root) -> dict[str, list[dict]]:
+    """``misrooted_inserts`` over every ``proofs/test_*.py`` under ``repo_root``, keyed by the
+    proof's repo-relative path; only proofs with a finding appear."""
+    repo_root = Path(repo_root).resolve()
+    out = {}
+    for p in sorted(repo_root.rglob("proofs/test_*.py")):
+        if ".git" in p.relative_to(repo_root).parts:
+            continue
+        found = misrooted_inserts(p, repo_root)
+        if found:
+            out[str(p.relative_to(repo_root))] = found
+    return out
+
+
+def proof_roots_its_imports_at_its_checkout(ticket: dict, *, repo_root: Path, roots=None,
+                                            named: list[str] | None = None) -> list[dict]:
+    """One lack per misrooted ``sys.path`` entry in any proof this ticket names."""
+    tid = str(ticket.get("id") or "")
+    repo_root = Path(repo_root)
+    found = []
+    for one in (named if named is not None else _proven_by(ticket, roots)):
+        proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
+        if not proof_path.is_file():
+            continue  # proof_on_disk is the mouth for this
+        for m in misrooted_inserts(proof_path, repo_root):
+            found.append(_lack(
+                tid, "proof_roots_its_imports_at_its_checkout",
+                f"{one}:{m['line']} puts its own checkout on sys.path",
+                f"{one}:{m['line']} puts {m['resolves_to']}/ on sys.path and never the checkout "
+                f"root, so `import cairn` falls through to whatever else is on the path (the "
+                f"venv's editable install of the main checkout): run outside the tester, the "
+                f"proof measures main's code, not this tree's, and a hollow cannot red it",
+                proof=one, line=m["line"], resolves_to=m["resolves_to"], source=m["source"]))
+    return found

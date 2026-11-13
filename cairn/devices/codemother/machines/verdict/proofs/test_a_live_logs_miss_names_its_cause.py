@@ -21,7 +21,7 @@ import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[5]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.codemother.machines.verdict.verdict import (  # noqa: E402

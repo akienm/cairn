@@ -39,7 +39,7 @@ from pathlib import Path
 
 import pytest
 
-_REPO_ROOT = Path(__file__).resolve().parents[5]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(_REPO_ROOT))
 
 # THE THREE NAMES THIS TICKET ADDED ARE REACHED THROUGH THE MODULE, NOT IMPORTED

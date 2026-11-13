@@ -19,6 +19,10 @@ cairn/devices/**/bin/* text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
 
+# The tracked pre-commit hook source has no extension, so no glob above reaches it; install_hook
+# copies it into .git/hooks and a shell runs it (ticket daaf7ac3e4ec).
+cairn/devices/tester/hooks/pre-commit text eol=lf
+
 # The artifact journal meets another branch re-linked, never forked (ticket b7d2e05a1c93);
 # the driver is installed per box: cairn artifact install-merge-driver <root>.
 .artifact-journal.jsonl merge=cairn-journal

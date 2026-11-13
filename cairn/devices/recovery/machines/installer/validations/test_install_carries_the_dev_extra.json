@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_install_carries_the_dev_extra.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T17:18:19",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T06:56:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_venv_with_every_dev_module_reads_applied_and_runs_no_pip"
       ],
       "teeth_red": [],
-      "test": "test-93bdfd386eb5",
+      "test": "test-ee407f87036e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,27 +37,26 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-93bdfd386eb5",
-      "source_fingerprint": "942b6d7b135dd5b17bb487b617e957492903d5eddac33f0990fae254a53d28b4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee407f87036e",
+      "source_fingerprint": "91b1ed830aa3ae388af59291a3250c279cc3f17419305c9bd39d45eb9d74b4a8",
       "fingerprint_closure": [
         "cairn/devices/recovery/machines/installer/__init__.py",
         "cairn/devices/recovery/machines/installer/installer.py",
         "cairn/devices/recovery/machines/installer/proofs/test_install_carries_the_dev_extra.py"
       ],
       "reached": {
-        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
-        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/tools/base": "044f2abdf5aa426173af0599e10d312566f91becff9476f10bef0cfcbdadbef4",
+        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1926932-1yhflc8v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2909606-9svqo1ai/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,28 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530076389,
-          "disk_bytes": 578035712,
-          "entries": 18234,
+          "bytes": 530718170,
+          "disk_bytes": 573255680,
+          "entries": 16337,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "b3ecebdf9695": {
-          "cairn/devices/recovery/machines/installer/installer.py": [
-            "test_a_run_installs_the_editable_checkout_with_dev_through_the_venvs_pip",
-            "test_a_venv_missing_a_dev_module_is_offered_and_nothing_is_installed",
-            "test_a_venv_with_every_dev_module_reads_applied_and_runs_no_pip"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b3ecebdf9695": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "50d21ed5ef4b98623f9beacfdd143c184166e222",
-          "anchor_first_build": "8864de079f15835ede0760821549d0e660d646cc",
-          "commit": "7637ae01739736be3dd9e5133b484051229e6b8f"
         }
       }
     },

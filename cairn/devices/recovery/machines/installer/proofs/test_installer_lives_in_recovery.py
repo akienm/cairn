@@ -34,6 +34,9 @@ PROVES = {"ce1d61032eff": {
     "3": "tooth_install_runs_from_the_new_home",
     "4": "tooth_instance_space_carries_no_old_path",
     "5": "tooth_census_loads_the_installer",
+}, "1bf20054b165": {
+    "1": "tooth_files_are_home",
+    "2": "tooth_install_runs_from_the_new_home",
 }}
 
 NEW = ROOT / "cairn" / "devices" / "recovery" / "machines" / "installer"
@@ -49,8 +52,33 @@ def _strip_new(text: str) -> str:
     return text.replace("recovery.machines.installer", "").replace("recovery/machines/installer", "")
 
 
+def _tracked_under(repo: Path, rel: str) -> list[str]:
+    """Tracked files under rel (git ls-files): an untracked __pycache__ is not a file that lives there."""
+    out = subprocess.run(["git", "-C", str(repo), "ls-files", "--", rel],
+                         capture_output=True, text=True)
+    assert out.returncode == 0, f"git ls-files failed: {out.stderr}"
+    return out.stdout.split()
+
+
+def _counts_tracked_only() -> None:
+    """The counter itself, aimed at a scratch repo: untracked cache reads empty, a tracked file reads."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        repo = Path(td)
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        old = repo / "old" / "dir"
+        (old / "__pycache__").mkdir(parents=True)
+        (old / "__pycache__" / "x.pyc").write_bytes(b"\0")
+        assert _tracked_under(repo, "old/dir") == [], "an untracked __pycache__ counted as still there"
+        (old / "kept.py").write_text("x = 1\n")
+        subprocess.run(["git", "-C", str(repo), "add", "old/dir/kept.py"], check=True, capture_output=True)
+        assert _tracked_under(repo, "old/dir") == ["old/dir/kept.py"], "a tracked file was not counted"
+
+
 def tooth_files_are_home():
-    assert not (ROOT / OLD_SLASH).exists(), f"{OLD_SLASH} still exists"
+    _counts_tracked_only()
+    left = _tracked_under(ROOT, OLD_SLASH)
+    assert not left, f"{OLD_SLASH} still holds tracked files: {left[:10]}"
     for p in (NEW / "installer.py", NEW / "ask_user.sh", NEW / "intention+why.json",
               NEW / "proofs" / "test_installer.py",
               NEW / "proofs" / "test_install_lays_the_journal_merge_driver.py"):
@@ -71,7 +99,9 @@ def tooth_no_live_reference():
 
 
 def tooth_install_runs_from_the_new_home():
-    r = subprocess.run([str(ROOT / "bin" / "cmd" / "install"), "--dry-run"], cwd=str(ROOT),
+    # Windows cannot exec a shebang script: the caller asks bash_script_argv for the argv (read-only import).
+    from cairn.tools.base.script_argv import bash_script_argv
+    r = subprocess.run(bash_script_argv(ROOT / "bin" / "cmd" / "install") + ["--dry-run"], cwd=str(ROOT),
                        capture_output=True, text=True, timeout=300)
     assert r.returncode == 0, f"bin/cmd/install --dry-run exit {r.returncode}: {r.stderr[-800:]}"
     from cairn.devices.recovery.machines.installer import installer

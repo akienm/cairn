@@ -18,7 +18,6 @@ injected ``ask`` (D1), so these teeth hand in fakes and open no bus.
 from __future__ import annotations
 
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -68,7 +67,8 @@ def _rack(root: Path, *names: str) -> None:
 def test_a_live_device_is_fitted_and_answers():
     from cairn.tools.base import deviceness as D
     from cairn.tools.rack.rack import rack_ids
-    root = Path(tempfile.mkdtemp(prefix="testing-deviceness-asks-"))
+    from cairn.tools.scratch.scratch import scratch_dir  # ticket 3d8f42944dad: the scratch door
+    root = scratch_dir("testing-deviceness-asks-")
     _rack(root, "testing_awake", "testing_asleep")
     fitted = set(rack_ids(root))
     assert {"testing_awake", "testing_asleep"} <= fitted, fitted

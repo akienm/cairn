@@ -9,8 +9,9 @@ each call re-walks ``component_dirs``. 2.66 s over 300 files on akienasus.
   2. test_the_filter_answers_as_before: the answer equals the per-path filter computed here:
      the proof's own file, and each other rel whose component_of is the proof's owner.
 
-The closure is the proof itself plus a sample of ``git ls-files cairn`` (so it holds both its
-own component's files and others'). This proof measures only cairn/tools/validation_store.
+The closure is the proof itself plus a fixed-size sample of ``git ls-files cairn``: five of its
+own component's files and forty that other components own (an invariant of the sample, not a
+floor over the live tree; reshaped 2026-11-13 after a stride sample read 39 on Linux). This proof measures only cairn/tools/validation_store.
 
     bin/cairn test cairn/tools/validation_store/proofs/test_a_closure_owner_filter_walks_once.py
 """
@@ -32,11 +33,23 @@ PROVES = {"9f4442c932da": {
 _PROOF = "cairn/tools/validation_store/proofs/test_a_closure_owner_filter_walks_once.py"
 
 
+_FOREIGN, _OWN = 40, 5
+
+
 def _rels() -> set:
+    """A closure of a FIXED size: the proof, _OWN of its component's files and _FOREIGN files
+    other components own, spread across the tree. Sized by count, never by a stride over the
+    live tree: a stride's sample shrank to 39 on akiendelllinux with no build at all (measured
+    2026-11-13), and a floor over a snapshot reds on the tree moving, not on the filter."""
     files = subprocess.run(["git", "ls-files", "cairn"], cwd=str(_REPO),
                            capture_output=True, text=True, check=True).stdout.split()
-    own = [f for f in files if f.startswith("cairn/tools/validation_store/") and f.endswith(".py")]
-    return set(files[:: max(1, len(files) // 34)][:34]) | set(own[:5]) | {_PROOF}
+    home = "cairn/tools/validation_store/"
+    own = [f for f in files if f.startswith(home) and f.endswith(".py") and f != _PROOF]
+    foreign = [f for f in files if not f.startswith(home)]
+    assert len(own) >= _OWN and len(foreign) >= _FOREIGN, \
+        f"the tree is too small to sample: own={len(own)} foreign={len(foreign)}"
+    step = len(foreign) // _FOREIGN
+    return set(foreign[::step][:_FOREIGN]) | set(own[:_OWN]) | {_PROOF}
 
 
 def test_the_filter_walks_component_dirs_once():
@@ -55,7 +68,7 @@ def test_the_filter_walks_component_dirs_once():
         V._owned_by_the_proofs_component(rels, str(_REPO / _PROOF))
     finally:
         address.component_dirs = real
-    assert len(rels) >= 40, f"the closure is too small to mean anything: {len(rels)}"
+    assert len(rels) == 1 + _OWN + _FOREIGN, f"the fixed closure lost members: {len(rels)}"
     assert len(calls) == 1, f"filtering {len(rels)} closure paths walked component_dirs {len(calls)} times"
 
 

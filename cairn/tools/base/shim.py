@@ -232,9 +232,9 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
                 return {"up": False, "spawned": "none", "note": f"refused: {err2.strip()[:200]}"}
         # systemd-run absent, or refused for a reason that is not the name being held: the
         # fall-through, which leaves the loop in THIS session and it dies with it.
-        from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
+        from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
         with open(log, "a", encoding="utf-8") as fh:
-            subprocess.Popen([background_python() if os.name == "nt" else "python3", "-m", _LOOP_MODULE],
+            subprocess.Popen([background_pythonw() if os.name == "nt" else "python3", "-m", _LOOP_MODULE],
                              cwd=str(repo_root), **detached_kwargs(),
                              stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
         note("systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die "

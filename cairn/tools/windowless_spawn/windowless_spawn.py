@@ -39,3 +39,20 @@ def background_python(os_name: str | None = None, executable: str | None = None)
     ``import psycopg2`` (measured 2026-11-12, ``~/.cairn/logs/bus.log``). A console in the
     spawned tree is tooth 2's question and stays unmeasured until it runs."""
     return executable or sys.executable
+
+
+def background_pythonw(os_name: str | None = None, executable: str | None = None, exists=os.path.exists) -> str:
+    """The interpreter for a LONG-LIVED background child: on Windows the caller's own venv
+    ``pythonw.exe`` when it stands beside it, else ``background_python()``.
+
+    Measured 2026-11-13 on akiendell: a child spawned through the venv ``python.exe`` launcher
+    with DETACHED_PROCESS | CREATE_NO_WINDOW still owns a ``conhost.exe`` (launcher python.exe ->
+    real python.exe -> conhost); through ``pythonw.exe`` the tree holds two pythonw.exe and no
+    console host, and the child reports the venv's own prefix. pythonw has no stdout or stderr,
+    so a caller redirects both (every site does). A caller that reads the child's output keeps
+    ``background_python()``."""
+    py = background_python(os_name, executable)
+    if (os_name or os.name) != "nt":
+        return py
+    w = os.path.join(os.path.dirname(py), "pythonw.exe")
+    return w if exists(w) else py

@@ -215,9 +215,9 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
         return _detached(home, scratch, log)
     # Bound at call time (ticket 0156856b1fae). The caller's own interpreter, never a bare
     # "python3" that PATH may resolve to a python without psycopg2 (ticket 5370ad4f474d).
-    from cairn.tools.windowless_spawn.windowless_spawn import background_python
+    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw
     unit = _unit(home)
-    cmd = [background_python(), "-m", _BUS_MODULE, "serve", "--home", str(home)]
+    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve", "--home", str(home)]
     if scratch:
         cmd.append("--scratch")
     if not hasattr(socket, "AF_UNIX"):
@@ -264,8 +264,8 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
     TCP loopback, no console, its own process group."""
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
     # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
-    from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
-    cmd = [background_python(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
+    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
+    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
     if scratch:
         cmd.append("--scratch")
     with open(log, "a", encoding="utf-8") as fh:
@@ -278,8 +278,8 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
 def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
     # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
-    from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
-    cmd = [background_python(), "-m", _BUS_MODULE, "serve",
+    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
+    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve",
            "--home", str(home)]
     if scratch:
         cmd.append("--scratch")

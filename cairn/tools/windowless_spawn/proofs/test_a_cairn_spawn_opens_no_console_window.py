@@ -29,6 +29,7 @@ PROVES = {
         "1": "the_helper_kwargs_carry_the_windows_flags",
         "2": "a_spawned_child_leaves_no_console_in_its_tree",
         "3": "no_site_hand_builds_a_flag_set",
+        "4": "a_long_lived_site_spawns_the_windowless_interpreter",
     },
 }
 
@@ -96,7 +97,7 @@ def a_spawned_child_leaves_no_console_in_its_tree():
     if "--no-spawn" in sys.argv:
         raise Unmeasured("--no-spawn: this tooth spawns a process and was not asked to")
     ws = _ws()
-    child = subprocess.Popen([ws.background_python(), "-c", "import time; time.sleep(6)"],
+    child = subprocess.Popen([ws.background_pythonw(), "-c", "import time; time.sleep(40)"],
                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                              stderr=subprocess.DEVNULL, **ws.detached_kwargs())
     try:
@@ -104,8 +105,15 @@ def a_spawned_child_leaves_no_console_in_its_tree():
         tree = _tree(child.pid)
         consoles = [p for p in tree if p["name"].lower() in ("conhost.exe", "openconsole.exe")]
         print(f"    tree under {child.pid}: {[(p['name'], p['pid']) for p in tree]}")
+        # a tree that does not hold the child itself was read after it exited: that is no
+        # measurement, and an empty tree must never read as "no console" (measured 2026-11-13:
+        # the PowerShell process listing takes longer than a short sleep).
+        assert any(p["pid"] == child.pid for p in tree), f"the spawned child {child.pid} is not in the tree read: {tree}"
         assert not consoles, f"a console host sits in the spawned tree: {consoles}"
     finally:
+        # the launcher's child outlives the launcher: end the whole tree, not just the pid
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(child.pid)], capture_output=True,
+                       creationflags=0x08000000)
         child.kill()
 
 
@@ -144,9 +152,21 @@ def no_site_hand_builds_a_flag_set():
     assert not bad, "\n".join(bad)
 
 
+def a_long_lived_site_spawns_the_windowless_interpreter():
+    ws = _ws()
+    assert ws.background_pythonw("nt", executable="C:/v/Scripts/python.exe", exists=lambda p: True)         == os.path.join("C:/v/Scripts", "pythonw.exe")
+    assert ws.background_pythonw("nt", executable="C:/v/Scripts/python.exe", exists=lambda p: False)         == "C:/v/Scripts/python.exe"
+    assert ws.background_pythonw("posix", executable="/usr/bin/python3") == "/usr/bin/python3"
+    for rel in ("cairn/tools/base/shim.py", "cairn/devices/cairn/machines/ground_loop/cli.py",
+                "cairn/tools/bus_client/remote.py"):
+        text = (REPO / rel).read_text(encoding="utf-8")
+        assert "background_pythonw()" in text and "background_python()" not in text,             f"{rel} spawns a long-lived child through the console-owning launcher"
+
+
 TEETH = [the_helper_kwargs_carry_the_windows_flags,
          a_spawned_child_leaves_no_console_in_its_tree,
-         no_site_hand_builds_a_flag_set]
+         no_site_hand_builds_a_flag_set,
+         a_long_lived_site_spawns_the_windowless_interpreter]
 
 
 def main() -> int:

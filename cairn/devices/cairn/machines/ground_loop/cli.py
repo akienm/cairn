@@ -26,7 +26,7 @@ from pathlib import Path
 from shutil import copy2
 
 from cairn.tools.base.address import instance_path
-from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
+from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
 from cairn.tools.system_word import canon, fold, is_word
 from cairn.devices.cairn.machines.ground_loop.guard import held
 from cairn.devices.cairn.machines.ground_loop.heartbeat import read_record
@@ -120,7 +120,7 @@ def _start() -> int:
 
     repo = Path(__file__).resolve().parent.parent.parent.parent
     proc = subprocess.Popen(
-        [background_python(), "-m", "cairn.devices.cairn.machines.ground_loop"],
+        [background_pythonw(), "-m", "cairn.devices.cairn.machines.ground_loop"],
         cwd=str(repo),
         **detached_kwargs(),
         stdout=subprocess.DEVNULL,

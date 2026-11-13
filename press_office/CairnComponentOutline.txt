@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 94. An answered question disappears:
+      takes the next unused number, which is 95. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -187,6 +187,16 @@ not matter here. The code catches up to this, never the reverse.
               encapsulation. :)"
     3.3.5 Commit often. WHY: so we never wind up with stray files or incomplete
           work.
+          [Q#94: A crossing into PROVEME refuses while anything in either tree is
+          uncommitted (working_tree_clean, widened by ticket c1cca2e3dc23 on your
+          8w, F11 and 8x; unclaimed dirt refuses too, 8u). So with peers on one
+          box, one peer's ticket records (another ticket's log/state, the
+          artifact journal) block every other peer's crossing. Measured
+          2026-11-12: 3195b3b834bc's PROVEME was refused twice on the Dell, over
+          d692ef650534's records and then the orchestrator's. Do records that
+          artifact.locate claims for ANOTHER ticket stop blocking (unclaimed dirt
+          and any code dirt still refuse), or does the whole-tree rule stand and
+          peers serialise their crossings per box?]
     3.3.6 More than one builder runs at a time, so work is kept apart by branches:
           each ticket's work on its own branch, named by the ticket id, merged
           locally with git, no pull request (GitHub is hosting only). WHY: "the

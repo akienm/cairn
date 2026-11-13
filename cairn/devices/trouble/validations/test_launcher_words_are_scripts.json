@@ -2,7 +2,7 @@
   {
     "claim": "proof test_launcher_words_are_scripts.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T05:48:33",
+    "date": "2026-11-13T00:35:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "clause_3_the_launcher_has_no_arm_for_the_words"
       ],
       "teeth_red": [],
-      "test": "test-c42cd4bd957b",
+      "test": "test-5d0095272630",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,73 +25,49 @@
         "tables": []
       },
       "conditions": {
-        "proof": "a8c6b9203634de74a3e3d63aac9ad6a78692a15f81a7ca9694a140eec937ae44",
+        "proof": "50e0db22bcba612f843002feec1b39cc975654a8e97849b0544190a73ecfa0b9",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c42cd4bd957b",
-      "source_fingerprint": "06ef9937ba29ac5cf1fb36abc9d6023c25480e81d9ac5e983a11d9a9c5e636e5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5d0095272630",
+      "source_fingerprint": "ef69fba63490bc93b9f06af7e26967e8c60db87b78ee0ccf20d28e054f0eb15c",
       "fingerprint_closure": [
         "cairn/devices/trouble/proofs/test_launcher_words_are_scripts.py"
       ],
       "reached": {
-        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
-        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42"
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-2397997-d5465xou/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-c42cd4bd957b/stderr.txt",
-            "logs/tester/0/runs/test-c42cd4bd957b/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "285a8f3f7599": {
-          "cairn/devices/trouble/0/bin/trouble": [
-            "clause_3_the_launcher_has_no_arm_for_the_words"
-          ],
-          "cairn/devices/trouble/0/bin/live": [
-            "clause_1_each_word_is_a_named_script",
-            "clause_2_live_json_prints_the_same_troubles"
-          ],
-          "cairn/devices/trouble/0/bin/clear": [
-            "clause_1_each_word_is_a_named_script"
-          ],
-          "cairn/devices/trouble/0/bin/drain": [
-            "clause_1_each_word_is_a_named_script"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "285a8f3f7599": {
-          "anchor_rule": "journal",
-          "anchor_journal": "528e9797df2f5b02f35ab2ab530dd2eb23d924ca",
-          "anchor_first_build": "4dccb06508a38ae35a9ec01d5838cab13b74e083",
-          "commit": "528e9797df2f5b02f35ab2ab530dd2eb23d924ca"
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 5
         }
       }
     },

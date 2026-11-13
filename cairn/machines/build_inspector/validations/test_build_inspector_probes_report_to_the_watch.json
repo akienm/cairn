@@ -2,7 +2,7 @@
   {
     "claim": "proof test_build_inspector_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T06:04:42",
+    "date": "2026-11-13T00:18:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_build_inspector_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-08868f0ed61f",
+      "test": "test-206cc5ace509",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,13 +39,13 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-08868f0ed61f",
-      "source_fingerprint": "2fdb53bcd93feb6f395013b5065cf7b210883f475af1f50501c86dd612299503",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-206cc5ace509",
+      "source_fingerprint": "daed0e4b0062b967310db7f2948da49a71440b2cbc2efece3afdc755426961ce",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -56,19 +56,19 @@
         "cairn/machines/build_inspector/proofs/test_build_inspector_probes_report_to_the_watch.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "b2e00eb12b2482f38f8ce91262aff518cc300147a5614a2cdcaeecdd2ca5954a",
-        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/tools/chain": "55c637ef6af85d9fcb339dc5c059da07e834967b414d9b32e9292d8f312bb8d5",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+        "cairn/tools/system_word": "a6e81c62ea3f02a3fb0d0d8cb4e0a3a2d8cadf29f4e91de2397b846fc78db629"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1234951-uag464u5/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2374275-pj39cyz3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,30 +77,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528366295,
-          "disk_bytes": 571547648,
-          "entries": 16524,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
           "builds": 1,
-          "reuses": 0
+          "reuses": 5
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "b43bb40556caf73ca2c79a4c09dfdb7250d1c7d0074982b40edadc2ea3c578f8",
-        "opened": "2026-11-12T05:10:45",
-        "last_red": "2026-11-12T05:10:45",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-build-inspector-probes-report-to-the-watch",
-        "ruling": null,
-        "closed_at": "2026-11-12T06:04:42",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "b43bb40556caf73ca2c79a4c09dfdb7250d1c7d0074982b40edadc2ea3c578f8"
-      },
-      "conditions_moved": {
-        "notified": "n-2a55fb241c33",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

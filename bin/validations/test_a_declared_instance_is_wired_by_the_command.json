@@ -2,18 +2,18 @@
   {
     "claim": "proof test_a_declared_instance_is_wired_by_the_command.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T17:34:21",
+    "date": "2026-11-13T00:42:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  tooth_6_the_command_wires_the_declared_instance\n        declared: ok; new_verb: ok; undeclared: ok\n1 passed, 0 failed",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  tooth_6_the_command_wires_the_declared_instance\n        FileExistsError: [Errno 17] File exists: '/tmp/testing-f0ffa0db0952-bin-scratch.4026531836-2404241-yldm0_4e/instance/fixture_declared/0/bin'\n0 passed, 1 failed",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "tooth_6_the_command_wires_the_declared_instance"
       ],
-      "teeth_red": [],
-      "test": "test-53236487fc24",
+      "test": "test-79b66995ad2d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -23,7 +23,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ba2345975907353d90280418acf0b94a09e2a41125f602af9477139558c586fc",
+        "proof": "f7177b644308e7e15e999b3b7d916ea59a3615f0b71054686f638e27bfd142b7",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -41,8 +41,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-53236487fc24",
-      "source_fingerprint": "71b7d41475b180023e1f6836b87031789031f5020d4f8421861d6bb5e9ed1ab4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-79b66995ad2d",
+      "source_fingerprint": "d2b753c1e34810b1f5389c02c60264fab3ce72e59ae303828efe822415eb1c4a",
       "fingerprint_closure": [
         "bin/proofs/test_a_declared_instance_is_wired_by_the_command.py",
         "cairn/__init__.py",
@@ -50,17 +50,18 @@
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/script_argv.py",
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/scratch.py"
       ],
       "reached": {
-        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
-        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1952132-3mwrug7v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2404189-j5tjv2yg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,9 +70,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530097433,
-          "disk_bytes": 578064384,
-          "entries": 18238,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
           "builds": 1,
           "reuses": 0
         }

@@ -1,14 +1,14 @@
 [
   {
-    "claim": "proof test_sudo_relay.py passes under python.exe",
+    "claim": "proof test_sudo_relay.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T23:18:46",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-13T00:31:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_protocol_runs_the_command_and_returns_the_truth\n  PASS  test_idle_when_nothing_pending\n  PASS  test_record_is_permanent_and_complete\n  PASS  test_folder_cycles_after_a_month_but_not_before\n  PASS  test_retention_never_touches_a_foreign_file\n  PASS  test_temporary_is_physics\n  PASS  test_the_window_is_visible_and_honest\n  PASS  test_the_crossing_is_no_longer_silent\n  PASS  test_device_is_a_device_and_reports_the_window\n  PASS  test_a_leftover_result_is_never_returned\n  PASS  test_an_unanswered_request_times_out_rather_than_taking_anothers\n  PASS  test_the_daemon_runs_under_the_requests_timeout\n  PASS  test_an_orphan_is_a_loud_finding\ngreen — sudo_relay: command in, root-run + permanent audit out; each request gets back only its own result; window visible, temporary by physics",
-      "stderr_tail": "scratch: could not sweep C:\\Users\\akien\\AppData\\Local\\Temp\\ws-shim-pulse-scratch.0-8880-ygusv8c7: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\akien\\\\AppData\\\\Local\\\\Temp\\\\ws-shim-pulse-scratch.0-8880-ygusv8c7\\\\web_server.log'",
+      "stderr_tail": "",
       "teeth_green": [
         "test_protocol_runs_the_command_and_returns_the_truth",
         "test_idle_when_nothing_pending",
@@ -25,7 +25,7 @@
         "test_an_orphan_is_a_loud_finding"
       ],
       "teeth_red": [],
-      "test": "test-ae87d9b0c978",
+      "test": "test-06f64427fa45",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,52 +35,53 @@
         "tables": []
       },
       "conditions": {
-        "proof": "fcdf6b4aab5dddf9fc10a49835e999492fa3a9d4b010d2f178316d77895f93b9",
+        "proof": "f72092b0b3d72f3c5d82c3520ea1e70cf4766ee04855886b5a3391d16268e641",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        },
-        {
-          "pid": null,
-          "signal": "none: process environments cannot be enumerated on Windows"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-ae87d9b0c978",
-      "source_fingerprint": "bc1d26edb938bf37be2e2cca3056e71f6a8eb417418bc199460548628bb57f4e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06f64427fa45",
+      "source_fingerprint": "659606d63361a264fc4d25c67aa84656042bdc1c711b374828e36f9e1bb9dfc7",
       "fingerprint_closure": [
         "cairn/devices/sudo_relay/__init__.py",
         "cairn/devices/sudo_relay/proofs/test_sudo_relay.py",
         "cairn/devices/sudo_relay/relay.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
         "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "efcc318d4ae90d5abf286a412233ff4e334f58270e54dc16ef14e2cff96c27c8"
+        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2395166-2fcq0qur/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

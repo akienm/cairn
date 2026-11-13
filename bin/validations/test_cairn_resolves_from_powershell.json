@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_cairn_resolves_from_powershell.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T00:44:01",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  RED    tooth_1_cairn_resolves_to_the_cmd\n         AssertionError: UNRAN: PATHEXT resolution is Windows-only; run this on a Windows box\n  RED    tooth_2_a_read_only_verb_matches_git_bash\n         AssertionError: RED: spawns windows; needs Akien's windows word (CAIRN_PROOF_MAY_SPAWN=1)\nred teeth: ['tooth_1_cairn_resolves_to_the_cmd', 'tooth_2_a_read_only_verb_matches_git_bash']",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "tooth_1_cairn_resolves_to_the_cmd",
+        "tooth_2_a_read_only_verb_matches_git_bash"
+      ],
+      "test": "test-bebc3c50925c",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "8f02d92eb7f34364c73cbcf66884a23b6ec4e435d37578aa7121ccf7ad6183bc",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bebc3c50925c",
+      "source_fingerprint": "f4f5c4c009c8cefefc52347352802ba44ab1b557e9e1dad5e1c53e81230b83cb",
+      "fingerprint_closure": [
+        "bin/proofs/test_cairn_resolves_from_powershell.py",
+        "cairn/devices/tester/reach/sitecustomize.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2404189-9gq_l2j5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 11
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -34,7 +34,6 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
-from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
 
 # cairn/tools/bus_client/remote.py → three parents up is the class root.
 _CLASS_ROOT = Path(__file__).resolve().parents[3]
@@ -257,6 +256,9 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
 def _detached(home: Path, scratch: bool, log: Path) -> str:
     """The Windows spawn (the shape of superclaude's _sc_spawn_detached): this venv's python,
     TCP loopback, no console, its own process group."""
+    # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
+    # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
+    from cairn.tools.windowless_spawn.windowless_spawn import background_python, detached_kwargs
     cmd = [background_python(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
     if scratch:
         cmd.append("--scratch")
@@ -268,6 +270,9 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
 
 
 def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
+    # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
+    # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
+    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
     cmd = ["python3", "-m", _BUS_MODULE, "serve",
            "--home", str(home)]
     if scratch:

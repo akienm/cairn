@@ -39,7 +39,7 @@ def _captured_argv(home: str, env: dict) -> list[str]:
     subprocess.run faked: show-environment answers MANAGER_ENV, systemd-run succeeds. Nothing
     is spawned."""
     from cairn.tools.base import shim
-    from cairn.tools.scratch.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
     where = scratch_dir("34da-")
     seen: list[list[str]] = []
     real_run, saved = subprocess.run, dict(os.environ)
@@ -53,10 +53,11 @@ def _captured_argv(home: str, env: dict) -> list[str]:
         return real_run(argv, *a, **k)
 
     try:
-        for k in [k for k in os.environ if k.startswith("CAIRN_")]:
-            del os.environ[k]
-        os.environ.update(env)
-        os.environ["HOME"] = home
+        # HOME comes from the published scratch env (ticket 3301915df481), never set by hand.
+        target = {k: v for k, v in home_env(home).items() if not k.startswith("CAIRN_")}
+        target.update(env)
+        os.environ.clear()
+        os.environ.update(target)
         subprocess.run = fake
         out = shim.ensure_ground_loop(home=where, log=where / "l")
         assert out["spawned"] == "unit", f"the fake spawn did not take: {out}"

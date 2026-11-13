@@ -38,6 +38,7 @@ import os
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.system_word import fold
 
 HOLDER = "codemother"
 VERB = "queueme"
@@ -105,7 +106,8 @@ class ClearanceGate(DiagnosticBase):
             raise ValueError(f"ticket {ticket.id} stands at {wf.here}, the last step of its "
                              "workflow: there is no next step to cross to")
         target = wf.path[wf.cursor + 1]
-        proven_by = self.proven_by(ticket.id, target)
+        proven_by = (self.host_seam_proof(ticket) if fold(wf.node_class) == "host-seam"
+                     else self.proven_by(ticket.id, target))
         return {"target": target, "proven_by": proven_by,
                 "validation": self.validation_of(wf, proven_by),
                 **journal_of(ticket, roots=self._roots)}
@@ -133,6 +135,19 @@ class ClearanceGate(DiagnosticBase):
                 if seal.is_file():
                     return str(seal)
         return None
+
+    def host_seam_proof(self, ticket) -> list[str]:
+        """A HOST-SEAM'S PROOF IS ITS INTENTION'S VERIFY (ticket b5d439fd6608): the tester seals
+        it box-local beside the intention (dfe6c1432fc8), and no ``proofs/*.py`` declares it, so
+        ``declaring()`` finds nothing and the crossing named no proof at all. The gate names the
+        ticket's owning intention, resolved where ``journal_of`` resolves it; rule 2's
+        ``standing()`` reads this box's seal of it."""
+        _, repo, commons = self._where()
+        owning = ticket.doc().get("owning_intention") or ""
+        for root in (repo, commons):
+            if owning and (root / owning).is_file():
+                return [str(root / owning)]
+        return [owning] if owning and Path(owning).is_absolute() else []
 
     def proven_by(self, tid: str, target: str) -> list[str]:
         if target == "PROVED":

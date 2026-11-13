@@ -1126,8 +1126,39 @@ def _coverage_lacks(owner: BoatOwner, boat_id: str, named) -> list[dict]:
     # them all to the empty string. ``boat_id`` IS the id (a boat is its ticket, ruled
     # 2026-08-10) and rule 0c has already refused a crossing where the two disagree.
     ticket = {**ticket, "id": ticket.get("id") or boat_id}
+    if fold(str(ticket.get("node_class") or "")) == "host-seam":
+        return _host_seam_coverage_lacks(ticket, boat_id)
     return (list(coverage_lacks(ticket, repo_root=Path(CAIRN_ROOT), roots=_crossing_roots()))
             + hollow_lacks(ticket, named))
+
+
+def _host_seam_coverage_lacks(ticket: dict, boat_id: str) -> list[dict]:
+    """A HOST-SEAM IS COVERED BY ITS INTENTION'S VERIFY STANDING ON THIS BOX (ticket b5d439fd6608).
+
+    ``proof_coverage.lacks`` asks for a PROVES table and teeth, and ``hollow_lacks`` for a
+    reverted build: a host-seam has neither — it yields no code, and its falsifier is one
+    command over the host (CairnCommons/node_classes/host-seam.json ``prove_gate``). Its
+    coverage is the box-local seal the tester takes of that command (dfe6c1432fc8), read by
+    ``standing()``. The intention is read off the RECORD — the ticket's ``owning_intention``,
+    resolved in the gate's crossing world — never off the caller's ``proven_by``, the same
+    refusal the code-seam rung makes."""
+    from cairn.tools.validation_store.validation_store import is_host_seam
+    roots = _crossing_roots()
+    repo, commons = ((Path(roots["repo"]), Path(roots["commons"])) if roots
+                     else (Path(CAIRN_ROOT), Path(COMMONS_ROOT)))
+    owning = str(ticket.get("owning_intention") or "")
+    path = next((r / owning for r in (repo, commons) if owning and (r / owning).is_file()), None)
+    if path is None or not is_host_seam(str(path)):
+        return [_lack(boat_id, "host_seam_intention_resolves",
+                      "the host-seam ticket's owning_intention is a host-seam intention on disk",
+                      f"owning_intention {owning!r} resolves to no host-seam intention under "
+                      f"{repo} or {commons}, so there is no verify to stand on")]
+    read = standing(str(path))
+    if not read["proven"]:
+        return [_lack(boat_id, "host_seam_verify_stands",
+                      "the host-seam intention's verify stands sealed green on this box",
+                      read["why"])]
+    return []
 
 
 def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor: str,

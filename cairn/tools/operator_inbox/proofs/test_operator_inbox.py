@@ -33,6 +33,11 @@ PROVES = {
         "2": "test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_check",
     },
     "3feb201c84ea": {"1": "test_tickets_match_independent_read"},
+    # 38d10e8650c9 — child A of d421051bc1f7: the renderer reads a ticket of decisions
+    "38d10e8650c9": {
+        "1": "test_format_ticket_v2_one_screen",
+        "2": "test_format_ticket_v1_byte_identical",
+    },
     # 3ed960cc402e — an idea past idea is not an open idea (Akien 2026-09-07)
     "3ed960cc402e": {
         "1": "test_read_ideas_reports_only_the_open_one",
@@ -557,6 +562,45 @@ def test_the_lane_probe_is_armed_and_measures_a_scratch_world():
     m2 = probe_mod._measure(dict(ctx))
     assert not m2["clean"] and [q["id"] for q in m2["re_raised"]] == ["open-000000000002"], m2
     assert "re-raised" in probe_mod._carry(dict(ctx))["finding"]
+
+def test_format_ticket_v2_one_screen():
+    """d421051bc1f7 D7/D20: a ticket-v2 renders its decisions as a numbered list, its
+    intention and berths as addresses, on one screen (<= 60 lines at width 76)."""
+    from cairn.tools.operator_inbox.inbox import _format_ticket, ticket_version
+
+    doc = {
+        "id": "f" * 12, "title": "a v2 fixture", "node_class": "code-seam",
+        "workflow_and_state": "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME",
+        "schema_version": "ticket-v2", "owning_intention": "cairn/tools/operator_inbox/intention+why.json",
+        "decisions": [{"n": n, "text": f"decision {n} is one line", "by": "CC at cast 2026-11-13"}
+                      for n in range(1, 13)],
+        "intent_berth": "/fixture/intent.json", "sorted_berth": "/fixture/sorted.json",
+        "questions": "none, because fixture", "measurements_since_cast": [],
+        "intention": "PROSE THE V2 LAYOUT MUST NOT PRINT", "why": "PROSE", "how": "PROSE",
+    }
+    assert ticket_version(doc) == "v2" and ticket_version({"schema_version": "ticket-v1"}) == "v1"
+    out = _format_ticket(doc, Path("/fixture"))
+    assert "DECISIONS:" in out and "BERTHS:" in out and "INTENTION:" in out, out
+    entries = [ln for ln in out.splitlines() if ln[:2] == "  " and ln.strip()[:1].isdigit()]
+    assert len(entries) == 12, entries
+    assert all(ln.strip().endswith("]") and ln.strip().split(". ", 1)[0].isdigit() for ln in entries), entries
+    assert "intent_berth: /fixture/intent.json" in out and "chart_claim: none" in out, out
+    assert "PROSE" not in out, "a v2 ticket prints no prose field"
+    assert len(out.splitlines()) <= 60, len(out.splitlines())
+
+
+def test_format_ticket_v1_byte_identical():
+    """d421051bc1f7 D20: a ticket with no decisions renders byte for byte as it did before
+    the v2 branch — the baseline was captured from the unedited renderer, never regenerated."""
+    from cairn.tools.operator_inbox.inbox import _format_ticket
+
+    fx = Path(__file__).parent / "fixtures"
+    doc = json.loads((fx / "v1_ticket.json").read_text(encoding="utf-8"))
+    doc.setdefault("measurements_since_cast", [])  # log-bound field; a bare path has no log
+    got = _format_ticket(doc, Path("/fixture")).replace("\\fixture", "/fixture")
+    want = (fx / "v1_render_baseline.txt").read_text(encoding="utf-8").replace("\\fixture", "/fixture")
+    assert got == want, "the v1 render drifted from its baseline"
+
 
 if __name__ == "__main__":
     from cairn.tools.proof_coverage import print_teeth_main

@@ -1185,6 +1185,26 @@ def _format_ticket(doc: dict, path: Path) -> str:
     lines.append("=" * width)
     lines.append("")
 
+    v2 = ticket_version(doc) == "v2"
+    if v2:
+        # ticket-v2 (d421051bc1f7 D7): a list of decisions, never prose. The intention is
+        # an address, the decisions are the body, the berths are addresses — one screen.
+        lines.append("INTENTION:")
+        lines.append(f"  {doc.get('owning_intention') or 'none'}")
+        lines.append("")
+        lines.extend(_decisions_section(doc, width))
+        qtree = _questions_tree(doc, path)
+        if qtree:
+            lines.append("QUESTIONS:")
+            lines.append(qtree)
+            lines.append("")
+        lines.append("BERTHS:")
+        lines.append(f"  intent_berth: {doc.get('intent_berth') or 'none'}")
+        lines.append(f"  sorted_berth: {doc.get('sorted_berth') or 'none'}")
+        lines.append(f"  chart_claim: {_chart_claim(doc, path)}")
+        lines.append("")
+        return "\n".join(lines)
+
     for field in ("intention", "what", "why", "how"):
         val = doc.get(field)
         if val:
@@ -1232,6 +1252,8 @@ def _format_ticket(doc: dict, path: Path) -> str:
             lines.append(_wrap(f"· {m}", "  ", width))
         lines.append("")
 
+    lines.extend(_decisions_section(doc, width))
+
     qtree = _questions_tree(doc, path)
     if qtree:
         lines.append("QUESTIONS:")
@@ -1240,6 +1262,43 @@ def _format_ticket(doc: dict, path: Path) -> str:
 
     lines.append("")
     return "\n".join(lines)
+
+
+def ticket_version(doc: dict) -> str:
+    """'v2' iff the ticket's schema_version starts 'ticket-v2', else 'v1' (d421051bc1f7 D7/D8).
+    The one reader of schema_version: files of both versions share the tickets store."""
+    return "v2" if str(doc.get("schema_version") or "").startswith("ticket-v2") else "v1"
+
+
+def _decisions_section(doc: dict, width: int) -> list[str]:
+    """DECISIONS: one '<n>. <text> [<by>]' entry per line, wrapped with a two-space hang;
+    empty when the ticket carries none, so a v1 ticket without decisions renders as before."""
+    decisions = doc.get("decisions")
+    if not isinstance(decisions, list) or not decisions:
+        return []
+    out = ["DECISIONS:"]
+    for i, d in enumerate(decisions, 1):
+        if isinstance(d, dict):
+            entry = f"{d.get('n', i)}. {d.get('text', '')} [{d.get('by', '?')}]"
+        else:
+            entry = f"{i}. MALFORMED decision {d!r} []"  # Law 7: loud, never silent
+        out.append(_wrap(entry, "  ", width))
+    out.append("")
+    return out
+
+
+def _chart_claim(doc: dict, path: Path) -> str:
+    """The ticket's chart_claim as an address: the plan's own, else the state file's, else
+    'none' — the state file holds it since the three-file split (284798998ab0)."""
+    val = doc.get("chart_claim")
+    if val is None:
+        from cairn.tools.base.ticket_file import state_path
+        try:
+            sp = state_path(path)
+            val = json.loads(sp.read_text(encoding="utf-8")).get("chart_claim") if sp.exists() else None
+        except (OSError, ValueError):
+            val = None
+    return str(val) if val else "none"
 
 
 def _questions_tree(doc: dict, path: Path) -> str:

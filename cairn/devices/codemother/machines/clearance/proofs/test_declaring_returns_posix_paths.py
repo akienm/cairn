@@ -14,6 +14,7 @@ from pathlib import Path
 PROVES = {"a4892e762b70": {
     "1": "test_declaring_returns_a_forward_slash_path",
     "2": "test_declaring_still_finds_the_proof",
+    "3": "test_declaring_is_posix_even_when_relative_to_speaks_windows",
 }}
 
 TID = "a4892e762b70"
@@ -43,6 +44,29 @@ def test_declaring_returns_a_forward_slash_path():
 def test_declaring_still_finds_the_proof():
     with tempfile.TemporaryDirectory() as tmp:
         assert len(_declared(tmp)) == 1
+
+
+def test_declaring_is_posix_even_when_relative_to_speaks_windows():
+    """Red on Linux too (ticket a4892e762b70, FIXME 1): the two teeth above read green on a
+    box whose str(path) never carries a backslash. Here the gate's own ``Path`` is swapped
+    for one whose ``relative_to`` returns a ``PureWindowsPath``, so a ``str()`` at the writer
+    carries backslashes on EVERY host and only ``as_posix()`` survives."""
+    from pathlib import PureWindowsPath
+    from cairn.devices.codemother.machines.clearance import gate as gate_mod
+
+    class _WinRel(type(Path())):
+        def relative_to(self, *a, **k):
+            return PureWindowsPath(*super().relative_to(*a, **k).parts)
+
+    real = gate_mod.Path
+    gate_mod.Path = _WinRel
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            got = _declared(tmp)
+    finally:
+        gate_mod.Path = real
+    assert got == ["cairn/devices/alpha/proofs/test_alpha.py"], got
+    assert all("\\" not in one for one in got), got
 
 
 if __name__ == "__main__":

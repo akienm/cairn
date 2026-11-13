@@ -5,9 +5,9 @@ PowerShell does not reach the .cmd was falsified, so bin/cairn.cmd needs no chan
 
   1. cairn resolves to bin/cairn.cmd: the PATHEXT search over bin/ (no process spawned) picks the .cmd, and
      a scratch dir holding only the extensionless script resolves to nothing (the tooth can fail).
-  2. a read-only verb through cairn.cmd exits 0 and prints the same first line as Git Bash. This SPAWNS
-     windows, so it runs only with CAIRN_PROOF_MAY_SPAWN=1 (Akien's windows word); without it the tooth is RED
-     (a gate is hard, never advisory), not skipped.
+  2. a read-only verb through cairn.cmd exits 0 and prints the same first line as Git Bash. It spawns
+     a process; no word is needed (Akien, 2026-11-13: "NOTHING REQUIRES ME TO SAY IT"), the tester runs it
+     in a console-less job.
 
     python3 bin/proofs/test_cairn_resolves_from_powershell.py
 """
@@ -55,7 +55,6 @@ def tooth_1_cairn_resolves_to_the_cmd() -> None:
 
 
 def tooth_2_a_read_only_verb_matches_git_bash() -> None:
-    assert os.environ.get("CAIRN_PROOF_MAY_SPAWN") == "1", "RED: spawns windows; needs Akien's windows word (CAIRN_PROOF_MAY_SPAWN=1)"
     from cairn.tools.base.script_argv import bash_script_argv
     cmd = subprocess.run(["cmd.exe", "/c", str(REPO / "bin" / "cairn.cmd"), VERB], capture_output=True, text=True)
     bash = subprocess.run(bash_script_argv(REPO / "bin" / "cairn") + [VERB], capture_output=True, text=True)

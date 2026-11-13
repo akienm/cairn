@@ -7,12 +7,12 @@ C=~/dev/src/cairn; CC=~/dev/src/CairnCommons
 X=~/dev/src/cairn/cairn/devices/cc/scripts/sail.py
 TR=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: '"${CLAUDE_SESSION_URL:?set CLAUDE_SESSION_URL to the session URL}"
 commit_all() {
-  (cd $C && git add -u && git commit -qm "$ID: $1$TR" 2>&1 | grep -E " red |FAIL|REFUSED" )
+  (cd $C && git add -u && git commit -qm "$ID: $1$TR" 2>&1 | grep -E " red |FAIL|REFUSED|HOLLOW VOIDED|will bounce on hollow" )
   (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
 }
 cd $C
 echo "--- reflection"; PYTHONPATH=. python3 -m skills.sail.reflection $REFL 2>&1 | tail -1
-echo "--- seal"; bin/cairn test --seal $P 2>&1 | grep -E "proof ·"
+echo "--- seal"; bin/cairn test --seal $P 2>&1 | grep -E "proof ·|HOLLOW VOIDED|will bounce on hollow"
 git add $(dirname $(dirname $P))/validations 2>/dev/null
 commit_all "proof sealed"
 echo "--- PROVEME"; python3 $X cross $ID 2>&1 | tail -1

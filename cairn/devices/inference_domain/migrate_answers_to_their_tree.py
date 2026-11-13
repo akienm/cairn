@@ -190,6 +190,55 @@ def migrate(*, source: str = SOURCE, table: str = domain.ANSWERS, ask=None, reco
         conn.close()
 
 
+def _dump_dir() -> Path:
+    """Where the hand-taken dump stands: the home instance's temp (this module's docstring)."""
+    return Path.home() / ".cairn" / "devices" / "inference_domain" / "0" / "temp"
+
+
+def _dump_sums(path: Path, source: str) -> tuple[float, float, datetime | None]:
+    """spent (miss cost), avoided (hit cost) and the newest created, off the dump's COPY
+    section for ``source``. A row with no cost costs 0."""
+    spent = avoided = 0.0
+    newest = None
+    cols = None
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            if cols is None:
+                if line.startswith(f"COPY public.{source} "):
+                    cols = [c.strip() for c in line.split("(", 1)[1].split(")", 1)[0].split(",")]
+                continue
+            if line.startswith("\\."):
+                break
+            r = dict(zip(cols, line.rstrip("\n").split("\t")))
+            cost = 0.0 if r.get("cost") in (None, "\\N") else float(r["cost"])
+            if r.get("verdict") == "miss":
+                spent += cost
+            elif r.get("verdict") == "hit":
+                avoided += cost
+            at = _utc(datetime.fromisoformat(r["created"]))
+            newest = at if newest is None or at > newest else newest
+    return spent, avoided, newest
+
+
+def report(*, source: str = SOURCE, table: str = domain.ANSWERS) -> dict:
+    """What the migration left, read on THIS box (ticket d9d87ccb97e5): the answer tree is one
+    box's (open-39f6229e7241), so a proof elsewhere asks the device's ``migration`` verb for it.
+    old_table_gone: the old table is neither registered nor present; leaves: the answer tree's
+    row count; dump_*: the newest dump's sums, or null when no dump stands."""
+    present = store.query("SELECT 1 FROM information_schema.tables WHERE table_name = %s",
+                          tables={}, params=(source,))
+    gone = store.owner_of(source) is None and not present
+    leaves = store.query("SELECT count(*) AS n FROM {t}", tables={"t": table}, params=())[0]["n"]
+    out = {"old_table_gone": gone, "leaves": int(leaves), "dump_spent": None,
+           "dump_avoided": None, "dump_newest": None}
+    dumps = sorted(_dump_dir().glob(f"{source}-*.sql"))
+    if dumps:
+        spent, avoided, newest = _dump_sums(dumps[-1], source)
+        out.update(dump_spent=spent, dump_avoided=avoided,
+                   dump_newest=newest.isoformat() if newest else None)
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--dump", required=True, help="the pg_dump file of the old table")

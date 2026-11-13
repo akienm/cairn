@@ -57,7 +57,15 @@ class InferenceDomainDevice(BaseDevice):
         # domain's request vocabulary — or its module — to ask.
         return {**super().declared_verbs(), "resolve": self._handle_resolve,
                 "embed": self._handle_embed, "infer": self._handle_infer,
-                "calls": self._handle_calls}
+                "calls": self._handle_calls, "migration": self._handle_migration}
+
+    def _handle_migration(self, envelope: dict) -> dict:
+        """What the one-shot migration left on THIS box (ticket d9d87ccb97e5): old_table_gone,
+        leaves, dump_spent, dump_avoided, dump_newest. The answer tree is one box's
+        (open-39f6229e7241), so a proof on another box asks here instead of counting its own.
+        The reading lives in the migration module, the one module that names the old table."""
+        from cairn.devices.inference_domain.migrate_answers_to_their_tree import report
+        return _json_safe(report())
 
     def _handle_calls(self, envelope: dict) -> dict:
         """Who asks for the domain's calls gets them (ticket b905340f8162): the task tickets in

@@ -36,12 +36,28 @@ EMBED_MODEL = "nomic-embed-text"
 _SENDER = "codemother"
 
 
+class EmbedRefused(RuntimeError):
+    """The embed reply carried no vector; the message names the reply's own error field.
+
+    Ticket 09bd383fd6a6 (measured 2026-11-12 on akiendell): chart learn raised a bare
+    KeyError 'answer'. A bus bounce carries ``is_bounce`` and a ``reason``, and no answer.
+    inference_domain's refusal carries ``answer: None`` with ``refused`` and ``detail``. Either
+    way the caller gets the reply's own words (Law 7), never an index error."""
+
+
 def _resolve_embed(bus, text: str) -> dict:
     reply = bus.request(sender=_SENDER, to="inference_domain", verb="resolve",
                         why="codemother deposit embed",
                         body={"kind": "embed", "prompt": text, "model": EMBED_MODEL,
                               "domain": "research"})
-    return reply["body"]
+    got = (reply or {}).get("body") or {}
+    answer = got.get("answer")
+    if not isinstance(answer, dict) or "vector" not in answer:
+        said = {k: got[k] for k in ("is_bounce", "reason", "outcome", "refused", "detail",
+                                    "error", "ticket") if got.get(k) not in (None, "")}
+        raise EmbedRefused(f"inference_domain resolve (embed) returned no vector: "
+                           f"{said or got or reply!r}")
+    return got
 
 
 def embed(bus):

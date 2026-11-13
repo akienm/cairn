@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -46,7 +45,8 @@ def _rec(name: str, inp: dict, at: str) -> dict:
 
 
 def _transcript(records: list[dict], *, escape_slash: bool = False) -> Path:
-    d = Path(tempfile.mkdtemp(prefix="toolcalls-"))
+    from cairn.tools.scratch.scratch import scratch_dir
+    d = scratch_dir("toolcalls-")
     p = d / "session.jsonl"
     lines = []
     for r in records:

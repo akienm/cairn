@@ -414,15 +414,18 @@ def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
     machines too. Only the files BESIDE the proof are asked, so the reader's
     ``repo_relative_closure([], proof)`` pays nothing; a proof under no component keeps the
     whole closure rather than guessing."""
-    from cairn.tools.base.address import component_of
+    from cairn.tools.base.address import components_of
     mine = os.path.relpath(os.path.realpath(str(proof_path)), _REPO_ROOT).replace(os.sep, "/")
     others = rels - {mine}
     if not others:
         return rels
-    owner = component_of(os.path.join(_REPO_ROOT, mine))
+    # ONE walk of the component tree for the whole closure (ticket 9f4442c932da): a
+    # component_of per file re-walked it each time, and the home bus wedged on that loop.
+    owners = components_of([os.path.join(_REPO_ROOT, r) for r in (mine, *others)])
+    owner = owners[os.path.join(_REPO_ROOT, mine)]
     if owner is None:
         return rels
-    return {mine} | {r for r in others if component_of(os.path.join(_REPO_ROOT, r)) == owner}
+    return {mine} | {r for r in others if owners[os.path.join(_REPO_ROOT, r)] == owner}
 
 
 def standing(proof_path: str) -> dict:

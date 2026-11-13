@@ -112,6 +112,37 @@ def loop_lock_path(home: Path | None = None) -> Path:
     return home / "run.lock"
 
 
+def _manager_env_flags(env_home: str) -> list[str]:
+    """systemd-run flags that give a SCRATCH-HOME loop the caller's CAIRN_ environment and none of
+    the user manager's (ticket 34da9a98a484). A transient unit takes the manager's environment, and
+    measured 2026-11-12 on akienasus that holds CAIRN_BUS_HOME=akiendelllinux.local:7419, so a proof's
+    scratch loop dialed the Dell's live bus whatever cairn/tools/scratch/scratch.py home_env had
+    stripped from the caller. Each CAIRN_* the caller carries rides --setenv; each CAIRN_* the
+    manager carries and the caller does not is unset with the unit's UnsetEnvironment= (measured:
+    it removes a manager-inherited variable). Under the account's own HOME this returns [], so a
+    live spawn's argv is what it always was."""
+    import subprocess
+    try:
+        import pwd
+        own = pwd.getpwuid(os.getuid()).pw_dir
+    except (ImportError, KeyError, AttributeError):  # no pwd module (Windows) or no entry for this uid
+        return []
+    if os.path.realpath(env_home) == os.path.realpath(own):
+        return []
+    flags = [f"--setenv={k}={v}" for k, v in os.environ.items() if k.startswith("CAIRN_")]
+    try:
+        shown = subprocess.run(["systemctl", "--user", "show-environment"],
+                               capture_output=True, text=True, timeout=10)
+        lines = shown.stdout.splitlines() if shown.returncode == 0 else []
+    except (OSError, subprocess.SubprocessError):
+        lines = []
+    for line in lines:
+        k = line.split("=", 1)[0]
+        if k.startswith("CAIRN_") and k not in os.environ:
+            flags += ["-p", f"UnsetEnvironment={k}"]
+    return flags
+
+
 def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> dict:
     """Every shim, on start, checks the instance's ground loop and launches it if it is not
     running (Akien, 2026-09-06, verbatim in I-the-command-lazy-inits-the-system.md: "shims, on
@@ -170,6 +201,7 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
     if test_id:
         argv += [f"--setenv=CAIRN_TESTER_TEST_ID={test_id}", "-p", "CollectMode=inactive-or-failed"]
+    argv += _manager_env_flags(env_home)
     argv += ["--", "python3", "-m", _LOOP_MODULE]
 
     def run_unit():

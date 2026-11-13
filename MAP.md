@@ -363,7 +363,7 @@ UU's skills dir — the IMAP-banner disease; no skill crosses on inertia).
     ground_loop/                  # the heartbeat, nothing else
     bus/                          # the other runtime substrate
     system_rackmount/             # the system device (host-resource predicates)
-    inference_domain/             # the only path to inference
+    inferenceproxy/               # the only path to inference (answers as `inference`)
     charter/                      # the projector: state compiled from history
     sudo_relay/
     web_server/                   # the presentation surface; v0 PROVEN 2026-07-22

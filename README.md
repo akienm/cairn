@@ -158,7 +158,7 @@ What replaces the orchestrator:
 - **Gated ownership.** Everything has exactly one owner, and only the owner can write to it.
   Nobody is *stopped* from writing to the database. There is simply no other door, because
   `db_domain` is the only path to Postgres and the kernel closes the port to everyone else.
-  `inference_domain` is the same move for the model host. A static sieve parses every `.py`
+  `inferenceproxy` is the same move for the model host. A static sieve parses every `.py`
   file into an import graph and fails the build that opens a second door. Enforcement is a
   property of ownership made physical, not a cop watching the room.
 - **Encapsulation as the complexity budget.** Every component talks to every other only
@@ -206,10 +206,10 @@ the share of answers coming from the graph and the code rungs isn't growing, the
 learning.
 
 **Inference compilation is already measured.** Every call to any model host in Cairn goes
-through one door (`inference_domain`), which meters it. Of 17,481 calls, 7,964 (45.6%) were served from
+through one door (`inferenceproxy`), which meters it. Of 17,481 calls, 7,964 (45.6%) were served from
 stored structure instead of the host, avoiding about 19% of the tokens that would otherwise
 have been spent (928k avoided against 3.93M spent; the measurement is
-`yield_report()` in `cairn/devices/inference_domain/domain.py`). Two months ago, on a smaller and more
+`yield_report()` in `cairn/devices/inferenceproxy/domain.py`). Two months ago, on a smaller and more
 repetitive workload, the avoided share was 36%. That drop is a measurement, not a
 rounding error, and it is why semantic matching is next. That cache matches exact repeats only; semantic matching is
 designed and not built, so this is a floor, not a ceiling.

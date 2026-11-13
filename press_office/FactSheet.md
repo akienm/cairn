@@ -111,7 +111,7 @@ cleared this cycle. 231 findings still await his verdict.
 ## 4. Inference compilation — the Telos 1 measurement
 
 This is the headline number, and the reason the system exists at all. Every call to an
-inference host goes through one door (`inference_domain`), which canonicalises the request
+inference host goes through one door (`inferenceproxy`), which canonicalises the request
 and serves a stored answer when one exists whose horizon still holds. A served answer is a
 host call that did not happen.
 
@@ -125,7 +125,7 @@ host call that did not happen.
 | Tokens avoided | 438,234 |
 | **Share of would-be tokens avoided by structure** | **36.1%** |
 
-Instrument: `from cairn.devices.inference_domain.domain import yield_report; yield_report()`.
+Instrument: `from cairn.devices.inferenceproxy.domain import yield_report; yield_report()`.
 
 The arithmetic: had every call reached the host, 1,214,804 tokens would have been spent.
 438,234 of them were answered from structure instead. That fraction *is* inference

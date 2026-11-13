@@ -307,7 +307,7 @@ is physics rather than a rule.
 | Door | Owns | Enforcement |
 |---|---|---|
 | `db_domain` | the only module holding a Postgres connection | an import sieve; plus `CHECK (owner <> '')` in the registry, so the database itself rejects an ownerless table |
-| `inference_domain` | the only path to any inference host | an import sieve |
+| `inferenceproxy` | the only path to any inference host | an import sieve |
 | `bus` | the only path for inter-device communication | devices hold no references to each other |
 | `emit` (the chokepoint) | the only path for a workflow state transition | the transition is journaled before the code moves |
 | `create_owned_table` | the only way a table comes into existence | a table that skipped the registry did not come from the door |
@@ -527,7 +527,7 @@ The answers are genuinely varied, and the variety is the point:
 - `orient`: it learns its scans from corrections. When the author catches the model reading a
   proxy instead of the thing, the check that would have caught it becomes a scan, and a proof
   refuses a scan whose provenance names no dated correction.
-- `inference_domain`: the meter *is* the learning surface — tokens avoided climbing against
+- `inferenceproxy`: the meter *is* the learning surface — tokens avoided climbing against
   tokens spent is the measured answer to "is the thesis paying off?"
 - `harbor_master`, 2026-08-10: *"nothing is being harvested, and as of today the precondition
   is not met either — this field claimed it was."* The old text asserted an honest record of

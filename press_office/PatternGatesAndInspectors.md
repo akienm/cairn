@@ -97,7 +97,7 @@ sieves through it. Two rule kinds, because the corpus asks two questions:
   breaking.
 
 The rules are **owned by the component whose constraint they are** — `db_domain` owns the 5432
-mesh, `inference_domain` owns the host mesh — and live at that component's address. There is
+mesh, `inferenceproxy` owns the host mesh — and live at that component's address. There is
 deliberately **no central rule registry.** That is the no-supervisor stance applied to the
 enforcement mechanism itself.
 

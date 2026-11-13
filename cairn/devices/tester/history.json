@@ -85296,5 +85296,188 @@
     "fingerprint": "22d0166fbb2ce3dbcc8933f8e36c10cbd6694be64f69510496cb0c609f3fe627",
     "at": "2026-11-12T19:33:43",
     "seq": 294
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket 'b0e65cf8a77e', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
+    "proof_gate": "clean — proof named: cairn/devices/tester/proofs/test_a_reseal_that_cannot_run_raises_a_trouble.py",
+    "tree_gate": "clean — both trees committed at the PROVEME entry of tester",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "b0e65cf8a77e"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "b0e65cf8a77e"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "b0e65cf8a77e"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "b0e65cf8a77e"
+        }
+      },
+      {
+        "identity": "the_ticket_was_checked_against_the_outline",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "b0e65cf8a77e"
+        }
+      },
+      {
+        "identity": "the_proveme_crossing_names_its_proof",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_proof_named",
+        "expected": "the PROVEME crossing of ticket 'b0e65cf8a77e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket 'b0e65cf8a77e' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_proof_named",
+        "values": {
+          "ticket": "b0e65cf8a77e",
+          "named": [
+            "cairn/devices/tester/proofs/test_a_reseal_that_cannot_run_raises_a_trouble.py"
+          ],
+          "since_buildme": [
+            "cairn/devices/tester/proofs/test_a_reseal_that_cannot_run_raises_a_trouble.py"
+          ],
+          "dead": []
+        }
+      },
+      {
+        "identity": "working_tree_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clean_tree",
+        "expected": "both trees are committed at the PROVEME entry of 'tester' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "actual": "both trees are committed at the PROVEME entry of 'tester' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "fatality": "none",
+        "source": "transitions.inspect_clean_tree",
+        "values": {
+          "component": "tester",
+          "dirty": {}
+        }
+      }
+    ],
+    "checks_proved": 10,
+    "certificate": "certificates/b0e65cf8a77e-PROVEME-20261113T040926Z-7760.cert.json",
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "cairn/devices/tester/proofs/test_a_reseal_that_cannot_run_raises_a_trouble.py"
+    ],
+    "proven_seal_date": "2026-11-12T19:37:22",
+    "delegated": false,
+    "ticket": "b0e65cf8a77e",
+    "why": "b0e65cf8a77e queued at clearance by CC",
+    "asked_by": "CC",
+    "fingerprint": "c5627442da6c8e06c88e183e598b339d53db011029cd8734a04ab39feb8e6c6a",
+    "at": "2026-11-12T21:09:26",
+    "seq": 295
   }
 ]

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_seal_inside_a_seal_inherits.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T09:37:19",
+    "date": "2026-11-13T10:01:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 2.77s",
+      "stdout_tail": ".\n  ok   test_a_nested_tester_run_reports_its_fixture_green\n.\n  ok   test_the_inner_write_lands_in_the_outer_swap_only\n.\n  ok   test_the_instance_marker_without_a_mount_reads_breached\n                                                                      [100%]\n3 passed in 1.35s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_nested_tester_run_reports_its_fixture_green",
@@ -15,7 +15,7 @@
         "test_the_instance_marker_without_a_mount_reads_breached"
       ],
       "teeth_red": [],
-      "test": "test-bc5bd6c4c502",
+      "test": "test-3f4a306dc638",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bc5bd6c4c502",
-      "source_fingerprint": "c426e0bdc79fb49f26a2e41d4ce0841262c9d2c757351ab8e60bd3484279acc9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3f4a306dc638",
+      "source_fingerprint": "fb55d8ee45f37a51057a41bb4d8fff977801025eff49141d3d2b171679b82f66",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -69,34 +69,35 @@
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
-        "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
         "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
         "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-415144-2gswc3zm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-432159-6us04432/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 6,
+          "count": 8,
           "paths": [
-            "logs/tester/0/20261113.163717.394974.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.163718.878644.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-412d8433eba8/stderr.txt",
-            "logs/tester/0/runs/test-412d8433eba8/stdout.txt",
-            "logs/tester/0/runs/test-b295168b5bfb/stderr.txt",
-            "logs/tester/0/runs/test-b295168b5bfb/stdout.txt"
+            "logs/tester/0/20261113.170109.269586.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.170109.283099.TesterDevice.sealed_announce_failed.json",
+            "logs/tester/0/20261113.170109.936105.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.170109.945639.TesterDevice.sealed_announce_failed.json",
+            "logs/tester/0/runs/test-68f8b420263a/stderr.txt",
+            "logs/tester/0/runs/test-68f8b420263a/stdout.txt",
+            "logs/tester/0/runs/test-f11ec0f0f0bd/stderr.txt",
+            "logs/tester/0/runs/test-f11ec0f0f0bd/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 1927704,
-          "disk_bytes": 2322432,
-          "entries": 355,
+          "bytes": 1952800,
+          "disk_bytes": 2359296,
+          "entries": 359,
           "builds": 1,
-          "reuses": 16
+          "reuses": 6
         }
       }
     },

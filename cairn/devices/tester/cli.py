@@ -403,6 +403,23 @@ def _announce_seals(tester, sealed_green: list) -> None:
         # envelope was in no channel afterwards at all. Flushing costs one transaction and
         # is what makes the post a STORE rather than a hope.
         bus.flush()
+        # A FAR HOME WIRES NO TESTER, SO THIS PROCESS TAKES ITS OWN REPLIES (ticket
+        # 9dbac8691def). On a far bus home ``reach`` holds nothing (ticket bc0bbfd33a71), so
+        # codemother's "sealed reply" to each post above had no tester shim to land in and
+        # stood undelivered on the far bus — 64 on akiendelllinux's after one akienasus
+        # reseal, measured 2026-11-13. The tester's shim still manages its mail
+        # (open-9d1bb9b4d708): each reply is handed to it HERE and receipted by the tester.
+        # Replies only (reply_to set); a request to the tester stays for the tester device.
+        # On the home bus the held shim already took them, so this does not run there.
+        from cairn.tools.bus_client import remote
+        if remote.remote_address() is not None:
+            from cairn.devices.tester.shim import TesterShim
+            taker = TesterShim(bus=bus)
+            for env in bus.undelivered(to="tester", limit=10000):
+                if env.get("reply_to"):
+                    taker.deliver(env)
+                    bus.record_delivery(env["id"], to="tester", by="tester")
+            bus.flush()
     except Exception as exc:  # noqa: BLE001 — the seal already landed; this is the telling
         tester.emit("sealed_announce_failed", pointer=str(len(sealed_green)),
                     values={"error": f"{type(exc).__name__}: {exc}",

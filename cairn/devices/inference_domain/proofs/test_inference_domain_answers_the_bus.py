@@ -13,10 +13,13 @@ snapshots:
   2. A BUS infer NAMING A MODEL RETURNS hex.local's ANSWER INSIDE 10s, not from the cache.
   3. AN UNREACHABLE HOST IS REFUSED BY NAME INSIDE 10s: the resolver raises HostUnreachable
      naming the dead endpoint, so a hang is never the client's timeout.
-  4. THE TREE STRATUM IS AVAILABLE: orient packets berthed after 2026-09-07 exist and none
-     records 'tree stratum unavailable' in its unknowns, where the chart skill files it. Not
-     anywhere in the file: a request that quotes the phrase is not a report of it (measured
-     2026-10-17, orient-20261017T132655 — the re-chart of this very ticket).
+  4. THE TREE STRATUM IS AVAILABLE: no orient packet berthed after 2026-09-07 records 'tree
+     stratum unavailable' in its unknowns, where the chart skill files it. Not anywhere in the
+     file: a request that quotes the phrase is not a report of it (measured 2026-10-17,
+     orient-20261017T132655 — the re-chart of this very ticket). The predicate is judged first
+     on two scratch berths (phrase in the request only; phrase in unknowns), so the tooth
+     measures on every box, then over the live late berths, of which a box may hold none
+     (ticket d97eae68962c: orient berths are instance-space on the charting box).
 
 Run: python3 cairn/devices/inference_domain/proofs/test_inference_domain_answers_the_bus.py
 """
@@ -40,6 +43,10 @@ PROVES = {
         "2": "test_a_bus_infer_naming_a_model_returns_the_hosts_answer_inside_10s",
         "3": "test_an_unreachable_host_is_refused_by_name_inside_10s",
         "4": "test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable",
+    },
+    "d97eae68962c": {
+        "1": "test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable",
+        "2": "test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable",
     },
 }
 
@@ -98,15 +105,33 @@ def test_an_unreachable_host_is_refused_by_name_inside_10s():
     print("ok test_an_unreachable_host_is_refused_by_name_inside_10s")
 
 
+_UNAVAILABLE = "tree stratum unavailable"
+
+
+def _reports_unavailable(paths):
+    """The berths among ``paths`` whose unknowns record the tree stratum unavailable."""
+    return [p for p in paths
+            if _UNAVAILABLE in " ".join(map(str, json.load(open(p)).get("unknowns") or []))]
+
+
 def test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable():
+    from cairn.tools.scratch.scratch import scratch_dir
+    tmp = Path(scratch_dir("cairn-proof-tree-stratum-"))
+    quoted = tmp / "orient-20261017T132655-quoted.json"
+    quoted.write_text(json.dumps({"request": f"why does the chart say {_UNAVAILABLE}?",
+                                  "unknowns": ["nothing unknown"]}))
+    reported = tmp / "orient-20261017T132655-reported.json"
+    reported.write_text(json.dumps({"request": "chart a ticket",
+                                    "unknowns": [f"{_UNAVAILABLE}: nothing answered"]}))
+    named = _reports_unavailable([str(quoted), str(reported)])
+    assert named == [str(reported)], f"the predicate named {named}, not the one reporting berth"
     packets = os.path.expanduser("~/.cairn/devices/chart/0/packets")
     late = [p for p in glob.glob(f"{packets}/orient-*.json")
             if os.path.basename(p)[7:15] > "20260907"]
-    assert late, "no orient packet berthed after 2026-09-07 to read"
-    bad = [p for p in late if "tree stratum unavailable" in
-           " ".join(map(str, json.load(open(p)).get("unknowns") or []))]
+    bad = _reports_unavailable(late)
     assert not bad, f"{len(bad)} packets report the tree stratum unavailable: {bad[:3]}"
-    print("ok test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable")
+    print(f"ok test_no_orient_packet_since_the_fix_reports_the_tree_stratum_unavailable "
+          f"({len(late)} live late berths)")
 
 
 if __name__ == "__main__":

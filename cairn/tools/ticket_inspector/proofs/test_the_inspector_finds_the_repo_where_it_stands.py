@@ -25,8 +25,8 @@ REPO = Path(__file__).resolve().parents[4]
 
 PROVES = {
     "06f4cff87495": {
-        "1": "an_existing_owning_intention_resolves_when_the_repo_is_not_under_home",
-        "2": "an_owning_intention_that_does_not_exist_is_still_reported",
+        "1": "test_an_existing_owning_intention_resolves_when_the_repo_is_not_under_home",
+        "2": "test_an_owning_intention_that_does_not_exist_is_still_reported",
     },
 }
 

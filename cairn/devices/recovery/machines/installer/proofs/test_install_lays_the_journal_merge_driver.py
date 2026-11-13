@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -31,6 +32,9 @@ PROVES = {"7cfbc64b2a67": {
     "3": "test_a_driver_naming_a_gone_interpreter_is_relaid",
     "4": "test_a_root_that_is_not_a_repository_is_skipped",
     "5": "test_cairn_install_dry_run_lists_the_step",
+}, "9d12a2ac805a": {
+    "1": "test_cairn_install_dry_run_lists_the_step",
+    "2": "test_a_driver_naming_a_gone_interpreter_is_relaid",
 }}
 
 KEY = "merge.cairn-journal.driver"
@@ -65,7 +69,7 @@ def test_a_run_lays_it_in_every_root_and_a_second_reads_applied() -> None:
     for d in (a, b):
         drv = _driver(d)
         assert "-m cairn.tools.artifact merge-journal %O %A %B" in drv, drv
-        assert f"PYTHONPATH={REPO}" in drv, drv
+        assert f"PYTHONPATH={shlex.quote(str(REPO))}" in drv, drv
     again = ensure_journal_merge_driver(roots=roots)
     assert again["status"] == "already_applied", again
 
@@ -73,14 +77,14 @@ def test_a_run_lays_it_in_every_root_and_a_second_reads_applied() -> None:
 def test_a_driver_naming_a_gone_interpreter_is_relaid() -> None:
     from cairn.devices.recovery.machines.installer.installer import ensure_journal_merge_driver
     a = _repo("stale")
-    stale = f"PYTHONPATH={REPO} /nonexistent/python3 -m cairn.tools.artifact merge-journal %O %A %B"
+    stale = f"PYTHONPATH={shlex.quote(str(REPO))} /nonexistent/python3 -m cairn.tools.artifact merge-journal %O %A %B"
     subprocess.run(["git", "-C", str(a), "config", KEY, stale], check=True)
     seen = ensure_journal_merge_driver(roots={"cairn": a}, dry_run=True)
     assert seen["status"] == "offered" and "/nonexistent/python3" in seen["detail"], seen
     r = ensure_journal_merge_driver(roots={"cairn": a})
     assert r["status"] == "applied", r
     assert "/nonexistent/python3" not in _driver(a), _driver(a)
-    assert sys.executable in _driver(a) or Path(_driver(a).split()[1]).exists(), _driver(a)
+    assert Path(shlex.split(_driver(a))[1]).exists(), _driver(a)
 
 
 def test_a_root_that_is_not_a_repository_is_skipped() -> None:
@@ -94,16 +98,26 @@ def test_a_root_that_is_not_a_repository_is_skipped() -> None:
 
 
 def test_cairn_install_dry_run_lists_the_step() -> None:
+    """The dry run prints the reds (ticket bdd0ed77930f), so the step shows when it is red: aim the
+    artifact tool's roots at an unconfigured scratch repo and the dry run names it OFFERED."""
     from cairn.devices.recovery.machines.installer import installer
-    out = io.StringIO()
-    with contextlib.redirect_stdout(out):
-        installer.main(["--dry-run"])
-    assert "] journal-merge-driver:" in out.getvalue(), out.getvalue()
+    from cairn.tools.artifact import artifact as A
+    a = _repo("dry")
+    real = A.roots
+    A.roots = lambda: {"cairn": a}
+    try:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            installer.main(["--dry-run"])
+    finally:
+        A.roots = real
+    assert "[OFFERED] journal-merge-driver:" in out.getvalue(), out.getvalue()
+    assert _driver(a) == "", "the dry run wrote a driver"
 
 
 def _main() -> int:
     failed = []
-    for name in [n for keys in PROVES.values() for n in keys.values()]:
+    for name in dict.fromkeys(n for keys in PROVES.values() for n in keys.values()):
         try:
             globals()[name]()
             print(f"  PASS  {name}")

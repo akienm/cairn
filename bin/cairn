@@ -171,8 +171,22 @@ _floor_db() {
   _floor_refuse db "postgres was started (systemctl start postgresql.service returned 0) but $sock did not appear within 15s"
 }
 
+# ticket 96c1c2ea5ce9: cairn/0 existing proves only that SOMETHING made it; a class verb that
+# landed after the first walk (librarian/0/bin/question, 11-12) has no instance link until the
+# walk runs again. Builtins only: one -e/-L test per class verb, broken at the first gap. A
+# hand-placed file counts as present, so it never re-fires the walk (and the walk leaves it).
+_floor_wiring_gap() {
+  local s d
+  for s in "$CLASS_ROOT"/*/0/bin/*; do
+    [[ -f "$s" && -x "$s" ]] || continue
+    d="${s#"$CLASS_ROOT"/}"; d="${d%%/*}"
+    [[ -e "$INSTANCE_ROOT/$d/0/bin/${s##*/}" || -L "$INSTANCE_ROOT/$d/0/bin/${s##*/}" ]] || return 0
+  done
+  return 1
+}
+
 _floor_instance() {
-  [[ -d "$INSTANCE_ROOT/cairn/0" ]] && return 0
+  [[ -d "$INSTANCE_ROOT/cairn/0" ]] && ! _floor_wiring_gap && return 0
   # shellcheck source=/dev/null
   source "$HERE/../cairn/devices/recovery/bootstrap.sh" 2>/dev/null || true
   if declare -F cairn_wire_instances >/dev/null 2>&1; then

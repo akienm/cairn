@@ -1,14 +1,14 @@
 [
   {
-    "claim": "proof test_a_trace_file_name_is_legal_on_every_box.py passes under python.exe",
-    "caller": "cairn test",
-    "date": "2026-11-13T07:07:53",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_a_trace_file_name_is_legal_on_every_box.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T08:29:20",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  green  a_colon_block_writes_a_legal_name_and_reads_back\n  green  a_write_folds_the_legacy_file_and_retires_it\n  green  every_reader_counts_the_same_over_either_store\n  green  no_source_outside_learning_block_builds_a_trace_path_by_hand\n  green  read_returns_legacy_then_new\n\n5/5 teeth green",
-      "stderr_tail": "scratch: could not sweep C:\\Users\\akien\\AppData\\Local\\Temp\\ws-shim-pulse-scratch.0-7060-fdg43py2: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\akien\\\\AppData\\\\Local\\\\Temp\\\\ws-shim-pulse-scratch.0-7060-fdg43py2\\\\web_server.log'",
+      "stderr_tail": "",
       "teeth_green": [
         "a_colon_block_writes_a_legal_name_and_reads_back",
         "a_write_folds_the_legacy_file_and_retires_it",
@@ -17,7 +17,7 @@
         "read_returns_legacy_then_new"
       ],
       "teeth_red": [],
-      "test": "test-9b395b690c3e",
+      "test": "test-89e6b5fa132b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,39 +29,34 @@
       "conditions": {
         "proof": "cb0abea0dfc7ebf26210cbfc429b24047f536ed3cbb10d1cec25c4b58384d740",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 600,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        },
-        {
-          "pid": null,
-          "signal": "none: process environments cannot be enumerated on Windows"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-9b395b690c3e",
-      "source_fingerprint": "a5cf61cc74d010c88594de1cf354a687d4c816f98569480208b959ec9980dbbf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-89e6b5fa132b",
+      "source_fingerprint": "c5cb4d27f12712dc32edf0aa722c0d7c67c29903b3596ce6beaf97cd5ec13461",
       "fingerprint_closure": [
         "cairn/machines/learning_block/__init__.py",
         "cairn/machines/learning_block/learning_block.py",
         "cairn/machines/learning_block/proofs/test_a_trace_file_name_is_legal_on_every_box.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "20602f98bf7b89fa3ce0292fbe035cc6f06ec584adfcb3fcc70b25560124e1c9",
-        "cairn/devices/codemother/machines/clearance": "2cf4b3e96d8218e27bc2ce1fca96a995881bb3b9696f7eaa82b2865c32a9d403",
-        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
-        "cairn/tools/base": "ef9c021f538f4f0a9d5c499863b372d971517885826633149cc7124333e2755d",
+        "cairn/devices/codemother": "455fd7257dc7728336abcb6b128542409d05377ea111ef94d95179a033ed4a2e",
+        "cairn/devices/codemother/machines/clearance": "860dc48070e60b6febc6ae54a476ee16f0d14b1266977133a9166058e991c5f0",
+        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
+        "cairn/machines/skill_block": "f02dc9cb9434cc8f3e66bc4be0c549f1ba73230afc92673cc12b33e1ff795e6f",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
         "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -71,15 +66,21 @@
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3015242-1nt57fz6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 531010760,
+          "disk_bytes": 573816832,
+          "entries": 16444,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

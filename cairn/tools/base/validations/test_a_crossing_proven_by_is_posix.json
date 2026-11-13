@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_a_crossing_proven_by_is_posix.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T00:55:48",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_backslash_record_reads_back_posix\n  PASS  test_the_crossing_writes_forward_slashes",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_backslash_record_reads_back_posix",
+        "test_the_crossing_writes_forward_slashes"
+      ],
+      "teeth_red": [],
+      "test": "test-89ae7ec6d102",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f168d195b3ee1fd816e3382ddf1027b35ce6e2430234cf8535b40aee6714c33e",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-89ae7ec6d102",
+      "source_fingerprint": "2ca6b1b7e4f8681637c63031a199e73531986f250dc6257b7740a1427676a67d",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/cross.py",
+        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/proofs/test_a_crossing_proven_by_is_posix.py",
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "3df4c914fdd600993d8736e0177493eb05bbd4968d65c684f554f65e405597db",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/system_word": "a6e81c62ea3f02a3fb0d0d8cb4e0a3a2d8cadf29f4e91de2397b846fc78db629"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -31,6 +31,12 @@ from cairn.tools.base import ticket_file, transitions
 CHARTER_NAMES = ("intention+why.json", "_charter+why.json")
 
 
+def posix_proofs(proofs) -> list[str]:
+    """Proof paths as forward-slash strings: a Windows crossing stored backslashes that no
+    other box can match (ticket 703d3ec3619c)."""
+    return [str(x).replace("\\", "/") for x in proofs]
+
+
 def charter_dir(owning: str, repo_root: Path, commons_root: Path) -> Path:
     """The directory a crossing journals in: where ``owning`` names a charter, tried under the
     cairn root and then the commons root (ticket 546c97b24d58). A charter is a file named
@@ -74,7 +80,7 @@ def cross(ticket_id: str, target: str, *, actor: str, why: str,
                       Path(commons_root if commons_root is not None else tickets_dir.parent))
     extra: dict = {"ticket": ticket_id, "actor": actor, "why": why}
     if proven_by:
-        extra["proven_by"] = list(proven_by)
+        extra["proven_by"] = posix_proofs(proven_by)
     if missing:
         extra["missing"] = list(missing)
     new = transitions.emit(t["workflow_and_state"], target,

@@ -161,11 +161,11 @@ def _norm_proof(one: str, roots: dict[str, Path] | None = None) -> str:
     for the same file; a set comparison over the raw strings reports a difference that is only
     a prefix (measured: 1 of the 2 disagreements under the latest-crossing rule was exactly this)."""
     r = _roots(roots)
-    s = str(one).strip()
+    s = str(one).strip().replace("\\", "/")  # ticket 703d3ec3619c: a Windows crossing stored backslashes
     if not s:
         return s
-    repo = str(Path(r["repo"]).resolve())
-    if s.startswith(repo + os.sep):
+    repo = str(Path(r["repo"]).resolve()).replace("\\", "/")
+    if s.startswith(repo + "/"):
         return s[len(repo) + 1:]
     return s
 

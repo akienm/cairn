@@ -1,0 +1,347 @@
+{
+  "cursor": {
+    "from": "BUILDME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME moves the cursor off position 3",
+        "actual": "BUILDME -> FIXME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME",
+        "actual": "BUILDME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "DROPPED",
+            "FIXME",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "bce45318b2e0",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'test_every_detached_spawn_takes_its_flags_from_the_helper.py is green' reports pass, but 'bin/cairn test cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py\n\n─── RED: cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py (exit 1) ────────────────────\n  [stdout_tail]\n      green  pulse_detached_takes_the_helpers_flags\n      green  memory_sync_push_takes_the_helpers_flags\n      RED    the_site_check_scans_and_reds_a_hand_built_site: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper\n    cairn/devices/tester/runs.py: hand-builds \"creationflags\"\n    cairn/devices/tester/runs.py: hand-builds CREATE_NO_WINDOW\n      green  memory_sync_without_cairn_skips_loudly_and_returns_zero\n    \n    3/4 teeth green\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n\n  'test_a_cairn_spawn_opens_no_console_window.py is green' reports pass, but 'bin/cairn test cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py\n\n─── RED: cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py (exit 1) ────────────────────\n  [stdout_tail]\n      green  the_helper_kwargs_carry_the_windows_flags\n      UNMEASURED  a_spawned_child_leaves_no_console_in_its_tree: not a Windows box: the launcher hypothesis can only be measured on NT\n      RED    no_site_hand_builds_a_flag_set: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper\n    cairn/devices/tester/runs.py: hand-builds \"creationflags\"\n    cairn/devices/tester/runs.py: hand-builds CREATE_NO_WINDOW\n      green  a_long_lived_site_spawns_the_windowless_interpreter\n    \n    2/4 teeth green, 1 unmeasured\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+    ],
+    "why": "bce45318b2e0 failed at the verdict gate",
+    "fingerprint": "bcb251a522cd562b72d821e346443a0c294c4a7301fca369c1ee5ad08b6802e7",
+    "at": "2026-11-13T13:26:11",
+    "seq": 1
+  },
+  "window": [
+    {
+      "from": "TICKETME",
+      "to": "BUILDME",
+      "standing": "BUILDME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED",
+      "direction": "forward",
+      "entry_gate": "clean — a berthed chart chain claims ticket 'bce45318b2e0', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, the_ticket_was_checked_against_the_outline",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'BUILDME' in the code-seam@v2 vocabulary",
+          "actual": "'BUILDME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME moves the cursor off position 1",
+          "actual": "TICKETME -> BUILDME moves the cursor off position 1",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "cursor": 1,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "TICKETME -> BUILDME",
+          "actual": "TICKETME -> BUILDME",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "BUILDME",
+            "legal_from_here": [
+              "BUILDME",
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME"
+            ],
+            "direction": "forward"
+          }
+        },
+        {
+          "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "a ticket named on the BUILDME crossing, or 'windowless_spawn' on _EXEMPT_ROSTER",
+          "actual": "a ticket named on the BUILDME crossing, or 'windowless_spawn' on _EXEMPT_ROSTER",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "bce45318b2e0",
+            "component": "windowless_spawn",
+            "exempt": false,
+            "roster": []
+          }
+        },
+        {
+          "identity": "the_named_ticket_is_cast",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_named_ticket",
+          "expected": "named ticket 'bce45318b2e0' is cast",
+          "actual": "named ticket 'bce45318b2e0' is cast",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_named_ticket",
+          "values": {
+            "target": "BUILDME",
+            "ticket": "bce45318b2e0",
+            "looked_at": "/home/akien/dev/src/CairnCommons/tickets/bce45318b2e0-the-two-detached-spawns-that-hand-built-their-own-flags-take-them-from-windowles.json"
+          }
+        },
+        {
+          "identity": "a_berthed_chart_chain_claims_the_ticket",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "bce45318b2e0"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_intent_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "bce45318b2e0"
+          }
+        },
+        {
+          "identity": "the_ticket_names_its_sorted_door_firing",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "bce45318b2e0"
+          }
+        },
+        {
+          "identity": "the_ticket_has_every_answer_it_needs",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "bce45318b2e0"
+          }
+        },
+        {
+          "identity": "the_ticket_was_checked_against_the_outline",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_entry",
+          "expected": [],
+          "actual": [],
+          "fatality": "none",
+          "source": "transitions.inspect_entry",
+          "values": {
+            "findings": [],
+            "ticket": "bce45318b2e0"
+          }
+        }
+      ],
+      "checks_proved": 10,
+      "certificate": "certificates/bce45318b2e0-BUILDME-20261113T202434Z-ebbc.cert.json",
+      "cleared_by": "CC",
+      "actor": "CC",
+      "proven_by": [
+        "cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py"
+      ],
+      "proven_seal_date": null,
+      "delegated": false,
+      "ticket": "bce45318b2e0",
+      "why": "bce45318b2e0 queued at clearance by CC",
+      "asked_by": "CC",
+      "fingerprint": "accab0acd7ee5af9ba6ac6233c6ad911d5da7b255ed0c61e1ab601911cac169e",
+      "at": "2026-11-13T13:24:35",
+      "seq": 0
+    },
+    {
+      "from": "BUILDME",
+      "to": "FIXME",
+      "standing": "FIXME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+      "direction": "back",
+      "severity": 1,
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'FIXME' in the code-seam@v2 vocabulary",
+          "actual": "'FIXME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> FIXME moves the cursor off position 3",
+          "actual": "BUILDME -> FIXME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "cursor": 3,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> FIXME",
+          "actual": "BUILDME -> FIXME",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "legal_from_here": [
+              "DROPPED",
+              "FIXME",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "back"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "bce45318b2e0",
+      "actor": "codemother",
+      "missing": [
+        "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'test_every_detached_spawn_takes_its_flags_from_the_helper.py is green' reports pass, but 'bin/cairn test cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py\n\n─── RED: cairn/tools/windowless_spawn/proofs/test_every_detached_spawn_takes_its_flags_from_the_helper.py (exit 1) ────────────────────\n  [stdout_tail]\n      green  pulse_detached_takes_the_helpers_flags\n      green  memory_sync_push_takes_the_helpers_flags\n      RED    the_site_check_scans_and_reds_a_hand_built_site: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper\n    cairn/devices/tester/runs.py: hand-builds \"creationflags\"\n    cairn/devices/tester/runs.py: hand-builds CREATE_NO_WINDOW\n      green  memory_sync_without_cairn_skips_loudly_and_returns_zero\n    \n    3/4 teeth green\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n\n  'test_a_cairn_spawn_opens_no_console_window.py is green' reports pass, but 'bin/cairn test cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py\n\n─── RED: cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py (exit 1) ────────────────────\n  [stdout_tail]\n      green  the_helper_kwargs_carry_the_windows_flags\n      UNMEASURED  a_spawned_child_leaves_no_console_in_its_tree: not a Windows box: the launcher hypothesis can only be measured on NT\n      RED    no_site_hand_builds_a_flag_set: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper\n    cairn/devices/tester/runs.py: hand-builds \"creationflags\"\n    cairn/devices/tester/runs.py: hand-builds CREATE_NO_WINDOW\n      green  a_long_lived_site_spawns_the_windowless_interpreter\n    \n    2/4 teeth green, 1 unmeasured\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+      ],
+      "why": "bce45318b2e0 failed at the verdict gate",
+      "fingerprint": "bcb251a522cd562b72d821e346443a0c294c4a7301fca369c1ee5ad08b6802e7",
+      "at": "2026-11-13T13:26:11",
+      "seq": 1
+    }
+  ],
+  "count": 2
+}

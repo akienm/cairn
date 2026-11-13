@@ -31,7 +31,6 @@ import json
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -83,7 +82,8 @@ def _world() -> dict:
     """The fixture roots and a scratch cairn root holding a copy of the corpus. Built once."""
     if _W:
         return _W
-    base = Path(tempfile.mkdtemp(prefix="harvestproof-"))
+    from cairn.tools.scratch.scratch import scratch_dir
+    base = scratch_dir("harvestproof-")
     dated = base / "DATED"
     dated.mkdir()
     (dated / "20260101.Notes.txt").write_text(

@@ -16,7 +16,8 @@ commit_all() {
     echo "$out" | grep -A3 "HOLLOW VOIDED"; VOIDED=1
   fi
   (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ berths/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
-  (cd $C && git pull -q --rebase --autostash && git push -q 2>&1 | tail -1); (cd $CC && git pull -q --rebase --autostash && git push -q 2>&1 | tail -1)
+  # The pull runs under the door lock: an autostash cannot interleave with a door write (0f8aefbba1d0).
+  (cd $C && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1); (cd $CC && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1)
 }
 commit_all "hollow sealed, verdict"
 if [ $VOIDED -ne 0 ]; then

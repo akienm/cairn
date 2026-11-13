@@ -105,6 +105,19 @@ def _install_merge_driver(root) -> dict:
     return {"root": str(root), "driver": cmd}
 
 
+def _quiet(where: str, cmd: list[str]) -> int:
+    """Run ``cmd`` holding the door lock of the work tree at ``where``: a git rewrite (stash,
+    checkout, pull --rebase --autostash) cannot interleave with a door write (ticket 0f8aefbba1d0)."""
+    if cmd and cmd[0] == "--":
+        cmd = cmd[1:]
+    if not cmd:
+        print("artifact quiet: REFUSED — name the command to run: cairn artifact quiet -- <cmd...>",
+              file=sys.stderr)
+        return 2
+    with A.door_lock(Path(where)):
+        return subprocess.run(cmd).returncode
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="cairn artifact", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -128,7 +141,12 @@ def main(argv=None) -> int:
     sub.add_parser("install-title-hook").add_argument("root")
     m = sub.add_parser("merge-journal"); m.add_argument("base"); m.add_argument("ours"); m.add_argument("theirs")
     sub.add_parser("install-merge-driver").add_argument("root")
+    q = sub.add_parser("quiet", help="run a git rewrite holding the door lock (ticket 0f8aefbba1d0)")
+    q.add_argument("-C", dest="where", default=".")
+    q.add_argument("cmd", nargs=argparse.REMAINDER)
     args = ap.parse_args(argv)
+    if args.verb == "quiet":
+        return _quiet(args.where, args.cmd)
 
     try:
         if args.verb == "write":

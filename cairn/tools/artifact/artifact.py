@@ -42,6 +42,7 @@ ticket's owed_physics, named and not paid here.
 
 from __future__ import annotations
 
+import contextlib
 import fnmatch
 import hashlib
 import json
@@ -50,6 +51,7 @@ import re
 import stat
 import subprocess
 import sys
+import threading
 import traceback
 import uuid
 from datetime import datetime, timezone
@@ -93,6 +95,11 @@ _diagnostic_roots: dict[str, Path] | None = None
 
 class Refused(Exception):
     """The door said no, and the message carries the way through (Law 7)."""
+
+
+class JournalLineOrphaned(OSError):
+    """The record landed but git replaced the journal under the append: the line went to a file
+    no longer at the path. The entry is parked, never dropped (ticket 0f8aefbba1d0)."""
 
 
 # ---------------------------------------------------------------------------
@@ -365,16 +372,119 @@ def merge_journals(ours: bytes, theirs: bytes) -> bytes:
     return head + "".join(added).encode("utf-8")
 
 
+def _lock(fh, tries: int = 1) -> None:
+    if os.name == "nt":
+        for n in range(tries):
+            fh.seek(0)
+            try:
+                msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)   # retries ~10 s, then raises OSError
+                return
+            except OSError:
+                if n == tries - 1:
+                    raise
+    else:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+
+
+def _unlock(fh) -> None:
+    if os.name == "nt":
+        fh.seek(0)
+        msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+def _same_file(fh, path: Path) -> bool:
+    """Does the open handle still name the file at ``path``? (st_dev, st_ino); on nt a zero
+    st_ino carries no identity, so the check passes there (ticket 0f8aefbba1d0)."""
+    try:
+        a, b = os.fstat(fh.fileno()), os.stat(path)
+    except FileNotFoundError:
+        return False
+    if os.name == "nt" and (not a.st_ino or not b.st_ino):
+        return True
+    return (a.st_dev, a.st_ino) == (b.st_dev, b.st_ino)
+
+
+_GIT_DIRS: dict[Path, Path | None] = {}
+_held = threading.local()
+
+
+def git_dir(where: Path) -> Path | None:
+    """The absolute git dir of the work tree at ``where`` (a worktree has its own), or None."""
+    where = Path(where).resolve()
+    if where not in _GIT_DIRS:
+        try:
+            out = subprocess.run(["git", "-C", str(where), "rev-parse", "--absolute-git-dir"],
+                                 capture_output=True, text=True, timeout=30)
+            _GIT_DIRS[where] = Path(out.stdout.strip()) if out.returncode == 0 and out.stdout.strip() else None
+        except (OSError, subprocess.SubprocessError):
+            _GIT_DIRS[where] = None
+    return _GIT_DIRS[where]
+
+
+@contextlib.contextmanager
+def door_lock(where: Path):
+    """Hold the repo-level door lock, ``<git dir>/cairn-door.lock``, for the work tree at ``where``.
+
+    The door holds it across a record write and its journal append; ``cairn artifact quiet --
+    <git cmd>`` holds it around a git rewrite (stash, checkout, pull --rebase --autostash), so
+    the two cannot interleave. Measured 2026-11-13 (ticket 0f8aefbba1d0): a batch's autostash
+    replaced the journal under an open append and the line was lost; re-landing it mid-stash
+    instead jams the pop. Re-entrant within a thread; no git dir, no lock."""
+    gd = git_dir(where)
+    if gd is None:
+        yield None
+        return
+    lp = gd / "cairn-door.lock"
+    depth = getattr(_held, "depth", {})
+    _held.depth = depth
+    if depth.get(lp):
+        depth[lp] += 1
+        try:
+            yield lp
+        finally:
+            depth[lp] -= 1
+        return
+    with open(lp, "a+", encoding="utf-8") as fh:
+        _lock(fh, tries=30)
+        depth[lp] = 1
+        try:
+            yield lp
+        finally:
+            depth[lp] = 0
+            _unlock(fh)
+
+
+def orphan_park(root: Path) -> Path:
+    gd = git_dir(root)
+    return (gd / "cairn-orphaned-lines.jsonl") if gd else journal_path(root).with_name(".artifact-orphaned-lines.jsonl")
+
+
 def _append(root: Path, entry: dict) -> dict:
-    """Append under a lock: read the tail, chain, write. Two writers cannot fork the chain."""
+    """Append under a lock: read the tail, chain, write. Two writers cannot fork the chain.
+
+    A writer that ignores the lock (git replacing the journal file) is met twice (ticket
+    0f8aefbba1d0): at lock time, a handle that no longer names the file at the path is
+    re-opened (at most 5 tries, then loud); after the write, a path that now names another
+    file means the line went to an orphan, so the entry is parked in ``orphan_park(root)``
+    and JournalLineOrphaned raises. Re-landing it there and then would jam git's stash pop
+    (measured), so the re-land is a later act on a settled tree. A lock-time re-open that
+    lands mid-stash leaves the pop to refuse, loudly, with the stash kept: loud, not dropped.
+    Only ``quiet`` keeps a rewrite out of the window altogether."""
     jp = journal_path(root)
     jp.parent.mkdir(parents=True, exist_ok=True)
-    with open(jp, "a+", encoding="utf-8") as fh:
-        if os.name == "nt":
-            fh.seek(0)
-            msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)   # retries ~10 s, then raises OSError: loud
-        else:
-            fcntl.flock(fh, fcntl.LOCK_EX)
+    for _ in range(5):
+        fh = open(jp, "a+", encoding="utf-8")
+        _lock(fh)
+        if _same_file(fh, jp):
+            break
+        _unlock(fh)
+        fh.close()
+    else:
+        raise OSError(f"{jp}: the journal was replaced under the lock five times running; "
+                      "nothing appended (ticket 0f8aefbba1d0)")
+    try:
         fh.seek(0)
         tail = None
         for line in fh:
@@ -386,9 +496,20 @@ def _append(root: Path, entry: dict) -> dict:
         fh.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
         fh.flush()
         os.fsync(fh.fileno())
-        if os.name == "nt":
-            fh.seek(0)
-            msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+        landed = _same_file(fh, jp)
+    finally:
+        _unlock(fh)
+        fh.close()
+    if not landed:
+        park = orphan_park(root)
+        with open(park, "a", encoding="utf-8") as ph:
+            ph.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
+            ph.flush()
+            os.fsync(ph.fileno())
+        raise JournalLineOrphaned(
+            f"{jp}: git replaced the journal under the append, so entry {entry['entry']} for "
+            f"{entry.get('path')} went to a file no longer at the path. The record's bytes landed; "
+            f"the entry is parked in {park} — re-land it once the tree is settled (ticket 0f8aefbba1d0)")
     return entry
 
 
@@ -629,15 +750,16 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
             _refuse_dropped_entries(p, blob)
     if p.suffix == ".jsonl":
         _refuse_non_append(p, blob)
-    before = p.read_bytes() if p.exists() else None
-    if before == blob:
-        # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let
-        # the chain say "changed" about bytes that did not.
-        return {"path": str(p), "journaled": False, "root": name, "entry": None,
-                "unchanged": True}
-    entry = _entry(rel, verb, why, before, blob, count=count)
-    _atomic_write(p, blob, mode)
-    entry = _append(root, entry)
+    with door_lock(root):        # the record and its line, never split by a git rewrite (0f8aefbba1d0)
+        before = p.read_bytes() if p.exists() else None
+        if before == blob:
+            # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let
+            # the chain say "changed" about bytes that did not.
+            return {"path": str(p), "journaled": False, "root": name, "entry": None,
+                    "unchanged": True}
+        entry = _entry(rel, verb, why, before, blob, count=count)
+        _atomic_write(p, blob, mode)
+        entry = _append(root, entry)
     return {"path": str(p), "journaled": True, "root": name, "entry": entry}
 
 
@@ -668,13 +790,15 @@ def remove(path: str | os.PathLike, *, why: str) -> dict:
         return {"path": str(p), "journaled": False}
     name, root, rel = hit
     _refuse_by_rule(name, rel, p, "remove", p.exists())
-    before = p.read_bytes() if p.exists() else None
-    if before is None:
-        raise Refused(f"{p} does not exist — nothing to remove")
-    entry = _entry(rel, "remove", why, before, None)
-    _clear_read_only(p)
-    p.unlink()
-    return {"path": str(p), "journaled": True, "root": name, "entry": _append(root, entry)}
+    with door_lock(root):
+        before = p.read_bytes() if p.exists() else None
+        if before is None:
+            raise Refused(f"{p} does not exist — nothing to remove")
+        entry = _entry(rel, "remove", why, before, None)
+        _clear_read_only(p)
+        p.unlink()
+        entry = _append(root, entry)
+    return {"path": str(p), "journaled": True, "root": name, "entry": entry}
 
 
 def rename(src: str | os.PathLike, dst: str | os.PathLike, *, why: str) -> dict:

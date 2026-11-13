@@ -48,6 +48,9 @@ PROVES = {"3feb201c84ea": {
     "3": "test_source_one_label_deriving_function_no_private_cursor_regex",
     "4": "test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
     "5": "test_live_every_open_ticket_carries_owning_intention",
+}, "ad6f3d0b265c": {
+    # the three teeth read the map through `cairn codemother harbor_master show map`
+    "2": "test_live_one_label_per_id_across_the_three_reports",
 }}
 # Clauses (6) and (7) — the map's prose-standing finding and its crossing patch — are the
 # harbor master's to prove and berth there (ticket cbbb651f4552); (6) live is still read here,

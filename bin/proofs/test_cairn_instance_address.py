@@ -106,19 +106,25 @@ def _run(root: Path, cmd_dir: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run([*_exe(_DISPATCHER), *args], capture_output=True, text=True, env=env)
 
 
+def _posix(s: str) -> str:
+    """The launcher joins its own parts with a slash under a root Windows spells with backslashes,
+    so a resolved path arrives mixed; both sides are compared as POSIX."""
+    return s.replace("\\", "/")
+
+
 # --- the clause bodies, spelled once -----------------------------------------------------
 
 def _clause_a(root: Path, cmd_dir: Path) -> None:
     """(a) `cairn <device>.<n> <verb>` resolves to <root>/<device>/<n>/bin/<verb>."""
     for n in ("0", "1"):
         r = _run(root, cmd_dir, f"{_FIXTURE_DEVICE}.{n}", "verb")
-        want = str(root / _FIXTURE_DEVICE / n / "bin" / "verb")
+        want = (root / _FIXTURE_DEVICE / n / "bin" / "verb").as_posix()
         assert r.returncode == 0, f"{_FIXTURE_DEVICE}.{n} verb exited {r.returncode}: {r.stderr!r}"
-        assert r.stdout == want + "\n", f"{_FIXTURE_DEVICE}.{n} verb resolved {r.stdout!r}, want {want!r}"
+        assert _posix(r.stdout) == want + "\n", f"{_FIXTURE_DEVICE}.{n} verb resolved {r.stdout!r}, want {want!r}"
     # the verb defaults to the device name on a dotted address too
     r = _run(root, cmd_dir, f"{_FIXTURE_DEVICE}.1")
-    want = str(root / _FIXTURE_DEVICE / "1" / "bin" / _FIXTURE_DEVICE)
-    assert r.stdout == want + "\n", f"the self-named launcher at instance 1 resolved {r.stdout!r}"
+    want = (root / _FIXTURE_DEVICE / "1" / "bin" / _FIXTURE_DEVICE).as_posix()
+    assert _posix(r.stdout) == want + "\n", f"the self-named launcher at instance 1 resolved {r.stdout!r}"
     print(f"  ok  (a) a dotted address reaches the named instance, 0 and 1 alike")
 
 
@@ -128,14 +134,14 @@ def _clause_b(root: Path, cmd_dir: Path, names: list[str]) -> None:
                    f"table: {_LIVE_ROOT} held no device folders")
     for name in names:
         r = _run(root, cmd_dir, name)
-        want = str(root / name / "0" / "bin" / name)
+        want = (root / name / "0" / "bin" / name).as_posix()
         assert r.returncode == 0, f"bare `cairn {name}` exited {r.returncode}: {r.stderr!r}"
-        assert r.stdout == want + "\n", f"bare `cairn {name}` resolved {r.stdout!r}, want {want!r}"
+        assert _posix(r.stdout) == want + "\n", f"bare `cairn {name}` resolved {r.stdout!r}, want {want!r}"
         assert r.stderr == "", f"bare `cairn {name}` wrote to stderr: {r.stderr!r}"
     # and with a verb named, not only the self-named launcher
     r = _run(root, cmd_dir, _FIXTURE_DEVICE, "verb")
-    want = str(root / _FIXTURE_DEVICE / "0" / "bin" / "verb")
-    assert r.stdout == want + "\n", f"bare `cairn {_FIXTURE_DEVICE} verb` resolved {r.stdout!r}"
+    want = (root / _FIXTURE_DEVICE / "0" / "bin" / "verb").as_posix()
+    assert _posix(r.stdout) == want + "\n", f"bare `cairn {_FIXTURE_DEVICE} verb` resolved {r.stdout!r}"
     print(f"  ok  (b) all {len(names)} mirrored devices still resolve instance 0, byte for byte")
 
 
@@ -162,9 +168,9 @@ def _clause_c(root: Path, cmd_dir: Path) -> None:
 
 def _fold_before_split(root: Path, cmd_dir: Path) -> None:
     r = _run(root, cmd_dir, f"{_FIXTURE_DEVICE.upper()}.1", "VERB")
-    want = str(root / _FIXTURE_DEVICE / "1" / "bin" / "verb")
+    want = (root / _FIXTURE_DEVICE / "1" / "bin" / "verb").as_posix()
     assert r.returncode == 0, f"an upper-case dotted address exited {r.returncode}: {r.stderr!r}"
-    assert r.stdout == want + "\n", \
+    assert _posix(r.stdout) == want + "\n", \
         f"FOLD BEFORE SPLIT: {_FIXTURE_DEVICE.upper()}.1 resolved {r.stdout!r}, want {want!r}"
     print("  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address")
 

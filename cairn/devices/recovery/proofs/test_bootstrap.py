@@ -273,9 +273,13 @@ def test_the_declared_dependency_is_actually_installed() -> None:
     r = _sh('cd / && "$(cairn_python)" -c "import psycopg2; print(psycopg2.__file__)"')
     assert r.returncode == 0, f"psycopg2 missing from the floor: {r.stderr.strip()!r}"
     got = r.stdout.strip().splitlines()[-1]
-    r2 = _sh('cairn_venv_dir')
+    # cairn_venv_dir stays the authority, but under Git Bash it speaks /c/Users/..., which Windows
+    # Python reads as C:\c\Users\... (measured 2026-11-13: Path('/c/Users/x').resolve()), while
+    # psycopg2.__file__ is C:\Users\.... So bash names it in the native spelling where cygpath
+    # exists, as bootstrap.sh's own verify does; POSIX has no cygpath and is unchanged.
+    r2 = _sh('d="$(cairn_venv_dir)"; if command -v cygpath >/dev/null 2>&1; then cygpath -m "$d"; else echo "$d"; fi')
     venv = r2.stdout.strip()
-    assert got.startswith(venv), (
+    assert Path(got).resolve().is_relative_to(Path(venv).resolve()), (
         f"psycopg2 resolved to {got!r}, outside the venv ({venv}) — the floor is leaking from "
         "system site-packages, which makes its contents a function of what this host happens to have"
     )

@@ -376,7 +376,7 @@ def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT, *, tickets_d
     out = set()
     for path in discover(comp_dirs):
         try:
-            out.add(str(path.relative_to(root)))
+            out.add(path.relative_to(root).as_posix())
         except ValueError:
             # A proof outside the class-space root cannot be spelled the way the judge
             # resolves sources. Kept out rather than emitted with a spelling the door
@@ -406,7 +406,7 @@ def _owned_instruments(tid: str, root: str, tickets_dir, discover) -> list:
     out = set()
     for path in discover([os.path.dirname(charter)]):
         try:
-            out.add(str(path.relative_to(root)))
+            out.add(path.relative_to(root).as_posix())
         except ValueError:
             continue
     return sorted(out)

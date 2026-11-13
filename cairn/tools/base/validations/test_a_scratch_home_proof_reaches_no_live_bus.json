@@ -2,20 +2,19 @@
   {
     "claim": "proof test_a_scratch_home_proof_reaches_no_live_bus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T22:16:52",
+    "date": "2026-11-12T22:51:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "    def test_get_status_is_uniform_across_the_roster(home: Path) -> None:\n        for name in _roster():\n            r = _run(home, name, \"get\", \"status\")\n>           assert r.returncode == 0, (name, r.stderr)\nE           AssertionError: ('cairn', 'CairnShim: the bus process did not answer — ConnectionError: the bus at nowhere.invalid:7419 did not answer (last answer: gaierror: [Errno -2] Name or service not known) — it is started on its box\nE             ')\nE           assert 1 == 0\nE            +  where 1 = CompletedProcess(args=['/home/akien/.cairn/venv/bin/python3', '/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_...nvalid:7419 did not answer (last answer: gaierror: [Errno -2] Name or service not known) — it is started on its box\\n').returncode\n\ntest_root_verb_vocabulary.py:268: AssertionError\n=========================== short test summary info ============================\nFAILED test_root_verb_vocabulary.py::test_get_status_is_uniform_across_the_roster\n1 failed, 3 deselected in 0.21s\n\n  FAIL  clause_3_every_scratch_home_env_goes_through_home_env\n        scratch-HOME envs built from os.environ: test_a_loop_a_test_run_starts_is_the_runs.py:68 _env; test_a_view_takes_arguments.py:121 _run; test_help_answers_as_list_with_shortcuts.py:79 _drive; test_root_verb_vocabulary.py:164 _run; test_root_verbs.py:143 _run; test_shim_starts_the_loop.py:76 _env\n\nRED — 2 failure(s)\n  - clause_2_the_status_tooth_ignores_the_callers_bus\n  - clause_3_every_scratch_home_env_goes_through_home_env",
+      "returncode": 0,
+      "stdout_tail": "  PASS  clause_2_the_status_tooth_ignores_the_callers_bus\n  PASS  clause_3_every_scratch_home_env_goes_through_home_env\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "clause_2_the_status_tooth_ignores_the_callers_bus",
-        "test_root_verb_vocabulary",
         "clause_3_every_scratch_home_env_goes_through_home_env"
       ],
-      "test": "test-9378cf36b941",
+      "teeth_red": [],
+      "test": "test-165faf6e416f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9378cf36b941",
-      "source_fingerprint": "fda317d3aaed4032f15f04caecdd37014ca6b1e80cb1f2151d1f3d1fcb01426d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-165faf6e416f",
+      "source_fingerprint": "4fcd6b04d5fa602833fb2bcd22784d88f8b470af10f27e1da723e471a1ae976b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -59,7 +58,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2252345-hr786r3y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2307191-czmy9omi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,9 +67,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529762619,
-          "disk_bytes": 570839040,
-          "entries": 15845,
+          "bytes": 529808582,
+          "disk_bytes": 570978304,
+          "entries": 15878,
           "builds": 1,
           "reuses": 25
         }

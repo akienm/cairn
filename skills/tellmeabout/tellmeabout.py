@@ -63,7 +63,8 @@ def _stores_searched() -> list[str]:
     """Every store this resolver reaches, named with its address — the not-found
     answer carries this whole, so a store the resolver misses is visible."""
     return [
-        f"findings — {lb.trace_root()} (learning_block trace store, by hex id or unique prefix)",
+        f"findings — {', '.join(str(r) for r in lb.trace_roots()) or 'no holder has traces yet'} "
+        "(learning_block trace stores, one per holder, by hex id or unique prefix)",
         f"tickets — {COMMONS / 'tickets'} (by file stem)",
         f"troubles — {_trouble_store()} and its cleared/ (by file stem)",
         f"decisions — {COMMONS / 'decisions'} (by stem, date prefix optional)",
@@ -77,15 +78,13 @@ def _stores_searched() -> list[str]:
 def _find_findings(token: str) -> list[dict]:
     if not HEX_ID.match(token):
         return []
-    base = lb.trace_root()
-    if not base.is_dir():
-        return []
     matches = []
-    for path in sorted(base.glob("*.jsonl")):
-        for rec in lb.read_trace(path.stem, root=base):
-            if rec.get("event") == "finding" and str(rec.get("id", "")).startswith(token):
-                matches.append({"store": "findings", "name": rec.get("id"),
-                                "address": str(path), "record": rec})
+    for base in lb.trace_roots():
+        for path in sorted(base.glob("*.jsonl")):
+            for rec in lb.read_trace(path.stem, root=base):
+                if rec.get("event") == "finding" and str(rec.get("id", "")).startswith(token):
+                    matches.append({"store": "findings", "name": rec.get("id"),
+                                    "address": str(path), "record": rec})
     return matches
 
 

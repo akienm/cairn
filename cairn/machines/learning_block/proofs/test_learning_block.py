@@ -209,7 +209,8 @@ def test_shell_door_traces_and_refuses():
     root = world()
     env = dict(_os.environ, CAIRN_LB_TRACE_ROOT=str(root), PYTHONPATH=str(REPO))
     run = lambda *args: subprocess.run(  # noqa: E731
-        [sys.executable, "-m", "cairn.machines.learning_block", *args],
+        [sys.executable, "-m", "cairn.machines.learning_block", args[0], "--holder", "cc/0",
+         *args[1:]],
         env=env, capture_output=True, text=True)
     assert run("trace", "sh", "door_pass", "launch").returncode == 0
     assert run("trace", "sh", "send_back", "launch", "the lack").returncode == 0

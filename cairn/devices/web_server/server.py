@@ -162,11 +162,11 @@ class WebServerDevice(BaseDevice):
         try:
             if status == 200:
                 write_trace("web_server", "door_pass", "training",
-                            {"op": "serve", "path": path})
+                            {"op": "serve", "path": path}, holder="web_server/0")
             else:
                 write_trace("web_server", "send_back", "training",
                             {"op": "serve", "path": path,
-                             "lacks": [f"{status} at {path!r}"]})
+                             "lacks": [f"{status} at {path!r}"]}, holder="web_server/0")
         except Exception as e:  # noqa: BLE001 — the page renders; the miss is loud
             print(f"web_server: trace wire failed: {e}", file=sys.stderr)
         return status, "text/html; charset=utf-8", document

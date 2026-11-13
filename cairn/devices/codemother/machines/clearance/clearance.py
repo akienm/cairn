@@ -176,6 +176,9 @@ QUEUE_BLOCK = "harbor_master:clearance"
 # this store precisely because a refusal is an error-class outcome. 'tree-primary' would
 # claim the tree is the reader, which it is not — the reader is the probe beside this code.
 QUEUE_CONSUMER = "training"
+# WHO holds the queue's traces: CodeMother holds the clearance machine, so they berth under
+# codemother/0 (ticket 17d4d1899545, outline 16.4.3).
+QUEUE_HOLDER = "codemother/0"
 
 # THE TWO EVENTS. The distinction the ticket demands is IN the record as a field, never
 # inferred by a reader's arithmetic: a refusal is not "a grant that is absent from the
@@ -214,7 +217,7 @@ def _trace_attempt(event: str, *, workflow_str: str, target: str, actor: str, bo
     if exc is not None:
         data["reason_type"] = type(exc).__name__
         data["reason"] = str(exc)
-    write_trace(QUEUE_BLOCK, event, QUEUE_CONSUMER, data)
+    write_trace(QUEUE_BLOCK, event, QUEUE_CONSUMER, data, holder=QUEUE_HOLDER)
 
 
 def read_attempts() -> dict:
@@ -248,10 +251,10 @@ def read_attempts() -> dict:
     every number, and an event matched without its consumer would count a record the reaper
     is entitled to delete. An unparseable line is SKIPPED — counting it as a refusal invents
     a no the gate never said, and counting it as an attempt inflates the denominator."""
-    path = trace_path(QUEUE_BLOCK)
+    path = trace_path(QUEUE_BLOCK, holder=QUEUE_HOLDER)
     attempts: list[dict] = []
     unreadable = 0
-    for line in trace_lines(QUEUE_BLOCK):
+    for line in trace_lines(QUEUE_BLOCK, holder=QUEUE_HOLDER):
         try:
             rec = json.loads(line)
         except json.JSONDecodeError:

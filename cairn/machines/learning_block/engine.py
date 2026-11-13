@@ -55,6 +55,7 @@ from cairn.machines.learning_block.learning_block import (
     DoorRefused,
     inspect_input,
     declare_contract,
+    trace_root,
     write_trace,
 )
 
@@ -202,7 +203,8 @@ def _satisfies(candidate: dict, constraint: dict, facts: dict) -> bool:
 
 
 def run_block(spec: dict, payload: dict, *,
-              root: Path | None = None, now: datetime | None = None) -> dict:
+              root: Path | None = None, now: datetime | None = None,
+              holder: str | None = None) -> dict:
     """One run of one block: refuse-or-reason, and either way leave a record.
 
     Returns the trace record written (its ``data`` is the state log). Raises
@@ -211,6 +213,9 @@ def run_block(spec: dict, payload: dict, *,
     fidelity: the denominator must exist.
     """
     block = str(spec.get("block") or "?") if isinstance(spec, dict) else "?"
+    # WHOSE run this is, before anything is judged: the trace berths under the device holding
+    # the block (ticket 17d4d1899545, outline 16.4.3); naming no holder is refused here.
+    root = Path(root) if root is not None else trace_root(holder)
 
     # THE SPEC DOOR — shallow (the organ's check) + deep (shape) + purity, one refusal.
     spec_record = inspect_spec(spec)

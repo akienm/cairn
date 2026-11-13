@@ -36,6 +36,9 @@ from cairn.machines.learning_block.learning_block import (
 )
 
 _REPO = Path(__file__).resolve().parents[3]
+# WHO holds the skill tenants' traces: the skills fire inside CC's session, so their traces
+# berth under cc/0 (ticket 17d4d1899545, outline 16.4.3).
+SKILL_HOLDER = "cc/0"
 _SKILLS = _REPO / "skills"
 
 EXITS = ("routed_forward", "routed_out")
@@ -263,7 +266,7 @@ def fire(skill: str, payload: dict, *, now: datetime | None = None,
     # exit, and the caller fixed one thing to learn about the next. Every lack in one
     # pass is the door's whole contract; the exit rides it like any other field.
     exit_value = payload.get("exit")
-    door_rec = fire_door(contract, payload, now=when, root=trace_root,
+    door_rec = fire_door(contract, payload, now=when, root=trace_root, holder=SKILL_HOLDER,
                          extra_record=inspect_firing(skill, payload, semantic,
                                                      judged=judge is not None),
                          judge=judge_name)

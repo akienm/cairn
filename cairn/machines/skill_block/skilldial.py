@@ -36,7 +36,7 @@ from pathlib import Path
 
 from cairn.machines.learning_block.learning_block import dial, read_trace, trace_root
 from cairn.machines.skill_block import counters
-from cairn.machines.skill_block.skill_block import block_name
+from cairn.machines.skill_block.skill_block import SKILL_HOLDER, block_name
 
 _REPO = Path(__file__).resolve().parents[3]
 _SKILLS = _REPO / "skills"
@@ -81,7 +81,8 @@ def _last_fired(block: str, traces: Path | None) -> str | None:
     """The newest ``when`` on any record for this block — the field the disuse clause
     needs, because a skill that fires rarely and a skill that has stopped produce the
     same count and differ only in when."""
-    whens = [rec.get("when") for rec in read_trace(block, root=traces) if rec.get("when")]
+    whens = [rec.get("when") for rec in read_trace(block, root=traces, holder=SKILL_HOLDER)
+             if rec.get("when")]
     return max(whens) if whens else None
 
 
@@ -96,7 +97,7 @@ def roster(*, skills_root: Path | str | None = None,
     where; this reads it there.
     """
     root = Path(skills_root) if skills_root is not None else _SKILLS
-    trace_dir = Path(traces) if traces is not None else trace_root()
+    trace_dir = Path(traces) if traces is not None else trace_root(SKILL_HOLDER)
     rows: list[dict] = []
     for skill in skill_names(root):
         block = block_name(skill)

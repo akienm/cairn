@@ -9,7 +9,7 @@ which also baked in ``Path.home()``:
     sudo_relay/relay.py:103          devices/sudo_relay/0
     ground_loop/liveness.py:46       devices/ground_loop/<instance>   (the only one taking the instance)
     build_inspector/inspector.py:216 devices/chart                    (another device's space)
-    learning_block/learning_block.py:83      devices/learning_block/0/traces
+    learning_block/learning_block.py:83      learning_block/0/traces (moved under its holders, ticket 17d4d1899545)
     learning_block/probes/engine_trace_corpus.py:42   THE SAME ADDRESS, SPELLED TWICE
     inference_domain/route.py:44     .cairn/inference/hosts.json      (off the devices/ ladder)
     skill_block/counters.py:39       the .cairn root itself, as the root table
@@ -32,7 +32,7 @@ was MISSING A MACHINE-SCOPED RUNG and asked which it was — overruled, and it w
 blocker: ``venv`` proves the top level already has a coherent job, and the file was simply in
 the wrong place.
 
-The drift is not hypothetical and it did not wait: ``~/.cairn/devices/learning_block/0/traces``
+The drift is not hypothetical and it did not wait: the trace root ``learning_block/0/traces``
 was spelled out character-for-character in a device AND in that device's own probe — one
 component, one settled address, two independent derivations. That is Law 1's defect at the
 smallest possible scale, and it is what a resolver stops.

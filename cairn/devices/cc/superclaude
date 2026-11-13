@@ -768,7 +768,7 @@ if [[ "$dry_run" -eq 0 ]]; then
   elif [[ -n "${residue:-}" ]]; then
     _sc_wire_event="send_back"; _sc_wire_lacks+=("preflight residue: $residue")
   fi
-  ( python3 -m cairn.machines.learning_block trace superclaude "$_sc_wire_event" launch \
+  ( python3 -m cairn.machines.learning_block trace --holder cc/0 superclaude "$_sc_wire_event" launch \
       ${_sc_wire_lacks[@]+"${_sc_wire_lacks[@]}"} >/dev/null 2>&1 || true ) &
   disown 2>/dev/null || true
 fi

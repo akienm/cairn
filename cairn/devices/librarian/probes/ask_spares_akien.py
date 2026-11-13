@@ -48,7 +48,7 @@ def survey(*, trace_root: Path | None = None, questions_root: Path | None = None
     from cairn.machines.learning_block.learning_block import read_trace
     from cairn.tools.question import question as Q
 
-    runs = [r for r in read_trace(_BLOCK, root=trace_root)
+    runs = [r for r in read_trace(_BLOCK, root=trace_root, holder="librarian/0")
             if r.get("event") == RUN_EVENT
             and not ((r.get("data") or {}).get("input") or {}).get("testing")]
     qdir = Path(questions_root) if questions_root is not None else Q.QUESTIONS_DIR

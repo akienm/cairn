@@ -205,10 +205,10 @@ def test_the_trace_wire_counts_a_pass_and_a_refusal():
     lack named — the denominator exists, greens included (the Leah rule)."""
     from cairn.machines.learning_block import learning_block as lb
     web, _ = _wired()
-    seen_before = len(lb.read_trace("web_server"))
+    seen_before = len(lb.read_trace("web_server", holder="web_server/0"))
     web.serve("/device/alpha")
     web.serve("/device/ghost")
-    recs = lb.read_trace("web_server")[seen_before:]
+    recs = lb.read_trace("web_server", holder="web_server/0")[seen_before:]
     events = [r["event"] for r in recs]
     assert events == ["door_pass", "send_back"], f"both firings counted: {events}"
     assert "404" in recs[1]["data"]["lacks"][0], "the refusal names its lack"

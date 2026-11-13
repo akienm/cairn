@@ -161,7 +161,7 @@ def copy_to_lab(
     # with the lack named, and still raises exactly as before — the wire observes,
     # never swallows.
     from cairn.machines.learning_block.learning_block import traced
-    with traced("intentions_model_compiler", "copy_to_lab"):
+    with traced("intentions_model_compiler", "copy_to_lab", holder="cairn/0"):
         plan = plan_copies(gather_sources(commons_root, code_root))
         os.makedirs(out_dir, exist_ok=True)
 

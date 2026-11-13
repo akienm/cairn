@@ -174,6 +174,7 @@ from cairn.devices.codemother.machines.clearance.clearance import (
     Unresourced,
     GRANTED,
     QUEUE_BLOCK,
+    QUEUE_HOLDER,
     QUEUE_CONSUMER,
     REFUSED,
     boat_owner_of,
@@ -451,7 +452,7 @@ def _paths(tmp: str):
 # came out of the run byte-identical. Same discipline, and the same pairing of injection
 # with a byte-identity tooth, as skills/sorted/proofs/test_sorted_door.py.
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
-_LIVE_QUEUE = trace_path(QUEUE_BLOCK)
+_LIVE_QUEUE = trace_path(QUEUE_BLOCK, holder=QUEUE_HOLDER)
 _LIVE_BEFORE = _LIVE_QUEUE.read_bytes() if _LIVE_QUEUE.exists() else None
 os.environ[_TRACE_ENV] = str(Path(_SCRATCH) / "traces")
 

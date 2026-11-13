@@ -18,8 +18,14 @@ approve/disprove intake, ticket e5a8e8059296 (outline 5.10.8: review is the one 
 act). Their trace events still stand and dial still counts them; the records stay
 read-only.
 
-Roots are injectable for proofs: CAIRN_LB_TRACE_ROOT (traces; default
-~/.cairn/devices/learning_block/0/traces — instance-space, never git).
+A trace berths under the device that HOLDS the block (ticket 17d4d1899545; outline 16.4.3,
+CLAUDE.md's three roots): ``~/.cairn/devices/<holder>/<n>/machines/learning_block/traces``,
+instance-space, never git. learning_block is a shared machine, so every writer and reader names
+its holder as ``'<device>/<n>'`` (or hands an explicit root); a call naming neither is refused.
+Until 2026-11-13 every trace sat at one flat ``learning_block/0/traces`` under the devices root,
+the space of a device that does not exist; ``BLOCK_HOLDERS`` maps those files to their holders
+and the shell door's ``migrate`` moves them. CAIRN_LB_TRACE_ROOT overrides every holder with one
+flat root, for proofs.
 """
 
 from __future__ import annotations
@@ -32,7 +38,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.gate import gate
-from cairn.tools.base.address import instance_path
+from cairn.tools.base.address import DEVICES, machine_path, resolve
 from cairn.tools.base.diagnostic import DiagnosticBase
 
 CONSUMERS = ("debug", "training", "tree-primary")
@@ -58,32 +64,90 @@ class TraceRefused(ValueError):
 
 # ── roots ────────────────────────────────────────────────────────────────────
 
-def trace_root() -> Path:
-    env = os.environ.get("CAIRN_LB_TRACE_ROOT")
+_ENV_ROOT = "CAIRN_LB_TRACE_ROOT"
+_MACHINE = "learning_block"
+
+# Who holds each block whose traces sat at the old flat root (measured 2026-11-13, 17 files).
+# The outline names the holders: the librarian (8.5), CodeMother (9.4.1.4), the web server
+# (15.4); skill_block is CC's for now (16.3.3); the compiler's user is Cairn (17.12);
+# superclaude is CC's launcher (10.3.2); bin is Cairn's own. Read only by ``migrate``: a live
+# writer names its holder itself, so this table is never how a new trace finds its address.
+BLOCK_HOLDERS = {
+    "librarian-ask": "librarian/0",
+    "harbor_master:clearance": "codemother/0",
+    "web_server": "web_server/0",
+    "intentions_model_compiler": "cairn/0",
+    "logger_for_bash": "cairn/0",
+    "superclaude": "cc/0",
+}
+_PREFIX_HOLDERS = (("skill:", "cc/0"), ("sail:", "cc/0"), ("fable:", "cc/0"))
+
+
+def holder_of(block: str) -> str | None:
+    """The holder a flat-root block migrates to, or None when nobody is known to hold it."""
+    if block in BLOCK_HOLDERS:
+        return BLOCK_HOLDERS[block]
+    return next((h for p, h in _PREFIX_HOLDERS if block.startswith(p)), None)
+
+
+def _holder(holder: str) -> tuple[str, int]:
+    device, sep, n = str(holder or "").partition("/")
+    if not device or not sep or not n.isdigit() or "/" in n:
+        raise TraceRefused(
+            f"trace refused — holder {holder!r} is not '<device>/<n>': a learning block's "
+            "traces berth under the device that holds it (outline 16.4.3)")
+    return device, int(n)
+
+
+def trace_root(holder: str | None = None) -> Path:
+    """The trace directory of the device holding the block: CAIRN_LB_TRACE_ROOT when set
+    (one flat root, for proofs), else ``machine_path(<device>, <n>, 'learning_block')/traces``. Naming no holder is refused, because there is no machine-wide trace store."""
+    env = os.environ.get(_ENV_ROOT)
     if env:
         return Path(env)
-    return instance_path("learning_block", 0) / "traces"
+    if holder is None:
+        raise TraceRefused(
+            "trace refused — no holder named: say which device holds this block "
+            "(holder='<device>/<n>'), or hand an explicit root; a learning block's traces "
+            "berth under its holder (outline 16.4.3)")
+    device, n = _holder(holder)
+    return machine_path(device, n, _MACHINE) / "traces"
 
 
-def trace_path(block: str, root: Path | None = None) -> Path:
+def trace_roots() -> list[Path]:
+    """Every holder's trace directory on this box (or the one override root), for readers
+    that survey all blocks. Pure: globs, never creates."""
+    env = os.environ.get(_ENV_ROOT)
+    if env:
+        return [Path(env)]
+    devices = resolve(f"instance/{DEVICES}")
+    if not devices.is_dir():
+        return []
+    return sorted(p for p in devices.glob(f"*/*/machines/{_MACHINE}/traces") if p.is_dir())
+
+
+def _base(root: Path | None, holder: str | None) -> Path:
+    return Path(root) if root is not None else trace_root(holder)
+
+
+def trace_path(block: str, root: Path | None = None, *, holder: str | None = None) -> Path:
     """The file a block's trace lives in. ':' (a block like ``skill:intent``) is an
     alternate-data-stream separator on NTFS, so it is written ``__`` — a name legal on
     every box. The ONE place a trace file name is built (ticket a9709b744bf5)."""
-    base = root if root is not None else trace_root()
-    return base / (str(block).replace(":", "__") + ".jsonl")
+    return _base(root, holder) / (str(block).replace(":", "__") + ".jsonl")
 
 
-def legacy_trace_path(block: str, root: Path | None = None) -> Path:
+def legacy_trace_path(block: str, root: Path | None = None, *, holder: str | None = None) -> Path:
     """The name traces were written under before the rename: the block verbatim. Only
     differs from ``trace_path`` for a block carrying ':' — read and folded, never written."""
-    base = root if root is not None else trace_root()
-    return base / f"{block}.jsonl"
+    return _base(root, holder) / f"{block}.jsonl"
 
 
-def trace_lines(block: str, *, root: Path | None = None) -> list[str]:
+def trace_lines(block: str, *, root: Path | None = None, holder: str | None = None) -> list[str]:
     """Raw non-blank lines of a block's trace, legacy file first, then the new one.
     For readers that keep their own tolerance for an unparseable line."""
     out: list[str] = []
+    root = _base(root, holder)
     new = trace_path(block, root)
     legacy = legacy_trace_path(block, root)
     for path in ((legacy, new) if legacy != new else (new,)):
@@ -99,7 +163,8 @@ def _now(now: datetime | None) -> datetime:
 # ── TRACE — the substrate every organ records through ────────────────────────
 
 def write_trace(block: str, event: str, consumer: str, data: dict, *,
-                now: datetime | None = None, root: Path | None = None) -> dict:
+                now: datetime | None = None, root: Path | None = None,
+                holder: str | None = None) -> dict:
     """One firing -> one durable record. Green or red, same fidelity.
 
     Refuses a missing/unknown consumer (no consumer named, no trace written).
@@ -114,6 +179,7 @@ def write_trace(block: str, event: str, consumer: str, data: dict, *,
         raise TraceRefused(
             f"trace refused — consumer {consumer!r} is not one of {CONSUMERS}: "
             "who reads this trace, and why? No consumer named, no trace written.")
+    base = _base(root, holder)
     when = _now(now)
     record = {
         "id": uuid.uuid4().hex[:12],
@@ -123,7 +189,6 @@ def write_trace(block: str, event: str, consumer: str, data: dict, *,
         "consumer": consumer,
         "data": data,
     }
-    base = root if root is not None else trace_root()
     base.mkdir(parents=True, exist_ok=True)
     path = trace_path(block, base)
     legacy = legacy_trace_path(block, base)
@@ -145,7 +210,8 @@ def write_trace(block: str, event: str, consumer: str, data: dict, *,
 
 @contextmanager
 def traced(block: str, op: str, *, consumer: str = "training",
-           now: datetime | None = None, root: Path | None = None):
+           now: datetime | None = None, root: Path | None = None,
+           holder: str | None = None):
     """THE TRACE WIRE — one line retrofits an existing door (deploy pass, approved
     2026-08-01): wrap the door's work; a clean exit traces ``door_pass``, an
     exception traces ``send_back`` with the refusal named as the lack, then
@@ -155,6 +221,7 @@ def traced(block: str, op: str, *, consumer: str = "training",
     (the Leah rule) and must not expire the way debug records do — a decaying
     denominator would silently bend every rate the dial reports.
     """
+    root = _base(root, holder)            # refused before the door's work, not after it
     try:
         yield
     except BaseException as exc:
@@ -165,9 +232,9 @@ def traced(block: str, op: str, *, consumer: str = "training",
     write_trace(block, "door_pass", consumer, {"op": op}, now=now, root=root)
 
 
-def read_trace(block: str, *, root: Path | None = None) -> list[dict]:
+def read_trace(block: str, *, root: Path | None = None, holder: str | None = None) -> list[dict]:
     """Pure read; never mutates (no touch-marks — the dial must not disturb what it counts)."""
-    return [json.loads(l) for l in trace_lines(block, root=root)]
+    return [json.loads(l) for l in trace_lines(block, root=root, holder=holder)]
 
 
 # ── DOOR — send-back at all steps ────────────────────────────────────────────
@@ -265,7 +332,7 @@ def fire_door(contract: dict, payload: dict, *,
               now: datetime | None = None, root: Path | None = None,
               extra_lacks: list[dict] | None = None,
               extra_record: list[dict] | None = None,
-              judge: str | None = None) -> dict:
+              judge: str | None = None, holder: str | None = None) -> dict:
     """The gate at the input. Conforming -> traced pass. Insufficient -> the
     send-back is TRACED (with every lack) and then raised. Both paths leave a
     record — the refusal rate is measurable or the gate is vacuous.
@@ -282,6 +349,7 @@ def fire_door(contract: dict, payload: dict, *,
     stays visibly absent instead of collapsing into one aggregate.
     """
     block = contract["block"]
+    root = _base(root, holder)
     record = inspect_input(contract, payload, extra_lacks, extra_record)
     lacks = [lack for entry in record if not gate.passed(entry)
              for lack in entry["values"]["lacks"]]
@@ -307,14 +375,14 @@ def fire_door(contract: dict, payload: dict, *,
 
 # ── DIAL — the numbers Akien reads to delegate ───────────────────────────────
 
-def dial(block: str, *, root: Path | None = None) -> dict:
+def dial(block: str, *, root: Path | None = None, holder: str | None = None) -> dict:
     """A pure projection from the trace: counts + match rate. No stored state,
     no cache, no write — re-derived on every read so it cannot drift from the
     record it summarizes. match_rate is approvals/(approvals+disproves): how
     often the finding survived Akien's gate — None until a verdict exists."""
     counts = {"firings": 0, "send_backs": 0, "door_passes": 0, "findings": 0,
               "approvals": 0, "disproves": 0, "questions": 0}
-    for rec in read_trace(block, root=root):
+    for rec in read_trace(block, root=root, holder=holder):
         event = rec.get("event")
         if event in ("door_pass", "send_back"):
             counts["firings"] += 1

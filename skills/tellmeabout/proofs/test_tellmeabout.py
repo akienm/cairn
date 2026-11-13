@@ -55,7 +55,7 @@ def snapshot_stores() -> dict:
     """(path -> (mtime_ns, size)) over every file in every presented store."""
     snap = {}
     from cairn.devices.trouble.tools.store.store import store_root
-    roots = [lb.trace_root(), COMMONS / "tickets", store_root(),
+    roots = [*lb.trace_roots(), COMMONS / "tickets", store_root(),
              COMMONS / "decisions", COMMONS / "ideas", LAB]
     for root in roots:
         if not root.is_dir():
@@ -79,8 +79,8 @@ def main() -> int:
     # must EQUAL the store's own — and any finding exercises that. The only honest red
     # here is a store holding NO findings at all. Nothing can be pending any more: the
     # approve/disprove intake retired (ticket e5a8e8059296), so every finding is owed nothing.
-    all_finding_recs = [r for path in sorted(lb.trace_root().glob("*.jsonl"))
-                        for r in lb.read_trace(path.stem) if r.get("event") == "finding"]
+    all_finding_recs = [r for base in lb.trace_roots() for path in sorted(base.glob("*.jsonl"))
+                        for r in lb.read_trace(path.stem, root=base) if r.get("event") == "finding"]
     pick = next((r.get("id") for r in all_finding_recs if isinstance(r.get("id"), str)), None)
     if pick:
         fid = pick

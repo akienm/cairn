@@ -155,7 +155,8 @@ def ask(question: str, *, resolve, table: str = ANSWERS, questions_root=None,
                "backfills": verdict.get("backfills")}
     if testing:
         payload["testing"] = testing
-    trace = run_block(spec, payload, root=Path(trace_root) if trace_root else None)
+    trace = run_block(spec, payload, root=Path(trace_root) if trace_root else None,
+                      holder="librarian/0")
 
     walk_view = [{k: n.get(k) for k in ("node_id", "content", "similarity", "evidence",
                                         "evidence_why", "standing", "provenance")}

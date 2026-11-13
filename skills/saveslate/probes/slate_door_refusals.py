@@ -26,13 +26,13 @@ import json
 import os
 from pathlib import Path
 
-from cairn.machines.learning_block.learning_block import trace_lines
+from cairn.machines.learning_block.learning_block import trace_lines, trace_root
+from cairn.machines.skill_block.skill_block import SKILL_HOLDER
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "95cfce2b0074"
 
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
-_TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
 
 # Slates are written roughly once a session — a dozen firings is weeks of closes,
 # enough to call "never refused" a pattern.
@@ -42,7 +42,7 @@ _TICKET = owning_ticket("slate-compiles-from-the-world")
 
 
 def survey_the_firings() -> dict:
-    traces = Path(os.environ.get(_TRACE_ENV) or _TRACE_DEFAULT)
+    traces = Path(os.environ.get(_TRACE_ENV) or trace_root(SKILL_HOLDER))
     passes = refusals = 0
     recovery = False
     seen_refusal = False

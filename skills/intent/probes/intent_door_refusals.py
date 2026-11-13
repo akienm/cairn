@@ -45,7 +45,8 @@ import json
 import os
 from pathlib import Path
 
-from cairn.machines.learning_block.learning_block import trace_lines
+from cairn.machines.learning_block.learning_block import trace_lines, trace_root
+from cairn.machines.skill_block.skill_block import SKILL_HOLDER
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 
 _TICKET_ID = "2db333d857dd"
@@ -56,7 +57,6 @@ _TICKET_ID = "2db333d857dd"
 # at import time would keep reading a root the system had already left.
 _TRACE_ENV = "CAIRN_LB_TRACE_ROOT"
 _BERTH_ENV = "CAIRN_SKILL_BERTHS"
-_TRACE_DEFAULT = Path.home() / ".cairn/devices/learning_block/0/traces"
 _BERTH_DEFAULT = Path.home() / ".cairn/devices/skill_block/0/berths"
 
 # The sample size below which "the door has never refused" says nothing. Three firings
@@ -76,7 +76,7 @@ def survey_the_firings() -> dict:
     rather than counted as evidence in either direction. The counts a probe reports are
     a claim (Law 3), and a claim resting on a parse failure is worse than a smaller n.
     """
-    traces = Path(os.environ.get(_TRACE_ENV) or _TRACE_DEFAULT)
+    traces = Path(os.environ.get(_TRACE_ENV) or trace_root(SKILL_HOLDER))
     berths = Path(os.environ.get(_BERTH_ENV) or _BERTH_DEFAULT)
 
     passes = refusals = findings = 0

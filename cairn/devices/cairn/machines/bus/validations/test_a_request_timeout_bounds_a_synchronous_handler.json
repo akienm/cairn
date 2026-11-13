@@ -1,0 +1,94 @@
+[
+  {
+    "claim": "proof test_a_request_timeout_bounds_a_synchronous_handler.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:33:54",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_slow_handler_does_not_hold_the_asker\n  green a_handler_inside_the_timeout_still_answers\n  green the_slow_handler_finishes_and_its_late_reply_is_receipted\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_slow_handler_does_not_hold_the_asker",
+        "a_handler_inside_the_timeout_still_answers",
+        "the_slow_handler_finishes_and_its_late_reply_is_receipted"
+      ],
+      "teeth_red": [],
+      "test": "test-192400934c12",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f72d63410124f4c27c8db9d155c50f651c575206ca126aad3f116a97add78176",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-192400934c12",
+      "source_fingerprint": "67884f91da1993e694d7dd5bd125c977b2c09501dc61ec4370734af7f2b4a4eb",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/bus/__init__.py",
+        "cairn/devices/cairn/machines/bus/bus.py",
+        "cairn/devices/cairn/machines/bus/proofs/test_a_request_timeout_bounds_a_synchronous_handler.py"
+      ],
+      "reached": {
+        "cairn/devices/cairn": "d0834a41a15a9f3944d604278cbaa25e77ea70a600376fe65d12c73f164f8427",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "c4a64d363649a464999178482523dfad5d7d4f609e624d14519c4a96f15a1c90",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/base": "4596eba79a89b63398e63b05b259e376946190c6f75a2cc0552a9ed3cd63c2c3",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2283508-pepxq8u_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 10,
+          "paths": [
+            "logs/bus/0/20261113.053346.842813.BusDevice.post.json",
+            "logs/bus/0/20261113.053349.844076.BusDevice.post.json",
+            "logs/bus/0/20261113.053349.844306.BusDevice.delivered.json",
+            "logs/bus/0/20261113.053349.867151.BusDevice.post.json",
+            "logs/bus/0/20261113.053349.917964.BusDevice.post.json",
+            "logs/bus/0/20261113.053349.918410.BusDevice.delivered.json",
+            "logs/bus/0/20261113.053349.956148.BusDevice.post.json",
+            "logs/bus/0/20261113.053352.957417.BusDevice.post.json",
+            "logs/bus/0/20261113.053352.958072.BusDevice.delivered.json",
+            "logs/bus/0/20261113.053353.018317.BusDevice.transit_table_ensured.json"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 529793870,
+          "disk_bytes": 570957824,
+          "entries": 15878,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

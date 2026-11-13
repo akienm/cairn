@@ -132,11 +132,59 @@ _INDEX_CACHE: dict[str, tuple] = {}
 _INDEX_BUILDS = 0
 
 
+def _commons_mirror() -> str | None:
+    """``<commons>/berths/chart`` — where a claiming chart berth is carried so every box reads
+    it (ticket e8fb6bcd23c5, as d692ef650534 carries /intent and /sorted). ``None`` when the
+    commons root is not known."""
+    from cairn.tools.artifact.artifact import roots
+    commons = roots().get("CairnCommons")
+    return None if commons is None else os.path.join(str(commons), "berths", "chart")
+
+
+def _mirror_for(root: str) -> str | None:
+    """The mirror rides only the DEFAULT store: an explicit ``berths_root`` reads only itself,
+    so a proof's scratch store never sees the live commons."""
+    if os.path.realpath(root) != os.path.realpath(os.path.expanduser(str(BERTHS_ROOT))):
+        return None
+    return _commons_mirror()
+
+
+def carry_berth(path) -> str | None:
+    """Copy a chart berth that claims a ticket to its commons address, byte-identical, through
+    the artifact door. Returns the destination; ``None`` when the packet names no ticket, the
+    berth is not in the default store (a scratch store is never carried), or there is no
+    commons. Called by every stage writer right after it lands its file."""
+    from cairn.tools.artifact.artifact import write
+    path = os.path.realpath(str(path))
+    store = os.path.realpath(os.path.expanduser(str(BERTHS_ROOT)))
+    if os.path.dirname(os.path.dirname(os.path.dirname(path))) != store:
+        return None
+    mirror = _commons_mirror()
+    if mirror is None:
+        return None
+    with open(path, "rb") as fh:
+        blob = fh.read()
+    try:
+        packet = json.loads(blob)
+    except json.JSONDecodeError:
+        return None
+    if not (isinstance(packet, dict) and isinstance(packet.get("ticket"), str)):
+        return None
+    dest = os.path.join(mirror, os.path.basename(path))
+    os.makedirs(mirror, exist_ok=True)
+    write(dest, blob, verb="chart",
+          why=f"ticket e8fb6bcd23c5: carry {packet['ticket']}'s chart berth to the commons")
+    return dest
+
+
 def _berths_token(root: str) -> tuple:
     """A cheap fingerprint of the berth store: per packets/ directory, its mtime in
-    nanoseconds. One stat per berth — the thing that replaces 2,552 opens."""
+    nanoseconds. One stat per berth — the thing that replaces 2,552 opens. The commons mirror,
+    when this is the default store, folds in its own mtime."""
     stamps = []
-    for folder in sorted(glob.glob(os.path.join(root, "*", "packets"))):
+    mirror = _mirror_for(root)
+    folders = sorted(glob.glob(os.path.join(root, "*", "packets")))
+    for folder in folders + ([mirror] if mirror else []):
         try:
             stamps.append((folder, os.stat(folder).st_mtime_ns))
         except OSError:
@@ -159,7 +207,14 @@ def _packet_index(root: str) -> dict:
     if cached is not None and cached[0] == token:
         return cached[1]
     index: dict[tuple, list] = {}
-    for path in sorted(glob.glob(os.path.join(root, "*", "packets", "*.json"))):
+    local = sorted(glob.glob(os.path.join(root, "*", "packets", "*.json")))
+    # A berth carried to the commons is read from there only where this box lacks it: the
+    # local copy wins, so one berth is indexed once (ticket e8fb6bcd23c5).
+    mirror = _mirror_for(root)
+    seen = {os.path.basename(p) for p in local}
+    carried = [p for p in sorted(glob.glob(os.path.join(mirror, "*.json"))) if
+               os.path.basename(p) not in seen] if mirror else []
+    for path in local + carried:
         stage = os.path.basename(path).split("-", 1)[0]
         try:
             with open(path, encoding="utf-8") as fh:
@@ -186,7 +241,10 @@ def claiming_packet_paths(ticket: str, stage: str, *, berths_root=None) -> list[
     # A packet names its ticket by whichever spelling the door admitted — slug before the
     # hex-id convention, hex id after. One ticket, every spelling (grammar.ticket_spellings).
     index = _packet_index(root)
-    return sorted(p for name in ticket_spellings(ticket) for p in index.get((name, stage), []))
+    # Sorted by NAME, not by full path: the stamp rides the filename, and a carried berth
+    # lives under another root, so a path sort would put every commons berth out of time order.
+    return sorted((p for name in ticket_spellings(ticket) for p in index.get((name, stage), [])),
+                  key=lambda p: (os.path.basename(p), p))
 
 
 def claiming_packets(ticket: str, stage: str, *, berths_root=None) -> list[tuple]:

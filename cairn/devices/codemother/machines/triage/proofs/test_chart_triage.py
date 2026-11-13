@@ -291,7 +291,8 @@ def test_import_allowlist(root, survey_berth, decompose_berth):
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
              "cairn.machines.build_inspector.inspector", "cairn.devices.codemother.machines.decompose.decompose",
-             "cairn.tools.chain.grammar", "cairn.tools.tree.tree",
+             # cairn.tools.chain.chain joined 2026-11-12 (ticket e8fb6bcd23c5): the writer carries a claiming berth to the commons via chain.carry_berth.
+             "cairn.tools.chain.chain", "cairn.tools.chain.grammar", "cairn.tools.tree.tree",
              # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
              # its-own-inspector-and-gate): this stage now holds its own gate, and
              # gate-ness is a DIRECT-import fact — which is how `cairn determinism`

@@ -551,6 +551,9 @@ def write_verdict(artifact: dict, *, instance_dir: str = INSTANCE_DIR,
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(artifact, fh, indent=2, sort_keys=True)
         fh.write("\n")
+    # Every box reads a claiming berth from the commons (ticket e8fb6bcd23c5).
+    from cairn.tools.chain.chain import carry_berth
+    carry_berth(path)
     return path
 
 

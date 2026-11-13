@@ -360,7 +360,8 @@ def test_import_allowlist(root, orient_berth, constrain_berth, survey_berth):
     # ACTUALLY ENTERS, not the spelling.
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
-             "cairn.machines.build_inspector.inspector", "cairn.tools.chain.grammar",
+             # cairn.tools.chain.chain joined 2026-11-12 (ticket e8fb6bcd23c5): the writer carries a claiming berth to the commons via chain.carry_berth.
+             "cairn.machines.build_inspector.inspector", "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.devices.codemother.machines.survey.survey", "cairn.tools.tree.tree",
              # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
              # its-own-inspector-and-gate): this stage now holds its own gate, and

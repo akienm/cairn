@@ -7,11 +7,15 @@ per ENTRY, and every call re-walks the whole component tree (component_dirs), so
 proof took minutes (3,000 raw entries: 7.2 s; the 278 unique: 0.8 s), the eleven-proof suite
 inside clause 6 blew its 1500 s budget, and the hollow reading of 2b3d842bc118 could not seal.
 
+TIGHTENED 2026-11-12 (ticket 73caa3ab76f6): tooth 1 counted component_of calls and wanted 3,
+which is three walks of the component tree. _reached now maps with one address.components_of
+(ticket 82d203c11015), so the tooth counts the walks themselves and wants 1. Same property (the
+cost does not grow with entries), stricter bound.
+
 Two teeth, one per falsifier clause:
 
   1. _reached over 1,200 entries naming two distinct cairn files (one spelled three ways: plain,
-     with a '..' hop, through a symlink) calls component_of exactly three times — the proof's own
-     component once, then once per distinct real path.
+     with a '..' hop, through a symlink) walks component_dirs exactly once.
   2. the map it returns equals the map over the two files given once each: the dedup changes
      the cost, never the answer (a guard).
 
@@ -29,6 +33,10 @@ if str(REPO) not in sys.path:
 
 PROVES = {
     "aa7a1d7fa671": {
+        "1": "tooth_1_each_distinct_file_is_mapped_once",
+        "2": "tooth_2_the_map_is_unchanged",
+    },
+    "73caa3ab76f6": {
         "1": "tooth_1_each_distinct_file_is_mapped_once",
         "2": "tooth_2_the_map_is_unchanged",
     },
@@ -61,18 +69,18 @@ def _spellings() -> list[str]:
 def _counted(files: list[str]) -> tuple[dict | None, int]:
     import cairn.tools.base.address as address
     from cairn.devices.tester import device
-    real = address.component_of
+    real = address.component_dirs
     calls = [0]
 
     def counting(*a, **kw):
         calls[0] += 1
         return real(*a, **kw)
 
-    address.component_of = counting
+    address.component_dirs = counting
     try:
         got = device._reached(files, _PROOF)
     finally:
-        address.component_of = real
+        address.component_dirs = real
     return got, calls[0]
 
 
@@ -82,8 +90,8 @@ def tooth_1() -> None:
         spell = _spellings()
         files = (spell * 300) + ([str(_DEVICE)] * 300)  # 1,200 entries, two distinct real paths
         got, calls = _counted(files)
-        check(name, calls == 3, f"{len(files)} entries, 2 distinct files: component_of called "
-                                f"{calls} times (want 3: own + one per distinct file); map={got}")
+        check(name, calls == 1, f"{len(files)} entries, 2 distinct files: component_dirs walked "
+                                f"{calls} times (want 1: one walk for the whole map); map={got}")
     except Exception as exc:  # noqa: BLE001 — a tooth's failure is its verdict
         check(name, False, f"{type(exc).__name__}: {exc}")
 

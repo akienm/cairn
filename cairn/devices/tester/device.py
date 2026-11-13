@@ -201,28 +201,25 @@ def _reached(files: list[str], proof_path) -> dict | None:
     outside any checkout: there is no tree to map against, and an empty map would claim it
     reached nothing.
     """
-    from cairn.tools.base.address import component_of
+    from cairn.tools.base.address import components_of
     from cairn.tools.validation_store.validation_store import seal_digest
     root = _tree_root(proof_path)
     if root is None:
         return None
     pkg = root / "cairn"
-    own = component_of(Path(proof_path).resolve(), pkg_root=pkg)
-    dirs = set()
-    # One component_of per DISTINCT real path (ticket aa7a1d7fa671): the reach log repeats each
-    # file once per python process, and component_of re-walks the component tree on every call.
-    # Measured 2026-11-06: 68,388 entries over 278 files made one proof's mapping take minutes.
+    # Each DISTINCT real path once (ticket aa7a1d7fa671): the reach log repeats each file once
+    # per python process; measured 2026-11-06, 68,388 entries over 278 files. And ONE walk of
+    # the component tree for all of them (ticket 73caa3ab76f6): component_of re-walked it per
+    # call, ~8.5 ms each.
     seen: set[Path] = set()
     for f in files:
         full = Path(os.path.realpath(f[:-1] if f.endswith(".pyc") else f))
-        if full in seen:
-            continue
-        seen.add(full)
-        if pkg not in full.parents:
-            continue
-        owner = component_of(full, pkg_root=pkg)
-        if owner is not None and owner != own:
-            dirs.add(owner)
+        if pkg in full.parents:
+            seen.add(full)
+    proof = Path(proof_path).resolve()
+    owners = components_of([proof, *seen], pkg_root=pkg)
+    own = owners[proof]
+    dirs = {o for o in owners.values() if o is not None and o != own}
     return {os.path.relpath(d, root).replace(os.sep, "/"): seal_digest(str(d))
             for d in sorted(dirs)}
 

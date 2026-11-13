@@ -2,12 +2,12 @@
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-12T22:58:08",
+    "date": "2026-11-13T01:35:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_a_held_lock_spawns_nothing\n  PASS  test_a_held_lock_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['none', 'unit'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
+      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_a_held_lock_spawns_nothing\n  PASS  test_a_held_lock_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
       "stderr_tail": "",
       "teeth_green": [
         "test_check_lives_in_the_base_only",
@@ -17,7 +17,7 @@
         "test_two_shims_one_loop"
       ],
       "teeth_red": [],
-      "test": "test-c9d11251c621",
+      "test": "test-b62bfa65cbdc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,12 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c9d11251c621",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b62bfa65cbdc",
       "source_fingerprint": "a3099622f3250f29f31a7e31afaae8231ec33711fe4bac6ff7b8d9071ba58ccb",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -54,12 +54,12 @@
         "cairn/tools/base/singleton.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2307191-rbrftip7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2468899-hooxnkgz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,11 +68,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529808582,
-          "disk_bytes": 570978304,
-          "entries": 15878,
+          "bytes": 529915676,
+          "disk_bytes": 571248640,
+          "entries": 15931,
           "builds": 1,
-          "reuses": 80
+          "reuses": 81
         }
       }
     },

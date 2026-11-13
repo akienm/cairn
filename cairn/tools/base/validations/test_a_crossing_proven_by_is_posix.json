@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_a_crossing_proven_by_is_posix.py passes under python.exe",
+    "claim": "proof test_a_crossing_proven_by_is_posix.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T00:55:48",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-13T01:27:46",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -14,7 +14,7 @@
         "test_the_crossing_writes_forward_slashes"
       ],
       "teeth_red": [],
-      "test": "test-89ae7ec6d102",
+      "test": "test-586ba2514f0a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,29 +26,24 @@
       "conditions": {
         "proof": "f168d195b3ee1fd816e3382ddf1027b35ce6e2430234cf8535b40aee6714c33e",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        },
-        {
-          "pid": null,
-          "signal": "none: process environments cannot be enumerated on Windows"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-89ae7ec6d102",
-      "source_fingerprint": "2ca6b1b7e4f8681637c63031a199e73531986f250dc6257b7740a1427676a67d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-586ba2514f0a",
+      "source_fingerprint": "a2d8efdbf0e3e0b2b98b016921041de04a0890e000b533aab99a04b4b9f7c613",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -62,21 +57,45 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "3df4c914fdd600993d8736e0177493eb05bbd4968d65c684f554f65e405597db",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "a6e81c62ea3f02a3fb0d0d8cb4e0a3a2d8cadf29f4e91de2397b846fc78db629"
+        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2468899-gmnibuc5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 529915676,
+          "disk_bytes": 571248640,
+          "entries": 15931,
+          "builds": 1,
+          "reuses": 9
+        }
+      },
+      "hollow": {
+        "703d3ec3619c": {
+          "cairn/tools/base/crossings.py": [
+            "test_a_backslash_record_reads_back_posix"
+          ],
+          "cairn/tools/base/cross.py": [
+            "test_the_crossing_writes_forward_slashes"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "703d3ec3619c": {
+          "anchor_rule": "journal",
+          "anchor_journal": "f807016c65a0aeab533c1c06cd6f49c335adc197",
+          "anchor_first_build": "6333082f2794d652ff2702a39fca849adfe1c815",
+          "commit": "f807016c65a0aeab533c1c06cd6f49c335adc197"
         }
       }
     },

@@ -112,6 +112,35 @@ def loop_lock_path(home: Path | None = None) -> Path:
     return home / "run.lock"
 
 
+def _is_scratch_home(env_home: str) -> bool:
+    """True when HOME is not the account's own (a proof's scratch HOME). No pwd (Windows): False."""
+    try:
+        import pwd
+        return os.path.realpath(env_home) != os.path.realpath(pwd.getpwuid(os.getuid()).pw_dir)
+    except (ImportError, KeyError, OSError):
+        return False
+
+
+def _scratch_env_flags(subprocess) -> list[str]:
+    """systemd-run flags that make a scratch-HOME unit carry the caller's CAIRN_* and none of the
+    user manager's (ticket 34da9a98a484). Measured 2026-11-12 on akienasus: the manager holds
+    CAIRN_BUS_HOME=akiendelllinux.local:7419, and a unit inherits it, so a proof's scratch loop
+    dialled the Dell's live bus whatever scratch.home_env stripped from the caller."""
+    flags = [f"--setenv={k}={v}" for k, v in sorted(os.environ.items())
+             if k.startswith("CAIRN_") and k != "CAIRN_TESTER_TEST_ID"]
+    try:
+        r = subprocess.run(["systemctl", "--user", "show-environment"],
+                           capture_output=True, text=True, timeout=10)
+        lines = r.stdout.splitlines() if r.returncode == 0 else []
+    except Exception:                       # noqa: BLE001 — no manager to read: nothing to unset
+        lines = []
+    for line in lines:
+        key = line.partition("=")[0]
+        if key.startswith("CAIRN_") and key not in os.environ:
+            flags += ["-p", f"UnsetEnvironment={key}"]
+    return flags
+
+
 def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> dict:
     """Every shim, on start, checks the instance's ground loop and launches it if it is not
     running (Akien, 2026-09-06, verbatim in I-the-command-lazy-inits-the-system.md: "shims, on
@@ -170,6 +199,8 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
     if test_id:
         argv += [f"--setenv=CAIRN_TESTER_TEST_ID={test_id}", "-p", "CollectMode=inactive-or-failed"]
+    if _is_scratch_home(env_home):
+        argv += _scratch_env_flags(subprocess)
     argv += ["--", "python3", "-m", _LOOP_MODULE]
 
     def run_unit():

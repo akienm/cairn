@@ -1154,12 +1154,17 @@ not matter here. The code catches up to this, never the reverse.
                       98ab0e9db57f): "i am good with retiring that".
         9.4.2.3.3 Seals: one current validation per proof, beside the proof. A seal
                   holds while the code it measured is unchanged.
-                  [Q#90: A proof's seal is one record, so the newest OS to seal
-                   replaces the other's, and a proof with teeth for both OSes reds
-                   on every single OS. Measured 2026-11-12: a Windows reseal of a
-                   mixed proof overwrote the Linux seal. Do seals go per OS
-                   (validations/<os>/, or an OS key in the record), or is one OS
-                   the sealing box?]
+          9.4.2.3.3.1 A seal is host independent: one record per proof, whichever
+                      box asks. Seals are made by one sealing machine in the cairn
+                      device, and there is only ever one cairn (until a laptop dies
+                      and a backup takes over), so there is one sealer. A box that is
+                      not cairn's home asks the sealer instead of writing its own seal.
+                      Akien 2026-11-13, answering Q#90 (a Windows reseal of a mixed
+                      proof overwrote the Linux seal, measured 2026-11-12): "then we
+                      have to invent a way for seals to be host independent. one way
+                      would be to create a sealing machine in cairn. there's only ever
+                      one cairn until we have a laptop die and have to fail over to a
+                      backup".
         9.4.2.3.4 A timed-out run is its own outcome, not red.
         9.4.2.3.5 Notices: what a run saw that nobody asked about, surfaced to the
                   operator.
@@ -1242,15 +1247,12 @@ not matter here. The code catches up to this, never the reverse.
               blind to the disk.
     9.4.8 The chart chain machines (9.3.2): orient, constrain, survey, decompose,
           triage, hypothesize, validate, verdict.
-          [Q#98: The verdict's instrument run, and the proofs that exercise it,
-           need bubblewrap, which Windows does not have, so `cairn test --exec`
-           refuses there ("the instance seal is not confirmed ... bubblewrap (bwrap)
-           is not installed") and three teeth stay red on Windows: test_the_instrument_is_run
-           (two teeth) and the standing-verdict-proofs-stay-green check. Measured
-           2026-11-13. Whether Windows gets its own seal is the per-OS seal question
-           in Q#90 (9.4.2.3.3); this one is the narrow choice that stands beside it:
-           until that is settled, do the bwrap teeth skip on Windows (and read as
-           not-run there), or do they stay red until Windows has a seal of its own?]
+      9.4.8.1 The verdict's instrument run is a seal-grade run, so it runs where
+              the sealer runs (9.4.2.3.3.1), under bubblewrap. A box without
+              bubblewrap (Windows) asks for it and does not run it itself. A
+              bwrap-only tooth reads not-run on such a box, never red; its outcome is
+              the sealer's. CC's decision, 2026-11-13, on Q#98, following Akien's
+              answer to Q#90.
     9.4.9 skill_block, eventually (16.3).
   9.5 TOOLS: base, chain, tree, gate, bus_client, system_word, proof_coverage,
       orient, operator_inbox, determinism, edges, import_sieve, ticket_inspector.

@@ -12,6 +12,13 @@ cairn/devices/**/bin/* text eol=lf
 *.json text eol=lf
 *.jsonl text eol=lf
 
+# Source is LF on every box (ticket 88e30cde9bd4): the validation store's fingerprint hashes raw
+# working-tree bytes, so a CRLF checkout could never match the Linux seal of the same commit.
+# Measured 2026-11-12: the same 3-file closure hashes a614f1bf... CRLF and 9236ec0d... LF (= Linux).
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+
 # The artifact journal meets another branch re-linked, never forked (ticket b7d2e05a1c93);
 # the driver is installed per box: cairn artifact install-merge-driver <root>.
 .artifact-journal.jsonl merge=cairn-journal

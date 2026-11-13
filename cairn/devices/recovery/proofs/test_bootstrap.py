@@ -34,6 +34,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))     # cairn/devices
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 1cabffbba003: a bare bash is the WSL launcher on Windows
+
 REPO = Path(__file__).resolve().parents[4]
 BOOTSTRAP = REPO / "cairn" / "devices" / "recovery" / "bootstrap.sh"
 SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
@@ -93,7 +95,7 @@ def _env(extra: dict | None = None) -> dict:
 def _sh(script: str, env: dict | None = None) -> subprocess.CompletedProcess:
     """Run bash with bootstrap.sh sourced. Returns the completed process."""
     full = f"source {BOOTSTRAP!s} || exit 99\n{script}"
-    return subprocess.run(["bash", "-c", full], capture_output=True, text=True,
+    return subprocess.run([_BASH, "-c", full], capture_output=True, text=True,
                           env=_env(env), timeout=120)
 
 

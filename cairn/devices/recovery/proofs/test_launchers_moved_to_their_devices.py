@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -32,6 +33,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 1cabffbba003: a bare bash is the WSL launcher on Windows
 
 PROVES = {"38125c3ada38": {"all": "test_launchers_moved_to_their_devices"}}
 
@@ -69,9 +72,9 @@ MOVED_PROOFS = tuple(RECOVERY / "proofs" / n for n in (
 
 def tooth_scripts_parse_and_locate():
     for p in (BOOTSTRAP, RECOVERY / "bootstrap_first_run.sh", SUPERCLAUDE):
-        r = subprocess.run(["bash", "-n", str(p)], capture_output=True, text=True)
+        r = subprocess.run([_BASH, "-n", str(p)], capture_output=True, text=True)
         assert r.returncode == 0, f"bash -n {p.name}: {r.stderr}"
-    r = subprocess.run(["bash", "-c", f'source "{BOOTSTRAP}" >/dev/null 2>&1; echo "$CAIRN_REPO_ROOT"'],
+    r = subprocess.run([_BASH, "-c", f'source "{BOOTSTRAP}" >/dev/null 2>&1; echo "$CAIRN_REPO_ROOT"'],
                        capture_output=True, text=True, timeout=60)
     got = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else ""
     assert Path(got).resolve() == ROOT, f"bootstrap.sh computes CAIRN_REPO_ROOT={got!r}, want {ROOT}"
@@ -80,7 +83,7 @@ def tooth_scripts_parse_and_locate():
 def _wire(home: Path) -> str:
     env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(home / ".cairn" / "devices"),
            "CAIRN_BOOT_LOG": str(home / "bootlog")}
-    r = subprocess.run(["bash", "-c", f'source "{BOOTSTRAP}" >/dev/null 2>&1; cairn_wire_instances'],
+    r = subprocess.run([_BASH, "-c", f'source "{BOOTSTRAP}" >/dev/null 2>&1; cairn_wire_instances'],
                        capture_output=True, text=True, env=env, timeout=60)
     return r.stdout + r.stderr
 

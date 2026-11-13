@@ -35,6 +35,8 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 1cabffbba003: a bare bash is the WSL launcher on Windows
+
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
@@ -92,7 +94,7 @@ class World:
         env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(self.root),
                "CAIRN_BOOT_LOG": str(self.base / "bootlog")}
         return subprocess.run(
-            ["bash", "-c", 'source "$1" >/dev/null 2>&1; cairn_wire_instances "${@:2}"', "_",
+            [_BASH, "-c", 'source "$1" >/dev/null 2>&1; cairn_wire_instances "${@:2}"', "_",
              str(self.repo / "cairn" / "devices" / "recovery" / "bootstrap.sh"), *args],
             capture_output=True, text=True, env=env, timeout=60)
 

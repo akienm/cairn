@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_no_recovery_proof_spawns_a_bare_bash.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-12T23:40:36",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "no recovery proof builds a bare bash argv\n  PASS  test_no_recovery_proof_builds_a_bare_bash_argv\nthe three edited proofs name the host's bash\n  PASS  test_the_edited_proofs_name_the_hosts_bash",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_no_recovery_proof_builds_a_bare_bash_argv",
+        "test_the_edited_proofs_name_the_hosts_bash"
+      ],
+      "teeth_red": [],
+      "test": "test-aefc37dd75e3",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "6e776d7689164e429db8c3fddc10b131c878275f61e65016a9c5a2d403d0d246",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-aefc37dd75e3",
+      "source_fingerprint": "18cdbda8d800dc76dfe95d17fec1e8a1c320007b4e852e6f3b7f8081573f34ca",
+      "fingerprint_closure": [
+        "cairn/devices/recovery/proofs/test_no_recovery_proof_spawns_a_bare_bash.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "3df4c914fdd600993d8736e0177493eb05bbd4968d65c684f554f65e405597db"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

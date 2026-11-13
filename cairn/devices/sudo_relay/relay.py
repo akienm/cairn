@@ -55,6 +55,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import time
 from datetime import datetime, timedelta, timezone
@@ -199,11 +200,17 @@ def prune_audit(*, now: datetime, retention_days: int = DEFAULT_RETENTION_DAYS) 
 # ── the relay protocol (the seam: executor is injected) ──────────────────────
 
 
+def _bash() -> str:
+    """The host's bash. A bare ``bash`` on Windows resolves to the WSL launcher, which runs the command
+    in another OS and eats backslashes (measured 2026-11-12, ticket c603e904432c); which() finds Git bash."""
+    return (shutil.which("bash") or "bash") if os.name == "nt" else "bash"
+
+
 def local_executor(command: str, *, timeout: int = 120) -> tuple:
     """Run ``command`` as the current user via bash. The NON-root executor (proof + daemonless
     use). Returns ``(returncode, stdout, stderr)``; a timeout is an honest (None, ...) result,
     never a crash of the relay (CP1: say what happened — we measured a timeout, not a pass)."""
-    return _run(["bash", "-c", command], timeout=timeout)
+    return _run([_bash(), "-c", command], timeout=timeout)
 
 
 def root_executor(command: str, *, timeout: int = 120) -> tuple:

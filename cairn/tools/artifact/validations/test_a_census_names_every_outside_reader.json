@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_census_names_every_outside_reader.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T14:51:34",
+    "date": "2026-11-13T16:49:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/tmp/cairn-outside-readers-proof-pvaqu1ps/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/tmp/cairn-outside-readers-proof-pvaqu1ps/outside/tools/reader.py'] mentions=['/tmp/cairn-outside-readers-proof-pvaqu1ps/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/tmp/cairn-outside-readers-proof-pvaqu1ps/outside', 'status': 'scanned'}, {'root': '/tmp/cairn-outside-readers-proof-pvaqu1ps/no_such_root', 'status': 'absent'}]\n  PASS  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'absent', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/cc-memory': 'scanned', 'crontab': 'absent'} stray=[]\n\n0 failure(s)",
+      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/tmp/cairn-outside-readers-proof-sa0s0dxn/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/tmp/cairn-outside-readers-proof-sa0s0dxn/outside/tools/reader.py'] mentions=['/tmp/cairn-outside-readers-proof-sa0s0dxn/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/tmp/cairn-outside-readers-proof-sa0s0dxn/outside', 'status': 'scanned'}, {'root': '/tmp/cairn-outside-readers-proof-sa0s0dxn/no_such_root', 'status': 'absent'}]\n  PASS  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'absent', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/cc-memory': 'scanned', 'crontab': 'absent'} stray=[]\n\n0 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
         "a_planted_code_reader_is_listed_with_path_and_line",
@@ -16,7 +16,7 @@
         "the_live_census_completes_over_every_root"
       ],
       "teeth_red": [],
-      "test": "test-05d9e7779831",
+      "test": "test-ee42374231c8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +26,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "104bbe222ea45c88869efabdb128a69ae2a5fd00bd9181671651cac55a1a8624",
+        "proof": "ceddfc9bda1188c5b1b533cac17c14fbbc3668d96c16fb451341c37232f0420c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -45,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-05d9e7779831",
-      "source_fingerprint": "6de1b9829bd4752483163842b04f66ff4e07c7bc82dd4c4d2878b42deda4e0a4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee42374231c8",
+      "source_fingerprint": "61775743eaef95d0cbba282ed2300322e73d7a659a20bc7ad5af9775ef55e4e8",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -54,13 +54,13 @@
         "cairn/tools/artifact/proofs/test_a_census_names_every_outside_reader.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/devices/tester": "b4a99efe9febec586902957a1fe7473c691a484a7bf71c1d1f10b7c3884277a4",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-511729-xrg93q7b/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-516080-ub0ti0l1/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,11 +69,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2128334,
-          "disk_bytes": 2527232,
-          "entries": 360,
+          "bytes": 2128864,
+          "disk_bytes": 2531328,
+          "entries": 365,
           "builds": 1,
           "reuses": 0
+        }
+      },
+      "hollow": {
+        "46851816800f": {
+          "cairn/tools/artifact/outside_readers.py": {
+            "unreadable": [
+              "cairn/tools/artifact/proofs/test_a_census_names_every_outside_reader.py"
+            ]
+          }
+        }
+      },
+      "hollow_fingerprint": {
+        "46851816800f": "61775743eaef95d0cbba282ed2300322e73d7a659a20bc7ad5af9775ef55e4e8"
+      },
+      "hollow_anchor": {
+        "46851816800f": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "2379bcfb6c33d785065e8b4a26155d3f192f7457",
+          "anchor_first_build": "4fb314fb82c2fe6dc25f3b6679608119582d70ab",
+          "commit": "54e244aa6dea24bde15a47c493f04a42e6987898",
+          "revert_mode": {
+            "cairn/tools/artifact/outside_readers.py": "hunks"
+          }
         }
       }
     },

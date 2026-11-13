@@ -48,7 +48,16 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def main() -> int:
-    from cairn.tools.artifact import outside_readers as O
+    # The census is what the build ADDED, so it binds here at call time, and a world without
+    # it reds every tooth by name rather than crashing before the first one (hollow reads the
+    # FAIL lines; a crash would read unreadable).
+    try:
+        from cairn.tools.artifact import outside_readers as O
+    except Exception as e:  # noqa: BLE001 — any failure to bind the subject reds all teeth
+        for name in PROVES["46851816800f"].values():
+            check(name, False, f"cairn.tools.artifact.outside_readers did not import: {e!r}")
+        print(f"\n{len(FAILURES)} failure(s)")
+        return 1
     with tempfile.TemporaryDirectory(prefix="cairn-outside-readers-proof-") as d:
         base = Path(d)
         inside = base / "CairnCommons"

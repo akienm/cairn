@@ -21,9 +21,14 @@ Run bare:  PYTHONPATH=. python3 cairn/devices/trouble/proofs/test_a_cli_clear_ca
 """
 from __future__ import annotations
 
+import os
+import shutil
+
 import json
 import sys
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 979317aff085: a bare bash is the WSL launcher on Windows
 
 REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
@@ -96,7 +101,7 @@ def tooth_2() -> None:
             # 2026-10-18, three of them). Inherited, the held unit name refuses the start, and a loop a
             # run does start carries CAIRN_TESTER_TEST_ID, which the tester stops.
             out = subprocess.run(
-                ["bash", str(CLI), "clear", "a-cli-clear-proof-trouble", "--by", "akien",
+                [_BASH, str(CLI), "clear", "a-cli-clear-proof-trouble", "--by", "akien",
                  "--what-changed", "the proof cleared it"],
                 capture_output=True, text=True, timeout=120,
                 env={**os.environ, "HOME": str(home), "PYTHONPATH": str(REPO)})

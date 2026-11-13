@@ -19,6 +19,8 @@ Scratch HOME only — no live bus, no live store.
 """
 from __future__ import annotations
 
+import shutil
+
 import json
 import os
 import re
@@ -26,6 +28,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 979317aff085: a bare bash is the WSL launcher on Windows
 
 _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
@@ -113,10 +117,10 @@ def clause_2_live_json_prints_the_same_troubles() -> None:
         script = _BIN / "live"
         outs = {}
         if script.is_file():
-            outs["bin/live"] = run(["bash", str(script), "--json"])
+            outs["bin/live"] = run([_BASH, str(script), "--json"])
         else:
             lacks.append("bin/live absent")
-        outs["bin/trouble live"] = run(["bash", str(_BIN / "trouble"), "live", "--json"])
+        outs["bin/trouble live"] = run([_BASH, str(_BIN / "trouble"), "live", "--json"])
         ref = run([sys.executable, "-c", _REFERENCE])
         try:
             want = json.loads(ref.stdout)

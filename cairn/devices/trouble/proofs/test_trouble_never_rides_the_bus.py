@@ -35,6 +35,8 @@ probe in the cairn device's proofs.
 
 from __future__ import annotations
 
+import shutil
+
 import ast
 import importlib
 import json
@@ -44,6 +46,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 979317aff085: a bare bash is the WSL launcher on Windows
 
 _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
@@ -264,7 +268,7 @@ def test_the_cli_clears_with_no_bus() -> None:
                "EE04_DIALS": str(dials)}
 
         def run(*args):
-            return subprocess.run(["bash", str(_CLI), *args], capture_output=True, text=True,
+            return subprocess.run([_BASH, str(_CLI), *args], capture_output=True, text=True,
                                   env=env, timeout=120)
         live = run("live", "--json")
         try:

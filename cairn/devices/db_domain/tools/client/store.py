@@ -68,7 +68,7 @@ _SOCKET_FILE = ".s.PGSQL.5432"
 # The box's own instance root, derived the way address derives it and independent of import order: a proof
 # may repoint address.ROOTS["instance"] at a scratch dir, and a credential the scratch dir does not hold is
 # still the box's (ticket fc4bb2062253).
-_STARTUP_INSTANCE = Path.home() / ".cairn"
+from cairn.tools.base.address import _INSTANCE as _STARTUP_INSTANCE  # noqa: E402 — address owns the spelling
 DB_NAME = "cairn"
 _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to create ours
 

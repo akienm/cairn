@@ -14,16 +14,88 @@ from pathlib import Path
 
 from cairn.tools.scratch.scratch import scratch_dir
 
+
+# ── The tester's run verb, asked of a bus on THIS box (ticket d66f2e18fc5c) ──────────────
+# MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME is akiendelllinux.local:7419,
+# so reach("tester") asked the Dell's tester, which replied {"refused": "no proof file at
+# '/home/akien/cairn/...'"}. The run verb carries a path, and that path names this box's disk.
+# So the ask runs in a child under a scratch HOME (scratch.home_env drops every CAIRN_BUS_*),
+# whose reach lazy-inits a throwaway-table bus there. One HOME per proof process, so every
+# seal after the first pays no bus start; the bus is shut down at exit. 42ddfe3b7256's shape.
+_ASK_HOME = None
+
+
+def _shutdown_ask_bus(home) -> None:
+    from cairn.tools.bus_client.remote import RemoteBus
+    try:
+        RemoteBus(Path(home) / ".cairn/devices/cairn/machines/bus/0").shutdown()
+    except OSError:
+        pass
+
+
+def _ask_run_on_this_box(path: str, *, sender: str, caller: str, why: str,
+                         home=None) -> dict:
+    """The run verb's reply, asked from a child whose bus is this box's own. ``home`` names
+    the scratch HOME to ask under (its bus is then the caller's to shut down); without it,
+    the one per-process HOME, shut down at exit."""
+    global _ASK_HOME
+    import atexit
+    import subprocess as _sp
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    root = Path(__file__).resolve().parents[4]
+    if home is None:
+        if _ASK_HOME is None:
+            _ASK_HOME = scratch_dir("testing-d66f2e18fc5c-")
+            atexit.register(_shutdown_ask_bus, _ASK_HOME)   # LIFO: runs before the scratch sweep
+        home = _ASK_HOME
+    done = _sp.run([sys.executable, str(Path(__file__).resolve()), "--ask-run",
+                    json.dumps({"path": path, "sender": sender, "caller": caller, "why": why})],
+                   env=home_env(home, PYTHONPATH=str(root)),
+                   capture_output=True, text=True, timeout=240, cwd=str(root))
+    assert done.returncode == 0, (
+        f"the scratch-HOME ask exited {done.returncode}: {done.stderr[-1500:]}")
+    return json.loads(done.stdout.strip().splitlines()[-1])
+
+
+def _ask_run_child(spec: str) -> int:
+    """The child half of ``_ask_run_on_this_box``: one ask, its reply on the last stdout line."""
+    from cairn.tools.bus_client.bus_client import reach
+    a = json.loads(spec)
+    reply = reach("tester").request(
+        sender=a["sender"], to="tester", verb="run", why=a["why"],
+        body={"path": a["path"], "caller": a["caller"]}, timeout=180)
+    print(json.dumps(reply))
+    return 0
+
+
+if sys.argv[1:2] == ["--ask-run"]:
+    raise SystemExit(_ask_run_child(sys.argv[2]))
+
+
+def _with_a_far_session_bus(fn):
+    """Run ``fn`` with the session's CAIRN_BUS_HOME naming a bus on another box. Here it is one
+    that never answers, so the reading is the same on every box (ticket d66f2e18fc5c)."""
+    saved = os.environ.get("CAIRN_BUS_HOME")
+    os.environ["CAIRN_BUS_HOME"] = "far-box.invalid:7419"
+    try:
+        return fn()
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_BUS_HOME", None)
+        else:
+            os.environ["CAIRN_BUS_HOME"] = saved
+
 PROOF_TIMEOUT_S = 900  # measured 169 s on 2026-11-09, over the 120 s default (ticket 8383a32d20c5)
 
 def _seal(proof) -> dict:
     """Seal a fixture proof: the tester's verdict asked over its ``run`` bus verb (RULE 1,
-    ticket 67b78ae59c1d), landed through the store's one write door."""
-    from cairn.tools.bus_client.bus_client import reach
+    ticket 67b78ae59c1d), landed through the store's one write door. Asked of a tester on this
+    box (ticket d66f2e18fc5c), because the fixture's path names this box's disk."""
     from cairn.tools.validation_store.validation_store import persist_validation
-    record = reach("tester").request(
-        sender="codemother", to="tester", verb="run", why="seal a fixture under the real tester",
-        body={"path": str(proof), "caller": "cc"}, timeout=120)["body"]["record"]
+    reply = _ask_run_on_this_box(str(proof), sender="codemother", caller="cc",
+                                 why="seal a fixture under the real tester")
+    record = (reply.get("body") or {}).get("record")
+    assert isinstance(record, dict), f"the run verb returned no record: {reply!r}"
     persist_validation(record, proof_path=str(proof))
     return record
 
@@ -88,6 +160,10 @@ PROVES = {
         "2": "test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody",
         "3": "test_a_RED_seal_makes_nothing_ready_and_journals_nothing",
         "4": "test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME",
+    },
+    "d66f2e18fc5c": {
+        "1": "test_the_seal_ignores_a_far_session_bus",
+        "3": "test_the_scratch_bus_goes_with_its_home",
     },
     "8754ae677af6": {
         "1": "test_a_crossing_codemother_admits_names_her_in_the_record",
@@ -1168,6 +1244,32 @@ def test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME():
     print("PASS: test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME")
 
 
+def test_the_seal_ignores_a_far_session_bus():
+    """d66f2e18fc5c clause 1: with the session's bus on another box, a fixture proof sealed
+    through ``_seal`` still comes back with a GREEN record for THIS box's file."""
+    _comp, proof = _fixture_component("farbus", seal=False)
+    record = _with_a_far_session_bus(lambda: _seal(proof))
+    assert record.get("verdict") == "green", f"the far-bus seal is not green: {record!r}"
+    print("PASS: test_the_seal_ignores_a_far_session_bus")
+
+
+def test_the_scratch_bus_goes_with_its_home():
+    """d66f2e18fc5c clause 3: the bus a scratch-HOME ask lazy-inits answers no longer once it
+    is shut down, which is what the exit hook does to the per-process one."""
+    from cairn.tools.bus_client.remote import _answers
+    _comp, proof = _fixture_component("busgoes", seal=False)
+    home = scratch_dir("testing-d66f-")
+    bus = Path(home) / ".cairn/devices/cairn/machines/bus/0"
+    reply = _ask_run_on_this_box(str(proof), sender="codemother", caller="cc",
+                                 why="the bus tooth asks once", home=home)
+    assert isinstance((reply.get("body") or {}).get("record"), dict), (
+        f"the ask returned no record, so no scratch bus was measured: {reply!r}")
+    assert bus.is_dir(), f"the ask lazy-inited no bus under its scratch HOME at {bus}"
+    _shutdown_ask_bus(home)
+    assert _answers(bus) is None, f"the scratch bus at {bus} still answers after shutdown"
+    print("PASS: test_the_scratch_bus_goes_with_its_home")
+
+
 if __name__ == "__main__":
     tests = [
         test_shim_imports_and_has_correct_device_id,
@@ -1200,6 +1302,8 @@ if __name__ == "__main__":
         test_a_seal_NO_PROVEME_TICKET_NAMES_makes_nothing_ready_and_troubles_nobody,
         test_a_RED_seal_makes_nothing_ready_and_journals_nothing,
         test_a_seal_with_NO_HOLLOW_READING_waits_at_PROVEME,
+        test_the_seal_ignores_a_far_session_bus,
+        test_the_scratch_bus_goes_with_its_home,
     ]
     passed = 0
     failed = 0

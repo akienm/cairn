@@ -53,6 +53,77 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+
+# ── The tester's run verb, asked of a bus on THIS box (ticket d66f2e18fc5c) ──────────────
+# MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME is akiendelllinux.local:7419,
+# so reach("tester") asked the Dell's tester, which replied {"refused": "no proof file at
+# '/home/akien/cairn/...'"}. The run verb carries a path, and that path names this box's disk.
+# So the ask runs in a child under a scratch HOME (scratch.home_env drops every CAIRN_BUS_*),
+# whose reach lazy-inits a throwaway-table bus there. One HOME per proof process, so every
+# seal after the first pays no bus start; the bus is shut down at exit. 42ddfe3b7256's shape.
+_ASK_HOME = None
+
+
+def _shutdown_ask_bus(home) -> None:
+    from cairn.tools.bus_client.remote import RemoteBus
+    try:
+        RemoteBus(Path(home) / ".cairn/devices/cairn/machines/bus/0").shutdown()
+    except OSError:
+        pass
+
+
+def _ask_run_on_this_box(path: str, *, sender: str, caller: str, why: str,
+                         home=None) -> dict:
+    """The run verb's reply, asked from a child whose bus is this box's own. ``home`` names
+    the scratch HOME to ask under (its bus is then the caller's to shut down); without it,
+    the one per-process HOME, shut down at exit."""
+    global _ASK_HOME
+    import atexit
+    import subprocess as _sp
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    root = Path(__file__).resolve().parents[6]
+    if home is None:
+        if _ASK_HOME is None:
+            _ASK_HOME = scratch_dir("testing-d66f2e18fc5c-")
+            atexit.register(_shutdown_ask_bus, _ASK_HOME)   # LIFO: runs before the scratch sweep
+        home = _ASK_HOME
+    done = _sp.run([sys.executable, str(Path(__file__).resolve()), "--ask-run",
+                    json.dumps({"path": path, "sender": sender, "caller": caller, "why": why})],
+                   env=home_env(home, PYTHONPATH=str(root)),
+                   capture_output=True, text=True, timeout=240, cwd=str(root))
+    assert done.returncode == 0, (
+        f"the scratch-HOME ask exited {done.returncode}: {done.stderr[-1500:]}")
+    return json.loads(done.stdout.strip().splitlines()[-1])
+
+
+def _ask_run_child(spec: str) -> int:
+    """The child half of ``_ask_run_on_this_box``: one ask, its reply on the last stdout line."""
+    from cairn.tools.bus_client.bus_client import reach
+    a = json.loads(spec)
+    reply = reach("tester").request(
+        sender=a["sender"], to="tester", verb="run", why=a["why"],
+        body={"path": a["path"], "caller": a["caller"]}, timeout=180)
+    print(json.dumps(reply))
+    return 0
+
+
+if sys.argv[1:2] == ["--ask-run"]:
+    raise SystemExit(_ask_run_child(sys.argv[2]))
+
+
+def _with_a_far_session_bus(fn):
+    """Run ``fn`` with the session's CAIRN_BUS_HOME naming a bus on another box. Here it is one
+    that never answers, so the reading is the same on every box (ticket d66f2e18fc5c)."""
+    saved = os.environ.get("CAIRN_BUS_HOME")
+    os.environ["CAIRN_BUS_HOME"] = "far-box.invalid:7419"
+    try:
+        return fn()
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_BUS_HOME", None)
+        else:
+            os.environ["CAIRN_BUS_HOME"] = saved
+
 # THE HARBOR'S END OF ``1accdc1781aa`` — clause (3), and only clause (3). The seam runs
 # through three components and ``proven_by`` is read as one-or-many so the crossing can
 # name all of them: the tester's end (clauses 1 and 4) is
@@ -69,6 +140,9 @@ if str(_REPO_ROOT) not in sys.path:
 #   test_an_UNREADABLE_file_is_REFUSED_and_is_never_folded_into_hollow
 #   test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading
 PROVES = {
+    "d66f2e18fc5c": {
+        "2": "test_the_seal_ignores_a_far_session_bus",
+    },
     "1accdc1781aa": {
         "3": "test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass",
     },
@@ -339,10 +413,11 @@ def _component(name: str, fixture: Path) -> str:
 
 def _seal(proof: str) -> dict:
     """Run it under the real tester and append the verdict through the real store's write-door."""
-    from cairn.tools.bus_client.bus_client import reach  # the tester's interface is the bus (RULE 1)
-    validation = reach("tester").request(
-        sender="harbor_master", to="tester", verb="run", why="seal a fixture under the real tester",
-        body={"path": proof, "caller": "test_clearance"}, timeout=120)["body"]["record"]
+    # the tester's interface is the bus (RULE 1), asked on THIS box (ticket d66f2e18fc5c)
+    reply = _ask_run_on_this_box(proof, sender="harbor_master", caller="test_clearance",
+                                 why="seal a fixture under the real tester")
+    validation = (reply.get("body") or {}).get("record")
+    assert isinstance(validation, dict), f"the run verb returned no record: {reply!r}"
     persist_validation(validation, proof_path=proof)
     return validation
 
@@ -2137,8 +2212,17 @@ def test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT():
          "fingerprint (Law 3), or the gate leans on a measurement about code that is gone")
 
 
+def test_the_seal_ignores_a_far_session_bus():
+    """d66f2e18fc5c clause 2: with the session's bus on another box, this proof's ``_seal``
+    still lands a GREEN record for a component on THIS box's disk."""
+    proof = _component("farbus", _GREEN_FIXTURE)
+    record = _with_a_far_session_bus(lambda: _seal(proof))
+    assert record.get("verdict") == "green", f"the far-bus seal is not green: {record!r}"
+
+
 def _main() -> int:
     checks = [
+        test_the_seal_ignores_a_far_session_bus,
         test_the_owner_may_clear_a_legal_move_and_it_is_recorded,
         test_an_unauthorized_actor_is_refused_and_nothing_is_written,
         test_clearance_is_delegable_per_operation,

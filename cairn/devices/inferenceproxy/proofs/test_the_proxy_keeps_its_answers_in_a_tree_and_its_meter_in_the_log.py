@@ -370,10 +370,16 @@ def live_the_table_is_gone_and_the_meter_carried():
     newest = migration.get("dump_newest")
     assert newest, f"no dump of the old table: {migration}"
     bound = datetime.fromisoformat(newest) + timedelta(seconds=1)
-    totals = reach("cairn").request(sender="inferenceproxy", to="cairn", verb="metrics",
-                                    why="98ab0e9db57f tooth 7 (testing)",
-                                    body={"source": "inferenceproxy", "totals": True,
-                                          "until": bound.isoformat()})["body"]["totals"]
+    # The meter the migration carried was recorded before the device took its outline name
+    # (ticket f942a413f26d), and a metric keeps the source that recorded it: measured
+    # 2026-11-13, every carried row stands under the old source and none under the new. So
+    # the totals are asked of both names the device has recorded under.
+    from cairn.devices.inferenceproxy.rename_instance import OLD as recorded_before_the_move
+    totals = [t for src in (recorded_before_the_move, "inferenceproxy")
+              for t in reach("cairn").request(sender="inferenceproxy", to="cairn", verb="metrics",
+                                              why="98ab0e9db57f tooth 7 (testing)",
+                                              body={"source": src, "totals": True,
+                                                    "until": bound.isoformat()})["body"]["totals"]]
     print("    " + _carried(migration, totals))
 
 

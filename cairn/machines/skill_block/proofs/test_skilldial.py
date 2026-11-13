@@ -34,7 +34,7 @@ from cairn.machines.learning_block.learning_block import trace_path  # noqa: E40
 
 # Ticket d23e1221c499: the trace file is named by learning_block (a9709b744bf5 made the name
 # NTFS-legal, skill__<name>.jsonl), never by a literal here.
-PROVES = {"d23e1221c499": {"1": "main"}}
+PROVES = {"d23e1221c499": {"1": "THE PURE-READ TOOTH: the trace is byte-identical after three reads"}}
 
 PASSES = 0
 

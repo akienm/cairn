@@ -60,7 +60,7 @@ from cairn.tools.base.device import BaseDevice
 from cairn.tools.scratch.scratch import git_env  # 25ee4866642e: the subject's env drops git's repo-location vars
 from cairn.devices.tester.conditions import compare, measure  # f0aad0cd0f56
 from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed by its test id
-    ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir,
+    ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir, run_owned,
 )
 from cairn.devices.tester.isolation import (
     _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
@@ -723,7 +723,7 @@ class TesterDevice(BaseDevice):
             try:
                 if bad_budget:
                     raise _BadBudget(bad_budget)
-                proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                proc = run_owned(argv, capture_output=True, text=True, timeout=timeout,
                                       env=run_env)
                 # THE WHOLE OUTPUT GOES TO LOGGING (bf3c16162827): the record keeps a tail and
                 # the teeth; the rest is kept 30 days in the run's log directory, never here.
@@ -967,7 +967,7 @@ class TesterDevice(BaseDevice):
                 env[PROOF_BUDGET_ENV] = str(timeout)  # e6b25d61abc4
             argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap)
             try:
-                rc = subprocess.run(argv, env=env, cwd=cwd, timeout=timeout).returncode
+                rc = run_owned(argv, env=env, cwd=cwd, timeout=timeout).returncode
             except subprocess.TimeoutExpired:
                 print(f"cairn test --exec: timed out after {timeout}s", file=sys.stderr)
                 rc = 124

@@ -39,6 +39,50 @@ _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _GRACE_S = 2.0
 
 
+_KILL_ON_JOB_CLOSE = 0x2000     # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+_EXTENDED_LIMIT_INFO = 9        # JobObjectExtendedLimitInformation
+_CREATE_NO_WINDOW = 0x08000000
+
+
+def _is_nt() -> bool:
+    return os.name == "nt"
+
+
+def _kernel32():
+    import ctypes
+    return ctypes.windll.kernel32
+
+
+def run_owned(argv, *, timeout=None, capture_output=False, **kw):
+    """subprocess.run, except on Windows the child starts in a job object that kills every
+    descendant when the run ends, with no console window (ticket 715d2205a2ec). Windows cannot
+    read another process's environment, so the id-keyed reap above cannot find a proof's scratch
+    processes there; the job holds them instead, and closing it ends them."""
+    if not _is_nt():
+        return subprocess.run(argv, timeout=timeout, capture_output=capture_output, **kw)
+    import ctypes
+    k = _kernel32()
+    job = k.CreateJobObjectW(None, None)
+    info = ctypes.create_string_buffer(144)      # JOBOBJECT_EXTENDED_LIMIT_INFORMATION, x64
+    info.raw = info.raw[:16] + _KILL_ON_JOB_CLOSE.to_bytes(4, "little") + info.raw[20:]
+    k.SetInformationJobObject(job, _EXTENDED_LIMIT_INFO, info, len(info))
+    if capture_output:
+        kw["stdout"] = kw["stderr"] = subprocess.PIPE
+    kw["creationflags"] = kw.get("creationflags", 0) | _CREATE_NO_WINDOW
+    try:
+        proc = subprocess.Popen(argv, **kw)
+        k.AssignProcessToJobObject(job, int(proc._handle))
+        try:
+            out, err = proc.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            k.TerminateJobObject(job, 1)
+            proc.communicate()
+            raise
+        return subprocess.CompletedProcess(argv, proc.returncode, out, err)
+    finally:
+        k.CloseHandle(job)
+
+
 def mint_test_id() -> str:
     return "test-" + os.urandom(6).hex()
 
@@ -143,8 +187,8 @@ def kill_what_it_started(test: str) -> list[dict]:
     it, SIGKILL what outlives the grace. Returns what was found, each with the signal that ended
     it (or the error that stopped us)."""
     units = stop_its_units(test)
-    if os.name == "nt":       # no /proc to read other processes' environ from: say so (Law 7)
-        return units + [{"pid": None, "signal": "none: process environments cannot be enumerated on Windows"}]
+    if _is_nt():              # no /proc; run_owned's job object already ended every descendant
+        return units
     found = _carrying(test)
     for p in found:
         try:

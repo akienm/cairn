@@ -449,12 +449,27 @@ def component_of(path: Path | str, pkg_root: Path | str | None = None) -> Path |
     # ``Path.expanduser`` and not ``os.path`` — this leaf imports pathlib and NOTHING
     # else, a property measured and leaned on at constrain's import site, so a
     # convenience import here would quietly cost another component its stated shape.
+    return _deepest_owner(path, [c.resolve() for c in component_dirs(pkg_root)[0]])
+
+
+def components_of(paths, pkg_root: Path | str | None = None) -> dict:
+    """``component_of`` for every path in ``paths``, with ONE walk of ``component_dirs``.
+
+    Keyed by each path as given; the value is its deepest owner or ``None``. MEASURED
+    2026-11-12 (ticket 82d203c11015): ``component_of`` re-walks the tree on every call, about
+    8.5 ms, and a caller over a proof's closure paid that per file. The home bus wedged at 100%
+    of one core on exactly that loop, inside codemother's shim lock. The component set does not
+    change inside one call, so one walk serves every path, and the rule is the same helper.
+    """
+    resolved = [c.resolve() for c in component_dirs(pkg_root)[0]]
+    return {p: _deepest_owner(p, resolved) for p in paths}
+
+
+def _deepest_owner(path: Path | str, resolved: list[Path]) -> Path | None:
+    """The deepest of ``resolved`` (component dirs, already resolved) that holds ``path``."""
     target = Path(str(path)).expanduser().resolve()
-    owners = []
-    for c in component_dirs(pkg_root)[0]:
-        resolved = c.resolve()
-        if target == resolved or resolved in target.parents:
-            owners.append(resolved)
+    holders = {target, *target.parents}
+    owners = [d for d in resolved if d in holders]
     if not owners:
         return None
     return max(owners, key=lambda d: len(d.parts))

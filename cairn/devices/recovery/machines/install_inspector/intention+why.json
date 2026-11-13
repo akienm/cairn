@@ -1,0 +1,25 @@
+{
+  "component": "install_inspector",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "THE INSTALL INSPECTOR AND GATE, a Recovery machine. inspector.py holds CHECKS, a list of install checks (each a 'module:function' string or a callable, functools.partial included) shaped {id,status,detail}. inspect(checks=None) runs every check with dry_run=True, writes nothing, and returns the reds: every status but already_applied, and a check that raises, its exception carried in the detail. installed(checks=None) is the gate: (False, reds) while any red stands, (True, []) once all are green. The installer's fix_reds calls each red check once with dry_run=False and no green check. The first CHECKS are the installer's install, ensure_journal_merge_driver and ensure_dev_extra.",
+  "why": "Akien, 2026-11-12, verbatim: \"i would say we need an install inspector and gate. then we can set up python, and once it's set up use that to detect what else with just a tool call. part of recovery and install\". Measured the same day: akienasus had none of the 15 skills and no pytest, akiendell none of the 16 skills, and each was fixed by hand, because a box gets only what someone remembered to add and nothing reads what is missing. Law 3 (an install is not known until measured), Law 4 (enforced by an inspector and gate, not remembered), Law 1 (each hand-fix becomes a registered check).",
+  "invoke": "`from cairn.devices.recovery.machines.install_inspector.inspector import inspect, installed, CHECKS`; the installer's main() asks installed() after fix_reds, and `--check` prints the reds and writes nothing.",
+  "node_class": "machine",
+  "how_it_learns": "Not yet. It measures the box fresh each call and keeps no memory of past runs; a new install fact joins by registering a check into CHECKS, an authored act, not something it discovers.",
+  "gated_by": [
+    "CC"
+  ],
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-authored",
+    "why": "akien-verbatim"
+  },
+  "public_interface": [
+    "inspect(checks=None) -> list[dict]",
+    "installed(checks=None) -> tuple[bool, list[dict]]",
+    "CHECKS",
+    "fix_reds(checks=None, *, run_checks=None) -> list[dict] (published by the installer, called by its main())"
+  ]
+}

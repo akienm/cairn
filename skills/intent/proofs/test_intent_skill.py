@@ -93,6 +93,8 @@ GOOD = {
 PROVES = {
     # d23e1221c499: the trace is read through learning_block's name for it (a9709b744bf5).
     "d23e1221c499": {"2": "test_a_real_firing_against_the_REAL_charter_traces_and_finds"},
+    # 0472a9aa9647: operator_inbox's own invoke names `cairn operator_inbox` with usage again.
+    "0472a9aa9647": {"1": "test_clause_2_the_five_are_named_with_real_usage"},
     "c691e19d5464": {
         "2": "test_clause_2_the_five_are_named_with_real_usage",
         "4": "test_clause_4_no_charter_was_minted_under_bin_cmd",

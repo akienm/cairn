@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_bare_call_is_a_shim_hook.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T01:27:13",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T06:01:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "clause_3_the_bare_answer_is_a_hook"
       ],
       "teeth_red": [],
-      "test": "test-c2478b41d5a5",
+      "test": "test-6bb5df8eb464",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,20 +37,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [
         {
-          "pid": 2468985,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/d832-librarian-chat-scratch.4026531836-2468978-vvjwpkrd/bus --scratch",
+          "pid": 2848115,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/d832-librarian-chat-scratch.4026531836-2848108-m6dpb73r/bus --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2478b41d5a5",
-      "source_fingerprint": "7971661c685d5c0391b85e01576405fbe7401348629a3e45c6831063fe55bb60",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6bb5df8eb464",
+      "source_fingerprint": "aa21c004ae9c52535f6a69a49014d261cbed3ef855ac517aab81e6f796271994",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -61,6 +60,7 @@
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_a_bare_call_is_a_shim_hook.py",
         "cairn/tools/base/proofs/test_root_verb_vocabulary.py",
+        "cairn/tools/base/script_argv.py",
         "cairn/tools/base/shim.py",
         "cairn/tools/base/singleton.py",
         "cairn/tools/base/testing_mark.py",
@@ -68,18 +68,18 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "d0834a41a15a9f3944d604278cbaa25e77ea70a600376fe65d12c73f164f8427",
+        "cairn/devices/cairn": "2651275156ea90f771634511dd63ba5a4462396897556c1e0825bbbad0290860",
         "cairn/devices/cairn/machines/bus": "0992312e2fb570fb454252b8e89084fba91c0112645ab5d73ac85d52b62386d5",
-        "cairn/devices/cc": "13f0e135c4611e1a8bd51242473d2b47cf6464b429e3c1356ad5697a221d2ff5",
+        "cairn/devices/cc": "f0441bb5e36cacc5238cf825975afeaa6586dbe74eb633917362836179a02c20",
         "cairn/devices/codemother": "c047fc62c76e0f590dc91f658c45cdbea3c9f3da09918d45a9cbe79e4405682c",
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "03fcd16e92834cf56bd141a580d9a9f9abd098a021db923a4f7351e75849587d",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
         "cairn/devices/inference_domain": "0c0b3b6f2de06c43f0695ade20e9f0c04fc28e366c5c9ec0721befe32992f0c3",
         "cairn/devices/librarian": "95d935c69ee615e68bf05302bc663687004d38b62a6ea530fc95062152f56633",
         "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/devices/trouble": "85e46c882abbaddadfd63eb6114ae361876f0b89a60248672fd618a9852a8272",
-        "cairn/devices/web_server": "d90dd43445e7f71b33e5e4362d627bd380e748dac70a45bc20c648ea0d99bed6",
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/devices/trouble": "8ec40e40ed386cf5056a5f064655632f49117e5bb7aa0da2c08cc5f2d91821d9",
+        "cairn/devices/web_server": "35cdfc6684af5b931ac6b45da346a3d0b0d0d9004ee90b7bf826e21f20168313",
         "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
         "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
         "cairn/tools/bus_client": "270bed5752d1aef017a382d4cdcdc4ebb6d89e135557b45a53569f40f066b37b",
@@ -87,58 +87,39 @@
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/question": "8ea118c045bdb990b27e71069d5de2799e4ca30b35e88270de1e7a64ddcad200",
         "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
-        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
         "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2468899-n13cicgt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2848003-srvd2ft5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "devices/librarian/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261113.082707.736992.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261113.130107.963971.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log",
-            "logs/librarian/0/20261113.082708.207149.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.082708.241223.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.082710.187774.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261113.082710.205090.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.082710.246231.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261113.082710.246504.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261113.082710.738018.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.082710.796737.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261113.082710.796961.LibrarianDevice.chat.json"
+            "logs/librarian/0/20261113.130108.464112.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.130108.494078.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.130110.540178.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261113.130110.559741.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.130110.601149.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261113.130110.601408.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261113.130111.054519.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.130111.100559.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261113.130111.100777.LibrarianDevice.chat.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529920193,
-          "disk_bytes": 571297792,
-          "entries": 15947,
+          "bytes": 530639207,
+          "disk_bytes": 573083648,
+          "entries": 16305,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "59f7456dd9f5": {
-          "cairn/tools/base/shim.py": [
-            "clause_2_a_bare_librarian_still_wakes",
-            "clause_3_the_bare_answer_is_a_hook"
-          ],
-          "cairn/devices/librarian/shim.py": [
-            "clause_1_no_roster_shim_overrides_the_resolver"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "59f7456dd9f5": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "1c695b12b1e0dd6198d16d7f383637d3c702935e",
-          "anchor_first_build": "13ba018d1158f96461c8b42019f6f6567258090d",
-          "commit": "f3f1bea892dc48927abfb2344fbeb18346c29c65"
         }
       }
     },

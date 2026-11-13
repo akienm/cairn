@@ -1,23 +1,24 @@
 [
   {
     "claim": "proof test_shim_starts_the_loop.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T01:35:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T06:04:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_a_held_lock_spawns_nothing\n  PASS  test_a_held_lock_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['unit', 'none'], one pid)\n  PASS  test_two_shims_one_loop\ntest_shim_starts_the_loop: green",
+      "stdout_tail": "ok test_check_lives_in_the_base_only\n  PASS  test_check_lives_in_the_base_only\nok test_ground_loop_package_untouched\n  PASS  test_ground_loop_package_untouched\nok test_a_held_lock_spawns_nothing\n  PASS  test_a_held_lock_spawns_nothing\nok test_dead_to_live_one_shim\n  PASS  test_dead_to_live_one_shim\nok test_two_shims_one_loop  (attempts ['none', 'unit'], one pid)\n  PASS  test_two_shims_one_loop\nok test_the_setsid_path_leaves_no_scratch_process\n  PASS  test_the_setsid_path_leaves_no_scratch_process\ntest_shim_starts_the_loop: green",
       "stderr_tail": "",
       "teeth_green": [
         "test_check_lives_in_the_base_only",
         "test_ground_loop_package_untouched",
         "test_a_held_lock_spawns_nothing",
         "test_dead_to_live_one_shim",
-        "test_two_shims_one_loop"
+        "test_two_shims_one_loop",
+        "test_the_setsid_path_leaves_no_scratch_process"
       ],
       "teeth_red": [],
-      "test": "test-b62bfa65cbdc",
+      "test": "test-568ef458a578",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "af206a43644102a12e3f89353225d9a51bc58f31f44fa31c3a8e9dbd3eef1051",
+        "proof": "ea5f969a54233b1d3f5ccb563799aca71b640e693324b8618d13c411402977e0",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -39,14 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b62bfa65cbdc",
-      "source_fingerprint": "a3099622f3250f29f31a7e31afaae8231ec33711fe4bac6ff7b8d9071ba58ccb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-568ef458a578",
+      "source_fingerprint": "8fc9c364a3b46b8c535c0f921caa4828f68aaa5fa97afab9d29f8f7b4f4cb2b0",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -54,12 +54,12 @@
         "cairn/tools/base/singleton.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
         "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2468899-hooxnkgz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2848003-o7ahjljc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,11 +68,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529915676,
-          "disk_bytes": 571248640,
-          "entries": 15931,
+          "bytes": 530634690,
+          "disk_bytes": 573034496,
+          "entries": 16289,
           "builds": 1,
-          "reuses": 81
+          "reuses": 30
         }
       }
     },

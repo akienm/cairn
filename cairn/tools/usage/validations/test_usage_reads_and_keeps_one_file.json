@@ -1,0 +1,81 @@
+[
+  {
+    "claim": "proof test_usage_reads_and_keeps_one_file.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T13:21:48",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  a_good_fetch_is_written_and_read_fresh\n  green  a_failed_fetch_sits_beside_the_last_good_reading\n  green  the_token_never_appears\n  green  a_missing_credential_is_recorded_and_the_hook_exits_zero\n  green  the_default_store_berths_under_the_cc_holder\n  green  no_network_is_touched\n\n6/6 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_good_fetch_is_written_and_read_fresh",
+        "a_failed_fetch_sits_beside_the_last_good_reading",
+        "the_token_never_appears",
+        "a_missing_credential_is_recorded_and_the_hook_exits_zero",
+        "the_default_store_berths_under_the_cc_holder",
+        "no_network_is_touched"
+      ],
+      "teeth_red": [],
+      "test": "test-678158220b49",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "dd853ababd05dfadbc461737d1a56e90295d738b74663d078b218bdb51eb9da3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-678158220b49",
+      "source_fingerprint": "d9d82b06b4d294d30ba0092af5c172e8697cab73b9be7fd9c6af5c427e1281a8",
+      "fingerprint_closure": [
+        "cairn/tools/usage/__init__.py",
+        "cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py",
+        "cairn/tools/usage/usage.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3475389-uvtc7u4b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531725167,
+          "disk_bytes": 575496192,
+          "entries": 16781,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

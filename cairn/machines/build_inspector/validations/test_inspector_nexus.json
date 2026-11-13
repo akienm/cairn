@@ -2,23 +2,22 @@
   {
     "claim": "proof test_inspector_nexus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T00:28:26",
+    "date": "2026-11-13T11:10:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry\n  PASS  test_the_fire_path_never_reaches_the_tree\ngreen — build_inspector/nexus: the corpus is born the inspector's, undated failures are turned away, the founding questions are seeded-but-unbuilt, counsel keeps its labeled floor, a proposal cannot touch the registry, and the verdict path cannot reach the tree — the graft is additive, by construction",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_corpus_table_is_born_owned_by_the_inspector\n  PASS  test_an_undated_failure_may_not_take_residence\n  PASS  test_the_founding_questions_are_seeded_but_unbuilt\n  PASS  test_counsel_walks_with_its_floor_visible\n  PASS  test_a_proposal_never_touches_the_registry",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 267, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 253, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/cairn/cairn/machines/build_inspector/proofs/test_inspector_nexus.py\", line 189, in test_the_fire_path_never_reaches_the_tree\n    assert caught == [], (\n           ^^^^^^^^^^^^\nAssertionError: the verdict path can reach a door it may not: [\"cairn/tools/validation_store/validation_store.py imports ['socket'] — a graph tree, a database, or a host that could answer is reachable from cairn/machines/build_inspector/inspector.py by import, along cairn.machines.build_inspector.inspector -> cairn.tools.validation_store.validation_store; nothing on that path may reach it\"] — a verdict that can consult a tree, a database or a host returns an opinion wearing a measurement's clothes",
       "teeth_green": [
         "test_the_corpus_table_is_born_owned_by_the_inspector",
         "test_an_undated_failure_may_not_take_residence",
         "test_the_founding_questions_are_seeded_but_unbuilt",
         "test_counsel_walks_with_its_floor_visible",
-        "test_a_proposal_never_touches_the_registry",
-        "test_the_fire_path_never_reaches_the_tree"
+        "test_a_proposal_never_touches_the_registry"
       ],
       "teeth_red": [],
-      "test": "test-fe4be9f2a4e6",
+      "test": "test-e27aba18b5ac",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,20 +33,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fe4be9f2a4e6",
-      "source_fingerprint": "0664144c9bb0ef983683c19917c18a038f74e894edbac71017f21d9fcfa5e4e4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e27aba18b5ac",
+      "source_fingerprint": "24e00fc4a06adab8859ffa699e3e6ab16758d435d4d10b134b6e9bc84b3de344",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -56,25 +56,23 @@
       ],
       "reached": {
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "f40058f7865f87897d09e3ad624a7676365d0a76e6e69c99ca9d495ff7953403",
-        "cairn/devices/librarian": "95d935c69ee615e68bf05302bc663687004d38b62a6ea530fc95062152f56633",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/librarian": "aca92a33c896d20d1836154dfeb40c6568769f2616997119acc7387366b46152",
         "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
-        "cairn/tools/chain": "55c637ef6af85d9fcb339dc5c059da07e834967b414d9b32e9292d8f312bb8d5",
+        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "a6e81c62ea3f02a3fb0d0d8cb4e0a3a2d8cadf29f4e91de2397b846fc78db629",
-        "cairn/tools/tree": "1d7fef0d01ec2e0642cd179a9b75c00e55989251cc13f5cf09783a73f1b0c274"
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/tree": "4870a050a080d2a319a67f9a84953aef1182bca0ab7de561e6e74adecbe64998"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2374275-k0nda5j1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-467527-fc7z61g_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,11 +81,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
+          "bytes": 2059316,
+          "disk_bytes": 2453504,
+          "entries": 357,
           "builds": 1,
-          "reuses": 18
+          "reuses": 22
         }
       }
     },

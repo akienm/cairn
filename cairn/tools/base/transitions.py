@@ -910,7 +910,7 @@ def _proof_named_gate(ticket: str, journal_extra: dict) -> tuple[str, list[dict]
     return f"clean — proof named: {', '.join(named)}", record
 
 
-def inspect_clean_tree(comp_dir: Path) -> tuple[list[dict], list[dict]]:
+def inspect_clean_tree(comp_dir: Path, ticket: str | None = None) -> tuple[list[dict], list[dict]]:
     """THE CLEAN-TREE SEAT'S RECORD — one lane, at the journaled forward crossing into PROVEME.
 
     Runs the build_inspector's ``working_tree_clean`` over the component at the crossing's own
@@ -925,7 +925,8 @@ def inspect_clean_tree(comp_dir: Path) -> tuple[list[dict], list[dict]]:
         # a repo that fails to read is not this case — the sieve's refusal propagates red.
         return [], []
     from cairn.machines.build_inspector.inspector import working_tree_clean  # lazy, as the other seats
-    findings = working_tree_clean({"component": comp_dir.name}, comp_dir)
+    # The crossing ticket rides the row: its own gate dialog is not dirt (ticket 3ba20f30a585).
+    findings = working_tree_clean({"component": comp_dir.name, "crossing_ticket": ticket}, comp_dir)
     dirty = (findings[0].get("values") or {}).get("dirty", {}) if findings else {}
     shown = (f"both trees are committed at the PROVEME entry of {comp_dir.name!r} "
              f"(no uncommitted changes in its repo or the sibling CairnCommons)")
@@ -938,10 +939,10 @@ def inspect_clean_tree(comp_dir: Path) -> tuple[list[dict], list[dict]]:
                             component=comp_dir.name, dirty=dirty)]
 
 
-def _clean_tree_gate(comp_dir: Path) -> tuple[str, list[dict]]:
+def _clean_tree_gate(comp_dir: Path, ticket: str | None = None) -> tuple[str, list[dict]]:
     """The gate is a VIEW over ``inspect_clean_tree``: refuses BEFORE anything is written,
     naming every dirty path per repo, so one pass tells the builder all of it."""
-    findings, record = inspect_clean_tree(comp_dir)
+    findings, record = inspect_clean_tree(comp_dir, ticket=ticket)
     if not record:
         return f"not_checked: no git repo holds {comp_dir}", []
     if findings:
@@ -1170,7 +1171,7 @@ def _enqueue_verdict(ticket: str) -> str | None:
     return _enqueue(ticket)
 
 
-def inspect_build(history_path: str) -> list[dict]:
+def inspect_build(history_path: str, ticket: str | None = None) -> list[dict]:
     """THE BUILD GATE'S PROOF RECORD — the guard lane, then the INSPECTOR'S OWN RECORD.
 
     THIS ONE DOES NOT BUILD LANES, IT CARRIES THEM. build_inspector already emits a proof
@@ -1195,7 +1196,7 @@ def inspect_build(history_path: str) -> list[dict]:
     comp_dir = Path(history_path).resolve().parent
     seen = f"the census can measure component {comp_dir.name!r} at {comp_dir}"
     try:
-        report = _inspect(root=comp_dir.parent, component=comp_dir.name)
+        report = _inspect(root=comp_dir.parent, component=comp_dir.name, ticket=ticket)
     except ScanRefused as e:
         return [_lane("the_census_can_measure_the_component",
                       expected=seen, actual=f"the census cannot measure it — {e}",
@@ -1251,7 +1252,7 @@ def _quorum_gate(validation_path: object, class_def: dict) -> tuple[str, list[di
     return BUILD_GATE.run(record, note=note, red_fn=_red)
 
 
-def _build_gate(history_path: str) -> tuple[str, list[dict]]:
+def _build_gate(history_path: str, ticket: str | None = None) -> tuple[str, list[dict]]:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
     The component IS its address: ``history_path`` lives beside the code it voyages for
@@ -1269,7 +1270,7 @@ def _build_gate(history_path: str) -> tuple[str, list[dict]]:
     crossing into a rest — ticket emit-refuses-an-uncleared-crossing.)
     """
     comp_dir = Path(history_path).resolve().parent
-    record = inspect_build(history_path)
+    record = inspect_build(history_path, ticket=ticket)
     sieves = (record[0].get("values") or {}).get("sieves_run", [])
     note = (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
             f"{len(record)} check(s) are proved on this crossing")
@@ -1436,7 +1437,7 @@ def emit(
             if _is_human_proved(class_def):
                 gate_note, _rec = _quorum_gate(journal_extra.get("validation"), class_def)
             else:
-                gate_note, _rec = _build_gate(history_path)
+                gate_note, _rec = _build_gate(history_path, ticket=journal_extra.get("ticket"))
             proved += _rec
         # THE ENTRY GATE: crossing forward INTO the BUILDME summons requires a named,
         # CAST ticket — or the crossing's own component on the explicit exempt
@@ -1516,7 +1517,8 @@ def emit(
         # in the tree whoever crosses. Back-edges retreat ungated like every sibling seat.
         tree_note = None
         if target == "PROVEME" and target_idx > wf.cursor:
-            tree_note, _rec = _clean_tree_gate(Path(history_path).resolve().parent)
+            tree_note, _rec = _clean_tree_gate(Path(history_path).resolve().parent,
+                                               ticket=journal_extra.get("ticket"))
             proved += _rec
         # THE EXIT GATE: crossing forward INTO PROVED requires a named, CAST ticket
         # — or the crossing's own component on the explicit exempt roster — else it

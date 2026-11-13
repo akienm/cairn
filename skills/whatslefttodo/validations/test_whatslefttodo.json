@@ -2,7 +2,7 @@
   {
     "claim": "proof test_whatslefttodo.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-08T19:41:30",
+    "date": "2026-11-13T11:12:42",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -45,7 +45,7 @@
         "live trace untouched by this proof"
       ],
       "teeth_red": [],
-      "test": "test-ca94a65c09a6",
+      "test": "test-fc6a5cf1be0e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -61,49 +61,45 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca94a65c09a6",
-      "source_fingerprint": "51f94a4ac8703cd0adbb02a0ac02fe62407866df4a56a69a344d516b95264006",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fc6a5cf1be0e",
+      "source_fingerprint": "d67498777f2f2767d32c5534a2230e5235a6a2adb0bfce04ac0843ff29755615",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/devices/trouble/__init__.py",
-        "cairn/devices/trouble/shim.py",
         "cairn/devices/trouble/tools/store/store.py",
-        "cairn/devices/trouble/trouble.py",
         "cairn/machines/__init__.py",
         "cairn/machines/learning_block/__init__.py",
         "cairn/machines/learning_block/learning_block.py",
         "cairn/machines/skill_block/__init__.py",
         "cairn/machines/skill_block/skill_block.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
-        "cairn/tools/base/core_values.py",
-        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/probe.py",
-        "cairn/tools/base/shim.py",
-        "cairn/tools/base/singleton.py",
-        "cairn/tools/base/testing_mark.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/ticket_log.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/workflow_grammar.py",
+        "cairn/tools/cgroup/__init__.py",
+        "cairn/tools/cgroup/cgroup.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -118,122 +114,36 @@
         "skills/whatslefttodo/proofs/test_whatslefttodo.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/devices/trouble": "8982950753863bd8317cdd1254135a5ba1438b16e99e652236fede66ae8b2762",
-        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/machines/learning_block": "11504710ac0c65f0e6e55933126af3e85f359949e13d320e545df561aa80cc72",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/base": "3ac8aed778d8e6021c7fbe5075f84f1337444be33b640045817a16ad86097a4d",
-        "cairn/tools/charter": "fbdc1dbe09a796fd4a7307fc38cbd68d9d1028e01c8babdd9305e11ad45ffc2f",
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/devices/trouble": "8ec40e40ed386cf5056a5f064655632f49117e5bb7aa0da2c08cc5f2d91821d9",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/machines/learning_block": "7cc4b5a907675c45852793d82383d2231ad5c8d6a04c005f54381edab2602370",
+        "cairn/machines/skill_block": "f02dc9cb9434cc8f3e66bc4be0c549f1ba73230afc92673cc12b33e1ff795e6f",
+        "cairn/tools/artifact": "08a02d9a5b2d53f82528140e4388ee7ddb6c75b5b192307d41608943bb4ef98f",
+        "cairn/tools/base": "30ecb8f9cb99ae26a9f5cec14a5bee5ca7f12ce8f99c3c5e11c24059c24be7d0",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "bc17560a6dd74ded93ac68311e33791905b4759c1025e95b994635fb70641b93",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
+        "cairn/tools/operator_inbox": "e30a665f701541588bf578e09954ef63e86eb77d12d75e595bd3e090ba7296c1",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-467527-xhel_xqs/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
-          "paths": [
-            "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-ca94a65c09a6/stderr.txt",
-            "logs/tester/0/runs/test-ca94a65c09a6/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "e5a8e8059296": {
-          "skills/whatslefttodo/door.py": [
-            "nothing_names_recordverdict",
-            "the_rulings_gather_reads_the_review_queue"
-          ],
-          "skills/whatslefttodo/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/whatslefttodo/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/cmd/recordverdict": [
-            "nothing_names_recordverdict",
-            "recordverdict_paths_are_absent"
-          ],
-          "cairn/machines/learning_block/__main__.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/learning_block/learning_block.py": [
-            "learning_block_has_no_verdict_organs",
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/skill_block/__main__.py": {
-            "notified": "n-e1c185342630"
-          },
-          "cairn/machines/learning_block/proofs/test_learning_block.py": [
-            "nothing_names_recordverdict",
-            "cairn/machines/learning_block/proofs/test_learning_block.py::test_dial_equals_a_hand_count_and_updates_on_new_evidence"
-          ],
-          "skills/tellmeabout/proofs/test_tellmeabout.py": [
-            "nothing_names_recordverdict",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a finding resolves as found",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a finding says nothing is owed, and says why",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::a unique 8-char prefix resolves",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::all six stores named in the search report",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::every resolve returns exactly one of found/refused/not_found",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::finding carries its address (a real file)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::finding record EQUAL to the store's own record (verbatim tooth)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::no store file changed under the whole battery (read-only measured)",
-            "skills/tellmeabout/proofs/test_tellmeabout.py::nonsense token is not_found"
-          ],
-          "cairn/tools/system_word/proofs/test_system_word.py": {
-            "notified": "n-856aefe6859a"
-          },
-          "bin/proofs/test_cairn_command.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox.py": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/tools/operator_inbox/probes/operator_inbox_matches_live_state.py": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/tellmeabout.py": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/tellmeabout/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/cmd/artifactgate": [
-            "nothing_names_recordverdict"
-          ],
-          "skills/intent/SKILL.md": [
-            "nothing_names_recordverdict"
-          ],
-          "cairn/machines/learning_block/intention+why.json": [
-            "nothing_names_recordverdict"
-          ],
-          "bin/intention+why.json": {
-            "notified": "n-c538fe8885ac"
-          },
-          "cairn/machines/skill_block/intention+why.json": [
-            "nothing_names_recordverdict"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e5a8e8059296": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ae748587e4c7dd6fb8c44d0cae84fadc13b30692",
-          "anchor_first_build": "c0ce0a1dd9130a9f71ff39c92277c33f0baf40f5",
-          "commit": "ae748587e4c7dd6fb8c44d0cae84fadc13b30692"
+          "measured": true,
+          "bytes": 2059316,
+          "disk_bytes": 2453504,
+          "entries": 357,
+          "builds": 1,
+          "reuses": 89
         }
       }
     },

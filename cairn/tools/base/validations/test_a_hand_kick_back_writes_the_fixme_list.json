@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_a_hand_kick_back_writes_the_fixme_list.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T10:43:13",
+    "caller": "cairn test",
+    "date": "2026-11-13T11:10:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_hand_kick_back_writes_the_fixme_list\n                                                                        [100%]\n1 passed in 0.05s",
+      "stdout_tail": ".\n  ok   test_a_hand_kick_back_writes_the_fixme_list\n                                                                        [100%]\n1 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_hand_kick_back_writes_the_fixme_list"
       ],
       "teeth_red": [],
-      "test": "test-3e64a48abb80",
+      "test": "test-2f27efa3ffa2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,19 +29,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e64a48abb80",
-      "source_fingerprint": "135d76e4bb4a881c2bb4f33ed069f6fc1d31266a2175780fd423c10d0c0cb9ec",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2f27efa3ffa2",
+      "source_fingerprint": "59a54b47315a88b0af5082eaa7bd9d66158678683410a56a23f327e3a2f9da88",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -60,8 +62,8 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7c215b8283bce8069c5553903626955df298ee1aa70303142b1aec0deafe4dd1",
-        "cairn/machines/build_inspector": "b5895366b22d014b7ccfc31fa4d0a0942ff337238e80220c40583821f9a83744",
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/machines/build_inspector": "f46be38bfaf943c0948de8bcd2c68b1244a0739e5fcdaba744fe0551fc2cc8ed",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "08a02d9a5b2d53f82528140e4388ee7ddb6c75b5b192307d41608943bb4ef98f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
@@ -76,24 +78,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3240308-idck09dx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-467527-vgzvmwq_/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261113.174312.554912.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.174312.559470.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261113.181038.907762.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181038.911874.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531454373,
-          "disk_bytes": 574828544,
-          "entries": 16647,
+          "bytes": 2060416,
+          "disk_bytes": 2461696,
+          "entries": 361,
           "builds": 1,
-          "reuses": 13
+          "reuses": 41
         }
       }
     },

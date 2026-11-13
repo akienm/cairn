@@ -4400,10 +4400,56 @@ def claim_propagates_with_provenance(row: dict, comp_dir: Path, *, repo: Path | 
     return findings
 
 
+_JOURNAL_REL = ".artifact-journal.jsonl"
+
+
+def _is_own_log(rel: str, tid: str) -> bool:
+    name = rel.rsplit("/", 1)[-1]
+    return rel.startswith("tickets/") and rel.count("/") == 1 and name.startswith(f"{tid}-") \
+        and name.endswith(".log.jsonl")
+
+
+def _only_own_dialog(repo: Path, rel: str, tid: str) -> bool:
+    """True when ``rel`` in ``repo`` is ticket ``tid``'s log or the artifact journal, its
+    committed bytes are a line-boundary prefix of the working copy, and every line appended
+    since is ``tid``'s own gate dialog: kind gate_dialog with actor ``tid`` in the log, a line
+    naming ``tid``'s log in the journal (ticket 3ba20f30a585). Anything else, unreadable
+    included, is dirt."""
+    import subprocess
+    is_log = _is_own_log(rel, tid)
+    if not is_log and rel != _JOURNAL_REL:
+        return False
+    try:
+        work = (repo / rel).read_bytes()
+    except OSError:
+        return False
+    shown = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{rel}"], capture_output=True)
+    head = shown.stdout if shown.returncode == 0 else b""
+    if not work.startswith(head) or (head and not head.endswith(b"\n")) or len(work) == len(head):
+        return False
+    for raw in work[len(head):].decode("utf-8", errors="replace").splitlines():
+        try:
+            line = json.loads(raw)
+        except ValueError:
+            return False
+        if not isinstance(line, dict):
+            return False
+        if is_log and not (line.get("kind") == "gate_dialog" and line.get("actor") == tid):
+            return False
+        if not is_log and not _is_own_log(str(line.get("path") or ""), tid):
+            return False
+    return True
+
+
 def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = None) -> list[dict]:
     """Uncommitted changes anywhere in cairn or CairnCommons at a crossing.
 
     Provenance: ticket nothing-rides-loose — the crossing half of durability physics: a stone cannot be promoted out of PROVEME while the code it claims exists only in a working tree. Widened by ticket c1cca2e3dc23 (rulings 8w/F11/8x): the one measured orphan, 3fef5a02da2d's lab lines, sat in CairnCommons outside every component subtree, and the subtree-only check passed PROVED twice over it. Reads every repo's dirty paths through orient's repo_truth; any path means dirt.
+
+    EXCEPT THE CROSSING TICKET'S OWN DIALOG (ticket 3ba20f30a585). When ``row['crossing_ticket']``
+    names T, a path whose only change is T's own appended gate dialog (``_only_own_dialog``) is
+    not dirt: a refused crossing writes exactly that, and it records the crossing, not work.
+    The excused paths ride the finding as ``excused`` when anything else still refuses.
     """
     if repos is None:
         repo_root = comp_dir
@@ -4419,7 +4465,13 @@ def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = 
         # repo_truth reads an empty list as "the live trees" — never hand it one.
         return []
     rows = repo_truth(repos=list(repos))["measured"]["repos"]
-    dirty = {str(r): rw["dirty"] for r, rw in zip(repos, rows) if rw.get("dirty")}
+    tid = row.get("crossing_ticket")
+    dirty: dict[str, list[str]] = {}
+    excused: dict[str, list[str]] = {}
+    for r, rw in zip(repos, rows):
+        for rel in rw.get("dirty") or []:
+            own = bool(tid) and _only_own_dialog(Path(r), rel, tid)
+            (excused if own else dirty).setdefault(str(r), []).append(rel)
     if not dirty:
         return []
     return [_finding(
@@ -4428,6 +4480,7 @@ def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = 
         expected=True, actual=False,
         dirty_count=sum(len(v) for v in dirty.values()),
         dirty=dirty,
+        **({"excused": excused} if excused else {}),
     )]
 
 
@@ -5083,7 +5136,8 @@ def the_nest() -> list:
     return _NEST_CACHE
 
 
-def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
+def inspect(*, root: Path | None = None, component: str | None = None,
+            ticket: str | None = None) -> dict:
     """Shake the nest over the measured census. One component (post-build) or the whole
     tree (the one-time sweep). Findings are judgments over measurements only.
 
@@ -5106,6 +5160,10 @@ def inspect(*, root: Path | None = None, component: str | None = None) -> dict:
                 f"{[r['component'] for r in census['measured']['components']]}. A gate "
                 "that silently inspects nothing passes everything (Law 8)."
             )
+    if ticket:
+        # The crossing's ticket rides each row, so SIEVES keep their (row, comp_dir) signature
+        # (ticket 3ba20f30a585: working_tree_clean excuses that ticket's own gate dialog).
+        rows = [{**r, "crossing_ticket": ticket} for r in rows]
     nest = the_nest()
     # The shake is the general half (cairn.machines.nest.nest; in base 2026-08-07 to 2026-11-10); what stays
     # here is the tenant's convention — which sieve meets which subject, and how:

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_crossing_stands_on_a_certificate.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T10:52:30",
+    "caller": "cairn test",
+    "date": "2026-11-13T11:11:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261113T175229Z-9cfd.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261113T175229Z-950f.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_gated_crossing_names_a_certificate_that_verifies  — certificate 'certificates/abcdef012345-TICKETME-20261113T181154Z-3022.cert.json'; new files 1; faults []; gate 'ticket'; findings equal proved True\n  PASS  test_no_gate_no_ticket_no_class_space_no_certificate  — certificates named {'back': None, 'ticketless': None, 'outside': None}; files written 0; control named 'certificates/abcdef012345-TICKETME-20261113T181154Z-2b93.cert.json'\n  PASS  test_certify_outside_emit_bumps_its_nose  — direct certify raised CertifyRefused; wrote 0; under emit named True\n  PASS  test_the_probe_carries_the_certificate  — with: 'certificates/abcdef012345-TICKETME-x.cert.json'; without has key False\n  PASS  test_a_proved_crossing_without_demo_can_be_certified  — rows ['demo_gate_binding_check']; failing []; gate raised None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_gated_crossing_names_a_certificate_that_verifies",
@@ -17,7 +17,7 @@
         "test_a_proved_crossing_without_demo_can_be_certified"
       ],
       "teeth_red": [],
-      "test": "test-8e63ae330755",
+      "test": "test-65a9fdb38b99",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,19 +33,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8e63ae330755",
-      "source_fingerprint": "17ab7aeb1b1504a0b82c3bf888b4ff1af7e4ce4b5ee0191a0ec8c97b3665c072",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65a9fdb38b99",
+      "source_fingerprint": "4c0ef904bb5eeb38949f9bfb517e7d14970042ccb3b587ee502cd6bd7e6e6ca0",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -64,8 +66,8 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7c215b8283bce8069c5553903626955df298ee1aa70303142b1aec0deafe4dd1",
-        "cairn/machines/build_inspector": "b5895366b22d014b7ccfc31fa4d0a0942ff337238e80220c40583821f9a83744",
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/machines/build_inspector": "f46be38bfaf943c0948de8bcd2c68b1244a0739e5fcdaba744fe0551fc2cc8ed",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "08a02d9a5b2d53f82528140e4388ee7ddb6c75b5b192307d41608943bb4ef98f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
@@ -78,28 +80,28 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3240308-ixzaxxne/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-467527-1248jj9l/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261113.175229.431053.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.175229.438312.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.175229.444549.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.175229.445751.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.175229.455789.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.175229.466412.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261113.181154.908668.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181154.915316.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181154.920911.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181154.922062.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181154.930965.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.181154.940343.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531456362,
-          "disk_bytes": 574844928,
-          "entries": 16651,
+          "bytes": 2062407,
+          "disk_bytes": 2478080,
+          "entries": 365,
           "builds": 1,
-          "reuses": 69
+          "reuses": 65
         }
       }
     },

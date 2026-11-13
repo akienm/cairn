@@ -2,7 +2,7 @@
   {
     "claim": "proof test_sail_pins_its_refusals.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-10-12T17:54:18",
+    "date": "2026-11-13T11:12:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -30,47 +30,47 @@
         "test_ticket_load_then_chart"
       ],
       "teeth_red": [],
-      "test": "test-03995b0744cf",
+      "test": "test-1b4018dadcdd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 4,
-        "tables": [
-          "bus_proc_2164634_1753135631_delivery",
-          "bus_proc_2164634_1753135631",
-          "bus_proc_2165279_1753336110_delivery",
-          "bus_proc_2165279_1753336110"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "178e5c30cf315fcdef95a903562d99d85d4c4f061cb43aee1ddf59913ce9f273",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-03995b0744cf",
-      "source_fingerprint": "9ecf360d25207ae159b304c0bbdbce1f3065440c1ee353fa457da1b86509c02e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1b4018dadcdd",
+      "source_fingerprint": "9f6273a1abc60a9790264dc707c25fa35d848343ff3733d89bb915439f606708",
       "fingerprint_closure": [
         "cairn/__init__.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py",
         "cairn/tools/charter/__init__.py",
         "cairn/tools/charter/projector.py",
         "cairn/tools/gate/__init__.py",
@@ -81,9 +81,17 @@
         "cairn/tools/system_word/system_word.py",
         "skills/sail/proofs/test_sail_pins_its_refusals.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/tools/base": "30ecb8f9cb99ae26a9f5cec14a5bee5ca7f12ce8f99c3c5e11c24059c24be7d0",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2165707-2tuc1j6i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-467527-n9jgfdqp/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -92,11 +100,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 107946388,
-          "disk_bytes": 132882432,
-          "entries": 10056,
+          "bytes": 2059316,
+          "disk_bytes": 2453504,
+          "entries": 357,
           "builds": 1,
-          "reuses": 0
+          "reuses": 83
         }
       }
     },

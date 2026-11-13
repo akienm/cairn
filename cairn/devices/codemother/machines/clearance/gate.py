@@ -169,7 +169,7 @@ class ClearanceGate(DiagnosticBase):
                     except OSError:
                         continue
                     if tid in declared(p):
-                        out.append(str(p.relative_to(repo)) if root == repo else str(p))
+                        out.append(p.relative_to(repo).as_posix() if root == repo else p.as_posix())  # ticket a4892e762b70
         return out
 
     def hand_of(self, tid: str, asked_by: str) -> str:

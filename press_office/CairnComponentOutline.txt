@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 93. An answered question disappears:
+      takes the next unused number, which is 94. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -522,6 +522,17 @@ not matter here. The code catches up to this, never the reverse.
       5.3.5.2 Two callers waking the same part at once start only one: the part
               that binds its socket first is the only one; a second copy finds it
               taken and exits quietly (as the ground loop does, 5.6.4.3).
+              [Q#93: Ticket b38af5fd1852 says a second live copy of a host
+               singleton refuses LOUDLY; this line says it exits QUIETLY. Your
+               words, 2026-11-12: "when it's going to spin up another, the act of
+               spinning it up should either exit or close the other. what needs
+               to be a singleton per cairn? cairn itself across all boxes. maybe
+               codemother. but on an individual host, that would be the ground
+               loop, the bus, the rack, there can't be two akienasus_cc_0 on the
+               same bus! that would be akienasus_cc_1". Two choices: the second
+               copy exits (loud or quiet), or it closes the first (supersede).
+               Is the answer the same for the bus, the ground loop, the rack and
+               a device name?]
       5.3.5.3 What the waker starts outlives whoever started it (detached, or
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the

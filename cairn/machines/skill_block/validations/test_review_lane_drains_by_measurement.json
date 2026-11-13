@@ -2,12 +2,12 @@
   {
     "claim": "proof test_review_lane_drains_by_measurement.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-29T21:47:21",
+    "date": "2026-11-13T07:10:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_the_rule_reads_the_grammars_terminal_vocabulary_not_a_local_copy\n.\n  ok   test_the_inbox_label_tail_is_the_grammars_terminal_vocabulary\n.\n  ok   test_the_lane_drops_the_proved_named_berth_and_keeps_the_other_three\n.\n  ok   test_drain_false_is_the_full_census\n.\n  ok   test_the_any_rule_holds_in_the_lane_over_the_idea_berth\n.\n  ok   test_the_reviewed_log_is_byte_identical_across_every_read\n.\n  ok   test_the_reviewed_log_still_drains_what_he_reviewed\n.\n  ok   test_the_lane_is_all_kept_when_no_tickets_dir_exists\n.\n  ok   test_reverting_the_predicate_reds_this_proof\n                                                         [100%]\n16 passed in 0.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_map_reads_the_cursor_state_for_each_named_berth",
@@ -28,14 +28,17 @@
         "test_reverting_the_predicate_reds_this_proof"
       ],
       "teeth_red": [],
-      "test": "test-7f5cb11e2952",
+      "test": "test-91f2d8ae56f3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_2921847_0709229273_delivery",
+          "bus_proc_2921847_0709229273"
+        ]
       },
       "conditions": {
         "proof": "00e0c3b1d7a88e3ec565caee59a8b1f95dd364538c7c455664e73ab011dae8bc",
@@ -45,25 +48,39 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7f5cb11e2952",
-      "source_fingerprint": "e8521d1c762611fdf2925961f3208e09c918851976a8888ee6d8704a044d740a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-91f2d8ae56f3",
+      "source_fingerprint": "6d59a8f949e53323c0e426b8338962f5d4d8813663934752ce20818ae2bd8376",
       "fingerprint_closure": [
         "cairn/machines/skill_block/__init__.py",
         "cairn/machines/skill_block/proofs/test_review_lane_drains_by_measurement.py",
         "cairn/machines/skill_block/skill_block.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/machines/learning_block": "3dea1c74e3d055ba9c97e981384e7a581c23fd14847da77131533f1ff8395d5e",
+        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
+        "cairn/tools/base": "ef9c021f538f4f0a9d5c499863b372d971517885826633149cc7124333e2755d",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/operator_inbox": "e3f995bae1d49dff59a0b21c0a5029cca7ca6f689e5ab12b762be60cacbc2bc2",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1994004-8t03_a78/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2922913-y3sd31jv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,11 +89,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 113428967,
-          "disk_bytes": 143073280,
-          "entries": 11718,
+          "bytes": 530753685,
+          "disk_bytes": 573349888,
+          "entries": 16358,
           "builds": 1,
-          "reuses": 79
+          "reuses": 0
         }
       }
     },

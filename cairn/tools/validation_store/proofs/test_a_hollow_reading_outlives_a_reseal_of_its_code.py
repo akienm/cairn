@@ -7,7 +7,7 @@ them different, and dropped a reading taken over exactly the code it measured. P
 refused hollow_evidence_absent and sent the boat to FIXME.
 
 The carry now keys a reading's expiry to the code the reading measured: ``record_hollow`` stamps
-the tree's fingerprint beside the reading (``hollow_anchor[t]['fingerprint']``), and a new seal
+the tree's fingerprint beside the reading (``hollow_fingerprint[t]``), and a new seal
 carries each ticket's reading whose stamp, or the prior seal's fingerprint, equals its own.
 
 This proof measures only cairn/tools/validation_store (RULE 1). It runs the store against a

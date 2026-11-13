@@ -852,22 +852,36 @@ def persist_validation(
     #
     # A NEW RECORD THAT CARRIES ITS OWN ``hollow`` WINS, always: ``record_hollow`` writes
     # through this same door, so the carry must never overwrite the act that is landing.
+    #
+    # AND THE FINGERPRINT IS THE READING'S OWN, PER TICKET (ticket 404d3f6f3d9b). Until
+    # 2026-11-13 the carry compared against the PRIOR SEAL's fingerprint, all-or-nothing. A
+    # reading landed on a seal that was already stale (5a37dd56fa45: a Windows seal at 1330...,
+    # the Linux tree at 8318... over the same committed closure) was dropped by the next reseal
+    # of exactly the code it measured, and the PROVED crossing bounced to FIXME. So
+    # ``record_hollow`` stamps the tree's fingerprint beside each reading
+    # (``evidence.hollow_fingerprint[t]``), and each ticket's reading rides a new seal whose
+    # fingerprint equals that stamp or the prior seal's. A reading with no stamp (landed
+    # before this) keeps the prior-seal rule alone.
     _prior_ev = (standing_trail[-1].get("evidence") or {}) if standing_trail else {}
-    if isinstance(_prior_ev, dict):
-        _prior_hollow = _prior_ev.get("hollow")
-        _new_ev = record.get("evidence") or {}
+    _new_ev = record.get("evidence") or {}
+    if isinstance(_prior_ev, dict) and isinstance(_new_ev, dict) and "hollow" not in _new_ev:
+        def _keyed(key):
+            v = _prior_ev.get(key)
+            return v if isinstance(v, dict) else {}
+        _prior_hollow, _prior_anchor = _keyed("hollow"), _keyed("hollow_anchor")
+        _prior_stamp = _keyed("hollow_fingerprint")
         _fp = _prior_ev.get("source_fingerprint")
-        if (isinstance(_prior_hollow, dict) and _prior_hollow
-                and "hollow" not in _new_ev
-                and _fp and _fp == _new_ev.get("source_fingerprint")):
-            record["evidence"] = {**_new_ev, "hollow": _prior_hollow}
-        # The anchor a reading was taken against rides with that reading and expires with it.
-        _prior_anchor = _prior_ev.get("hollow_anchor")
-        _new_ev = record.get("evidence") or {}
-        if (isinstance(_prior_anchor, dict) and _prior_anchor
-                and "hollow_anchor" not in _new_ev
-                and _fp and _fp == _new_ev.get("source_fingerprint")):
-            record["evidence"] = {**_new_ev, "hollow_anchor": _prior_anchor}
+        _new_fp = _new_ev.get("source_fingerprint")
+        kept = [t for t in _prior_hollow
+                if _new_fp and (_new_fp == _fp or _new_fp == _prior_stamp.get(t))]
+        # The anchor and the stamp a reading was taken against ride with that reading and
+        # expire with it.
+        for key, prior in (("hollow", _prior_hollow), ("hollow_anchor", _prior_anchor),
+                           ("hollow_fingerprint", _prior_stamp)):
+            carried = {t: prior[t] for t in kept if t in prior}
+            if carried and key not in _new_ev:
+                _new_ev = {**_new_ev, key: carried}
+        record["evidence"] = _new_ev
 
     change = verdict_change(standing_trail, record)
     # A FIXTURE'S VERDICT CHANGE IS THE FIXTURE DOING ITS JOB, not a defect in the world.
@@ -969,6 +983,14 @@ def record_hollow(proof_path: str, ticket: str, measured: dict, *, anchor: dict 
                           str(ticket): {str(f): (list(t) if isinstance(t, (list, tuple, set))
                                                  else t)
                                         for f, t in measured.items()}}
+    # THE READING CARRIES THE FINGERPRINT OF THE TREE IT WAS TAKEN OVER (ticket 404d3f6f3d9b),
+    # under the standing seal's own recipe, so a later reseal of that same code carries it even
+    # when the seal it landed on was already stale. Beside the reading, never inside it.
+    # Its own key, not inside the anchor: the anchor is handed back to its readers exactly as
+    # the caller gave it (test_hollow_anchors_before_the_build_that_stands.py holds that).
+    stamps = evidence.get("hollow_fingerprint")
+    evidence["hollow_fingerprint"] = {**(stamps if isinstance(stamps, dict) else {}),
+                                      str(ticket): sealed_fingerprint_now(proof_path, trail[-1])}
     if anchor is not None:
         prior = evidence.get("hollow_anchor")
         evidence["hollow_anchor"] = {**(prior if isinstance(prior, dict) else {}),

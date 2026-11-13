@@ -214,7 +214,8 @@ def test_the_corpus_write_is_journaled():
 def test_the_bin_script_prints_one_line_per_proposal():
     w, hq = _world(), _hq()
     hq.write_proposals(hq.harvest(w["roots"]), w["proposals"])
-    out = subprocess.run([str(BIN), "proposals", "--proposals", str(w["proposals"])],
+    from cairn.tools.base.script_argv import bash_script_argv  # ticket dd6be87bdb7e: a shebang script is not a Windows program
+    out = subprocess.run([*bash_script_argv(BIN), "proposals", "--proposals", str(w["proposals"])],
                          capture_output=True, text=True, timeout=60)
     assert out.returncode == 0, out.stderr
     lines = [ln for ln in out.stdout.splitlines() if ln.strip()]

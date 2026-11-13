@@ -1,0 +1,74 @@
+[
+  {
+    "claim": "proof test_no_librarian_proof_execs_a_script_directly.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-12T23:34:26",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "tooth 8 builds its argv with bash_script_argv\n  PASS  test_the_harvest_proofs_tooth_8_runs_the_script_through_bash_script_argv\nno librarian proof execs a bin script directly\n  PASS  test_no_librarian_proof_execs_a_bin_script_directly",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_harvest_proofs_tooth_8_runs_the_script_through_bash_script_argv",
+        "test_no_librarian_proof_execs_a_bin_script_directly"
+      ],
+      "teeth_red": [],
+      "test": "test-918626f7e09f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "b10485a9ff767a71ceae71d756f1dcc2bd48e43dc96818471e080d7c834273cb",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-918626f7e09f",
+      "source_fingerprint": "7720d5ff17137f489e5792bbbaae47580c5b5d4859d12df52e1c287eebd3b66e",
+      "fingerprint_closure": [
+        "cairn/devices/librarian/proofs/test_no_librarian_proof_execs_a_script_directly.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "3df4c914fdd600993d8736e0177493eb05bbd4968d65c684f554f65e405597db"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

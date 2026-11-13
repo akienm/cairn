@@ -434,6 +434,17 @@ class RemoteBus(DiagnosticBase):
         return self._method("toggle", device_id=device_id, channel=channel, enabled=enabled)
 
     def flush(self) -> dict:
+        # A FAR HANDLE HAS NOTHING TO FLUSH (ticket 3195b3b834bc). Flush exists so a ring held
+        # in a process about to die becomes a store; a far handle posted into the ring of the
+        # far box's bus process, which outlives this one, and the LAN door refuses flush because
+        # that ring is its own box's to flush (LAN_OPS, Law 6). Sending it anyway raised after
+        # the post had landed and been handled, and the tester then reported, falsely, that the
+        # crossings its seals fire did not (measured 2026-11-12: 12 of 12 sealed posts accepted).
+        if self._far is not None:
+            host, port = self._far
+            return {"flushed": 0, "receipts": 0, "far": f"{host}:{port}",
+                    "why": f"the ring lives in the bus process on {host}, which outlives this "
+                           "client and flushes it itself; flush is not open across the LAN"}
         return self._call({"op": "flush"}).get("json")
 
     def stats(self) -> dict:

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_inspector.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T14:55:11",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:05:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS: open_filed_edges catches open edge and counts closed\n  ok    test_open_filed_edges_catches_open\n  PASS: all-closed component produces no open_filed_edges findings\n  ok    test_open_filed_edges_clean\n  PASS: charter_asserts_unbuilt catches 'not yet wired'\n  ok    test_charter_asserts_unbuilt_catches\n  PASS: open edge without unbuilt pattern does not trigger charter_asserts_unbuilt\n  ok    test_charter_asserts_unbuilt_clean\n  PASS: letter-prefixed CLOSED/LANDED edges are correctly detected\n  ok    test_letter_prefix_closed\n  PASS: lettered charter counts open/closed correctly\n  ok    test_letter_prefix_in_charter\n  PASS: inference_domain REDs with 2 finding(s)\n  ok    test_live_tree_inference_domain_reds\n  PASS: db_domain REDs with 2 finding(s)\n  ok    test_live_tree_db_domain_reds\n\nplan_inspector proofs: 8 passed, 0 failed",
+      "stdout_tail": "  PASS: open_filed_edges catches open edge and counts closed\n  ok    test_open_filed_edges_catches_open\n  PASS: all-closed component produces no open_filed_edges findings\n  ok    test_open_filed_edges_clean\n  PASS: charter_asserts_unbuilt catches 'not yet wired'\n  ok    test_charter_asserts_unbuilt_catches\n  PASS: open edge without unbuilt pattern does not trigger charter_asserts_unbuilt\n  ok    test_charter_asserts_unbuilt_clean\n  PASS: letter-prefixed CLOSED/LANDED edges are correctly detected\n  ok    test_letter_prefix_closed\n  PASS: lettered charter counts open/closed correctly\n  ok    test_letter_prefix_in_charter\n  PASS: inferenceproxy REDs with 2 finding(s)\n  ok    test_live_tree_inferenceproxy_reds\n  PASS: db_domain REDs with 2 finding(s)\n  ok    test_live_tree_db_domain_reds\n\nplan_inspector proofs: 8 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
         "test_open_filed_edges_catches_open",
@@ -16,11 +16,11 @@
         "test_charter_asserts_unbuilt_clean",
         "test_letter_prefix_closed",
         "test_letter_prefix_in_charter",
-        "test_live_tree_inference_domain_reds",
+        "test_live_tree_inferenceproxy_reds",
         "test_live_tree_db_domain_reds"
       ],
       "teeth_red": [],
-      "test": "test-be213c8afc64",
+      "test": "test-8a1b7fc5a246",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,7 +30,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "38147cb0d7c4f90724db8451cfc64853d0a032fe132eae4b297be887cc3a7c21",
+        "proof": "e31e05c46d70806e45467a42c12ddfdfbd5d409cfd4ad4a0e73519247284921d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,26 +42,26 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-be213c8afc64",
-      "source_fingerprint": "3c3335a3d53a977dccfe5c8362dd831e9cc9e29641839b6831aac21291625dd5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a1b7fc5a246",
+      "source_fingerprint": "b04e23f76d382e97af96723b42d4b453edc95a72ad529fd8f400325eb8468ead",
       "fingerprint_closure": [
         "cairn/machines/plan_inspector/__init__.py",
         "cairn/machines/plan_inspector/inspector.py",
         "cairn/machines/plan_inspector/proofs/test_inspector.py"
       ],
       "reached": {
-        "cairn/devices/tester": "d00ba609866e5820d1f48dca4fc6551e7e0ebdd0198e507150b7d53a6c740a81",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-564363-4oh89hql/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-9k62kx8y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,14 +70,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 526400577,
-          "disk_bytes": 563789824,
-          "entries": 14583,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 0
+          "reuses": 193
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

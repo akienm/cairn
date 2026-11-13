@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_bug_ticket_casts_with_the_red_it_fixes.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T11:10:28",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:06:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  clause_1_a_well_shaped_fixes_casts_and_reads_back\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-482354-8h2pccyn/CairnCommons/tickets/5def0000a001-testing-a-bug-that-names-its-red-5def0000a001.json lacks=None fixes read back=['cairn/tools/base/proofs/test_a_bug_ticket_casts_with_the_red_it_fixes.py']\n  PASS  clause_2_a_malformed_fixes_is_refused_by_name\n        all four malformed fixes refused by name\n  PASS  clause_3_the_live_charter_declares_and_shapes_fixes\n        /home/akien/CairnCommons/tickets/_charter+why.json: in plan_fields=True in plan_shapes=True\n  PASS  clause_4_a_doc_without_fixes_still_casts\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-482354-8h2pccyn/CairnCommons/tickets/5def0000c001-testing-a-bug-that-names-its-red-5def0000c001.json lacks=None\n\nGREEN",
+      "stdout_tail": "  PASS  clause_1_a_well_shaped_fixes_casts_and_reads_back\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-3658428-z1q4vc5d/CairnCommons/tickets/5def0000a001-testing-a-bug-that-names-its-red-5def0000a001.json lacks=None fixes read back=['cairn/tools/base/proofs/test_a_bug_ticket_casts_with_the_red_it_fixes.py']\n  PASS  clause_2_a_malformed_fixes_is_refused_by_name\n        all four malformed fixes refused by name\n  PASS  clause_3_the_live_charter_declares_and_shapes_fixes\n        /home/akien/dev/src/CairnCommons/tickets/_charter+why.json: in plan_fields=True in plan_shapes=True\n  PASS  clause_4_a_doc_without_fixes_still_casts\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-3658428-z1q4vc5d/CairnCommons/tickets/5def0000c001-testing-a-bug-that-names-its-red-5def0000c001.json lacks=None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "clause_1_a_well_shaped_fixes_casts_and_reads_back",
@@ -16,7 +16,7 @@
         "clause_4_a_doc_without_fixes_still_casts"
       ],
       "teeth_red": [],
-      "test": "test-1ef51eb5da67",
+      "test": "test-3dc3bd550ffc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,21 +32,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1ef51eb5da67",
-      "source_fingerprint": "eb1fb15106f1b982db9f58c914bf0e39b12cf5bc4c3b996e120ba82e66805dcd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3dc3bd550ffc",
+      "source_fingerprint": "7fff7a651971dd0cc40b6b8933f0777ea983eee4f41e79fd463cd7c5db71a08d",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -58,17 +56,17 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
-        "cairn/tools/artifact": "08a02d9a5b2d53f82528140e4388ee7ddb6c75b5b192307d41608943bb4ef98f",
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/artifact": "0e2b00e166adc243defac562d7da4d2074dc9ccb6719a4c0cd7a748db5f981b3",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-467527-lhspbq5y/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-7ljjy6f7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,11 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2059316,
-          "disk_bytes": 2453504,
-          "entries": 357,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 30
+          "reuses": 197
         }
       }
     },

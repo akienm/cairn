@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_voyage.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T11:12:17",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:34:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    (11 gates; shared: BUILDME:waiting, FIXME:waiting, KILLED, PROVEME:waiting, RETIRED, SUPERSEDED, TICKETME:waiting, WATCHME:waiting)\n  PASS  test_gates_are_emergent_and_shared\n    (mid-voyage flagged: 0, at-anchor: 745)\n  PASS  test_the_voyage_stitches_across_id_spelling_and_the_flag_is_sharpened\n  PASS  test_at_anchor_and_the_cursor_sharpening_on_a_constructed_fleet\n    (live: 165 at sea, 745 at-anchor)\n  PASS  test_the_live_fleet_partition_is_exact\n  PASS  test_the_image_owns_nothing\n  PASS  test_calm_when_healthy_partition\ngreen — the traffic image composes the real fleet into emergent gates (shared, non-hollow), stitches a boat's two vantages across id-spelling and flags only the in-workflow silently-stuck (the cursor sharpens it), sets DONE-but-unberthed boats apart as at-anchor, owns nothing (a projection over the register, Law 7), and keeps each gate's calm/flagged partition exact — harbor_master child c",
+      "stdout_tail": "    (11 gates; shared: BUILDME:waiting, FIXME:waiting, KILLED, PROVEME:waiting, RETIRED, SUPERSEDED, TICKETME:waiting, WATCHME:waiting)\n  PASS  test_gates_are_emergent_and_shared\n    (mid-voyage flagged: 0, at-anchor: 747)\n  PASS  test_the_voyage_stitches_across_id_spelling_and_the_flag_is_sharpened\n  PASS  test_at_anchor_and_the_cursor_sharpening_on_a_constructed_fleet\n    (live: 167 at sea, 747 at-anchor)\n  PASS  test_the_live_fleet_partition_is_exact\n  PASS  test_the_image_owns_nothing\n  PASS  test_calm_when_healthy_partition\ngreen — the traffic image composes the real fleet into emergent gates (shared, non-hollow), stitches a boat's two vantages across id-spelling and flags only the in-workflow silently-stuck (the cursor sharpens it), sets DONE-but-unberthed boats apart as at-anchor, owns nothing (a projection over the register, Law 7), and keeps each gate's calm/flagged partition exact — harbor_master child c",
       "stderr_tail": "",
       "teeth_green": [
         "test_gates_are_emergent_and_shared",
@@ -18,7 +18,7 @@
         "test_calm_when_healthy_partition"
       ],
       "teeth_red": [],
-      "test": "test-618abece6676",
+      "test": "test-72dc62634cea",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,17 +30,23 @@
       "conditions": {
         "proof": "32a64c5c34966e7e17ce58d3313f1a875062fc2c516bd330336dfff647dbf698",
         "fixtures": null,
-        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "3db5aa5642d2"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-618abece6676",
-      "source_fingerprint": "de4b4739980618af10204b19eade071c7f0140303b6f3b7ed4d622bb686edfe2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-72dc62634cea",
+      "source_fingerprint": "7683cefe063955f35645c459aa641d1389a5d3e180650e2ad1b9b13f05fadcdc",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/harbor_master/__init__.py",
         "cairn/devices/codemother/machines/harbor_master/proofs/test_voyage.py",
@@ -48,17 +54,17 @@
         "cairn/devices/codemother/machines/harbor_master/voyage.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "455fd7257dc7728336abcb6b128542409d05377ea111ef94d95179a033ed4a2e",
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
-        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/devices/codemother": "2416105a09777a4085e93f2fcbcccfb128dfa95d146d6bb3fa5dfe9d031950a8",
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "e30a665f701541588bf578e09954ef63e86eb77d12d75e595bd3e090ba7296c1",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/operator_inbox": "24aeea26e92479183e15ba92c45417eabd32db96d2b8d589bff83e6ff65c6454",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3324121-80oyaex8/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-naxtcy_g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,11 +73,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 39802,
-          "disk_bytes": 86016,
-          "entries": 102,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 20
+          "reuses": 41
         }
       }
     },

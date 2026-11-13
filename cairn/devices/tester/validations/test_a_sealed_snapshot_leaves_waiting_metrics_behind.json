@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_sealed_snapshot_leaves_waiting_metrics_behind.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T10:50:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:50:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-63647626de26",
+      "test": "test-1aecb9228fcb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,17 +28,23 @@
       "conditions": {
         "proof": "f3d848c1f9f449fa20b52b11f0969cb3bcd14c78e23955088385684141a663b5",
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
-        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "1c33651abf0c"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-63647626de26",
-      "source_fingerprint": "ae1f6811a4b7ccc07a1e158b8fc8b0d186feae675e7e93cd525d202e236fd075",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1aecb9228fcb",
+      "source_fingerprint": "daf72990566c8a62e7855b3e76cf5b9c0bb708c72ebf2cebe2a50e22b0427fc2",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/isolation.py",
@@ -46,15 +52,15 @@
         "cairn/devices/tester/reach/sitecustomize.py"
       ],
       "reached": {
-        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
         "cairn/tools/data_recorder": "c9c375301ad2487d4e13f3031872f303838f7da0488ae164304d82990b985ef9",
         "cairn/tools/metric": "84e1022ffcc1866b499db2702625219bbb1ca11860b21720c587c4fa11088141",
         "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/validation_store": "fefc6de89370c0bdc3eada25f7ad6d80f9110804e5f0b8fa8fdb2bb9f26a05c3"
+        "cairn/tools/validation_store": "e35b3cf866d5402f4d23e18048570e75111a506e35ce3fa599bad1530d0a7e93"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3264859-yn7ru_wt/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-lct_6tjv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,30 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 33275,
-          "disk_bytes": 73728,
-          "entries": 100,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 21
-        }
-      },
-      "hollow": {
-        "5bcceb08973f": {
-          "cairn/devices/tester/isolation.py": [
-            "the_snapshot_copies_every_other_file_byte_equal",
-            "the_snapshot_keeps_the_metrics_recorder_and_none_of_its_records"
-          ],
-          "cairn/devices/tester/intention+why.json": [
-            "the_charter_says_the_snapshot_leaves_waiting_metrics_behind"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5bcceb08973f": {
-          "anchor_rule": "journal",
-          "anchor_journal": "74ce019bff6aab2710bd1b2ef0bec13657b0acdc",
-          "anchor_first_build": "7026cd6704114adb364d208a4c128a63d48cf6ab",
-          "commit": "74ce019bff6aab2710bd1b2ef0bec13657b0acdc"
+          "reuses": 116
         }
       }
     },

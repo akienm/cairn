@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_session_reads_which_claude_it_is.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T01:29:02",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:08:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_two_records_of_one_session_read_the_newer"
       ],
       "teeth_red": [],
-      "test": "test-135eb3d4bebe",
+      "test": "test-71387d5e07c9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-135eb3d4bebe",
-      "source_fingerprint": "c9e3e0c109e50f1f24debc141630a7c7c16a23c439556643331d1872fd32a6b3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-71387d5e07c9",
+      "source_fingerprint": "82b5c6b75baebdd2f672fb74ceaca891011101ace2ecaab3351443b555f0973e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/claude_identity.py",
@@ -53,12 +52,12 @@
         "cairn/tools/base/proofs/test_a_session_reads_which_claude_it_is.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14"
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2468899-c67yg213/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-j3i25oq_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,32 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529915676,
-          "disk_bytes": 571248640,
-          "entries": 15931,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 27
-        }
-      },
-      "hollow": {
-        "a1d3c9e4b702": {
-          "cairn/tools/base/claude_identity.py": [
-            "test_a_session_id_names_its_session",
-            "test_no_id_falls_to_the_record_of_claude_pid",
-            "test_nothing_found_is_a_nameless_session_never_a_raise",
-            "test_two_records_of_one_session_read_the_newer"
-          ],
-          "cairn/tools/base/intention+why.json": {
-            "notified": "n-297efbbadb82"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "a1d3c9e4b702": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d672b23761fb5d42fc9d77fbef2bec61d8743e9d",
-          "anchor_first_build": "c5c67497bbc099c51b2b1764e299b626bc27fb42",
-          "commit": "d672b23761fb5d42fc9d77fbef2bec61d8743e9d"
+          "reuses": 222
         }
       }
     },

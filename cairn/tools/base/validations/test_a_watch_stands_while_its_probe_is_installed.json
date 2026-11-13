@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_watch_stands_while_its_probe_is_installed.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T11:10:41",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:08:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_ticket_off_rest_with_an_ARMED_probe_stands\n.\n  ok   test_a_resting_ticket_stands_UNCONDITIONALLY\n.\n  ok   test_an_unarmed_or_unbuilt_watch_does_NOT_stand\n.\n  ok   test_the_widening_only_ADDS_over_the_real_corpus\n                                                                     [100%]\n4 passed in 0.14s",
+      "stdout_tail": ".\n  ok   test_a_ticket_off_rest_with_an_ARMED_probe_stands\n.\n  ok   test_a_resting_ticket_stands_UNCONDITIONALLY\n.\n  ok   test_an_unarmed_or_unbuilt_watch_does_NOT_stand\n.\n  ok   test_the_widening_only_ADDS_over_the_real_corpus\n                                                                     [100%]\n4 passed in 0.17s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_ticket_off_rest_with_an_ARMED_probe_stands",
@@ -16,7 +16,7 @@
         "test_the_widening_only_ADDS_over_the_real_corpus"
       ],
       "teeth_red": [],
-      "test": "test-7ef548d91399",
+      "test": "test-ae4fc34df55e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,21 +32,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7ef548d91399",
-      "source_fingerprint": "12e873b3739a79a8d63a6d79f0119580587ace1b285b16cd07c74a1822b4f780",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ae4fc34df55e",
+      "source_fingerprint": "055f4cffba5f7403c4f2d17c297e266a15d713b7a5d04d841d66b5d33e90284b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -59,16 +57,16 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
         "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-467527-lmh4kqxl/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-0k1fs2uv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,11 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2059316,
-          "disk_bytes": 2453504,
-          "entries": 357,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 44
+          "reuses": 225
         }
       }
     },

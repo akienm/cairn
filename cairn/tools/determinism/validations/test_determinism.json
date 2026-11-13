@@ -2,7 +2,7 @@
   {
     "claim": "proof test_determinism.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-30T12:50:28",
+    "date": "2026-11-13T16:24:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -31,7 +31,7 @@
         "0 failing"
       ],
       "teeth_red": [],
-      "test": "test-4829872770d6",
+      "test": "test-2762eff2d091",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,32 +41,39 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e6119fafc50cbcf5ed2e57e2294c3a1bb0bdb508b118ebd6160bb9dc00ee9e12",
+        "proof": "6b6a742287f6b035e7d1285d6444f4dcfbb9cd5cf88d51b3b910dcba27d24893",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4829872770d6",
-      "source_fingerprint": "28502f3a49c39ba7fd3a14539fc02cffae9f1e1081c8022d4fa550c3a35a23b1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2762eff2d091",
+      "source_fingerprint": "79ff91458adbd5613492f6201191866a0e5fa33eca9f5ecb26025341da4b3794",
       "fingerprint_closure": [
         "cairn/tools/determinism/__init__.py",
         "cairn/tools/determinism/determinism.py",
         "cairn/tools/determinism/proofs/test_determinism.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
+        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2593322-t_wh37tg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-qkp1oyw8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,14 +82,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114200599,
-          "disk_bytes": 143978496,
-          "entries": 11778,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 8
+          "reuses": 327
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

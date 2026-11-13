@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_ticket_v2_schema_file_is_the_decided_one.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T10:55:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:18:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_file_has_exactly_three_keys\n.\n  ok   test_the_schema_names_d11s_twenty_one_fields\n.\n  ok   test_the_census_is_the_verbatim_measurement\n.\n  ok   test_the_census_says_how_to_rerun_it\n                                                                     [100%]\n4 passed in 0.07s",
+      "stdout_tail": ".\n  ok   test_the_file_has_exactly_three_keys\n.\n  ok   test_the_schema_names_d11s_twenty_one_fields\n.\n  ok   test_the_census_is_the_verbatim_measurement\n.\n  ok   test_the_census_says_how_to_rerun_it\n                                                                     [100%]\n4 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_file_has_exactly_three_keys",
@@ -16,7 +16,7 @@
         "test_the_census_says_how_to_rerun_it"
       ],
       "teeth_red": [],
-      "test": "test-dc30e02f237a",
+      "test": "test-d379928a584d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,27 +38,26 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dc30e02f237a",
-      "source_fingerprint": "9a1f5c097c7b46fa5de051d2202a7c9bdd4817d4b3e31c174a626a4677962346",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d379928a584d",
+      "source_fingerprint": "3aaa92379c6c3ea4b81b61cb772b3fb65be01712891ca0991008556e13afc22d",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/proofs/test_the_ticket_v2_schema_file_is_the_decided_one.py"
       ],
       "reached": {
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3279370-tdmv9zse/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-fmbro_mk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,29 +66,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531453142,
-          "disk_bytes": 574816256,
-          "entries": 16642,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "9447b97e4fd8": {
-          "CairnCommons/tickets/_schema-v2.json": {
-            "notified": "n-014a1e6de41f"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "9447b97e4fd8": "9a1f5c097c7b46fa5de051d2202a7c9bdd4817d4b3e31c174a626a4677962346"
-      },
-      "hollow_anchor": {
-        "9447b97e4fd8": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d8d00050be33c8567366b953c8acd51233c04eac",
-          "anchor_first_build": null,
-          "commit": "d8d00050be33c8567366b953c8acd51233c04eac"
+          "reuses": 290
         }
       }
     },

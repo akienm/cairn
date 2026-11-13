@@ -394,25 +394,17 @@ def test_import_allowlist(root, orient_berth):
              # THE TESTER'S READ SIDE (2026-09-02, device isolation): constrain
              # reads source_fingerprint and standing through cairn.tools.base.validation.
              "cairn.tools.base.validation",
-             # THE TESTER'S RUN SIDE (2026-10-02, ticket 67b78ae59c1d, RULE 1): a run
-             # is the tester's to perform, and a device's public interface is the bus,
-             # so constrain asks the tester's `run` verb through the bus client instead
-             # of reaching run_proof through validation (which no longer carries it).
-             "cairn.tools.bus_client.bus_client",
-             # THE SHARED RUN CACHE'S LOCK (2026-11-11, ticket 070c5fc9624c D4): two firings
-             # asking for one proof's bytes take an exclusive flock, so the tester runs once.
-             "fcntl",
-             # THE STAGE'S BUDGET (2026-11-12, ticket d58e7887cc99): the floor waits the
-             # tester's run for STAGE_BUDGET_S, imported from the ticket machine that owns
-             # it rather than copied, so there is one number (orchestrator's ruling).
-             "cairn.machines.ticket.ticket")
+             # THE FLOOR READS SEALS (2026-11-12, ticket 5243cf9dc630): no tester ask, so
+             # no bus client, no run cache lock and no stage budget; git names the files
+             # that moved under a seal.
+             "subprocess")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]
     assert not offenders, (
         f"constrain.py imports outside its allowlist: {offenders} — composed "
         "doors only: the inspector's judge, chart's settled orient machinery, "
-        "chart's tree verbs, its gate, the tester's read side and its run verb")
+        "chart's tree verbs, its gate, the tester's read side and git")
 
 
 def test_refusal_is_one_pass_complete(root, orient_berth):
@@ -582,7 +574,27 @@ def _plant(root, **files):
     for name, body in files.items():
         with open(os.path.join(home, name + ".py"), "w") as fh:
             fh.write(body)
-    return lambda: shutil.rmtree(home, ignore_errors=True)
+    return lambda: (shutil.rmtree(home, ignore_errors=True),
+                    shutil.rmtree(os.path.join(root, ALPHA_HOME, "validations"),
+                                  ignore_errors=True))
+
+
+def _seal(root, name, verdict, *, fingerprint=None):
+    """A validations record beside planted proof ``name``, the shape the tester writes.
+
+    THE FLOOR READS SEALS (ticket 5243cf9dc630), so a planted proof's state is the seal
+    planted beside it, read on this box: no tester is asked, so a fixture planted off the
+    home box is seen wherever the proof runs (ticket 1b5e86aeec14). ``fingerprint`` left
+    unset is taken now (the seal stands); any other value is a seal the code moved under."""
+    from cairn.tools.base.validation import source_fingerprint
+    proof = os.path.join(root, ALPHA_HOME, "proofs", name + ".py")
+    vdir = os.path.join(root, ALPHA_HOME, "validations")
+    os.makedirs(vdir, exist_ok=True)
+    with open(os.path.join(vdir, name + ".json"), "w") as fh:
+        json.dump([{"claim": "proof %s.py passes" % name, "caller": "cairn test",
+                    "date": "2026-11-12T00:00:00", "verdict": verdict,
+                    "evidence": {"source_fingerprint": fingerprint or source_fingerprint(proof)}}],
+                  fh)
 
 
 def test_the_check_set_is_discovered_never_enumerated(root, orient_berth):
@@ -624,26 +636,33 @@ def test_a_named_check_is_never_reported_unrun(root, orient_berth):
     calls that a report. The direct instrument is a proof planted to FAIL — a namer wearing
     a verdict says green, because green is what a name defaults to.
 
+    SINCE 2026-11-12 THE FLOOR READS SEALS (ticket 5243cf9dc630), so the failing proof is
+    planted with a RED SEAL beside it, and an unsealed one beside that: each reads its own
+    state, and neither reads green — the why of this tooth, kept.
+
     AND THE MISSING FILE IS THE SAME FAILURE FROM THE OTHER SIDE. It is reported
-    ``unrunnable``, never green and never dropped: 'nothing to run' is a state to report,
+    ``missing``, never green and never dropped: 'nothing to read' is a state to report,
     and letting it fall out of the list shrinks the denominator, which makes the remaining
     greens look total (leak-scan coin-toss-red, measured in this corpus)."""
-    remove = _plant(root, test_planted_red="raise SystemExit(1)\n")
+    remove = _plant(root, test_planted_red="raise SystemExit(1)\n",
+                    test_planted_unsealed="raise SystemExit(0)\n")
     try:
+        _seal(root, "test_planted_red", "red")
         checks, cost = constrain_mod.instrument_constraints(orient_berth, root=root)
-        assert [c["verdict"] for c in checks] == ["red"], \
-            "a planted FAILING proof was reported %r — a report that cannot say red was " \
-            "never produced by a run" % ([c["verdict"] for c in checks],)
+        assert [c["verdict"] for c in checks] == ["red", "never-sealed"], \
+            "a planted proof sealed RED and one never sealed were reported %r — a report " \
+            "that cannot say red was never read from a seal" % ([c["verdict"] for c in checks],)
         assert cost["instruments"] == len(checks), \
             "the denominator must be the discovered count: %r reported of %r discovered" \
             % (len(checks), cost["instruments"])
-        assert cost["seconds"] > 0, "a run that took no time did not happen"
+        assert "did not pass" in checks[0]["text"], \
+            "the red state must carry the seal's own sentence: %r" % (checks[0]["text"],)
     finally:
         remove()
-    gone = constrain_mod._run_instrument(
+    gone = constrain_mod._read_instrument(
         os.path.join(ALPHA_HOME, "proofs", "test_gone.py"), root=root)
-    assert gone["verdict"] == "unrunnable" and "not there" in gone["how"], \
-        "a discovered file that vanished before the run must be reported unrunnable with " \
+    assert gone["verdict"] == "missing" and "not there" in gone["how"], \
+        "a discovered file that vanished before the read must be reported missing with " \
         "the reason, not carried as a verdict nobody read: %r" % (gone,)
 
 
@@ -658,22 +677,27 @@ def test_one_red_check_does_not_blanket_the_report(root, orient_berth):
     remove = _plant(root,
                     test_planted_green="print('  ok   test_planted_green')\nraise SystemExit(0)\n",
                     test_planted_red="raise SystemExit(1)\n",
-                    test_planted_broken="def (\n")
+                    test_planted_moved="raise SystemExit(0)\n")
     try:
+        # A sealed green, a sealed red, and a green seal the code has moved under (ticket
+        # 5243cf9dc630: the floor reads seals, so the three states are planted as seals).
+        _seal(root, "test_planted_green", "green")
+        _seal(root, "test_planted_red", "red")
+        _seal(root, "test_planted_moved", "green", fingerprint="0" * 64)
         fl = constrain_mod.floor_packet(orient_berth, root=root)
         by_verdict = {}
         for c in fl["constraints"]:
             if c["kind"] == "check":
                 by_verdict.setdefault(c["verdict"], []).append(c["source"])
-        assert sorted(by_verdict) == ["green", "red"], \
+        assert sorted(by_verdict) == ["green", "moved", "red"], \
             "three instruments in three states collapsed to %r" % (sorted(by_verdict),)
-        assert len(by_verdict["green"]) == 1 and len(by_verdict["red"]) == 2, \
+        assert all(len(v) == 1 for v in by_verdict.values()), \
             "the split is wrong: %r" % (by_verdict,)
-        # The charter constraints are untouched by the run half — the floor gained a kind,
+        # The charter constraints are untouched by the read half — the floor gained a kind,
         # it did not lose one.
         assert len([c for c in fl["constraints"] if c["kind"] == "charter"]) == 6
         unknowns = " ".join(fl["unknowns"])
-        for red in by_verdict["red"]:
+        for red in by_verdict["red"] + by_verdict["moved"]:
             assert red in unknowns, \
                 "the red instrument %s is reported and then not carried into unknowns — " \
                 "a failing bound that reads as a satisfied one" % red
@@ -924,9 +948,10 @@ def _main() -> int:
           "falsifier/gates/owner, verbatim, with their address) and unknowns (with the "
           "why), and returns None rather than an empty list when it has nothing; "
           "the floor DISCOVERS the instruments that judge the ref'd components (composing "
-          "the tester's own collector, agreeing with it set for set) and RUNS them — a "
-          "proof planted at a ref'd address appears with no code change, a failing one is "
-          "reported red and rides out as an unknown, a vanished one is reported unrunnable "
+          "the tester's own collector, agreeing with it set for set) and READS their seals — "
+          "a proof planted at a ref'd address appears with no code change, one sealed red "
+          "or moved rides out as an unknown, an unsealed one reads never-sealed, a vanished "
+          "one is reported missing "
           "rather than dropped, three instruments in three states never collapse to one "
           "verdict, a check whose source RESOLVES but does not name a discovered "
           "instrument is refused, and every kind the floor emits is named in FLOOR_KINDS; "

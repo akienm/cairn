@@ -228,117 +228,104 @@ FLOOR_AUTHORED = ("constraints", "unknowns")
 FLOOR_KINDS = ("charter", "check")
 
 
-# THE RE-ENTRANCY GUARD, and it is physics rather than a convention because the thing it
-# stops is unbounded.
-#
-# MEASURED BEFORE IT WAS DESIGNED AROUND: constrain's own proof calls ``validate_constrain``
-# seventeen times and ``floor_packet`` three. So a floor that RUNS the proofs it discovers,
-# fired on a packet whose refs include this machine, runs a proof that calls the floor that
-# runs the proof — process fork without a bottom. Nothing in the chain caught this; it was
-# found by grepping the proof before writing the run half, and it would have been found
-# otherwise by the machine running out of processes.
-#
-# THE EXCLUSION IS COMPUTED, NOT LISTED, which is Akien's clause 3 at the one place it was
-# genuinely tempting to write a constant. A hand-kept roster of "proofs the floor must not
-# run" is a learned value stranded in a human's head, and it is wrong the first time a
-# proof anywhere starts calling this stage. Instead the guard rides the ENVIRONMENT: the
-# tester spawns each proof with ``subprocess.run`` and no ``env=``, so the child inherits
-# this flag, and a floor that finds itself already inside a floor reports the instrument
-# rather than running it. Depth is bounded at one for every proof in the corpus, present
-# and future, with nothing to maintain.
-_REENTRY = "CAIRN_CONSTRAIN_FLOOR_RUNNING"
-
-# Keyed by (proof path, source fingerprint) so the SECOND ask in one firing is free. The
-# door re-runs the floor to measure provenance (``measured_provenance`` below), which
-# would otherwise run every discovered proof a second time and double the stage's cost for
-# an answer that cannot have changed — the tree has not moved between the two calls, and
-# the fingerprint is exactly the thing that would say so if it had.
-_RUN_CACHE: dict = {}
-
-# AND BACKED BY A STORE EVERY FIRING SHARES (ticket 070c5fc9624c). The dict lives in one
-# process, so seven charts in flight each asked the tester for the same unsealed bytes:
-# measured 2026-10-30, 66 tester runs in 30 minutes, one proof run 15 times, and the oldest
-# stage timed out unberthed. A verdict the tester read for one (path, fingerprint) is
-# settled for every process (Law 1), so it is written to codemother's instance-space and
-# asked under a lock, once. Only what the tester actually read is persisted: an
-# ``unrunnable`` is a transport fault, and the next asker must try again.
-_STORE_DIR = None  # None = instance_path('codemother', 0)/machines/constrain/run_cache
-_TTL_S = 3600
-_PERSISTED = ("green", "red")
+# THE FLOOR READS SEALS; IT NEVER RUNS A PROOF (ticket 5243cf9dc630, orchestrator's ruling
+# 2026-11-12). Until this ticket a proof without a standing seal was run, over the bus, by the
+# tester, inside the chart stage. Measured 2026-11-12: b0e65cf8a77e's floor ran 44 proofs one
+# after another (1858 s), the longest 1040.8 s, and every ask queued at the tester's one shim
+# lock, so neither a longer wait (d58e7887cc99) nor parallel askers could bring a stage under
+# its budget. A seal is the tester's verdict already read (Law 8: prove, then trust); where
+# there is none standing, the floor says which state it is in and the build that owns the
+# proof runs it. The run cache, its flock, the re-entrancy guard and the bus ask went with the
+# run: each existed only because the floor ran proofs (history keeps them).
 
 
-def _store_dir(store_dir=None) -> str:
-    if store_dir is not None:
-        return str(store_dir)
-    if _STORE_DIR is not None:
-        return str(_STORE_DIR)
-    return os.path.join(str(address.instance_path("codemother", 0)), "machines", "constrain",
-                        "run_cache")
-
-
-def _entry_path(store: str, rel_path: str, fingerprint: str) -> str:
-    return os.path.join(store, hashlib.sha256((rel_path + "\0" + fingerprint).encode("utf-8"))
-                        .hexdigest() + ".json")
-
-
-def _read_entry(path: str, rel_path: str, fingerprint: str):
-    """The persisted state for this key, or None: a missing, malformed, foreign or expired
-    entry is a miss."""
+def _git_names(root: str, args: list) -> list | None:
+    """Repo-relative paths one git command prints, or None when git cannot answer here."""
+    import subprocess
     try:
-        with open(path, encoding="utf-8") as f:
-            entry = json.load(f)
-    except (OSError, ValueError):
+        out = subprocess.run(["git", "-C", root] + args, capture_output=True, text=True,
+                             timeout=20)
+    except (OSError, subprocess.SubprocessError):
         return None
-    if not isinstance(entry, dict) or entry.get("rel_path") != rel_path \
-            or entry.get("fingerprint") != fingerprint \
-            or entry.get("verdict") not in _PERSISTED:
+    if out.returncode != 0:
         return None
-    try:
-        if time.time() - float(entry.get("written_at")) > _TTL_S:
+    return [ln for ln in out.stdout.splitlines() if ln.strip()]
+
+
+def _changed_under(abs_path: str, seal: dict, root: str):
+    """The files under a moved seal that git says changed since it was sealed, or ``None``
+    when git cannot name them (``root`` is not the top of a repository).
+
+    THE FILES ARE THE SEAL'S OWN, never a guess: the import closure it recorded when that
+    closure names this proof (the rule ``sealed_fingerprint_now`` applies), otherwise the
+    component directory the directory recipe hashed. A seal records one digest and no
+    per-file hashes, so the changed set is read from git: commits since the seal's date that
+    touch those files, plus what the working tree holds uncommitted or untracked there, kept
+    to the files the recipe hashes."""
+    top = _git_names(root, ["rev-parse", "--show-toplevel"])
+    if not top or os.path.realpath(top[0]) != os.path.realpath(root):
+        return None
+    rel = os.path.relpath(abs_path, root)
+    closure = (seal.get("evidence") or {}).get("fingerprint_closure")
+    if isinstance(closure, list) and rel in closure:
+        paths, hashed = sorted(set(closure)), set(closure)
+    else:
+        paths, hashed = [os.path.relpath(os.path.dirname(os.path.dirname(abs_path)), root)], None
+    changed = set()
+    since = seal.get("date")
+    if isinstance(since, str) and since:
+        logged = _git_names(root, ["log", "--since=%s" % since, "--name-only", "--format=",
+                                   "--"] + paths)
+        if logged is None:
             return None
-    except (TypeError, ValueError):
+        changed.update(logged)
+    status = _git_names(root, ["status", "--porcelain", "--untracked-files=all", "--"] + paths)
+    if status is None:
         return None
-    return {"verdict": entry["verdict"],
-            "how": "%s — shared from an earlier firing's read of these bytes" % entry.get("how"),
-            "_seconds": 0.0}
+    for line in status:
+        changed.add(line[3:].split(" -> ")[-1].strip().strip('"'))
+    # the directory recipe hashes every *.py under the component and nothing else, so a
+    # seal file or a note changing beside the code is not what moved the fingerprint
+    return sorted(p for p in changed if (p in hashed if hashed is not None else p.endswith(".py")))
 
 
-def _write_entry(path: str, rel_path: str, fingerprint: str, state: dict) -> None:
-    """Persist a read verdict atomically (tmp + os.replace), so a reader never sees half."""
-    if state.get("verdict") not in _PERSISTED:
-        return
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    entry = {"verdict": state["verdict"], "how": state.get("how"),
-             "_seconds": state.get("_seconds"), "written_at": time.time(),
-             "rel_path": rel_path, "fingerprint": fingerprint}
-    tmp = "%s.%d.tmp" % (path, os.getpid())
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(entry, f)
-    os.replace(tmp, path)
+def _read_instrument(rel_path: str, root: str = CAIRN_ROOT) -> dict:
+    """The state ONE discovered instrument is in RIGHT NOW, read from its seal.
 
+    Four states and one absence, every one a sentence from ``standing`` or from git:
 
-def _ask_tester(abs_path: str) -> dict:
-    """The tester's record for one run, asked over the bus (its public interface, RULE 1,
-    ticket 67b78ae59c1d); the run verb runs with sink none and hands the record back. No
-    record raises, with the tester's reason.
+      - ``green``: sealed green and the fingerprint matches the working tree;
+      - ``red``: the standing seal is not green — it was measured and did not pass;
+      - ``moved``: sealed green and the code has moved under it; ``changed`` names the files;
+      - ``never-sealed``: the tester has not spoken about this code;
+      - ``missing``: discovered, then not on disk.
 
-    THE WAIT IS THE STAGE'S BUDGET, imported, never copied (ticket d58e7887cc99). The
-    tester's run verb is handled inside the bus process, and since 4d597cac9f5d the request's
-    timeout bounds that handler. At the old 180 s every proof over three minutes read as
-    unrunnable; measured 2026-11-12, b0e65cf8a77e's floor ran 5 of 55 over 180 s, the longest
-    1040.8 s. The stage runs off codemother's lock (e4714e460e32), so the wait holds no lock.
-    It is read at call time so the one number in ticket.py is the only one."""
-    from cairn.machines.ticket import ticket
-    from cairn.tools.bus_client.bus_client import reach
-    reply = reach("tester").request(
-        sender="constrain", to="tester", verb="run",
-        why="the chart floor reads an instrument verdict",
-        body={"path": abs_path, "caller": "constrain_floor"}, timeout=ticket.STAGE_BUDGET_S)
-    body = (reply or {}).get("body") or {}
-    record = body.get("record")
-    if not isinstance(record, dict):
-        raise RuntimeError(body.get("refused") or "the tester returned no record")
-    return record
+    Only ``green`` is a bound the build can be judged against, and each other state rides out
+    of ``floor_packet`` as an unknown. A state the floor cannot read is never green.
+    """
+    abs_path = os.path.join(root, rel_path)
+    if not os.path.isfile(abs_path):
+        return {"verdict": "missing",
+                "how": "no file at %s — it was discovered and then was not there, so there "
+                       "is no seal to read" % rel_path}
+    from cairn.tools.base.validation import standing
+    try:
+        st = standing(abs_path)
+    except Exception as e:                                   # an unreadable seal, not a green
+        return {"verdict": "unreadable", "how": "the seal on %s could not be read (%s: %s)"
+                % (rel_path, type(e).__name__, e)}
+    seal = st.get("seal")
+    if st.get("proven"):
+        return {"verdict": "green", "how": "read from the standing seal: %s" % st.get("why")}
+    if not isinstance(seal, dict):
+        return {"verdict": "never-sealed", "how": st.get("why")}
+    if seal.get("verdict") != "green":
+        return {"verdict": "red", "how": st.get("why")}
+    changed = _changed_under(abs_path, seal, root)
+    named = ("git names no file changed since the seal" if changed == [] else
+             "git cannot name the changed files here" if changed is None else
+             "changed since the seal: %s" % ", ".join(changed))
+    return {"verdict": "moved", "how": "%s; %s" % (st.get("why"), named), "changed": changed}
 
 
 def discovered_instruments(intent_ref: str, root: str = CAIRN_ROOT, *, tickets_dir=None) -> list:
@@ -425,133 +412,13 @@ def _owned_instruments(tid: str, root: str, tickets_dir, discover) -> list:
     return sorted(out)
 
 
-def _run_instrument(rel_path: str, root: str = CAIRN_ROOT, *, store_dir=None,
-                    asker=None) -> dict:
-    """Run ONE discovered instrument and report the state it is in RIGHT NOW.
-
-    The verdict is the tester's, read and not granted. Its ``run`` bus verb returns the
-    record and PERSISTS NOTHING — measured in its own docstring and in its source, which settles
-    the Law 6 question the chain carried as an unknown: a floor calling it is a reader, not
-    a writer into another component's records, so no ownership gate is crossed here.
-
-    A REPORT THAT COULD NOT RUN SAYS SO, and never defaults to green. That is the second
-    of the three hollow passes this node's ticket names, and the empty set passing
-    trivially is the first — so an instrument is never omitted, only ever reported.
-    """
-    if os.environ.get(_REENTRY):
-        return {"verdict": "not-run", "how": "the floor was already running inside a "
-                "floor — this instrument calls the stage that discovered it, and running "
-                "it here is the unbounded fork the guard exists to stop"}
-    abs_path = os.path.join(root, rel_path)
-    # A MISSING FILE IS UNRUNNABLE, AND SAYING SO IS THE WHOLE POINT OF THE CLAUSE. Without
-    # it the tester still answers — python exits non-zero on a path it cannot open — so the
-    # report reads "red ... run by the tester" for a file that was never run and does not
-    # exist. The verdict is not wrong (it is certainly not green), but the HOW is a record
-    # of truth telling a false story, and a builder reading it goes hunting for a failing
-    # assertion in a file that isn't there. Measured 2026-08-14 while building the teeth,
-    # on a path deleted between discovery and the run — which is the only way to reach it,
-    # since discovery emits what the glob just saw.
-    if not os.path.isfile(abs_path):
-        return {"verdict": "unrunnable",
-                "how": "no file at %s — it was discovered and then was not there, so "
-                       "nothing was run and no verdict was read" % rel_path}
-    from cairn.tools.base.validation import source_fingerprint, standing
-    try:
-        key = (rel_path, source_fingerprint(abs_path))
-    except Exception as e:                                   # unreadable tree, not a green
-        return {"verdict": "unrunnable", "how": "could not fingerprint %s (%s: %s)"
-                % (rel_path, type(e).__name__, e)}
-    if key in _RUN_CACHE:
-        return _RUN_CACHE[key]
-    entry_path = _entry_path(_store_dir(store_dir), rel_path, key[1])
-    shared = _read_entry(entry_path, rel_path, key[1])
-    if shared is not None:
-        _RUN_CACHE[key] = shared
-        return shared
-    # A STANDING SEAL IS THE TESTER'S VERDICT ALREADY READ — Law 8's return on its price:
-    # "composing proven code without re-checking it is the whole return." The seal stands
-    # only while the component's source_fingerprint matches the working tree, so a re-run
-    # would measure the same bytes the seal already measured. Re-running anyway cost the
-    # chain its liveness: measured 2026-09-05/06, every chart whose refs touched the bus
-    # hung here (eleven bus proofs, each a full beat), and no in-scope ticket could be
-    # charted. Anything WITHOUT a standing seal — a red seal, an expired one, a proof never
-    # sealed — is run as before, because there the tester has not spoken about this code.
-    seal = standing(abs_path)
-    if seal.get("proven"):
-        state = {"verdict": "green",
-                 "how": "read from the standing seal (%s) — the source fingerprint matches "
-                        "the working tree, so the tester's recorded verdict IS the state "
-                        "right now (Law 8: proven, then trusted)"
-                        % os.path.relpath(seal["seal"].get("path", "validations/"), root)
-                        if isinstance(seal.get("seal"), dict) else
-                        "read from the standing seal — the source fingerprint matches the "
-                        "working tree, so the tester's recorded verdict IS the state right "
-                        "now (Law 8: proven, then trusted)",
-                 "_seconds": 0.0}
-        _RUN_CACHE[key] = state
-        _write_entry(entry_path, rel_path, key[1], state)
-        return state
-    lock = None
-    try:
-        import fcntl
-        os.makedirs(os.path.dirname(entry_path), exist_ok=True)
-        lock = open(entry_path + ".lock", "a")
-        fcntl.flock(lock, fcntl.LOCK_EX)
-    except ImportError:                                      # no flock here (Windows): unlocked
-        lock = None
-    try:
-        # another firing may have read these bytes while this one waited for the lock
-        shared = _read_entry(entry_path, rel_path, key[1])
-        if shared is not None:
-            _RUN_CACHE[key] = shared
-            return shared
-        state = _ask_once(abs_path, asker)
-        _RUN_CACHE[key] = state
-        _write_entry(entry_path, rel_path, key[1], state)
-        return state
-    finally:
-        if lock is not None:
-            lock.close()
-
-
-def _ask_once(abs_path: str, asker=None) -> dict:
-    """One tester read of ``abs_path``, timed; a failure to read is ``unrunnable``."""
-    os.environ[_REENTRY] = "1"
-    started = time.monotonic()
-    try:
-        # sink="none" — THE FLOOR READS A VERDICT, IT DOES NOT SEAL ONE. A chart stage runs
-        # this proof to report what the component's own tests currently say; a validation
-        # written from inside a preamble would be a seal nobody asked for, landing on a
-        # component this voyage may not even touch. The tester requires the choice by name
-        # (ticket standing-gates-the-newest-link-and-run-proof-names-its-sink), so the
-        # not-sealing is now stated here rather than being the absence of a thought.
-        # ASKED OVER THE BUS, the tester's public interface (RULE 1, ticket 67b78ae59c1d):
-        # the run verb runs with sink none and hands the record back.
-        record = (asker or _ask_tester)(abs_path)
-        if not isinstance(record, dict):
-            state = {"verdict": "unrunnable", "how": "the tester returned no record"}
-        else:
-            state = {"verdict": record.get("verdict"), "how": "run by the tester"}
-    except Exception as e:
-        state = {"verdict": "unrunnable",
-                 "how": "%s: %s" % (type(e).__name__, e)}
-    finally:
-        os.environ.pop(_REENTRY, None)
-    # The duration rides the COST report, never the constraint's text. A constraint whose
-    # text carried a wall time could never be reproduced by the door, so the field could
-    # never earn ``floor`` — the measurement would have destroyed the label it exists to
-    # make honest.
-    state["_seconds"] = round(time.monotonic() - started, 3)
-    return state
-
-
 def instrument_constraints(intent_ref: str, root: str = CAIRN_ROOT) -> tuple:
     """The check-kind constraints and this firing's own cost — the node's whole payoff.
 
     A constraint here says what will REFUSE this build and what state it is in, so the
     builder stops looking those up by hand. It is not a briefing: a floor that listed
-    check names without running them would be the charter prose again, one indirection
-    further out, which is the first hollow pass the ticket names.
+    check names without reading their seals would be the charter prose again, one
+    indirection further out, which is the first hollow pass the ticket names.
 
     THE SOURCE IS THE PROOF PATH, repo-relative, because ``constraint_traces`` resolves a
     source through the berth gate's ref semantics and nothing else. That judge refused
@@ -559,10 +426,10 @@ def instrument_constraints(intent_ref: str, root: str = CAIRN_ROOT) -> tuple:
     wrong root; the spelling is its answer, not this module's.
     """
     instruments = discovered_instruments(intent_ref, root)
-    constraints, seconds = [], 0.0
+    constraints = []
+    started = time.monotonic()
     for rel in instruments:
-        state = _run_instrument(rel, root)
-        seconds += state.get("_seconds", 0.0)
+        state = _read_instrument(rel, root)
         constraints.append({
             "text": "%s judges this build and is %s right now (%s)"
                     % (rel, state["verdict"], state["how"]),
@@ -572,10 +439,9 @@ def instrument_constraints(intent_ref: str, root: str = CAIRN_ROOT) -> tuple:
         })
     cost = {
         "instruments": len(instruments),
-        "seconds": round(seconds, 3),
-        "note": "this firing's own run cost, measured rather than estimated — the "
-                "selection rule's only real bound, and a number that lived in an "
-                "operator's hand until the floor started reporting it",
+        "seconds": round(time.monotonic() - started, 3),
+        "note": "this firing's own cost, measured rather than estimated: seals read, no "
+                "proof run (ticket 5243cf9dc630)",
     }
     return constraints, cost
 
@@ -616,7 +482,7 @@ def floor_packet(intent_ref: str, root: str = CAIRN_ROOT) -> dict:
     checks, cost = instrument_constraints(intent_ref, root)
     constraints += checks
     for c in checks:
-        if c["verdict"] not in ("green", "not-run"):
+        if c["verdict"] != "green":
             unknowns.append(
                 "the instrument %s is %s before this build starts — a constraint that is "
                 "already failing is not a bound this build can be judged against until "
@@ -850,8 +716,8 @@ def inspect_constrain(packet: dict, root: str = CAIRN_ROOT) -> list:
             # question for Akien. This kind is not: ``check`` was minted by this build, so
             # the rule about what earns it belongs at the door this machine owns. The
             # comparison is a == against a deterministic re-derivation, no oracle near it,
-            # and it costs nothing extra — discovery is the glob half, and the runs the
-            # door already pays for are served from the cache.
+            # and it costs nothing extra — discovery is the glob half, and the floor
+            # reads seals rather than running proofs.
             #
             # ABSENT, NOT PASSED, when the packet has no readable intent_ref: there is
             # nothing to derive the allowed set from, and the entry above has already

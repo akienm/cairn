@@ -140,7 +140,8 @@ def run_proof_refuses_a_seal_over_stale_crlf_bytes():
     try:
         try:
             TesterDevice().run_proof(repo / PROOF, sink="validations", caller="cairn test",
-                                     timeout=60, isolation="none")
+                                     timeout=60, isolation="none",
+                                     scratch_sweep={"skipped": "proof fixture"})
         except UnnormalizedClosure as refusal:
             assert CODE in str(refusal) and CODE in refusal.files, (
                 f"the refusal does not name {CODE}: {refusal}")

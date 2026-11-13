@@ -486,6 +486,12 @@ def carry_ladder(record: dict, proof_path, ladder: dict, *, ruling_id: str | Non
     proof = Path(proof_path).resolve()
     now_hash = proof_sha256(proof)
     evidence = dict(record.get("evidence") or {})
+    if evidence.get("fingerprint_closure"):   # the same refusal run_proof makes (8cc2a5752b6a)
+        from cairn.devices.tester.working_bytes import UnnormalizedClosure, unnormalized
+        from cairn.tools.validation_store import validation_store as _vs
+        stale = unnormalized(evidence["fingerprint_closure"], _vs._REPO_ROOT)
+        if stale:
+            raise UnnormalizedClosure(stale)
     if record.get("verdict") == GREEN:
         if ruling_id:
             evidence["reseal_ruling"] = ruling_id
@@ -715,6 +721,18 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
                 "trouble": identity, "stderr_tail": evidence.get("stderr_tail"),
                 "why": f"timed out after {budget}s under isolation {iso!r}; nothing was written"}
 
+    # ── A SEAL OVER BYTES NO CHECKOUT WRITES IS REFUSED, green or red (ticket 8cc2a5752b6a) ──
+    # Either verdict would land a fingerprint of working bytes git calls unchanged but no commit
+    # carries, which no other box reproduces. Nothing is written; the refusal names the files.
+    _closure = evidence.get("fingerprint_closure")
+    if _closure:
+        from cairn.devices.tester.working_bytes import refusal_text, unnormalized
+        _top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
+                              capture_output=True, text=True)
+        _stale = unnormalized(_closure, Path(_top.stdout.strip())) if _top.returncode == 0 else []
+        if _stale:
+            raise ResealRefused(f"{rel}: " + refusal_text(_stale))
+
     if record["verdict"] == GREEN:
         # ── RUNG 2 CLOSES (or rung 4 does, when a ruling rode along) ──────────────────
         if ruling_id:
@@ -927,7 +945,12 @@ def dirty_against_index(proof_rel: str, closure: list[str] | None, base: Path) -
     untracked = subprocess.run(["git", "-C", str(base), "ls-files", "--others",
                                 "--exclude-standard", "--", *files],
                                capture_output=True, text=True).stdout.split()
-    return sorted(dirty + untracked)
+    # AND THE BYTES GIT CALLS UNCHANGED BUT NO CHECKOUT WRITES (ticket 8cc2a5752b6a): git diff
+    # cleans before it compares, so a working copy left CRLF by a checkout taken before an eol
+    # pin reads clean here, and its seal would fingerprint bytes no commit carries.
+    from cairn.devices.tester.working_bytes import unnormalized
+    stale = unnormalized(files, base)
+    return sorted(set(dirty + untracked + stale))
 
 
 def _posix_rel(path, base) -> str:

@@ -869,6 +869,16 @@ class TesterDevice(BaseDevice):
         # A TIMEOUT IS NEVER PERSISTED, under any sink (ticket 3dfceaa272ec): the standing seal
         # stays byte-identical, so its source_fingerprint goes on saying whether it still
         # describes this code. The run is still counted, and still emitted below.
+        # A SEAL OVER BYTES NO CHECKOUT WRITES IS REFUSED (ticket 8cc2a5752b6a): a closure file
+        # git calls unchanged whose raw bytes are not what a checkout of its index blob writes
+        # today (a CRLF copy left by a checkout taken before an eol pin) would land a fingerprint
+        # no other box reproduces. Nothing persists; the refusal names the files.
+        if sink == "validations" and verdict != TIMEOUT and evidence.get("fingerprint_closure"):
+            from cairn.devices.tester.working_bytes import UnnormalizedClosure, unnormalized
+            from cairn.tools.validation_store import validation_store as _vs
+            stale = unnormalized(evidence["fingerprint_closure"], _vs._REPO_ROOT)
+            if stale:
+                raise UnnormalizedClosure(stale)
         if sink == "validations" and verdict != TIMEOUT:
             # THROUGH THE DOOR, and only through it. persist_validation decides what lands
             # and announces a changed verdict before it does; nothing here writes bytes, which

@@ -60,6 +60,7 @@ from collections import Counter
 from pathlib import Path
 
 from cairn.devices.tester.device import GREEN, TIMEOUT, SealUnavailable, TesterDevice
+from cairn.devices.tester.working_bytes import UnnormalizedClosure
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.tools.validation_store.validation_store import (
@@ -611,6 +612,13 @@ def main(argv: list[str] | None = None) -> int:
                                       scratch_sweep=sweep_scratch() if sink == "validations" else None)
             if ladder and record["verdict"] != TIMEOUT:
                 record = carry_ladder(record, proof, ladder, ruling_id=args.ruling)
+        except UnnormalizedClosure as refusal:
+            # A SEAL OVER BYTES NO CHECKOUT WRITES (ticket 8cc2a5752b6a): the proof ran, nothing
+            # persisted, and SEAL REFUSED below names the files and the one-time fix.
+            print(f"  REFUSED {rel}  (its closure holds working bytes no checkout of the index "
+                  f"writes: {', '.join(refusal.files[:3])}{' …' if len(refusal.files) > 3 else ''})")
+            refused.append((proof, str(refusal)))
+            continue
         except SealUnavailable as refusal:
             # THE SEAL COULD NOT BE BUILT, SO THE PROOF NEVER RAN (67af8b743a63): nothing was
             # measured and nothing persisted. It joins the refused lane, the batch continues.

@@ -16,7 +16,10 @@ nothing here imports cc, the librarian or the web server (RULE 1):
 
 THE SAFE DIRECTION. A reading that sees activity where there was none only delays sleep; one
 that misses activity sleeps on Akien mid-work, which is the falsifier. So every doubt leans to
-activity: a source that cannot be read is named ``unread`` and holds sleep (never silence), a
+activity: a source that cannot be read is named ``unread`` and holds sleep (never silence) —
+except at the clock, sleep's base trigger (outline 5.3.3.4, ticket 4de7baf7e255): measurement
+overrides the clock only when it can be taken, so with a source unread the 23:00 hour opens
+sleep once a night instead of never. The rest leans as before: a
 gap in what was scanned is filled with the later of the two possible stamps, and an origin-less
 cli entry counts as a hand.
 
@@ -39,6 +42,13 @@ from cairn.devices.cairn.machines.sleep_cycle import token
 # A parameter of every decision below, never read as a constant inside one.
 IDLE_THRESHOLD_S = 3 * 3600
 IDLE_THRESHOLD_PROVENANCE = "Akien 2026-08-24, ticket 9b6b392ebcfe: three hours idle"
+
+# The clock is sleep's BASE trigger; measured interaction overrides it (outline 5.3.3.4, ticket
+# 4de7baf7e255). Read as: every source read means measurement decides, both ways; any source
+# unread means interaction cannot be told, so the clock decides. The hour is the box's local time
+# unless a tz is passed. A parameter of every decision below, like the threshold.
+CLOCK_HOUR = 23
+CLOCK_PROVENANCE = "outline 5.3.3.4: sleep's base trigger is the clock (2300), measurement overrides it"
 
 SOURCES = ("cc", "command_line", "web_server", "librarian")
 TRANSCRIPTS = Path.home() / ".claude" / "projects"
@@ -172,10 +182,18 @@ def pulse_path(roots=None) -> Path:
     return token.cycle_dir(roots) / "pulse.json"
 
 
+def clock_mark(now: datetime, clock_hour: int = CLOCK_HOUR, tz=None) -> datetime:
+    """That local day's clock_hour:00 — the night's anchor for one sleep per clock."""
+    local = now.astimezone(tz) if tz is not None else now.astimezone()
+    return local.replace(hour=clock_hour, minute=0, second=0, microsecond=0)
+
+
 def decide(sources: dict, last_activity: datetime, *, now: datetime, threshold_s: float,
-           away: dict | None, cycle: dict | None) -> tuple[bool, str]:
-    """Due when quiet past the threshold, or inside an away window — and no cycle is open, and
-    none was opened since the last activity (or the window's start): one sleep per quiet spell."""
+           away: dict | None, cycle: dict | None, clock_hour: int = CLOCK_HOUR,
+           tz=None) -> tuple[bool, str]:
+    """Due inside an away window; else, with every source read, when quiet past the threshold;
+    else (interaction cannot be told) inside the clock hour, once per night. Never while a cycle
+    is open, and never twice in one quiet spell (or window, or night)."""
     in_window = bool(away) and _parse(away["start"]) <= now < _parse(away["end"])
     if cycle is not None and cycle.get("closed_at") is None:
         return False, f"cycle {cycle['cycle_id']} is still open"
@@ -186,7 +204,14 @@ def decide(sources: dict, last_activity: datetime, *, now: datetime, threshold_s
         return True, f"inside the away window {away['start']} .. {away['end']}"
     unread = sorted(n for n, s in sources.items() if s["unread"])
     if unread:
-        return False, f"unread source(s) {unread} hold sleep: an unread source is never silence"
+        mark = clock_mark(now, clock_hour, tz)
+        if not (mark <= now < mark + timedelta(hours=1)):
+            return False, (f"unread source(s) {unread} hold sleep: an unread source is never "
+                           f"silence, and it is not the {clock_hour:02d}:00 clock")
+        if cycle is not None and _parse(cycle["opened_at"]) >= mark:
+            return False, f"cycle {cycle['cycle_id']} already ran since the clock at {_iso(mark)}"
+        return True, (f"the clock: {clock_hour:02d}:00 local is sleep's base trigger (outline "
+                      f"5.3.3.4), and unread source(s) {unread} cannot tell interaction to override it")
     quiet = (now - last_activity).total_seconds()
     if quiet < threshold_s:
         return False, f"active: quiet {int(quiet)}s of {int(threshold_s)}s"
@@ -196,13 +221,14 @@ def decide(sources: dict, last_activity: datetime, *, now: datetime, threshold_s
 def _ask_mint() -> dict:
     from cairn.tools.bus_client import reach
     reply = reach("cairn").request(sender="cairn", to="cairn", verb="sleep-cycle",
-                                   why="idle trigger: the system has been quiet past the threshold",
+                                   why="sleep trigger: quiet past the threshold, an away window, or the clock",
                                    body={"act": "mint"})
     return reply["body"]
 
 
 def pulse(*, roots=None, now: datetime | None = None, threshold_s: float = IDLE_THRESHOLD_S,
-          transcripts: Path | None = None, pts: Path | None = None, ask=None) -> dict:
+          transcripts: Path | None = None, pts: Path | None = None, ask=None,
+          clock_hour: int = CLOCK_HOUR, tz=None) -> dict:
     """Read, decide, mint when due, and write the one decision record to pulse.json."""
     now = now or datetime.now(timezone.utc)
     prior = json.loads(pulse_path(roots).read_text()) if pulse_path(roots).is_file() else {}
@@ -217,7 +243,8 @@ def pulse(*, roots=None, now: datetime | None = None, threshold_s: float = IDLE_
     # later bound, so a gap in what was scanned only ever delays sleep.
     last_activity = _later(seen, carried) or floor
     due, why = decide(sources, last_activity, now=now, threshold_s=threshold_s,
-                      away=read_away(roots), cycle=token.standing(roots))
+                      away=read_away(roots), cycle=token.standing(roots),
+                      clock_hour=clock_hour, tz=tz)
     record = {"at": _iso(now), "due": due, "why": why, "threshold_s": threshold_s,
               "last_activity": _iso(last_activity), "sources": sources, "minted": None}
     if due:

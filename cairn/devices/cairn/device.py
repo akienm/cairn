@@ -68,7 +68,9 @@ class CairnDevice(BaseDevice):
     def settings(self) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import idle
         return {"idle_threshold_s": idle.IDLE_THRESHOLD_S,
-                "idle_threshold_provenance": idle.IDLE_THRESHOLD_PROVENANCE}
+                "idle_threshold_provenance": idle.IDLE_THRESHOLD_PROVENANCE,
+                "sleep_clock": f"{idle.CLOCK_HOUR:02d}:00",
+                "sleep_clock_provenance": idle.CLOCK_PROVENANCE}
 
     def declared_verbs(self) -> dict:
         """``sleep-token`` is a device's answer to the hand (ticket bf146e9e3967, D2(d));
@@ -125,18 +127,17 @@ class CairnDevice(BaseDevice):
             # Loud, not silent (Law 7): a stale or out-of-turn answer is the one thing a
             # rotation can get wrong without anyone noticing.
             self.emit("sleep_token_refused", pointer=str(result.get("device")), values=dict(result))
-        if result.get("closed"):
-            result["logs"] = self._forget_logs()
         return result
 
     def _handle_sleep_cycle(self, envelope: dict) -> dict:
         from cairn.devices.cairn.machines.sleep_cycle import token
         act = (envelope.get("body") or {}).get("act")
         if act == "mint":
+            # Cairn runs its own sleep first, then hands the token round the rack (outline
+            # 5.3.3.1, ticket 4de7baf7e255): the sweep precedes the first hand.
+            logs = self._forget_logs()
             cycle = token.mint(self._bus, roots=self._roots, roster_root=self._roster_root)
-            if cycle.get("closed_at") is None:
-                return {"cycle": cycle}
-            return {"cycle": cycle, "logs": self._forget_logs()}
+            return {"cycle": cycle, "logs": logs}
         if act == "show":
             return {"cycle": token.standing(self._roots)}
         return {"accepted": False, "reason": f"sleep-cycle takes act mint|show, got {act!r}"}
@@ -144,8 +145,8 @@ class CairnDevice(BaseDevice):
     def _forget_logs(self) -> dict:
         """The cairn device's own sleep work: forget the logs tree past 30 days (ticket
         ff881672ac57; Akien, open-9d9c0b1ac3a9: "cairn device's sleep cycle should be where that
-        cleanup happens"). Run when a rotation this device runs CLOSES — every device on the
-        roster has done its own maintenance, or there was none to visit — so the hub sweeps last.
+        cleanup happens"). Run when this device MINTS a rotation, before token.mint hands to the
+        first device: Cairn sleeps first, then hands on (outline 5.3.3.1, ticket 4de7baf7e255).
         The counts ride the verb's result and land on this device's own trail."""
         from cairn.devices.cairn.logs_sweep import sweep_logs
         counts = sweep_logs(older_than_days=30, roots=self._roots)

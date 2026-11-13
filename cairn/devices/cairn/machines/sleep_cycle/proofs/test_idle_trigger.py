@@ -206,7 +206,11 @@ def tooth_h_the_threshold_is_a_parameter():
 
 def tooth_i_the_entry_point_runs_once_and_records():
     home = Path(scratch_dir("cairn-proof-idle-trigger-home-"))
-    env = {**os.environ, "HOME": str(home), "PYTHONPATH": str(_REPO_ROOT)}
+    # The pulse runs the real clock, and at 23:00 local the clock is sleep's base trigger
+    # (ticket 4de7baf7e255), so the subprocess gets a zone whose local hour is 12 now: POSIX
+    # "AAA<h>" is UTC-h, so h = utc_hour - 12. A harness pin; no assertion changes.
+    env = {**os.environ, "HOME": str(home), "PYTHONPATH": str(_REPO_ROOT),
+           "TZ": f"AAA{datetime.now(timezone.utc).hour - 12:+d}"}
     p = subprocess.run([sys.executable, "-m", "cairn.devices.cairn", "pulse"], cwd=_REPO_ROOT,
                        env=env, capture_output=True, text=True, timeout=60)
     assert p.returncode == 0, (p.returncode, p.stdout, p.stderr)

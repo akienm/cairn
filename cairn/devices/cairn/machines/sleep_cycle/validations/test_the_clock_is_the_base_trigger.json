@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_the_clock_is_the_base_trigger.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T07:42:51",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  1 test_an_unread_pulse_sleeps_once_at_the_clock\n  PASS  2 test_an_unread_pulse_holds_away_from_the_clock\n  PASS  3 test_measurement_overrides_the_clock_both_ways\n  PASS  4 test_cairn_sleeps_before_the_first_hand_and_not_at_the_close\n  PASS  5 test_the_clock_is_a_parameter_with_provenance",
+      "stderr_tail": "",
+      "teeth_green": [
+        "1 test_an_unread_pulse_sleeps_once_at_the_clock",
+        "2 test_an_unread_pulse_holds_away_from_the_clock",
+        "3 test_measurement_overrides_the_clock_both_ways",
+        "4 test_cairn_sleeps_before_the_first_hand_and_not_at_the_close",
+        "5 test_the_clock_is_a_parameter_with_provenance"
+      ],
+      "teeth_red": [],
+      "test": "test-13a51ba47082",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "464808d9cdfd2f82bdb4680cf8fc3543025fc04499a6261d4bda3def9e1cf1dc",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-13a51ba47082",
+      "source_fingerprint": "0d0f35ad5ad6d277caa817756a313ccb7faacffecf78ea69206773fa0b4939e6",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/sleep_cycle/__init__.py",
+        "cairn/devices/cairn/machines/sleep_cycle/idle.py",
+        "cairn/devices/cairn/machines/sleep_cycle/proofs/test_the_clock_is_the_base_trigger.py",
+        "cairn/devices/cairn/machines/sleep_cycle/token.py"
+      ],
+      "reached": {
+        "cairn/devices/cairn": "2651275156ea90f771634511dd63ba5a4462396897556c1e0825bbbad0290860",
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
+        "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
+        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-396739-c96sb3o0/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 1855389,
+          "disk_bytes": 2224128,
+          "entries": 335,
+          "builds": 1,
+          "reuses": 1
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

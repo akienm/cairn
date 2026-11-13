@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_cairn_page_carries_the_heartbeat.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-10T03:50:38",
+    "date": "2026-11-13T07:43:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "the_charter_says_it_carries_the_heartbeat"
       ],
       "teeth_red": [],
-      "test": "test-08b0a8e4a7e8",
+      "test": "test-f74d5a1b788c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,21 +32,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-08b0a8e4a7e8",
-      "source_fingerprint": "9236387c7fe2ad2d29bfff2e82b6d8adaed2034ba76e52490798839a4fe8c7d0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f74d5a1b788c",
+      "source_fingerprint": "590f293689c5dcc910e033271ba25e7e108ec3b524e4602363589e0a662bb4e2",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/device.py",
@@ -56,141 +56,35 @@
       ],
       "reached": {
         "cairn/devices/cairn/machines/ground_loop": "b81ec2d893a4dda25b94a53830b7b23badf7b77c526508b7afaea8d1f1f40b4d",
-        "cairn/devices/cairn/machines/sleep_cycle": "b876f645be48b5f1f80639247260ebec97570603a9a004f43965157334f5b99d",
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/devices/trouble": "8982950753863bd8317cdd1254135a5ba1438b16e99e652236fede66ae8b2762",
-        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/tools/base": "2b54e54b6570e4f20f63c14009f8659092569ac66a0c3a516e2cae716a0c50b3",
+        "cairn/devices/cairn/machines/sleep_cycle": "54e9bd2ce55a2cf742339fe62d19aa2bf818f9b6eb375fe33a3a9b659e2850f4",
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/devices/trouble": "8ec40e40ed386cf5056a5f064655632f49117e5bb7aa0da2c08cc5f2d91821d9",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
         "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
-        "cairn/tools/system_word": "a9b103ad14df6193e3ed6dd7c00c4e7c8a72516d1bb6fca45e4b6d12163d8225"
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-396991-o1t9vefx/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 3,
           "paths": [
             "devices/cairn/0/last_known.json",
-            "logs/cairn/0/20261110.105036.692048.CairnDevice.beat_answered.json",
-            "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-08b0a8e4a7e8/stderr.txt",
-            "logs/tester/0/runs/test-08b0a8e4a7e8/stdout.txt"
+            "logs/cairn/0/20261113.144314.016284.CairnDevice.beat_answered.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "229ee25ff6f0": {
-          "cairn/devices/cairn/device.py": [
-            "the_beat_verb_answers_the_same_data",
-            "the_cairn_page_carries_the_heartbeat",
-            "the_pane_renders_what_the_record_and_the_lock_say"
-          ],
-          "cairn/devices/cairn/intention+why.json": [
-            "the_charter_says_it_carries_the_heartbeat"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/intention+why.json": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "bin/cmd/probescan": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py": [
-            "nothing_names_the_ground_loop_faces",
-            "cairn/devices/cairn/machines/sleep_cycle/proofs/test_token_rotation.py::test_the_token_rotates_through_the_roster_and_returns_to_cairn"
-          ],
-          "cairn/devices/cairn/machines/ground_loop/proofs/test_ground_loop.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py": [
-            "cairn/tools/bus_client/proofs/test_the_wiring_needs_no_loop.py::reach of the heartbeat's own shim answers a request"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/proofs/test_device_logs_unwired.py": [
-            "nothing_names_the_ground_loop_faces",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::(population: 70 components, both derivations agreeing)",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BaseDevice must carry the emit surface structurally",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice derives 'bus' but its file lives in /tmp/cairn-hollow-scratch.4026531836-1866608-bwyn6t8g/worktree/cairn/devices/cairn/machines/bus",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::BusDevice must subclass BaseDevice in cairn/devices/cairn/machines/bus/bus.py; bases ['BaseDevice']",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::EXACTLY one, never 'at least one': this world holds the single line just written, and the live berth holds however many. A >= bound is met by BOTH, which is precisely how the inference_domain probe's tooth passed while reading the wrong trail. Got 1: [{'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678864+00:00', 'us': '678864', 'values': {}}]",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::THIS PROOF WROTE INTO THE LIVE LOGS TREE. The whole change under test is 'a device writes without being asked', so a proof that forgets a temp roots table seeds the instrument it is about to read. Diff: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::a class defined outside the rungs must not be given a component name",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::a device that never emitted has no records",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::a silenced device holds; got held",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::an already-written emission file is never rewritten",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::an overridden receiver receives",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::an unwired device's trail directory must exist at /tmp/tmpfkri6nk8/logs/bus/0 after the process that wrote it has exited — this is the whole ticket",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and it is THIS world's line, not one borrowed from the live berth: {'gate': 'the_only_line_in_this_world', 'home': 'sent', 'pointer': 'x', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678864+00:00', 'us': '678864', 'values': {}}",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and it lands under its own derived name",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and no records — never a guess at somebody else's trail: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and reading them created nothing: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and the default trail is NOT also written — an override replaces, it does not tee",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and the record is retrievable, not dropped",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::and they are the records this device just emitted, in order: [{'gate': 'gate', 'home': 'sent', 'pointer': 'p0', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678192+00:00', 'us': '678192', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p1', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678320+00:00', 'us': '678320', 'values': {}}, {'gate': 'gate', 'home': 'sent', 'pointer': 'p2', 'source': 'Named', 'ts': '2026-11-10T10:42:42.678397+00:00', 'us': '678397', 'values': {}}]",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::exactly one emission file, got 1",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::log_path resolves instance/logs/<device>/<instance>; got /nowhere-this-proof-never-touches-disk/logs/some_device/3",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::neither the device nor the log may create anything before the first write",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::no rung, no address",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::one emission, one file",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the address itself must sit inside the moved world: /tmp/tmpfev78euf/logs/bus/0",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the census must actually see the tree — HollowScan's lesson; found 70",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the child process must emit cleanly; stderr:",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the component walk hit unreadable entries: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the crossing and its home must survive the process: {'gate': 'subscribe', 'home': 'sent', 'pointer': 'ticket/nobody-wired-me', 'source': 'Dev', 'ts': '2026-11-10T10:42:42.117762+00:00', 'us': '117762', 'values': {'pid': 'child'}}",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the instance segment is never optional — a singleton is 0, not an omission",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the logs tree and a device's state space must be different addresses — the sweep deletes one of them wholesale",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the name resolves without touching disk",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the record read back must be the one the dead process wrote, byte for byte",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the records door must return what the directory the trail door NAMES holds — 3 records against 3 files at /tmp/tmpail3in9v/logs/bus/0. Any difference means the two doors are describing two trails, which is the whole defect",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the same class NOT silenced must write — else the sentinel proves nothing",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::the string derivation and the tree walk must name every component identically; 0 disagree: []",
-            "cairn/tools/base/proofs/test_device_logs_unwired.py::two emissions, two files"
-          ],
-          "cairn/tools/base/proofs/test_base_reaches_no_device.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/address.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/device.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/discovered.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/probes/device_claims_match_shims.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/devices/cc/proofs/test_cc_proofs_reach_no_other_device.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/base/intention+why.json": [
-            "nothing_names_the_ground_loop_faces"
-          ],
-          "cairn/tools/rack/intention+why.json": [
-            "nothing_names_the_ground_loop_faces"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "229ee25ff6f0": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "b9f524323ddc8bbe31620729606e18b0f06fc6e0",
-          "anchor_first_build": "c9e7ce6b23fc8b8880bc3215337757d7235407d0",
-          "commit": "45033f9dd6bdd4684a9f4fb9261d5a87788b108a"
+          "measured": true,
+          "bytes": 1856961,
+          "disk_bytes": 2236416,
+          "entries": 340,
+          "builds": 1,
+          "reuses": 1
         }
       }
     },

@@ -119,13 +119,28 @@ _cairn_venv_python() {
   if [[ ! -x "$d/bin/python3" && -x "$d/Scripts/python.exe" ]]; then echo "$d/Scripts/python.exe"; else echo "$d/bin/python3"; fi
 }
 
+# The HOST interpreter that builds the venv. `python3` is the name on POSIX, but on Windows
+# (measured 2026-11-13, a fresh Win11 box) it resolves to the Microsoft Store alias stub in
+# WindowsApps, which prints "Python was not found" and exits 49 — and the python.org/winget
+# install ships python.exe and py.exe, never python3.exe. So a name is accepted only if it
+# RUNS, first that does wins: python3 (every POSIX host, unchanged), then python, then py.
+_cairn_host_python() {
+  local c
+  for c in python3 python py; do
+    if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info[0] == 3 else 1)' >/dev/null 2>&1; then
+      echo "$c"; return 0
+    fi
+  done
+  return 1
+}
+
 cairn_python() {
   local vpy
   vpy="$(cairn_venv_dir)/bin/python3"
   if [[ -x "$vpy" ]]; then echo "$vpy"; return; fi
   # Windows (Git Bash): the venv keeps its interpreter in Scripts/ (bin/cairn knows the same).
   vpy="$(cairn_venv_dir)/Scripts/python.exe"
-  if [[ -x "$vpy" ]]; then echo "$vpy"; else echo "python3"; fi
+  if [[ -x "$vpy" ]]; then echo "$vpy"; else _cairn_host_python || echo "python3"; fi
 }
 
 # The stamp gates only the EXPENSIVE half (a pip install costs seconds). It is not itself
@@ -134,7 +149,7 @@ cairn_python() {
 # a REBUILD is owed, and a real import decides whether the floor is actually there.
 _cairn_stamp_want() {
   local py_version
-  py_version="$(python3 -V 2>&1)"
+  py_version="$("$(_cairn_host_python || echo python3)" -V 2>&1)"
   # Repo path is in the stamp because the editable install points AT it: the same venv
   # against a moved checkout is stale even with an identical pyproject.
   printf '%s\n%s\n%s\n' \
@@ -156,8 +171,8 @@ cairn_bootstrap_verify() {
   vpy="$(_cairn_venv_python)"
   _cairn_boot_log "verify: begin — venv=$venv root=$CAIRN_REPO_ROOT"
 
-  if ! command -v python3 >/dev/null 2>&1; then
-    CAIRN_BOOTSTRAP_FINDINGS+=("NO PYTHON3 ON PATH — nothing below can be measured. PATH=$PATH")
+  if ! _cairn_host_python >/dev/null; then
+    CAIRN_BOOTSTRAP_FINDINGS+=("NO RUNNABLE PYTHON 3 ON PATH (tried python3, python, py) — nothing below can be measured. PATH=$PATH")
     _cairn_boot_log "verify: FAIL no-python3 — PATH=$PATH"
     return 1
   fi
@@ -214,8 +229,9 @@ cairn_bootstrap_apply() {
   # not survive. Two applies in a row for the same reason is a repair that is not repairing.
   _cairn_boot_log "apply: begin — the floor was not up"
 
-  if ! command -v python3 >/dev/null 2>&1; then
-    CAIRN_BOOTSTRAP_FINDINGS+=("CANNOT REPAIR — no python3 on PATH to build a venv with. This is below Cairn's floor; it needs a host fix (apt install python3) before anything here can run.")
+  local hpy
+  if ! hpy="$(_cairn_host_python)"; then
+    CAIRN_BOOTSTRAP_FINDINGS+=("CANNOT REPAIR — no runnable python 3 on PATH (tried python3, python, py) to build a venv with. This is below Cairn's floor; it needs a host fix (apt install python3; on Windows: winget install Python.Python.3.14) before anything here can run.")
     return 1
   fi
 
@@ -243,7 +259,7 @@ cairn_bootstrap_apply() {
     # exist yet, which is precisely the box this tier exists to serve, so the seam makes
     # its own parent rather than reporting a failure it could have prevented.
     mkdir -p "$(dirname "$venv")" 2>/dev/null
-    out="$(python3 -m venv ${rebuild[@]+"${rebuild[@]}"} "$venv" 2>&1)"; rc=$?
+    out="$("$hpy" -m venv ${rebuild[@]+"${rebuild[@]}"} "$venv" 2>&1)"; rc=$?
     _cairn_boot_log "apply: step create-venv \`python3 -m venv $venv\` -> rc=$rc out=${out//$'\n'/ | }"
     # Debian/Ubuntu ship python3 WITHOUT ensurepip; it is the python3-venv package. This
     # branch fires on the measured output naming ensurepip, never on a guess, and only
@@ -258,7 +274,7 @@ cairn_bootstrap_apply() {
       fi
       _cairn_boot_log "apply: step apt-python3-venv -> rc=$apt_rc out=$(tail -n 3 <<<"$apt_out" | tr '\n' '|')"
       if [[ $apt_rc -eq 0 ]]; then
-        out="$(python3 -m venv --clear "$venv" 2>&1)"; rc=$?
+        out="$("$hpy" -m venv --clear "$venv" 2>&1)"; rc=$?
         _cairn_boot_log "apply: step create-venv-retry -> rc=$rc out=${out//$'\n'/ | }"
       else
         CAIRN_BOOTSTRAP_FINDINGS+=("PYTHON3-VENV NOT INSTALLABLE — the venv create reported ensurepip missing, and \`sudo apt-get install -y python3-venv\` exited $apt_rc: $(tail -n 3 <<<"$apt_out" | tr '\n' '|'). sudo needs a password this launch does not hold, or apt is offline. Repair: sudo apt-get install -y python3-venv, then cairn_bootstrap_apply.")
@@ -312,10 +328,11 @@ cairn_bootstrap_report() {
 
   # JSON through python3's own encoder — hand-rolled escaping in bash is how a report
   # becomes unparseable at the exact moment someone needs it.
-  if command -v python3 >/dev/null 2>&1; then
+  local rpy
+  if rpy="$(_cairn_host_python)"; then
     CAIRN_RPT_VENV="$venv" CAIRN_RPT_ROOT="$CAIRN_REPO_ROOT" \
     CAIRN_RPT_FINDINGS="$(printf '%s\n' ${CAIRN_BOOTSTRAP_FINDINGS+"${CAIRN_BOOTSTRAP_FINDINGS[@]}"})" \
-    python3 -c '
+    "$rpy" -c '
 import json, os, sys, datetime
 findings = [f for f in os.environ.get("CAIRN_RPT_FINDINGS", "").split("\n") if f.strip()]
 json.dump({

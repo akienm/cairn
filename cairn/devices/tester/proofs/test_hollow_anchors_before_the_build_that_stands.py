@@ -44,6 +44,10 @@ PROVES = {
         "4": "test_the_reading_and_its_seal_carry_the_anchor_rule_and_both_candidates",
         "5": "test_the_live_anchors_of_68f5_and_c691_are_their_build_parents",
     },
+    "c8e421aac06e": {
+        "1": "test_off_the_charting_box_the_fixture_anchors_both_tickets",
+        "2": "test_a_berth_that_moved_from_the_fixture_reds",
+    },
 }
 
 FIXTURE = "f1x7a4c40001"
@@ -61,6 +65,30 @@ def test_the_built_value_is_two():
         return importlib.import_module("subject").VALUE == 2
     except Exception:
         return False
+
+def test_off_the_charting_box_the_fixture_anchors_both_tickets():
+    """c8e421aac06e clause 1: with a berth store that holds neither ticket (the shape of every
+    box but the one that charted them), the anchors still land on edb4e137^ and 448601ca^."""
+    empty = scratch_dir("testing-c8e421aac06e-empty-")
+    _live_anchors(berths_root=empty)
+
+
+def test_a_berth_that_moved_from_the_fixture_reds():
+    """c8e421aac06e clause 2: where a decompose berth claims 68f563403c8f with a writes_to that
+    differs from the fixture, the live-equality check reds, naming the ticket."""
+    berths = scratch_dir("testing-c8e421aac06e-moved-")
+    berth = berths / "0" / "packets" / "decompose-20260906T111005-c8e421aac06e.json"
+    berth.parent.mkdir(parents=True)
+    berth.write_text(json.dumps({"ticket": "68f563403c8f", "stage": "decompose",
+                                 "sub_problems": [{"what": "moved", "kind": "build",
+                                                   "writes_to": ["skills/sail/reflection.py"]}]}))
+    try:
+        _live_anchors(berths_root=berths)
+    except AssertionError as e:
+        assert "68f563403c8f" in str(e) and "moved from the fixture" in str(e), str(e)
+    else:
+        raise AssertionError("a berth whose writes_to differs from the fixture read green")
+
 
 if __name__ == "__main__":
     ok = test_the_built_value_is_two()
@@ -285,6 +313,12 @@ def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
     Dell sealed green. The lists below are ``hollow.writes_to`` read on akiendelllinux on
     2026-11-13 from the berths named. On a box that holds a berth, the live read must still
     equal the fixture, so the fixture cannot drift from the berth unnoticed."""
+    _live_anchors()
+
+
+def _live_anchors(berths_root=None) -> None:
+    """The anchor assertions over the live repo, reading each list from the fixture; where
+    ``hollow.writes_to`` answers under ``berths_root``, it must equal the fixture."""
     build_anchor = getattr(hollow, "build_anchor", None)
     assert build_anchor is not None, "hollow.build_anchor does not exist"
     roots = hollow._roots()
@@ -294,7 +328,7 @@ def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
         ticket = json.loads(hollow._ticket_path(tid).read_text(encoding="utf-8"))
         measured = _BERTH_WRITES_TO[tid]["writes_to"]
         try:
-            live = hollow.writes_to(ticket)
+            live = hollow.writes_to(ticket, berths_root=berths_root)
         except hollow.HollowUnmeasurable:
             live = None                      # this box never charted it: the fixture stands in
         assert live is None or live == measured, (
@@ -304,6 +338,30 @@ def test_the_live_anchors_of_68f5_and_c691_are_their_build_parents():
         parent = _git(_REPO_ROOT, "rev-parse", f"{build}^").stdout.strip()
         assert a["commit"] == parent, (tid, a)
         assert a["anchor_rule"] in rules[tid], (tid, a)
+
+
+def test_off_the_charting_box_the_fixture_anchors_both_tickets():
+    """c8e421aac06e clause 1: with a berth store that holds neither ticket (the shape of every
+    box but the one that charted them), the anchors still land on edb4e137^ and 448601ca^."""
+    empty = scratch_dir("testing-c8e421aac06e-empty-")
+    _live_anchors(berths_root=empty)
+
+
+def test_a_berth_that_moved_from_the_fixture_reds():
+    """c8e421aac06e clause 2: where a decompose berth claims 68f563403c8f with a writes_to that
+    differs from the fixture, the live-equality check reds, naming the ticket."""
+    berths = scratch_dir("testing-c8e421aac06e-moved-")
+    berth = berths / "0" / "packets" / "decompose-20260906T111005-c8e421aac06e.json"
+    berth.parent.mkdir(parents=True)
+    berth.write_text(json.dumps({"ticket": "68f563403c8f", "stage": "decompose",
+                                 "sub_problems": [{"what": "moved", "kind": "build",
+                                                   "writes_to": ["skills/sail/reflection.py"]}]}))
+    try:
+        _live_anchors(berths_root=berths)
+    except AssertionError as e:
+        assert "68f563403c8f" in str(e) and "moved from the fixture" in str(e), str(e)
+    else:
+        raise AssertionError("a berth whose writes_to differs from the fixture read green")
 
 
 if __name__ == "__main__":

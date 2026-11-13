@@ -92,6 +92,10 @@ PROVES = {
         # the hollow reader reads every declared tooth, which is exactly the difference.
         "watchme": "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
     },
+    "42ddfe3b7256": {
+        "1": "test_the_run_verb_ask_ignores_a_far_session_bus",
+        "2": "test_the_scratch_bus_goes_with_its_home",
+    },
 }
 
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"
@@ -123,7 +127,7 @@ def _sealable(proof: str, verdict: str) -> dict:
     return dict(real, evidence=evidence)
 
 
-def _ask_run_on_this_box(proof: str) -> dict:
+def _ask_run_on_this_box(proof: str, home: Path | None = None) -> dict:
     """The tester's ``run`` verb, asked of a bus on THIS box (ticket 42ddfe3b7256).
 
     MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME is akiendelllinux.local:7419,
@@ -134,7 +138,7 @@ def _ask_run_on_this_box(proof: str) -> dict:
     import subprocess
     from cairn.tools.bus_client.remote import RemoteBus
     from cairn.tools.scratch.scratch import home_env, scratch_dir
-    home = scratch_dir("testing-42ddfe3b7256-")
+    home = home if home is not None else scratch_dir("testing-42ddfe3b7256-")
     try:
         done = subprocess.run([sys.executable, __file__, "--ask-run", proof],
                               env=home_env(home, PYTHONPATH=str(_REPO_ROOT)),
@@ -503,6 +507,38 @@ def test_the_watchme_probe_is_armed_and_can_be_made_to_fire():
     # AND THE WORLD AS BUILT.
     live = probe.conversion_reading()
     assert not live["fires"], f"the probe fires against the built guard: {live['what']}"
+
+
+def test_the_run_verb_ask_ignores_a_far_session_bus():
+    """42ddfe3b7256 clause 1: with the session's CAIRN_BUS_HOME naming a bus on another box
+    (here one that never answers, so the reading is the same on every box), the coverage
+    tooth's run-verb ask still returns a record for its fixture and the tooth is green."""
+    saved = os.environ.get("CAIRN_BUS_HOME")
+    os.environ["CAIRN_BUS_HOME"] = "far-box.invalid:7419"
+    try:
+        test_the_guard_covers_every_persisting_caller_not_only_the_flag()
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_BUS_HOME", None)
+        else:
+            os.environ["CAIRN_BUS_HOME"] = saved
+
+
+def test_the_scratch_bus_goes_with_its_home():
+    """42ddfe3b7256 clause 2: the bus the scratch-HOME ask lazy-inits answers no longer once
+    the ask returns, so no scratch bus process outlives the proof."""
+    from cairn.tools.bus_client.remote import _answers
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("testing-42dd-")
+    bus = home / ".cairn/devices/cairn/machines/bus/0"
+    with tempfile.TemporaryDirectory() as tmp:
+        proof = _fake_proof(tmp)
+        Path(proof).write_text(_GREEN_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
+        reply = _ask_run_on_this_box(proof, home=home)
+    assert isinstance((reply.get("body") or {}).get("record"), dict), (
+        f"the ask returned no record, so no scratch bus was measured: {reply!r}")
+    assert bus.is_dir(), f"the ask lazy-inited no bus under its scratch HOME at {bus}"
+    assert _answers(bus) is None, f"the scratch bus at {bus} still answers after the ask"
 
 
 def _main() -> int:

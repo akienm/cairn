@@ -41,7 +41,7 @@ def gather_host_seams(intentions_dir: Path) -> list[dict]:
 
 def bash_exe() -> str:
     """The bash to spawn. Measured 2026-11-12: on Windows a bare "bash" handed to CreateProcess resolves to
-    C:\Windows\System32\bash.exe (the WSL launcher), which strips the backslashes from a Windows path
+    the System32 bash.exe (the WSL launcher), which strips the backslashes from a Windows path
     (rc 127); shutil.which answers the PATH-first bash (Git's). Elsewhere it is plain "bash"."""
     return shutil.which("bash") or "bash"
 
@@ -520,6 +520,33 @@ def install(
     return results
 
 
+def _checks(intentions_dir: Path | None = None) -> list:
+    """The inspector's CHECKS, with install aimed at --intentions-dir when one is given."""
+    import functools
+
+    from cairn.devices.recovery.machines.install_inspector.inspector import CHECKS, resolve
+    return [functools.partial(install, intentions_dir=intentions_dir)
+            if intentions_dir and str(c).endswith(":install") else c for c in CHECKS]
+
+
+def _print(results: list[dict]) -> None:
+    for r in results:
+        print(f"  [{'RED' if r['status'] == 'failed' else r['status'].upper()}] {r['id']}: {r['detail']}")
+
+
+def fix_reds(checks=None, *, run_checks=None) -> list[dict]:
+    """Call each red check once with dry_run=False and no green check; return what they answered.
+
+    `run_checks(checks)` measures (default: the inspector's dry measure) as [(check, results)]."""
+    from cairn.devices.recovery.machines.install_inspector import inspector
+    measured = (run_checks or inspector.measure)(checks)
+    fixed: list[dict] = []
+    for check, results in measured:
+        if inspector.red_of(results):
+            fixed.extend(inspector.results_of(check, dry_run=False))
+    return fixed
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
@@ -535,35 +562,34 @@ def main(argv: list[str] | None = None) -> int:
         "--intentions-dir", type=Path,
         help="override the intentions directory",
     )
+    p.add_argument(
+        "--check", action="store_true",
+        help="print the reds and write nothing; exit 1 while any stands",
+    )
     args = p.parse_args(argv)
 
     home = ask_cairn_home(dry_run=args.dry_run)
-    results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run),
-               ensure_journal_merge_driver(dry_run=args.dry_run),
-               ensure_skill_links(dry_run=args.dry_run),
-               ensure_dev_extra(dry_run=args.dry_run)] + install(
-        intentions_dir=args.intentions_dir,
-        dry_run=args.dry_run,
-    )
+    ident = ask_box_identity(home=home.get("home"), dry_run=args.dry_run)
+    for r in (home, ident):
+        print(f"  [{r['status'].upper()}] {r['id']}: {r['detail']}")
 
-    if not results:
-        print("no host-seam intentions found")
-        return 0
+    checks = _checks(args.intentions_dir)
+    from cairn.devices.recovery.machines.install_inspector.inspector import inspect, installed
+    if args.dry_run or args.check:
+        reds = inspect(checks)
+        _print(reds)
+        if not reds:
+            print("installed: every check is green")
+        return 1 if (args.check and reds) else 0
 
-    any_failed = False
-    for r in results:
-        tag = r["status"].upper()
-        if r["status"] == "failed":
-            any_failed = True
-            tag = "RED"
-        print(f"  [{tag}] {r['id']}: {r['detail']}")
-
-    if any_failed:
-        print("\nRED: one or more seams failed verification after apply")
+    _print(fix_reds(checks))
+    ok, reds = installed(checks)
+    if not ok:
+        _print(reds)
+        print("\nRED: the box is not installed; the install gate refuses while one lack stands")
         return 1
-
+    print("installed: every check is green")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

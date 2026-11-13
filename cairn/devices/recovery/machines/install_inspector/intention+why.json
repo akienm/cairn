@@ -20,6 +20,8 @@
     "inspect(checks=None) -> list[dict]",
     "installed(checks=None) -> tuple[bool, list[dict]]",
     "CHECKS",
+    "measure(checks=None) -> list[tuple[check, list[dict]]] (every check run dry; used by the installer's fix_reds)",
+    "results_of(check, **kw) -> list[dict] and red_of(results) -> list[dict] (used by the installer's fix_reds)",
     "fix_reds(checks=None, *, run_checks=None) -> list[dict] (published by the installer, called by its main())"
   ]
 }

@@ -164,6 +164,11 @@ class ChannelError(Exception):
     """A post/read against a channel that is not one of the four. Loud, never swallowed (CP1)."""
 
 
+def _require_why(why: str) -> None:
+    if not why:
+        raise ValueError("a message carries a why (CP3) — the bus is a causal record, not raw traffic")
+
+
 def _require_channel(channel: str) -> str:
     """Refuse an unknown channel loudly (CP1) before anything is written — a message with no
     valid channel is a defect, not a resting state. Returns the channel's kind (Law 7)."""
@@ -367,17 +372,17 @@ class BusDevice(BaseDevice):
 
     def post(self, *, sender: str, to: str, channel: str, why: str,
              verb: str = "", body: dict | None = None,
-             reply_to: str | None = None, _asked: bool = False) -> dict:
+             reply_to: str | None = None, _asked: bool = False,
+             _id: str | None = None) -> dict:
         """Send one message — the SOLE path for inter-device communication. Builds the envelope
         (carrying why + causality, Law 5), appends it to the in-memory ring, and fires the
         delivery hook. Zero DB on the hot path — ``flush()`` batch-writes the ring to Postgres
         on the ground loop pulse. A missing ``why`` is refused (CP3); an unknown channel is
         refused (CP1)."""
         kind = _require_channel(channel)
-        if not why:
-            raise ValueError("a message carries a why (CP3) — the bus is a causal record, not raw traffic")
+        _require_why(why)
         envelope = {
-            "id": uuid.uuid4().hex,
+            "id": _id or uuid.uuid4().hex,
             "sender": sender,
             "addressee": to,
             "channel": channel,
@@ -508,50 +513,85 @@ class BusDevice(BaseDevice):
         """Synchronous exchange: post, then read the correlated reply. ONE DOOR — this is
         post() + a correlated read, not a second path (falsifier 4).
 
-        In the in-process model, the poke chain fires synchronously within post(): the
-        target's verb handler posts a reply (with reply_to set to this envelope's id),
-        and the reply lands in the ring by the time post() returns. The ring check is
-        zero-DB; the timeout falls back to read() (ring + DB) for the multi-process
-        future. LOUD on timeout (CP1).
+        In the in-process model, the poke chain fires within post(): the target's verb
+        handler posts a reply (with reply_to set to this envelope's id) into the ring. That
+        post() runs on a worker thread, so ``timeout`` bounds a synchronous handler exactly as
+        it bounds a remote one (ticket 4d597cac9f5d). The ring check is zero-DB; once post()
+        has returned the wait falls back to read() (ring + DB). LOUD on timeout (CP1).
 
         THE REPLY IT RETURNS IS IN THE REQUESTER'S HAND, so request() writes its receipt
         (ticket 6b1e13704e17; measured 2026-10-02, 2791 trouble->cairn replies stood
         undelivered because nothing receipted them) — unless the poke chain already
         receipted it for a wired requester, which the ``_ring_delivered`` guard reads."""
-        envelope = self.post(sender=sender, to=to, channel=channel, why=why,
-                             verb=verb, body=body, _asked=True)
+        # THE TIMEOUT BOUNDS THE HANDLER TOO (ticket 4d597cac9f5d). Measured 2026-11-12: post()'s
+        # poke chain ran a chart stage's handler on this thread for 581.7 s, and its asker, which
+        # gave timeout=180, was answered only when it ended. So post() runs on a worker, and
+        # this thread waits on the deadline alone. A handler still running at the deadline is
+        # never cancelled: it runs to its end, and its late reply is receipted as given up.
+        _require_channel(channel)
+        _require_why(why)
+        eid = uuid.uuid4().hex
+        posted, failed, gave_up = threading.Event(), [], threading.Event()
+
+        def deliver():
+            try:
+                self.post(sender=sender, to=to, channel=channel, why=why, verb=verb,
+                          body=body, _asked=True, _id=eid)
+            except BaseException as exc:  # noqa: BLE001 — handed to the asker, raised there
+                failed.append(exc)
+            finally:
+                if gave_up.is_set():  # the asker left before post() could mark the ask
+                    self._asked.pop(eid, None)
+                posted.set()
+        deadline = time.monotonic() + timeout
+        threading.Thread(target=deliver, daemon=True, name=f"bus-ask-{eid[:8]}").start()
         try:
-            ring_replies = self._ring_matches(reply_to=envelope["id"])
-            if ring_replies:
-                return self._taken(ring_replies[0], sender)
-            replies = self.read(reply_to=envelope["id"])
-            if replies:
-                return self._taken(replies[0], sender)
-            import time
-            deadline = time.monotonic() + timeout
+            while True:
+                ring_replies = self._ring_matches(reply_to=eid)
+                if ring_replies:
+                    return self._taken(ring_replies[0], sender)
+                if posted.is_set():
+                    if failed:
+                        raise failed[0]
+                    break
+                left = deadline - time.monotonic()
+                if left <= 0:
+                    break
+                if self._while_waiting is not None:
+                    self._while_waiting()
+                posted.wait(min(0.05, left))
+            if posted.is_set():
+                ring_replies = self._ring_matches(reply_to=eid)
+                if ring_replies:
+                    return self._taken(ring_replies[0], sender)
+                replies = self.read(reply_to=eid)
+                if replies:
+                    return self._taken(replies[0], sender)
             while time.monotonic() < deadline:
                 if self._while_waiting is not None:
                     self._while_waiting()
-                    ring_replies = self._ring_matches(reply_to=envelope["id"])
+                    ring_replies = self._ring_matches(reply_to=eid)
                     if ring_replies:
                         return self._taken(ring_replies[0], sender)
                 time.sleep(max(0.0, min(0.1, deadline - time.monotonic())))
-                replies = self.read(reply_to=envelope["id"])
+                replies = self.read(reply_to=eid)
                 if replies:
                     return self._taken(replies[0], sender)
         except BaseException:
             # The asker left before its reply (ticket ee88c2126abc): its client closed, or the
             # wait raised. Nobody will take the answer, so the request is held as given up.
-            self._abandoned[envelope["id"]] = sender
+            self._abandoned[eid] = sender
+            gave_up.set()
             raise
         finally:
-            self._asked.pop(envelope["id"], None)
-        self._abandoned[envelope["id"]] = sender
-        late = self._ring_matches(reply_to=envelope["id"])
-        if late and self._abandoned.pop(envelope["id"], None) is not None:
+            self._asked.pop(eid, None)
+        self._abandoned[eid] = sender
+        gave_up.set()
+        late = self._ring_matches(reply_to=eid)
+        if late and self._abandoned.pop(eid, None) is not None:
             return self._taken(late[0], sender)
         raise TimeoutError(
-            f"no reply to envelope {envelope['id'][:8]}… from {to} "
+            f"no reply to envelope {eid[:8]}… from {to} "
             f"within {timeout}s — the target did not reply (CP1: loud, not empty)"
         )
 

@@ -47,7 +47,11 @@ _SOLE_PATH = {
              # itself, to show they refuse plain TCP and a wrong key (ticket 5183005fa134).
              "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py",
              # web_operator talks on the web by any means: Akien 2026-11-09, Q#74 (outline 16.4.4).
-             "cairn/machines/web_operator/"),
+             "cairn/machines/web_operator/",
+             # the usage tool reads the claude.ai usage endpoint, not the inference host; its proof
+             # drives the same fetch (ticket 6b0dfaa14efd).
+             "cairn/tools/usage/usage.py",
+             "cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py"),
 }
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single

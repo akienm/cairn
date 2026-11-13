@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_logtrim_trims_without_flock.py passes under python.exe",
+    "claim": "proof test_logtrim_trims_without_flock.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T02:46:13",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-13T03:11:14",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -14,58 +14,36 @@
         "a_timed_out_flock_leaves_the_caller_alive_and_the_file_whole"
       ],
       "teeth_red": [],
-      "test": "test-ba27b7f6015f",
+      "test": "test-86553213f106",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 16,
-        "tables": [
-          "loop_retired_27876_0243570734",
-          "loop_earned_then_wrong_27876_0244022567",
-          "loop_receipts_27876_0244066036",
-          "loop_warm_27876_0244113546",
-          "loop_cold_27876_0244143077",
-          "loop_homefield_27876_0244198178",
-          "loop_tenure_27876_0244262268",
-          "loop_fade_27876_0244457625",
-          "loop_tworound_27876_0245013227",
-          "loop_stuck_27876_0245149359",
-          "loop_stuck2_27876_0245234845",
-          "loop_deep_27876_0245274941",
-          "loop_mixed_27876_0245361431",
-          "loop_garbage_27876_0245389188",
-          "loop_crumbs_27876_0245414444",
-          "loop_noseam_27876_0245471464"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "d38bc98bead5d9e2a246c9242f4665137b405483b7c911cf531c4d04b5f28687",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        },
-        {
-          "pid": null,
-          "signal": "none: process environments cannot be enumerated on Windows"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-ba27b7f6015f",
-      "source_fingerprint": "5f414ebc89134e757eb6a7587689d0dbf96f8c4be5b3fa3dfe043c2a2c78673c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-86553213f106",
+      "source_fingerprint": "db993a592edbbf5e9434f0cb03cf4006a302de437ec1b164bb18f42e8c16140e",
       "fingerprint_closure": [
         "bin/proofs/test_logtrim_trims_without_flock.py",
         "cairn/devices/tester/reach/sitecustomize.py"
@@ -74,15 +52,21 @@
         "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2657958-_13pa66_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 530252742,
+          "disk_bytes": 572440576,
+          "entries": 16210,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

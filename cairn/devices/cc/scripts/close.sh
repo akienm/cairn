@@ -11,11 +11,11 @@ TRAILER=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Se
 # (measured 2026-11-13 by akienasus). It is surfaced now, and a void stops the close BEFORE the cross.
 VOIDED=0
 commit_all() {
-  local out; out=$(cd $C && git add -u && git commit -qm "$ID: $1$TRAILER" 2>&1)
+  local out; out=$(cd $C && git add -u && git commit -qm "$ID: $1$TRAILER" -- $(git diff --cached --name-only) 2>&1)
   if echo "$out" | grep -q "HOLLOW VOIDED"; then
     echo "$out" | grep -A3 "HOLLOW VOIDED"; VOIDED=1
   fi
-  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ berths/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
+  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ berths/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q -- $(git diff --cached --name-only) >/dev/null 2>&1)
   # The pull runs under the door lock: an autostash cannot interleave with a door write (0f8aefbba1d0).
   (cd $C && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1); (cd $CC && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1)
 }

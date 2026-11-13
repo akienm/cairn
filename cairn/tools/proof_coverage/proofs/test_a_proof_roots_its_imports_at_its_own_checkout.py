@@ -33,7 +33,7 @@ from cairn.tools.proof_coverage.proofs.fixtures import historical_instances as H
 
 TICKET = "8e73a9efa04a"
 PROVES = {
-    TICKET: {
+    "8e73a9efa04a": {
         "1": "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
         "2": "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it",
         "3": "test_no_proof_in_the_repo_roots_short",

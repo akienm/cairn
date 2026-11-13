@@ -298,6 +298,60 @@ def ensure_journal_merge_driver(*, roots: dict | None = None, dry_run: bool = Fa
                       + (f"; already good in {', '.join(good)}" if good else "") + tail}
 
 
+def _venv_exe(venv: Path, name: str) -> Path:
+    """The venv's own `name` on this OS: Scripts/<name>.exe on Windows, bin/<name> elsewhere."""
+    if (venv / "Scripts").is_dir():
+        return venv / "Scripts" / f"{name}.exe"
+    return venv / "bin" / name
+
+
+def _dev_extra_modules(repo: Path) -> list[str]:
+    """Import names of pyproject's [project.optional-dependencies].dev, specifiers stripped."""
+    import re
+    import tomllib
+    doc = tomllib.loads((repo / "pyproject.toml").read_text(encoding="utf-8"))
+    reqs = doc.get("project", {}).get("optional-dependencies", {}).get("dev", [])
+    names = [m.group(0).replace("-", "_") for r in reqs if (m := re.match(r"[A-Za-z0-9_.-]+", r.strip()))]
+    return names
+
+
+def ensure_dev_extra(*, dry_run: bool = False, venv: Path | None = None, repo: Path | None = None,
+                     run=subprocess.run) -> dict:
+    """Ticket b3ecebdf9695: every box's ~/.cairn/venv carries pyproject's dev extra.
+
+    A venv that cannot import pytest cannot run `cairn test`, so it proves nothing (measured
+    2026-11-12 on akienasus). Each dev-extra name is asked of the venv's own python; a missing one
+    is offered on a dry run, and otherwise the editable checkout is installed with [dev] through
+    the venv's own pip and measured again. `run` is the one seam to the OS, so a proof can hand
+    it a recording stub."""
+    venv = Path(venv) if venv else Path.home() / ".cairn" / "venv"
+    repo = Path(repo) if repo else _REPO
+    sid = "dev_extra"
+    try:
+        wanted = _dev_extra_modules(repo)
+    except (OSError, ValueError) as exc:
+        return {"id": sid, "status": "failed", "detail": f"RED: cannot read the dev extra from {repo / 'pyproject.toml'}: {exc}"}
+    py = _venv_exe(venv, "python")
+
+    def missing() -> list[str]:
+        return [m for m in wanted if run([str(py), "-c", f"import {m}"], capture_output=True, text=True).returncode]
+
+    lacking = missing()
+    if not lacking:
+        return {"id": sid, "status": "already_applied", "detail": f"{venv} imports {', '.join(wanted)}"}
+    if dry_run:
+        return {"id": sid, "status": "offered", "detail": f"{venv} cannot import: {', '.join(lacking)}"}
+    pip = _venv_exe(venv, "pip")
+    r = run([str(pip), "install", "--editable", f"{repo}[dev]"], capture_output=True, text=True)
+    after = missing()
+    if r.returncode or after:
+        return {"id": sid, "status": "failed",
+                "detail": f"RED: {venv} could not import {', '.join(lacking)}; pip install --editable "
+                          f"'{repo}[dev]' exited {r.returncode}: {(r.stderr or r.stdout or '').strip()[-300:]}; "
+                          f"still missing: {', '.join(after) or 'none'}"}
+    return {"id": sid, "status": "applied", "detail": f"installed {repo}[dev]; was missing {', '.join(lacking)}"}
+
+
 def install(
     *,
     intentions_dir: Path | None = None,
@@ -396,7 +450,8 @@ def main(argv: list[str] | None = None) -> int:
 
     home = ask_cairn_home(dry_run=args.dry_run)
     results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run),
-               ensure_journal_merge_driver(dry_run=args.dry_run)] + install(
+               ensure_journal_merge_driver(dry_run=args.dry_run),
+               ensure_dev_extra(dry_run=args.dry_run)] + install(
         intentions_dir=args.intentions_dir,
         dry_run=args.dry_run,
     )

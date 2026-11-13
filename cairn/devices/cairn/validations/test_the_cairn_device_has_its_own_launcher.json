@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_cairn_device_has_its_own_launcher.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T01:49:57",
+    "date": "2026-11-13T02:34:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_the_linked_launcher_names_the_device"
       ],
       "teeth_red": [],
-      "test": "test-af0aa141bccf",
+      "test": "test-fb372c75b713",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +24,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e21aea00e9ecfb4e28426f00191998617b85824645fa80c3ecd7cc98dce4638b",
+        "proof": "0a7035872b8cd48910b593b5a48af6ed192e9a15ed0c24d14dfae02261d7e8bd",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,43 +43,51 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-af0aa141bccf",
-      "source_fingerprint": "2157bb8a1d3b5369027fbaa3efc23bd060ba3075b0d9ad5b9c6a1a2e2872da73",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fb372c75b713",
+      "source_fingerprint": "1dd536bfa3c2e75651045a8220e71ed5ba1a43dceb2ef520ed385d0b8efd5827",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
+        "cairn/devices/cairn/machines/__init__.py",
         "cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py",
         "cairn/devices/cairn/shim.py"
       ],
       "reached": {
+        "cairn/devices/cairn/machines/bus": "0992312e2fb570fb454252b8e89084fba91c0112645ab5d73ac85d52b62386d5",
         "cairn/devices/cc": "13f0e135c4611e1a8bd51242473d2b47cf6464b429e3c1356ad5697a221d2ff5",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "03fcd16e92834cf56bd141a580d9a9f9abd098a021db923a4f7351e75849587d",
         "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
         "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
-        "cairn/tools/base": "d222f5aa408817fb9e751c43303f3415e559eb62f090f8088877482b8d1f3226",
+        "cairn/tools/base": "481c89370124a886cf8bbf4ad8d06d021cc3fa4a7b7a5c7388dc0a4bac037bb3",
         "cairn/tools/bus_client": "270bed5752d1aef017a382d4cdcdc4ebb6d89e135557b45a53569f40f066b37b",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-249089-kv0du4ar/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-256712-43myitxm/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 5,
+          "count": 8,
           "paths": [
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/bus.log",
+            "logs/bus/0/20261113.093415.117379.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log",
             "logs/preflight.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 1283111,
-          "disk_bytes": 1572864,
-          "entries": 284,
+          "bytes": 1289669,
+          "disk_bytes": 1589248,
+          "entries": 289,
           "builds": 1,
           "reuses": 0
         }

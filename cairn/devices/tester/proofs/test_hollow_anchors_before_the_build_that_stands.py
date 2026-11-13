@@ -119,6 +119,7 @@ def _fixture(events: list) -> tuple[Path, Path, Path, dict]:
     for d in (repo / "proofs", commons / "tickets"):
         d.mkdir(parents=True)
     _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "core.autocrlf", "false")
     (repo / "proofs" / "test_fixture.py").write_text(_PROOF_SRC)
     shas, entries = {}, []
     for ev in events:

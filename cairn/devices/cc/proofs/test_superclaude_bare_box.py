@@ -72,6 +72,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _dry_run(extra: dict | None = None) -> subprocess.CompletedProcess:
+    from cairn.tools.base.script_argv import bash_script_argv
     env = dict(os.environ)
     env["PATH"] = f"{_FAKE_BIN}:{env.get('PATH', '')}"
     env["CAIRN_BOOT_LOG"] = str(_BOOT_LOG)
@@ -80,15 +81,16 @@ def _dry_run(extra: dict | None = None) -> subprocess.CompletedProcess:
     # A carried floor finding forces a report, so the sudo line has something to ride beside.
     env["CAIRN_FLOOR_FINDINGS"] = "cairn: floor: db — synthetic finding for the bare-box proof\n"
     env.update(extra or {})
-    return subprocess.run([str(_LAUNCHER), "--dry-run"], env=env, capture_output=True, text=True,
+    return subprocess.run([*bash_script_argv(_LAUNCHER), "--dry-run"], env=env, capture_output=True, text=True,
                           stdin=subprocess.DEVNULL, timeout=120, cwd=str(_REPO))
 
 
 def test_askpass_serves_only_what_is_held() -> None:
+    from cairn.tools.base.script_argv import bash_script_argv
     env = {k: v for k, v in os.environ.items() if k != "CAIRN_SUDO_PW"}
-    held = subprocess.run([str(_ASKPASS)], env={**env, "CAIRN_SUDO_PW": SENTINEL},
+    held = subprocess.run([*bash_script_argv(_ASKPASS)], env={**env, "CAIRN_SUDO_PW": SENTINEL},
                           capture_output=True, text=True)
-    none = subprocess.run([str(_ASKPASS)], env=env, capture_output=True, text=True)
+    none = subprocess.run([*bash_script_argv(_ASKPASS)], env=env, capture_output=True, text=True)
     check("test_askpass_serves_only_what_is_held",
           held.returncode == 0 and held.stdout == SENTINEL + "\n"
           and none.returncode == 1 and none.stdout == "",

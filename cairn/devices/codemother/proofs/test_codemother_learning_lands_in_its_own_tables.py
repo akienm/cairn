@@ -271,9 +271,10 @@ def tooth_5(nexus: str) -> None:
 # ---- clause 6 -------------------------------------------------------------------------------
 
 def tooth_6() -> None:
+    from cairn.tools.base.script_argv import bash_script_argv
     name = PROVES["2b3d842bc118"]["6"]
     try:
-        r = subprocess.run([str(REPO / "bin" / "cairn"), "test", "--timeout", "600", *_TOUCHED],
+        r = subprocess.run([*bash_script_argv(REPO / "bin" / "cairn"), "test", "--timeout", "600", *_TOUCHED],
                            capture_output=True, text=True, timeout=1500, cwd=REPO)
         tail = r.stdout.strip().splitlines()
         summary = next((ln for ln in tail if " proofs · " in ln), "")

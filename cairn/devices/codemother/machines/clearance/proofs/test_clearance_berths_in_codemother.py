@@ -267,6 +267,7 @@ def test_the_deprecation_report_runs_from_the_new_address() -> None:
 
 
 def test_the_cross_command_has_the_ticket_queue_itself() -> None:
+    from cairn.tools.base.script_argv import bash_script_argv
     mouth = _REPO / "cairn/devices/codemother/0/bin/cross"
     text = mouth.read_text(encoding="utf-8")
     bad = []
@@ -274,7 +275,7 @@ def test_the_cross_command_has_the_ticket_queue_itself() -> None:
         bad.append("the mouth still sends verb 'cross'")
     if not re.search(r"\.queueme\(\s*['\"]clearance['\"]", text):
         bad.append("the mouth does not have the ticket queue itself at clearance")
-    r = subprocess.run([str(mouth)], cwd=_REPO, capture_output=True, text=True, timeout=60)
+    r = subprocess.run([*bash_script_argv(mouth)], cwd=_REPO, capture_output=True, text=True, timeout=60)
     usage = r.stdout + r.stderr
     if r.returncode == 0 or "cross <ticket>" not in usage or "<target>" in usage:
         bad.append(f"bare mouth: exit {r.returncode}, said {usage.strip()[:200]!r}")

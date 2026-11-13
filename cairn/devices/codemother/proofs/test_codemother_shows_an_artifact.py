@@ -60,7 +60,8 @@ def _run(*argv: str) -> subprocess.CompletedProcess:
 
 
 def codemother_shows_what_the_reader_shows():
-    asked = _run(str(REPO / "bin/cairn"), "codemother", "show", "artifact", ID)
+    from cairn.tools.base.script_argv import bash_script_argv
+    asked = _run(*bash_script_argv(REPO / "bin/cairn"), "codemother", "show", "artifact", ID)
     reader = _run(sys.executable, "-m", "cairn.tools.operator_inbox.inbox", "show", "artifact", ID)
     assert reader.returncode == 0 and ID in reader.stdout, ("the reader itself", reader.returncode, reader.stderr[-400:])
     assert asked.returncode == 0, (asked.returncode, asked.stdout[-400:], asked.stderr[-400:])
@@ -68,8 +69,9 @@ def codemother_shows_what_the_reader_shows():
 
 
 def the_operator_points_at_codemother():
+    from cairn.tools.base.script_argv import bash_script_argv
     for word in ("artifact", "ARTIFACT"):
-        r = _run(str(REPO / "bin/cairn"), "operator", "show", word, ID)
+        r = _run(*bash_script_argv(REPO / "bin/cairn"), "operator", "show", word, ID)
         assert r.returncode == 2, (word, r.returncode, r.stdout[:300])
         assert r.stdout == "", (word, "stdout", r.stdout[:300])
         assert NEW in r.stderr, (word, "stderr", r.stderr[:300])

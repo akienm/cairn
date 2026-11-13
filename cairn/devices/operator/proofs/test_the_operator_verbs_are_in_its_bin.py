@@ -145,7 +145,8 @@ def clause_3_answer_records_the_words_as_the_question_door_does() -> None:
                    CAIRN_ARTIFACT_ROOTS=json.dumps({"CairnCommons": str(commons), "cairn": str(tmp / "cairn")}))
 
         def cairn(*argv):
-            return subprocess.run([str(_REPO / "bin" / "cairn"), *argv], capture_output=True, text=True,
+            from cairn.tools.base.script_argv import bash_script_argv
+            return subprocess.run([*bash_script_argv(_REPO / "bin" / "cairn"), *argv], capture_output=True, text=True,
                                   env=env, cwd=str(_REPO), timeout=300)
 
         ids = []

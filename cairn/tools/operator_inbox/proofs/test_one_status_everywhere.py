@@ -76,8 +76,9 @@ def _prose_standing(hmap: str) -> list[str]:
 
 def _command(*argv: str) -> str:
     """A device's report as Akien types it — its command, never its module (RULE 1)."""
+    from cairn.tools.base.script_argv import bash_script_argv
     import subprocess
-    r = subprocess.run([str(_REPO_ROOT / "bin" / "cairn"), *argv], capture_output=True,
+    r = subprocess.run([*bash_script_argv(_REPO_ROOT / "bin" / "cairn"), *argv], capture_output=True,
                        text=True, timeout=120)
     assert r.returncode == 0, f"cairn {' '.join(argv)} exited {r.returncode}: {r.stderr[-400:]}"
     return r.stdout

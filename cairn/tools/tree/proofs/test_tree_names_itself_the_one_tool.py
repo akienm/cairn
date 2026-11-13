@@ -101,6 +101,7 @@ def clause_3_charter_says_the_same() -> None:
 
 
 def clause_4_behaviour_unchanged() -> None:
+    from cairn.tools.base.script_argv import bash_script_argv
     from cairn.tools.tree import tree
     lacks = []
     if tree.OWNER != "chart":
@@ -109,7 +110,7 @@ def clause_4_behaviour_unchanged() -> None:
         lacks.append(f"nexus_table('survey') is {tree.nexus_table('survey')!r}")
     proofs = [str(TOOL / "proofs" / "test_chart_tree.py"), str(TOOL / "proofs" / "test_questions.py")]
     try:
-        r = subprocess.run([str(REPO / "bin" / "cairn"), "test", "--timeout", "600", *proofs],
+        r = subprocess.run([*bash_script_argv(REPO / "bin" / "cairn"), "test", "--timeout", "600", *proofs],
                            capture_output=True, text=True, timeout=800, cwd=REPO)
         out = r.stdout + r.stderr
         if "2 green · 0 red" not in out:

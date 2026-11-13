@@ -141,7 +141,8 @@ def tooth_instance_space_did_not_move():
     The first build's path rewrite also rewrote this instance-space address, so a running
     loop (old address) and `cairn cc restart` (new address) would have read two homes.
     """
-    r = subprocess.run([str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    from cairn.tools.base.script_argv import bash_script_argv
+    r = subprocess.run([*bash_script_argv(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        timeout=120, cwd=_outside_the_repo())
     m = re.search(r"flags home: (\S+)", r.stdout + r.stderr)
     assert m, f"superclaude --dry-run printed no flags home: {(r.stdout + r.stderr)[-400:]}"

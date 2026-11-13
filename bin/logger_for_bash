@@ -261,10 +261,15 @@ logtrim() {
   _logbash_write "logtrim: discarded $(( n + 1 - len )) lines, window now starts at ${oldest:-?} (cap=$len)"
 
   local tmp="${target}.trim.$$"
+  # flock rc 127 = not installed (Git Bash ships none): cut unlocked. rc 1 = timed out: skip the
+  # cut. Never `exit` here — this brace group runs in the CALLER's shell, so exit ends their shell.
+  local frc
   {
-    flock -x -w 5 9 || exit 0
-    tail -n "$len" "$target" > "$tmp" 2>/dev/null && cat "$tmp" > "$target" 2>/dev/null
-    rm -f "$tmp" 2>/dev/null
+    flock -x -w 5 9 2>/dev/null; frc=$?
+    if [ "$frc" -ne 1 ]; then
+      tail -n "$len" "$target" > "$tmp" 2>/dev/null && cat "$tmp" > "$target" 2>/dev/null
+      rm -f "$tmp" 2>/dev/null
+    fi
   } 9>"${target}.lock" 2>/dev/null
   return 0
 }

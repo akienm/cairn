@@ -34,6 +34,42 @@ from cairn.devices.aider_shim import translate  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[4]
 TICKET = "fixture-ticket"
+
+# THE HELD PROGRAM'S CALL SHAPES, MEASURED (ticket b4a0a72be12d; outline 5.5.3.8, "a device
+# runs on one box", answering open-4abe1b0b6383). aider's source stands only on the box that
+# runs the aider device, so a tooth that reads it reads this record everywhere else, and where
+# the source does stand the live reading must EQUAL the record: an aider upgrade reds here
+# until the record is re-measured, never silently. Measured 2026-11-13 by the same AST walks
+# below, over github.com/Aider-AI/aider at 5dc9490bb35f9729ef2c95d00a19ccd30c26339c, the
+# HEAD the aider_shim charter pins (v0.86.3.dev).
+AIDER_SRC = Path.home() / "dev/src/aider"
+AIDER_PIN = "5dc9490bb35f9729ef2c95d00a19ccd30c26339c"
+MEASURED_CODER_INIT = [
+    "add_gitignore_files", "aider_commit_hashes", "analytics", "auto_accept_architect",
+    "auto_commits", "auto_copy_context", "auto_lint", "auto_test", "cache_prompts",
+    "chat_language", "commands", "commit_language", "cur_messages", "detect_urls",
+    "dirty_commits", "done_messages", "dry_run", "file_watcher", "fnames", "ignore_mentions",
+    "io", "lint_cmds", "main_model", "map_mul_no_files", "map_refresh", "map_tokens",
+    "num_cache_warming_pings", "read_only_fnames", "repo", "restore_chat_history", "self",
+    "show_diffs", "stream", "suggest_shell_commands", "summarizer", "test_cmd", "total_cost",
+    "total_tokens_received", "total_tokens_sent", "use_git", "verbose"]
+_HELD = []
+
+
+def aider_models() -> str:
+    """aider's model layer as an out-of-repo holding that resolves: the held program where it
+    stands, else one stand-in file at the same tail under a scratch home, outside the repo."""
+    real = AIDER_SRC / "aider" / "models.py"
+    if real.exists():
+        return str(real)
+    if not _HELD:
+        from cairn.tools.scratch.scratch import scratch_dir
+        stand_in = Path(scratch_dir("cairn-proof-aider-held-")) / "dev/src/aider/aider/models.py"
+        stand_in.parent.mkdir(parents=True)
+        stand_in.write_text("# stand-in for the held program, off the aider box\n")
+        _HELD.append(str(stand_in))
+    return _HELD[0]
+
 FAILURES = []
 
 
@@ -73,7 +109,7 @@ def make_chain(root: Path) -> Path:
             {"what": "the verdict resolver",
              "address": "cairn/devices/codemother/machines/verdict/verdict.py"},
             {"what": "aider's model layer",
-             "address": str(Path.home() / "dev/src/aider/aider/models.py")},
+             "address": aider_models()},
             {"what": "a directory holding", "address": "cairn/tools/base"},
             {"what": "something that moved", "address": "cairn/does/not/exist.py"},
         ],
@@ -107,7 +143,7 @@ def make_chain(root: Path) -> Path:
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
              "uses": ["cairn/devices/codemother/machines/verdict/verdict.py",
-                      str(Path.home() / "dev/src/aider/aider/models.py"),
+                      aider_models(),
                       "cairn/tools/base",
                       "cairn/does/not/exist.py"],
              "writes_to": ["cairn/devices/aider_shim/translate.py",
@@ -607,7 +643,7 @@ def test_a_writes_to_OUTSIDE_THE_REPO_or_A_DIRECTORY_is_skipped_never_editable()
             {"what": "gamma", "why": "because gamma", "kind": "build",
              "fills": ["any translation"],
              "uses": ["cairn/devices/codemother/machines/verdict/verdict.py"],
-             "writes_to": [str(Path.home() / "dev/src/aider/aider/models.py"),
+             "writes_to": [aider_models(),
                            "cairn/tools/base",
                            "cairn/devices/aider_shim/translate.py"]},
             {"what": "alpha", "why": "because alpha", "kind": "build",
@@ -621,7 +657,7 @@ def test_a_writes_to_OUTSIDE_THE_REPO_or_A_DIRECTORY_is_skipped_never_editable()
         assert b.files == [str(REPO / "cairn/devices/aider_shim/translate.py")], b.files
         assert not any("dev/src/aider" in f for f in b.files), b.files
         whys = {s["address"]: s["why"] for s in b.skipped}
-        assert whys[str(Path.home() / "dev/src/aider/aider/models.py")] == \
+        assert whys[aider_models()] == \
             "an output address outside this repo — not opened for editing", whys
         assert whys["cairn/tools/base"] == "a directory, not a file", whys
 
@@ -636,12 +672,33 @@ def test_the_briefs_fields_are_the_names_aiders_Coder_ACTUALLY_takes():
     reading by AST rather than by import is what keeps this proof runnable without the
     device's venv.
     """
-    src = Path.home() / "dev/src/aider/aider/coders/base_coder.py"
-    cls = next(n for n in ast.parse(src.read_text(encoding="utf-8")).body
-               if isinstance(n, ast.ClassDef) and n.name == "Coder")
-    init = next(n for n in cls.body
-                if isinstance(n, ast.FunctionDef) and n.name == "__init__")
-    params = {a.arg for a in init.args.args + init.args.kwonlyargs}
+    src = AIDER_SRC / "aider/coders/base_coder.py"
+    if src.exists():
+        cls = next(n for n in ast.parse(src.read_text(encoding="utf-8")).body
+                   if isinstance(n, ast.ClassDef) and n.name == "Coder")
+        init = next(n for n in cls.body
+                    if isinstance(n, ast.FunctionDef) and n.name == "__init__")
+        params = {a.arg for a in init.args.args + init.args.kwonlyargs}
+        assert params == set(MEASURED_CODER_INIT), (
+            f"aider's Coder.__init__ moved from the record measured at {AIDER_PIN[:9]}: "
+            f"gained {sorted(params - set(MEASURED_CODER_INIT))}, "
+            f"lost {sorted(set(MEASURED_CODER_INIT) - params)} — re-measure (ticket b4a0a72be12d)")
+    else:
+        params = set(MEASURED_CODER_INIT)
+    # THE SHIM'S SIDE OF THE CONTRACT: every keyword the driver hands Coder.create past
+    # create's own five (measured at the pin: main_model, edit_format, io, from_coder,
+    # summarize_from_coder) must be a name Coder.__init__ takes.
+    import re
+    text = (REPO / "cairn/devices/aider_shim/driver.py").read_text(encoding="utf-8")
+    at = text.index("Coder.create(") + len("Coder.create(")
+    depth, i = 1, at
+    while depth:
+        depth += {"(": 1, ")": -1}.get(text[i], 0)
+        i += 1
+    passed = set(re.findall(r"^\s+(\w+)=", text[at:i], re.M))
+    passed -= {"main_model", "edit_format", "io", "from_coder", "summarize_from_coder"}
+    assert passed, "the driver hands Coder.create no keyword this tooth can read"
+    assert passed <= params, f"the driver passes {sorted(passed - params)}, which Coder does not take"
     for name in ("fnames", "read_only_fnames", "test_cmd", "auto_test", "map_tokens"):
         assert name in params, f"aider's Coder no longer takes {name!r}"
 
@@ -675,6 +732,10 @@ def main():
 
 
 PROVES = {
+    "b4a0a72be12d": {
+        "1": "test_the_briefs_fields_are_the_names_aiders_Coder_ACTUALLY_takes",
+        "2": "test_a_holding_OUTSIDE_the_repo_is_never_editable",
+    },
     "68f1fc073512": {
         "c": "test_the_editable_list_is_WHERE_IT_WRITES_not_WHAT_IT_READS"
     }

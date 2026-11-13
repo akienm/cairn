@@ -173,6 +173,46 @@ def test_the_refusal_survives_aiders_retry_loop_unretried():
         f"the record shows {len(log.refused())} refusals for one ask — the loop re-asked"
 
 
+# THE HELD PROGRAM'S CALL SHAPES, MEASURED (ticket b4a0a72be12d; outline 5.5.3.8, "a device
+# runs on one box", answering open-4abe1b0b6383). aider's source stands only on the box that
+# runs the aider device, so a tooth that reads it reads this record everywhere else, and where
+# the source does stand the live reading must EQUAL the record: an aider upgrade reds here
+# until the record is re-measured, never silently. Measured 2026-11-13 by the same AST walks
+# below, over github.com/Aider-AI/aider at 5dc9490bb35f9729ef2c95d00a19ccd30c26339c, the
+# HEAD the aider_shim charter pins (v0.86.3.dev).
+AIDER_SRC = Path.home() / "dev" / "src" / "aider"
+AIDER_PIN = "5dc9490bb35f9729ef2c95d00a19ccd30c26339c"
+MEASURED_HANDLERS = {
+    ("aider/models.py", "simple_send_with_retries"): ["litellm_ex.exceptions_tuple()",
+                                                      "AttributeError"],
+    ("aider/coders/base_coder.py", "send_message"): ["KeyboardInterrupt",
+                                                     "litellm_ex.exceptions_tuple()",
+                                                     "KeyboardInterrupt", "FinishReasonLength",
+                                                     "Exception"],
+}
+
+
+def aider_handlers(rel: str, fn: str) -> list:
+    """The except-handler expressions inside aider's ``fn`` in ``rel`` (None for a bare except):
+    read live where aider's source stands, and then it must equal the record; else the record."""
+    import ast
+    want = MEASURED_HANDLERS[(rel, fn)]
+    src = AIDER_SRC / rel
+    if not src.exists():
+        print(f"       (no aider source on this box; the record measured at {AIDER_PIN[:9]})")
+        return list(want)
+    live = []
+    for node in ast.walk(ast.parse(src.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.FunctionDef) and node.name == fn:
+            for h in ast.walk(node):
+                if isinstance(h, ast.ExceptHandler):
+                    live.append(None if h.type is None else ast.unparse(h.type))
+    assert live == want, (
+        f"aider's {fn} handlers moved from the record measured at {AIDER_PIN[:9]}: live {live}, "
+        f"recorded {want} — re-measure the record (ticket b4a0a72be12d)")
+    return live
+
+
 def test_the_refusal_escapes_every_handler_on_aiders_actual_call_path():
     """THE INSTRUMENT FOR THE CHARTER'S PROSE CLAIM, derived rather than transcribed.
 
@@ -189,16 +229,7 @@ def test_the_refusal_escapes_every_handler_on_aiders_actual_call_path():
     have contained it because nobody knew to write it down. Re-derived each run, this tooth
     also survives aider changing its handlers under us.
     """
-    import ast
-    src = Path.home() / "dev" / "src" / "aider" / "aider" / "models.py"
-    assert src.exists(), f"the held foreign program is not at its declared address: {src}"
-
-    handlers = []
-    for node in ast.walk(ast.parse(src.read_text(encoding="utf-8"))):
-        if isinstance(node, ast.FunctionDef) and node.name == "simple_send_with_retries":
-            for h in ast.walk(node):
-                if isinstance(h, ast.ExceptHandler):
-                    handlers.append(h)
+    handlers = aider_handlers("aider/models.py", "simple_send_with_retries")
     assert handlers, \
         "no except-handlers found in aider's simple_send_with_retries — the function was " \
         "renamed or restructured, and this tooth is measuring nothing"
@@ -207,11 +238,10 @@ def test_the_refusal_escapes_every_handler_on_aiders_actual_call_path():
     names, _ = interceptor._exception_names()
 
     caught_by = []
-    for h in handlers:
-        if h.type is None:
+    for expr in handlers:
+        if expr is None:
             caught_by.append(("bare except", (BaseException,)))
             continue
-        expr = ast.unparse(h.type)
         if "exceptions_tuple" in expr:
             # Resolves off the litellm module — which is OURS once installed.
             caught_by.append((expr, tuple(getattr(mod, n) for n in names)))
@@ -499,7 +529,6 @@ def test_the_record_survives_the_handler_that_aider_actually_has():
     about OUR record, deliberately — a tooth asserting that aider still swallows would go
     red the day aider stops, and that red would be good news read as a defect.
     """
-    import ast
     import json
     import tempfile
 
@@ -537,14 +566,11 @@ def test_the_record_survives_the_handler_that_aider_actually_has():
 
     # The measurement that corrected the charter, re-derived rather than transcribed: is
     # there in fact a handler on aider's call path broad enough to catch our refusal?
-    src = Path.home() / "dev" / "src" / "aider" / "aider" / "coders" / "base_coder.py"
-    assert src.exists(), f"the held foreign program is not at its declared address: {src}"
-    broad = []
-    for node in ast.walk(ast.parse(src.read_text(encoding="utf-8"))):
-        if isinstance(node, ast.FunctionDef) and node.name == "send_message":
-            for h in ast.walk(node):
-                if isinstance(h, ast.ExceptHandler):
-                    broad.append("bare except" if h.type is None else ast.unparse(h.type))
+    broad = ["bare except" if e is None else e
+             for e in aider_handlers("aider/coders/base_coder.py", "send_message")]
+    assert any(e in ("bare except", "Exception", "BaseException") for e in broad), (
+        "no handler on aider's send_message is broad enough to catch the refusal — the "
+        f"measurement this tooth stands on has moved: {broad}")
     print(f"       (aider's send_message handlers today: {broad})")
 
 
@@ -559,6 +585,13 @@ def main():
     print("\nGREEN")
     return 0
 
+
+PROVES = {
+    "b4a0a72be12d": {
+        "1": "test_the_refusal_escapes_every_handler_on_aiders_actual_call_path",
+        "2": "test_the_record_survives_the_handler_that_aider_actually_has",
+    },
+}
 
 if __name__ == "__main__":
     raise SystemExit(main())

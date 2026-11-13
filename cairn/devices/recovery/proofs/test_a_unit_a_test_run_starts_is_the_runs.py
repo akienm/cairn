@@ -58,6 +58,10 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
 HOLD_ENV = "CAIRN_LAUNCHERS_UNITMARK_HOLD"
+# NO PROOF_TIMEOUT_S HERE, ON PURPOSE (measured 2026-11-13, ticket 91ec21c6792c): a declared
+# budget beats the caller's --timeout, and tooth 5 runs THIS file under `--timeout 40` and holds
+# it until killed. Declaring 600 made that inner run wait 600 s, so the whole run took 10 min 39 s
+# and timed out under its own budget. The run fits the tester's 120 s default.
 
 PROVES = {"f04d5ef26a48": {
     "1": "test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id",
@@ -66,6 +70,9 @@ PROVES = {"f04d5ef26a48": {
     "4": "test_outside_a_run_the_units_are_unchanged",
 }, "d50d162c5428": {
     "all": "test_a_killed_run_leaves_no_unit_of_its_own",
+}, "91ec21c6792c": {
+    "1": "test_a_failed_unit_of_a_run_collects_itself",
+    "2": "test_the_scratch_env_names_no_far_box",
 }}
 _TAG = f"{os.getpid()}"
 _SCRATCH = scratch_dir("cairn-proof-unitmark-")
@@ -117,6 +124,15 @@ def _ss_shim() -> str:
     return f"{d}:{os.environ.get('PATH', '')}"
 
 
+def _scratch_env(environ: dict) -> dict:
+    """The caller's env with nothing that names another box: no test id, no CAIRN_HOME_HOST,
+    no CAIRN_BUS_*. A session whose cairn home is another box carries both (measured
+    2026-11-13 on akienasus: CAIRN_HOME_HOST=akiendelllinux.local made superclaude skip the
+    scratch web_server, so the web tooth read launched=False)."""
+    return {k: v for k, v in environ.items()
+            if k not in (TEST_ID_ENV, "CAIRN_HOME_HOST") and not k.startswith("CAIRN_BUS_")}
+
+
 def _drive(n: int, *, test_id: str | None, web: bool = False) -> tuple[subprocess.Popen, str, str, Path]:
     home = _SCRATCH / f"home-{n}"
     (home / ".cairn" / "logs").mkdir(parents=True, exist_ok=True)
@@ -124,7 +140,7 @@ def _drive(n: int, *, test_id: str | None, web: bool = False) -> tuple[subproces
     stand_in.write_text(_STAND_IN)
     stand_in.chmod(0o755)
     loop, webu, scope = _unit("loop", n), _unit("web", n), _unit("caller", n)
-    env = {k: v for k, v in os.environ.items() if k != TEST_ID_ENV}
+    env = _scratch_env(dict(os.environ))
     if test_id:
         env[TEST_ID_ENV] = test_id
     env.update({"HOME": str(home), "CLAUDE_BIN": str(stand_in), "SUPERCLAUDE_NO_SCOPE": "1",
@@ -279,7 +295,17 @@ def _clear_scratch_buses() -> None:
                 _run("systemctl", "--user", verb, unit, timeout=30)
 
 
+def test_the_scratch_env_names_no_far_box() -> None:
+    far = {"PATH": "/usr/bin", TEST_ID_ENV: "x", "CAIRN_HOME_HOST": "akiendelllinux.local",
+           "CAIRN_BUS_HOME": "akiendelllinux.local:7419", "CAIRN_BUS_TLS": "1"}
+    env = _scratch_env(far)
+    leaked = sorted(k for k in env if k in (TEST_ID_ENV, "CAIRN_HOME_HOST") or k.startswith("CAIRN_BUS_"))
+    ok("test_the_scratch_env_names_no_far_box", not leaked and env.get("PATH") == "/usr/bin",
+       f"leaked {leaked}" if leaked else "")
+
+
 def main() -> int:
+    test_the_scratch_env_names_no_far_box()
     try:
         loop, _ = test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id()
         if os.environ.get(HOLD_ENV):
@@ -297,7 +323,7 @@ def main() -> int:
                 except subprocess.TimeoutExpired:
                     print(f"  cleanup: systemctl {verb} {u}{suffix} timed out")
         _clear_scratch_buses()
-    print(f"\n{'GREEN' if not FAILED else 'RED'} — {5 - len(FAILED)}/5")
+    print(f"\n{'GREEN' if not FAILED else 'RED'} — {6 - len(FAILED)}/6")
     return 1 if FAILED else 0
 
 

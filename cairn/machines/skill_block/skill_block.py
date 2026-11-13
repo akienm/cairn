@@ -25,7 +25,7 @@ import json
 import os
 import uuid
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.gate import gate
@@ -298,8 +298,12 @@ def commons_address(path: Path | str) -> Path | None:
     commons = roots().get("CairnCommons")
     if commons is None:
         return None
-    p = Path(path)
-    return Path(commons) / "berths" / p.parent.name / p.name
+    # PureWindowsPath splits on / and \ on every OS: a berth path a Windows box wrote is a
+    # backslash string that a POSIX Path reads as one name (measured 2026-11-12 on the Dell).
+    parts = PureWindowsPath(str(path)).parts
+    if len(parts) < 2:
+        return None
+    return Path(commons) / "berths" / parts[-2] / parts[-1]
 
 
 def read_berth(path: Path | str) -> dict | None:

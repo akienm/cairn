@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_a_status_compare_ignores_the_clock.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T01:48:57",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_untimed_drops_only_the_clock\n  PASS  test_the_relay_tooth_compares_untimed\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_untimed_drops_only_the_clock",
+        "test_the_relay_tooth_compares_untimed"
+      ],
+      "teeth_red": [],
+      "test": "test-61fe84c33d59",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "2f5f33ff385b508e20a22d88ca6ef147592349129dac7d551d4c7b19a76f0058",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-61fe84c33d59",
+      "source_fingerprint": "597b132ea50849d5589eea3d767236291fccb6ff2934a1af40be1447dde1fedc",
+      "fingerprint_closure": [
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/proofs/test_a_status_compare_ignores_the_clock.py",
+        "cairn/tools/system_word/system_word.py"
+      ],
+      "reached": {
+        "cairn/devices/sudo_relay": "3e163ba2da5e30aeffa99220b89dfcff031c5cc48634431449ea162cd3a28634",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "d222f5aa408817fb9e751c43303f3415e559eb62f090f8088877482b8d1f3226"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-248101-dfumw1ef/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 1281830,
+          "disk_bytes": 1560576,
+          "entries": 282,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

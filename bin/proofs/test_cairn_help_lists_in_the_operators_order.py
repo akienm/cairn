@@ -34,6 +34,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
+
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN = REPO / "bin" / "cairn"
 
 PROVES = {
@@ -97,7 +99,7 @@ def _env(home: Path, fixture: bool = False) -> dict:
 
 
 def _run(home: Path, *args: str, fixture: bool = False) -> subprocess.CompletedProcess:
-    return subprocess.run([str(CAIRN), *args], env=_env(home, fixture), capture_output=True,
+    return subprocess.run([*bash_script_argv(CAIRN), *args], env=_env(home, fixture), capture_output=True,
                           text=True, timeout=180, cwd="/")
 
 

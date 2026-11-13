@@ -21,6 +21,11 @@ from __future__ import annotations
 import os
 import subprocess
 from pathlib import Path
+import sys
+_REPO_FOR_ARGV = Path(__file__).resolve().parents[2]
+if str(_REPO_FOR_ARGV) not in sys.path:
+    sys.path.insert(0, str(_REPO_FOR_ARGV))
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 CAIRN = ROOT / "bin" / "cairn"
@@ -57,7 +62,7 @@ def _env(home: Path) -> dict:
 
 
 def _run(env: dict) -> subprocess.CompletedProcess:
-    return subprocess.run([str(CAIRN), "superclaude", "--dry-run"], env=env, capture_output=True,
+    return subprocess.run([*bash_script_argv(CAIRN), "superclaude", "--dry-run"], env=env, capture_output=True,
                           text=True, timeout=300, cwd="/", stdin=subprocess.DEVNULL)
 
 

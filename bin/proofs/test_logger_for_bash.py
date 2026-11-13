@@ -38,6 +38,7 @@ nothing and the whole file is theatre.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -48,6 +49,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # bare "bash" on Windows is the WSL launcher
 
 _LOGGER = Path(__file__).resolve().parents[1] / "logger_for_bash"   # bin/proofs -> bin
 _ORIGINAL = Path.home() / "dev/src/akientools/bin/logger_for_bash"  # the graft's source
@@ -64,7 +67,7 @@ def _bash(script: str, *, logger: Path | None = None, env: dict | None = None,
     base["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("lfb-proof-traces-"))
     base["PYTHONPATH"] = str(_LOGGER.parents[1])
     full = f'source "{src}"\n{script}\n'
-    return subprocess.run(["bash", "-c", full], capture_output=True, text=True,
+    return subprocess.run([_BASH, "-c", full], capture_output=True, text=True,
                           env={**base, **(env or {})}, cwd=cwd)
 
 
@@ -276,7 +279,7 @@ def test_two_shells_writing_at_once_keep_both_records():
     with tempfile.TemporaryDirectory() as d:
         t = _log(d)
         procs = [subprocess.Popen(
-            ["bash", "-c", f'source "{_LOGGER}"; for i in $(seq 1 40); do lognote "s{n}-$i"; done'],
+            [_BASH, "-c", f'source "{_LOGGER}"; for i in $(seq 1 40); do lognote "s{n}-$i"; done'],
             env={**os.environ, "CAIRN_LOGTARGET": t, "CAIRN_LOGLEN": "100000"},
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) for n in range(4)]
         for p in procs:
@@ -375,7 +378,7 @@ def _interactive(script: str, *, logdir: str, histfile: str | None = None) -> No
     # otherwise, exiting 1 and writing no log at all — a silently empty record that reads
     # exactly like "the hook does not fire", which is why the assertions below name the
     # command they expected rather than just asserting non-empty.
-    subprocess.run(["bash", "--rcfile", str(rc), "-i"], input=script, text=True,
+    subprocess.run([_BASH, "--rcfile", str(rc), "-i"], input=script, text=True,
                    capture_output=True, env=env, timeout=60)
 
 

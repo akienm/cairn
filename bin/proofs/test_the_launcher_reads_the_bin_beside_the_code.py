@@ -32,6 +32,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
+
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN = REPO / "bin" / "cairn"
 DEV = "testing-lw-device"
 STANDING = ["bin/proofs/test_a_word_with_no_script_goes_onto_the_bus.py",
@@ -85,7 +87,7 @@ class _World:
     def cairn(self, *args: str) -> subprocess.CompletedProcess:
         env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(self.root), "CAIRN_CLASS_ROOT": str(self.cls),
                "CAIRN_BUS_MOUTH": str(self.mouth)}
-        return subprocess.run([str(CAIRN), *args], capture_output=True, text=True, env=env, timeout=120)
+        return subprocess.run([*bash_script_argv(CAIRN), *args], capture_output=True, text=True, env=env, timeout=120)
 
 
 def a_top_level_word_runs_the_cairn_bin() -> None:

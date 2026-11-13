@@ -41,10 +41,14 @@ from __future__ import annotations
 import importlib.machinery
 import importlib.util
 import json
+import os
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # bare "bash" on Windows is the WSL launcher
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _GATE = _REPO_ROOT / "bin" / "cmd" / "proofgate"
@@ -227,7 +231,7 @@ def _fixture_proofs() -> Path:
 
 
 def _bash(command: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["bash", "-c", command], capture_output=True, text=True, timeout=600,
+    return subprocess.run([_BASH, "-c", command], capture_output=True, text=True, timeout=600,
                           cwd=str(_REPO_ROOT))
 
 

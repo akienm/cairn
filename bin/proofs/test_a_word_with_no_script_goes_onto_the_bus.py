@@ -28,6 +28,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
+
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN = REPO / "bin" / "cairn"
 DEV = "fx41a7"
 
@@ -72,7 +74,7 @@ def _world() -> tuple[Path, Path, Path]:
 
 def _cairn(root: Path, mouth: Path, *args: str) -> subprocess.CompletedProcess:
     env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(root), "CAIRN_BUS_MOUTH": str(mouth)}
-    return subprocess.run([str(CAIRN), *args], capture_output=True, text=True, env=env, timeout=120)
+    return subprocess.run([*bash_script_argv(CAIRN), *args], capture_output=True, text=True, env=env, timeout=120)
 
 
 def clause_1_a_word_naming_a_script_runs_it(root: Path, mouth: Path, log: Path) -> None:
@@ -103,7 +105,7 @@ def clause_3_any_other_word_goes_to_the_bus_mouth(root: Path, mouth: Path, log: 
 
 def clause_4_the_operator_inbox_comes_through_its_device() -> None:
     legacy = REPO / "bin" / "cmd" / "operator"
-    r = subprocess.run([str(CAIRN), "operator", "show", "inbox"], capture_output=True, text=True,
+    r = subprocess.run([*bash_script_argv(CAIRN), "operator", "show", "inbox"], capture_output=True, text=True,
                        timeout=300)
     _check("clause_4_the_operator_inbox_comes_through_its_device",
            not legacy.exists() and r.returncode == 0 and "OPERATOR INBOX" in r.stdout,

@@ -25,6 +25,11 @@ from __future__ import annotations
 import os
 import subprocess
 from pathlib import Path
+import sys
+_REPO_FOR_ARGV = Path(__file__).resolve().parents[2]
+if str(_REPO_FOR_ARGV) not in sys.path:
+    sys.path.insert(0, str(_REPO_FOR_ARGV))
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 CAIRN = ROOT / "bin" / "cairn"
@@ -71,7 +76,7 @@ def _env(home: Path, *, venv: str | None = None, unit_missing: bool = False) -> 
 
 
 def _run(args: list, env: dict) -> subprocess.CompletedProcess:
-    return subprocess.run([str(CAIRN), *args], env=env, capture_output=True, text=True,
+    return subprocess.run([*bash_script_argv(CAIRN), *args], env=env, capture_output=True, text=True,
                           timeout=300, cwd="/", stdin=subprocess.DEVNULL)
 
 

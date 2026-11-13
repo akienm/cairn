@@ -30,6 +30,7 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"f0ffa0db0952": {"6": "tooth_6_the_command_wires_the_declared_instance"}}
@@ -73,7 +74,7 @@ def tooth_6() -> None:
                "CAIRN_CMD_DIR": str(base / "nocmd")}
 
         def run(*args: str) -> subprocess.CompletedProcess:
-            return subprocess.run(["bash", str(repo / "bin" / "cairn"), *args], capture_output=True,
+            return subprocess.run([*bash_script_argv(repo / "bin" / "cairn"), *args], capture_output=True,
                                   text=True, env=env, timeout=120)
 
         got = {}

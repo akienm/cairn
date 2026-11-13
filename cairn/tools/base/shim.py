@@ -1213,10 +1213,17 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
             return {"exit": 1, "text": f"{self.device_id}: {verb} failed: {type(exc).__name__}: {exc}",
                     "data": None, "cached": None}
 
+    def _bare(self) -> dict:
+        """The answer to a bare ``cairn <device>`` — the one place a device changes it (ticket
+        59f7456dd9f5). A device overrides THIS, never ``_resolve``: the root vocabulary is
+        inherited whole by every roster shim (test_root_verb_vocabulary)."""
+        dev = self.device_id
+        return {"exit": 0, "text": f"device: {dev}\nclass:  cairn/devices/{dev}/", "data": None, "cached": None}
+
     def _resolve(self, argv: list[str]) -> dict:
         dev = self.device_id
         if not argv:
-            return {"exit": 0, "text": f"device: {dev}\nclass:  cairn/devices/{dev}/", "data": None, "cached": None}
+            return self._bare()
         if canon(argv[0], (HOT,)) is not None:
             return {"exit": 2, "text": "hot is a modifier, not a verb — put it after show, get or list",
                     "data": None, "cached": None}

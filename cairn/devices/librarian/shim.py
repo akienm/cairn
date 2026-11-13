@@ -59,16 +59,15 @@ class LibrarianShim(BaseShim):
         device.attach_chat(factory(device))
         return device
 
-    def _resolve(self, argv: list[str]) -> dict:
+    def _bare(self) -> dict:
         """A bare call wakes the librarian (ticket d832a24e5144; Q#30, Akien 2026-11-06: "a bare
         call to librarian should 1) launch that device's shim, which 2) parses the request
         (nothing) and so 3) launches the librarian and 4) launches a browser"). The browser is
-        the caller's to open — it holds the terminal; this answer prints no URL."""
-        if not argv:
-            self._ensure_device()
-            return {"exit": 0, "text": "librarian: awake; its chat opens in your browser",
-                    "data": {"open": CHAT_PATH}, "cached": False}
-        return super()._resolve(argv)
+        the caller's to open — it holds the terminal; this answer prints no URL. A hook on
+        BaseShim (ticket 59f7456dd9f5), so the root vocabulary stays inherited whole."""
+        self._ensure_device()
+        return {"exit": 0, "text": "librarian: awake; its chat opens in your browser",
+                "data": {"open": CHAT_PATH}, "cached": False}
 
 
 def chat_url() -> str:

@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 95. An answered question disappears:
+      takes the next unused number, which is 96. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1369,6 +1369,13 @@ not matter here. The code catches up to this, never the reverse.
     11.4.10 Claude Code calls Anthropic directly and bypasses the proxy, at least
             for now. WHY: Anthropic is already the lowest-cost provider for Claude
             Code, and the trees can learn from CC's logs instead.
+      [Q#95: The usage tool (cairn/tools/usage/usage.py, the orchestrator's usage
+             reading, 11-12) makes one HTTPS GET to api.anthropic.com for the
+             account's usage, by urllib. The sole-path check reads that as a second
+             door to the inference host, and 4 proofs are red on it (measured
+             2026-11-13, Linux census at 6cbae796b). It calls no model. May usage
+             go on the sole-path allowed list as web_operator did (16.4.4), or
+             should its read go through the inference proxy, or web_operator?]
 
 12 INTENTION EXTRACTOR DEVICE (cairn/devices/intention_extractor/)
   12.1 PURPOSE: Turn raw design prose (a chat excerpt, a note) into a candidate

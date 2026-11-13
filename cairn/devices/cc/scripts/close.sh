@@ -8,7 +8,7 @@ X=~/dev/src/cairn/cairn/devices/cc/scripts/sail.py
 TRAILER=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: '"${CLAUDE_SESSION_URL:?set CLAUDE_SESSION_URL to the session URL}"
 commit_all() {
   (cd $C && git add -u && git commit -qm "$ID: $1$TRAILER" >/dev/null 2>&1)
-  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
+  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ berths/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
   (cd $C && git pull -q --rebase && git push -q 2>&1 | tail -1); (cd $CC && git pull -q --rebase && git push -q 2>&1 | tail -1)
 }
 commit_all "hollow sealed, verdict"

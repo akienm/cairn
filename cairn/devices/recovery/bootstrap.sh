@@ -160,6 +160,26 @@ _cairn_stamp_want() {
 
 _cairn_stamp_file() { echo "$(cairn_venv_dir)/.cairn-stamp"; }
 
+# ── the POSIX names on a Windows venv ────────────────────────────────────────
+# Every device launcher (cairn/devices/*/0/bin/*, bin/cmd/*) is written the POSIX way:
+# `export PATH="$CAIRN_VENV/bin:$PATH"; exec python3 ...`. A Windows venv has neither name —
+# Scripts/, not bin/, and python.exe, not python3.exe — so measured 2026-11-13 on a fresh
+# Win11 box, bare `cairn` fell through to the Microsoft Store stub ("Python was not found",
+# exit 49). Rather than teach ~30 launchers two spellings, the venv is given the POSIX ones:
+# Scripts/python3.exe (a copy of the venv launcher, which finds pyvenv.cfg one level up from
+# wherever it is called) and bin -> Scripts. POSIX hosts already have both and are untouched.
+_cairn_is_windows() { case "$(uname -s 2>/dev/null)" in MINGW*|MSYS*|CYGWIN*) return 0 ;; esac; return 1; }
+_cairn_windows_posix_names() {
+  local venv="$1"
+  _cairn_is_windows || return 0
+  [[ -x "$venv/Scripts/python.exe" ]] || return 1
+  [[ -x "$venv/Scripts/python3.exe" ]] || cp "$venv/Scripts/python.exe" "$venv/Scripts/python3.exe" || return 1
+  if [[ ! -e "$venv/bin" ]]; then
+    ( cd "$venv" && MSYS=winsymlinks:nativestrict ln -s Scripts bin ) || return 1
+  fi
+  [[ -x "$venv/bin/python3" ]]
+}
+
 # ── verify — re-runnable, measures, repairs nothing ──────────────────────────
 # Returns 0 when the floor is up. Every failure appends a finding carrying what a fixer
 # needs on the FIRST report: what was probed, what came back, and where it lives. Akien's
@@ -212,6 +232,12 @@ cairn_bootstrap_verify() {
   if [[ "$(cat "$(_cairn_stamp_file)" 2>/dev/null)" != "$(_cairn_stamp_want)" ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("FLOOR IS STALE — the venv works but its stamp does not match the current pyproject.toml / python / checkout path. Dependencies may have moved since it was built. Repair: cairn_bootstrap_apply")
     _cairn_boot_log "verify: FAIL stamp-mismatch — a rebuild is owed"
+    return 1
+  fi
+
+  if _cairn_is_windows && [[ ! -x "$venv/bin/python3" ]]; then
+    CAIRN_BOOTSTRAP_FINDINGS+=("WINDOWS VENV LACKS ITS POSIX NAMES — $venv/bin/python3 does not run, so every device launcher that does \`PATH=\$CAIRN_VENV/bin:\$PATH; exec python3\` falls through to the Microsoft Store stub (exit 49). Repair: cairn_bootstrap_apply (lays Scripts/python3.exe and bin -> Scripts)")
+    _cairn_boot_log "verify: FAIL windows-posix-names — $venv/bin/python3 absent"
     return 1
   fi
 
@@ -299,6 +325,12 @@ cairn_bootstrap_apply() {
   _cairn_boot_log "apply: step editable-install \`$vpy -m pip install -e $CAIRN_REPO_ROOT\` -> rc=$rc out=${out//$'\n'/ | }"
   if [[ $rc -ne 0 ]]; then
     CAIRN_BOOTSTRAP_FINDINGS+=("EDITABLE INSTALL FAILED — \`$vpy -m pip install -e $CAIRN_REPO_ROOT\` exited $rc. Output: ${out//$'\n'/ | }. If this is a network failure the box is offline and the floor cannot be built from PyPI; the venv itself is fine and the repo-root cwd path still works.")
+    return 1
+  fi
+
+  if ! _cairn_windows_posix_names "$venv"; then
+    CAIRN_BOOTSTRAP_FINDINGS+=("WINDOWS POSIX NAMES NOT LAID — could not create $venv/Scripts/python3.exe and/or the $venv/bin -> Scripts link. Device launchers will reach the Microsoft Store stub. Check that $venv is writable and that native symlinks are allowed (Developer Mode, or MSYS=winsymlinks:nativestrict).")
+    _cairn_boot_log "apply: step windows-posix-names -> FAIL"
     return 1
   fi
 

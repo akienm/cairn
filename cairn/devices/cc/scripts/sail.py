@@ -77,8 +77,11 @@ class Asker(DiagnosticBase):
 
 
 def _ticket(tid: str, tickets_dir=None):
-    from cairn.machines.ticket.ticket import Ticket
-    return Ticket.at(tid, tickets_dir=tickets_dir)
+    """The ticket, reading its own record for a chart or verdict stage up to the stage's
+    budget once a reply times out (0bcb816d6e9c); clearance is not such a gate, so it is
+    untouched."""
+    from cairn.machines.ticket import ticket as T
+    return T.Ticket.at(tid, tickets_dir=tickets_dir, settle=T.STAGE_BUDGET_S)
 
 
 def drafts_of(spec: dict) -> dict:

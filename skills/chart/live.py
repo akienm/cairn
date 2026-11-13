@@ -224,6 +224,7 @@ def _queue(argv: list[str]) -> int:
     if len(argv) != 2:
         print("usage: python3 -m skills.chart.live queue <ticket> <stage>", file=sys.stderr)
         return 1
+    from cairn.machines.ticket import ticket as T
     from cairn.machines.ticket.ticket import CHART, VERDICT, Ticket
     tid, stage = argv
     if stage not in CHART + (VERDICT,):
@@ -231,7 +232,9 @@ def _queue(argv: list[str]) -> int:
               file=sys.stderr)
         return 1
     try:
-        got = Ticket.at(tid).chart(participant=_gates(), timeout=_GATE_TIMEOUT_S, stages=(stage,))
+        # the reply may come after its timeout; the berth the gate writes is the answer (0bcb816d6e9c)
+        got = Ticket.at(tid, settle=T.STAGE_BUDGET_S).chart(
+            participant=_gates(), timeout=_GATE_TIMEOUT_S, stages=(stage,))
     except (ValueError, OSError) as exc:
         print(f"queue refused: {exc}", file=sys.stderr)
         return 1

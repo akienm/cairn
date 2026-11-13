@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
@@ -33,6 +34,13 @@ HARBOR = "harbor_master"
 # is a gate too, but not one of these: it is queued after the build, not as part of the chart.
 CHART = ("orient", "constrain", "survey", "decompose", "triage", "hypothesize", "validate")
 VERDICT = "verdict"
+
+# How long an asker reads its own record for a chart or verdict stage after the gate's reply
+# timed out (ticket 0bcb816d6e9c). A deferred gate queues the ticket at once and answers by
+# reply_to when the stage ends (e4714e460e32), so a slow stage replies after its asker gave up
+# while it still berths. Measured 2026-11-12: one constrain ran 1858 s.
+STAGE_BUDGET_S = 3600.0
+_SETTLE_POLL_S = 0.2
 
 _CURSOR = re.compile(r"\[([A-Z]+)")
 
@@ -64,25 +72,29 @@ class Ticket(DiagnosticBase):
 
     It reaches the diagnostic mixin like every class, so the trouble a waiting ticket throws is
     its own (filed under this component, ``ticket``), raised with the base's ``raise_trouble``.
-    ``roots`` points that trail at another world — a proof's scratch tree."""
+    ``roots`` points that trail at another world — a proof's scratch tree. ``settle`` is how
+    long ``queueme`` reads this ticket's own record for a chart or verdict stage once the gate's
+    reply timed out (0, the default, reads nothing and the timeout stands as unqueued)."""
 
-    def __init__(self, plan: str | Path, *, roots=None) -> None:
+    def __init__(self, plan: str | Path, *, roots=None, settle: float = 0.0) -> None:
         super().__init__()
         self._plan = Path(plan)
+        self._settle = float(settle)
         if roots is not None:
             self.set_diagnostic_roots(roots)
 
     @classmethod
-    def at(cls, ref: str | Path, *, tickets_dir: str | Path | None = None, roots=None) -> "Ticket":
+    def at(cls, ref: str | Path, *, tickets_dir: str | Path | None = None, roots=None,
+           settle: float = 0.0) -> "Ticket":
         """The ticket a fileref names: an existing plan path, or an id the store resolves."""
         p = Path(ref)
         if p.is_file():
-            return cls(p, roots=roots)
+            return cls(p, roots=roots, settle=settle)
         from cairn.tools.base.ticket_file import find_ticket
         found = find_ticket(str(ref), Path(tickets_dir) if tickets_dir is not None else None)
         if found is None:
             raise FileNotFoundError(f"no ticket resolves from {str(ref)!r}")
-        return cls(found, roots=roots)
+        return cls(found, roots=roots, settle=settle)
 
     @property
     def fileref(self) -> str:
@@ -175,19 +187,29 @@ class Ticket(DiagnosticBase):
     def queueme(self, gate: str, *, participant, timeout: float = 30.0) -> dict:
         """Ask the gate's holder to queue this ticket at ``gate``; log the exchange.
 
-        A bounce or a timeout means no handler answered: the ticket raises a trouble and waits
-        (returns ``queued`` False) — it never retries on its own and never goes quiet."""
+        A bounce means no handler answered: the ticket raises a trouble and waits (returns
+        ``queued`` False) — it never retries on its own and never goes quiet. A timeout at a
+        chart or verdict gate is not yet that: a deferred gate takes the ticket and answers when
+        the stage ends (e4714e460e32), so the ticket reads its own record for up to ``settle``
+        seconds (outline 3.3.4.3, its life is data on disk). The berth the gate writes passes it;
+        the refusal the gate raises fails it, carrying the lacks the gate put on the plan; only
+        silence through the whole budget is unqueued (ticket 0bcb816d6e9c)."""
         tid = self.id
         verb = f"machines/{gate}/queueme"
         # The id, not this box's path: the gate may sit on another box, which resolves the id
         # from its own commons (ticket 8bb8b4729f17). A doc with no id still sends its path.
         sent = {"fileref": tid or self.fileref}
+        settle = self._settle if gate in CHART + (VERDICT,) else 0.0
+        before = (self.berth(gate), self._newest_raise(_refused_identity(tid, gate))) \
+            if settle > 0 else None
         try:
             reply = participant.request(to=GATE_HOLDER, verb=verb, body=sent, timeout=timeout,
                                         why=f"ticket {tid} asks to be queued at {gate}")
             body = dict((reply or {}).get("body") or {})
         except TimeoutError as exc:
             body = {"error": str(exc)}
+            if before is not None:
+                body = self._settled(gate, before, settle) or body
         queued = body.get("accepted") is True and not body.get("is_bounce")
         from cairn.tools.base.ticket_log import append_log
         append_log(self._plan, "gate_dialog",
@@ -214,6 +236,42 @@ class Ticket(DiagnosticBase):
                 self.clear_trouble(refused, by=tid or "ticket",
                                    what_changed=f"passed at {gate}: the refusal is answered")
         return {"queued": queued, "gate": gate, "reply": body, "trouble": trouble}
+
+    def _settled(self, gate: str, before: tuple, settle: float) -> dict | None:
+        """Read this ticket's record for ``gate`` until it moves past ``before`` (the berth and
+        the newest refusal raise noted before asking) or ``settle`` seconds pass. A new berth is
+        a passed reply, a new refusal a refused one with the plan's lacks; None is silence."""
+        berth0, raise0 = before
+        end = time.monotonic() + settle
+        while True:
+            berth = self.berth(gate)
+            if berth and berth != berth0:
+                return {"accepted": True, "passed": True, "berth": berth, "ticket": self.id,
+                        "stage": gate, "settled_by": "berth"}
+            newest = self._newest_raise(_refused_identity(self.id, gate))
+            if newest and newest != raise0:
+                lacks = [{"kind": one.get("kind"), "why": one.get("missing")}
+                         for one in self.doc().get("fixme") or []]
+                return {"accepted": True, "passed": False, "lacks": lacks, "ticket": self.id,
+                        "stage": gate, "settled_by": "refusal"}
+            if time.monotonic() >= end:
+                return None
+            time.sleep(_SETTLE_POLL_S)
+
+    def _newest_raise(self, identity: str) -> str | None:
+        """The trail name of the newest raise record naming ``identity``, or None. Reads only."""
+        trail = self.diagnostic_trail()
+        if trail is None or not Path(trail).is_dir():
+            return None
+        for name in sorted((n.name for n in Path(trail).iterdir()
+                            if n.name.endswith(".raise_trouble.json")), reverse=True):
+            try:
+                rec = json.loads((Path(trail) / name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if rec.get("pointer") == identity:
+                return name
+        return None
 
     def _stands_raised(self, identity: str) -> bool:
         """Does ``identity`` stand raised on this ticket's own trail? The newest raise or clear

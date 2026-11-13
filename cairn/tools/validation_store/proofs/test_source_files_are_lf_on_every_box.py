@@ -21,7 +21,6 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -49,7 +48,8 @@ def _eol(repo: Path, rel: str) -> str:
 
 
 def _scratch() -> Path:
-    tmp = Path(tempfile.mkdtemp(prefix="cairn-eol-pin-proof-"))
+    from cairn.tools.scratch.scratch import scratch_dir
+    tmp = scratch_dir("cairn-eol-pin-proof-")
     subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
     shutil.copyfile(_REPO_ROOT / ".gitattributes", tmp / ".gitattributes")
     return tmp

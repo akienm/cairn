@@ -18,7 +18,6 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -61,7 +60,8 @@ def test_the_pin_names_the_one_file(repo: Path) -> None:
 def main() -> int:
     tmp = None
     try:
-        tmp = Path(tempfile.mkdtemp(prefix="cairn-hook-pin-proof-"))
+        from cairn.tools.scratch.scratch import scratch_dir
+        tmp = scratch_dir("cairn-hook-pin-proof-")
         subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
         shutil.copyfile(_REPO_ROOT / ".gitattributes", tmp / ".gitattributes")
         test_the_hook_source_reads_lf(tmp)

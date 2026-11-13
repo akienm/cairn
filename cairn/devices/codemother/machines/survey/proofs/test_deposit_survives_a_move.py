@@ -58,19 +58,50 @@ from cairn.devices.codemother.machines.survey.survey import (
 from cairn.tools.scratch.scratch import scratch_dir
 
 TICKET = "a-deposit-stands-downstream-of-a-move"
-CONSTRAIN_BERTH = ("/home/akien/.cairn/devices/chart/0/packets/"
-                   "constrain-20260817T212124-e0bc2bbadd77.json")
+
+PROVES = {
+    "f153192145dd": {
+        "1": "test_the_fixture_is_one_the_writer_admits",
+        "2": "test_the_live_corpus_carries_no_moved_refusal",
+    },
+}
+# The live berths of THIS box, measured where the box holds any (instance-space: a box that
+# never charted has none, so nothing below may need one to exist).
 # A live address that this voyage will not move, and its stand-in successor.
 MOVES_FROM = "cairn/devices/codemother/machines/survey/survey.py"
 MOVES_TO = "cairn/machines/build_inspector/inspector.py"
 BERTHS = os.path.expanduser("~/.cairn/devices/chart/0/packets")
 
 
+_CHAIN = {}
+
+
+def _constrain_berth() -> str:
+    """A constrain berth this proof writes itself, over an orient berth it writes too
+    (ticket f153192145dd). MEASURED 2026-11-13 on akienasus: the proof named
+    /home/akien/.cairn/devices/chart/0/packets/constrain-20260817T212124-e0bc2bbadd77.json,
+    and a box that never charted has no such directory, so the writer refused the fixture
+    before any tooth could bite. The berths are claimless (the identity rule leaves a
+    claimless upstream alone) and carry exactly what survey's reader takes: an orient
+    berth with an intent, and a constrain berth with bounds and the intent_ref to it."""
+    if "constrain" not in _CHAIN:
+        d = scratch_dir("deposit_move_chain_")
+        orient = os.path.join(str(d), "orient-fixture.json")
+        with open(orient, "w", encoding="utf-8") as fh:
+            json.dump({"intent": "the deposit stands downstream of a move"}, fh)
+        constrain = os.path.join(str(d), "constrain-fixture.json")
+        with open(constrain, "w", encoding="utf-8") as fh:
+            json.dump({"intent_ref": orient,
+                       "bounds": {"in": [MOVES_FROM], "out": ["every other component"]}}, fh)
+        _CHAIN["constrain"] = constrain
+    return _CHAIN["constrain"]
+
+
 def base_packet():
     """A packet the REAL berth door admits — everything below moves the world out
     from under this, never the packet out from under the door."""
     return {
-        "constrain_ref": CONSTRAIN_BERTH,
+        "constrain_ref": _constrain_berth(),
         "ticket": TICKET,
         "sought": ["the seat the deposit's gate takes"],
         "holdings": [{"what": "the deposit path itself", "address": MOVES_FROM}],
@@ -195,10 +226,10 @@ def test_the_tolerance_is_only_the_address_finding(tmp):
         expect_refusal(lambda: validate_survey_at_deposit(packet), "measure")
 
 
-def test_the_public_name_is_the_same_order():
-    """One body, two spellings — over every charted address in the live corpus."""
+def _same_order_over(paths) -> int:
+    """How many charted addresses the two spellings were asked about; asserts they agree."""
     asked = 0
-    for path in sorted(glob.glob(os.path.join(BERTHS, "survey-*.json"))):
+    for path in paths:
         packet = json.load(open(path))
         tid = packet.get("ticket")
         for att in judge_survey(packet):
@@ -209,10 +240,51 @@ def test_the_public_name_is_the_same_order():
                 asked += 1
                 assert resolves_to(address, tid) == inspector_mod._resolves_to(address, tid), \
                     "the public name answers differently for %r" % (address,)
+    return asked
+
+
+def test_the_public_name_is_the_same_order(tmp):
+    """One body, two spellings — over the fixture corpus and every charted address in this
+    box's live corpus. The fixture berth is judged in a moved world both with a forwarding
+    order and without one (ticket f153192145dd), so the two spellings are compared on a
+    successor and on a dead address on every box, charted or not."""
+    fixture = write_survey(base_packet(), instance_dir=os.path.join(tmp, "fixture_names"))
+    asked = 0
+    for forwarded in (True, False):
+        with MovedWorld(tmp, forwarded=forwarded):
+            asked += _same_order_over([fixture])
+    assert asked >= 2, "the fixture corpus asked %d addresses, expected one per world" % asked
+    asked += _same_order_over(sorted(glob.glob(os.path.join(BERTHS, "survey-*.json"))))
     assert asked, "the corpus asked nothing — this tooth measured no addresses"
 
 
-def test_the_live_corpus_carries_no_moved_refusal():
+def _measure_corpus(paths):
+    """Each berth judged at the deposit: (still_refused, rescued names, findings disposed).
+    The per-finding assertion lives here, so the fixture corpus and the live one answer it
+    the same way."""
+    still_refused, rescued, disposed = [], [], 0
+    for path in paths:
+        packet = json.load(open(path))
+        tid = packet.get("ticket")
+        moved = [f["finding"] for att in judge_survey(packet)
+                 for f in att["findings"]
+                 if f["judge"] == "survey_holdings_resolve"
+                 and resolves_to((f.get("evidence") or {}).get("address"), tid)]
+        if moved:
+            rescued.append(os.path.basename(path))
+            disposed += len(moved)
+        try:
+            validate_survey_at_deposit(packet)
+        except SurveyRefused as err:
+            still_refused.append((os.path.basename(path), str(err)))
+            for finding in moved:
+                assert finding not in str(err), (
+                    "%s is still refused naming %r, whose address HAS a successor"
+                    % (os.path.basename(path), finding))
+    return still_refused, rescued, disposed
+
+
+def test_the_live_corpus_carries_no_moved_refusal(tmp):
     """THE INVARIANT, not the count: after the build, no berth is refused at the
     deposit FOR A FINDING whose address has a successor on record.
 
@@ -227,31 +299,27 @@ def test_the_live_corpus_carries_no_moved_refusal():
 
     The rescued/refused counts are printed as evidence and never asserted — they
     move whenever anybody charts, and a proof that asserts a snapshot goes red at
-    the moment its own condition is satisfied."""
+    the moment its own condition is satisfied.
+
+    THE CORPUS IS THE FIXTURE CORPUS PLUS THIS BOX'S OWN (ticket f153192145dd). Berths are
+    instance-space on the box that charted them, so on a box that never charted the live
+    glob is empty and the tooth measured nothing. The fixture corpus is one survey berthed
+    by the real writer, holding MOVES_FROM, judged in a world where MOVES_FROM moved with a
+    forwarding order: it MUST be counted rescued and must not be refused, so a build that
+    drops the deposit's tolerance reds here on every box. The live corpus is still judged
+    wherever the box holds one."""
+    fixture = write_survey(base_packet(), instance_dir=os.path.join(tmp, "fixture_corpus"))
+    with MovedWorld(tmp, forwarded=True):
+        f_refused, f_rescued, f_disposed = _measure_corpus([fixture])
+    assert f_rescued == [os.path.basename(fixture)], (
+        "the fixture berth carried no moved address the successor order disposed: %r"
+        % (f_rescued,))
+    assert not f_refused, "the fixture berth is still refused at the deposit: %r" % (f_refused,)
     paths = sorted(glob.glob(os.path.join(BERTHS, "survey-*.json")))
-    assert paths, "no berthed survey packets — the corpus tooth measured nothing"
-    still_refused, rescued, disposed = [], 0, 0
-    for path in paths:
-        packet = json.load(open(path))
-        tid = packet.get("ticket")
-        moved = [f["finding"] for att in judge_survey(packet)
-                 for f in att["findings"]
-                 if f["judge"] == "survey_holdings_resolve"
-                 and resolves_to((f.get("evidence") or {}).get("address"), tid)]
-        if moved:
-            rescued += 1
-            disposed += len(moved)
-        try:
-            validate_survey_at_deposit(packet)
-        except SurveyRefused as err:
-            still_refused.append((os.path.basename(path), str(err)))
-            for finding in moved:
-                assert finding not in str(err), (
-                    "%s is still refused naming %r, whose address HAS a successor"
-                    % (os.path.basename(path), finding))
-    print("      evidence: %d berths, %d carried a moved address (%d findings "
-          "disposed), %d still refused"
-          % (len(paths), rescued, disposed, len(still_refused)))
+    still_refused, rescued, disposed = _measure_corpus(paths)
+    print("      evidence: fixture corpus 1 berth rescued (%d finding(s) disposed); live "
+          "corpus %d berths, %d carried a moved address (%d findings disposed), %d still "
+          "refused" % (f_disposed, len(paths), len(rescued), disposed, len(still_refused)))
     for name, err in still_refused:
         print("      still refused: %s — %s" % (name, err.splitlines()[-1].strip()[:100]))
 
@@ -264,8 +332,8 @@ def _main() -> int:
         (test_half_a_the_deposit_stands_downstream_of_a_move, True),
         (test_half_b_a_dead_holding_with_no_forwarding_still_refuses, True),
         (test_the_tolerance_is_only_the_address_finding, True),
-        (test_the_public_name_is_the_same_order, False),
-        (test_the_live_corpus_carries_no_moved_refusal, False),
+        (test_the_public_name_is_the_same_order, True),
+        (test_the_live_corpus_carries_no_moved_refusal, True),
     ]
     try:
         for check, needs_tmp in checks:

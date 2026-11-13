@@ -31,7 +31,11 @@ if str(_REPO_ROOT) not in sys.path:
 PROVES = {"e8fe361a5b2f": {"1": "the_skill_holds_no_reach",
                            "2": "codemother_answers_deposit_and_drain",
                            "3": "the_code_moved_once",
-                           "4": "a_real_deposit_rides_the_bus"}}
+                           "4": "a_real_deposit_rides_the_bus"},
+          # 99ef0135b9b6's clause 4 IS this tooth run from a far box: it sends the fixture
+          # orient packet by value with scratch over the live bus and reds when codemother
+          # does not take it by value (accepted, a testing_e8fe nexus, a node named).
+          "99ef0135b9b6": {"4": "a_real_deposit_rides_the_bus"}}
 
 LIVE = _REPO_ROOT / "skills" / "chart" / "live.py"
 DEPOSIT = _REPO_ROOT / "cairn" / "devices" / "codemother" / "deposit.py"

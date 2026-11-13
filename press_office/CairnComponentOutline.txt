@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 90. An answered question disappears:
+      takes the next unused number, which is 93. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -526,6 +526,13 @@ not matter here. The code catches up to this, never the reverse.
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the
               bus it once woke.
+              [Q#92: A proof that starts Windows processes stays red until it
+               has your word (CAIRN_PROOF_MAY_SPAWN=1). Measured 2026-11-12:
+               tooth 2 of dc945eb1f072 (cairn.cmd against Git Bash) is red on
+               exactly that word, and nothing in this outline says what the
+               word is. Is it an env var each run sets, a standing flag in
+               ~/.cairn, or may a proof spawn one short hidden process without
+               asking?]
       5.3.5.4 A wake waits until the part answers, at most 60 s (5.5.3.9).
               Repeated failures back off, then file a trouble (5.8.3.2.2), so a
               crash loop cannot spin.
@@ -1103,6 +1110,12 @@ not matter here. The code catches up to this, never the reverse.
                       98ab0e9db57f): "i am good with retiring that".
         9.4.2.3.3 Seals: one current validation per proof, beside the proof. A seal
                   holds while the code it measured is unchanged.
+                  [Q#90: A proof's seal is one record, so the newest OS to seal
+                   replaces the other's, and a proof with teeth for both OSes reds
+                   on every single OS. Measured 2026-11-12: a Windows reseal of a
+                   mixed proof overwrote the Linux seal. Do seals go per OS
+                   (validations/<os>/, or an OS key in the record), or is one OS
+                   the sealing box?]
         9.4.2.3.4 A timed-out run is its own outcome, not red.
         9.4.2.3.5 Notices: what a run saw that nobody asked about, surfaced to the
                   operator.
@@ -1476,6 +1489,14 @@ not matter here. The code catches up to this, never the reverse.
        who came through it (hash-chained, caller read from the kernel). WHY: errors
        are permanent in records of truth (Law 7), and the journal is what shows a
        record moved by hand. USERS: everyone who writes a record.
+       [Q#91: The caller class is read from the kernel's cgroup path, so on
+        Windows it reads null and the class comes only from env vars (CAIRN_USER,
+        CLAUDECODE, CAIRN_OPERATOR); gate cannot be reached, and 3 teeth in
+        test_artifact_door.py say UNRAN. Measured 2026-11-12: the Windows parent
+        process chain does show claude.exe above a shell. Is Windows a first-class
+        caller platform (an exe-name chain: claude.exe is cc, a console with no
+        claude above it is akien, a service session is gate), or env-fallback
+        only?]
   17.3 bus_client: gets a process onto the bus (reach a device, or connect). Its
        connect is a wake attempt (5.3.5.1). USERS: every process that speaks.
   17.4 cgroup: reads which cgroup a process lives in. WHY: 10.3.2. USERS: CC,

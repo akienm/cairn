@@ -69,6 +69,10 @@ PROVES = {"1af0564c0db3": {
     "4": "test_a_wrapped_command_is_judged_as_the_command_it_is",
     "5": "test_cairn_test_seals_only_its_own_segment",
     "6": "test_a_proof_path_as_an_argument_is_not_a_proof_run",
+}, "a4f5804c724a": {
+    "1": "test_a_proof_fed_through_xargs_is_rewritten",
+    "2": "test_pytest_through_xargs_is_refused",
+    "3": "test_xargs_feeding_no_proof_passes_untouched",
 }}
 
 _HELD: list = []
@@ -340,6 +344,44 @@ def test_a_proof_path_as_an_argument_is_not_a_proof_run():
     assert not bare, f"a proof in the script slot was not rewritten: {bare}"
 
 
+_XPROOF = "cairn/devices/tester/proofs/test_x.py"
+THROUGH_XARGS = [
+    f"ls {_XPROOF} | xargs python3",
+    f"ls {_XPROOF} | xargs -I{{}} python3 {{}}",
+    f"ls {_XPROOF} | xargs -n 1 python3",
+    "find cairn -path '*proofs/test_*' | xargs -P4 -n1 python3",
+    "ls cairn/devices/tester/proofs/ | xargs -I % python3 %",
+]
+PYTEST_THROUGH_XARGS = [
+    "ls cairn/devices/tester/proofs | xargs pytest",
+    f"ls {_XPROOF} | xargs -n1 python3 -m pytest",
+]
+XARGS_NO_PROOF = [
+    "ls tools/*.py | xargs python3 tools/x.py",
+    "echo a | xargs echo",
+    f"ls {_XPROOF} | xargs wc -l",
+    "ls cairn/tools/*.py | xargs python3",
+]
+
+
+def test_a_proof_fed_through_xargs_is_rewritten():
+    g = _gate()
+    bare = [c for c in THROUGH_XARGS if (g.judge(c) or {}).get("command") != _wrapped(c)]
+    assert not bare, f"a proof fed through xargs was not rewritten: {bare}"
+
+
+def test_pytest_through_xargs_is_refused():
+    g = _gate()
+    let = [c for c in PYTEST_THROUGH_XARGS if (g.judge(c) or {}).get("action") != "refuse"]
+    assert not let, f"pytest through xargs was not refused: {let}"
+
+
+def test_xargs_feeding_no_proof_passes_untouched():
+    g = _gate()
+    judged = [c for c in XARGS_NO_PROOF if g.judge(c) is not None]
+    assert not judged, f"xargs feeding no proof was judged: {judged}"
+
+
 def test_the_whole_fix_holds_end_to_end():
     test_the_word_as_an_argument_passes_untouched()
     test_pytest_as_a_command_word_is_still_refused()
@@ -376,6 +418,9 @@ def _main() -> int:
         test_cairn_test_seals_only_its_own_segment,
         test_a_proof_path_as_an_argument_is_not_a_proof_run,
         test_the_whole_fix_holds_end_to_end,
+        test_a_proof_fed_through_xargs_is_rewritten,
+        test_pytest_through_xargs_is_refused,
+        test_xargs_feeding_no_proof_passes_untouched,
     ]
     # EVERY TOOTH PRINTS, red ones too, so a red names which clause fell.
     failed = []

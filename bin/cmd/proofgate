@@ -64,12 +64,13 @@ KEYWORDS = {"do", "then", "else", "elif", "!", "{"}
 SEPARATOR_CHARS = set(";&|()\n")
 SEGMENT = re.compile(r"&&|\|\||[;|\n]|\bdo\b|\bthen\b")
 PYTHON = re.compile(r"python[0-9.]*$")
-PREFIXES = {"timeout", "strace", "env", "nice", "nohup", "stdbuf", "time", "ionice", "setsid", "exec"}
+PREFIXES = {"timeout", "strace", "env", "nice", "nohup", "stdbuf", "time", "ionice", "setsid", "exec", "xargs"}
 ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
 PROOF_PATH = re.compile(r"(?:^|/)proofs/(?:[^/]+/)*test_[^/]*\.py$")
 PROOF_MODULE = re.compile(r"(?:^|\.)proofs\.(?:\w+\.)*test_\w+$")
 PROOF_GLOB = re.compile(r"proofs/\S*test_")
 PY_OPTS_WITH_ARG = {"-W", "-X", "-Q"}
+PROOFS_DIR = re.compile(r"(?:^|/)proofs(?:/|$)")
 
 REFUSAL = """REFUSED — pytest runs a proof outside the tester's instance seal.
 
@@ -156,6 +157,32 @@ def _runs_a_proof(args: list[str], loop_vars: set[str]) -> bool:
     return False
 
 
+def _xargs_feeds_a_proof(toks: list[str], at: int, earlier: list[list[str]]) -> bool:
+    """A python that xargs runs reads its script from xargs's input (ticket a4f5804c724a): the
+    script slot is empty, or it is the -I/-i/--replace string. It runs a proof when an earlier
+    segment of the same command names a proofs/ path, the pipe that feeds xargs. A python with a
+    real script slot is judged by that slot, as before."""
+    head = [os.path.basename(t) for t in toks[:at]]
+    if "xargs" not in head:
+        return False
+    x = toks[:at]
+    repl = None
+    for k, t in enumerate(x):
+        if t == "-I" and k + 1 < len(x):
+            repl = x[k + 1]
+        elif t.startswith("--replace="):
+            repl = t.split("=", 1)[1]
+        elif t[:2] in ("-I", "-i") and len(t) > 2:
+            repl = t[2:]
+        elif t in ("-i", "--replace"):
+            repl = "{}"
+    slot = next((a for a in toks[at + 1:] if not a.startswith("-")), None)
+    if slot is not None and slot != repl:
+        return False
+    return any(PROOF_PATH.search(w) or PROOF_GLOB.search(w) or PROOFS_DIR.search(w)
+               for seg in earlier for w in seg)
+
+
 def _verdict(command: str, depth: int = 0) -> str | None:
     """``"refuse"``, ``"rewrite"`` or ``None``, judged segment by segment by the command word —
     both directions: the word pytest as an argument is nobody's business, and a segment that is
@@ -164,7 +191,7 @@ def _verdict(command: str, depth: int = 0) -> str | None:
     found = None
     segments = _segments(command)
     loop_vars = _loop_vars(segments)
-    for toks in segments:
+    for n, toks in enumerate(segments):
         at = _command_word(toks)
         if at is None:
             continue
@@ -184,7 +211,8 @@ def _verdict(command: str, depth: int = 0) -> str | None:
             if inner == "refuse":
                 return "refuse"
             found = found or inner
-        if PYTHON.match(word) and _runs_a_proof(args, loop_vars):
+        if PYTHON.match(word) and (_runs_a_proof(args, loop_vars)
+                                   or _xargs_feeds_a_proof(toks, at, segments[:n])):
             found = "rewrite"
     return found
 

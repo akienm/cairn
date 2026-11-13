@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_a_census_names_every_outside_reader.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T14:14:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/tmp/cairn-outside-readers-proof-gj9ep4zw/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/tmp/cairn-outside-readers-proof-gj9ep4zw/outside/tools/reader.py'] mentions=['/tmp/cairn-outside-readers-proof-gj9ep4zw/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/tmp/cairn-outside-readers-proof-gj9ep4zw/outside', 'status': 'scanned'}, {'root': '/tmp/cairn-outside-readers-proof-gj9ep4zw/no_such_root', 'status': 'absent'}]\n  PASS  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'absent', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/cc-memory': 'scanned', 'crontab': 'absent'} stray=[]\n\n0 failure(s)",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_planted_code_reader_is_listed_with_path_and_line",
+        "a_prose_mention_and_an_inside_link_are_not_readers",
+        "every_declared_root_reads_scanned_or_absent",
+        "the_live_census_completes_over_every_root"
+      ],
+      "teeth_red": [],
+      "test": "test-18c32c53653b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "104bbe222ea45c88869efabdb128a69ae2a5fd00bd9181671651cac55a1a8624",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-18c32c53653b",
+      "source_fingerprint": "bdad86c697b5833dd5cacc5d13e722ec2a6c60dd11556a866cdb53befb092b24",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/outside_readers.py",
+        "cairn/tools/artifact/proofs/test_a_census_names_every_outside_reader.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-501405-o9h_tyb1/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2128334,
+          "disk_bytes": 2527232,
+          "entries": 360,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

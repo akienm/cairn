@@ -273,5 +273,49 @@ fix is a fresh measurement, not an edit that makes them agree.
 
 ---
 
+## 9. Where the pattern series locates its failures
+
+**Measured 2026-11-13** at `cairn` `cdaed7a66`, by one reader (CC, ticket 907f456a6136),
+over section 1 ("The measured failure") of each of the twelve `Pattern*.md` documents.
+**This is a reading, not a script: n=1 reader, a hypothesis-grade number.** It replaces
+the ticket's earlier coarse grep.
+
+The rule used: take each distinct failure a section 1 names, and class it by the origin
+**that document itself states** — **S**, a property of the system (a missing artifact, a
+rule with no teeth, a mechanism that manufactures its own answer); **M**, a property of the
+mind doing the work (what a reader, an author or a model does under the conditions it
+works in); **B**, the document states both.
+
+| Result | Count |
+|---|---|
+| failures read | 33 |
+| S — stated as a property of the system | 21 |
+| M — stated as a property of the mind doing the work | 9 |
+| B — both stated | 3 |
+
+The nine **M**: continuity held in a context window (`PatternDevelopmentKnowledgeBase`); a
+model does not add logging until told (`PatternGatesAndInspectors`); three roles frozen into
+one device because they co-occur (`PatternTheGroundLoop`); a finding that named a cause it
+had not measured, and a diagnostic read so often it stopped being read
+(`PatternTheLauncher`); a document extractor's fabricated attribution
+(`PatternTheLibrarian`); *node* and *leaf* used as one word (`PatternTreeArchitecture`); a
+plan believed for four days beside a label nobody read (`PatternWhatIsPlanned`); a build that
+ran from the conversation under proximity to a plausible answer
+(`PatternWorkflowAndArtifacts`). The three **B**: an optional `why` filled for three
+components and blank for thirty (`PatternIntentionBasedDevelopment`), a launcher whose logic
+carried no why and was read backwards (`PatternTheLauncher`), and words kept with their
+meanings replaced (`PatternTheLibrarian`).
+
+What it says: **twelve of the 33 (M plus B) name a property of the reasoner, and not one of
+the twelve documents says so in those words** — each states the cure as a property of the
+system. Where the cure is a structure (a gate, an address, a deposit), the structure is
+standing in for something the mind cannot supply by itself.
+
+Re-measure: read section 1 of each `press_office/Pattern*.md`, list each failure, class it
+by the origin the document states, and write the three counts with the day. A different
+reader's counts are a second measurement, not a correction of this one.
+
+---
+
 *Fact sheet, `press_office/FactSheet.md`. Cited by every piece in this folder. Measured
 2026-08-19 against `cairn` at `72ff408` and `CairnCommons` at `0dfd439`.*

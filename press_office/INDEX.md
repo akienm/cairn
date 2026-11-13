@@ -100,6 +100,11 @@ awaiting the signature gate.* The paper. Two-tier novelty and a defense against
 self-confirming retrieval; its real content is a **negative result about our own design**,
 measured 2026-07-27. Names its target venues.
 
+**[`TheMethodAcrossSubstrates.md`](TheMethodAcrossSubstrates.md)** — *draft, awaiting the
+signature gate.* The method of optimizing one thing at a time, and why its findings about
+conditions transfer from one kind of mind to another. Cites FactSheet §9 (33 failures
+classed, n=1 reader). Ticket 907f456a6136.
+
 **[`WorkflowDefinition.md`](WorkflowDefinition.md)** — the source of truth for the workflow,
 and the one piece here that **learns in place**. If a skill, charter, ticket, or device
 disagrees with it, the disagreement is a defect to fix rather than a difference to

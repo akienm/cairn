@@ -17169,5 +17169,91 @@
     "fingerprint": "dd9b2715686d4d3f8fa39911cee693e495ec7bd7a0949c5ef214bffc4aca7255",
     "at": "2026-11-13T02:15:42",
     "seq": 57
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "50ca14d4489e",
+    "actor": "CC",
+    "why": "kicked back from PROVEME on akiendelllinux: tooth 2 ran the launcher against the LIVE bus home (cli_main dials CAIRN_BUS_HOME else live); on the Dell the stale-bus replace shut the live bus down and the spawn timed out — red 2/2 and hollow. The proof's box must own its bus.",
+    "proven_by": [
+      "cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py"
+    ],
+    "missing": [
+      "tooth 2 dials the live bus home: the box names no CAIRN_BUS_HOME of its own, so the launcher run evicts or depends on the host bus (red on akiendelllinux, stops.jsonl shutdown 09:17:36Z)"
+    ],
+    "fingerprint": "45c076924ab1dfc38e677dd52c461111fd42c5218edff2c327cf89f2bcf18f56",
+    "at": "2026-11-13T02:23:57",
+    "seq": 58
   }
 ]

@@ -1473,6 +1473,15 @@ not matter here. The code catches up to this, never the reverse.
     16.1.2 WHY: Many devices learn in the same shape; one engine, held by each,
            holding its trees by the librarian's delegation (4.3.1.4). "a learning
            block is a composite thing with many parts, it's a machine."
+    16.1.3 [Q#97: The first compile (ticket e889b197a3f6) turns a block's recorded
+           runs into a deterministic floor. Which corpus should it learn from?
+           Measured 2026-11-13: librarian-ask holds 7 engine runs. 4 are one
+           question asked again, with the same winner every time; the other 3
+           are the host backfill, where every run escalated to you and
+           carries_his_answer killed 5, 6 and 5 of 6 candidates. The engine
+           traces give a floor that agrees with itself. The backfill kills give
+           one that learns what your answers rule out. Should the first compile
+           learn from the backfill (the kills), not the engine traces?]
   16.2 nest
     16.2.1 PURPOSE: A nest of sieves that lets out just the parts we want.
     16.2.2 WHY: Questions that can be answered deterministically should never reach

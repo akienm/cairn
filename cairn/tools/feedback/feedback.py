@@ -277,7 +277,7 @@ def producers(root: str = CAIRN_ROOT) -> list[str]:
         d = py.parent
         while d != Path(root):
             if (d / CHARTER).is_file():
-                found.add(str(d.relative_to(root)))
+                found.add(d.relative_to(root).as_posix())
                 break
             d = d.parent
     return sorted(found)

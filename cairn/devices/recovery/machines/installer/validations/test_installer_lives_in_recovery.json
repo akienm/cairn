@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_installer_lives_in_recovery.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T16:56:43",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T17:12:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "tooth_census_loads_the_installer"
       ],
       "teeth_red": [],
-      "test": "test-4760a29bac8f",
+      "test": "test-0af66efe1669",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4760a29bac8f",
-      "source_fingerprint": "d085a52df1d0979e4c6e28b9ad46bddef6e0f6c6b6e412d4a1beb07e02e36545",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0af66efe1669",
+      "source_fingerprint": "4271484028c4bd9037690dcc7698846c00a6f69fdfc38b623ea822390a2a55b4",
       "fingerprint_closure": [
         "cairn/devices/recovery/machines/installer/__init__.py",
         "cairn/devices/recovery/machines/installer/installer.py",
@@ -64,7 +63,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1910798-s5i_x3xp/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1922871-is3s2n05/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,59 +72,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530034722,
-          "disk_bytes": 577925120,
-          "entries": 18206,
+          "bytes": 530054778,
+          "disk_bytes": 577961984,
+          "entries": 18214,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "conditions_moved": {
-        "notified": "n-b5d2e6656053",
-        "changed": [
-          "proof"
-        ]
-      },
-      "hollow": {
-        "ce1d61032eff": {
-          "bin/cmd/install": [
-            "tooth_install_runs_from_the_new_home",
-            "tooth_no_live_reference"
-          ],
-          "cairn/devices/recovery/machines/installer/__init__.py": [
-            "tooth_files_are_home"
-          ],
-          "cairn/devices/recovery/machines/installer/ask_user.sh": [
-            "tooth_files_are_home"
-          ],
-          "cairn/devices/recovery/machines/installer/installer.py": [
-            "tooth_files_are_home",
-            "tooth_install_runs_from_the_new_home"
-          ],
-          "cairn/devices/recovery/machines/installer/intention+why.json": [
-            "tooth_census_loads_the_installer",
-            "tooth_files_are_home"
-          ],
-          "cairn/devices/recovery/machines/installer/proofs/test_install_lays_the_journal_merge_driver.py": [
-            "tooth_files_are_home"
-          ],
-          "cairn/devices/recovery/machines/installer/proofs/test_installer.py": [
-            "tooth_files_are_home"
-          ],
-          "cairn/devices/recovery/machines/installer/proofs/test_the_commons_root_has_one_resolver.py": [
-            "tooth_files_are_home"
-          ],
-          "CairnCommons/tickets/53e7979f76e7-cairn-install-lays-the-skills.json": [
-            "tooth_files_are_home"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ce1d61032eff": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d14217997c7a0e2af2407544bc2befacb965d532",
-          "anchor_first_build": "7bcaa22e70787db54d20ed58aae27798493022ac",
-          "commit": "d14217997c7a0e2af2407544bc2befacb965d532"
+          "reuses": 2
         }
       }
     },

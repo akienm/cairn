@@ -298,6 +298,87 @@ def ensure_journal_merge_driver(*, roots: dict | None = None, dry_run: bool = Fa
                       + (f"; already good in {', '.join(good)}" if good else "") + tail}
 
 
+def _is_link(p: Path) -> bool:
+    """A symlink, or a Windows directory junction (os.path.islink reads False for one)."""
+    isj = getattr(os.path, "isjunction", None)
+    return os.path.islink(p) or bool(isj and isj(p))
+
+
+def _make_link(target: Path, at: Path) -> None:
+    if os.name == "nt":
+        r = subprocess.run(["cmd", "/c", "mklink", "/J", str(at), str(target)],
+                           capture_output=True, text=True)
+        if r.returncode:
+            raise OSError(f"mklink /J exited {r.returncode}: {(r.stderr or r.stdout).strip()}")
+    else:
+        os.symlink(target, at, target_is_directory=True)
+
+
+def _drop_link(at: Path) -> None:
+    if os.path.islink(at):
+        os.unlink(at)
+    else:
+        os.rmdir(at)  # a junction: rmdir removes the link, never the target's contents
+
+
+def ensure_skill_links(*, skills_src: Path | None = None, skills_root: Path | None = None,
+                       link=None, dry_run: bool = False) -> dict:
+    """Ticket 53e7979f76e7: ~/.claude/skills/<s> links to <this checkout>/skills/<s> for every
+    Cairn skill (a skills/<s>/ holding SKILL.md), so a fresh box can fire /idea, /intent,
+    /sorted and /sail. Measured 2026-11-12: akienasus had none of 15, akiendell none of 16.
+
+    The skills root is $CLAUDE_CONFIG_DIR/skills if set, else ~/.claude/skills. A correct link
+    is left alone; a link elsewhere is re-pointed; a dangling link into a skills/ dir is
+    removed; a same-named real directory is RED and never touched (it is someone's work).
+    A symlink on POSIX, a directory junction on Windows (no admin needed). `link(target, at)`
+    is injectable so the proof drives it over scratch dirs."""
+    sid = "skill-links"
+    src = Path(skills_src) if skills_src else _REPO / "skills"
+    if skills_root is None:
+        base = os.environ.get("CLAUDE_CONFIG_DIR")
+        skills_root = (Path(base) if base else Path.home() / ".claude") / "skills"
+    root = Path(skills_root)
+    link = link or _make_link
+    names = sorted(d.name for d in src.iterdir() if d.is_dir() and (d / "SKILL.md").is_file())
+    make, repoint, red, good, dangling = [], [], [], [], []
+    for n in names:
+        at, target = root / n, (src / n).resolve()
+        if _is_link(at):
+            (good if at.resolve() == target else repoint).append(n)
+        elif at.exists():
+            red.append(n)
+        else:
+            make.append(n)
+    if root.is_dir():
+        for at in sorted(root.iterdir()):
+            if at.name in names or not _is_link(at) or at.exists():
+                continue
+            if Path(os.readlink(at)).parent.name == "skills":
+                dangling.append(at.name)
+    acts = [(done, would, ns) for done, would, ns in (
+        ("made", "would make", make), ("re-pointed", "would re-point", repoint),
+        ("removed dangling", "would remove dangling", dangling)) if ns]
+    reds = [f"RED: {root / n} is a real directory, not a link; left untouched" for n in red]
+    if not acts:
+        if reds:
+            return {"id": sid, "status": "failed", "detail": "; ".join(reds)}
+        return {"id": sid, "status": "already_applied",
+                "detail": f"{len(good)} skill link(s) good in {root}"}
+    if dry_run:
+        return {"id": sid, "status": "failed" if reds else "offered",
+                "detail": "; ".join(reds + [f"{w} {', '.join(ns)}" for _, w, ns in acts])}
+    root.mkdir(parents=True, exist_ok=True)
+    for n in dangling + repoint:
+        _drop_link(root / n)
+    for n in repoint + make:
+        link((src / n).resolve(), root / n)
+    wrong = [n for n in repoint + make if (root / n).resolve() != (src / n).resolve()]
+    if wrong:
+        reds.append(f"RED: {', '.join(wrong)} do not resolve to {src} after linking")
+    return {"id": sid, "status": "failed" if reds else "applied",
+            "detail": "; ".join(reds + [f"{d} {', '.join(ns)}" for d, _, ns in acts]) + f" (in {root})"}
+
+
 def _venv_exe(venv: Path, name: str) -> Path:
     """The venv's own `name` on this OS: Scripts/<name>.exe on Windows, bin/<name> elsewhere."""
     if (venv / "Scripts").is_dir():
@@ -451,6 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     home = ask_cairn_home(dry_run=args.dry_run)
     results = [home, ask_box_identity(home=home.get("home"), dry_run=args.dry_run),
                ensure_journal_merge_driver(dry_run=args.dry_run),
+               ensure_skill_links(dry_run=args.dry_run),
                ensure_dev_extra(dry_run=args.dry_run)] + install(
         intentions_dir=args.intentions_dir,
         dry_run=args.dry_run,

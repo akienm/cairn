@@ -12,7 +12,7 @@ the point of creation).
   pattern back in their own words, and could apply it to a system of their own. If
   it only lands for someone already fluent in Cairn, it has failed its purpose.
 - **method** — review by ≥1 human (Akien first; more readers widen the quorum).
-  Recorded as a VALIDATION when the tester's notary role is live: `method = "review
+  Recorded as a VALIDATION through the tester's notary: `method = "review
   by N readers"`, `caller = the reviewers`, `verdict`, `evidence = their restated-
   back summary`.
 - **status** — hand-run. Akien reviewed it 2026-09-03, and its ticket crossed PROVED

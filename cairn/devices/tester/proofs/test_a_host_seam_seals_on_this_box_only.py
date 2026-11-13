@@ -3,8 +3,8 @@
 Measured 2026-11-13 by the orchestrator on b1f182b6b818 and 496dcbeba174: clearance refuses
 every host-seam crossing with "the crossing names no proof at all", because nothing turns a
 host-seam intention's verify into a sealed validation. The installer runs the verify and
-leaves no record; node_classes/host-seam.json's prove_gate reads "the tester (IOU: hand-run
-until built)".
+leaves no record; node_classes/host-seam.json's prove_gate names the tester as
+"hand-run until built".
 
 A host-seam seal is BOX-LOCAL: one file per box at
 ``<intentions dir>/validations/<stem>/<host>.json``, and ``standing()`` reads only this box's.

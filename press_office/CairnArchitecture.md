@@ -597,8 +597,8 @@ far is positive: from 34.3% at 1,400 calls to 36.1% at 2,858 — the cache pays 
 corpus deepens.
 
 **The physics claim fails** if rules keep migrating *into* the list of prose rules faster than they
-migrate out. That list is designed to shrink monotonically. It is currently six entries plus
-four residues. If it grows across a quarter, "enforced by physics, not policy" has become the
+migrate out. That list is designed to shrink monotonically. Measured 2026-11-13, it is five
+entries plus seven residues. If it grows across a quarter, "enforced by physics, not policy" has become the
 thing it was built to replace.
 
 **The no-drift claim fails** the first time a charter and its code disagree without anything

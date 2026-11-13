@@ -8292,5 +8292,88 @@
     "fingerprint": "937cafc7a6e5a1ea2e684fc2669f8cb238470bf63197b8cc3ade1036194a8280",
     "at": "2026-11-13T02:24:09",
     "seq": 31
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "3a38e2e1cfe0",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  \"the proof's teeth pass\" reports pass, but 'bin/cairn test cairn/devices/web_server/proofs/test_the_shim_proof_stops_what_it_started.py' exited 2 where the claim holding means 0\n    --- output tail ---\ncairn test --exec: refused — the instance seal is not confirmed (indeterminate: cannot build the instance seal: bubblewrap (bwrap) is not installed); the command was not run\n"
+    ],
+    "why": "3a38e2e1cfe0 failed at the verdict gate",
+    "fingerprint": "0fd683d8484585e452ada4f4ad08cfa91b83d5a6f2f524e6e67e59bfaa9dc853",
+    "at": "2026-11-13T02:35:13",
+    "seq": 32
   }
 ]

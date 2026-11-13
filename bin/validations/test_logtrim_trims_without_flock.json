@@ -1,0 +1,92 @@
+[
+  {
+    "claim": "proof test_logtrim_trims_without_flock.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T02:46:13",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  logtrim_cuts_to_the_newest_lines_when_flock_is_missing\n  green  a_timed_out_flock_leaves_the_caller_alive_and_the_file_whole\n\n2/2 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "logtrim_cuts_to_the_newest_lines_when_flock_is_missing",
+        "a_timed_out_flock_leaves_the_caller_alive_and_the_file_whole"
+      ],
+      "teeth_red": [],
+      "test": "test-ba27b7f6015f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 16,
+        "tables": [
+          "loop_retired_27876_0243570734",
+          "loop_earned_then_wrong_27876_0244022567",
+          "loop_receipts_27876_0244066036",
+          "loop_warm_27876_0244113546",
+          "loop_cold_27876_0244143077",
+          "loop_homefield_27876_0244198178",
+          "loop_tenure_27876_0244262268",
+          "loop_fade_27876_0244457625",
+          "loop_tworound_27876_0245013227",
+          "loop_stuck_27876_0245149359",
+          "loop_stuck2_27876_0245234845",
+          "loop_deep_27876_0245274941",
+          "loop_mixed_27876_0245361431",
+          "loop_garbage_27876_0245389188",
+          "loop_crumbs_27876_0245414444",
+          "loop_noseam_27876_0245471464"
+        ]
+      },
+      "conditions": {
+        "proof": "d38bc98bead5d9e2a246c9242f4665137b405483b7c911cf531c4d04b5f28687",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-ba27b7f6015f",
+      "source_fingerprint": "5f414ebc89134e757eb6a7587689d0dbf96f8c4be5b3fa3dfe043c2a2c78673c",
+      "fingerprint_closure": [
+        "bin/proofs/test_logtrim_trims_without_flock.py",
+        "cairn/devices/tester/reach/sitecustomize.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

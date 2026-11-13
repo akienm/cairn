@@ -956,7 +956,9 @@ def install_hook(root: Path | None = None) -> dict:
         if existing == body:
             return {"installed": False, "path": str(dest), "why": "already installed, unchanged"}
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(body, encoding="utf-8")
+    # LF on every box (ticket 383ac6351996): a shell runs this hook, and write_text would turn
+    # each newline into CRLF on Windows, so one tracked source would install as two byte strings.
+    dest.write_text(body, encoding="utf-8", newline="\n")
     os.chmod(dest, 0o755)
     return {"installed": True, "path": str(dest), "why": f"copied from {HOOK_SOURCE}"}
 

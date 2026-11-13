@@ -74,7 +74,7 @@ def _quiet(fn, *args):
 
 def _stub(dir_: Path, name: str, body: str) -> None:
     p = dir_ / name
-    p.write_text("#!/usr/bin/env bash\n" + body + "\n")
+    p.write_text("#!/usr/bin/env bash\n" + body + "\n", newline="\n")  # LF: a shell runs it (383ac6351996)
     p.chmod(p.stat().st_mode | stat.S_IXUSR)
 
 

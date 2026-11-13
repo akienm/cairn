@@ -513,6 +513,74 @@ def _append(root: Path, entry: dict) -> dict:
     return entry
 
 
+def reland(name: str, *, why: str) -> dict:
+    """Re-land the entries ``_append`` parked in ``orphan_park`` (ticket b80c6d5637fe).
+
+    Each parked entry, in park order: one that already stands in the journal (as an ``entry``
+    or a ``relanded_from``) is dropped; one whose ``sha_before`` is the journal's last
+    ``sha_after`` for its path and whose record stands at its ``sha_after`` is appended once,
+    chained on the tail, keeping its writer's why and caller and adding ``relanded_from``,
+    ``relanded_why`` and ``relanded_by``; anything else stays parked with its reason, because
+    the bytes it describes are not the bytes that stand. The park keeps what stayed, plus
+    every line parked while this ran. Run it on a settled tree (the door lock is held)."""
+    if not (why or "").strip():
+        raise Refused("a re-land with no why is the silent change this door exists to end — say why")
+    root = roots()[name]
+    park = orphan_park(root)
+    out = {"relanded": [], "dropped": [], "kept": []}
+    with door_lock(root):
+        if not park.exists():
+            return out
+        lines = [x for x in park.read_text(encoding="utf-8").splitlines() if x.strip()]
+        journal = read_journal(root)
+        stands = {e.get("entry") for e in journal} | {e.get("relanded_from") for e in journal}
+        keep: list[str] = []
+        stuck = False
+        for raw in lines:
+            e = json.loads(raw)
+            if stuck:
+                keep.append(raw)
+                out["kept"].append({"entry": e["entry"], "path": e.get("path"),
+                                    "reason": "an earlier re-land in this run was parked again"})
+                continue
+            if e["entry"] in stands:
+                out["dropped"].append(e["entry"])
+                continue
+            rel = e["path"]
+            p = root / rel
+            have = _sha(p.read_bytes() if p.exists() else None)
+            last = last_sha(journal, rel)
+            if last != e.get("sha_before") or have != e.get("sha_after"):
+                keep.append(raw)
+                out["kept"].append({"entry": e["entry"], "path": rel, "reason": (
+                    f"the journal's last sha_after for {rel} is {(last or 'never journaled')[:12]} "
+                    f"(the entry's sha_before is {str(e.get('sha_before'))[:12]}) and the record stands "
+                    f"at {have[:12]} (the entry's sha_after is {str(e.get('sha_after'))[:12]})")})
+                continue
+            copy = {k: v for k, v in e.items() if k not in ("prev", "entry")}
+            copy.update(relanded_from=e["entry"], relanded_why=why, relanded_by=caller())
+            try:
+                landed = _append(root, copy)
+            except JournalLineOrphaned:
+                stuck = True
+                keep.append(raw)
+                out["kept"].append({"entry": e["entry"], "path": rel,
+                                    "reason": "git replaced the journal under the re-land; parked again"})
+                continue
+            journal.append(landed)
+            stands |= {landed["entry"], e["entry"]}
+            out["relanded"].append(landed["entry"])
+        now = [x for x in park.read_text(encoding="utf-8").splitlines() if x.strip()]
+        rest = keep + now[len(lines):]
+        if rest:
+            tmp = park.with_name(f".{park.name}.{uuid.uuid4().hex[:8]}.tmp")
+            tmp.write_text("".join(x + "\n" for x in rest), encoding="utf-8")
+            os.replace(tmp, park)
+        else:
+            park.unlink()
+    return out
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 

@@ -16,6 +16,8 @@ this file only parses and prints, so a proof measures the module and the CLI sta
   cairn artifact install-title-hook <root>       install the blocking commit-msg check
   cairn artifact merge-journal <base> <ours> <theirs>   git's merge driver for the journal
   cairn artifact install-merge-driver <root>     point the root's git at that driver
+  cairn artifact quiet [-C <dir>] -- <cmd...>     run a git rewrite holding the door lock
+  cairn artifact reland <root> --why '...'        re-land the journal lines the door parked; exit 1 if any stay
 """
 
 from __future__ import annotations
@@ -144,6 +146,8 @@ def main(argv=None) -> int:
     q = sub.add_parser("quiet", help="run a git rewrite holding the door lock (ticket 0f8aefbba1d0)")
     q.add_argument("-C", dest="where", default=".")
     q.add_argument("cmd", nargs=argparse.REMAINDER)
+    rl = sub.add_parser("reland", help="re-land the journal lines the door parked (ticket b80c6d5637fe)")
+    rl.add_argument("root", help="a root name, or the path of a root's toplevel"); rl.add_argument("--why", required=True)
     args = ap.parse_args(argv)
     if args.verb == "quiet":
         return _quiet(args.where, args.cmd)
@@ -205,6 +209,13 @@ def main(argv=None) -> int:
             _out(_install_title_hook(args.root))
         elif args.verb == "merge-journal":
             _out(_merge_journal(args.ours, args.theirs))
+        elif args.verb == "reland":
+            res = A.reland(args.root if args.root in A.roots() else A.root_name_of(args.root), why=args.why)
+            _out(res)
+            if res["kept"]:
+                print(f"artifact reland: {len(res['kept'])} parked line(s) stay parked: the bytes they "
+                      f"describe are not the bytes that stand (ticket b80c6d5637fe)", file=sys.stderr)
+                return 1
         elif args.verb == "install-merge-driver":
             _out(_install_merge_driver(A.roots()[args.root] if args.root in A.roots() else args.root))
     except A.Refused as exc:

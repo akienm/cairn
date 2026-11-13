@@ -21,14 +21,17 @@ One tooth per numbered falsifier clause:
   6. The migration over a scratch table carries one answer per still-valid canonical, meters
      each row the live meter does not already hold, once; a second run writes nothing; a forced mismatch drops nothing and
      exits non-zero; no dump, no drop.
-  7. LIVE, read-only, after the migration: the old table is gone, the answer tree is owned by
-     inference_domain with at least 11,366 leaves, the dump exists, and the metrics totals until
-     the dump's newest row equal the dump's spent and avoided.
+  7. LIVE, read-only, after the migration, as the home instance answers its ``migration`` verb:
+     the old table is gone, the answer tree holds at least 11,366 leaves, the dump exists, and
+     the metrics totals until the dump's newest row equal the dump's spent and avoided.
   8. The median of 100 tree lookups is no more than 3x the median of 100 old-shape table reads.
   9. Every other proof under cairn/devices/inference_domain stays green.
+ 10. (ticket e95b5d93cff0) Tooth 7's judgement reds when the home instance's counts or sums
+     disagree. Tooth 7 asks the home instance over the bus (verb ``migration``), because the
+     answer tree is one box's, so it reads the same on every box.
 
 Requires the db_domain provisioning; every table here is scratch, and every scratch tree's
-nodes are forgotten before it drops. Tooth 7 reads the live store and the live bus.
+nodes are forgotten before it drops. Tooth 7 reads the live bus only.
 
     bin/cairn test cairn/devices/inference_domain/proofs/test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py
 """
@@ -62,6 +65,9 @@ PROVES = {"98ab0e9db57f": {
     "7": "live_the_table_is_gone_and_the_meter_carried",
     "8": "a_tree_lookup_is_no_slower_than_three_table_reads",
     "9": "every_other_proof_under_the_device_stays_green",
+}, "e95b5d93cff0": {
+    "1": "live_the_table_is_gone_and_the_meter_carried",
+    "2": "the_carried_judgement_reds_on_a_disagreement",
 }}
 
 DEVICE = _REPO_ROOT / "cairn" / "devices" / "inference_domain"
@@ -337,56 +343,57 @@ def _leaves(tree: str):
 
 # ── 7 ────────────────────────────────────────────────────────────────────────
 
-def _dump_sums(path: Path) -> tuple[float, float, datetime]:
-    """spent (miss cost) and avoided (hit cost) read off the dump's COPY section, and its
-    newest row's created."""
-    spent = avoided = 0.0
-    newest = None
-    cols = None
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            if cols is None:
-                if line.startswith(f"COPY public.{OLD} "):
-                    cols = [c.strip() for c in line.split("(", 1)[1].split(")", 1)[0].split(",")]
-                continue
-            if line.startswith("\\."):
-                break
-            vals = line.rstrip("\n").split("\t")
-            r = dict(zip(cols, vals))
-            cost = 0.0 if r["cost"] == "\\N" else float(r["cost"])
-            if r["verdict"] == "miss":
-                spent += cost
-            elif r["verdict"] == "hit":
-                avoided += cost
-            at = datetime.fromisoformat(r["created"])
-            newest = at if newest is None or at > newest else newest
-    assert cols is not None, f"{path} carries no COPY section for {OLD}"
-    return spent, avoided, newest
+def _carried(migration: dict, totals: list[dict]) -> str:
+    """The judgement tooth 7 makes (ticket e95b5d93cff0): what the home instance's ``migration``
+    verb answered, against the metrics totals until the dump's newest row. Raises on any
+    disagreement; returns the line it printed."""
+    assert migration.get("old_table_gone") is True, f"{OLD} is still there: {migration}"
+    n = migration.get("leaves")
+    assert isinstance(n, int) and n >= 11366, f"{n} leaves in the answer tree"
+    assert migration.get("dump_newest"), f"no dump of the old table: {migration}"
+    spent, avoided = migration["dump_spent"], migration["dump_avoided"]
+    m_spent = sum(t["sum"] for t in totals if t["name"] == "inference.spent")
+    m_saved = sum(t["sum"] for t in totals if t["name"] == "inference.saved")
+    assert (round(m_spent, 3), round(m_saved, 3)) == (round(spent, 3), round(avoided, 3)), (
+        m_spent, m_saved, spent, avoided)
+    return f"dump spent {spent} avoided {avoided}; metrics spent {m_spent} saved {m_saved}; leaves {n}"
 
 
 def live_the_table_is_gone_and_the_meter_carried():
-    store, domain = _store(), _domain()
-    assert store.owner_of(OLD) is None, f"{OLD} is still registered"
-    gone = store.query("SELECT 1 FROM information_schema.tables WHERE table_name = %s",
-                       tables={}, params=(OLD,))
-    assert not gone, f"{OLD} still exists"
-    assert store.owner_of(domain.ANSWERS) == "inference_domain", store.owner_of(domain.ANSWERS)
-    n = store.query("SELECT count(*) AS n FROM {t}", tables={"t": domain.ANSWERS}, params=())[0]["n"]
-    assert n >= 11366, f"{n} leaves in the answer tree"
-    dumps = sorted((Path.home() / ".cairn/devices/inference_domain/0/temp").glob(f"{OLD}-*.sql"))
-    assert dumps, "no dump of the old table"
-    spent, avoided, newest = _dump_sums(dumps[-1])
+    """LIVE, read-only. The answer tree is ONE box's (open-39f6229e7241; outline 5.5.3.8,
+    11.3.5.1), so the counts and the dump are asked of the home instance over the bus (verb
+    ``migration``, ticket d9d87ccb97e5), never read off this box's store (ticket e95b5d93cff0)."""
     from cairn.tools.bus_client import reach
-    bound = newest + timedelta(seconds=1)
+    migration = reach("inference_domain").request(
+        sender="inference_domain", to="inference_domain", verb="migration",
+        why="98ab0e9db57f tooth 7 (testing)", body={})["body"]
+    newest = migration.get("dump_newest")
+    assert newest, f"no dump of the old table: {migration}"
+    bound = datetime.fromisoformat(newest) + timedelta(seconds=1)
     totals = reach("cairn").request(sender="inference_domain", to="cairn", verb="metrics",
                                     why="98ab0e9db57f tooth 7 (testing)",
                                     body={"source": "inference_domain", "totals": True,
                                           "until": bound.isoformat()})["body"]["totals"]
-    m_spent = sum(t["sum"] for t in totals if t["name"] == "inference.spent")
-    m_saved = sum(t["sum"] for t in totals if t["name"] == "inference.saved")
-    print(f"    dump spent {spent} avoided {avoided}; metrics spent {m_spent} saved {m_saved}; leaves {n}")
-    assert (round(m_spent, 3), round(m_saved, 3)) == (round(spent, 3), round(avoided, 3)), (
-        m_spent, m_saved, spent, avoided)
+    print("    " + _carried(migration, totals))
+
+
+def the_carried_judgement_reds_on_a_disagreement():
+    """Ticket e95b5d93cff0 clause 2: tooth 7's judgement reds when the counts or sums the home
+    instance answers disagree; it passes the same reply when they agree."""
+    good = {"old_table_gone": True, "leaves": 11366, "dump_spent": 5.0, "dump_avoided": 2.0,
+            "dump_newest": "2026-11-09T12:00:00+00:00"}
+    totals = [{"name": "inference.spent", "sum": 5.0}, {"name": "inference.saved", "sum": 2.0}]
+    _carried(good, totals)
+    for bad, tot in (({**good, "leaves": 17}, totals),
+                     ({**good, "old_table_gone": False}, totals),
+                     ({**good, "dump_newest": None}, totals),
+                     (good, [{"name": "inference.spent", "sum": 4.0}, totals[1]]),
+                     (good, [totals[0], {"name": "inference.saved", "sum": 2.5}])):
+        try:
+            _carried(bad, tot)
+        except AssertionError:
+            continue
+        raise AssertionError(f"a disagreement passed: {bad} against {tot}")
 
 
 # ── 8 ────────────────────────────────────────────────────────────────────────
@@ -444,6 +451,7 @@ TEETH = [no_module_names_the_old_table, a_repeat_is_served_from_the_tree,
          an_expired_answer_is_not_served, the_yield_report_sums_the_metrics_reply,
          the_calls_verb_reads_the_logs_tree, the_migration_carries_and_meters_once,
          live_the_table_is_gone_and_the_meter_carried,
+         the_carried_judgement_reds_on_a_disagreement,
          a_tree_lookup_is_no_slower_than_three_table_reads,
          every_other_proof_under_the_device_stays_green]
 

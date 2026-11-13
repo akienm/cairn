@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_the_hook_source_checks_out_lf.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:50:11",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  [win32] test_the_hook_source_reads_lf  — cairn/devices/tester/hooks/pre-commit: lf\n  PASS  [win32] test_the_pin_names_the_one_file  — cairn/devices/tester/hooks/some-other-file: unspecified\n\nGREEN",
+      "stderr_tail": "scratch: could not sweep C:\\Users\\akien\\AppData\\Local\\Temp\\ws-shim-pulse-scratch.0-8880-ygusv8c7: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\akien\\\\AppData\\\\Local\\\\Temp\\\\ws-shim-pulse-scratch.0-8880-ygusv8c7\\\\web_server.log'",
+      "teeth_green": [
+        "[win32] test_the_hook_source_reads_lf  — cairn/devices/tester/hooks/pre-commit: lf",
+        "[win32] test_the_pin_names_the_one_file  — cairn/devices/tester/hooks/some-other-file: unspecified"
+      ],
+      "teeth_red": [],
+      "test": "test-298c6bc68503",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "5c8cc171390067d1811f247f9d5e2b30cd35de9523fad9110c2f6a2746e14614",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-298c6bc68503",
+      "source_fingerprint": "c9c08588ab6ef1d12348f6fb07af64a6afce74c6bf4fb85008b010da5d1dcad4",
+      "fingerprint_closure": [
+        "cairn/tools/validation_store/proofs/test_the_hook_source_checks_out_lf.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/base": "fc928cffa76422f8ad4e1ec50d7334ff608bbbadee39c324ce5235761efdb7be",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

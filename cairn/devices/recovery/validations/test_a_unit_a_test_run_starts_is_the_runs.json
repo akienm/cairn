@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_unit_a_test_run_starts_is_the_runs.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-04T21:26:17",
+    "date": "2026-11-13T00:32:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-31ad17b37a4a', want 'test-31ad17b37a4a'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 3857221) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-3857754-1']; left after its kill=[]\n\nGREEN — 5/5",
+      "stdout_tail": "  ok   test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id  — loop unit started=True, its CAIRN_TESTER_TEST_ID='test-24d8f458d123', want 'test-24d8f458d123'\n  ok   test_a_failed_unit_of_a_run_collects_itself  — loop killed (pid 2395331) gone=True state='inactive'; web launched=True state=('not-found', 'inactive')\n  ok   test_a_run_killed_by_its_timeout_leaves_no_unit  — the inner run timed out=True; units it left: []\n  ok   test_outside_a_run_the_units_are_unchanged  — loop unit started=True, carries id=False, CollectMode='inactive'\n  ok   test_a_killed_run_leaves_no_unit_of_its_own  — the inner run timed out=True; units it started=['cairn-proof-unitmark-loop-2395803-1']; left after its kill=[]\n\nGREEN — 5/5",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id",
@@ -17,7 +17,7 @@
         "test_a_killed_run_leaves_no_unit_of_its_own"
       ],
       "teeth_red": [],
-      "test": "test-31ad17b37a4a",
+      "test": "test-24d8f458d123",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,54 +34,54 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-31ad17b37a4a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-24d8f458d123",
       "source_fingerprint": "293e20cab0a0a2396444d9deef131ef0531634b847b3123273f9520da1f87f02",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py"
       ],
       "reached": {
-        "cairn/devices/cc": "a6c1d76d91da75d8004f7e3e151b90800687d052af286cfdf2fc5e0c086ab1ff",
-        "cairn/devices/tester": "17d6a413146e8d70d57b8de36a41a9262fd533cf7b8a9496e10d9353d8967c4b",
-        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/base": "b0fcbfc625965517c5083ae7e713bdbfb009daec55ea4c47bc72e53f4c817055",
+        "cairn/devices/cc": "937c20a0dab18b5fbc4ddc4b8599eab9be52ffe63c90ebfe11b0dc16acd71796",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
-        "cairn/tools/scratch": "a8174e1761eb5b4fd09e52673bd43bdec9d967138c054f88ff12616172e9ae95",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713",
-        "cairn/tools/validation_store": "88510b9c9272f1c9b3ae95663c4b3abd000dcbd27bedbba97c2fbd506b3e83c9"
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d",
+        "cairn/tools/validation_store": "97a61e1f2f38862e0f43ccfcac485b1ae41ff494de9089b5b969b8cbb75dfa89"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3857151-9txoqs1d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2395246-152znzsu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261105.042521.811681.TesterDevice.run_proof.json",
-            "logs/tester/0/20261105.042611.166374.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-2df200be0122/stderr.txt",
-            "logs/tester/0/runs/test-2df200be0122/stdout.txt",
-            "logs/tester/0/runs/test-4cee5a1859b0/stderr.txt",
-            "logs/tester/0/runs/test-4cee5a1859b0/stdout.txt"
+            "logs/tester/0/20261113.073159.155429.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.073248.544652.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-dc09139b30c1/stderr.txt",
+            "logs/tester/0/runs/test-dc09139b30c1/stdout.txt",
+            "logs/tester/0/runs/test-ddbf08bbeb2b/stderr.txt",
+            "logs/tester/0/runs/test-ddbf08bbeb2b/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 115913822,
-          "disk_bytes": 146898944,
-          "entries": 12227,
+          "bytes": 529866572,
+          "disk_bytes": 571166720,
+          "entries": 15927,
           "builds": 1,
           "reuses": 0
         }

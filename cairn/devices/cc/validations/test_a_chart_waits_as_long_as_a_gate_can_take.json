@@ -1,0 +1,76 @@
+[
+  {
+    "claim": "proof test_a_chart_waits_as_long_as_a_gate_can_take.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T00:36:40",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_chart_hands_the_ticket_the_long_timeout  — chart handed timeout=890.0, CHART_TIMEOUT_S=890.0\n  PASS  test_clearance_keeps_the_short_timeout  — clearance handed timeout=120.0\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_chart_hands_the_ticket_the_long_timeout",
+        "test_clearance_keeps_the_short_timeout"
+      ],
+      "teeth_red": [],
+      "test": "test-d1686e247b0f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "6142c15e9258f86995437355e86f52280517588d63853c2fb841c969adf53ccd",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d1686e247b0f",
+      "source_fingerprint": "ea1fd7af95f39c297d1ae62a1add98ecc17866b66811c908396cc7c2f40c8c42",
+      "fingerprint_closure": [
+        "cairn/devices/cc/proofs/test_a_chart_waits_as_long_as_a_gate_can_take.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2398649-se3xd9h0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

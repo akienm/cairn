@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_librarian_structure.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-13T04:24:49",
+    "caller": "cairn test",
+    "date": "2026-11-13T00:13:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_link_id_is_direction_independent\n.\n  ok   test_link_creates_and_updates\n.\n  ok   test_linked_returns_both_directions\n.\n  ok   test_traverse_increments_count\n.\n  ok   test_traverse_nonexistent_returns_none\n.\n  ok   test_link_neighbors_creates_links\n.\n  ok   test_route_ranks_by_attractor_proximity\n.\n  ok   test_route_skips_empty_trees\n.\n  ok   test_route_respects_k\n                                                         [100%]\n16 passed in 4.99s",
+      "stdout_tail": ".\n  ok   test_link_id_is_direction_independent\n.\n  ok   test_link_creates_and_updates\n.\n  ok   test_linked_returns_both_directions\n.\n  ok   test_traverse_increments_count\n.\n  ok   test_traverse_nonexistent_returns_none\n.\n  ok   test_link_neighbors_creates_links\n.\n  ok   test_route_ranks_by_attractor_proximity\n.\n  ok   test_route_skips_empty_trees\n.\n  ok   test_route_respects_k\n                                                         [100%]\n16 passed in 6.81s",
       "stderr_tail": "",
       "teeth_green": [
         "test_attractor_of_an_empty_tree_is_none",
@@ -28,7 +28,7 @@
         "test_route_respects_k"
       ],
       "teeth_red": [],
-      "test": "test-02af5b993bec",
+      "test": "test-ff0a60ef3d58",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -45,22 +45,35 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e"
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-02af5b993bec",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ff0a60ef3d58",
       "source_fingerprint": "f81e3438ca7c451e3cc0358ec31c4c1c80c84f7521a4f91ad0bb18a9a553d23f",
       "fingerprint_closure": [
         "cairn/devices/librarian/__init__.py",
         "cairn/devices/librarian/proofs/test_librarian_structure.py"
       ],
+      "reached": {
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "f40058f7865f87897d09e3ad624a7676365d0a76e6e69c99ca9d495ff7953403",
+        "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/system_word": "a6e81c62ea3f02a3fb0d0d8cb4e0a3a2d8cadf29f4e91de2397b846fc78db629"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2531268-do0zku48/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2369487-n606qjj6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,14 +82,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 108667218,
-          "disk_bytes": 134168576,
-          "entries": 10248,
+          "bytes": 529865113,
+          "disk_bytes": 571154432,
+          "entries": 15916,
           "builds": 1,
-          "reuses": 2
+          "reuses": 9
         }
-      },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

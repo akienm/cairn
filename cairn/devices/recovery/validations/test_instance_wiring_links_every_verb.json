@@ -2,12 +2,12 @@
   {
     "claim": "proof test_instance_wiring_links_every_verb.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T18:32:01",
+    "date": "2026-11-13T00:34:38",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept\n        listing=['alpha', 'beta'] rc=0 out='linked 2 already 1 left 0\\n' err=''\n  PASS  tooth_2_a_bin_that_is_its_class_bin_is_left_alone\n        before=['alpha', 'beta', 'notes.txt'] after=['alpha', 'beta', 'notes.txt'] self_links=[] out='linked 1 already 2 left 0\\n'\n  PASS  tooth_3_a_hand_placed_file_is_left_and_named\n        out='linked 1 already 0 left 1\\n' err='cairn wire: hand-placed file stands where class verb alpha would link: /tmp/testing-f0ffa0db0952-scratch.4026531836-1584550-sizx5tvm/instance/fixture_wiring/0/bin/alpha\\n'\n  PASS  tooth_4_one_device_and_instance_is_wired_alone\n        rc=0 linked=['alpha', 'beta'] alone=True refusals={} err=''\n  PASS  tooth_5_the_counts_name_their_unit\n        out='linked 1 already 1 left 1\\n' first_run_says_devices=False\n5 passed, 0 failed",
+      "stdout_tail": "  PASS  tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept\n        listing=['alpha', 'beta'] rc=0 out='linked 2 already 1 left 0\\n' err=''\n  PASS  tooth_2_a_bin_that_is_its_class_bin_is_left_alone\n        before=['alpha', 'beta', 'notes.txt'] after=['alpha', 'beta', 'notes.txt'] self_links=[] out='linked 1 already 2 left 0\\n'\n  PASS  tooth_3_a_hand_placed_file_is_left_and_named\n        out='linked 1 already 0 left 1\\n' err='cairn wire: hand-placed file stands where class verb alpha would link: /tmp/testing-f0ffa0db0952-scratch.4026531836-2397223-icnf5e5c/instance/fixture_wiring/0/bin/alpha\\n'\n  PASS  tooth_4_one_device_and_instance_is_wired_alone\n        rc=0 linked=['alpha', 'beta'] alone=True refusals={} err=''\n  PASS  tooth_5_the_counts_name_their_unit\n        out='linked 1 already 1 left 1\\n' first_run_says_devices=False\n5 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept",
@@ -17,7 +17,7 @@
         "tooth_5_the_counts_name_their_unit"
       ],
       "teeth_red": [],
-      "test": "test-42bdd61d2beb",
+      "test": "test-98a41eb53dc9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "1f152a6681175e836c0d135b81039d58273e9204f0332b00e8e3ee5aad3822c5",
+        "proof": "d706c62d67126ed7592c1a63bde4c860844c4e1ca8e08c6af1fb6b7aade8d6a3",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,64 +40,37 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-42bdd61d2beb",
-      "source_fingerprint": "cb95108cb7182f1c4a2feb815f8881b539c59f77ca6718f458b7fa50e723a635",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-98a41eb53dc9",
+      "source_fingerprint": "e911a4c4f9574b635cabfa833be242dc64f3712094b675f5a1156152a0a75453",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_instance_wiring_links_every_verb.py"
       ],
       "reached": {
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-2395246-h984rwpw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-42bdd61d2beb/stderr.txt",
-            "logs/tester/0/runs/test-42bdd61d2beb/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "f0ffa0db0952": {
-          "cairn/devices/recovery/bootstrap.sh": [
-            "tooth_1_a_new_class_verb_is_linked_and_a_correct_link_is_kept",
-            "tooth_3_a_hand_placed_file_is_left_and_named",
-            "tooth_4_one_device_and_instance_is_wired_alone",
-            "tooth_5_the_counts_name_their_unit",
-            "tooth_6_the_command_wires_the_declared_instance"
-          ],
-          "cairn/devices/recovery/bootstrap_first_run.sh": [
-            "tooth_5_the_counts_name_their_unit"
-          ],
-          "cairn/devices/recovery/intention+why.json": {
-            "notified": "n-c4d378f6b31b"
-          },
-          "bin/cairn": [
-            "tooth_6_the_command_wires_the_declared_instance"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "f0ffa0db0952": {
-          "anchor_rule": "journal",
-          "anchor_journal": "3549d7e5c9dd88bb0e2bfbfd4f85b6506fee9e9d",
-          "anchor_first_build": "9dd1006a3914988c76e60e67df3ada6ec4f719a0",
-          "commit": "3549d7e5c9dd88bb0e2bfbfd4f85b6506fee9e9d"
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 3
         }
       }
     },

@@ -2,20 +2,20 @@
   {
     "claim": "proof test_a_recorded_clear_is_classed_from_its_cgroup.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-06T05:48:19",
+    "date": "2026-11-13T00:35:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  an_unknown_clear_with_a_tab_cgroup_is_served_akien\n        {\"recorded-clear-proof-bare\": \"unknown\", \"recorded-clear-proof-cc\": \"cc\", \"recorded-clear-proof-tab\": \"akien\"}\n  PASS  a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored\n        {\"recorded-clear-proof-bare\": \"unknown\", \"recorded-clear-proof-cc\": \"cc\", \"recorded-clear-proof-tab\": \"akien\"}\n  PASS  the_trouble_file_is_not_rewritten\n        changed: []\n\nGREEN",
+      "returncode": 1,
+      "stdout_tail": "  the clears read raised AttributeError: module 'cairn.devices.trouble.tools.store.store' has no attribute 'clears'\n  FAIL  an_unknown_clear_with_a_tab_cgroup_is_served_akien\n        {}\n  FAIL  a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored\n        {}\n  FAIL  the_trouble_file_is_not_rewritten\n        changed: []\n\nRED — 3 failure(s)\n  - an_unknown_clear_with_a_tab_cgroup_is_served_akien\n  - a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored\n  - the_trouble_file_is_not_rewritten",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "an_unknown_clear_with_a_tab_cgroup_is_served_akien",
         "a_stored_cc_and_a_cgroupless_unknown_are_served_as_stored",
         "the_trouble_file_is_not_rewritten"
       ],
-      "teeth_red": [],
-      "test": "test-c3749a368d96",
+      "test": "test-63aaf2c4b9de",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,47 +32,45 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3749a368d96",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63aaf2c4b9de",
       "source_fingerprint": "0c7241a21f881a4e5bc908968b01b96529c63a4bbebf0a62090926829d1e2b03",
       "fingerprint_closure": [
         "cairn/devices/trouble/__init__.py",
         "cairn/devices/trouble/proofs/test_a_recorded_clear_is_classed_from_its_cgroup.py"
       ],
       "reached": {
-        "cairn/devices/tester": "62912dd3cddef711cf1866214e058bdb265694d68d780fbeaed23ce6d9d01d5f",
-        "cairn/devices/trouble/tools/store": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/tools/artifact": "830467f82a95bde7f4806bad758c455267ff3e8f4d6fb9ab7b3cc614399978c4",
-        "cairn/tools/base": "2c392bbbf902845e9cc7b05c1ce4f8b317b1908ad98c70533b4b2d2d5b6e2b42",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
+        "cairn/devices/trouble/tools/store": "1c3711dbbeac81d87cc542452d47e57f91181ed3d4083af4c935ab9fa20939ed",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-2397997-dk_n0bou/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-c3749a368d96/stderr.txt",
-            "logs/tester/0/runs/test-c3749a368d96/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 529865372,
+          "disk_bytes": 571154432,
+          "entries": 15916,
+          "builds": 1,
+          "reuses": 2
         }
       }
     },

@@ -11,11 +11,19 @@ PROVES (teeth below):
 
 The scratch box is 96c1's (bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py): a
 scratch instance root, a scratch socket dir and a stand-in `sudo`, so nothing live is touched.
+
+THE BOX OWNS ITS BUS (2026-11-13, kicked back from PROVEME on akiendelllinux). The launcher speaks
+through cli_main, which dials the bus at CAIRN_BUS_HOME, else the LIVE home. On akienasus the live
+bus answered and tooth 2 read green; on the Dell the hollow's code found the live bus stale, sent
+it `shutdown` (stops.jsonl, 09:17:36Z) and then timed out at the live bus.sock. So every CAIRN_BUS_*
+the caller carries is dropped, the box names a scratch bus home and its own unit, and main() shuts
+that bus down after the teeth.
 """
 from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -28,6 +36,7 @@ PROVES = {"50ca14d4489e": {
 }}
 
 _failures: list[str] = []
+UNIT = f"cairn-own-launcher-proof-bus-{os.getpid()}"
 
 
 def _env(home: Path) -> dict:
@@ -35,10 +44,14 @@ def _env(home: Path) -> dict:
     d.mkdir(exist_ok=True)
     (d / "sudo").write_text("#!/bin/sh\necho 'sudo: a password is required' >&2\nexit 1\n")
     (d / "sudo").chmod(0o755)
-    env = dict(os.environ)
-    env["PATH"] = f"{d}:{env.get('PATH', '')}"
-    env["CAIRN_INSTANCE_ROOT"] = str(home / "devices")
+    env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
+    env["CAIRN_BUS_HOME"] = str(home / "bus")      # the box's own bus, never the live one
+    env["CAIRN_BUS_UNIT"] = UNIT
     env.setdefault("CAIRN_VENV", str(Path.home() / ".cairn" / "venv"))
+    # the bus the launcher spawns is `python3 -m ...bus serve` off PATH; a bare system python3
+    # has no psycopg2 and dies before bus.sock (measured 2026-11-13), so the venv leads
+    env["PATH"] = f"{d}:{Path(env['CAIRN_VENV']) / 'bin'}:{env.get('PATH', '')}"
+    env["CAIRN_INSTANCE_ROOT"] = str(home / "devices")
     (home / "nosock").mkdir(exist_ok=True)
     env["CAIRN_PG_SOCKET_DIR"] = str(home / "nosock")
     env["CAIRN_BOOT_LOG"] = str(home / "boot")
@@ -85,20 +98,40 @@ def test_the_linked_launcher_names_the_device() -> None:
     if not at.exists():
         check("test_the_linked_launcher_names_the_device", False, f"nothing at {at}")
         return
-    r = subprocess.run([str(at)], env=env, capture_output=True, text=True, timeout=60, cwd="/",
+    # the walk ran with no pg socket so the floor brings nothing up; the scratch bus this run
+    # spawns opens the store at import and dies on that empty dir (measured 2026-11-13), so the
+    # launcher runs with the box's own bus home and the host's store, as every scratch-bus proof does
+    run_env = {k: v for k, v in env.items() if k != "CAIRN_PG_SOCKET_DIR"}
+    r = subprocess.run([str(at)], env=run_env, capture_output=True, text=True, timeout=120, cwd="/",
                        stdin=subprocess.DEVNULL)
     check("test_the_linked_launcher_names_the_device",
           r.returncode == 0 and "device: cairn" in r.stdout,
           f"rc={r.returncode} out={r.stdout[-200:]!r} err={r.stderr[-200:]!r}")
 
 
+def _teardown() -> None:
+    """Shut the box's scratch bus down, if one came up."""
+    if not _BOX:
+        return
+    env = {**_BOX[1], "PYTHONPATH": str(ROOT)}
+    subprocess.run([sys.executable, "-c",
+                    "from cairn.tools.bus_client.remote import RemoteBus\n"
+                    "try:\n    RemoteBus().shutdown()\nexcept Exception:\n    pass\n"],
+                   env=env, cwd=str(ROOT), capture_output=True, timeout=90)
+    subprocess.run(["systemctl", "--user", "stop", f"{UNIT}.service"], capture_output=True)
+    subprocess.run(["systemctl", "--user", "reset-failed", f"{UNIT}.service"], capture_output=True)
+
+
 def main() -> int:
-    for name, fn in list(globals().items()):
-        if name.startswith("test_") and callable(fn):
-            try:
-                fn()
-            except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
-                check(name, False, f"raised {type(exc).__name__}: {exc}")
+    try:
+        for name, fn in list(globals().items()):
+            if name.startswith("test_") and callable(fn):
+                try:
+                    fn()
+                except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly
+                    check(name, False, f"raised {type(exc).__name__}: {exc}")
+    finally:
+        _teardown()
     print("\nGREEN" if not _failures else f"\nRED — {len(_failures)} failure(s)")
     return 1 if _failures else 0
 

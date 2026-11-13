@@ -60,7 +60,7 @@ _SIEVE = "address_is_resolved_never_spelled"
 #: Measured at this ticket's PROVED crossing, 2026-08-17, by the same scan this probe runs:
 #: 0 hand-spelled sites over 274 files, with THREE FILES bearing the weight of a TWO-MEMBER
 #: rule — cairn/tools/base/address.py:94 (the module that owns the address) plus two proofs,
-#: aider_shim/proofs/test_fence.py:285 and inference_domain/proofs/test_route.py:128,130.
+#: aider_shim/proofs/test_fence.py:285 and inferenceproxy/proofs/test_route.py:128,130.
 #: The count is of files, not of rule members, and the distinction is the ticket's WRONG-INTENT
 #: clause: a fourth member that cannot be said as "a file whose job is to name or to assert the
 #: rule" would mean the sieve had become a hand-widened allowlist. Provenance, not a tunable —

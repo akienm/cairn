@@ -1,12 +1,12 @@
 """Proofs for the plan inspector — reads charters' filed_edges and finds open work.
 
-FALSIFIER REQUIREMENT: inference_domain and db_domain must both produce findings
+FALSIFIER REQUIREMENT: inferenceproxy and db_domain must both produce findings
 on today's tree. A hollow run that greens everything is worse than a red (Law 8).
 
 Two teeth per sieve: one plants a defect, one plants a clean component.
 Plus: a letter-prefixed CLOSED edge is correctly detected as closed (bug found
 and fixed 2026-08-20 — edge "(b) CLOSED 2026-08-08..." read as open).
-Plus: live-tree invariants — inference_domain and db_domain must RED.
+Plus: live-tree invariants — inferenceproxy and db_domain must RED.
 """
 
 from __future__ import annotations
@@ -132,11 +132,11 @@ def test_letter_prefix_in_charter():
     print("  PASS: lettered charter counts open/closed correctly")
 
 
-def test_live_tree_inference_domain_reds():
-    """FALSIFIER: inference_domain must produce findings on the real tree."""
-    findings = inspect(component_filter="inference_domain", root=_REPO_ROOT)
-    assert len(findings) > 0, "FALSIFIER FAILED: inference_domain produced 0 findings — the inspector is blind"
-    print(f"  PASS: inference_domain REDs with {len(findings)} finding(s)")
+def test_live_tree_inferenceproxy_reds():
+    """FALSIFIER: inferenceproxy must produce findings on the real tree."""
+    findings = inspect(component_filter="inferenceproxy", root=_REPO_ROOT)
+    assert len(findings) > 0, "FALSIFIER FAILED: inferenceproxy produced 0 findings — the inspector is blind"
+    print(f"  PASS: inferenceproxy REDs with {len(findings)} finding(s)")
 
 
 def test_live_tree_db_domain_reds():
@@ -154,7 +154,7 @@ def main() -> None:
         test_charter_asserts_unbuilt_clean,
         test_letter_prefix_closed,
         test_letter_prefix_in_charter,
-        test_live_tree_inference_domain_reds,
+        test_live_tree_inferenceproxy_reds,
         test_live_tree_db_domain_reds,
     ]
     passed = 0

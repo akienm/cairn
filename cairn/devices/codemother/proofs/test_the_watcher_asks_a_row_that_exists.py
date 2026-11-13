@@ -1,8 +1,8 @@
 """The watcher's escalation reaches an answer, and a refusal it gets is loud (ticket 9f448a03ba40, gap B of the
 2026-10-05 re-plan; Akien 8h, ~/.cairn/foreground-decisions.md).
 
-codemother/watch.py _escalate_to_hex asks inference_domain's `infer` verb with domain
-'codemother' and model 'qwen'. inference_domain has no domain row named 'codemother', so every
+codemother/watch.py _escalate_to_hex asks inferenceproxy's `infer` verb with domain
+'codemother' and model 'qwen'. inferenceproxy has no domain row named 'codemother', so every
 escalation is refused — measured 2026-10-05: 689 of 689 `outcome: refused` replies in
 ~/.cairn/devices/codemother/0/mail say "no domain row named 'codemother' in the domains stack".
 The refusal comes back as a VALUE, never a raise, and _escalate_to_hex wraps it as a node whose
@@ -12,7 +12,7 @@ silent at the one surface that would show it (Law 7).
 
   1. THE LIVE DOMAIN ANSWERS THE WATCHER: _escalate_to_hex over the live bus comes back with no
      error and a node whose content is non-empty text — the request names a row and a model the
-     live inference_domain serves. (The prompt is fixed, so after the first run the domain's
+     live inferenceproxy serves. (The prompt is fixed, so after the first run the domain's
      cache answers; the area names itself as a proof's, so the answer is a testing artifact.)
   2. A REFUSAL IS AN ERROR, NOT A NODE: a reply with outcome 'refused' yields no nodes and an
      error naming the refusal's detail.

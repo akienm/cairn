@@ -17,7 +17,7 @@ could not pass:
     longer counts as evidence (computed from created at read — no clock anywhere);
     one attestation restores it whole.
   - THE LIVELOCK IS BROKEN BY KEY PHYSICS: after a round changes the tree, the next
-    backfill prompt carries a DIFFERENT graph-state digest — inference_domain's
+    backfill prompt carries a DIFFERENT graph-state digest — inferenceproxy's
     canonicalize maps the two rounds to different cache keys, so 'same request, changed
     graph' is a genuine MISS, not a HIT returning the nodes that just failed.
   - THE PROGRESS GATE HOLDS: a round that grows the tree by nothing terminates LOUDLY —
@@ -29,7 +29,7 @@ could not pass:
     number the floor test actually read (Law 3).
   - CROSSINGS BREADCRUMB, RESOLVED AND UNRESOLVED ALIKE; import purity by AST allowlist.
 
-Seams are FAKES injected in inference_domain's shape — no host; the DB is the real one
+Seams are FAKES injected in inferenceproxy's shape — no host; the DB is the real one
 through db_domain (nonce table, self-cleaning), as in the trees proof.
 
 Three-table migration (2026-08-19): each test "tree" is its own nonce leaf table; node-level
@@ -90,7 +90,7 @@ def _fresh_librarian() -> LibrarianDevice:
 
 
 def fake_seam(embeds: dict, scripts: list):
-    """A resolver seam in inference_domain's shape: embed looks up (default far),
+    """A resolver seam in inferenceproxy's shape: embed looks up (default far),
     generate pops the next scripted draft. Records every generate prompt."""
     prompts = []
 
@@ -243,7 +243,7 @@ def test_the_livelock_is_broken_by_key_physics():
     assert p1 != p2, "a changed graph must change the backfill prompt"
     assert "GRAPH-STATE: empty" in p1 and "GRAPH-STATE: empty" not in p2, \
         "the graph-state digest is what moved"
-    # inference_domain keys its cache on the canonical request (cairn/devices/inference_domain/
+    # inferenceproxy keys its cache on the canonical request (cairn/devices/inferenceproxy/
     # domain.py canonicalize, measured at its own proofs), so a changed prompt is a changed key.
     # The librarian's half is that the prompt changed, which the p1 != p2 and GRAPH-STATE
     # asserts above measure (RULE 1, ticket a16c4d4ff4bd).

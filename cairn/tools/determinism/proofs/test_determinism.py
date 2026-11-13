@@ -38,7 +38,7 @@ from cairn.tools.scratch.scratch import scratch_dir
 from cairn.tools.determinism import determinism as D
 from cairn.tools.import_sieve import sieve
 
-LLM_IMPORT = "from cairn.devices.inference_domain import domain\n"
+LLM_IMPORT = "from cairn.devices.inferenceproxy import domain\n"
 
 # WHICH CLAUSE OF A TICKET'S FALSIFIER EACH TOOTH PROVES — read by proof_coverage and by the
 # hollow check. dd8ad9702b49 (bus_client leaves the gate's directory) states one unnumbered
@@ -274,10 +274,10 @@ def test_k_the_real_corpus_is_read_by_invariant():
             assert r["llm"], f"{r['path']} reds with no LLM chain named — incomplete finding"
         if r["verdict"] == D.MOSTLY:
             assert r["seam_llm"], f"{r['path']} is MOSTLY with no SLEEP seam named"
-    # inference_domain is the sole path to the host, so it must be IN the loop; and this
+    # inferenceproxy is the sole path to the host, so it must be IN the loop; and this
     # tool must be pure, because an instrument that measures replayability and is not
     # itself replayable cannot be trusted about anything.
-    assert _row(report, "cairn/devices/inference_domain")["verdict"] == D.ORACLE
+    assert _row(report, "cairn/devices/inferenceproxy")["verdict"] == D.ORACLE
     assert _row(report, "cairn/tools/determinism")["verdict"] == D.PURE
 
 

@@ -33,7 +33,7 @@ is the grow-against-need step — never a poll.
 
 The BaseDevice introspection FACE + bus-fronting (callers poke the harbor over the bus
 rather than importing it) are a later runtime wrapper, deferred until a runtime pulls them —
-exactly as inference_domain and db_domain deferred their faces. A filed edge, below.
+exactly as inferenceproxy and db_domain deferred their faces. A filed edge, below.
 
 Deliberately dependency-light: pure file reads + the projector's pure core. Runs bare.
 

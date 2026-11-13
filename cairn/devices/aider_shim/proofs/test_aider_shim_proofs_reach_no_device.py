@@ -2,7 +2,7 @@
 """Proof that aider_shim's proofs reach no device (ticket ea19fc079c0b).
 
 Measured 2026-11-05: encapsulation_breaches listed two aider_shim rows —
-test_no_direct_reach.py:179 and :194 importing cairn.devices.inference_domain.device to
+test_no_direct_reach.py:179 and :194 importing cairn.devices.inferenceproxy.device to
 construct the provider and call its ``get`` verb in-process. aider_shim's runtime code was
 already clean (50ad391f4e95); its proof was not. RULE 1: a component reaches another only
 through its public interface, and a device's is the bus, reached through bus_client —
@@ -10,9 +10,9 @@ which already asks this exact view (bus_client.models_stack).
 
 Teeth, one per falsifier clause (PROVES below):
   (1) encapsulation_breaches lists no row whose source is cairn/devices/aider_shim;
-  (2) test_no_direct_reach.py imports nothing from cairn.devices.inference_domain (ast — its
+  (2) test_no_direct_reach.py imports nothing from cairn.devices.inferenceproxy (ast — its
       FORBIDDEN_MODULE string is the instrument, not a reach), carries
-      test_inference_domain_answers_the_models_view_over_the_bus, its composite declared
+      test_inferenceproxy_answers_the_models_view_over_the_bus, its composite declared
       tooth calls it, and the proof, run as its own process, is green.
 
     PYTHONPATH=. python3 cairn/devices/aider_shim/proofs/test_aider_shim_proofs_reach_no_device.py
@@ -32,9 +32,9 @@ if str(_REPO) not in sys.path:
 
 _SOURCE = "cairn/devices/aider_shim"
 _PROOF = _REPO / "cairn/devices/aider_shim/proofs/test_no_direct_reach.py"
-_FORBIDDEN = "cairn.devices.inference_domain"
-_NEW_TOOTH = "test_inference_domain_answers_the_models_view_over_the_bus"
-_COMPOSITE = "test_aider_shim_reaches_inference_domain_only_through_a_door"
+_FORBIDDEN = "cairn.devices.inferenceproxy"
+_NEW_TOOTH = "test_inferenceproxy_answers_the_models_view_over_the_bus"
+_COMPOSITE = "test_aider_shim_reaches_inferenceproxy_only_through_a_door"
 
 PROVES = {"ea19fc079c0b": {
     "1": "test_no_aider_shim_row",

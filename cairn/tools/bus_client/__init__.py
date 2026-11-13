@@ -4,7 +4,7 @@ WHY IT IS A TOOL AND NOT A LODGER. It lived in ``cairn/tools/base/`` until 2026-
 and that address made a measurable difference rather than an aesthetic one. ``base`` also
 holds ``transitions.py``, the emit chokepoint — which makes the whole component a GATE by
 the determinism walk's own derivation (a gate is derived from the import, not from a
-charter). This module imports ``inference_domain``. So the directory reached an oracle, and
+charter). This module imports ``inferenceproxy``. So the directory reached an oracle, and
 Akien's ruling of 2026-08-13 is that NO GATES MAY CONSULT ORACLES EVER PERIOD. The reach was
 never the gate's; it was the lodger's, counted against the landlord because they shared a
 directory. Moving one file is the whole fix, and the verdict on ``base`` changes because the

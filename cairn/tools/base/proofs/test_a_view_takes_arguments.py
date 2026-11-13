@@ -1,6 +1,6 @@
 """A view takes arguments from the command line and the bus (ticket 35b92c5de7ef).
 
-Akien, 2026-10-13: *"cairn inference_domain show/get calls --limit 20 --- show for me
+Akien, 2026-10-13: *"cairn inference show/get calls --limit 20 --- show for me
 (formatted), get for you (json)"*. Measured the same day: shim.py ``_resolve`` called
 ``device_views[name]()`` and device.py ``_handle_get``/``_handle_show`` called ``view_fn()``,
 so a parameterised read could not be a view.

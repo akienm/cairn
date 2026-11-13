@@ -26,10 +26,10 @@ an ``ast.Constant``, a spelling is an ``ast.BinOp``, and the rule cannot confuse
 it gave for them have since gone stale — which is exactly the thing this rewrite exists to
 record, because nothing announced either one:
 
-  - ``cairn/devices/inference_domain/route.py`` was called a standing disagreement between two
+  - ``cairn/devices/inferenceproxy/route.py`` was called a standing disagreement between two
     rulings ("machine facts in ~/.cairn/inference/", from a ticket PROVED four days before the
     four-rung ruling existed). It was converted on 2026-08-17: ``hosts.json`` moved to
-    ``devices/inference_domain/0/``, byte-identical, and the prose that followed the address —
+    ``devices/inferenceproxy/0/``, byte-identical, and the prose that followed the address —
     the charter, the README, the rules stack, a proof's comment — moved with it.
   - ``cairn/machines/build_inspector/inspector.py`` was called a rung the ladder does not have
     (a device ACROSS instances) whose import allowlist was already red. It is converted too,

@@ -1,7 +1,7 @@
 """The money-fence: the ask is narrow by name, and widening it is refused loudly.
 
 WHY THIS IS AN OBJECT IN THIS DEVICE AND NOT A ROW IN THE PROXY. Until 2026-08-16 the
-fence WAS a row — a ``builder-aider`` vertical in ``inference_domain``'s domains stack,
+fence WAS a row — a ``builder-aider`` vertical in ``inferenceproxy``'s domains stack,
 carrying this consumer's model pin and its allow-list. Akien killed it: *"The inference
 proxy knows about providers and models. it does not understand about consumers. the
 consumer asks for what it wants. period, end of story."* The whole obligation moved

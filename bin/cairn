@@ -338,6 +338,21 @@ case "$instance" in
     ;;
 esac
 
+# --- a device that answers to a name its folder does not carry (ticket f942a413f26d) ---
+# Outline 11.4 names the folder (cairn/devices/inferenceproxy/) and 11.4.2 the name on the command
+# line and bus (inference). The device declares the name once, as "answers_as" in its charter, and
+# the rack's address book reads the same field (cairn/tools/rack: folder_of). A typed word that is
+# a folder is never looked up; one that is not becomes the folder that declares it, and the bus
+# below is still told the name typed.
+bus_name="$device"
+if [[ ! -d "$CLASS_ROOT/$device" && ! -d "$INSTANCE_ROOT/$device" ]]; then
+  for _charter in "$CLASS_ROOT"/*/intention+why.json; do
+    if grep -Eq "^  \"answers_as\": \"$device\",?\$" "$_charter" 2>/dev/null; then
+      device="$(basename "$(dirname "$_charter")")"; break
+    fi
+  done
+fi
+
 # --- top-level shortcuts: the cairn device's bin beside its code (ticket 30366e99655a) ---
 # Outline 5.4.3.3: "`cairn foo` whose first word is not a device means `cairn cairn foo`:
 # top-level shortcuts are the cairn device's bin/" (Akien, open-8c01545a26d8: they live at
@@ -397,12 +412,12 @@ if [ -d "$device_bin" ]; then
     # device's bin is said to the device's shim on the bus, through bus_client's command
     # mouth, and its exit code is this command's. CAIRN_BUS_MOUTH names a stand-in mouth.
     if [ -n "${CAIRN_BUS_MOUTH:-}" ]; then
-      exec "$CAIRN_BUS_MOUTH" "$device" "$@"
+      exec "$CAIRN_BUS_MOUTH" "$bus_name" "$@"
     fi
     _mouth_py="$CAIRN_VENV/$CAIRN_VENV_BIN/$CAIRN_VENV_PY"
     [[ -x "$_mouth_py" ]] || _mouth_py=python3
     cd "$HERE/.." && PYTHONPATH="$HERE/..${PYTHONPATH:+:$PYTHONPATH}" \
-      exec "$_mouth_py" -m cairn.tools.bus_client "$device" "$@"
+      exec "$_mouth_py" -m cairn.tools.bus_client "$bus_name" "$@"
   fi
   target="$device_bin/$verb"
   if [ ! -x "$target" ]; then

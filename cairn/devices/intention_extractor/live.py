@@ -1,13 +1,13 @@
 """live.py — the extractor against the real host, through the bus.
 
-This is the FIRST live wiring of the resolve seam outside inference_domain's own proofs:
-``bus.request(to="inference_domain", verb="resolve", ...)`` — the metered, cached path.
+This is the FIRST live wiring of the resolve seam outside inferenceproxy's own proofs:
+``bus.request(to="inference", verb="resolve", ...)`` — the metered, cached path.
 extractor.py stays import-pure — its proof pins that; this thin wrapper is where the bus
 composes with the extractor's machinery, exactly as daemon.py is web_server's socket and
 sudo_relay's privilege live at their own edges.
 
 The bus is the sole path for inter-device inference (ticket 87a7f1c7ae21). The extractor
-never imports inference_domain directly — it posts requests on the bus.
+never imports inferenceproxy directly — it posts requests on the bus.
 
 The cache interplay is the point, not a side effect: the same source builds the same
 prompt, canonicalizes to the same key, and the second run is a HIT — the host untouched,
@@ -31,23 +31,23 @@ _SENDER = "intention_extractor"
 
 
 def _wire_bus():
-    """Minimal bus for CLI scripts — inference_domain registered for resolve verbs."""
-    return reach("inference_domain")
+    """Minimal bus for CLI scripts — inferenceproxy registered for resolve verbs."""
+    return reach("inference")
 
 
 def _bus_resolve(bus: BusDevice, request: dict) -> dict:
-    """Post a resolve request to inference_domain via the bus and return the result."""
+    """Post a resolve request to inferenceproxy via the bus and return the result."""
     reply = bus.request(
-        sender=_SENDER, to="inference_domain", verb="resolve",
+        sender=_SENDER, to="inference", verb="resolve",
         why="extractor resolve", body=request,
     )
     return reply["body"]
 
 
 def _bus_yield(bus: BusDevice) -> dict:
-    """Get inference_domain's yield report via the bus get verb."""
+    """Get inferenceproxy's yield report via the bus get verb."""
     reply = bus.request(
-        sender=_SENDER, to="inference_domain", verb="get",
+        sender=_SENDER, to="inference", verb="get",
         why="yield report", body={"what": "yield"},
     )
     return reply.get("body", {}).get("data", {})
@@ -55,7 +55,7 @@ def _bus_yield(bus: BusDevice) -> dict:
 
 def extract_live(source: str, *, model: str = DEFAULT_MODEL,
                  bus: BusDevice | None = None) -> tuple[dict, str]:
-    """One live extraction: draft via ollama through inference_domain, judged, breadcrumbed.
+    """One live extraction: draft via ollama through inferenceproxy, judged, breadcrumbed.
 
     Returns ``(result, trail)`` — the trail being the FILE the crossings landed in, not a list
     of them. It returned ``dev.held_diagnostics()`` until 2026-08-18 (ticket

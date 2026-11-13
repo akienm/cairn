@@ -93,7 +93,7 @@ def open_filed_edges(component: str, charter: dict, charter_path: Path,
                      root: Path = _REPO_ROOT) -> list[dict]:
     """A component with open filed_edges — unbuilt work the component admits to.
 
-    Provenance: the founding measurement, 2026-07-26 — inference_domain, db_domain
+    Provenance: the founding measurement, 2026-07-26 — inferenceproxy, db_domain
     and web_server each had open edges while the build order read them as done.
     """
     edges = charter.get("filed_edges", [])

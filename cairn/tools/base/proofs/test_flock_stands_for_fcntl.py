@@ -1,7 +1,7 @@
 """Proof for ticket 5a37dd56fa45 — one tools/base file-lock helper stands for fcntl.flock.
 
 Measured 2026-11-13 on Windows: 13 proofs raised ModuleNotFoundError: No module named 'fcntl',
-through cairn/devices/inference_domain/host.py and cairn/devices/cairn/metrics.py, which import
+through cairn/devices/inferenceproxy/host.py and cairn/devices/cairn/metrics.py, which import
 fcntl at module top. Each tooth binds what the build ADDED at call time, never at import, and
 each reds on Linux against the unedited modules (tooth 1 hides fcntl; tooth 2 reads the source;
 tooth 3 needs the helper to exist).
@@ -30,12 +30,12 @@ PROVES = {
     },
 }
 
-MODULES = ["cairn/devices/inference_domain/host.py", "cairn/devices/cairn/metrics.py"]
+MODULES = ["cairn/devices/inferenceproxy/host.py", "cairn/devices/cairn/metrics.py"]
 
 
 def host_and_metrics_import_with_fcntl_hidden():
     code = ("import sys; sys.modules['fcntl'] = None; "
-            "import cairn.devices.inference_domain.host, cairn.devices.cairn.metrics")
+            "import cairn.devices.inferenceproxy.host, cairn.devices.cairn.metrics")
     env = dict(os.environ, PYTHONPATH=str(REPO))
     got = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env,
                          creationflags=0x08000000 if os.name == "nt" else 0)

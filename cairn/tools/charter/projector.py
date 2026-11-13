@@ -10,7 +10,7 @@ Why it matters (the whole point of the split):
     derived from it — the window is not a second copy anyone maintains. That is what
     makes the split honest (Law 1: the answered question "what is the recent state"
     becomes structure; re-deriving it by reading the whole journal is the defect this
-    removes — the same move as inference_domain's compile-once, one scale in).
+    removes — the same move as inferenceproxy's compile-once, one scale in).
   - history is APPEND-ONLY (Law 7: a record of truth is never mutated, only appended —
     the shape of db_domain's INSERT-only store). The one write-door is ``append``.
   - the bound is STRUCTURAL, not a discipline: a count window is hard-capped by the

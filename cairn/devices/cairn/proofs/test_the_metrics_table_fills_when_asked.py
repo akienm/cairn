@@ -55,10 +55,10 @@ def _world():
     charter.write_text(json.dumps({"metrics": {
         "spent": {"consumer": "the yield report (outline 11.4.4.2)", "unit": "tokens"},
         "latency": {"consumer": "the yield report (outline 11.4.4.2)", "unit": "s"}}}), encoding="utf-8")
-    a = roots["instance"] / "devices" / "inference_domain" / "0"
+    a = roots["instance"] / "devices" / "inferenceproxy" / "0"
     b = roots["instance"] / "devices" / "librarian" / "0"
-    metric.Metric(a, charter, source="inference_domain").record("spent", 10.0, subject="call-1")
-    metric.Metric(a, charter, source="inference_domain").record("latency", 0.5, subject="call-1")
+    metric.Metric(a, charter, source="inferenceproxy").record("spent", 10.0, subject="call-1")
+    metric.Metric(a, charter, source="inferenceproxy").record("latency", 0.5, subject="call-1")
     metric.Metric(b, charter, source="librarian").record("spent", 7.0)
     return roots, (a, b)
 
@@ -114,7 +114,7 @@ def test_a_report_picks_up_what_waits() -> None:
             lacks.append("rows were in the table before anyone asked")
         out = metrics.report(t, roots=roots)
         got = sorted((r["name"], r["source"], r["value"]) for r in out["rows"])
-        want = sorted([("spent", "inference_domain", 10.0), ("latency", "inference_domain", 0.5),
+        want = sorted([("spent", "inferenceproxy", 10.0), ("latency", "inferenceproxy", 0.5),
                        ("spent", "librarian", 7.0)])
         if got != want or out["collected"] != 3:
             lacks.append(f"report {got} collected {out['collected']}, wanted {want} / 3")
@@ -131,7 +131,7 @@ def test_a_report_filters() -> None:
         by_name = metrics.report(t, name="spent", roots=roots)["rows"]
         by_source = metrics.report(t, source="librarian", roots=roots)["rows"]
         lacks = []
-        if sorted(r["source"] for r in by_name) != ["inference_domain", "librarian"] or any(r["name"] != "spent" for r in by_name):
+        if sorted(r["source"] for r in by_name) != ["inferenceproxy", "librarian"] or any(r["name"] != "spent" for r in by_name):
             lacks.append(f"name filter: {by_name}")
         if [(r["name"], r["value"]) for r in by_source] != [("spent", 7.0)]:
             lacks.append(f"source filter: {by_source}")

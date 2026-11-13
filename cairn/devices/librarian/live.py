@@ -1,13 +1,13 @@
 """live.py — the librarian's spine against the real embed seam, through the bus.
 
-The composition: ``bus.request(to="inference_domain", verb="resolve", ...)`` — vectors
+The composition: ``bus.request(to="inference", verb="resolve", ...)`` — vectors
 as a metered service — feeding ``LibrarianDevice``'s provenance-gated deposit door and
 proximity walk. trees.py stays import-pure; this thin edge is where the bus composes with
 the librarian's own machinery (the same shape as intention_extractor/live.py).
 
 The bus is the sole path for inter-device inference (ticket 87a7f1c7ae21). The librarian
-never imports inference_domain directly — it posts requests on the bus, and
-inference_domain's resolve verb handles them internally (building the resolver, running
+never imports inferenceproxy directly — it posts requests on the bus, and
+inferenceproxy's resolve verb handles them internally (building the resolver, running
 the domain workflow, posting the result back).
 
 The founding demo seeds the librarian's FIRST REAL NODES: Akien's own verbatim design
@@ -78,23 +78,23 @@ DEFAULT_QUERY = "what should the chat interface do when someone talks to the lib
 
 
 def _wire_bus():
-    """Minimal bus for CLI scripts — inference_domain registered for resolve verbs."""
-    return reach("inference_domain")
+    """Minimal bus for CLI scripts — inferenceproxy registered for resolve verbs."""
+    return reach("inference")
 
 
 def _bus_resolve(bus: BusDevice, request: dict) -> dict:
-    """Post a resolve request to inference_domain via the bus and return the result."""
+    """Post a resolve request to inferenceproxy via the bus and return the result."""
     reply = bus.request(
-        sender=_SENDER, to="inference_domain", verb="resolve",
+        sender=_SENDER, to="inference", verb="resolve",
         why="librarian resolve", body=request,
     )
     return reply["body"]
 
 
 def _bus_yield(bus: BusDevice) -> dict:
-    """Get inference_domain's yield report via the bus get verb."""
+    """Get inferenceproxy's yield report via the bus get verb."""
     reply = bus.request(
-        sender=_SENDER, to="inference_domain", verb="get",
+        sender=_SENDER, to="inference", verb="get",
         why="yield report", body={"what": "yield"},
     )
     return reply.get("body", {}).get("data", {})

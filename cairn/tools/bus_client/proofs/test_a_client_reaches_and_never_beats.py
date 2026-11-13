@@ -77,14 +77,14 @@ def test_i_every_client_helper_reaches_without_beating():
     """The client face is ``reach()``: with the beat stubbed to raise, reach hands back a working
     bus, and so does the chart's helper (skills/, no device). Every device client named by the
     ticket (codemother's watch and seed_trees, the librarian's and intention_extractor's
-    _wire_bus) is a one-line ``reach("inference_domain")``; that it stays one is what (iii)'s
+    _wire_bus) is a one-line ``reach("inference")``; that it stays one is what (iii)'s
     walk reads over class-space, so this tooth imports no device (RULE 1, ticket 38848ed72e19)."""
     restore = _stub_beat()
     try:
         import skills.chart.live as chart_live
         chart_live._BUS = None
         clients = {
-            "cairn/tools/bus_client reach": lambda: bus_client.reach("inference_domain"),
+            "cairn/tools/bus_client reach": lambda: bus_client.reach("inference"),
             "skills/chart/live.py": chart_live._bus,
         }
         for name, helper in clients.items():
@@ -110,7 +110,7 @@ def test_ii_the_walk_names_a_planted_client_and_nothing_else():
             "\n"
             "def wire():\n"
             "    # a comment naming connect_bus() is not a caller either\n"
-            "    return connect_bus(devices=['inference_domain'])\n", encoding="utf-8")
+            "    return connect_bus(devices=['inference'])\n", encoding="utf-8")
         (root / "pkg" / "mention_only.py").write_text(
             '"""connect_bus(devices=[]) in prose only."""\nX = "connect_system("\n',
             encoding="utf-8")

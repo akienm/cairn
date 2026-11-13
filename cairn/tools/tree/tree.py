@@ -50,7 +50,7 @@ The verbs:
                              itself. It assembles; it never writes a registry — admission
                              is installation, and installation is the owner's gate.
 
-Vectors arrive as DATA (the embed call is the caller's, through inference_domain — live
+Vectors arrive as DATA (the embed call is the caller's, through inferenceproxy — live
 wiring in ``live.py``, never here). Home-field fences, pre-tenure: nodes are born
 ``hypothesis`` (inherited physics), counsel never fills a field silently, and nothing in
 this module scores the nexus by its own tree's similarity (the charter's falsifier 6 —

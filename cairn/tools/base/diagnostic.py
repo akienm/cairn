@@ -78,7 +78,7 @@ built) is where the intelligence lives, not the emission. Reacting to a fired pr
 FILTERS (by_pointer, by_gate — conjoined) to the log, gathers the whole transaction (the workflow
 item AND its logging), and TRIMS it into the FINDINGS — the coherent json slice whose audience is
 CC. The emission stays dumb so the inspector can be smart (Law 1: the diagnostic surface's
-inference is compiled once, in the inspector — the same move as ``inference_domain``).
+inference is compiled once, in the inspector — the same move as ``inferenceproxy``).
 
 THE DISCIPLINE — targeted and TEMPORARY. You place a gate-contact instrument when you are watching
 for something specific, then TAKE IT DOWN. Not standing probes left hanging: a permanent
@@ -415,7 +415,7 @@ class DiagnosticBase:
         reasoning was right and the conclusion did not follow: what must happen in the
         owner's hand is the DECIDING and the WRITING, not the ASKING. A bus request made
         the asker dial the bus — and ``cairn.tools.bus_client`` reaches
-        ``inference_domain`` and, through the bus device, ``db_domain``, so every clearer
+        ``inferenceproxy`` and, through the bus device, ``db_domain``, so every clearer
         statically reached a database and a host. The build inspector's own
         ``fire_path_unreachable`` sieve measured it and reds the machine that must reach
         neither. So the ask becomes an emission like the raise, and the read-modify-write

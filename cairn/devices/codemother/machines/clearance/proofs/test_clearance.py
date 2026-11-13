@@ -1258,7 +1258,7 @@ def test_the_read_reaches_nothing_outward():
             imported.add(node.module.split(".")[0])
     assert imported, "the import scan found nothing — it is measuring itself"
     forbidden = ("socket", "requests", "urllib", "subprocess", "http", "psycopg",
-                 "asyncio", "db_domain", "inference_domain")
+                 "asyncio", "db_domain", "inferenceproxy")
     assert not (imported & set(forbidden)), \
         f"clearance imports {sorted(imported & set(forbidden))} — falsifier clause (2)"
 

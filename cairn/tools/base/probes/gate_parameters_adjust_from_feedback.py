@@ -3,7 +3,7 @@
 Berth for the WATCHME that ticket scheduled-llm-gate-inspection (b0c0c47835c1)
 carries. Fires when structured gate feedback accumulates past a threshold,
 sends the feedback to Hex (through a resolver injected in context — no
-inference_domain import from tool-space), and routes adjustment proposals
+inferenceproxy import from tool-space), and routes adjustment proposals
 through TransitionGate.adjust().
 
 AUTHORITY: none, by construction. This probe deposits and pokes; the back-edge
@@ -101,7 +101,7 @@ def inspect(records: list[dict], resolver) -> dict:
     """Call Hex with accumulated feedback, return adjustment results.
 
     resolver: callable(prompt_str) -> response_str. Injected by the shim from
-    inference_domain — this module never imports it (no cross-device import from
+    inferenceproxy — this module never imports it (no cross-device import from
     tool-space).
     """
     dials = _current_dials()
@@ -132,7 +132,7 @@ def _carry(context: dict) -> dict:
     resolver = context.get("resolver")
     if resolver is None:
         return {
-            "error": "no resolver in context — inference_domain not injected",
+            "error": "no resolver in context — inferenceproxy not injected",
             "records_count": len(records),
             "ticket": owning_ticket(_OWNING_TICKET),
         }

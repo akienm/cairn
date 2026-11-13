@@ -1,6 +1,6 @@
 """chart/live.py — the tree stratum against the real embed seam, through the one door.
 
-The thin edge where the doors compose: text → vector rides inference_domain's resolve
+The thin edge where the doors compose: text → vector rides inferenceproxy's resolve
 verb, metered and cached; the vector then feeds the tree tool's pure verbs. Depositing a
 berth (``learn``, and the drain both verbs run before serving) is codemother acting, so
 it is ASKED of codemother over the bus (ticket e8fe361a5b2f) — this skill holds none of
@@ -44,16 +44,16 @@ OWNER = "codemother"
 
 
 def _bus():
-    """One exchange, no beat: codemother answers deposit/drain, inference_domain embeds."""
+    """One exchange, no beat: codemother answers deposit/drain, inferenceproxy embeds."""
     global _BUS
     if _BUS is None:
-        _BUS = reach("codemother", "inference_domain")
+        _BUS = reach("codemother", "inference")
     return _BUS
 
 
 def _embed(text: str) -> list[float]:
-    """text -> vector over inference_domain's resolve verb (its public interface)."""
-    reply = _bus().request(sender=_SENDER, to="inference_domain", verb="resolve",
+    """text -> vector over inferenceproxy's resolve verb (its public interface)."""
+    reply = _bus().request(sender=_SENDER, to="inference", verb="resolve",
                            why="chart embed",
                            body={"kind": "embed", "prompt": text, "model": EMBED_MODEL,
                                  "domain": "research"})

@@ -46,7 +46,7 @@ DEFERRED, filed not faked (the programmable-network pillar, pulled by real need 
 UU's netpolicy Router (claim an address and BE the dependency; serve a FIXTURE; REFUSE
 with an nftables reject+counter so a 3-millisecond connection cannot be missed; FORWARD
 over a Unix socket to keep Postgres's auth path intact). The seal here is "no route." The
-Router is "a *chosen* route" — grown when db_domain pulls FORWARD and inference_domain
+Router is "a *chosen* route" — grown when db_domain pulls FORWARD and inferenceproxy
 pulls FIXTURE/REFUSE. This module claims only the seal it can measure today.
 
     T-tester-owns-the-network (Cairn: MAP.md:333, build step MAP.md:888).

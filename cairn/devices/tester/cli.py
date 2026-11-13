@@ -70,7 +70,7 @@ from cairn.tools.validation_store.validation_store import (
 from cairn.tools.system_word import fold_flags
 
 # discover() AND REPO_ROOT LIVE IN discovery.py, and they left this file for an import-graph
-# reason: _announce_seals below reaches the bus, the bus client imports inference_domain, and
+# reason: _announce_seals below reaches the bus, the bus client imports inferenceproxy, and
 # cairn/tools/base/validation.py imports THIS MODULE for discover alone — which put a static
 # path to an oracle inside seven gate components. Measured 2026-09-09, ticket dd8ad9702b49.
 # Re-exported here so the command's public surface is exactly what it was.

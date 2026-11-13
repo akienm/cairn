@@ -42,7 +42,7 @@ and the rule is physics: a gate that grows a path to the inference host is a VIO
 and reds this tool's proof, which the corpus runs.
 
 WHAT COUNTS AS THE LLM, and it is one name because a ruling made it one: everything routes
-through ``cairn.devices.inference_domain``, the sole path to the inference host. So this
+through ``cairn.devices.inferenceproxy``, the sole path to the inference host. So this
 does not keep a list of hosts, ports or providers — it walks to the door. A second door
 would be a defect that sieve catches at its own address, not a hole here.
 
@@ -82,9 +82,9 @@ from cairn.tools.import_sieve import sieve as import_sieve
 
 CHARTER = "intention+why.json"
 
-# THE ORACLE IS ONE NAME because ruling 2026-08-08 made inference_domain the sole path to
+# THE ORACLE IS ONE NAME because ruling 2026-08-08 made inferenceproxy the sole path to
 # the inference host. Walking to the door beats keeping a list of what is behind it.
-LLM = ("cairn.devices.inference_domain",)
+LLM = ("cairn.devices.inferenceproxy",)
 
 # Off-box but NOT an oracle: state that can change under a re-run. Reported beside the
 # verdict, never folded into it — grading these as oracles is the error this module's

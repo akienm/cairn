@@ -344,7 +344,7 @@ def test_the_records_door_follows_the_device_rather_than_the_live_berth() -> Non
         ok(len(records) == 1,
            f"EXACTLY one, never 'at least one': this world holds the single line just written, and "
            f"the live berth holds however many. A >= bound is met by BOTH, which is precisely how "
-           f"the inference_domain probe's tooth passed while reading the wrong trail. Got "
+           f"the inferenceproxy probe's tooth passed while reading the wrong trail. Got "
            f"{len(records)}: {records[:3]}")
         ok(records[0]["gate"] == "the_only_line_in_this_world",
            f"and it is THIS world's line, not one borrowed from the live berth: {records[0]}")

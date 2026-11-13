@@ -17,7 +17,7 @@ THE CONTRACT
     device (learns-its-gates): when Akien catches CC wrong, the check that would have
     caught it becomes a scan here, and the class of error stops recurring (Law 1).
   - ``deepen()`` is the failover seam — for the question no scan answers. It goes
-    through ``inference_domain.resolve`` and NOWHERE else (the sole path to the host;
+    through ``inferenceproxy.resolve`` and NOWHERE else (the sole path to the host;
     its cost lands in yield_report's meter). Its answer is a LABELED READ, never a
     measurement — a scan's number outranks Hex's prose, always.
 
@@ -387,7 +387,7 @@ SCANS = {"call_sites": call_sites, "device_census": device_census,
 
 
 def deepen(question: str, *, resolve) -> dict:
-    """The question no scan answers goes to Hex — through inference_domain's
+    """The question no scan answers goes to Hex — through inferenceproxy's
     ``resolve`` (the sole path; metered, cached — and for ORIENT traffic a cache hit
     is a genuine saving, unlike librarian backfill). The caller injects ``resolve``
     (the CLI wires the real one); this module never opens the host itself.
@@ -398,7 +398,7 @@ def deepen(question: str, *, resolve) -> dict:
     if not callable(resolve):
         raise ScanRefused(
             "deepen: no resolve seam injected — the failover goes through "
-            "inference_domain.resolve or not at all (sole path). Refusing to answer "
+            "inferenceproxy.resolve or not at all (sole path). Refusing to answer "
             "from nothing; a fabricated deepening is the exact failure orient exists "
             "to end."
         )

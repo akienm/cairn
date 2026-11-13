@@ -20,7 +20,7 @@ import sys
 
 def _pulse(home) -> int:
     # THROUGH THE PUBLISHED CLIENT, never a socket of its own: a second dialer here was a
-    # second door, and the sole-path sieve reds any `socket` import outside inference_domain.
+    # second door, and the sole-path sieve reds any `socket` import outside inferenceproxy.
     from cairn.devices.cairn.machines.bus.server import bus_home
     from cairn.tools.bus_client.remote import exchange
 

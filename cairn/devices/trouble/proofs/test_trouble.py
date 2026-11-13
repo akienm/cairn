@@ -817,7 +817,7 @@ def test_a_clear_CROSSES_THE_SEAM_and_the_HOLDER_writes_the_resolution():
     had. Clearing shipped as a bus request on correct reasoning — a clear is a
     read-modify-write, so it belongs to the one hand that owns the store — with the wrong
     conclusion drawn from it: the ASKING moved to the bus along with the writing, and
-    dialing the bus statically reaches ``inference_domain`` and ``db_domain``. The build
+    dialing the bus statically reaches ``inferenceproxy`` and ``db_domain``. The build
     inspector, which must reach neither, was a clearer. Its own ``fire_path_unreachable``
     sieve measured 4 findings and its gate refused a PROVED crossing on them."""
     from cairn.devices.trouble.shim import TroubleShim
@@ -1149,7 +1149,7 @@ def test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS():
 
     ``test_no_device_reaches_this_one_by_import`` asks whether anyone reaches trouble by
     IMPORT. Nobody did — and the lane was still reached by dialing the bus, which pulls in
-    ``bus_client`` and through it ``inference_domain`` and ``db_domain``. So a component
+    ``bus_client`` and through it ``inferenceproxy`` and ``db_domain``. So a component
     could satisfy every isolation tooth in this file and still statically reach a database,
     which is what the build inspector's ``fire_path_unreachable`` sieve caught after the
     fact.
@@ -1182,7 +1182,7 @@ def test_SENDING_to_the_trouble_lane_NEVER_DIALS_THE_BUS():
         offenders += o
         unresolved += u
     assert offenders == [], (
-        "these SEND to the trouble lane over the bus — which imports inference_domain and "
+        "these SEND to the trouble lane over the bus — which imports inferenceproxy and "
         "db_domain, so every one of them statically reaches a database. The send lanes are "
         f"emissions (DiagnosticBase.clear_trouble / reconcile_troubles): {offenders}")
     assert unresolved == [], (

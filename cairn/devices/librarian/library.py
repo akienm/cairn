@@ -194,7 +194,7 @@ def learn(address: str, *, resolve, tree: str = "library", library: Path | None 
     """
     if not callable(resolve):
         raise LearnRefused(
-            "learn: no resolve seam injected — vectors come through inference_domain's "
+            "learn: no resolve seam injected — vectors come through inferenceproxy's "
             "resolve or not at all (sole path).")
     entry = shelf_entry(address, library=library)
     try:

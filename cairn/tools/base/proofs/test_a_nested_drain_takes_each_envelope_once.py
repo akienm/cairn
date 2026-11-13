@@ -2,7 +2,7 @@
 
 Measured 2026-11-12 03:09:50-51 UTC (bus emissions under ~/.cairn/logs/bus/0): three asks CC
 had given up on were delivered to codemother 2, 2 and 3 times in 1.7 s. ``_check_mail`` works
-from a snapshot of ``undelivered``. codemother's handler asks inference_domain, and while that
+from a snapshot of ``undelivered``. codemother's handler asks inferenceproxy, and while that
 request waits the bus server drains codemother again (``_serve_held``). The inner drain took
 the rest of the snapshot, and then the outer loop handed each of those envelopes over a second
 time. The first reply to each ask was receipted bus-asker-gave-up; the four after it stood

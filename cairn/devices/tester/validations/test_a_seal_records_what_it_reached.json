@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_seal_records_what_it_reached.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T04:19:39",
+    "caller": "cairn test",
+    "date": "2026-11-13T09:37:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_imported_component_is_reached\n.\n  ok   test_a_python_m_subprocess_is_reached\n.\n  ok   test_a_proof_that_reaches_nothing_records_an_empty_map\n.\n  ok   test_the_shadowed_sitecustomize_still_runs\n.\n  ok   test_a_meta_proof_seal_covers_the_proof_it_runs\n                                                                    [100%]\n5 passed in 10.14s",
+      "stdout_tail": ".\n  ok   test_an_imported_component_is_reached\n.\n  ok   test_a_python_m_subprocess_is_reached\n.\n  ok   test_a_proof_that_reaches_nothing_records_an_empty_map\n.\n  ok   test_the_shadowed_sitecustomize_still_runs\n.\n  ok   test_a_meta_proof_seal_covers_the_proof_it_runs\n                                                                    [100%]\n5 passed in 2.36s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_imported_component_is_reached",
@@ -17,7 +17,7 @@
         "test_a_meta_proof_seal_covers_the_proof_it_runs"
       ],
       "teeth_red": [],
-      "test": "test-06ad8612a7ad",
+      "test": "test-4048bb99c058",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,19 +33,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06ad8612a7ad",
-      "source_fingerprint": "cb29fa4eda4f8a2906ae15ccbf9bbf6cda77de40aca7a8b30eb4698a8027f026",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4048bb99c058",
+      "source_fingerprint": "a2fcc0f083522c7b547253b3d7d28655b82262873174b6ac362f8708984eecc1",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -56,41 +58,41 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
-        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
         "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2768508-etu3v1ox/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-415144-m1unu8f3/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261113.111930.386946.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.111932.903247.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.111935.395436.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.111937.993566.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-49725135cba2/stderr.txt",
-            "logs/tester/0/runs/test-49725135cba2/stdout.txt",
-            "logs/tester/0/runs/test-5f622d34799b/stderr.txt",
-            "logs/tester/0/runs/test-5f622d34799b/stdout.txt",
-            "logs/tester/0/runs/test-d142b17044d4/stderr.txt",
-            "logs/tester/0/runs/test-d142b17044d4/stdout.txt",
-            "logs/tester/0/runs/test-e4c2b1a4f8c8/stderr.txt",
-            "logs/tester/0/runs/test-e4c2b1a4f8c8/stdout.txt"
+            "logs/tester/0/20261113.163723.094221.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163723.689082.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163724.242938.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163724.871661.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-3e1d537fbdb1/stderr.txt",
+            "logs/tester/0/runs/test-3e1d537fbdb1/stdout.txt",
+            "logs/tester/0/runs/test-3f1b31afd86d/stderr.txt",
+            "logs/tester/0/runs/test-3f1b31afd86d/stdout.txt",
+            "logs/tester/0/runs/test-993140e9b5b4/stderr.txt",
+            "logs/tester/0/runs/test-993140e9b5b4/stdout.txt",
+            "logs/tester/0/runs/test-a14c6cb62aad/stderr.txt",
+            "logs/tester/0/runs/test-a14c6cb62aad/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 530327504,
-          "disk_bytes": 572653568,
-          "entries": 16265,
+          "bytes": 1928630,
+          "disk_bytes": 2338816,
+          "entries": 363,
           "builds": 1,
-          "reuses": 16
+          "reuses": 19
         }
       }
     },

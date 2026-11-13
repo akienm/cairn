@@ -90,6 +90,10 @@ import atexit, json, os, runpy, sys
 _out = sys.argv[1]
 _proof = sys.argv[2]
 sys.argv = [_proof]
+# `-c` puts the CALLER's cwd first; `python <proof>` puts the proof's directory there, and
+# the reading must not change (ticket cfb4cb45d85c: on Windows the live root led, not the proof).
+if sys.path and sys.path[0] == "":
+    sys.path[0] = os.path.dirname(os.path.abspath(_proof))
 
 
 def _dump():

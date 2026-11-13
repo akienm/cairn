@@ -2,7 +2,7 @@
   {
     "claim": "proof test_seal_is_never_silently_dropped.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T06:25:56",
+    "date": "2026-11-13T09:39:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -24,7 +24,7 @@
         "test_the_scratch_bus_goes_with_its_home"
       ],
       "teeth_red": [],
-      "test": "test-e2d2027c17c5",
+      "test": "test-ce8c4b5457d5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,26 +40,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [
-        {
-          "pid": 2871502,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e2d2027c17c5",
-      "source_fingerprint": "6a32acdb30a7090a43749fc09a74243677d96ea21520a63de1d1e96146b067e7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce8c4b5457d5",
+      "source_fingerprint": "d65326e509dcec8dffb8c63d2c235d03e51998ed89ef14f3846966bebbf30dd8",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -74,109 +69,79 @@
         "cairn/devices/tester/reseal.py",
         "cairn/devices/tester/runs.py",
         "cairn/devices/tester/scratch_sweep.py",
-        "cairn/devices/tester/shim.py",
         "cairn/devices/tester/working_bytes.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "2651275156ea90f771634511dd63ba5a4462396897556c1e0825bbbad0290860",
-        "cairn/devices/cairn/machines/bus": "0992312e2fb570fb454252b8e89084fba91c0112645ab5d73ac85d52b62386d5",
-        "cairn/devices/cairn/machines/harbor_master": "de487e4845b21a14388fd73df357673a36d78cb81ed5290b9afe58520b52a041",
-        "cairn/devices/codemother": "20602f98bf7b89fa3ce0292fbe035cc6f06ec584adfcb3fcc70b25560124e1c9",
-        "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
-        "cairn/devices/codemother/machines/clearance": "2cf4b3e96d8218e27bc2ce1fca96a995881bb3b9696f7eaa82b2865c32a9d403",
-        "cairn/devices/codemother/machines/watchme": "4cf34d647c0c43367c3c1064daec2c9649a97f7a5aa3e46700bc6e091775a77c",
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
         "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
         "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
-        "cairn/tools/base": "044f2abdf5aa426173af0599e10d312566f91becff9476f10bef0cfcbdadbef4",
-        "cairn/tools/bus_client": "270bed5752d1aef017a382d4cdcdc4ebb6d89e135557b45a53569f40f066b37b",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
+        "cairn/tools/bus_client": "43d62c3708ef1b3b02efbebf82737cb1394d4c87a6857648a28a6e6d1fec7206",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "e9f02034a3994b46fa6c761014037093d2dcb8a99fda5da4601a279e8bfc4093",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
         "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
-        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
+        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
-        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2",
-        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2871344-t8xxvwc2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-415144-niv76c40/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 113,
+          "count": 93,
           "paths": [
-            "devices/cairn/machines/bus/0/bus.lock",
-            "devices/cairn/machines/bus/0/stops.jsonl",
-            "devices/codemother/0/last_known.json",
-            "devices/harbor_master/0/last_known.json",
-            "devices/tester/0/last_known.json",
-            "logs/bus.log",
-            "logs/bus/0/20261113.132516.003806.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.132516.044954.BusDevice.post.json",
-            "logs/bus/0/20261113.132516.586436.BusDevice.post.json",
-            "logs/bus/0/20261113.132516.603712.BusDevice.post.json",
-            "logs/bus/0/20261113.132516.616958.BusDevice.post.json",
-            "logs/bus/0/20261113.132517.280449.BusDevice.post.json",
-            "logs/bus/0/20261113.132517.280726.BusDevice.delivered.json",
-            "logs/bus/0/20261113.132517.283083.BusDevice.delivered.json",
-            "logs/codemother/0/20261113.132517.280188.CodeMotherDevice.sealed_heard.json",
-            "logs/codemother/0/20261113.132517.283960.CodeMotherShim.clear_trouble.json",
-            "logs/codemother/0/20261113.132517.284852.CodeMotherShim.clear_trouble.json",
-            "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261113.132440.701168.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132443.018490.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132445.345801.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132447.669014.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132449.985384.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132452.325921.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132454.697342.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132457.036814.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132459.411359.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132501.736413.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132504.074481.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132506.433904.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132508.770714.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132511.104796.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132513.476735.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132515.813651.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132517.280590.TesterShim.reply_disposed.json",
-            "logs/tester/0/20261113.132517.282940.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261113.132519.683603.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132522.039134.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132524.392870.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.132526.715107.TesterDevice.run_proof.json"
+            "logs/tester/0/20261113.163913.308270.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163913.869272.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163914.444800.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163915.004010.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163915.561176.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163916.109232.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163916.668826.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163917.219490.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163917.770534.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163918.326821.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163918.879511.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163919.431284.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163919.983165.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163920.538927.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163921.107559.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163921.653903.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163922.849164.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163923.402725.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163923.950663.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163924.510472.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163925.091463.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163925.651849.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163926.213254.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163926.797960.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163927.371168.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163927.926825.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163929.106485.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163929.668038.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163930.226507.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163931.406283.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.163931.961848.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-04dd3faa376a/stderr.txt",
+            "logs/tester/0/runs/test-04dd3faa376a/stdout.txt",
+            "logs/tester/0/runs/test-1358c3270d35/stderr.txt",
+            "logs/tester/0/runs/test-1358c3270d35/stdout.txt",
+            "logs/tester/0/runs/test-14a5ca7f8ed0/stderr.txt",
+            "logs/tester/0/runs/test-14a5ca7f8ed0/stdout.txt",
+            "logs/tester/0/runs/test-158a3ba48344/stderr.txt",
+            "logs/tester/0/runs/test-158a3ba48344/stdout.txt",
+            "logs/tester/0/runs/test-1944e4b3fdc7/stderr.txt"
           ],
-          "elided": 73
+          "elided": 53
         },
         "scratch": {
           "measured": true,
-          "bytes": 530667856,
-          "disk_bytes": 573386752,
-          "entries": 16443,
+          "bytes": 1939510,
+          "disk_bytes": 2555904,
+          "entries": 471,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "42ddfe3b7256": {
-          "cairn/devices/tester/proofs/test_seal_is_never_silently_dropped.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "42ddfe3b7256": "6a32acdb30a7090a43749fc09a74243677d96ea21520a63de1d1e96146b067e7"
-      },
-      "hollow_anchor": {
-        "42ddfe3b7256": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ebb1587c749e7c5da39d78ac364c4d2013c124c9",
-          "anchor_first_build": null,
-          "commit": "ebb1587c749e7c5da39d78ac364c4d2013c124c9"
+          "reuses": 39
         }
       }
     },

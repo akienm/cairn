@@ -1,26 +1,27 @@
 [
   {
-    "claim": "proof test_scratch.py passes under python.exe",
+    "claim": "proof test_scratch.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T06:24:34",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "date": "2026-11-13T10:09:24",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
-      "stderr_tail": "scratch: could not sweep C:\\Users\\akien\\AppData\\Local\\Temp\\ws-shim-pulse-scratch.0-7060-fdg43py2: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\akien\\\\AppData\\\\Local\\\\Temp\\\\ws-shim-pulse-scratch.0-7060-fdg43py2\\\\web_server.log'",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  FAIL  test_no_proof_in_this_repo_calls_mkdtemp_bare: AssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.tools.scratch.scratch.scratch_dir:\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\nred — scratch: 1 of 8 teeth failed",
+      "stderr_tail": "",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
         "test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something",
         "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
         "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare",
         "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
         "test_a_with_block_holds_the_scratch",
         "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
-      "teeth_red": [],
-      "test": "test-fe1f2f769ead",
+      "teeth_red": [
+        "test_no_proof_in_this_repo_calls_mkdtemp_bare"
+      ],
+      "test": "test-1eecd23d35b9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,28 +33,23 @@
       "conditions": {
         "proof": "8396bd4f0f4d470a571087a922a21ca3039d17b02c083cf2be62cf8576c32f6d",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        },
-        {
-          "pid": null,
-          "signal": "none: process environments cannot be enumerated on Windows"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-fe1f2f769ead",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1eecd23d35b9",
       "source_fingerprint": "2d87c01091a0fbad86a9b0462712b7e48ee71f96f3a251f5d7e790b337800c2c",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
@@ -61,19 +57,25 @@
         "cairn/tools/scratch/scratch.py"
       ],
       "reached": {
-        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
-        "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa"
+        "cairn/devices/tester": "8f6d9da7e4a3ddf051514d570848d630d99bcda797b0bbae60074448f10f47b1",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3190193-ahvj726n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 531282852,
+          "disk_bytes": 574480384,
+          "entries": 16583,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

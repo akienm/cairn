@@ -11,7 +11,7 @@ which also baked in ``Path.home()``:
     build_inspector/inspector.py:216 devices/chart                    (another device's space)
     learning_block/learning_block.py:83      learning_block/0/traces (moved under its holders, ticket 17d4d1899545)
     learning_block/probes/engine_trace_corpus.py:42   THE SAME ADDRESS, SPELLED TWICE
-    inference_domain/route.py:44     .cairn/inference/hosts.json      (off the devices/ ladder)
+    inferenceproxy/route.py:44     .cairn/inference/hosts.json      (off the devices/ ladder)
     skill_block/counters.py:39       the .cairn root itself, as the root table
     librarian/library.py:43          devices/librarian/0/library
     skill_block/skill_block.py:46    devices/skill_block/0/berths
@@ -19,9 +19,9 @@ which also baked in ``Path.home()``:
 
 **THE TOP LEVEL OF ~/.cairn/ IS FOR WHAT IS NOT ANY DEVICE'S STATE** — Akien, 2026-08-12, two
 rulings with one shape. On the one entry above that sits off the devices/ ladder: *"devices/
-inference_domain/0/ is exactly right. ruled with a smile"* — ``hosts.json`` is
-``inference_domain``'s own state, so it belongs in ``inference_domain``'s own space, and the
-move creates that space (no ``devices/inference_domain/`` exists yet). And on what legitimately
+inferenceproxy/0/ is exactly right. ruled with a smile"* — ``hosts.json`` is
+``inferenceproxy``'s own state, so it belongs in ``inferenceproxy``'s own space, and the
+move creates that space (no ``devices/inferenceproxy/`` exists yet). And on what legitimately
 stays at the top: *"i think what i see is ~/.cairn/venv and not ~/.cairn/anything else/venv —
 ~/.cairn/venv is correct"* — ONE venv per box, never one per device, and the same for ``logs``
 and ``backups``. So the test is not depth, it is OWNERSHIP: a file that answers "what is true of

@@ -34,7 +34,7 @@ and does exactly that; its repair is its own ticket. Naming the live tree here i
 decision made against a measurement, not a copy of the neighbour.
 
 THE ERA FLOOR IS MEASURED, AND THE MEASUREMENT SAYS SOMETHING UNEXPECTED. The rule
-(2026-08-08 stale-process lesson, ``inference_domain/probes/does_a_domain_ride_the_
+(2026-08-08 stale-process lesson, ``inferenceproxy/probes/does_a_domain_ride_the_
 request.py``) is that "live" means the SERVING process, not the disk — a web server held
 pre-route code for two hours after the disk was right. Applied here at arming time, the
 measurement came back: THERE IS NO LONG-LIVED LIBRARIAN SERVING PROCESS. ``ss -ltnp``

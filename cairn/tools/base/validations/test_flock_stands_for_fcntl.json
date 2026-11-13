@@ -2,7 +2,7 @@
   {
     "claim": "proof test_flock_stands_for_fcntl.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T02:33:34",
+    "date": "2026-11-13T16:14:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "a_contended_nonblocking_take_raises_and_frees_on_unlock"
       ],
       "teeth_red": [],
-      "test": "test-0c8cf654cac7",
+      "test": "test-78150025c4f3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "cbaad5fdfc2566d642128c13dee8d905006586b8f5afb0227edd0b3b15f642f0",
+        "proof": "7bb39f696765ef2e897596751ea52e5d7f5df36a7043db3968a1c6bd4d20e7ff",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,19 +42,19 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c8cf654cac7",
-      "source_fingerprint": "8318d78f2eda2c64e04bf03d575ceb6448cc828c30690fcc400d9516506a8002",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-78150025c4f3",
+      "source_fingerprint": "79f2267df5079c9e74cc4ae9cdfcab0c5747d72096019d1b06e2bba9eb1b70ec",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/flock.py",
         "cairn/tools/base/proofs/test_flock_stands_for_fcntl.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2599123-9lg7qm09/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-qfjk0wy0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,35 +63,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530049724,
-          "disk_bytes": 571756544,
-          "entries": 16049,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
           "builds": 1,
-          "reuses": 4
-        }
-      },
-      "hollow": {
-        "5a37dd56fa45": {
-          "cairn/tools/base/flock.py": [
-            "a_contended_nonblocking_take_raises_and_frees_on_unlock",
-            "host_and_metrics_import_with_fcntl_hidden"
-          ],
-          "cairn/devices/inference_domain/host.py": [
-            "host_and_metrics_import_with_fcntl_hidden",
-            "neither_module_imports_fcntl_at_top_level"
-          ],
-          "cairn/devices/cairn/metrics.py": [
-            "host_and_metrics_import_with_fcntl_hidden",
-            "neither_module_imports_fcntl_at_top_level"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "5a37dd56fa45": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "b4ad294367eb2b7431ebc1b4e8d174324df82e41",
-          "anchor_first_build": "54ecee6d84bdcb3be8bc7befa9d14bef6ea0a773",
-          "commit": "315fc701dec694bee7ce06296bbf5c52d1d7a3ad"
+          "reuses": 254
         }
       }
     },

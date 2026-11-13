@@ -195,8 +195,8 @@ class BusProcess(DiagnosticBase):
         # traffic, and a handler that posts to itself re-enters on the same thread.
         self._shim_locks: dict[str, threading.RLock] = {}
         # A POKE NEVER WAITS ON ANOTHER SHIM'S LOCK (ticket c2036433beaf). Measured 2026-10-17
-        # by py-spy: a handler holding codemother's lock posted to inference_domain while a
-        # handler holding inference_domain's posted a reply to codemother — each blocked on the
+        # by py-spy: a handler holding codemother's lock posted to inferenceproxy while a
+        # handler holding inferenceproxy's posted a reply to codemother — each blocked on the
         # other's lock, and the asker hung the 900s client timeout. Now a poke that finds its
         # shim's lock held leaves the envelope in that shim's queue and returns; whoever holds
         # the lock drains the queue before letting go, and a request() made under a held lock

@@ -395,7 +395,7 @@ def test_the_three_numbers_come_from_ONE_field():
 def test_the_window_actually_rides_the_request():
     """A window nobody sends is a window that does not exist.
 
-    The plumbing for this was ALREADY THERE — inference_domain has merged a caller's
+    The plumbing for this was ALREADY THERE — inferenceproxy has merged a caller's
     ``options`` into the outbound body since it was built, and this device had never sent
     any. So the tooth is not 'can options be passed' but 'does this consumer pass one',
     which is the thing that was false for the whole life of the device.
@@ -474,7 +474,7 @@ def test_a_cache_hit_is_not_called_a_clamp():
 
 # ------------------------------------------------- the ask that failed is still an ask
 # THE DEFECT THESE ARE MADE OF, measured 2026-08-17 on a real drive: hex answered without
-# token counters, `inference_domain` raised HostUnmetered rather than metering zero, and
+# token counters, `inferenceproxy` raised HostUnmetered rather than metering zero, and
 # the fence — which records only after the door returns — wrote nothing. aider caught the
 # exception in its own broad handler and returned quietly, so the driver saw zero asks and
 # reported, in good faith, that the drive had REACHED NO MODEL. Every layer was honest and

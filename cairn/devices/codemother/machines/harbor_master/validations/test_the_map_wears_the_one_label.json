@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_map_wears_the_one_label.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T11:12:10",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:34:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_fixture_map_groups_are_the_inbox_header\n  PASS  test_fixture_map_rows_wear_the_reader_label\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n    (live: 112 open tickets, the map wears the reader's label on each)\n  PASS  test_live_map_rows_wear_the_reader_label\n\n5/5 green",
+      "stdout_tail": "  PASS  test_crossing_patch_reloads_the_ticket_not_the_target\n  PASS  test_fixture_map_groups_are_the_inbox_header\n  PASS  test_fixture_map_rows_wear_the_reader_label\n  PASS  test_fixture_prose_standing_is_a_finding_not_a_status\n    (live: 114 open tickets, the map wears the reader's label on each)\n  PASS  test_live_map_rows_wear_the_reader_label\n\n5/5 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_crossing_patch_reloads_the_ticket_not_the_target",
@@ -17,7 +17,7 @@
         "test_live_map_rows_wear_the_reader_label"
       ],
       "teeth_red": [],
-      "test": "test-d66ac69fc5a5",
+      "test": "test-c3f17e72c155",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,17 +29,23 @@
       "conditions": {
         "proof": "abd3b016cdc9f089cc7bfc55ee89e605e9899744d0ed24f4c2c8d262e182cf88",
         "fixtures": null,
-        "interpreter": "/home/akien/.akien/temp/cnh/.cairn/venv/bin/python3 3.14.4",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "3db5aa5642d2"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-d66ac69fc5a5",
-      "source_fingerprint": "4e604d9a02f29cd4522143439bde5a2c80329df1ff1ecf99b1f712110fb9615c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c3f17e72c155",
+      "source_fingerprint": "47762fe13342dc2697ccf055ee72179ae16b28e3d581614f91f3076da07a9e67",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/harbor_master/__init__.py",
         "cairn/devices/codemother/machines/harbor_master/device.py",
@@ -47,32 +53,32 @@
         "cairn/devices/codemother/machines/harbor_master/register.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "455fd7257dc7728336abcb6b128542409d05377ea111ef94d95179a033ed4a2e",
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
-        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/devices/codemother": "2416105a09777a4085e93f2fcbcccfb128dfa95d146d6bb3fa5dfe9d031950a8",
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "e30a665f701541588bf578e09954ef63e86eb77d12d75e595bd3e090ba7296c1",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/operator_inbox": "24aeea26e92479183e15ba92c45417eabd32db96d2b8d589bff83e6ff65c6454",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3324121-rysqnthf/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-0eaqbod4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/harbor_master/0/20261113.181209.733361.HarborMasterDevice.reconciled.json"
+            "logs/harbor_master/0/20261113.213435.900938.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 40194,
-          "disk_bytes": 90112,
-          "entries": 105,
+          "bytes": 531860056,
+          "disk_bytes": 575877120,
+          "entries": 16867,
           "builds": 1,
-          "reuses": 19
+          "reuses": 40
         }
       }
     },

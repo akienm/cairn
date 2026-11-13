@@ -1,0 +1,89 @@
+[
+  {
+    "claim": "proof test_the_proxy_records_its_meter_as_metrics.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:43:39",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_miss_records_spent_saved_and_latency_under_the_call\n  green a_hit_saves_and_a_refusal_spends_nothing\n  green the_names_are_declared_and_land_under_the_trails_roots\n3 passed, 0 failed out of 3",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_miss_records_spent_saved_and_latency_under_the_call",
+        "a_hit_saves_and_a_refusal_spends_nothing",
+        "the_names_are_declared_and_land_under_the_trails_roots"
+      ],
+      "teeth_red": [],
+      "test": "test-eba5301546d1",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "997cd902fc01df6adb73136806f3cfdcbbb46309dd2368ed9f902c3eb5c0f4e0",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eba5301546d1",
+      "source_fingerprint": "bb993bb421bf9193e35c6a401fdcef0bc98fed12ade7f53514a56770b66a0b4d",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/domain.py",
+        "cairn/devices/inferenceproxy/machines/__init__.py",
+        "cairn/devices/inferenceproxy/proofs/test_the_proxy_records_its_meter_as_metrics.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/inferenceproxy/machines/route": "f9a9556f34c39c20b5a640f12e26b2f0c5d33d90c7bc6bded911071ed7c918cd",
+        "cairn/devices/librarian": "aca92a33c896d20d1836154dfeb40c6568769f2616997119acc7387366b46152",
+        "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/data_recorder": "c9c375301ad2487d4e13f3031872f303838f7da0488ae164304d82990b985ef9",
+        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
+        "cairn/tools/metric": "84e1022ffcc1866b499db2702625219bbb1ca11860b21720c587c4fa11088141",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-gbtmwivu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
+          "builds": 1,
+          "reuses": 77
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

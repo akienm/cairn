@@ -1,0 +1,84 @@
+[
+  {
+    "claim": "proof test_the_calls_are_a_view.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:41:17",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_calls_is_a_declared_view  — views ['calls', 'models', 'yield']\n  PASS  test_the_view_passes_limit_and_since_and_is_json  — kwargs {'limit': 2, 'since': '2026-10-01T00:00:00'}, dumps True\n  PASS  test_show_prints_one_line_per_call_and_a_count  — '2026-10-13 12:01:07  hit          0.0  {\"kind\": \"generate\", \"prompt\": \"the newer row xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\n2026-10-13 12:00:03  miss        42.0  {\"kind\": \"embed\", \"prompt\": \"the older row\"}\\n2 calls'\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_calls_is_a_declared_view",
+        "test_the_view_passes_limit_and_since_and_is_json",
+        "test_show_prints_one_line_per_call_and_a_count"
+      ],
+      "teeth_red": [],
+      "test": "test-0532d0dc0d3f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "2bef55ce3f3ed715ce5f3429a9cf09083603630f894fb8bc93f529517151e507",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0532d0dc0d3f",
+      "source_fingerprint": "82bacf553888c65407f25fe97345970131aa01c9d426ab15902066c1f80fcac7",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/device.py",
+        "cairn/devices/inferenceproxy/domain.py",
+        "cairn/devices/inferenceproxy/proofs/test_the_calls_are_a_view.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/data_recorder": "c9c375301ad2487d4e13f3031872f303838f7da0488ae164304d82990b985ef9",
+        "cairn/tools/metric": "84e1022ffcc1866b499db2702625219bbb1ca11860b21720c587c4fa11088141",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-l33ehba6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
+          "builds": 1,
+          "reuses": 73
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

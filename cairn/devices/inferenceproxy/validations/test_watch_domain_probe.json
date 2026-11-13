@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_watch_domain_probe.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:43:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_probe_is_armed_in_the_emission_gates_shape\n  PASS  test_the_trigger_fires_on_one_unmarked_post_era_row\n  PASS  test_the_clear_needs_the_denominator_and_a_real_vertical\n  PASS  test_all_default_rows_cannot_buy_the_clear\n  PASS  test_a_young_berth_does_not_clear\n  PASS  test_the_carry_reports_complete_on_first_pass\n  PASS  test_dateless_or_naive_rows_never_count\ngreen — the watch fires on the first unmarked post-era row (any verb), clears only past the denominator floor AND a real non-default vertical (all-default cannot buy it), ignores the pre-domained era, and carries the complete report on first pass",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_probe_is_armed_in_the_emission_gates_shape",
+        "test_the_trigger_fires_on_one_unmarked_post_era_row",
+        "test_the_clear_needs_the_denominator_and_a_real_vertical",
+        "test_all_default_rows_cannot_buy_the_clear",
+        "test_a_young_berth_does_not_clear",
+        "test_the_carry_reports_complete_on_first_pass",
+        "test_dateless_or_naive_rows_never_count"
+      ],
+      "teeth_red": [],
+      "test": "test-7ace673d7a8c",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "be51d471854559b3c36c004c835848ece6b40ca4d6ad81a355d37d14e35c1346",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7ace673d7a8c",
+      "source_fingerprint": "063ba677c784fe6d9728e26e5c3eff8a634e331adaca1f57217ee6e77af89062",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/probes/__init__.py",
+        "cairn/devices/inferenceproxy/probes/does_a_domain_ride_the_request.py",
+        "cairn/devices/inferenceproxy/proofs/test_watch_domain_probe.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "dbdbedffd626daf65ecc4face91be98b160ea0393db05549aa82fe5650f4d6c0",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-y5swymps/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
+          "builds": 1,
+          "reuses": 78
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -8,7 +8,7 @@ where every user reaches it the same way.
 WHY THIS IS ITS OWN MODULE, and it is an import-graph reason rather than a tidiness one.
 ``discover`` used to live in ``cli.py`` beside the command's other faces. ``cli.py`` also
 posts the seal announcement, which reaches the bus, and the bus client imports
-``inference_domain`` — so anything importing ``cli.py`` inherits a static path to an oracle.
+``inferenceproxy`` — so anything importing ``cli.py`` inherits a static path to an oracle.
 ``cairn/tools/base/validation.py`` imports ``cli.py`` for exactly one name (this one), and
 seven components import that tool: the build inspector and the six codemother chart doors.
 All seven are GATES, and Akien's ruling of 2026-08-13 is that NO GATES MAY CONSULT ORACLES

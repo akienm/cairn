@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_the_agent_retry_probe_judges.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:41:12",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok    test_a_bare_chat_hit_is_not_the_finding\n  ok    test_a_replayed_tool_carrying_call_is_the_finding\n  ok    test_the_carry_reports_the_three_states_apart\n  ok    test_the_clear_needs_the_floor_and_the_floor_is_the_TICKETS_number\n  ok    test_the_era_floor_refuses_to_count_an_impossibility\n  ok    test_the_probe_is_armed_in_the_emission_gates_shape\ngreen: 6 teeth",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_bare_chat_hit_is_not_the_finding",
+        "test_a_replayed_tool_carrying_call_is_the_finding",
+        "test_the_carry_reports_the_three_states_apart",
+        "test_the_clear_needs_the_floor_and_the_floor_is_the_TICKETS_number",
+        "test_the_era_floor_refuses_to_count_an_impossibility",
+        "test_the_probe_is_armed_in_the_emission_gates_shape",
+        "6 teeth"
+      ],
+      "teeth_red": [],
+      "test": "test-8e0a6cdd3ebf",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "aaa17431cb342782a716a7f187c83c97a2b4c496486798281b9655311618a16d",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8e0a6cdd3ebf",
+      "source_fingerprint": "092eff3481e513f16366f33a8856cb07bf44c9baa2d1db7f8b008a061a27dfb7",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/probes/__init__.py",
+        "cairn/devices/inferenceproxy/probes/an_agent_retry_gets_a_fresh_sample.py",
+        "cairn/devices/inferenceproxy/proofs/test_the_agent_retry_probe_judges.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "dbdbedffd626daf65ecc4face91be98b160ea0393db05549aa82fe5650f4d6c0",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-33shm1z_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
+          "builds": 1,
+          "reuses": 72
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

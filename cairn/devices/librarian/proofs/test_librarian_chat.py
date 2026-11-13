@@ -29,7 +29,7 @@ wearing a librarian's charter (the parent ticket's named wrong-shape) could not 
     is not running (wake-to-a-poke), attaching the live face at the wake. One web
     server displays this; the librarian owns a page, never a route or a port.
 
-The dual seam is a fake in inference_domain's shape (deterministic embeds, scripted
+The dual seam is a fake in inferenceproxy's shape (deterministic embeds, scripted
 drafts); the DB is the real one through db_domain (nonce table, self-cleaning), as in
 the trees, loop, library, and summarize proofs.
 
@@ -94,7 +94,7 @@ def _fresh_librarian() -> LibrarianDevice:
 
 
 def fake_seam(script: list[str], overrides: dict | None = None):
-    """Both verbs, one fake door, inference_domain's shape — the summarize proof's
+    """Both verbs, one fake door, inferenceproxy's shape — the summarize proof's
     harness: deterministic embeds (exact-text overrides for controlled geometry, else a
     nonzero 3-dim direction from the content's hash), scripted generates with every
     prompt RECORDED on ``resolve.prompts``."""
@@ -396,7 +396,7 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
     The falsifier is chat tooth 15's guessed-intent defect wearing a new coat: a prompt
     whose content screams another vertical must STILL stamp research, and a caller's own
     declaration must survive (setdefault, never overwrite). The seam is driven over a
-    recording bus, so what it SENDS is measured here; what inference_domain does with the
+    recording bus, so what it SENDS is measured here; what inferenceproxy does with the
     domain is measured at its own address (RULE 1, ticket a16c4d4ff4bd)."""
     from cairn.devices.librarian import live
 
@@ -417,8 +417,8 @@ def test_the_seam_stamps_the_research_domain_declared_never_inferred():
     seam({"kind": "generate", "prompt": "x", "domain": "coding"})
 
     assert len(bus.calls) == 3, bus.calls
-    assert all(to == "inference_domain" and verb == "resolve" for to, verb, _ in bus.calls), \
-        f"the seam must ask inference_domain's resolve verb, saw {[c[:2] for c in bus.calls]}"
+    assert all(to == "inference" and verb == "resolve" for to, verb, _ in bus.calls), \
+        f"the seam must ask inferenceproxy's resolve verb, saw {[c[:2] for c in bus.calls]}"
     captured = [body for _, _, body in bus.calls]
     assert captured[0]["domain"] == "research", \
         "content that screams another vertical must still stamp research — the domain " \

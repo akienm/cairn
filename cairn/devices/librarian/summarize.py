@@ -27,7 +27,7 @@ THE PHYSICS: a summary is a VIEW over the graph, never a document the graph forg
     so a shallower cut is legible as shallower, never as a different truth.
 
 Import-pure like the rest of the spine: both verbs arrive through the one injected
-``resolve`` callable (inference_domain's shape); live wiring in ``live.py``, never here.
+``resolve`` callable (inferenceproxy's shape); live wiring in ``live.py``, never here.
 """
 
 from __future__ import annotations
@@ -142,7 +142,7 @@ def summarize(question: str, *, resolve, tree: str = "commons",
     if not callable(resolve):
         raise SummaryRefused(
             "summarize: no resolve seam injected — both verbs (embed, generate) come "
-            "through inference_domain.resolve or not at all (sole path).")
+            "through inferenceproxy.resolve or not at all (sole path).")
     if not isinstance(question, str) or not question.strip():
         raise SummaryRefused(f"summarize: question must be a non-empty string, got {question!r}")
 

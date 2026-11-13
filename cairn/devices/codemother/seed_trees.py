@@ -11,7 +11,7 @@ and deposits it into codemother's graph tree via the librarian's deposit door.
 Idempotent: the deposit door deduplicates by content hash, so re-running
 after a corpus update deposits only the new questions.
 
-Requires inference_domain to be reachable via the bus (hex.local running).
+Requires inferenceproxy to be reachable via the bus (hex.local running).
 This is a CLI command, not an import-time side effect.
 
 Usage:
@@ -37,10 +37,10 @@ _SENDER = "codemother"
 
 
 def _embed_fn():
-    bus = reach("inference_domain")
+    bus = reach("inference")
     def embed(text: str):
         reply = bus.request(
-            sender=_SENDER, to="inference_domain", verb="resolve",
+            sender=_SENDER, to="inference", verb="resolve",
             why="seed_trees embed", body={"kind": "embed", "prompt": text, "model": EMBED_MODEL},
         )
         return reply["body"]["answer"]["vector"]

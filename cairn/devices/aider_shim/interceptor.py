@@ -162,7 +162,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
     without a host: when absent and ``bus`` is provided, inference goes through the bus
     (the sole path for inter-device inference, ticket 87a7f1c7ae21). When all three are
     absent, the fallback is the ``bus_client`` seam (subprocess use only) — this device
-    imports nothing from inference_domain and names no path into its tree.
+    imports nothing from inferenceproxy and names no path into its tree.
 
     ``ticket`` is stamped on every recorded ask. It is the ONLY thing that will ever say a
     ticket was built through this shim — a verdict artifact records that a ticket reached a
@@ -215,7 +215,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         # off the bus. Ticket 87a7f1c7ae21: every inference call routes through
         # bus.request(); a fallback that does not is the sole path with a side door.
         reply = _bus().request(
-            sender="aider_shim", to="inference_domain", verb="resolve",
+            sender="aider_shim", to="inference", verb="resolve",
             why="aider completion", body=request,
         )
         return reply["body"]
@@ -281,7 +281,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 
         ask_chars = sum(len(m["content"] or "") for m in wire)
 
-        # BORDER CROSSING 2: DEPARTURE — what we actually send to inference_domain.
+        # BORDER CROSSING 2: DEPARTURE — what we actually send to inferenceproxy.
         # The options dict carries aider's caller-side params that belong on the wire.
         # temperature is forwarded when aider sends it; the host's default (0.0)
         # contradicts the model's own parameter (0.7), and the caller knows what it wants.
@@ -296,7 +296,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
         # THE CONSUMER ASKS FOR WHAT IT WANTS (Akien's ruling, 2026-08-16) — and a context
         # window is part of the ask, not a property of the proxy. Until 2026-08-17 this
         # request carried no options at all, so the host applied ollama's 4096 default and
-        # clamped a ~72k-token payload without saying so. inference_domain has merged a
+        # clamped a ~72k-token payload without saying so. inferenceproxy has merged a
         # caller's ``options`` into the outbound body since it was built; nobody had ever
         # sent any. The plumbing was not missing — the ask was.
         # AN ASK THAT FAILED IS STILL AN ASK, AND UNTIL 2026-08-17 THIS LOG DENIED IT.
@@ -344,7 +344,7 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 
         # THE INSTRUMENT WAS ALREADY ARRIVING AND NOTHING READ IT. ``provenance.counters``
         # has carried ``prompt_eval_count`` through ``domain.resolve`` for the chat kind
-        # since inference_domain was built — the host records the measurement at
+        # since inferenceproxy was built — the host records the measurement at
         # ``host.py`` and hands it back on every miss. This device was already unpacking it
         # into aider's ``usage`` object two lines below and had never once asked whether the
         # number meant the ask had survived. A free measurement, unread, while the failure
@@ -431,18 +431,18 @@ def build(*, resolver=None, fence: Fence | None = None, log: SeenLog | None = No
 def _stack(models_stack, bus_of=None):
     """The models stack, asked for rather than reached for (ticket 50ad391f4e95).
 
-    Until 2026-09-17 this walked ``parents[2] / "devices" / "inference_domain" / ... /
+    Until 2026-09-17 this walked ``parents[2] / "devices" / "inferenceproxy" / ... /
     "models.json"`` — a path into another device's file tree, which is a cross-device
     import spelled as a filesystem walk: the stack's owner could move the file and this
     device would red without either side having decided anything. Now the stack is an
     answer, and there are two ways to get one: injected (a proof's fixture), or over
-    the bus — ``get`` / ``what=models`` on ``inference_domain``, the same door
+    the bus — ``get`` / ``what=models`` on ``inferenceproxy``, the same door
     ``_do_resolve`` uses for inference. ``bus_of`` is the surface's one bus accessor:
     the injected bus, or the reach bus built on first need (ticket 87a7f1c7ae21 — the
     former third way, ``bus_client.models_stack()``, was a seam that called the domain
     in-process; a subprocess without a bus now gets one). A caller with neither
     (``_model_info`` from the venv driver) gets the reach bus directly. Nothing here
-    names inference_domain's tree.
+    names inferenceproxy's tree.
     """
     if models_stack is not None:
         return models_stack
@@ -450,7 +450,7 @@ def _stack(models_stack, bus_of=None):
         from cairn.tools.bus_client import inference_bus  # noqa: PLC0415
         bus_of = inference_bus
     reply = bus_of().request(
-        sender="aider_shim", to="inference_domain", verb="get",
+        sender="aider_shim", to="inference", verb="get",
         why="aider's model_cost table is the stack the owner declares",
         body={"what": "models"},
     )
@@ -488,7 +488,7 @@ def _model_info(model: str, models_stack, fence: Fence | None = None) -> dict:
     info = _model_cost(models_stack, fence).get(model)
     if info is None:
         raise KeyError(
-            f"{model!r} is not in inference_domain's models stack — this device answers "
+            f"{model!r} is not in inferenceproxy's models stack — this device answers "
             "only for models the stack declares."
         )
     return dict(info)

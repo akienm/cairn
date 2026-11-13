@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Everybody talks to inference_domain over the bus — ticket 87a7f1c7ae21.
+"""Everybody talks to inferenceproxy over the bus — ticket 87a7f1c7ae21.
 
 The falsifier numbers no clauses, so ONE composite tooth carries the ticket's whole
 claim (PROVES keys follow the falsifier markers): (a) no source outside
-``cairn/devices/inference_domain/`` imports ``cairn.devices.inference_domain`` — an AST
+``cairn/devices/inferenceproxy/`` imports ``cairn.devices.inferenceproxy`` — an AST
 walk over every .py under ``cairn/`` that is not a proof or a probe (instruments may read
 what they measure; ``device_isolation_holds`` draws the same line), which is the
 falsifier's ``grep`` taken the way the sieve takes it and widened from the devices to the
 TOOL that used to hold the door; (b) ``bus_client.models_stack()`` is a ``get`` on the bus
 ``reach`` hands it, never a call into the domain; (c) that bus is real — ``inference_bus()``
-wires inference_domain's shim in-process and answers ``get``/``what=models`` with a non-empty
+wires inferenceproxy's shim in-process and answers ``get``/``what=models`` with a non-empty
 stack. That aider's no-bus surface (its venv subprocess) rides that bus is aider_shim's to
 prove, and it does at its own address (ticket 51fa6654ed3e); this proof imports no aider_shim
 module (RULE 1, ticket 30b03739df9c).
@@ -36,8 +36,8 @@ PROVES = {
 
 _REPO = Path(__file__).resolve().parents[6]
 _CAIRN = _REPO / "cairn"
-_OWNER = _CAIRN / "devices" / "inference_domain"
-_FORBIDDEN = "cairn.devices.inference_domain"
+_OWNER = _CAIRN / "devices" / "inferenceproxy"
+_FORBIDDEN = "cairn.devices.inferenceproxy"
 _INSTRUMENT_DIRS = {"proofs", "probes", "proofs_disabled"}
 
 
@@ -63,7 +63,7 @@ def _imports_of(path: Path):
             yield node.module or ""
 
 
-def test_no_source_outside_the_owner_imports_inference_domain():
+def test_no_source_outside_the_owner_imports_inferenceproxy():
     mods = _source_modules()
     assert len(mods) > 100, f"the walk read {len(mods)} modules — a clean result over so few is a hollow scan"
     assert any(p.name == "bus_client.py" for p in mods), "the walk must reach the tool that held the door"
@@ -74,7 +74,7 @@ def test_no_source_outside_the_owner_imports_inference_domain():
         for imp in _imports_of(m)
         if imp == _FORBIDDEN or imp.startswith(_FORBIDDEN + ".")
     ]
-    assert not offenders, "source outside inference_domain imports it directly:\n  " + "\n  ".join(offenders)
+    assert not offenders, "source outside inferenceproxy imports it directly:\n  " + "\n  ".join(offenders)
 
 
 class _RecordingBus:
@@ -88,11 +88,11 @@ class _RecordingBus:
 
     def request(self, **kw):
         self.seen.append(kw)
-        assert kw["to"] == "inference_domain", kw
+        assert kw["to"] == "inference", kw
         if kw["verb"] == "get":
             assert kw["body"] == {"what": "models"}, kw
             return {"body": {"accepted": True, "verb": "get", "view": "models",
-                             "device": "inference_domain", "data": self.stack}}
+                             "device": "inference", "data": self.stack}}
         raise AssertionError(f"unexpected verb on the bus: {kw['verb']}")
 
 
@@ -102,7 +102,7 @@ def test_the_tools_models_stack_is_a_get_on_the_bus():
     stack = {"models": [{"name": "fixture-model:1b"}]}
     bus = _RecordingBus(stack, "fixture-model:1b")
     saved = bcm.reach
-    bcm.reach = lambda *devices: (bus if devices == ("inference_domain",) else (_ for _ in ()).throw(AssertionError(devices)))
+    bcm.reach = lambda *devices: (bus if devices == ("inference",) else (_ for _ in ()).throw(AssertionError(devices)))
     try:
         got = bcm.models_stack()
     finally:
@@ -112,11 +112,11 @@ def test_the_tools_models_stack_is_a_get_on_the_bus():
     assert not hasattr(bcm, "inference_seam"), "the in-process seam is gone; the bus is the one path"
 
 
-def test_the_reach_bus_is_real_and_inference_domain_answers_on_it():
+def test_the_reach_bus_is_real_and_inferenceproxy_answers_on_it():
     from cairn.tools.bus_client import inference_bus
 
     bus = inference_bus()
-    reply = bus.request(sender="proof", to="inference_domain", verb="get",
+    reply = bus.request(sender="proof", to="inference", verb="get",
                         why="87a7f1c7ae21: the door the no-bus path leans on exists",
                         body={"what": "models"})
     body = reply["body"]
@@ -130,9 +130,9 @@ def test_every_inference_call_rides_the_bus():
     tool's stack seam on the bus, and the bus real. The no-bus surface's half is aider_shim's
     and is proved at its own address (ticket 51fa6654ed3e,
     cairn/devices/aider_shim/proofs/test_the_no_bus_surface_asks_over_a_reach_bus.py)."""
-    test_no_source_outside_the_owner_imports_inference_domain()
+    test_no_source_outside_the_owner_imports_inferenceproxy()
     test_the_tools_models_stack_is_a_get_on_the_bus()
-    test_the_reach_bus_is_real_and_inference_domain_answers_on_it()
+    test_the_reach_bus_is_real_and_inferenceproxy_answers_on_it()
 
 
 if __name__ == "__main__":

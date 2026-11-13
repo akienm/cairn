@@ -6,7 +6,7 @@ lives inside codemother and is reached over the bus — the ``deposit`` and ``dr
 on CodeMotherDevice (shim.py). The chart skill asks; it no longer holds her hands.
 
 The bodies of deposit_verdict and drain_pending moved unchanged; the stage dispatch that
-was inline in live.py's ``learn`` is deposit_berth. The embed seam asks inference_domain's
+was inline in live.py's ``learn`` is deposit_berth. The embed seam asks inferenceproxy's
 ``resolve`` verb directly (its public interface) rather than borrowing librarian's code.
 """
 from __future__ import annotations
@@ -41,12 +41,12 @@ class EmbedRefused(RuntimeError):
 
     Ticket 09bd383fd6a6 (measured 2026-11-12 on akiendell): chart learn raised a bare
     KeyError 'answer'. A bus bounce carries ``is_bounce`` and a ``reason``, and no answer.
-    inference_domain's refusal carries ``answer: None`` with ``refused`` and ``detail``. Either
+    inferenceproxy's refusal carries ``answer: None`` with ``refused`` and ``detail``. Either
     way the caller gets the reply's own words (Law 7), never an index error."""
 
 
 def _resolve_embed(bus, text: str) -> dict:
-    reply = bus.request(sender=_SENDER, to="inference_domain", verb="resolve",
+    reply = bus.request(sender=_SENDER, to="inference", verb="resolve",
                         why="codemother deposit embed",
                         body={"kind": "embed", "prompt": text, "model": EMBED_MODEL,
                               "domain": "research"})
@@ -55,13 +55,13 @@ def _resolve_embed(bus, text: str) -> dict:
     if not isinstance(answer, dict) or "vector" not in answer:
         said = {k: got[k] for k in ("is_bounce", "reason", "outcome", "refused", "detail",
                                     "error", "ticket") if got.get(k) not in (None, "")}
-        raise EmbedRefused(f"inference_domain resolve (embed) returned no vector: "
+        raise EmbedRefused(f"inferenceproxy resolve (embed) returned no vector: "
                            f"{said or got or reply!r}")
     return got
 
 
 def embed(bus):
-    """text -> vector over inference_domain's resolve verb."""
+    """text -> vector over inferenceproxy's resolve verb."""
     def _embed(text: str) -> list[float]:
         return _resolve_embed(bus, text)["answer"]["vector"]
     return _embed
@@ -204,7 +204,7 @@ def drain_pending(*, root: str = CAIRN_ROOT, nexus: str | None = None,
 
     Returns one entry per pending berth: ``{"berth", "deposited"|"failed", ...}``.
     """
-    embed = embed or embed_metered(reach("inference_domain"))
+    embed = embed or embed_metered(reach("inference"))
     drained = []
     for entry in pending(ledger_path=ledger_path):
         berth = entry["berth"]

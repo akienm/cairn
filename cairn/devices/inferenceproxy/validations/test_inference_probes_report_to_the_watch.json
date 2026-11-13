@@ -1,0 +1,88 @@
+[
+  {
+    "claim": "proof test_inference_probes_report_to_the_watch.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T14:40:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_every_standing_inference_probe_posts_watch: AssertionError: no standing ticket names a probe under cairn/devices/inferenceproxy/probes/ — the population vanished\n  FAIL  test_every_standing_inference_spec_names_the_receiver: AssertionError: no standing ticket names a probe under cairn/devices/inferenceproxy/probes/ — the population vanished\n  FAIL  test_inference_probes_report_to_the_watch: AssertionError: no standing ticket names a probe under cairn/devices/inferenceproxy/probes/ — the population vanished\nRED — 3 tooth/teeth bit",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_every_standing_inference_probe_posts_watch",
+        "test_every_standing_inference_spec_names_the_receiver",
+        "test_inference_probes_report_to_the_watch"
+      ],
+      "test": "test-ae6dee223ed6",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "49a2217b969399be759487f343dbeda16f1c072ef431093a547bd2cd7b17a190",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 400,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ae6dee223ed6",
+      "source_fingerprint": "59e82fe2082560ef0c9e9173d11eb4ed1f6be51ecaedf8a7fed759e4dae85188",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/proofs/test_inference_probes_report_to_the_watch.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
+        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-yf7wfn3i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 531859664,
+          "disk_bytes": 575873024,
+          "entries": 16864,
+          "builds": 1,
+          "reuses": 67
+        }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "49a2217b969399be759487f343dbeda16f1c072ef431093a547bd2cd7b17a190",
+        "opened": "2026-11-13T14:40:43",
+        "last_red": "2026-11-13T14:40:43",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-inferenceproxy-proofs-test-inference-probes-report-to-the-watch",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

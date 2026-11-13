@@ -53,7 +53,7 @@ ONE UTTERANCE IS ONE QUESTION (v0). Conversation -> questions decomposition stay
 core-loop ticket's filed edge (d) — grow against a measured need, not ahead of it.
 
 Import-pure like the rest of the spine: both seams arrive through the one injected
-``resolve`` callable (inference_domain's shape); live wiring in live.py / the librarian's
+``resolve`` callable (inferenceproxy's shape); live wiring in live.py / the librarian's
 SHIM (which wakes the device and attaches this face), never here. The chat window itself
 is a PANE the base shim class understands — the one web server displays it at the
 librarian's own page; there is no chat route and no second server.
@@ -221,7 +221,7 @@ def chat_turn(utterance: str, *, resolve, tree: str = "commons", k: int = 5,
     if not callable(resolve):
         raise ChatRefused(
             "chat_turn: no resolve seam injected — both verbs (embed, generate) come "
-            "through inference_domain.resolve or not at all (sole path).")
+            "through inferenceproxy.resolve or not at all (sole path).")
     if not isinstance(utterance, str) or not utterance.strip():
         raise ChatRefused(f"chat_turn: utterance must be a non-empty string, got {utterance!r}")
 

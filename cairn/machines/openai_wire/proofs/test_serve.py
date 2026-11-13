@@ -36,7 +36,7 @@ FAIL = 0
 HERE = Path(__file__).resolve().parent.parent
 
 # Clause (e) is the holder's clause, and this proof plays the holder: the resolve it injects
-# is a SCRIPTED stand-in for "ask inference_domain over the bus" (a netns seal can reach no
+# is a SCRIPTED stand-in for "ask inferenceproxy over the bus" (a netns seal can reach no
 # bus), and what the tooth proves is that the machine carries a whole tool-using turn end to
 # end through the real handler. The REAL holder is ticket cb97524c0e8e's; the live fire in
 # this voyage's verdict artifact is where a real model answered through make_server's door.
@@ -206,7 +206,7 @@ def a_holder_serves_a_tool_using_turn_end_to_end():
     runs these same two turns through make_server against the real inference host."""
     turns = []
 
-    def bus_ask(request):                     # stands in for: ask inference_domain over the bus
+    def bus_ask(request):                     # stands in for: ask inferenceproxy over the bus
         msgs = translate.to_provider(request["messages"])
         turns.append(msgs)
         if msgs[-1]["role"] == "tool":

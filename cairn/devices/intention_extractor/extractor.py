@@ -12,7 +12,7 @@ never by CC's opinion, the least independent witness.
 
 THE CONTRACT
   - The DRAFT comes from the resolver seam — ``resolve(request)`` in
-    ``inference_domain.resolve``'s shape, injected by the caller (the sole path to the
+    ``inferenceproxy.resolve``'s shape, injected by the caller (the sole path to the
     host; metered, cached — the same prompt for the same source is a genuine cache hit,
     and the parsimonious-prompt aim has a meter). This module never opens the host.
   - The JUDGMENT is deterministic. Every extracted claim must stand on ANCHORS — verbatim
@@ -27,7 +27,7 @@ THE CONTRACT
     caller (CC today, the librarian later) to dispose. Growth rule: a bad extraction a
     check could have caught becomes a check, and the class stops recurring (Law 1).
 
-Live wiring lives in ``live.py`` (through inference_domain, the one door). This module is
+Live wiring lives in ``live.py`` (through inferenceproxy, the one door). This module is
 import-pure — the proofs pin that it cannot dial out on its own.
 """
 
@@ -57,7 +57,7 @@ def source_digest(source: str) -> str:
 
 
 def extraction_prompt(source: str) -> str:
-    """The draft prompt — deterministic per source, so ``inference_domain``'s structural
+    """The draft prompt — deterministic per source, so ``inferenceproxy``'s structural
     canonicalization makes the same source a cache HIT (the parsimonious-prompt aim,
     metered by yield_report). Kept small on purpose: 'part of what we're doing here is
     trying to find the most parsimonious prompts that can be effective' (Akien, 2026-07-27)."""
@@ -140,7 +140,7 @@ class IntentionExtractorDevice(BaseDevice):
         ("PASS"|"REFUSED"), "findings", "checks_run", "hit"}``.
 
         Refuses BEFORE the host is touched (no breadcrumb — nothing crossed) on: no
-        injected seam (the sole path is inference_domain.resolve or nothing — a
+        injected seam (the sole path is inferenceproxy.resolve or nothing — a
         fabricated extraction from no model is the founding defect itself), or a source
         under the floor (an intention from near-nothing is invention). Refuses AFTER
         (breadcrumb first — tokens were spent, the crossing happened) on an unparseable
@@ -149,7 +149,7 @@ class IntentionExtractorDevice(BaseDevice):
         if not callable(resolve):
             raise ExtractionRefused(
                 "extract: no resolve seam injected — the draft comes through "
-                "inference_domain.resolve or not at all (sole path). Refusing to invent "
+                "inferenceproxy.resolve or not at all (sole path). Refusing to invent "
                 "an extraction from nothing."
             )
         if not isinstance(source, str) or len(_norm(source)) < _MIN_SOURCE_CHARS:
@@ -234,7 +234,7 @@ class IntentionExtractorDevice(BaseDevice):
         return {
             "checks": sorted(CHECKS),
             "min_source_chars": _MIN_SOURCE_CHARS,
-            "seam": "resolve is injected by the caller (inference_domain.resolve — the "
+            "seam": "resolve is injected by the caller (inferenceproxy.resolve — the "
                     "sole path to the host; live wiring in live.py, never here)",
             "owns": "no store — a candidate is DATA returned to the caller; its berth "
                     "(charter / ticket / commons) is the caller's disposition",

@@ -71,7 +71,7 @@ def test_listening_is_not_dialing():
     g = _planted(**{"cairn/devices/web_server/listener.py":
                     "from http.server import ThreadingHTTPServer"})
     caught = sieve.catches(g, {"kind": "sole_path", "capability": "the inference host",
-                               "modules": DIALS, "only": "cairn/devices/inference_domain/"})
+                               "modules": DIALS, "only": "cairn/devices/inferenceproxy/"})
     assert caught == [], f"a listening server was caught by an outbound mesh: {caught}"
 
 
@@ -118,16 +118,16 @@ def test_the_real_corpus_clears_the_floor():
 
 def test_sole_path_catches_a_second_door():
     g = _planted(**{"skills/rogue/probe.py": "import socket",
-                    "cairn/devices/inference_domain/host.py": "import urllib.request"})
+                    "cairn/devices/inferenceproxy/host.py": "import urllib.request"})
     caught = sieve.catches(g, {"kind": "sole_path", "capability": "the inference host",
-                               "modules": DIALS, "only": "cairn/devices/inference_domain/"})
+                               "modules": DIALS, "only": "cairn/devices/inferenceproxy/"})
     assert len(caught) == 1, f"exactly the rogue should be caught, got {caught}"
     assert "skills/rogue/probe.py" in caught[0] and "socket" in caught[0]
-    assert "cairn/devices/inference_domain/" in caught[0], "the refusal must name the door that IS allowed"
+    assert "cairn/devices/inferenceproxy/" in caught[0], "the refusal must name the door that IS allowed"
 
 
 def test_sole_path_is_clean_on_the_real_corpus_for_both_domains():
-    """The other half of the pair. Measured 2026-08-06: one dialer (inference_domain/host.py),
+    """The other half of the pair. Measured 2026-08-06: one dialer (inferenceproxy/host.py),
     one driver importer (db_domain/tools/client/store.py). If this reds, a second door was built."""
     g = _corpus()
     # remote.py's socket is the local bus socket (open-10941757e6b7, ticket f5a344e6c629);
@@ -136,7 +136,7 @@ def test_sole_path_is_clean_on_the_real_corpus_for_both_domains():
     # talks on the web by any means (Akien 2026-11-09, Q#74, open-52b86b71a12d).
     host = sieve.catches(g, {"kind": "sole_path", "capability": "the inference host",
                              "modules": DIALS,
-                             "only": ("cairn/devices/inference_domain/", "cairn/tools/bus_client/remote.py",
+                             "only": ("cairn/devices/inferenceproxy/", "cairn/tools/bus_client/remote.py",
                                       "cairn/tools/bus_client/tls.py",
                                       "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py",
                                       "cairn/machines/web_operator/")})

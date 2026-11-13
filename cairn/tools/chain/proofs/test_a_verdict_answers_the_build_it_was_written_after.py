@@ -189,7 +189,7 @@ insp._crossing_roots = lambda: {"repo": journal, "commons": journal}
 f = insp.proved_answers_the_chart("widget", berths_root=berths)
 reached = sorted(m for m in sys.modules if m.startswith((
     "cairn.tools.tree", "cairn.devices.db_domain", "cairn.devices.librarian",
-    "cairn.devices.inference_domain", "psycopg", "requests", "httpx")))
+    "cairn.devices.inferenceproxy", "psycopg", "requests", "httpx")))
 print(json.dumps({"findings": f, "calls": calls, "reached": reached}))
 """
 

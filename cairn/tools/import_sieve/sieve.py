@@ -9,8 +9,8 @@ WHY IT IS NOT A GREP. The mesh is the whole difficulty, and the corpus taught it
 twice before this module existed:
 
   - learning_block's tooth (2026-08-01) grepped whole source and fired on its own
-    docstring's honest mention of inference_domain. Fixed by scoping to import lines.
-  - inference_domain's tooth (2026-07-21) grepped for the host's port and API paths
+    docstring's honest mention of inferenceproxy. Fixed by scoping to import lines.
+  - inferenceproxy's tooth (2026-07-21) grepped for the host's port and API paths
     and fired on cairn/tools/base/needs.py, where ':11434/api/tags' appears in a docstring,
     an error message, and a fixture. Fixed by testing the CAPABILITY, not the mention.
 
@@ -25,7 +25,7 @@ modules exactly, or it reds on the one component whose whole job is to be reacha
 
 THE HOLLOW FLOOR IS PHYSICS HERE, NOT A REMEMBERED ASSERT. `catches()` refuses to
 report a clean sieve over a tree it never read (Law 8 — a green over zero files is not
-a green). inference_domain's hand-rolled version carried that floor as a separate
+a green). inferenceproxy's hand-rolled version carried that floor as a separate
 assertion at the end of the tooth, which is exactly the kind of step a second copy
 forgets. It lives inside the door now, so a caller cannot skip it by not knowing.
 

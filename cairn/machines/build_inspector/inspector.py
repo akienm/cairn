@@ -3112,7 +3112,7 @@ def _crossing_roots() -> dict | None:
     return None
 
 
-# The mesh, verbatim from the component's own proof-time seat (inference_domain/proofs/
+# The mesh, verbatim from the component's own proof-time seat (inferenceproxy/proofs/
 # test_host.py) — one rule, two moments. OUTBOUND ONLY, matched on the full dotted name:
 # a module that can DIAL is a potential door; one that can only LISTEN is not.
 # ``only`` is relative to the inspection root (the cairn package dir), not the repo.
@@ -3126,18 +3126,18 @@ _SOLE_PATH = {
     # and the bus TCP proof, which dials raw only the loopback and LAN doors of a bus it started, to show they refuse plain TCP and a wrong key.
     # web_operator talks on the web by any means (direct HTTP, WebDriver to its own geckodriver);
     # Akien 2026-11-09, answering Q#74 (open-52b86b71a12d): "it is allowed." Outline 16.4.4.
-    "only": ("inference_domain/", "bus_client/remote.py", "bus_client/tls.py",
+    "only": ("inferenceproxy/", "bus_client/remote.py", "bus_client/tls.py",
              "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/"),
 }
 
 
 def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
-    """A component other than inference_domain imports a module that can DIAL.
+    """A component other than inferenceproxy imports a module that can DIAL.
 
     Provenance: ruling 2026-08-08-inference-proxy-is-a-rules-stack, item 1, verbatim: "ALL
     CALLS GO THRU INFERENCY PROXY ... NO OTHER REACHING FOR INFERENCE VIA ANY OTHER
     MECHANISM IS ALLOWED. THAT NEEDS TO BE IN THE BUILD INSPECTION." The mesh predates the
-    ruling — inference_domain/proofs/test_host.py shakes the same rule over the whole REPO
+    ruling — inferenceproxy/proofs/test_host.py shakes the same rule over the whole REPO
     (floor 20) at that component's proof time; this seat is the same rule at the OTHER
     moment: every component, every inspection (the ruling's words, made a roster fact).
 
@@ -3167,8 +3167,8 @@ def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
 # WHAT THE VERDICT MAY REACH — the second rule at this address, and a DIFFERENT question
 # from the one above. _SOLE_PATH asks who may DIAL; this asks what the verdict path may
 # ARRIVE AT, by any number of hops. The two do not cover each other, and that was measured
-# rather than argued (2026-08-12): planting `import cairn.devices.inference_domain.route` into
-# inspector.py leaves _SOLE_PATH GREEN — inference_domain is precisely the component that
+# rather than argued (2026-08-12): planting `import cairn.devices.inferenceproxy.route` into
+# inspector.py leaves _SOLE_PATH GREEN — inferenceproxy is precisely the component that
 # is allowed to dial — while the verdict path gains the ability to ask an LLM. A verdict
 # is always hardware; a verdict that can reach a graph tree, a database or a host is a
 # verdict with an opinion in it.
@@ -3190,7 +3190,7 @@ _FIRE_PATH = {
         "cairn.tools.tree.tree",        # the graph tree — a verdict may not consult one
         "cairn.devices.librarian",         # the same tree, by its other name
         "cairn.devices.db_domain",         # port 5432
-        "cairn.devices.inference_domain",  # the inference/embedding host, by its permitted door
+        "cairn.devices.inferenceproxy",  # the inference/embedding host, by its permitted door
         # and the network itself, for a path that dials without going through the door
         # above — _SOLE_PATH reds those inside cairn/, but the fire path can route through
         # skills/ and bin/, where it has no seat.
@@ -5435,10 +5435,10 @@ def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
     belongs to the one hand that owns the store. That reasoning was correct. The conclusion
     was not: it put the READ and the DIFFERENCE on this side and only the WRITE on trouble's,
     and it made this module a bus client. ``cairn.tools.bus_client`` imports
-    ``inference_domain`` and, through the bus device, ``db_domain`` — so the build inspector,
+    ``inferenceproxy`` and, through the bus device, ``db_domain`` — so the build inspector,
     the one machine that must be able to reach no graph tree, no database and no host, could
     statically reach all three. Its OWN sieve caught it: ``fire_path_unreachable``, 4 findings,
-    tracing ``inspector -> bus_client -> {bus.bus, inference_domain.domain, inference_domain.host}``.
+    tracing ``inspector -> bus_client -> {bus.bus, inferenceproxy.domain, inferenceproxy.host}``.
     The gate refused a PROVED crossing on it, which is the gate doing exactly its job.
 
     So the ask became an emission and the whole read-modify-write moved to the owner. The

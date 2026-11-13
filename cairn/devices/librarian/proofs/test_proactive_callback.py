@@ -6,7 +6,7 @@ fires carrying A's session_id, the node content, and the promotion event. The ca
 rides the resolution event (no clock, no poll) and surfaces through the existing pane
 (no new web route, no daemon).
 
-Non-hollow: exercises the real resolve_query with faked seams (inference_domain's shape,
+Non-hollow: exercises the real resolve_query with faked seams (inferenceproxy's shape,
 real DB via db_domain), threads a real session_id through the deposit path, and verifies
 the callback appears in the verdict and on the device's notification surface.
 

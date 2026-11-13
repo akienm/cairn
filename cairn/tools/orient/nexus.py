@@ -26,7 +26,7 @@ orient.py never imports this module, so the tree CANNOT be consulted at measure-
                               corrections — the scars that built the instrument.
                               Idempotent (the deposit door dedups).
 
-Vectors arrive as DATA; the embed call is the caller's, through inference_domain (the
+Vectors arrive as DATA; the embed call is the caller's, through inferenceproxy (the
 same seam shape as ``deepen(resolve=...)`` — this module never opens the host).
 """
 from __future__ import annotations
@@ -111,7 +111,7 @@ def propose_scan(correction: str, vector, *, conn=None) -> dict:
 
 def seed_founding(embed, *, conn=None) -> list[dict]:
     """Edge (a): the founding corrections take residence. ``embed`` is the injected
-    seam (text → vector through inference_domain); reseeding dedups to no-ops."""
+    seam (text → vector through inferenceproxy); reseeding dedups to no-ops."""
     return [
         deposit_correction(c["content"], embed(c["content"]), c["provenance"], conn=conn)
         for c in FOUNDING_CORRECTIONS

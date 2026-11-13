@@ -32,7 +32,7 @@ them), labeled as such and returned in every verdict so no caller mistakes it fo
 (Law 3). It tunes against real use.
 
 Import-pure like trees.py: both seams arrive as the one injected ``resolve`` callable
-(inference_domain's shape — kind "embed" and kind "generate" through the same door);
+(inferenceproxy's shape — kind "embed" and kind "generate" through the same door);
 live wiring in ``live.py``, never here. The proof pins the allowlist.
 """
 
@@ -234,7 +234,7 @@ def resolve_query(question: str, *, resolve, tree: str = "commons", k: int = 5,
     if not callable(resolve):
         raise BackfillRefused(
             "resolve_query: no resolve seam injected — both verbs (embed, generate) come "
-            "through inference_domain.resolve or not at all (sole path)."
+            "through inferenceproxy.resolve or not at all (sole path)."
         )
     if not isinstance(question, str) or not question.strip():
         raise BackfillRefused(f"resolve_query: question must be a non-empty string, got {question!r}")

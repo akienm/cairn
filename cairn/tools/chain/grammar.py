@@ -264,7 +264,7 @@ def _ticket_ref_resolves_by_id(ref: str, root: str) -> bool:
     A ticket file is ``<12-hex id>-<slug>.json`` and only the id is stable: the slug is
     the title, and a title changes whenever the work is rescoped. Measured on voyage
     548dd13fb4db, 2026-09-11 — Akien's mid-voyage correction moved the OpenAI envelope
-    out of inference_domain, the ticket was retitled from ``-speaks-a-second-wire-format``
+    out of inferenceproxy, the ticket was retitled from ``-speaks-a-second-wire-format``
     to ``-carries-a-tool-using-conversation``, and every berthed packet that had cited the
     ticket BY PATH went unresolvable in the same act. ``constraint_traces`` then read those
     berthed constraints as FABRICATED ATTRIBUTION — the 2026-07-26 class, a bound citing

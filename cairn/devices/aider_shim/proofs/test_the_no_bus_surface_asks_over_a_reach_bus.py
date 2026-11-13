@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Proof that aider_shim's no-bus surface asks inference_domain over a reach bus (ticket 51fa6654ed3e).
+"""Proof that aider_shim's no-bus surface asks inferenceproxy over a reach bus (ticket 51fa6654ed3e).
 
 aider runs in its own venv subprocess with NO bus and NO injected door. ``interceptor.build``
 with neither must, on first need, build ONE bus through ``bus_client.inference_bus`` and ask
-inference_domain ``get`` (the models stack) and then ``resolve`` on it, as sender aider_shim.
+inferenceproxy ``get`` (the models stack) and then ``resolve`` on it, as sender aider_shim.
 Until this ticket that was measured only from the cairn bus machine's proof
 (test_inference_rides_the_bus.py), which imported aider_shim's interceptor and fence: a RULE 1
 reach. The tooth berths here, with its owner.
@@ -39,11 +39,11 @@ class _RecordingBus:
 
     def request(self, **kw):
         self.seen.append(kw)
-        assert kw["to"] == "inference_domain", kw
+        assert kw["to"] == "inference", kw
         if kw["verb"] == "get":
             assert kw["body"] == {"what": "models"}, kw
             return {"body": {"accepted": True, "verb": "get", "view": "models",
-                             "device": "inference_domain", "data": self.stack}}
+                             "device": "inference", "data": self.stack}}
         if kw["verb"] == "resolve":
             return {"body": {"answer": {"text": "pong", "role": "assistant"}, "hit": False,
                              "canonical": "c", "cost": 1,

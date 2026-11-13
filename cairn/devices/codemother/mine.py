@@ -5,7 +5,7 @@ the structural patterns found. For cairn, this includes the complexity axis
 (tools/machines/devices), the charter pattern (intention+why.json beside code),
 and the proof pattern. Output deposits to the project's type library.
 
-Uses inference_domain for pattern recognition — the LLM identifies patterns
+Uses inferenceproxy for pattern recognition — the LLM identifies patterns
 the structural scan surfaces.
 """
 

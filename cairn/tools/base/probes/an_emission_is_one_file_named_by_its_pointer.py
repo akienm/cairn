@@ -21,7 +21,7 @@ THREE INVARIANTS MEASURED TOGETHER, because they are one grain seen from three a
   (b) THE POINTER IS THIN. Every emitted pointer is an address (a path, a digest, a short
       id), not a payload smuggled as a pointer. The threshold is 256 chars — well above
       any file path or digest, well below the 1,171-char median canonical text that was
-      inference_domain's legacy (now a 64-char digest). An out-of-band pointer NAMES the
+      inferenceproxy's legacy (now a 64-char digest). An out-of-band pointer NAMES the
       device and the length, because "the median rose" is a finding nobody can act on.
 
   (c) THE OLD SHAPE IS RECEDING. The count of surviving ``diagnostics.jsonl`` files should
@@ -209,7 +209,7 @@ def _carry(context: dict) -> dict:
         "multi_record_files": s["multi_record_files"],
         "pointer_distribution": s["pointer_distribution"],
         "pointer_band": f"0-{_POINTER_BAND_HIGH} chars (a thin pointer is an address — a path, "
-                        f"a digest, a short id — not a payload; inference_domain's legacy was "
+                        f"a digest, a short id — not a payload; inferenceproxy's legacy was "
                         f"{_POINTER_BAND_INFERENCE_LEGACY}-char median canonical text, now a "
                         f"64-char digest)",
         "surviving_jsonl": {

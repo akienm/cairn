@@ -388,7 +388,7 @@ class CodeMotherDevice(BaseDevice):
                 return refused("body.scratch is honoured for an orient packet only, not %r" % berth)
         if scratch is not None and (not isinstance(scratch, str) or not scratch):
             return refused("body.scratch must be a nexus kind name, got %r" % (scratch,))
-        bus = self._bus or reach("inference_domain")
+        bus = self._bus or reach("inference")
 
         def land(nexus):
             return deposit_berth(berth, nexus=nexus, embed=embed(bus), embed_metered=embed_metered(bus))
@@ -409,7 +409,7 @@ class CodeMotherDevice(BaseDevice):
         entry per berth, a failure named and left pending (ticket e8fe361a5b2f)."""
         from cairn.devices.codemother.deposit import drain_pending, embed_metered
         from cairn.tools.bus_client import reach
-        bus = self._bus or reach("inference_domain")
+        bus = self._bus or reach("inference")
         return {"accepted": True, "verb": "drain", "device": "codemother",
                 "drained": drain_pending(embed=embed_metered(bus))}
 

@@ -40,13 +40,13 @@ WATCH_NEXUS = "orient"
 def _bus():
     global _BUS
     if _BUS is None:
-        _BUS = reach("inference_domain")
+        _BUS = reach("inference")
     return _BUS
 
 
 def _embed(text: str) -> list[float]:
     reply = _bus().request(
-        sender="codemother", to="inference_domain", verb="resolve",
+        sender="codemother", to="inference", verb="resolve",
         why="watcher embed", body={"kind": "embed", "prompt": text, "model": "nomic-embed-text"},
     )
     return reply["body"]["answer"]["vector"]
@@ -148,7 +148,7 @@ def _escalate_to_hex(area: str, reason: str, context: dict | None) -> dict:
     try:
         reply = bus.request(
             sender="codemother",
-            to="inference_domain",
+            to="inference",
             channel="personal",
             why=f"watcher escalation: trees couldn't resolve area={area!r}",
             verb="infer",
@@ -165,7 +165,7 @@ def _escalate_to_hex(area: str, reason: str, context: dict | None) -> dict:
             },
             timeout=60.0,
         )
-        # A REFUSAL COMES BACK AS A VALUE (inference_domain answers outcome 'refused', answer
+        # A REFUSAL COMES BACK AS A VALUE (inferenceproxy answers outcome 'refused', answer
         # None), so it is read here as the error it is; a generate answer is {"text", "body"}
         # and the node carries the text. Until 9f448a03ba40 both were wrapped as a node, and 689
         # refusals for a domain row that does not exist read as findings of nothing (Law 7).

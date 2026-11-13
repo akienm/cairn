@@ -21,7 +21,7 @@ THE PAIR, and why it is not symmetric:
 
   - FIRE on the first GAIN. If the denied set has to grow to keep the tooth honest, the
     ticket's own wrong-shape signal has fired and the node is REFUTED, not dinged — one
-    occurrence suffices, exactly as the ruled NEVER at inference_domain's probe. A
+    occurrence suffices, exactly as the ruled NEVER at inferenceproxy's probe. A
     SHRINKING set is not the signal: removing a door that no longer exists costs nobody
     a widening, and reading it as a fire would red the rule for being tidied.
   - CLEAR needs a denominator. Zero growth in the denied set proves nothing if the
@@ -59,7 +59,7 @@ _CLOSURE_AT_PROVED = (
     "cairn.tools.orient.orient", "cairn.machines.skill_block", "cairn.machines.skill_block.skill_block",
 )
 _DENIED_AT_PROVED = (
-    "aiohttp", "cairn.tools.tree.tree", "cairn.devices.db_domain", "cairn.devices.inference_domain",
+    "aiohttp", "cairn.tools.tree.tree", "cairn.devices.db_domain", "cairn.devices.inferenceproxy",
     "cairn.devices.librarian", "ftplib", "http.client", "httpx", "requests", "socket",
     "telnetlib", "urllib.error", "urllib.request",
 )
@@ -150,7 +150,7 @@ def _carry(context: dict) -> dict:
 
 
 # Same placeholder horizon as the probes at cairn/tools/base and
-# cairn/devices/inference_domain: the beat rate is not yet a real number.
+# cairn/devices/inferenceproxy: the beat rate is not yet a real number.
 _HORIZON = 1000
 
 PROBE = Probe(

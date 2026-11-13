@@ -37,7 +37,7 @@ non-eight-field validation cannot land and pass for a seal.
 OPEN EDGES (filed, not faked — children of this stone):
   - The seal gives **no route** (the closed half of CLAUDE.md's "reached only through
     the domain" rules). The **chosen route** — a Router that serves/refuses/forwards a
-    named dependency — is deferred to db_domain (FORWARD) and inference_domain
+    named dependency — is deferred to db_domain (FORWARD) and inferenceproxy
     (FIXTURE/REFUSE). See ``isolation.py``.
   - The verdict **method** is exit-code (+ seal) only. Quorum / review-by-N-experts
     for concept pieces (MAP.md:752) is a later method the ``method`` field names room

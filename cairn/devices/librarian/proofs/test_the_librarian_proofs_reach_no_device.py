@@ -2,16 +2,16 @@
 """Proof that the librarian's proofs reach no other device (ticket a16c4d4ff4bd).
 
 Measured 2026-11-10: encapsulation_breaches listed three rows whose source is the librarian —
-test_librarian_chat.py:396 and :409 (inference_domain's domain module patched behind a
-scratch BusDevice and the inference shim) and test_librarian_loop.py:55 (inference_domain's
+test_librarian_chat.py:396 and :409 (inferenceproxy's domain module patched behind a
+scratch BusDevice and the inference shim) and test_librarian_loop.py:55 (inferenceproxy's
 canonicalize). RULE 1: a component's proofs measure only that component. The chat stamp tooth
 now drives dual_seam over a recording bus and reads what the seam sends; the loop's livelock
 tooth keeps the librarian's half (the prompt changed) and leaves the cache key to
-inference_domain's own proofs.
+inferenceproxy's own proofs.
 
 Teeth, one per falsifier clause (PROVES below):
   (1) encapsulation_breaches lists no row whose source is cairn/devices/librarian;
-  (2) neither proof names a cairn.devices.inference_domain or cairn.devices.cairn module, and
+  (2) neither proof names a cairn.devices.inferenceproxy or cairn.devices.cairn module, and
       each, run as its own process, is green.
 
     PYTHONPATH=. python3 cairn/devices/librarian/proofs/test_the_librarian_proofs_reach_no_device.py
@@ -31,7 +31,7 @@ if str(_REPO) not in sys.path:
 _SOURCE = "cairn/devices/librarian"
 _PROOFS = (_REPO / "cairn/devices/librarian/proofs/test_librarian_chat.py",
            _REPO / "cairn/devices/librarian/proofs/test_librarian_loop.py")
-_FORBIDDEN = ("cairn.devices.inference_domain", "cairn.devices.cairn")
+_FORBIDDEN = ("cairn.devices.inferenceproxy", "cairn.devices.cairn")
 
 PROVES = {"a16c4d4ff4bd": {
     "1": "test_no_librarian_row",

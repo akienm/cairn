@@ -9,7 +9,7 @@ tuples — no special-casing.
 
 The generator accepts a single question or a list and returns embeddings for each
 via the render_method pipeline the tree already supports. Vectors arrive as DATA
-(the embed call is the caller's, through inference_domain) — this module never
+(the embed call is the caller's, through inferenceproxy) — this module never
 touches the network.
 """
 from __future__ import annotations
@@ -63,7 +63,7 @@ def generate_embeddings(questions, embed):
     embeddings for each via the caller's embed function (the render_method pipeline).
 
     ``embed`` is the caller's seam — e.g. ``embed_via_domain()`` from
-    ``cairn.devices.librarian.live``. This module never imports inference_domain;
+    ``cairn.devices.librarian.live``. This module never imports inferenceproxy;
     vectors arrive as DATA (the charter's composition rule).
 
     Returns a list of ``{"question": str, "vector": list[float]}`` dicts, one per

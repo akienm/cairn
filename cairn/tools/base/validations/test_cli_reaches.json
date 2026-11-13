@@ -1,26 +1,28 @@
 [
   {
     "claim": "proof test_cli_reaches.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T01:32:33",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T16:12:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_at_least_four_shimmed_devices\n.\n  ok   test_each_shimmed_device_has_instance_bin\n.\n  ok   test_each_instance_bin_has_self_named_launcher\n.\n  ok   test_each_shimmed_device_resolves\n.\n  ok   test_resolution_routes_to_correct_device\n.\n  ok   test_nonexistent_device_fails\n.\n  ok   test_dispatcher_lists_all_shimmed\n.\n  ok   test_roster_minimum\n                                                                 [100%]\n8 passed in 2.62s",
+      "returncode": 1,
+      "stdout_tail": "            result = subprocess.run(\n                [*bash_script_argv(CAIRN_BIN), dev],\n                capture_output=True, text=True, timeout=30,\n                env={**os.environ, \"PYTHONPATH\": REPO_ROOT},\n            )\n            if result.returncode != 0:\n                continue\n            output = result.stdout + result.stderr\n            if dev not in output:\n                wrong.append((dev, output[:200]))\n>       assert not wrong, f\"cairn <device> output does not mention its own name: {wrong}\"\nE       AssertionError: cairn <device> output does not mention its own name: [('inferenceproxy', 'device: inference\\nclass:  cairn/devices/inference/\\n')]\nE       assert not [('inferenceproxy', 'device: inference\\nclass:  cairn/devices/inference/\\n')]\n\ntest_cli_reaches.py:101: AssertionError\n=========================== short test summary info ============================\nFAILED test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_shimmed_device_has_instance_bin\nFAILED test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_instance_bin_has_self_named_launcher\nFAILED test_cli_reaches.py::TestCairnDeviceResolves::test_resolution_routes_to_correct_device\n3 failed, 5 passed in 3.34s",
       "stderr_tail": "",
       "teeth_green": [
         "test_at_least_four_shimmed_devices",
-        "test_each_shimmed_device_has_instance_bin",
-        "test_each_instance_bin_has_self_named_launcher",
         "test_each_shimmed_device_resolves",
-        "test_resolution_routes_to_correct_device",
         "test_nonexistent_device_fails",
         "test_dispatcher_lists_all_shimmed",
         "test_roster_minimum"
       ],
-      "teeth_red": [],
-      "test": "test-5390fd8cae72",
+      "teeth_red": [
+        "test_each_shimmed_device_has_instance_bin",
+        "test_each_instance_bin_has_self_named_launcher",
+        "test_resolution_routes_to_correct_device",
+        "test_cli_reaches"
+      ],
+      "test": "test-6be723a97fd4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,20 +44,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [
         {
-          "pid": 2484862,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "pid": 3676136,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5390fd8cae72",
-      "source_fingerprint": "b80de6ad6eed2298c11c2c4751eff923bd182346319e3eec75a754b73f395cdb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6be723a97fd4",
+      "source_fingerprint": "8488c7c9ce2017871962f151fa35f47117fa0daa19c333a6d5bd1a4c45a14be5",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -63,34 +64,45 @@
         "cairn/tools/base/script_argv.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
-        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d"
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2468899-yig10oti/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-x1_g__81/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 6,
+          "count": 8,
           "paths": [
+            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
             "devices/cairn/machines/bus/0/bus.lock",
             "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/librarian/0/last_known.json",
+            "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261113.083230.603956.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261113.231228.924144.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529923456,
-          "disk_bytes": 571260928,
-          "entries": 15935,
+          "bytes": 531867431,
+          "disk_bytes": 575889408,
+          "entries": 16873,
           "builds": 1,
-          "reuses": 40
+          "reuses": 235
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "24c21738601f008601fbc8d9fe7b412e8812ff070f38c159a30c6398d8ea7989",
+        "opened": "2026-11-13T16:12:33",
+        "last_red": "2026-11-13T16:12:33",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base-proofs-test-cli-reaches",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -311,7 +311,7 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
     want = {
         "cairn/machines/exemptions/exemption_set.json",
         "cairn/machines/build_inspector/inspector.py",
-        "cairn/devices/inference_domain/proofs/test_host.py",
+        "cairn/devices/inferenceproxy/proofs/test_host.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
         "cairn/tools/import_sieve/proofs/test_an_admission_holds_at_any_depth.py",
         "cairn/tools/base/address_rule.py",
@@ -399,7 +399,7 @@ def test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST():
 def test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM():
     """Akien's standing rule: nothing in an inspector or a gate may be an LLM."""
     import cairn.machines.exemptions.justification as J
-    banned = ("inference_domain", "anthropic", "openai", "hex.local", "claude")
+    banned = ("inferenceproxy", "anthropic", "openai", "hex.local", "claude")
     for mod in (J,):
         text = Path(mod.__file__).read_text(encoding="utf-8")
         # the word 'claude' appears in prose nowhere here; an IMPORT is what matters

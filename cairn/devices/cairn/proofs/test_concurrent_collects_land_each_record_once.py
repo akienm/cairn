@@ -57,8 +57,8 @@ def _world(n: int):
     charter = tmp / "charter.json"
     charter.write_text(json.dumps({"metrics": {"spent": {
         "consumer": "testing: the single-flight proof", "unit": "tokens"}}}), encoding="utf-8")
-    holder = roots["instance"] / "devices" / "inference_domain" / "0"
-    m = metric.Metric(holder, charter, source="inference_domain")
+    holder = roots["instance"] / "devices" / "inferenceproxy" / "0"
+    m = metric.Metric(holder, charter, source="inferenceproxy")
     for i in range(n):
         m.record("spent", float(i), at="2026-01-01T00:00:00+00:00", subject=f"testing-{i}")
     return roots, holder, tmp

@@ -3,7 +3,7 @@
 The shim is the piece that is always on (BaseShim): it receives its device's mail and
 STARTS THE DEVICE IF IT IS NOT RUNNING — wake-to-a-poke, the shim's process-manager
 role. Waking the librarian means composing the live face: the device over the graph
-trees plus the ChatSession over inference_domain's dual seam. Live wiring happens HERE,
+trees plus the ChatSession over inferenceproxy's dual seam. Live wiring happens HERE,
 at the wake, never at import — trees.py and chat.py stay import-pure and provable.
 
 THE CARRIER RULE (Akien, 2026-07-28): there is ONLY EVER ONE WEB SERVER in the whole

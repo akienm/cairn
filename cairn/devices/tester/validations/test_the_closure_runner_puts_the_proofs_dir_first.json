@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_closure_runner_puts_the_proofs_dir_first.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T13:55:48",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T15:03:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "       PATH0=/tmp/cfb4-proof-dir-scratch.4026531836-3514725-sm_3y0m1\n       SIB=beside the proof\n         ok   test_probe\n  ok   test_a_module_beside_the_proof_beats_one_in_the_callers_cwd\n       PATH0=/tmp/cfb4-proof-dir-scratch.4026531836-3514725-9h5etcl7\n       SIB=beside the proof\n         ok   test_probe\n  ok   test_from_the_live_root_sys_path_0_is_the_proofs_own_directory\n\nGREEN",
+      "stdout_tail": "       PATH0=/tmp/cfb4-proof-dir-scratch.4026531836-3619275-ju7jo55y\n       SIB=beside the proof\n         ok   test_probe\n  ok   test_a_module_beside_the_proof_beats_one_in_the_callers_cwd\n       PATH0=/tmp/cfb4-proof-dir-scratch.4026531836-3619275-usm16mzz\n       SIB=beside the proof\n         ok   test_probe\n  ok   test_from_the_live_root_sys_path_0_is_the_proofs_own_directory\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_probe",
@@ -15,7 +15,7 @@
         "test_from_the_live_root_sys_path_0_is_the_proofs_own_directory"
       ],
       "teeth_red": [],
-      "test": "test-a2731697e85d",
+      "test": "test-33f981857700",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,14 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a2731697e85d",
-      "source_fingerprint": "4db26cb846d92531517f2d02be3edb03afaeb7362caa69d512cba3b6e381be5c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-33f981857700",
+      "source_fingerprint": "c02982122ae11b09684132ada2b7d2bf64d271b5290dec798203a1a9739a466e",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -63,46 +62,27 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3514694-_st7mb1m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3581393-b6dx1j7h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261113.205544.513433.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.205547.729106.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-3d3d6116ba4c/stderr.txt",
-            "logs/tester/0/runs/test-3d3d6116ba4c/stdout.txt",
-            "logs/tester/0/runs/test-7f9c57e49cd3/stderr.txt",
-            "logs/tester/0/runs/test-7f9c57e49cd3/stdout.txt"
+            "logs/tester/0/20261113.220353.405535.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.220357.186474.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-7a54324363e7/stderr.txt",
+            "logs/tester/0/runs/test-7a54324363e7/stdout.txt",
+            "logs/tester/0/runs/test-b330a048814c/stderr.txt",
+            "logs/tester/0/runs/test-b330a048814c/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531848361,
-          "disk_bytes": 575852544,
-          "entries": 16867,
+          "bytes": 531860804,
+          "disk_bytes": 575889408,
+          "entries": 16875,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "cfb4cb45d85c": {
-          "cairn/devices/tester/device.py": [
-            "test_a_module_beside_the_proof_beats_one_in_the_callers_cwd",
-            "test_from_the_live_root_sys_path_0_is_the_proofs_own_directory"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "cfb4cb45d85c": "4db26cb846d92531517f2d02be3edb03afaeb7362caa69d512cba3b6e381be5c"
-      },
-      "hollow_anchor": {
-        "cfb4cb45d85c": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "feeb885d3567e4d41bcdb2b3c7582580ecb5ad7e",
-          "anchor_first_build": "7eec0921992b3bd08ef08c7f789d5dd1897e2fcb",
-          "commit": "c189403aa7144c70aa58773962f203d41a6185e1"
+          "reuses": 143
         }
       }
     },

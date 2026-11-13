@@ -1,0 +1,688 @@
+"""inferenceproxy/host.py — THE ONE PLACE THAT OPENS THE INFERENCE HOST.
+
+The domain's ``resolve(request, resolver=...)`` takes the host client as an injected seam. This
+module is that seam filled in: an ollama-backed ``resolver`` callable, living HERE and nowhere
+else (charter filed edge (b); CLAUDE.md's "the inference host is reached only through
+inferenceproxy"). Sole path is PHYSICS at two moments now, one rule both times: proof-time,
+the repo-wide import-sieve mesh in ``proofs/test_host.py``; build-time, the ``sole_path_holds``
+sieve in build_inspector's roster (ruling 2026-08-08, item 1: "THAT NEEDS TO BE IN THE BUILD
+INSPECTION"). A subprocess or a dynamic import is now seen too (ticket f6ecce0822eb,
+sole-path-sees-subprocess-and-dynamic-import, PROVED).
+
+Why it exists: ``yield_report()`` is the measuring instrument for Telos 1 — tokens SPENT on
+misses against tokens AVOIDED by hits. Until now it metered a stub resolver, so the compile-once
+claim was arithmetic over invented numbers. With a real host behind it the yield is a MEASURED
+fact (Law 3), which is the whole difference between demonstrating inference compilation and
+asserting it.
+
+TWO THINGS MEASURED AGAINST THE LIVE HOST, 2026-07-26 (both changed the design):
+
+  1. ``/api/embeddings`` (the older endpoint) RETURNS ONLY THE VECTOR — no token counters at
+     all. Resolving through it would have handed the meter a cost of 0 on every call, and
+     ``yield_report`` would have reported a perfectly consistent, perfectly meaningless
+     0-spent/0-avoided. That is the stub problem again wearing the clothes of a real host, and
+     it would have been INVISIBLE — the shape is right, only the numbers are hollow (Law 8).
+     So this module uses ``/api/embed``, which reports ``prompt_eval_count``, and REFUSES LOUDLY
+     (``HostUnmetered``) if a response carries no counter. An unmetered answer is not cheaper
+     than no answer; it is a lie about the thesis. Law 7 — loud at the diagnostic surface.
+  2. The counters ollama actually reports are ``prompt_eval_count`` (input) and ``eval_count``
+     (output); embed reports the first only. ``cost`` is their sum — real tokens, not a proxy.
+
+HORIZON AND FALSIFIER. A time horizon on a temperature-0 completion is superstition: nothing
+about the answer rots as the clock moves. What DOES invalidate it is the model changing under
+us. So the horizon DEFAULTS to empty (no expiry, the domain's documented '' case) and the
+falsifier carries the model's DIGEST in a mechanically-checkable form — ``model_digest == sha256:...``,
+answerable by one ``/api/tags`` read. Charter edge (c) says VERIFY checks the horizon only and
+the falsifier is carried for T1.4; this makes that edge cheap to close later instead of leaving
+prose in the column. Sampling is pinned to temperature 0 by default for the same reason: caching
+a nondeterministic call quietly changes what the cache MEANS (a stand-in for a fresh call
+becomes a stand-in for one particular roll), and the request's options are canonicalized with
+it, so a caller who wants sampling gets a different question, not a corrupted answer.
+
+THE AGENT LANE — why the horizon became a POLICY instead of a constant. Everything above holds
+for a question asked once. An AGENT asks the same question repeatedly ON PURPOSE: turn N+1
+carries turn N's messages plus the tool result, and a loop that stalls re-sends a prefix it has
+sent before. Replaying a cached answer there is not a saved call, it is a HANG — the agent gets
+back the identical ``tool_calls``, runs the identical tool, appends the identical result, and
+asks again forever. The cache would be manufacturing the loop it appears to be optimising.
+
+So a caller building a resolver for an agent passes ``horizon=EXPIRED`` and every lookup misses
+by construction. This is a CONSTRUCTION-time keyword on the factory, never a request key, and
+that placement is the whole point: a request key would enter ``canonicalize()`` (which digests
+every key but ``domain``) and silently FORK THE CACHE, so the chat callers and the agent callers
+would stop sharing answers they should share. Out-of-band, the two lanes ask the same question
+and only the keeping differs.
+
+Dependency-light on purpose: stdlib ``urllib`` only, no client library, and the HTTP call is
+itself an injected ``transport`` so the code-seam proofs run with no host present.
+
+    python3 cairn/devices/inferenceproxy/proofs/test_host.py     # exit 0 = green (no host needed)
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+from cairn.tools.base import flock
+from cairn.tools.base.diagnostic import DiagnosticBase
+
+# The second host appeared (Hex, 2026-08-08) and the filed edge closed as filed: endpoints
+# read from ~/.cairn/devices/inferenceproxy/0/hosts.json through route.py's overlay (moved
+# there 2026-08-17 — the device's state in the device's own space), and the default-built
+# resolver ROUTES through the rules stacks instead of dialing a literal (ruling
+# 2026-08-08-inference-proxy-is-a-rules-stack). There is no default endpoint constant to
+# fall back to on purpose — a literal that survives "just in case" is the defect returning.
+DEFAULT_TIMEOUT = 300.0
+
+# The counters a metered response must carry at least one of. Named here so the refusal below
+# has one place to point at, and so a host that renames them fails loudly instead of quietly
+# metering zero.
+_COUNTERS = ("prompt_eval_count", "eval_count")
+
+# The verbs this module sends, each against the one ollama path that serves it. ONE TABLE, read
+# by the single-endpoint resolver's provenance AND by the routed walk's kind guard, because the
+# set of verbs the resolver can send and the set the walk may admit are the same fact — and a
+# fourth verb added to a branch but not to a guard is a request that dies at a door for a reason
+# nobody wrote down. The routing stacks still decide WHO serves which verb (route.py's
+# serves_kind sieve over the models stack); this only says what this seam knows how to speak.
+_PATH_FOR_KIND = {
+    "generate": "/api/generate",
+    "embed": "/api/embed",
+    "chat": "/api/chat",
+}
+
+
+class HostUnreachable(RuntimeError):
+    """The host could not be reached at all. Loud — never a silently-empty answer (Law 7)."""
+
+
+class SlotHeld(DiagnosticBase, HostUnreachable):
+    """The slot's owner admits one caller per endpoint, and a caller that waits its whole
+    timeout is refused by name. A HostUnreachable, so the failover walk treats a held slot as
+    an unreachable host and moves on (ticket d0672a46aa7e)."""
+
+    def __init__(self, endpoint: str, lock_path, waited: float):
+        self.endpoint = endpoint
+        self.lock_path = str(lock_path)
+        self.waited = waited
+        super().__init__(
+            f"inference slot at {endpoint} is held by another caller: "
+            f"waited {waited:.2f}s for {lock_path}")
+
+
+def _endpoint_of(url: str) -> str:
+    s = urllib.parse.urlsplit(url)
+    return f"{s.scheme}://{s.hostname}:{s.port or (443 if s.scheme == 'https' else 80)}"
+
+
+def _slot_lock_path(endpoint: str) -> Path:
+    # Under $XDG_RUNTIME_DIR, not ~/.cairn: the tester's instance seal swaps ~/.cairn per run,
+    # and a lock there would never be shared with a live caller.
+    base = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
+    name = hashlib.sha256(endpoint.encode()).hexdigest()[:12] + ".lock"
+    return Path(base) / "cairn" / "inferenceproxy" / "slots" / name
+
+
+class HostRefused(RuntimeError):
+    """The host answered, and its answer was an error (unknown model, bad request)."""
+
+
+class HostUnmetered(RuntimeError):
+    """The host answered WITHOUT token counters, so the call cannot be metered.
+
+    Raised rather than defaulted to 0. A zero-cost row is worse than no row: it keeps the meter's
+    shape intact while draining its meaning, and ``yield_report`` would then testify to a saving
+    it never measured (Telos 1 / Law 3). The one failure this module most needs to be loud about.
+    """
+
+
+class HostNonFinal(RuntimeError):
+    """The host answered a NON-STREAMING request with a frame that is not the final one.
+
+    Named for the field that says so: ollama marks the last frame of a response ``done: true``,
+    and a frame carrying ``done: false`` is one of the intermediate ones the STREAMING grammar
+    is made of. Arriving in answer to a request that set ``stream: false``, it means the host
+    accepted the ask and has not finished it — measured on hex 2026-08-18, six times, while a
+    model was loading: HTTP 200, 96 bytes, empty role and empty content, no counters.
+
+    IT EXISTS BECAUSE THE ALTERNATIVE WAS A CONFIDENT WRONG ANSWER. That frame passes three
+    checks on its way in — 200 is not >= 400, there is no "error" key, and the chat branch's
+    shape check accepts ``message`` because an empty string IS a str — and then dies at
+    ``metered_cost``, which reports that the host sent no token counters. True, and useless: it
+    sends the reader to the meter, and the meter is innocent. A diagnostic surface that is loud
+    about the wrong organ costs MORE than silence, because silence gets investigated and a
+    confident wrong answer gets followed (Law 7).
+
+    Deliberately not a retry and not a wait. This says WHAT HAPPENED; what to do about a host
+    that is still warming up is a policy decision with its own falsifier, and it is not here.
+    """
+
+
+class BadRequest(ValueError):
+    """The request does not name something this resolver can send. Refused before the host."""
+
+
+def _urllib_transport(url: str, body: bytes, timeout: float) -> tuple[int, bytes]:
+    """The default transport. Injectable so the proofs never need a live host.
+
+    One caller at a time holds an endpoint's slot (ticket d0672a46aa7e): the 2026-07-13
+    incident was nine test runs saturating the single inference slot. An exclusive flock per
+    endpoint is held across the request; a caller waits for it no longer than its own timeout
+    and is then refused with SlotHeld."""
+    req = urllib.request.Request(
+        url, data=body, headers={"Content-Type": "application/json"}, method="POST"
+    )
+    endpoint = _endpoint_of(url)
+    path = _slot_lock_path(endpoint)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+    started = time.monotonic()
+    if timeout is None:
+        flock.lock(fd)
+    else:
+        while True:
+            try:
+                flock.lock(fd, block=False)
+                break
+            except BlockingIOError:
+                if time.monotonic() - started >= timeout:
+                    os.close(fd)
+                    raise SlotHeld(endpoint, path, time.monotonic() - started)
+                time.sleep(0.05)
+    try:
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.status, resp.read()
+        except urllib.error.HTTPError as e:            # the host spoke, and said no
+            return e.code, e.read()
+        except (urllib.error.URLError, OSError) as e:  # nobody there
+            raise HostUnreachable(f"inference host unreachable at {url}: {e}") from e
+    finally:
+        os.close(fd)
+
+
+def _post(path: str, payload: dict, *, endpoint: str, timeout: float, transport) -> dict:
+    url = f"{endpoint.rstrip('/')}{path}"
+    status, raw = transport(url, json.dumps(payload).encode("utf-8"), timeout)
+    try:
+        body = json.loads(raw)
+    except (ValueError, TypeError) as e:
+        raise HostRefused(f"{url} returned non-JSON (status {status}): {raw[:200]!r}") from e
+    if status >= 400 or (isinstance(body, dict) and body.get("error")):
+        # The host's own message is carried through verbatim — a diagnostic surface must not
+        # collapse it into "inference failed" (Law 7, and complete-diagnostic-on-first-pass).
+        raise HostRefused(
+            f"{url} refused (status {status}): {body.get('error', body) if isinstance(body, dict) else body}")
+    if not isinstance(body, dict):
+        raise HostRefused(f"{url} returned {type(body).__name__}, expected a JSON object")
+    # THE ANSWER MUST BE FINISHED. Every verb this module sends sets stream=False, so the host's
+    # reply is one frame and that frame is the last one — ollama says so with done: true. A
+    # frame carrying done: false is an intermediate one from the streaming grammar, and it means
+    # the ask was accepted and not completed (measured on hex while a model loads, n=6).
+    #
+    # PRESENT AND NOT TRUE, never merely "not true": /api/embed's real responses carry no `done`
+    # key at all, and `body.get("done") is not True` would refuse every embedding this system
+    # has ever taken. The narrower predicate is the whole difference between a fix and an
+    # outage, and proofs/test_host.py holds a tooth on each side of it.
+    #
+    # HERE rather than in the three branches below, because this is a property of the RESPONSE
+    # and holds whatever verb produced it. The frame was reproduced on /api/chat only; putting
+    # the check per-branch would have meant three copies of a claim measured once, and the two
+    # unmeasured verbs left open exactly as they were.
+    if "done" in body and body["done"] is not True:
+        raise HostNonFinal(
+            f"{url} answered a non-streaming request with a NON-FINAL frame "
+            f"(done={body['done']!r}) — the host accepted the ask and has not finished it, so "
+            f"there is no answer here to meter or to read. Model {payload.get('model')!r}. "
+            f"The frame verbatim: {json.dumps(body)[:400]}")
+    return body
+
+
+def metered_cost(payload: dict) -> int:
+    """Real tokens from the host's own counters, or refuse. The gate that keeps the meter honest."""
+    present = [k for k in _COUNTERS if isinstance(payload.get(k), (int, float))]
+    if not present:
+        raise HostUnmetered(
+            f"the host reported no token counters (looked for {list(_COUNTERS)}; "
+            f"response carried {sorted(payload)}) — this call cannot be metered, and a cost of 0 "
+            "would make yield_report testify to a saving nobody measured")
+    return int(sum(payload[k] for k in present))
+
+
+def validated_messages(request: dict) -> list:
+    """The chat request's ``messages``, or refuse — BEFORE the host is dialed.
+
+    The two verbs beside chat are addressed by a single ``prompt`` string; chat is addressed
+    by a turn list, so the resolver's promptless refusal cannot judge it and a well-formed
+    chat request would be turned away as promptless. This is that check's chat half, and it
+    keeps the same discipline: an invalid request is refused where it costs nothing. On Hex a
+    cold qwen3-coder:30b load is ~18s (measured 2026-08-16), so a malformed request that
+    reaches the host is not a wasted round trip, it is a wasted eighteen seconds.
+
+    TWO SHAPES, BOTH CHECKED HARD — never one shape plus an exemption. A plain chat turn needs
+    BOTH a role and a non-empty content string; a turn missing one is the shape ollama accepts
+    and answers strangely rather than rejecting, which would make the defect surface as a bad
+    answer instead of as an error (Law 7 — loud at the diagnostic surface).
+
+    A TOOL-USING conversation is made of two turns that shape cannot describe, and the answer
+    is a second checkable shape rather than a hole (Akien's ruling 2026-09-11, when a gate
+    reads a component's health and that health is the work: *"the answer is a second checkable
+    shape, never an exemption"*). An ASSISTANT turn may carry ``tool_calls`` instead of content
+    — the calls ARE its content — and a TOOL turn carries the ``tool_call_id`` it answers. Each
+    branch refuses its own malformations, which is exactly what distinguishes this from an
+    exemption: an exemption can only let things through, and these branches turn things away.
+
+    ARGUMENTS ARRIVE AS AN OBJECT, NEVER AS A JSON STRING, and the refusal says so by name.
+    The OpenAI wire format carries tool-call arguments as a string; ollama's /api/chat wants an
+    object and answers a string with "Value looks like object, but can't find closing '}'
+    symbol" (measured 2026-09-11 against hex.local qwen3-coder:30b, and only on the SECOND turn
+    of a conversation — a one-shot test never sees it). That translation is the SHIM's debt, not
+    this door's: refusing here costs nothing, while passing it through costs ~18s of cold model
+    load to reach a confusing error from somebody else's process.
+    """
+    messages = request.get("messages")
+    if not isinstance(messages, list) or not messages:
+        raise BadRequest(
+            f"a chat request needs a non-empty 'messages' list (got {messages!r})")
+    for i, turn in enumerate(messages):
+        if not isinstance(turn, dict):
+            raise BadRequest(
+                f"messages[{i}] must be a dict with 'role' and 'content', "
+                f"got {type(turn).__name__}")
+        role = turn.get("role")
+        if not isinstance(role, str) or not role.strip():
+            raise BadRequest(
+                f"messages[{i}] lacks a non-empty 'role' (carried {sorted(turn)})")
+        # Which shape a turn DECLARES decides which shape it is checked against. Declaring is
+        # carrying the key or the role, so a turn cannot slip between the branches: anything
+        # that names neither falls to the chat branch and meets its full teeth.
+        if role == "tool" or "tool_call_id" in turn:
+            _validated_tool_result(i, turn)
+        elif "tool_calls" in turn:
+            _validated_tool_calls(i, turn)
+        else:
+            lacking = [k for k in ("role", "content")
+                       if not isinstance(turn.get(k), str) or not turn[k].strip()]
+            if lacking:
+                raise BadRequest(
+                    f"messages[{i}] lacks a non-empty {' and '.join(repr(k) for k in lacking)} "
+                    f"(carried {sorted(turn)})")
+    return messages
+
+
+def _validated_tool_result(i: int, turn: dict) -> None:
+    """A TOOL-RESULT turn: the answer a tool gave, pinned to the call that asked for it.
+
+    ``content`` may legitimately be empty — a command that printed nothing still ran, and
+    saying so is different from saying nothing — so emptiness is allowed here where the chat
+    shape forbids it. What may NOT be missing is the ``tool_call_id``: without it the model
+    cannot tell which of several parallel calls this answers, and ollama will cheerfully
+    accept the turn and reason from the wrong pairing.
+    """
+    if turn.get("role") != "tool":
+        raise BadRequest(
+            f"messages[{i}] carries 'tool_call_id' but its role is {turn.get('role')!r} — a "
+            "turn answering a tool call has role 'tool'; anything else pairs a result with "
+            "the wrong speaker")
+    call_id = turn.get("tool_call_id")
+    if not isinstance(call_id, str) or not call_id.strip():
+        raise BadRequest(
+            f"messages[{i}] is a tool result with no non-empty 'tool_call_id' (carried "
+            f"{sorted(turn)}) — the model cannot tell which call this answers")
+    if not isinstance(turn.get("content"), str):
+        raise BadRequest(
+            f"messages[{i}] is a tool result whose 'content' is "
+            f"{type(turn.get('content')).__name__}, not a string — a tool's output reaches the "
+            "model as text, and a dict here would be stringified by somebody's repr()")
+
+
+def _validated_tool_calls(i: int, turn: dict) -> None:
+    """An ASSISTANT turn whose content IS its tool calls.
+
+    Empty content is the normal shape here, not a defect: the model chose to act rather than
+    speak. Each call must name a function and carry its arguments as an OBJECT — see the
+    module note in ``validated_messages`` for why a JSON string is refused here rather than
+    forwarded.
+    """
+    if turn.get("role") != "assistant":
+        raise BadRequest(
+            f"messages[{i}] carries 'tool_calls' but its role is {turn.get('role')!r} — only an "
+            "assistant turn calls tools")
+    calls = turn.get("tool_calls")
+    if not isinstance(calls, list) or not calls:
+        raise BadRequest(
+            f"messages[{i}] has a 'tool_calls' that is not a non-empty list (got {calls!r}) — an "
+            "assistant turn with empty content and no calls says nothing at all")
+    for j, call in enumerate(calls):
+        if not isinstance(call, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}] must be a dict, got {type(call).__name__}")
+        fn = call.get("function")
+        if not isinstance(fn, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}] lacks a 'function' dict (carried {sorted(call)})")
+        if not isinstance(fn.get("name"), str) or not fn["name"].strip():
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function lacks a non-empty 'name' "
+                f"(carried {sorted(fn)})")
+        args = fn.get("arguments")
+        if isinstance(args, str):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function.arguments arrived as a JSON STRING. "
+                "That is the OpenAI wire shape; this door speaks the object shape, and ollama "
+                "refuses the string with a message about a missing closing brace — on the "
+                "SECOND turn only, which is why it hides from one-shot tests. Whoever "
+                "translates the wire format owes this json.loads(); the shim, not the door.")
+        if not isinstance(args, dict):
+            raise BadRequest(
+                f"messages[{i}].tool_calls[{j}].function.arguments must be an object, got "
+                f"{type(args).__name__}")
+
+
+def _urllib_get(url: str, timeout: float) -> tuple[int, bytes]:
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, method="GET"), timeout=timeout) as r:
+            return r.status, r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read()
+    except (urllib.error.URLError, OSError) as e:
+        raise HostUnreachable(f"inference host unreachable at {url}: {e}") from e
+
+
+def installed_models(*, endpoint: str, timeout: float = 10.0,
+                     get=None) -> dict[str, str]:
+    """``{model_name: digest}`` as the host reports it — the evidence a falsifier is checked against.
+
+    ``get`` is the same injectable-transport courtesy the POST path has, and for the same reason:
+    without it the digest read reached the network DIRECTLY, so a proof of this module would have
+    quietly depended on a live host on the developer's box and degraded elsewhere. Caught while
+    writing the proof — the seam only counts if EVERY host touch goes through it.
+    """
+    url = f"{endpoint.rstrip('/')}/api/tags"
+    status, raw = (get or _urllib_get)(url, timeout)
+    try:
+        body = json.loads(raw)
+    except (ValueError, TypeError) as e:
+        raise HostRefused(f"{url} returned non-JSON (status {status})") from e
+    if status >= 400 or not isinstance(body, dict):
+        raise HostRefused(f"{url} refused (status {status})")
+    return {m["name"]: m.get("digest", "") for m in body.get("models", [])}
+
+
+def lookup_digest(models: dict[str, str], name: str) -> str:
+    """The digest for ``name``, tolerating the implicit ``:latest`` tag. '' if genuinely absent.
+
+    FOUND IN THE FIRST LIVE RECORD, 2026-07-26, not by a proof: the run resolved fine and the row
+    it wrote carried ``model_digest(nomic-embed-text) == <unread at resolve time>``. The host reports
+    its tags as ``nomic-embed-text:latest`` while a caller addresses the model as
+    ``nomic-embed-text`` — ollama treats those as the same model, and a bare dict lookup does not.
+    So the falsifier degraded to 'unread' for the MOST COMMON way to name a model, quietly, on a
+    green run. It surfaced only because the stored record was read back and looked at (Law 3 — the
+    proof said the shape was right; only the live row said the content was empty).
+    """
+    if name in models:
+        return models[name]
+    if ":" not in name:
+        return models.get(f"{name}:latest", "")
+    base, _, tag = name.rpartition(":")
+    return models.get(base, "") if tag == "latest" else ""
+
+
+def digest_falsifier(model: str, digest: str) -> str:
+    """The falsifier, machine-checkable: one ``/api/tags`` read answers it (T1.4's cheap door)."""
+    return f"model_digest({model}) == {digest}"
+
+
+EXPIRED = "1970-01-01T00:00:00+00:00"
+"""A horizon already past, for the agent lane: every lookup against it misses.
+
+IT MUST PARSE AS A TIMESTAMP, and that is the whole reason this is a constant rather than a
+word. ``domain._valid`` treats an UNPARSEABLE horizon as no-expiry (deliberately — a bad
+horizon shape should not silently discard a stored answer), so a plausible sentinel like
+``"expired"`` or ``"none"`` would land in the column, fail ``fromisoformat``, and mean the
+exact OPPOSITE of its name — permanent caching for the one caller who needs none, failing
+open and silently. The epoch is the cheapest value that cannot drift into that trap.
+"""
+
+
+def ollama_resolver(
+    *,
+    model: str,
+    endpoint: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT,
+    transport=None,
+    get=None,
+    temperature: float = 0.0,
+    stacks: dict | None = None,
+    overlay: dict | None = None,
+    horizon: str = "",
+):
+    """Build the ``resolver`` callable ``domain.resolve`` injects — the host, behind one seam.
+
+    WITH NO ``endpoint``, THE RESOLVER ROUTES (the default every live caller uses): each call
+    shakes route.py's nest over the authored stacks and dials the surviving combos cheapest
+    first — usually Hex — walking to the next survivor on ``HostUnreachable`` and refusing
+    loudly when the walk exhausts. The four bare call sites (librarian x3,
+    intention_extractor x1) got the ruled routing through this default with zero edits.
+    An EXPLICIT ``endpoint`` pins one host and skips the stacks — the proofs' seam, and the
+    routed walk's own inner rungs.
+
+    The request it accepts::
+
+        {"kind": "generate", "prompt": "..."}          -> answer {"text": ...}
+        {"kind": "embed",    "prompt": "..."}          -> answer {"vector": [...], "dim": n}
+        {"kind": "chat", "messages": [{"role", "content"}, ...]}
+                                                      -> answer {"text": ..., "role": ...}
+
+    plus an optional ``"model"`` override and an optional ``"options"`` dict passed to the host.
+    Chat is NON-STREAMING and deliberately so — its first consumer runs ``--no-stream``, and a
+    streaming face is growth against no measured need. It is also UNDRESSED by construction:
+    the domain seam dresses ``generate`` only, and a turn list already carries a system role,
+    so a second path to the same thing would be invented before a caller wanted it.
+    ``kind`` is required and an unknown one is REFUSED before any host call: guessing the caller's
+    intent is how a request for a vector comes back as prose (a silent wrong answer).
+
+    Returns ``{"answer", "cost", "falsifier", "horizon", "provenance"}`` — the contract
+    ``resolve`` documents, with ``cost`` in real tokens; a routed answer's provenance also
+    names the ``provider`` the nest chose and, if the walk fell over, the rungs it walked.
+    """
+    if endpoint is None:
+        return _routed_resolver(model=model, timeout=timeout, transport=transport, get=get,
+                                temperature=temperature, stacks=stacks, overlay=overlay,
+                                horizon=horizon)
+    send = transport or _urllib_transport
+    digests: dict[str, str] = {}
+
+    def _falsifier_for(name: str) -> str:
+        # Read once per model per resolver, not once per call: the falsifier is worth one extra
+        # host read, not one per miss. A host that cannot report it does not sink the answer —
+        # the falsifier degrades to naming the model, and says so.
+        if name not in digests:
+            try:
+                digests[name] = lookup_digest(
+                    installed_models(endpoint=endpoint, timeout=10.0, get=get), name)
+            except (HostUnreachable, HostRefused):
+                digests[name] = ""
+        d = digests[name]
+        return digest_falsifier(name, d) if d else f"model_digest({name}) == <unread at resolve time>"
+
+    def resolver(request: dict) -> dict:
+        if not isinstance(request, dict):
+            raise BadRequest(f"request must be a dict, got {type(request).__name__}")
+        kind = request.get("kind")
+        # The shape check dispatches on kind because the verbs are addressed differently: two
+        # take a prompt string, chat takes a turn list. Both refusals fire before any host call.
+        if kind == "chat":
+            messages = validated_messages(request)
+        else:
+            prompt = request.get("prompt")
+            if not isinstance(prompt, str) or not prompt.strip():
+                raise BadRequest(f"request needs a non-empty 'prompt' (got {prompt!r})")
+        name = request.get("model") or model
+        options = {"temperature": temperature, **(request.get("options") or {})}
+
+        if kind == "generate":
+            payload = {"model": name, "prompt": prompt, "stream": False, "options": options}
+            if request.get("system"):
+                # The domain seam's dressing (or a caller's own system text) rides ollama's
+                # native 'system' field — it is part of the question and canonicalizes
+                # upstream, so it must reach the host, never be dropped here.
+                payload["system"] = request["system"]
+            body = _post("/api/generate", payload,
+                         endpoint=endpoint, timeout=timeout, transport=send)
+            if "response" not in body:
+                raise HostRefused(f"/api/generate returned no 'response' field: {sorted(body)}")
+            answer = {"text": body["response"], "body": body}
+        elif kind == "embed":
+            # /api/embed, NOT /api/embeddings — the older path reports no counters (measured
+            # 2026-07-26, see the module note). It returns a LIST of vectors for a list input;
+            # one prompt in, so one vector out, and a shape that surprises us is refused rather
+            # than indexed into blindly.
+            body = _post("/api/embed", {"model": name, "input": prompt},
+                         endpoint=endpoint, timeout=timeout, transport=send)
+            vectors = body.get("embeddings")
+            if not (isinstance(vectors, list) and len(vectors) == 1 and isinstance(vectors[0], list)):
+                raise HostRefused(
+                    f"/api/embed returned an unexpected 'embeddings' shape for a single input: "
+                    f"{type(vectors).__name__}"
+                    + (f" of {len(vectors)}" if isinstance(vectors, list) else ""))
+            answer = {"vector": vectors[0], "dim": len(vectors[0]), "body": body}
+        elif kind == "chat":
+            # /api/chat is generate's turn-taking sibling: same counters, same stream flag,
+            # a messages list where generate has a prompt. MEASURED against the live host
+            # 2026-08-16 before this branch was written, because the whole verb rests on it —
+            # the response carried prompt_eval_count 15 and eval_count 2, so the meter below
+            # is metering the host's own numbers here exactly as it does for generate. Had it
+            # come back counterless (as /api/embeddings did in 2026-07-26), HostUnmetered would
+            # have refused every chat call and the design would have gone back for a ruling
+            # rather than quietly metering zero.
+            payload = {"model": name, "messages": messages, "stream": False, "options": options}
+            if request.get("tools"):
+                # ONLY when the caller carries one: an unconditional key would change the
+                # payload every existing chat caller sends, and `tools` is part of the question
+                # — canonicalize() digests every request key, so a toolset that rode along
+                # silently would fork the cache for callers who never asked for one.
+                payload["tools"] = request["tools"]
+            body = _post("/api/chat", payload,
+                         endpoint=endpoint, timeout=timeout, transport=send)
+            message = body.get("message")
+            if not isinstance(message, dict) or not isinstance(message.get("content"), str):
+                # Refused, not indexed into — the embed branch's standard, for the same reason:
+                # a missing field indexed blindly becomes an answer of None travelling as prose.
+                raise HostRefused(
+                    f"/api/chat returned an unexpected 'message' shape: "
+                    f"{type(message).__name__}"
+                    + (f" carrying {sorted(message)}" if isinstance(message, dict) else ""))
+            answer = {"text": message["content"], "role": message.get("role", "assistant"), "body": body}
+            if isinstance(message.get("tool_calls"), list) and message["tool_calls"]:
+                # Lifted onto the answer rather than left in `body`, because the answer is what
+                # resolve() STORES and what a cache hit replays byte-for-byte — anything a
+                # caller can only reach by digging into the raw body is a caller reading around
+                # the seam. Absent, never empty, on a plain chat answer: an always-present key
+                # would change the shape of every chat answer already in the store.
+                answer["tool_calls"] = message["tool_calls"]
+        else:
+            raise BadRequest(
+                f"unknown request kind {kind!r} — this resolver sends 'generate', 'embed' or "
+                "'chat'. Guessing would answer a different question than the one asked.")
+
+        return {
+            "answer": answer,
+            "cost": metered_cost(body),          # refuses rather than metering zero
+            "falsifier": _falsifier_for(name),
+            "horizon": horizon,                  # DEFAULT "" — no time expiry: a temperature-0
+                                                 # answer does not rot with the clock; the digest
+                                                 # is what falsifies. A caller that passes EXPIRED
+                                                 # gets the agent lane (see EXPIRED below).
+            "provenance": {
+                "host": endpoint,
+                "path": _PATH_FOR_KIND[kind],
+                "model": name,
+                "options": options,
+                "counters": {k: body[k] for k in _COUNTERS if k in body},
+            },
+        }
+
+    return resolver
+
+
+def _routed_resolver(*, model: str, timeout: float, transport, get, temperature: float,
+                     stacks: dict | None, overlay: dict | None, horizon: str = ""):
+    """The routed walk: the nest decides WHO may be dialed, the walk discovers who ANSWERS.
+
+    Per call: shake the nest for this request's kind and model, then dial survivors cheapest
+    first through the single-endpoint resolver above. ``HostUnreachable`` walks to the next
+    rung; every other error is the HOST'S answer and is carried through loud (a refusal from
+    a host that answered is not a routing problem, and retrying it elsewhere would hand back
+    a different model's answer under the same cache key). A survivor whose protocol has no
+    transport yet (gemini, until its key lands and the transport is built) is noted and
+    walked past — listed, refusing, never silently dialed with the wrong protocol.
+    """
+    from cairn.devices.inferenceproxy.machines.route import route as route_mod  # late: keeps the import edge one-way
+
+    inners: dict[str, object] = {}
+
+    def _inner(rung_endpoint: str):
+        if rung_endpoint not in inners:
+            inners[rung_endpoint] = ollama_resolver(
+                model=model, endpoint=rung_endpoint, timeout=timeout,
+                transport=transport, get=get, temperature=temperature,
+                horizon=horizon)
+        return inners[rung_endpoint]
+
+    def resolver(request: dict) -> dict:
+        if not isinstance(request, dict):
+            raise BadRequest(f"request must be a dict, got {type(request).__name__}")
+        kind = request.get("kind")
+        if kind not in _PATH_FOR_KIND:
+            raise BadRequest(
+                f"unknown request kind {kind!r} — this resolver sends "
+                f"{', '.join(repr(k) for k in _PATH_FOR_KIND)}. "
+                "Guessing would answer a different question than the one asked.")
+        domain = request.get("domain")
+        allow = None
+        if domain is not None:
+            row = route_mod.domain_rows(stacks)["rows"].get(domain)
+            if row is None:
+                raise BadRequest(
+                    f"no domain row named {domain!r} in the domains stack — a vertical is an "
+                    "authored row, never an ad-hoc string")
+            # The domain's escalation walk-rule: WHICH rungs this vertical's walk may dial —
+            # a GETTING rule only (Akien's boundary sentence: the reasoning happens in the
+            # calling device). It filters the walk, never the nest: the shake and its cuts
+            # are untouched, and a skipped rung is in the trace, not silent. Absent = every
+            # survivor, which is exactly today's walk.
+            allow = (row.get("escalation") or {}).get("allow")
+        plan = route_mod.route(kind, request.get("model") or model,
+                               domain=domain, stacks=stacks, overlay=overlay)
+        walked: list[str] = []
+        for rung in plan["survivors"]:
+            if allow is not None and rung["provider"] not in allow:
+                walked.append(f"{rung['provider']}: outside domain {domain!r}'s escalation "
+                              f"walk-rule (allow: {allow})")
+                continue
+            if rung["protocol"] != "ollama":
+                walked.append(f"{rung['provider']}: no transport for protocol "
+                              f"{rung['protocol']!r} yet — grows when the rung goes live")
+                continue
+            try:
+                out = _inner(rung["endpoint"])(request)
+            except HostUnreachable as e:
+                walked.append(f"{rung['provider']} ({rung['endpoint']}): {e}")
+                continue
+            out["provenance"]["provider"] = rung["provider"]
+            if walked:
+                out["provenance"]["route_walked"] = walked
+            return out
+        raise HostUnreachable(
+            "every routed rung failed for this call — walked, in cost order: "
+            + "; ".join(walked))
+
+    return resolver

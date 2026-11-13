@@ -2,12 +2,12 @@
   {
     "claim": "proof test_an_owned_index_is_owner_gated.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-09T21:47:02",
+    "date": "2026-11-12T17:45:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_owner_indexes_its_table_once  — {'idx_1677433_2147008125_name_at': 'CREATE INDEX idx_1677433_2147008125_name_at ON public.idx_1677433_2147008125 USING btree (name, at)'}\n  PASS  test_no_one_else_indexes_it\n  PASS  test_a_column_is_a_name_never_sql\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_owner_indexes_its_table_once  — {'idx_1966623_1745304082_name_at': 'CREATE INDEX idx_1966623_1745304082_name_at ON public.idx_1966623_1745304082 USING btree (name, at)'}\n  PASS  test_no_one_else_indexes_it\n  PASS  test_a_column_is_a_name_never_sql\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_owner_indexes_its_table_once",
@@ -15,7 +15,7 @@
         "test_a_column_is_a_name_never_sql"
       ],
       "teeth_red": [],
-      "test": "test-f23a770dea3e",
+      "test": "test-1fa0e4d3851c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "4c78f2699974f6be68c2e7f79f0e36659a6951c637b6e027c5a00107dc61f7d0",
+        "proof": "0f63917c7163d3ca255cab3d1e0459ac0a24bbcfd3a2db4a0db3b218940c8c6d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,55 +38,38 @@
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f23a770dea3e",
-      "source_fingerprint": "3bccae5ac386b01059a11130c7726235f9322e4c9c5c164029ec2c368a55c06a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1fa0e4d3851c",
+      "source_fingerprint": "b999af6421f15751a9dc2a14fc759d27e0b1e9fa136990ec116417a54558d4db",
       "fingerprint_closure": [
         "cairn/devices/db_domain/__init__.py",
         "cairn/devices/db_domain/proofs/test_an_owned_index_is_owner_gated.py",
         "cairn/devices/db_domain/tools/__init__.py"
       ],
       "reached": {
-        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
-        "cairn/devices/tester": "57410e19ad1255ca14a97c2daa6d7bd537f701d50a0f225016d9b02c2ea0f4ce"
+        "cairn/devices/db_domain/tools/client": "c4a64d363649a464999178482523dfad5d7d4f609e624d14519c4a96f15a1c90",
+        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1966598-d7pqi845/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-f23a770dea3e/stderr.txt",
-            "logs/tester/0/runs/test-f23a770dea3e/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
-        }
-      },
-      "hollow": {
-        "d494ff4ae955": {
-          "cairn/devices/db_domain/tools/client/store.py": [
-            "test_a_column_is_a_name_never_sql",
-            "test_no_one_else_indexes_it",
-            "test_the_owner_indexes_its_table_once"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "d494ff4ae955": {
-          "anchor_rule": "journal",
-          "anchor_journal": "eaefe3ab673aab7cf0c3d6b5cb86078df69d6ba2",
-          "anchor_first_build": "1a95afcf0d081aea21880b0cfe5d469dfea52e6e",
-          "commit": "eaefe3ab673aab7cf0c3d6b5cb86078df69d6ba2"
+          "measured": true,
+          "bytes": 530148668,
+          "disk_bytes": 578125824,
+          "entries": 18242,
+          "builds": 1,
+          "reuses": 0
         }
       }
     },

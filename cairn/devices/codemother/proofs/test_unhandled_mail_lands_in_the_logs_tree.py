@@ -44,7 +44,7 @@ PROVES = {"d10668f76c45": {
 _CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.devices.codemother.shim import CodeMotherShim, CodeMotherDevice; "
          "r = CodeMotherShim._persist({'sender': 'cairn-proof-mail', 'body': {'testing': True}}); "
-         "print(json.dumps({'path': r['path'], 'state': CodeMotherDevice.state(None)}))")
+         "print(json.dumps({'path': r['path'], 'state': CodeMotherDevice().state()}))")
 
 _RUN: dict = {}
 

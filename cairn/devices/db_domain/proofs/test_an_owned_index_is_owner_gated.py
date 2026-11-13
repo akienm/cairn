@@ -82,7 +82,7 @@ def test_a_column_is_a_name_never_sql() -> None:
     with store.scratch("tester", "idx", _COLS) as t:
         bad = t + "_bad"
         try:
-            store.add_owned_index(t, "tester", bad, ["name) ; DROP TABLE " + t + " ; --"])
+            store.add_owned_index(t, "tester", bad, ["name) ; DELETE FROM " + t + " ; --"])
             lacks.append("a column carrying SQL did not raise")
         except (OwnershipError, ValueError) as exc:
             lacks.append(f"refused for the wrong reason: {exc}")

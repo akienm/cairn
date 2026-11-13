@@ -1,73 +1,87 @@
 [
   {
-    "claim": "proof test_cairn_resolves_from_powershell.py passes under python3",
+    "claim": "proof test_cairn_resolves_from_powershell.py passes under python.exe",
     "caller": "cairn test",
-    "date": "2026-11-13T00:44:01",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "date": "2026-11-13T16:21:55",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED    tooth_1_cairn_resolves_to_the_cmd\n         AssertionError: UNRAN: PATHEXT resolution is Windows-only; run this on a Windows box\n  RED    tooth_2_a_read_only_verb_matches_git_bash\n         AssertionError: RED: spawns windows; needs Akien's windows word (CAIRN_PROOF_MAY_SPAWN=1)\nred teeth: ['tooth_1_cairn_resolves_to_the_cmd', 'tooth_2_a_read_only_verb_matches_git_bash']",
+      "returncode": 0,
+      "stdout_tail": "  GREEN  tooth_1_cairn_resolves_to_the_cmd\n  GREEN  tooth_2_a_read_only_verb_matches_git_bash",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "tooth_1_cairn_resolves_to_the_cmd",
         "tooth_2_a_read_only_verb_matches_git_bash"
       ],
-      "test": "test-bebc3c50925c",
+      "teeth_red": [],
+      "test": "test-1bd591ac9a41",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 6,
+        "tables": [
+          "bus_proc_24432_0951236029_delivery",
+          "bus_proc_24432_0951236029",
+          "bus_proc_28796_0951537276_delivery",
+          "bus_proc_28796_0951537276",
+          "bus_proc_18684_0952246778_delivery",
+          "bus_proc_18684_0952246778"
+        ]
       },
       "conditions": {
-        "proof": "8f02d92eb7f34364c73cbcf66884a23b6ec4e435d37578aa7121ccf7ad6183bc",
+        "proof": "5ff4e5321f4ea82ab423b106c9329c12e1e74eb68e803d06c40a4b566079d753",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bebc3c50925c",
-      "source_fingerprint": "f4f5c4c009c8cefefc52347352802ba44ab1b557e9e1dad5e1c53e81230b83cb",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1bd591ac9a41",
+      "source_fingerprint": "5ee8c7893ab174716ff9bac23544a444066191a3c7a9feda1772e8cbbe5a713e",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_resolves_from_powershell.py",
-        "cairn/devices/tester/reach/sitecustomize.py"
+        "cairn/__init__.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
+        "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/script_argv.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2404189-9gq_l2j5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
-          "builds": 1,
-          "reuses": 11
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
+      },
+      "conditions_moved": {
+        "notified": "n-a646e1c427bd",
+        "changed": [
+          "env",
+          "interpreter",
+          "isolation",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -11,7 +11,7 @@ operator_inbox.read_tickets; nothing here re-derives it — the teeth compare th
 printed rows, which is what Akien reads. Over the fixture this proof renders the
 inbox only; the dashboard and the map render it at their owners (0c6f774d9ad8,
 cbbb651f4552), and over the live world this proof reads the other two as the commands
-Akien types, `cairn codemother show dashboard` and `cairn harbor_master show map open`
+Akien types, `cairn codemother show dashboard` and `cairn codemother harbor_master show map --filter open`
 (ticket 96afb3586d2e, RULE 1: a tool's proofs reach a device only through its public face).
 
 What a hollow build cannot pass (Law 8):
@@ -260,7 +260,7 @@ def test_fixture_headers_sum_with_no_other():
 # --- live teeth: the real world, the real three reports ----------------------
 
 def _live_map() -> str:
-    return _command("harbor_master", "show", "map", "open")
+    return _command("codemother", "harbor_master", "show", "map", "--filter", "open")
 
 
 def test_live_one_label_per_id_across_the_three_reports():

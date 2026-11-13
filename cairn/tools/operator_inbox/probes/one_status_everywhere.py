@@ -70,7 +70,7 @@ def _render_three() -> dict[str, str]:
     from cairn.tools.operator_inbox.inbox import build_inbox
     return {"inbox": build_inbox(),
             "dashboard": _command("codemother", "show", "dashboard"),
-            "map": _command("harbor_master", "show", "map", "open")}
+            "map": _command("codemother", "harbor_master", "show", "map", "--filter", "open")}
 
 
 def _header_counts(inbox_text: str) -> dict[str, int]:

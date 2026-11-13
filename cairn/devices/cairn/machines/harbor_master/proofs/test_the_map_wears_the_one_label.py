@@ -224,7 +224,7 @@ def test_live_map_rows_wear_the_reader_label():
     assert labels, "no live tickets — a green here would be hollow"
     hmap = HarborMasterDevice()._handle_show({
         "id": "proof", "sender": "proof", "to": "harbor_master",
-        "verb": "show", "body": {"what": "map", "args": ["open"]}})["text"]
+        "verb": "show", "body": {"what": "map", "args": {"filter": "open"}}})["text"]
     rows = _rows(hmap)
     assert set(rows) == set(labels), (
         f"map-only {sorted(set(rows) - set(labels))[:5]}, reader-only {sorted(set(labels) - set(rows))[:5]}")

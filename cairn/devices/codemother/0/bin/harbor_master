@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# cairn codemother harbor_master — the harbor's status views (outline 9.4.1.5): show, get, list
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"/../../../../.. && pwd)"
+
+    # CodeMother answers every command about the code (ticket ad6f3d0b265c). The harbor only
+    # reports, so only its status queries pass here; each is asked of harbor_master on the
+    # bus through the bus_client's published mouth, never by importing the harbor's code.
+    verb="${1:-}"; verb="${verb,,}"
+    case "$verb" in
+      ""|show|get|list|help) ;;
+      *)
+        echo "cairn codemother harbor_master: '$1' is not a status query — the harbor answers show, get and list (outline 9.4.1.5)" >&2
+        exit 2
+        ;;
+    esac
+    export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+    exec python3 -m cairn.tools.bus_client harbor_master "$@"

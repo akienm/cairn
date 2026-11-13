@@ -141,11 +141,13 @@ class HarborMasterDevice(BaseDevice):
             "crossings_patched_since_last": patched,
         }
 
-    def _fleet_map(self) -> dict:
-        """The fleet register as data — the view behind ``get map`` and ``show map``."""
+    def _fleet_map(self, filter: str | None = None) -> dict:
+        """The fleet register as data — the view behind ``get map`` and ``show map``.
+        ``--filter open`` (a view argument, ticket 35b92c5de7ef's --key value) strips the
+        terminal-state boats (ticket ad6f3d0b265c)."""
         if self._fleet_cache is None:
             self.reconcile()
-        return self._fleet_cache
+        return self._filter_fleet(self._fleet_cache, filter)
 
     def _traffic_view(self) -> dict:
         """The TRAFFIC IMAGE over the fleet register: the view behind ``get traffic`` and
@@ -173,29 +175,6 @@ class HarborMasterDevice(BaseDevice):
             "counts": {"open": len(open_), "in_port": len(in_port),
                        "fleet": len(open_) + len(in_port), "findings": len(findings)},
         }
-
-    def _handle_get(self, envelope: dict) -> dict:
-        result = super()._handle_get(envelope)
-        if result.get("accepted"):
-            filt = (envelope.get("body", {}).get("args") or [None])[0]
-            result["data"] = self._filter_fleet(result["data"], filt)
-        return result
-
-    def _handle_show(self, envelope: dict) -> dict:
-        views = self.declared_views()
-        what = canon(envelope.get("body", {}).get("what", ""), views)
-        view_fn = None if what is None else views[what]
-        if view_fn is None:
-            what = envelope.get("body", {}).get("what", "")
-            return {"accepted": False, "verb": "show", "device": self.device_id,
-                    "reason": f"no view {what!r}",
-                    "available": sorted(views)}
-        data = view_fn()
-        filt = (envelope.get("body", {}).get("args") or [None])[0]
-        data = self._filter_fleet(data, filt)
-        text = self._render_view(what, data)
-        return {"accepted": True, "verb": "show", "view": what,
-                "device": self.device_id, "text": text, "data": data}
 
     def _render_view(self, name: str, data: dict) -> str:
         if name == "map":

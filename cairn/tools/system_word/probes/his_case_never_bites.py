@@ -144,7 +144,7 @@ def _drive_python() -> list[tuple[str, bool]]:
     out.append(("base _handle_show MAP", got.get("accepted") is not True))
 
     strip = lambda s: "\n".join(l for l in s.splitlines() if not l.startswith("Cached at:"))
-    hm_lo, hm_up = cairn("harbor_master", "show", "map", "open"), cairn("harbor_master", "show", "map", "OPEN")
+    hm_lo, hm_up = cairn("codemother", "harbor_master", "show", "map", "--filter", "open"), cairn("codemother", "harbor_master", "show", "map", "--filter", "OPEN")
     out.append(("harbor_master show map OPEN",
                 hm_up.returncode != hm_lo.returncode or strip(hm_up.stdout) != strip(hm_lo.stdout)))
 

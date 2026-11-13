@@ -488,6 +488,19 @@ def install(
     for seam in seams:
         sid = seam.get("id", "<unknown>")
 
+        # Ticket 45a6331971fd: a seam declaring other platforms than this box's cannot apply here, so its
+        # verify is not run and it is not offered. It reads green (the gate refuses any red, and a Windows
+        # box could never read installed for a KDE seam), carrying skipped="platform" and the reason named.
+        platforms = seam.get("platforms")
+        if platforms and sys.platform not in platforms:
+            results.append({
+                "id": sid,
+                "status": "already_applied",
+                "skipped": "platform",
+                "detail": f"skipped: this seam applies on {', '.join(platforms)} only; this box is {sys.platform}",
+            })
+            continue
+
         passed, output = run_verify(seam)
         if passed:
             results.append({

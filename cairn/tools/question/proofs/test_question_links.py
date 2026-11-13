@@ -65,8 +65,26 @@ PROVES = {
         "renderer": "test_the_operators_ticket_view_renders_its_questions",
         "wording": "test_no_surface_still_says_follow_up",
         "charter": "test_the_charter_names_the_sieve_the_probe_and_this_proof",
-    }
+    },
+    # ticket f99f8775482c (2026-11-13): clause 5 reads bc7b's writes_to from a measured fixture.
+    "f99f8775482c": {
+        "1": "test_the_binding_sieve_predicts_no_unran_and_a_landed_hollow_reading_names_no_hollow_file",
+        "2": "test_the_binding_sieve_predicts_no_unran_and_a_landed_hollow_reading_names_no_hollow_file",
+    },
 }
+
+_FIXTURE_TICKET = "f99f8775482c"
+
+
+def _bc7b_writes_to_fixture() -> tuple[str, list[str]]:
+    """The decompose berth's name and writes_to for bc7b64626405, as measured on the charting
+    box and carried on f99f8775482c's one measured entry that holds a writes_to."""
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    t = read_ticket(next(p for p in plans(LIVE_COMMONS / "tickets")
+                         if p.name.startswith(f"{_FIXTURE_TICKET}-")))
+    rows = [m for m in t.get("measured") or [] if isinstance(m.get("writes_to"), list)]
+    assert len(rows) == 1, f"{_FIXTURE_TICKET} carries {len(rows)} measured writes_to fixture(s), not 1"
+    return str(rows[0]["berth"]), list(rows[0]["writes_to"])
 
 
 def _exe(path: Path) -> list:
@@ -354,9 +372,31 @@ def teeth_beside() -> None:
     try:
         from cairn.tools.validation_store import validation_store as V
         from cairn.tools.proof_coverage import proof_coverage as PC
-        live = json.loads(next((LIVE_COMMONS / "tickets").glob(TICKET + "-*.json")).read_text(encoding="utf-8"))
-        wrote = [w for w in PC._writes_to(live) if "/proofs/" not in w]
-        binds = PC.proof_binds_its_subject_at_call_time(live, repo_root=REPO)
+        # The ticket's plan, never whichever of plan/.state.json a bare glob yields first —
+        # measured 2026-11-13 on akienasus: the glob gave the .state.json, which carries no id.
+        from cairn.tools.base.ticket_file import plans, read_ticket
+        live = read_ticket(next(q for q in plans(LIVE_COMMONS / "tickets")
+                                if q.name.startswith(TICKET + "-")))
+        # The decompose berth is instance-space and stands only on the charting box (ticket
+        # f99f8775482c; measured 2026-11-13: absent on akienasus, writes_to read 0). So the
+        # berth is a measured fixture written to a scratch root, and a live berth, where one
+        # stands, must agree with it.
+        from cairn.tools.scratch.scratch import scratch_dir
+        berth_name, fixture = _bc7b_writes_to_fixture()
+        root = Path(scratch_dir("testing-f99f-"))
+        (root / "0" / "packets").mkdir(parents=True)
+        (root / "0" / "packets" / f"{berth_name}.json").write_text(json.dumps(
+            {"ticket": TICKET, "stage": "decompose",
+             "sub_problems": [{"piece": "the question links", "writes_to": fixture}]}),
+            encoding="utf-8")
+        standing = PC._writes_to(live)
+        assert not standing or standing == fixture, (
+            f"the live decompose berth for {TICKET} writes_to {len(standing)} path(s) that differ "
+            f"from the measured fixture in {_FIXTURE_TICKET}: {sorted(set(standing) ^ set(fixture))[:6]}")
+        read = PC._writes_to(live, berths_root=root)
+        assert read == fixture, f"writes_to read as {len(read)} from the fixture berth, not {len(fixture)}"
+        wrote = [w for w in read if "/proofs/" not in w]
+        binds = PC.proof_binds_its_subject_at_call_time(live, repo_root=REPO, roots={"berths": root})
         trail = V.read_validations(str(Path(__file__).resolve()))
         landed = ((trail[-1].get("evidence") or {}).get("hollow") or {}).get(TICKET) if trail else None
         if landed is None:

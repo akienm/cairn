@@ -1,19 +1,20 @@
 [
   {
     "claim": "proof test_memory_link_writes_only_from_a_durable_tree.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T09:28:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T22:31:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_memory_link_writes_only_from_a_durable_tree\n\nGREEN",
+      "stdout_tail": "  PASS  test_memory_link_writes_only_from_a_durable_tree\n  PASS  test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_memory_link_writes_only_from_a_durable_tree"
+        "test_memory_link_writes_only_from_a_durable_tree",
+        "test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target"
       ],
       "teeth_red": [],
-      "test": "test-96f3cc087a55",
+      "test": "test-642acec2cb72",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -23,34 +24,34 @@
         "tables": []
       },
       "conditions": {
-        "proof": "2ed77177de05db14e52db7b34829fa61afb38df31cf852c853169905a3d2708d",
+        "proof": "c178221140d29b73a913de3aac256faa8bac0a6204fdc679ae5e1f7f012b4d61",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-96f3cc087a55",
-      "source_fingerprint": "a8f08ea93b6ecdef819e53d430fcb56bdd65518c00e90c99cb7dad0aa3ddb502",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-642acec2cb72",
+      "source_fingerprint": "99edf43d049037d4f166dce40af15bafcaa1a15ba179700a448dce6d2ce5f53a",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_memory_link_writes_only_from_a_durable_tree.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915"
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-170503-ual8uhg8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2280312-8ak4sotf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,26 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 117518208,
-          "disk_bytes": 149975040,
-          "entries": 12738,
+          "bytes": 529784886,
+          "disk_bytes": 570892288,
+          "entries": 15860,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "089ad920fcc5": {
-          "cairn/devices/cc/scripts/memory_link.py": [
-            "test_memory_link_writes_only_from_a_durable_tree"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "089ad920fcc5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6621f116aeafb18408d835884b96af51cee6b183",
-          "anchor_first_build": "aff09e6ee19cbe664a75c1815b0a7262cc48eec8",
-          "commit": "6621f116aeafb18408d835884b96af51cee6b183"
+          "reuses": 2
         }
       }
     },

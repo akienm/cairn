@@ -92,9 +92,11 @@ def test_the_usage_widget_seam_declares_linux_and_this_box_does_not_offer_it() -
     seam = next((s for s in gather_host_seams(DEFAULT_INTENTIONS_DIR) if s.get("id") == "usage-widget-hook"), None)
     assert seam is not None, "usage-widget-hook is not in the corpus"
     assert seam.get("platforms") == ["linux"], seam.get("platforms")
-    if sys.platform != "linux":
-        r = next(x for x in install(dry_run=True) if x["id"] == "usage-widget-hook")
-        assert r["status"] == "not_applicable" and r.get("skipped") == "platform", r
+    # the platform is passed in, never read from the live box, so this holds on Windows and Linux alike
+    win = next(x for x in install(dry_run=True, box_platform="win32") if x["id"] == "usage-widget-hook")
+    assert win["status"] == "not_applicable" and win.get("skipped") == "platform", win
+    lin = next(x for x in install(dry_run=True, box_platform="linux") if x["id"] == "usage-widget-hook")
+    assert lin["status"] in ("offered", "already_applied") and not lin.get("skipped"), lin
 
 
 def _main() -> int:

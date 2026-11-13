@@ -470,8 +470,10 @@ def install(
     intentions_dir: Path | None = None,
     dry_run: bool = False,
     ask_fn: object = None,
+    box_platform: str | None = None,
 ) -> list[dict]:
-    """Run the installer projection.
+    """Run the installer projection. `box_platform` (default sys.platform) is what a seam's `platforms`
+    is judged against; a proof passes one so it holds on every box.
 
     Returns a list of result dicts, each with: id, status, detail.
     Statuses: already_applied, not_applicable, offered, skipped, failed, applied.
@@ -492,12 +494,13 @@ def install(
         # verify is not run and it is not offered. It reads not_applicable, never already_applied (it was
         # never applied here), which the gate counts green so a Windows box can read installed.
         platforms = seam.get("platforms")
-        if platforms and sys.platform not in platforms:
+        here = box_platform or sys.platform
+        if platforms and here not in platforms:
             results.append({
                 "id": sid,
                 "status": "not_applicable",
                 "skipped": "platform",
-                "detail": f"skipped: this seam applies on {', '.join(platforms)} only; this box is {sys.platform}",
+                "detail": f"skipped: this seam applies on {', '.join(platforms)} only; this box is {here}",
             })
             continue
 

@@ -2,20 +2,22 @@
   {
     "claim": "proof test_the_tester_is_reached_only_through_its_interface.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T05:04:29",
+    "date": "2026-11-13T05:52:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_foreign_row_lands_on_the_tester\n.\n  ok   test_the_run_verb_answers_with_the_testers_verdict\n.\n  ok   test_the_tool_floor_stands_on_no_device\n                                                                      [100%]\n3 passed in 13.97s",
+      "stdout_tail": ".\n  ok   test_no_foreign_row_lands_on_the_tester\n.\n  ok   test_the_run_verb_answers_with_the_testers_verdict\n.\n  ok   test_the_tool_floor_stands_on_no_device\n.\n  ok   test_the_run_verb_tooth_ignores_a_far_session_bus\n.\n  ok   test_the_scratch_bus_goes_with_its_home\n                                                                    [100%]\n5 passed in 11.92s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_foreign_row_lands_on_the_tester",
         "test_the_run_verb_answers_with_the_testers_verdict",
-        "test_the_tool_floor_stands_on_no_device"
+        "test_the_tool_floor_stands_on_no_device",
+        "test_the_run_verb_tooth_ignores_a_far_session_bus",
+        "test_the_scratch_bus_goes_with_its_home"
       ],
       "teeth_red": [],
-      "test": "test-de9f127812da",
+      "test": "test-7366a65d73f6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "a78c6f2fde767c56a3388aa35984414ad036ce2e950737c667a19bf087f37987",
+        "proof": "cdbbcf154cae8c0323cb8b9217f7ad93ad78c662171291d563a8ebf756baaf50",
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -40,16 +42,10 @@
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
-      "killed": [
-        {
-          "pid": 2806557,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-de9f127812da",
-      "source_fingerprint": "ae4e1dbfcb0cdce6e2ffbc19e89b51bf424c04769697c52d72169134f5ce957d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7366a65d73f6",
+      "source_fingerprint": "2b3896281193109082c0ef50cc6f8f0c11a0242b8dd09e20f88944bbebf2f8a1",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -57,20 +53,13 @@
         "cairn/devices/tester/isolation.py",
         "cairn/devices/tester/proofs/test_the_tester_is_reached_only_through_its_interface.py",
         "cairn/devices/tester/reach/sitecustomize.py",
-        "cairn/devices/tester/runs.py",
-        "cairn/devices/tester/shim.py"
+        "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "2651275156ea90f771634511dd63ba5a4462396897556c1e0825bbbad0290860",
-        "cairn/devices/cairn/machines/bus": "0992312e2fb570fb454252b8e89084fba91c0112645ab5d73ac85d52b62386d5",
-        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
         "cairn/machines/build_inspector": "fa25cba9de99887ace27ada42a420c2c5bc5a47eb7885acbb14ae126a8e1ea98",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
         "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa",
         "cairn/tools/bus_client": "270bed5752d1aef017a382d4cdcdc4ebb6d89e135557b45a53569f40f066b37b",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -78,56 +67,26 @@
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
         "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
-        "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
         "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
         "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
-        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2",
-        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2768508-vrvp31bb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2824289-_02gjznu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 27,
-          "paths": [
-            "devices/cairn/machines/bus/0/bus.lock",
-            "devices/cairn/machines/bus/0/stops.jsonl",
-            "devices/tester/0/last_known.json",
-            "logs/bus.log",
-            "logs/bus/0/20261113.120420.191589.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.120420.227254.BusDevice.post.json",
-            "logs/bus/0/20261113.120420.241345.BusDevice.post.json",
-            "logs/bus/0/20261113.120422.752674.BusDevice.post.json",
-            "logs/bus/0/20261113.120422.752808.BusDevice.delivered.json",
-            "logs/bus/0/20261113.120422.757512.BusDevice.delivered.json",
-            "logs/bus/0/20261113.120422.795972.BusDevice.post.json",
-            "logs/bus/0/20261113.120425.335331.BusDevice.post.json",
-            "logs/bus/0/20261113.120425.335460.BusDevice.delivered.json",
-            "logs/bus/0/20261113.120425.335640.BusDevice.delivered.json",
-            "logs/bus/0/20261113.120425.375299.BusDevice.post.json",
-            "logs/bus/0/20261113.120425.375635.BusDevice.post.json",
-            "logs/bus/0/20261113.120425.375755.BusDevice.delivered.json",
-            "logs/bus/0/20261113.120425.375909.BusDevice.delivered.json",
-            "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261113.120422.751044.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.120422.756227.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261113.120422.757324.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261113.120425.333480.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-2e16ccf9a25d/stderr.txt",
-            "logs/tester/0/runs/test-2e16ccf9a25d/stdout.txt",
-            "logs/tester/0/runs/test-a7e171391bcc/stderr.txt",
-            "logs/tester/0/runs/test-a7e171391bcc/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 530333416,
-          "disk_bytes": 572702720,
-          "entries": 16276,
+          "bytes": 530617992,
+          "disk_bytes": 572989440,
+          "entries": 16280,
           "builds": 1,
-          "reuses": 51
+          "reuses": 27
         }
       }
     },

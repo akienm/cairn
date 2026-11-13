@@ -27,6 +27,11 @@ from cairn.tools.operator_inbox.inbox import (
 # at CALL time inside the tooth that checks it — 3feb201c84ea added those names, and a
 # proof that binds them at import cannot reach its first tooth under a hollow reading.
 PROVES = {
+    # 8bd8b0f0b92e — the relayed-path tooth renders its own fixture path
+    "8bd8b0f0b92e": {
+        "1": "test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_check",
+        "2": "test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_check",
+    },
     "3feb201c84ea": {"1": "test_tickets_match_independent_read"},
     # 3ed960cc402e — an idea past idea is not an open idea (Akien 2026-09-07)
     "3ed960cc402e": {
@@ -418,8 +423,14 @@ def test_an_indented_relayed_line_naming_an_inbox_path_passes_the_operator_word_
     """0162736f42ed (1): a trouble the inbox only relays may name a path under /home/akien —
     measured 2026-10-11, such a line red this proof and the red fed itself through its own seal."""
     path = "/home/akien/dev/src/cairn/cairn/tools/operator_inbox/proofs/test_operator_inbox.py"
-    live = [{"id": "testing-relayed-path", "standing": "OPEN", "why": f"the verdict standing at {path} changed"}]
+    # 8bd8b0f0b92e: the inbox renders a trouble's why as why[:100] (inbox.py), so the fixture's
+    # path must end inside that window. The old why ("the verdict standing at {path} changed",
+    # 114 chars, path ending at 106) rendered its path only when a LIVE trouble happened to.
+    why = f"verdict at {path}"
+    assert len(why) <= 100, f"the fixture why is {len(why)} chars, past the inbox's 100-char window"
+    live = [{"id": "testing-relayed-path", "standing": "OPEN", "why": why}]
     out = format_inbox(dict(gather_all(), troubles={"live": live, "live_count": 1, "total_count": 1}))
+    assert "testing-relayed-path" in out, "the fixture trouble's id line did not render"
     assert path in out, "the fixture trouble did not render"
     assert _operator_word_reds(out) == [], _operator_word_reds(out)
 

@@ -69,7 +69,10 @@ _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 # falsifier-markers). Clause (1) names two paths; the device path is the deeper one.
 PROVES = {
     "e3cf75c6dc8f": {
-        "1": "test_the_real_harbor_master_takes_uppercase_show_map_open",
+        # clause 1 retired, ticket a6068ba32ce7: its legacy path (`cairn RULING LIST`) left with
+        # the ruling intake, and its device path drove the harbor_master device, which left
+        # class-space in 6ae83e7e1 (outline 9.4.1: a codemother machine now). The device-path
+        # fold it measured stands in the dispatcher_device tooth, over a fixture device.
         "2": "test_operator_inbox_takes_uppercase_show_artifact_and_summary_flag",
         "3": "test_skill_block_takes_uppercase_contract_and_folds_the_review_prefix",
         # clause 4 (the learning block's approve/disprove verb) retired with that verb,
@@ -82,7 +85,6 @@ PROVES = {
         # is. proof_coverage.lacks reads only the clause keys; hollow.py reads every value.
         "orient_chart_librarian": "test_orient_chart_and_librarian_take_uppercase_verbs",
         "sudo_relay": "test_sudo_relay_takes_uppercase_status_flag",
-        "harbor_master_filter": "test_the_real_harbor_master_takes_uppercase_show_map_open",
         "stage_targets": "test_stage_targets_fold_at_render_and_resolve",
         "codemother_launcher": "test_the_codemother_launcher_folds_its_subcommand",
         "dispatcher_legacy": "test_dispatcher_folds_the_legacy_verb_and_passes_args_verbatim",
@@ -200,14 +202,6 @@ def test_dispatcher_folds_the_device_and_verb_tokens_on_the_device_path():
         assert said == ["fx_dev", "Not-A-Verb", "x"] and "self:" not in r2.stdout, (
             f"a non-verb first arg goes to the bus mouth, the device folded and the rest "
             f"verbatim: said={said!r} out={r2.stdout!r} err={r2.stderr[-300:]!r}")
-
-
-def test_the_real_harbor_master_takes_uppercase_show_map_open():
-    lo = _cairn("harbor_master", "show", "map", "open")
-    up = _cairn("HARBOR_MASTER", "Show", "MAP", "Open")
-    assert lo.returncode == up.returncode == 0, (up.stderr, lo.stderr)
-    strip = lambda s: "\n".join(l for l in s.splitlines() if not l.startswith("Cached at:"))
-    assert strip(up.stdout) == strip(lo.stdout), "the same view, whichever case he typed"
 
 
 def test_the_codemother_launcher_folds_its_subcommand():

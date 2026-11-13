@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_crossing_reaches_a_commons_owned_ticket.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-12T22:02:02",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:15:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_commons_owned_ticket_journals_beside_its_commons_charter  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' commons history=1 repo history=0\n  PASS  test_a_cairn_owned_ticket_still_journals_beside_its_intention  — exc=None repo history=1 commons history=0\n  PASS  test_an_owner_absent_from_both_roots_is_refused_naming_both  — exc=ValueError(\"owning_intention 'nowhere/_charter+why.json' names no charter: tried /tmp/cross-commons-owner-fixture-scratch.4026531836-2231345-7fhzy8gf/cairn/nowhere/_charter+why.json, /tmp/cross-commons-owner-fixture-scratch.4026531836-2231345-7fhzy8gf/CairnCommons/nowhere/_charter+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True\n  PASS  test_the_live_commons_owner_resolves_without_writing  — owning='intentions-not-beside-code/_charter+why.json' got=/home/akien/dev/src/CairnCommons/intentions-not-beside-code exc=None\n  PASS  test_the_one_command_crossing_proof_stays_green  — rc=0 ['GREEN']\n  PASS  the live journal never moved\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_commons_owned_ticket_journals_beside_its_commons_charter  — exc=None new='code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED' commons history=1 repo history=0\n  PASS  test_a_cairn_owned_ticket_still_journals_beside_its_intention  — exc=None repo history=1 commons history=0\n  PASS  test_an_owner_absent_from_both_roots_is_refused_naming_both  — exc=ValueError(\"owning_intention 'nowhere/_charter+why.json' names no charter: tried /tmp/cross-commons-owner-fixture-scratch.4026531836-2253506-8t63cubs/cairn/nowhere/_charter+why.json, /tmp/cross-commons-owner-fixture-scratch.4026531836-2253506-8t63cubs/CairnCommons/nowhere/_charter+why.json; none is an existing intention+why.json or _charter+why.json\") unchanged=True\n  PASS  test_the_live_commons_owner_resolves_without_writing  — owning='intentions-not-beside-code/_charter+why.json' got=/home/akien/dev/src/CairnCommons/intentions-not-beside-code exc=None\n  PASS  test_the_one_command_crossing_proof_stays_green  — rc=0 ['GREEN']\n  PASS  the live journal never moved\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_commons_owned_ticket_journals_beside_its_commons_charter",
@@ -18,7 +18,7 @@
         "the live journal never moved"
       ],
       "teeth_red": [],
-      "test": "test-bc0771989f78",
+      "test": "test-9fbaf9667cc5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,12 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bc0771989f78",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9fbaf9667cc5",
       "source_fingerprint": "b1605997576f12fd972c1a8f5322cfdd270206d232aa4f3493d64fb818dc59a1",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -81,26 +82,26 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2231251-vusud08n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2252345-dk712v_j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261113.050201.538282.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.050201.551302.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.050201.649854.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.050201.660289.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261113.051543.660584.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.051543.673014.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.051543.773814.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.051543.783751.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529758203,
-          "disk_bytes": 570843136,
-          "entries": 15849,
+          "bytes": 529764859,
+          "disk_bytes": 570859520,
+          "entries": 15852,
           "builds": 1,
-          "reuses": 4
+          "reuses": 9
         }
       }
     },

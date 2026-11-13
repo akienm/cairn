@@ -1,26 +1,28 @@
 [
   {
     "claim": "proof test_cli_reaches.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-30T19:14:55",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:20:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_at_least_four_shimmed_devices\n.\n  ok   test_each_shimmed_device_has_instance_bin\n.\n  ok   test_each_instance_bin_has_self_named_launcher\n.\n  ok   test_each_shimmed_device_resolves\n.\n  ok   test_resolution_routes_to_correct_device\n.\n  ok   test_nonexistent_device_fails\n.\n  ok   test_dispatcher_lists_all_shimmed\n.\n  ok   test_roster_minimum\n                                                                 [100%]\n8 passed in 1.70s",
+      "returncode": 1,
+      "stdout_tail": "__ TestInstanceSpaceBinExists.test_each_instance_bin_has_self_named_launcher ___\n\nself = <cairn.tools.base.proofs.test_cli_reaches.TestInstanceSpaceBinExists object at 0x724c76c1a520>\nshimmed = ['cairn', 'cc', 'codemother', 'inference_domain', 'librarian', 'tester', ...]\n\n    def test_each_instance_bin_has_self_named_launcher(self, shimmed):\n        missing = []\n        for dev in shimmed:\n            launcher = os.path.join(INSTANCE_ROOT, dev, \"0\", \"bin\", dev)\n            if not os.path.isfile(launcher) or not os.access(launcher, os.X_OK):\n                missing.append(dev)\n>       assert not missing, f\"shimmed devices missing executable self-named launcher: {missing}\"\nE       AssertionError: shimmed devices missing executable self-named launcher: ['web_server']\nE       assert not ['web_server']\n\ntest_cli_reaches.py:66: AssertionError\n=========================== short test summary info ============================\nFAILED test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_shimmed_device_has_instance_bin\nFAILED test_cli_reaches.py::TestInstanceSpaceBinExists::test_each_instance_bin_has_self_named_launcher\n2 failed, 6 passed in 2.69s",
       "stderr_tail": "",
       "teeth_green": [
         "test_at_least_four_shimmed_devices",
-        "test_each_shimmed_device_has_instance_bin",
-        "test_each_instance_bin_has_self_named_launcher",
         "test_each_shimmed_device_resolves",
         "test_resolution_routes_to_correct_device",
         "test_nonexistent_device_fails",
         "test_dispatcher_lists_all_shimmed",
         "test_roster_minimum"
       ],
-      "teeth_red": [],
-      "test": "test-d19031f828d6",
+      "teeth_red": [
+        "test_each_shimmed_device_has_instance_bin",
+        "test_each_instance_bin_has_self_named_launcher",
+        "test_cli_reaches"
+      ],
+      "test": "test-77988ca4aca6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,48 +39,61 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 2777650,
+          "pid": 2268085,
           "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d19031f828d6",
-      "source_fingerprint": "1578e466aabdb0948400ba338a6f3b8de182a3719f9920aa28e724c864fc63cc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-77988ca4aca6",
+      "source_fingerprint": "b80de6ad6eed2298c11c2c4751eff923bd182346319e3eec75a754b73f395cdb",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/proofs/test_cli_reaches.py",
         "cairn/tools/base/script_argv.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2777430-6gyp5537/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2252345-73azvsq0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 8,
           "paths": [
             "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cairn/machines/bus/0/stops.jsonl",
+            "devices/learning_block/0/traces/logger_for_bash.jsonl",
+            "devices/librarian/0/last_known.json",
+            "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261031.011453.603656.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261113.052017.689013.BusDevice.transit_table_ensured.json",
+            "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 114287897,
-          "disk_bytes": 144146432,
-          "entries": 11811,
+          "bytes": 529770834,
+          "disk_bytes": 570859520,
+          "entries": 15852,
           "builds": 1,
-          "reuses": 2
+          "reuses": 39
         }
       }
     },

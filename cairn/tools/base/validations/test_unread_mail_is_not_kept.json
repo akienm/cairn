@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_unread_mail_is_not_kept.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-12T21:48:18",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:25:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_undeclared_device_keeps_no_mail",
@@ -15,7 +15,7 @@
         "test_both_devices_accept_the_mail"
       ],
       "teeth_red": [],
-      "test": "test-4128e2d581e5",
+      "test": "test-9b8ad5cca640",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,12 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4128e2d581e5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9b8ad5cca640",
       "source_fingerprint": "aaf9538b53be841060fabe8701df87852b94bea6fcaeb8a6d9b2309c8c723571",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -62,25 +63,25 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2200385-sl474nio/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2252345-n5u3h41k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/base/0/20261113.044817.298233._Undeclared.received.json",
-            "logs/base/0/20261113.044817.300058._Declared.received.json",
-            "logs/base/0/20261113.044817.300863._Undeclared.received.json",
-            "logs/base/0/20261113.044817.301224._Declared.received.json"
+            "logs/base/0/20261113.052510.305441._Undeclared.received.json",
+            "logs/base/0/20261113.052510.307192._Declared.received.json",
+            "logs/base/0/20261113.052510.307940._Undeclared.received.json",
+            "logs/base/0/20261113.052510.308276._Declared.received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529655778,
-          "disk_bytes": 570564608,
-          "entries": 15782,
+          "bytes": 529763515,
+          "disk_bytes": 570855424,
+          "entries": 15851,
           "builds": 1,
-          "reuses": 82
+          "reuses": 96
         }
       }
     },

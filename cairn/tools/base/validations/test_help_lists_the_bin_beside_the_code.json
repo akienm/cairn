@@ -1,26 +1,25 @@
 [
   {
     "claim": "proof test_help_lists_the_bin_beside_the_code.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-12T21:45:15",
+    "caller": "cairn test",
+    "date": "2026-11-12T22:22:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  both_bins_are_listed_in_order\n  PASS  the_instance_bin_wins_a_shared_name\n  PASS  non_executables_and_empty_devices_list_nothing\n  PASS  the_default_class_root_is_the_repos_devices\n  PASS  cold_list_carries_the_class_bin\n  FAIL  the_standing_help_proofs_pass\n        cairn/tools/base/proofs/test_help_answers_as_list_with_shortcuts.py: rc=1 \"ols.base.shim.BaseShim'>, '_resolve')\\n\\ncairn/tools/base/proofs/test_root_verb_vocabulary.py:226: AssertionError\\n=========================== short test summary info ============================\\nFAILED cairn/tools/base/proofs/test_root_verb_vocabulary.py::test_every_roster_device_inherits_the_root_verbs\\n1 failed, 3 passed in 4.90s\\n\\nRED: 1 failing: ['clause_5_the_vocabulary_proof_passes_over_seven']\\n\"\nRED: 1 tooth/teeth failed: ['the_standing_help_proofs_pass']",
+      "returncode": 0,
+      "stdout_tail": "  PASS  both_bins_are_listed_in_order\n  PASS  the_instance_bin_wins_a_shared_name\n  PASS  non_executables_and_empty_devices_list_nothing\n  PASS  the_default_class_root_is_the_repos_devices\n  PASS  cold_list_carries_the_class_bin\n  PASS  the_standing_help_proofs_pass\nGREEN: every tooth passed",
       "stderr_tail": "",
       "teeth_green": [
         "both_bins_are_listed_in_order",
         "the_instance_bin_wins_a_shared_name",
         "non_executables_and_empty_devices_list_nothing",
         "the_default_class_root_is_the_repos_devices",
-        "cold_list_carries_the_class_bin"
-      ],
-      "teeth_red": [
+        "cold_list_carries_the_class_bin",
         "the_standing_help_proofs_pass",
-        "1 tooth/teeth failed: ['the_standing_help_proofs_pass']"
+        "every tooth passed"
       ],
-      "test": "test-92c76417acce",
+      "teeth_red": [],
+      "test": "test-819603155d7a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,13 +41,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-92c76417acce",
-      "source_fingerprint": "12749067d970b858f0af2238013a8eee1ee5a8b25ab0e22ad7ed6626ef104494",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-819603155d7a",
+      "source_fingerprint": "24a8ed3a0865ba501e350561a763ef25405fbc0038703159b5bc8a2e58d86b2e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -67,7 +67,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2200385-moh_yky_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2252345-q5e_sxif/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -78,21 +78,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529656630,
-          "disk_bytes": 570552320,
-          "entries": 15777,
+          "bytes": 529764367,
+          "disk_bytes": 570843136,
+          "entries": 15846,
           "builds": 1,
-          "reuses": 49
+          "reuses": 60
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "c9c3333352f056889c95efc4fa25c9fca4f641d8c4a606b27c4d01e747fcf85e",
         "opened": "2026-11-12T21:45:15",
         "last_red": "2026-11-12T21:45:15",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-help-lists-the-bin-beside-the-code",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-12T22:22:09",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "c9c3333352f056889c95efc4fa25c9fca4f641d8c4a606b27c4d01e747fcf85e"
+      },
+      "conditions_moved": {
+        "notified": "n-55c0e73da2ea",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -18,6 +18,12 @@ class InferenceDomainShim(BaseShim):
     def device_id(self) -> str:
         return "inference"
 
+    def _bare(self) -> dict:
+        """A bare ``cairn inferenceproxy`` names both: the name it answers to (outline 11.4.2) and
+        the folder its class stands in (11.4), which differ here (ticket f942a413f26d)."""
+        return {"exit": 0, "text": f"device: {self.device_id}\nclass:  cairn/devices/inferenceproxy/",
+                "data": None, "cached": None}
+
     def _start_device(self):
         from cairn.devices.inferenceproxy.device import InferenceDomainDevice
         return InferenceDomainDevice()

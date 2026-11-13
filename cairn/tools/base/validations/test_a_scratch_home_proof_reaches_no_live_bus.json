@@ -2,21 +2,19 @@
   {
     "claim": "proof test_a_scratch_home_proof_reaches_no_live_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:08:07",
+    "date": "2026-11-13T16:47:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "            assert r.stdout.count(\"\\n\") == 1, (name, r.stdout)\n            payload = json.loads(r.stdout)\n            assert list(payload) == _GET_SHAPE, (name, list(payload))\n>           assert payload[\"device\"] == name and payload[\"view\"] == \"status\", (name, payload)\nE           AssertionError: ('inferenceproxy', {'device': 'inference', 'view': 'status', 'cached': True, 'timestamp': None, ...})\nE           assert ('inference' == 'inferenceproxy'\nE             \nE             - inferenceproxy\nE             ?          -----\nE             + inference)\n\ntest_root_verb_vocabulary.py:273: AssertionError\n=========================== short test summary info ============================\nFAILED test_root_verb_vocabulary.py::test_get_status_is_uniform_across_the_roster\n1 failed, 3 deselected in 1.14s\n\n  PASS  clause_3_every_scratch_home_env_goes_through_home_env\n\nRED — 1 failure(s)\n  - clause_2_the_status_tooth_ignores_the_callers_bus",
+      "returncode": 0,
+      "stdout_tail": "  PASS  clause_2_the_status_tooth_ignores_the_callers_bus\n  PASS  clause_3_every_scratch_home_env_goes_through_home_env\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "clause_2_the_status_tooth_ignores_the_callers_bus",
         "clause_3_every_scratch_home_env_goes_through_home_env"
       ],
-      "teeth_red": [
-        "clause_2_the_status_tooth_ignores_the_callers_bus",
-        "test_root_verb_vocabulary"
-      ],
-      "test": "test-88cc51638e66",
+      "teeth_red": [],
+      "test": "test-42dca353f19b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,13 +36,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-88cc51638e66",
-      "source_fingerprint": "1162fe9b33ed6dcc8b95f54d81dd28ad528443154ced14d26f0960f3a17d6e09",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-42dca353f19b",
+      "source_fingerprint": "fd1baaaf50d61cecc7a92af0f57303b6533bfd4b735f235314205ef52c35e305",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -53,13 +51,14 @@
         "cairn/tools/base/singleton.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/tools/bus_client": "4237a978cdee23d488d3b22100e3aa4edd49a1ed2b45c9ca678b56f5e78f4b4b",
+        "cairn/devices/tester": "b4a99efe9febec586902957a1fe7473c691a484a7bf71c1d1f10b7c3884277a4",
+        "cairn/tools/bus_client": "4310c27a959eb4d2ce2d3b721fb23f570c7db7f24f8a7fa0e67817a2048b15e0",
+        "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
         "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-meojt9vh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3742141-klvtxn_t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,21 +67,30 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 531909881,
+          "disk_bytes": 575983616,
+          "entries": 16888,
           "builds": 1,
-          "reuses": 220
+          "reuses": 6
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "9351bf851ee48324df1450c7f7db7b5bf9fb7874dda7bfe63325fba3f82dc791",
         "opened": "2026-11-13T16:08:07",
         "last_red": "2026-11-13T16:08:07",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-a-scratch-home-proof-reaches-no-live-bus",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-13T16:47:22",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "9351bf851ee48324df1450c7f7db7b5bf9fb7874dda7bfe63325fba3f82dc791"
+      },
+      "conditions_moved": {
+        "notified": "n-75b7a969d4a3",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

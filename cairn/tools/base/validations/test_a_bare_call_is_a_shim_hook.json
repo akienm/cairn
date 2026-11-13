@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_bare_call_is_a_shim_hook.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:05:46",
+    "date": "2026-11-13T16:47:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "clause_3_the_bare_answer_is_a_hook"
       ],
       "teeth_red": [],
-      "test": "test-85b47b225145",
+      "test": "test-58ce1c33a942",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,13 +37,19 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 3749017,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/d832-librarian-chat-scratch.4026531836-3749010-uw66ya91/bus --scratch",
+          "signal": "TERM"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-85b47b225145",
-      "source_fingerprint": "6baaaf63b7c449c92e900c549d78ed287cb877f8c72d535efdca9bdc217b6020",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-58ce1c33a942",
+      "source_fingerprint": "7325782937bca6c2497d42a1d264e73f3271316ca84dda76381b9116c914053d",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -68,15 +74,15 @@
         "cairn/devices/codemother": "a65e9a3848fdb4b27e7df365c2fb9db2acdbb6060d4812dcef1b93d6b186621f",
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
         "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/inferenceproxy": "34cf537e2ca48a2423cc94454638612e66ce9d39ca7ef2c0eedcdb48d8591f05",
+        "cairn/devices/inferenceproxy": "901af4592a2ad594e09fd35b8701af65304b43fc53400bb41448d83e4805b179",
         "cairn/devices/librarian": "942856b018282ab59143f69dc7e41c26d764cc75ac80528fc078994368d2a800",
         "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/devices/tester": "b4a99efe9febec586902957a1fe7473c691a484a7bf71c1d1f10b7c3884277a4",
         "cairn/devices/trouble": "1e73a5ba0a5b4eb9b05b9d1390b528fd79318c7e7c20c4b0512b89f1c2bc67ee",
         "cairn/devices/web_server": "691c4e88c55f5e3c6a2eddbcf3458f7df9aed4b4a27f969de1180695f64112e0",
         "cairn/machines/learning_block": "d88b71c1dcf02558a3e960b56e8dcab5abe853dbcf5d6fedde4cbdaa8297b37d",
         "cairn/tools/artifact": "0e2b00e166adc243defac562d7da4d2074dc9ccb6719a4c0cd7a748db5f981b3",
-        "cairn/tools/bus_client": "4237a978cdee23d488d3b22100e3aa4edd49a1ed2b45c9ca678b56f5e78f4b4b",
+        "cairn/tools/bus_client": "4310c27a959eb4d2ce2d3b721fb23f570c7db7f24f8a7fa0e67817a2048b15e0",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/question": "8ea118c045bdb990b27e71069d5de2799e4ca30b35e88270de1e7a64ddcad200",
@@ -86,36 +92,34 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-_u2jbgry/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3742141-shha615s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 15,
+          "count": 13,
           "paths": [
-            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
             "devices/librarian/0/last_known.json",
-            "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261113.230540.735188.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261113.234704.996621.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log",
-            "logs/librarian/0/20261113.230541.296537.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.230541.333653.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.230543.775778.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261113.230543.796442.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.230543.838110.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261113.230543.838338.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261113.230544.305382.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261113.230544.350855.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261113.230544.351103.LibrarianDevice.chat.json"
+            "logs/librarian/0/20261113.234705.581547.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.234705.626471.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.234708.314743.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261113.234708.340997.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.234708.399281.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261113.234708.399668.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261113.234708.965975.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261113.234709.026002.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261113.234709.026413.LibrarianDevice.chat.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531864744,
-          "disk_bytes": 575926272,
-          "entries": 16885,
+          "bytes": 531914396,
+          "disk_bytes": 576032768,
+          "entries": 16904,
           "builds": 1,
-          "reuses": 194
+          "reuses": 5
         }
       }
     },

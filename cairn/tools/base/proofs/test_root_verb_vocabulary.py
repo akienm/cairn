@@ -270,7 +270,11 @@ def test_get_status_is_uniform_across_the_roster(home: Path) -> None:
         assert r.stdout.count("\n") == 1, (name, r.stdout)
         payload = json.loads(r.stdout)
         assert list(payload) == _GET_SHAPE, (name, list(payload))
-        assert payload["device"] == name and payload["view"] == "status", (name, payload)
+        # A device whose folder is not its name declares the name it answers to (answers_as,
+        # ticket f942a413f26d); its status speaks that name.
+        from cairn.tools.rack.rack import answers_as
+        said = answers_as(ROOT / "cairn" / "devices" / name) or name
+        assert payload["device"] == said and payload["view"] == "status", (name, payload)
         assert payload["cached"] is True, (name, payload)
     print("ok test_get_status_is_uniform_across_the_roster")
 

@@ -24,7 +24,7 @@ from cairn.tools.base.address import ROOTS
 
 COMMONS_ROOT = ROOTS["commons"]
 TICKETS_DIR = COMMONS_ROOT / "tickets"
-CAIRN_ROOT = Path(os.path.expanduser("~/dev/src/cairn"))
+CAIRN_ROOT = ROOTS["repo"]
 
 CURSOR_ORDER = ("THINKME", "TICKETME", "BUILDME", "PROVEME", "WATCHME", "PROVED")
 

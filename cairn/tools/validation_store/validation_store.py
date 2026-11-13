@@ -159,6 +159,64 @@ def validations_path_for_artifact(artifact_path: str) -> str:
     return os.path.join(directory, "validations", f"{stem}.json")
 
 
+HOST_SEAM = "host-seam"
+
+
+def host_name() -> str:
+    """This box's name, as the roster spells it: the short hostname, lowercased, never an IP.
+
+    The same comparison ``bus/server.py`` and ``groundloop/pulse.py`` make, so a host-seam seal
+    lands under the name every other surface already calls this box (ticket dfe6c1432fc8)."""
+    import socket
+    return socket.gethostname().split(".")[0].lower()
+
+
+def host_facts() -> dict:
+    """What a host-seam seal was taken ON: hostname, OS id and version, kernel.
+
+    A host-seam's implementation lives where git cannot see it, so its seal expires when the
+    HOST drifts (node_classes/host-seam.json, RE-VERIFY gate). These four are the drift a
+    record can be checked against without re-running anything: an OS release upgrade moves
+    ``os_version_id``, a kernel update moves ``kernel``."""
+    import platform
+    os_id, version = "", ""
+    if os.name == "nt":
+        os_id, version = "windows", platform.version()
+    else:
+        try:
+            with open("/etc/os-release", encoding="utf-8") as fh:
+                rows = dict(line.rstrip("\n").split("=", 1) for line in fh if "=" in line)
+            os_id = rows.get("ID", "").strip('"')
+            version = rows.get("VERSION_ID", "").strip('"')
+        except OSError:
+            os_id, version = platform.system().lower(), platform.version()
+    return {"hostname": host_name(), "os_id": os_id or platform.system().lower(),
+            "os_version_id": version or platform.version(), "kernel": platform.release()}
+
+
+def is_host_seam(path: str) -> bool:
+    """Decided by the intention's own ``node_class``, never by where the file sits."""
+    if not str(path).endswith(".json") or not os.path.isfile(path):
+        return False
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+    except (OSError, ValueError):
+        return False
+    return isinstance(doc, dict) and doc.get("node_class") == HOST_SEAM
+
+
+def validations_path_for_host_seam(intention_path: str, host: str | None = None) -> str:
+    """A host-seam's seal for ONE box: ``<dir>/x.json`` -> ``<dir>/validations/x/<host>.json``.
+
+    ONE FILE PER BOX (ticket dfe6c1432fc8). A host-seam is proved on a host, and each host is
+    proved separately, so each box writes only its own file: one writer per file, nothing to
+    merge across boxes. Derived, never chosen, like the other two addressing rules."""
+    directory = os.path.dirname(os.path.abspath(intention_path))
+    stem = os.path.splitext(os.path.basename(intention_path))[0]
+    return os.path.join(directory, "validations", stem, f"{host or host_name()}.json")
+
+
 def read_validations(proof_path: str | None = None, *, path: str | None = None) -> list[dict]:
     """Grep the seal trail for a proof — the evidence a hunch consults before re-deriving.
 
@@ -428,6 +486,47 @@ def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
     return {mine} | {r for r in others if owners[os.path.join(_REPO_ROOT, r)] == owner}
 
 
+def _host_seam_standing(intention_path: str) -> dict:
+    """Is this host-seam proven ON THIS BOX right now? (ticket dfe6c1432fc8)
+
+    EXPLICITLY LOCAL. Only this box's own record is read; a green on any other box says nothing
+    here, because the thing proved is the host, not the code. So a PROVED crossing for a
+    host-seam means proven on the crossing box, and every other box reads not proven until it
+    seals its own. Proven only when the record is green, the host facts it was taken on still
+    match this host, and the intention is the one that was verified."""
+    path = validations_path_for_host_seam(intention_path)
+    trail = read_validations(path=path)
+    if not trail:
+        return {"proven": False, "seal": None, "why": (
+            f"no VALIDATION has sealed the host-seam {intention_path} on {host_name()!r} — "
+            f"{path} does not exist. A host-seam is proven per box: run `cairn test "
+            f"--host-seam {intention_path} --seal` on this box (Law 8)")}
+    seal = trail[-1]
+    if seal.get("verdict") != GREEN:
+        return {"proven": False, "seal": seal, "why": (
+            f"the seal on the host-seam {intention_path} for {host_name()!r} is "
+            f"{seal.get('verdict')!r}, dated {seal.get('date')} — this host was measured and "
+            f"the verify did not pass")}
+    evidence = seal.get("evidence") or {}
+    then, now = evidence.get("host_facts") or {}, host_facts()
+    moved = sorted(k for k in set(then) | set(now) if then.get(k) != now.get(k))
+    if moved:
+        return {"proven": False, "seal": seal, "why": (
+            f"the seal on the host-seam {intention_path} is green, dated {seal.get('date')} — "
+            f"and the HOST HAS DRIFTED since: " + "; ".join(
+                f"{k} was {then.get(k)!r}, is {now.get(k)!r}" for k in moved)
+            + ". Re-run the verify (the host-seam RE-VERIFY gate: the seal expires)")}
+    recorded, current = evidence.get("source_fingerprint"), artifact_fingerprint(intention_path)
+    if recorded != current:
+        return {"proven": False, "seal": seal, "why": (
+            f"the seal on the host-seam {intention_path} is green, dated {seal.get('date')} — "
+            f"but the intention moved since: its fingerprint was {str(recorded)[:12]}… and is "
+            f"{current[:12]}… now. Re-run the verify (Law 3)")}
+    return {"proven": True, "seal": seal, "why": (
+        f"sealed green {seal.get('date')} by {seal.get('caller')} on {host_name()!r}, the host "
+        f"facts still match and the intention is unchanged ({current[:12]}…)")}
+
+
 def standing(proof_path: str) -> dict:
     """Is this proof's code in proven-space RIGHT NOW? The reader that replaced MethodRegistry.
 
@@ -460,6 +559,8 @@ def standing(proof_path: str) -> dict:
     mode bit (the accident cannot land at all) and git (every trail is a committed file, so a
     hand-edit is a diff — and unlike the chain, that is not a number the editor can recompute).
     """
+    if is_host_seam(proof_path):
+        return _host_seam_standing(proof_path)
     # TWO KINDS OF PROVEN THING, ONE QUESTION. A proof file lives under proofs/ and its
     # seal is the tester's; anything else handed here is a human-proved ARTIFACT (a
     # concept-piece) whose seal is the quorum's, addressed by the artifact rule and
@@ -703,7 +804,7 @@ def _atomic_write(path: str, data, *, why: str) -> None:
 def persist_validation(
     validation: dict, *, proof_path: str | None = None, artifact_path: str | None = None,
     trouble_device=None, unsealing_because: str | None = None,
-    converting_because: str | None = None,
+    converting_because: str | None = None, host_seam_path: str | None = None,
 ) -> str:
     """The single write-door: SEAL one VALIDATION as the current record beside what it seals.
 
@@ -766,11 +867,13 @@ def persist_validation(
 
     ``trouble_device`` is injectable for proofs; see ``announce_verdict_change``.
     """
-    if (proof_path is None) == (artifact_path is None):
+    if sum(x is not None for x in (proof_path, artifact_path, host_seam_path)) != 1:
         raise ValueError(
-            "persist_validation seals EITHER a proof (proof_path) or a human-proved artifact "
-            f"(artifact_path) — got proof_path={proof_path!r}, artifact_path={artifact_path!r}. "
-            "One door, two addressing rules, and the caller picks which by naming one.")
+            "persist_validation seals EXACTLY ONE of a proof (proof_path), a human-proved "
+            "artifact (artifact_path) or a host-seam on this box (host_seam_path) — got "
+            f"proof_path={proof_path!r}, artifact_path={artifact_path!r}, "
+            f"host_seam_path={host_seam_path!r}. One door, three addressing rules, and the "
+            "caller picks which by naming one.")
     got = set(validation)
     if got != set(VALIDATION_FIELDS):
         raise ValueError(
@@ -787,7 +890,8 @@ def persist_validation(
             "sandbox hold?' would be left grepping prose for the answer (Law 7).")
     path = (
         validations_path_for(proof_path) if proof_path is not None
-        else validations_path_for_artifact(artifact_path)
+        else validations_path_for_artifact(artifact_path) if artifact_path is not None
+        else validations_path_for_host_seam(host_seam_path)
     )
     record = dict(validation)
     standing_trail = read_validations(path=path)

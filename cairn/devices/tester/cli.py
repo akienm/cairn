@@ -461,6 +461,60 @@ def drive_a_failed_run(scratch) -> int:
     return 0
 
 
+def _host_seam_run(path: str, *, seal: bool) -> int:
+    """Run a host-seam intention's verify on THIS box; with ``seal``, land it (ticket dfe6c1432fc8).
+
+    The method is the installer's own (``installer.run_verify``: ``bash -c <verify.command>``,
+    30 s), rebuilt here rather than imported because the installer belongs to another device
+    (RULE 1). The record lands through the store's one door at the host-seam rule's address,
+    one file per box, and ``standing()`` reads it for this box only. Exit 0 green, 1 red,
+    2 when the path is not a host-seam intention."""
+    import json
+    import shutil
+    import subprocess
+    from datetime import datetime, timezone
+    from cairn.tools.validation_store import validation_store as vs
+    if not vs.is_host_seam(path):
+        print(f"cairn test --host-seam: {path} is not a host-seam intention "
+              "(no node_class \"host-seam\" in it)", file=sys.stderr)
+        return 2
+    with open(path, encoding="utf-8") as fh:
+        verify = (json.load(fh).get("verify") or {})
+    command = verify.get("command")
+    if not command:
+        print(f"cairn test --host-seam: {path} declares no verify.command", file=sys.stderr)
+        return 2
+    try:
+        done = subprocess.run([shutil.which("bash") or "bash", "-c", command],
+                              capture_output=True, text=True, timeout=30)
+        rc, output = done.returncode, (done.stdout.strip() or done.stderr.strip())
+    except subprocess.TimeoutExpired:
+        rc, output = None, "verify timed out (30s)"
+    except OSError as exc:
+        rc, output = None, str(exc)
+    verdict = "green" if rc == 0 else "red"
+    host = vs.host_name()
+    print(f"  {verdict}  {path} on {host}" + (f"  ({output[-200:]})" if output else ""))
+    if not seal:
+        print("NOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land it.")
+        return 0 if verdict == "green" else 1
+    record = {
+        "claim": verify.get("green") or f"{path}'s verify.command exits 0 on {host}",
+        "caller": "tester",
+        "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "method": command,
+        "verdict": verdict,
+        "evidence": {"host": host, "host_facts": vs.host_facts(), "returncode": rc,
+                     "output_tail": output[-2000:],
+                     "source_fingerprint": vs.artifact_fingerprint(path)},
+        "falsifier": f"verify.command exits non-zero on {host}",
+        "horizon": verify.get("horizon") or "until the host drifts",
+    }
+    landed = vs.persist_validation(record, host_seam_path=path)
+    print(f"  sealed {verdict} -> {landed}")
+    return 0 if verdict == "green" else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     if os.name == "nt":       # the report prints box-drawing rules; a cp1252 console cannot encode them
         for stream in (sys.stdout, sys.stderr):
@@ -536,6 +590,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--reseal-verify", action="store_true",
                     help="re-read the host: is the pre-commit hook installed, executable, "
                          "and identical to the tracked source?")
+    ap.add_argument("--host-seam", metavar="INTENTION", dest="host_seam",
+                    help="run a host-seam intention's verify.command on this box; with --seal, "
+                         "land one VALIDATION for this box (ticket dfe6c1432fc8)")
     ap.add_argument("-q", "--quiet", action="store_true", help="only print reds and the summary")
     # flags are system words and fold; targets are paths and ride verbatim (ruled 2026-09-07).
     # The --exec COMMAND is free text: a token after --exec that leads with "-" is restored raw.
@@ -563,6 +620,9 @@ def main(argv: list[str] | None = None) -> int:
                                        cwd=os.environ.get("CAIRN_TESTER_CALLER_CWD") or None)
     if args.timeout is None:
         args.timeout = default_proof_budget()
+
+    if args.host_seam:
+        return _host_seam_run(args.host_seam, seal=args.seal)
 
     if args.reseal_install or args.reseal_verify:
         return _reseal_hook_admin(args)

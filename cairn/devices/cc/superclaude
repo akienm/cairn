@@ -336,15 +336,18 @@ _sc_log "launch: argv=[$*] session=$session context=$context_state preflight=$([
 _sc_askpass="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/scripts/sudo_askpass"
 _sc_sudo_note=""
 _sc_sudo_check() { printf '%s\n' "$1" | sudo -S -k -p '' true >/dev/null 2>&1; }
+# Windows Git Bash leaves $USER unset (it uses $USERNAME); set -u turns a bare $USER into
+# a fatal abort, so derive one name the rest of this block can read.
+_sc_user="${USER:-${USERNAME:-$(whoami 2>/dev/null || echo user)}}"
 if command -v sudo >/dev/null 2>&1; then
   if sudo -n true 2>/dev/null; then
-    _sc_sudo_note="sudo: passwordless for $USER on this host — plain \`sudo -n <cmd>\` works."
+    _sc_sudo_note="sudo: passwordless for $_sc_user on this host — plain \`sudo -n <cmd>\` works."
   elif [[ -n "${CAIRN_SUDO_PW:-}" ]] && _sc_sudo_check "$CAIRN_SUDO_PW"; then
     _sc_sudo_note="held"
   elif [[ "$dry_run" -eq 0 && -t 0 ]]; then
     unset CAIRN_SUDO_PW
     for _sc_try in 1 2 3; do
-      IFS= read -rs -p "superclaude: sudo password for $USER, so the session can set this box up (held in memory for this session only; Enter skips): " _sc_pw </dev/tty
+      IFS= read -rs -p "superclaude: sudo password for $_sc_user, so the session can set this box up (held in memory for this session only; Enter skips): " _sc_pw </dev/tty
       echo >&2
       [[ -z "$_sc_pw" ]] && break
       if _sc_sudo_check "$_sc_pw"; then export CAIRN_SUDO_PW="$_sc_pw"; _sc_sudo_note="held"; break; fi

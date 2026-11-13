@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_reseal_that_cannot_run_raises_a_trouble.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T19:37:22",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T23:27:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_crashed_run_returns_3_and_raises_one_trouble\n.\n  ok   test_a_completed_run_keeps_its_code_and_clears_only_a_standing_trouble\n.\n  ok   test_a_kill_passes_through_and_raises_nothing\n.\n  ok   test_the_cli_and_the_hook_go_through_the_door\n                                                                     [100%]\n4 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_crashed_run_returns_3_and_raises_one_trouble\n.\n  ok   test_a_completed_run_keeps_its_code_and_clears_only_a_standing_trouble\n.\n  ok   test_a_kill_passes_through_and_raises_nothing\n.\n  ok   test_the_cli_and_the_hook_go_through_the_door\n                                                                     [100%]\n4 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_crashed_run_returns_3_and_raises_one_trouble",
@@ -16,7 +16,7 @@
         "test_the_cli_and_the_hook_go_through_the_door"
       ],
       "teeth_red": [],
-      "test": "test-48d47dd40966",
+      "test": "test-eb229fbf0b37",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-48d47dd40966",
-      "source_fingerprint": "84e47601684177f88bfcb7a114073e29bc78083e9b475f4636d25aa6a1f35c30",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb229fbf0b37",
+      "source_fingerprint": "2029d84572f4457c4feb7e51e618aa01ae181db45dc45e5f0a9d5a8447b0280c",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -59,16 +58,16 @@
         "cairn/devices/tester/scratch_sweep.py"
       ],
       "reached": {
-        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
-        "cairn/tools/proof_coverage": "8c50adf9ed5be618471e8ec88abc289352cd7d7bd9495276a681d98fb41345dd",
+        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
         "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831",
-        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
+        "cairn/tools/system_word": "efcc318d4ae90d5abf286a412233ff4e334f58270e54dc16ef14e2cff96c27c8",
+        "cairn/tools/validation_store": "91bd0a974dd33f27e6c53ae97d07229bfffd569e86294bbc2e082e2ba3b7ba82"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2110930-hnt0brg2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2350628-d56y7lp9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,32 +76,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530269692,
-          "disk_bytes": 578740224,
-          "entries": 18440,
+          "bytes": 529865113,
+          "disk_bytes": 571154432,
+          "entries": 15916,
           "builds": 1,
-          "reuses": 12
-        }
-      },
-      "hollow": {
-        "b0e65cf8a77e": {
-          "cairn/devices/tester/reseal.py": [
-            "test_a_completed_run_keeps_its_code_and_clears_only_a_standing_trouble",
-            "test_a_crashed_run_returns_3_and_raises_one_trouble",
-            "test_a_kill_passes_through_and_raises_nothing",
-            "test_the_cli_and_the_hook_go_through_the_door"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_the_cli_and_the_hook_go_through_the_door"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "b0e65cf8a77e": {
-          "anchor_rule": "journal",
-          "anchor_journal": "385638cd89c0c2dd513d319a691d8d167e9f9156",
-          "anchor_first_build": "8516473f0ae4ddb8ad356ad6f348bbcb69bec51b",
-          "commit": "385638cd89c0c2dd513d319a691d8d167e9f9156"
+          "reuses": 8
         }
       }
     },

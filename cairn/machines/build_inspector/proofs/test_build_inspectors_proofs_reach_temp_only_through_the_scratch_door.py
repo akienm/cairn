@@ -21,7 +21,8 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"2bac0ebce3a8": {"all": "test_no_proof_in_build_inspector_reaches_temp_bare"}}
+PROVES = {"2bac0ebce3a8": {"all": "test_no_proof_in_build_inspector_reaches_temp_bare"},
+          "c92ba2ab1712": {"1": "test_no_proof_in_build_inspector_reaches_temp_bare"}}
 
 
 def test_no_proof_in_build_inspector_reaches_temp_bare():

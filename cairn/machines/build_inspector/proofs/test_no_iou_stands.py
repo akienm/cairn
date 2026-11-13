@@ -24,7 +24,6 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -43,7 +42,8 @@ BI = "machines/build_inspector"
 
 def _repo(files: dict[str, str]) -> Path:
     """A scratch git repo (marked testing) with a cairn/ census: build_inspector and one tool."""
-    root = Path(tempfile.mkdtemp(prefix="testing-no-iou-stands-"))
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = scratch_dir("testing-no-iou-stands-")
     base = {
         f"cairn/{BI}/intention+why.json": "{}",
         "cairn/tools/testing_tool/intention+why.json": "{}",
@@ -120,7 +120,8 @@ def test_a_tree_outside_git_has_no_sites_and_a_broken_repo_is_loud():
     """A sieve fixture tree is not a repo: nothing is tracked, so nothing stands. A tree that
     claims a repo (a .git) git cannot read must refuse, never read as clean (Law 7)."""
     from cairn.machines.build_inspector import inspector
-    bare = Path(tempfile.mkdtemp(prefix="testing-no-iou-stands-nogit-"))
+    from cairn.tools.scratch.scratch import scratch_dir
+    bare = scratch_dir("testing-no-iou-stands-nogit-")
     for rel in (f"cairn/{BI}/intention+why.json", "cairn/tools/testing_tool/intention+why.json"):
         (bare / rel).parent.mkdir(parents=True, exist_ok=True)
         (bare / rel).write_text("{}")

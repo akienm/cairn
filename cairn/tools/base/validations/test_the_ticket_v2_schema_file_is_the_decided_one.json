@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_the_ticket_v2_schema_file_is_the_decided_one.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T07:00:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_the_file_has_exactly_three_keys\n.\n  ok   test_the_schema_names_d11s_twenty_one_fields\n.\n  ok   test_the_census_is_the_verbatim_measurement\n.\n  ok   test_the_census_says_how_to_rerun_it\n                                                                     [100%]\n4 passed in 0.14s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_file_has_exactly_three_keys",
+        "test_the_schema_names_d11s_twenty_one_fields",
+        "test_the_census_is_the_verbatim_measurement",
+        "test_the_census_says_how_to_rerun_it"
+      ],
+      "teeth_red": [],
+      "test": "test-422b8c55a07a",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "a812a045d51411936b5455be70386aa004cdb4e1ce3ed212132c63b282885f19",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 900,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        },
+        {
+          "pid": null,
+          "signal": "none: process environments cannot be enumerated on Windows"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-422b8c55a07a",
+      "source_fingerprint": "9a1f5c097c7b46fa5de051d2202a7c9bdd4817d4b3e31c174a626a4677962346",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/proofs/test_the_ticket_v2_schema_file_is_the_decided_one.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -25,6 +25,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -95,7 +96,10 @@ def _env(extra: dict | None = None) -> dict:
 
 def _sh(script: str, env: dict | None = None) -> subprocess.CompletedProcess:
     """Run bash with bootstrap.sh sourced. Returns the completed process."""
-    full = f"source {BOOTSTRAP!s} || exit 99\n{script}"
+    # Quoted, forward-slash: on Windows str(BOOTSTRAP) is C:\automation\..., and unquoted inside
+    # `bash -c` Git Bash eats every backslash ("C:automationlocal...: No such file", measured
+    # 2026-11-13). as_posix() is a no-op on POSIX; shlex.quote survives a space anywhere.
+    full = f"source {shlex.quote(BOOTSTRAP.as_posix())} || exit 99\n{script}"
     return subprocess.run([_BASH, "-c", full], capture_output=True, text=True,
                           env=_env(env), timeout=120)
 

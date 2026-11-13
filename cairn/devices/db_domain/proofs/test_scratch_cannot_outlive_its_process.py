@@ -16,8 +16,10 @@ falsifier markers):
     (store.register_scratch_companion, the call the bus's _ensure makes), and
     the next ``sweep_scratch()`` drops both — gone from pg_tables and from both registries;
 (3) a normal exit — and an exception exit — leaves neither table nor row;
-(4) no proof under any ``proofs/`` drops a table by hand or mints its own nonce: a grep for
-    the two spellings the leak was made of comes back empty;
+(4) no proof under any ``proofs/`` drops a table by hand or mints its own nonce: an AST
+    question for the two shapes the leak was made of (an ``execute`` whose SQL drops a table,
+    an assignment to ``_NONCE``) comes back empty — a mention in a string is not a catch
+    (ticket 74b4209b71ee; the text grep this replaced redded an injection payload);
 (5) the proofs the move touched stay green: test_db_domain, test_bus, test_delivery,
     test_librarian_trees, test_inspector_nexus — each run as the tester runs it, exit 0;
 (6) the sweep never touches a live table (the WRONG INTENT clause): the live set is the
@@ -34,8 +36,10 @@ is the run door itself. Teeth 2 and 6 read the live database and assert INVARIAN
 """
 from __future__ import annotations
 
+import ast
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -71,8 +75,32 @@ _MOVED = (
     "cairn/devices/librarian/proofs/test_librarian_trees.py",
     "cairn/machines/build_inspector/proofs/test_inspector_nexus.py",
 )
-# the two spellings the leak was made of — built by concatenation so THIS file is not a hit
-_LEAK_SPELLINGS = ("DROP " + "TABLE", "_NON" + "CE =")
+# the two shapes the leak was made of, asked of the AST (ticket 74b4209b71ee): a string that only
+# MENTIONS them — an injection payload, a docstring — is not a hand drop.
+_DROP_TABLE = re.compile(r"\bDROP\s+TABLE\b", re.IGNORECASE)
+_EXECUTES = ("execute", "executemany")
+
+
+def _hand_leaks(src: str) -> list[str]:
+    """Every hand drop and hand nonce in ``src``, as ``'<shape> @ <line>'``. A hand drop is a call
+    to ``.execute``/``.executemany`` whose first argument holds a string saying DROP TABLE; a hand
+    nonce is an assignment to the name ``_NONCE``. A source that does not parse is itself an
+    offence: a tooth that cannot read a proof has not measured it."""
+    try:
+        tree = ast.parse(src)
+    except SyntaxError as e:
+        return [f"unparseable @ {e.lineno}"]
+    hits = []
+    for n in ast.walk(tree):
+        if (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                and n.func.attr in _EXECUTES and n.args
+                and any(isinstance(c, ast.Constant) and isinstance(c.value, str)
+                        and _DROP_TABLE.search(c.value) for c in ast.walk(n.args[0]))):
+            hits.append(f"execute DROP TABLE @ {n.lineno}")
+        targets = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, ast.AnnAssign) else []
+        if any(isinstance(t, ast.Name) and t.id == "_NONCE" for t in targets):
+            hits.append(f"_NONCE assigned @ {n.lineno}")
+    return hits
 
 
 # --- the harness ------------------------------------------------------------------------
@@ -263,13 +291,12 @@ def test_a_normal_exit_leaves_neither_table_nor_row() -> None:
 def test_no_proof_drops_a_table_by_hand() -> None:
     offenders: dict[str, list[str]] = {}
     for path in sorted((ROOT / "cairn").rglob("proofs/*.py")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        hits = [s for s in _LEAK_SPELLINGS if s in text]
+        hits = _hand_leaks(path.read_text(encoding="utf-8", errors="replace"))
         if hits:
             offenders[str(path.relative_to(ROOT))] = hits
     assert not offenders, (
         f"{len(offenders)} proof(s) still mint their own nonce or drop a table by hand — "
-        f"the leak's two spellings: {json.dumps(offenders, indent=1)}")
+        f"the leak's two shapes: {json.dumps(offenders, indent=1)}")
     print("ok test_no_proof_drops_a_table_by_hand")
 
 

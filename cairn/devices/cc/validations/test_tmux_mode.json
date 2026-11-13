@@ -2,12 +2,12 @@
   {
     "claim": "proof test_tmux_mode.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-05T09:28:16",
+    "date": "2026-11-12T22:31:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.91s",
+      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 1.00s",
       "stderr_tail": "",
       "teeth_green": [
         "test_deliver_persists_mail_to_disk",
@@ -24,7 +24,7 @@
         "test_launcher_env_var_enables_tmux"
       ],
       "teeth_red": [],
-      "test": "test-f04c5713c636",
+      "test": "test-2754b346ab95",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,6 +41,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -50,8 +51,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f04c5713c636",
-      "source_fingerprint": "977b00faa699d2546a5388f6c8c574ceed40b8f429134c3509678563fa02e252",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2754b346ab95",
+      "source_fingerprint": "11c19efaa048b86dba860f4604f21ac04779201636de41476737ac60af24e73f",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_tmux_mode.py",
@@ -59,22 +60,21 @@
         "cairn/devices/cc/shim.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/machines/learning_block": "0d5e1520e66f2ad0c493d3145a71a619b4fae7b1f33c7a5d3a539c2a297af6b8",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
+        "cairn/tools/base": "89d63a4232154cbef459cc4b1ed9eca44252b6aa064fd04ab058520be5ccb7c8",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/liveness": "f35954f271402c5780dabed7c494a743636f3cc69d25d4656783cf38dab64700",
-        "cairn/tools/proof_coverage": "6c3d122799e2644eef6780360a40907a69a2ac7237a7a6d2d8281bb32254d306",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-169546-tg5esgf9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2280312-rvmupvky/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 8,
           "paths": [
             "devices/cc/0/mail_ledger.jsonl",
             "devices/learning_block/0/traces/logger_for_bash.jsonl",
@@ -82,17 +82,18 @@
             "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
             "logs/boot",
+            "logs/ground_loop_nohup.log",
             "logs/preflight.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 117519897,
-          "disk_bytes": 149970944,
-          "entries": 12739,
+          "bytes": 529790959,
+          "disk_bytes": 570904576,
+          "entries": 15863,
           "builds": 1,
-          "reuses": 1
+          "reuses": 5
         }
       }
     },

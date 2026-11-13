@@ -14,14 +14,13 @@ One tooth per numbered falsifier clause, over the LIVE system (invariants, never
      deposit_verdict and drain_pending and imports nothing of librarian's; live.py defines
      neither of the last two and calls no deposit_<stage> function.
   4. A REAL DEPOSIT RIDES THE BUS. Over reach('codemother', 'inference_domain'), a deposit
-     request for the newest berthed orient packet into a scratch nexus (a table that cannot
-     outlive this process — the testing mark) replies accepted with that nexus and a node.
+     request carrying the fixture orient packet by value, with body.scratch (a nexus she mints
+     on her side and drops before replying, the testing mark), replies accepted with that
+     nexus and a node, from any box (ticket 99ef0135b9b6 clause 4).
 
     python3 cairn/devices/codemother/proofs/test_the_chart_deposit_is_a_codemother_verb.py   # exit 0 = green
 """
 import ast
-import glob
-import os
 import sys
 from pathlib import Path
 
@@ -107,34 +106,26 @@ def the_code_moved_once():
 
 
 def a_real_deposit_rides_the_bus():
-    from cairn.tools.bus_client import reach
-    from cairn.tools.chain.grammar import INSTANCE_DIR
-    from cairn.tools.tree.tree import scratch_nexus
-    packets = sorted(glob.glob(os.path.join(INSTANCE_DIR, "orient-*.json")))
-    assert packets, f"no berthed orient packet under {INSTANCE_DIR} to deposit"
-    # A real packet, minus only its ticket claim: the claim is checked against the commons
-    # at a repo-relative path, and hollow's /tmp worktree has no commons beside it (an absent
-    # claim passes the same rule). Refs deleted since the packet was berthed go too: a live
-    # packet can name a file a later retirement removed (7778e24dd82e), and the floor rightly
-    # refuses a ref it cannot verify. The deposit under test is the same either way.
-    from cairn.tools.scratch.scratch import scratch_dir
+    # The packet rides IN the body (ticket 99ef0135b9b6): codemother runs on one box and is
+    # reached over the bus from the others, so neither a berth path nor a nexus minted on this
+    # box exists where she is. The fixture is a real orient packet's shape with no ticket claim
+    # (hollow's /tmp worktree has no commons beside it to check a claim against), and
+    # body.scratch has her mint the nexus on her side and drop it before replying.
     import json
-    doc = json.loads(Path(packets[-1]).read_text(encoding="utf-8"))
-    doc.pop("ticket", None)
-    doc["refs"] = [r for r in doc.get("refs") or [] if (_REPO_ROOT / r).exists() or Path(r).exists()]
-    berth = str(scratch_dir("testing-e8fe361a5b2f-berth-") / Path(packets[-1]).name)
-    Path(berth).write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
+    from cairn.tools.bus_client import reach
+    fixture = Path(__file__).resolve().parent / "fixtures" / "orient-testing-e8fe361a5b2f.json"
+    packet = json.loads(fixture.read_text(encoding="utf-8"))
     bus = reach("codemother", "inference_domain")
-    with scratch_nexus("testing_e8fe", owner="codemother") as nexus:
-        reply = bus.request(sender=SENDER, to="codemother", verb="deposit",
-                            why="testing: e8fe361a5b2f proof deposits into a scratch nexus",
-                            body={"berth": berth, "nexus": nexus})
-        body = (reply or {}).get("body") or {}
-        assert body.get("accepted") is True, f"codemother did not accept the deposit: {reply}"
-        assert body.get("nexus") == nexus, f"landed in {body.get('nexus')!r}, not {nexus!r}"
-        learned = body.get("learn") or {}
-        assert learned.get("id") or learned.get("node_id") or learned.get("node_ids"), \
-            f"the reply names no node: {body}"
+    reply = bus.request(sender=SENDER, to="codemother", verb="deposit",
+                        why="testing: e8fe361a5b2f proof deposits by value into a scratch nexus",
+                        body={"packet": packet, "name": fixture.name, "scratch": "testing_e8fe"})
+    body = (reply or {}).get("body") or {}
+    assert body.get("accepted") is True, f"codemother did not accept the deposit: {reply}"
+    assert str(body.get("nexus") or "").startswith("testing_e8fe"), \
+        f"landed in {body.get('nexus')!r}, not a testing_e8fe scratch nexus"
+    learned = body.get("learn") or {}
+    assert learned.get("id") or learned.get("node_id") or learned.get("node_ids"), \
+        f"the reply names no node: {body}"
 
 
 TEETH = [the_skill_holds_no_reach, codemother_answers_deposit_and_drain, the_code_moved_once,

@@ -47,6 +47,10 @@ from cairn.tools.base.address import log_path, tool_path
 # nothing reads, are what HAPPENED to her, so they berth in the logs tree and age out with it.
 # Kept in instance space they grew to 3,666 files / 79MB and rode into every tester seal.
 _MAIL_DIR = log_path("codemother", 0) / "mail"
+# The berth-name prefixes deposit_berth dispatches on; a by-value packet's name must carry one
+# (ticket 99ef0135b9b6), because a name with none silently lands as an orient packet.
+_DEPOSIT_STAGES = ("constrain-", "survey-", "decompose-", "triage-", "hypothesize-",
+                   "validate-", "verdict-", "orient-")
 
 # THE CHARTER TOOL'S HELD INSTANCE (ticket 65b34c57ab71) — the first code ownership transfer
 # from CC to another device. Charter is a tool and a tool has users, not an owner (Law 6),
@@ -343,25 +347,61 @@ class CodeMotherDevice(BaseDevice):
         return on_question(body.get("question", ""), area=body.get("area"))
 
     def _handle_deposit(self, envelope: dict) -> dict:
-        """Land one berthed chart packet in its tree (ticket e8fe361a5b2f). Body
-        ``{berth, nexus?}``; a berth that is missing or not on disk is refused."""
+        """Land one chart packet in its tree (ticket e8fe361a5b2f). Body ``{berth, nexus?}``
+        names a berth on this box; a berth that is missing or not on disk is refused.
+
+        Or the packet travels by value (ticket 99ef0135b9b6), so a far box's deposit lands:
+        ``{packet, name, nexus?, scratch?}``. ``name`` is a bare ``<stage>-*.json``; the packet
+        is berthed under this instance's ``deposits/`` and deposited from there.
+        ``scratch`` (orient only, the one stage whose nexus is honoured) mints a scratch
+        nexus on THIS side and drops it before the reply."""
         from cairn.devices.codemother.deposit import deposit_berth, embed, embed_metered
         from cairn.tools.bus_client import reach
+
+        def refused(reason: str) -> dict:
+            return {"accepted": False, "verb": "deposit", "device": "codemother", "reason": reason}
+
         body = envelope.get("body", {}) or {}
-        berth = body.get("berth")
-        if not isinstance(berth, str) or not berth:
-            return {"accepted": False, "verb": "deposit", "device": "codemother",
-                    "reason": "deposit needs a berth path in body.berth"}
-        if not os.path.isfile(os.path.expanduser(berth)):
-            return {"accepted": False, "verb": "deposit", "device": "codemother",
-                    "reason": "berth %r is not on disk" % berth}
+        scratch = body.get("scratch")
+        if "packet" in body:
+            name, packet = body.get("name"), body.get("packet")
+            if not isinstance(name, str) or not name.endswith(".json") or name != os.path.basename(name):
+                return refused("deposit by value needs a bare <stage>-*.json name in body.name, got %r" % (name,))
+            if not name.startswith(_DEPOSIT_STAGES):
+                return refused("body.name %r has no known stage prefix (%s)" % (name, ", ".join(_DEPOSIT_STAGES)))
+            if not isinstance(packet, dict):
+                return refused("body.packet must be an object, got %s" % type(packet).__name__)
+            if scratch is not None and not name.startswith("orient-"):
+                return refused("body.scratch is honoured for an orient packet only, not %r" % name)
+            from cairn.tools.base.address import instance_path
+            berth = str(instance_path("codemother", 0) / "deposits" / name)
+            os.makedirs(os.path.dirname(berth), exist_ok=True)
+            with open(berth, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(packet, indent=2, ensure_ascii=False) + "\n")
+        else:
+            berth = body.get("berth")
+            if not isinstance(berth, str) or not berth:
+                return refused("deposit needs a berth path in body.berth, or a packet in body.packet")
+            if not os.path.isfile(os.path.expanduser(berth)):
+                return refused("berth %r is not on disk" % berth)
+            if scratch is not None and not os.path.basename(berth).startswith("orient-"):
+                return refused("body.scratch is honoured for an orient packet only, not %r" % berth)
+        if scratch is not None and (not isinstance(scratch, str) or not scratch):
+            return refused("body.scratch must be a nexus kind name, got %r" % (scratch,))
         bus = self._bus or reach("inference_domain")
+
+        def land(nexus):
+            return deposit_berth(berth, nexus=nexus, embed=embed(bus), embed_metered=embed_metered(bus))
+
         try:
-            out = deposit_berth(berth, nexus=body.get("nexus"), embed=embed(bus),
-                                embed_metered=embed_metered(bus))
+            if scratch:
+                from cairn.tools.tree.tree import scratch_nexus
+                with scratch_nexus(scratch, owner="codemother") as nexus:
+                    out = land(nexus)
+            else:
+                out = land(body.get("nexus"))
         except Exception as e:  # noqa: BLE001 — a refusal rides back named, loud
-            return {"accepted": False, "verb": "deposit", "device": "codemother",
-                    "reason": "%s: %s" % (type(e).__name__, e)}
+            return refused("%s: %s" % (type(e).__name__, e))
         return {"accepted": True, "verb": "deposit", "device": "codemother", **out}
 
     def _handle_drain(self, envelope: dict) -> dict:

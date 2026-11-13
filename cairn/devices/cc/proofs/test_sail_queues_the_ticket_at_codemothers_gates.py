@@ -40,6 +40,11 @@ PROVES = {
     "9ffa5a154a7d": {
         "1": "test_a_refused_cross_raises_into_the_scratch_world_only",
     },
+    # The fixture writes LF on every box (newline="\n"), so these two run on Windows too.
+    "44347787f7d3": {
+        "1": "test_draft_writes_each_stage_without_claim_or_refs",
+        "2": "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
+    },
 }
 
 _SCRIPTS = _REPO_ROOT / "cairn" / "devices" / "cc" / "scripts"
@@ -101,9 +106,9 @@ def _world(cursor: str = "TICKETME", plan_extra: dict | None = None):
     plan = store / f"{_TID}-a-fixture-ticket.json"
     plan.write_text(json.dumps({"id": _TID, "title": "a fixture ticket",
                                 "owning_intention": "cairn/devices/cc/intention+why.json",
-                                **(plan_extra or {})}, indent=2) + "\n")
+                                **(plan_extra or {})}, indent=2) + "\n", newline="\n")
     tf.state_path(plan).write_text(json.dumps({"workflow_and_state": _wf(cursor),
-                                               "node_class": "code-seam"}, indent=2) + "\n")
+                                               "node_class": "code-seam"}, indent=2) + "\n", newline="\n")
     # Every Ticket sail.py builds files its trail in this world (9ffa5a154a7d): sail.py builds
     # them with no roots, so the class carries the world's for its life.
     from cairn.machines.ticket.ticket import Ticket
@@ -285,11 +290,11 @@ def test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate():
                 {"claim": "C2 verbatim", "instrument": "bin/cairn test b/proofs/test_q.py"}]
     with _world("PROVEME") as w:
         vb = w["tmp"] / "validate.json"
-        vb.write_text(json.dumps({"criteria": criteria}))
+        vb.write_text(json.dumps({"criteria": criteria}), newline="\n")
         import cairn.tools.base.ticket_file as tf
         st = json.loads(tf.state_path(w["plan"]).read_text())
         st["chart_claim"] = {"validate_berth": str(vb)}
-        tf.state_path(w["plan"]).write_text(json.dumps(st))
+        tf.state_path(w["plan"]).write_text(json.dumps(st), newline="\n")
         bus = _Bus([{"body": {"accepted": True, "passed": True, "berth": "/b/verdict"}}])
         said, out = _quiet()
         rc = sail.verdict(_TID, "the hollow reds every tooth", participant=sail.Asker(bus),

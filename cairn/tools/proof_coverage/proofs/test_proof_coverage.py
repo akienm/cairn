@@ -22,6 +22,61 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from cairn.tools import proof_coverage as pc  # noqa: E402
 
+
+# ── The tester's run verb, asked of a bus on THIS box (ticket ae0d88a55edb) ──────────────
+# MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME names akiendelllinux, so
+# reach("tester") asked the Dell's tester, which refused this box's tmp path and the tooth
+# died on KeyError 'record'. The ask runs in a child under a scratch HOME (scratch.home_env
+# drops every CAIRN_BUS_*), whose reach lazy-inits a throwaway bus there. One HOME per proof
+# process, its bus shut down at exit. d66f2e18fc5c's helper, proof_coverage's own copy.
+_ASK_HOME = None
+
+
+def _shutdown_ask_bus(home) -> None:
+    from cairn.tools.bus_client.remote import RemoteBus
+    try:
+        RemoteBus(Path(home) / ".cairn/devices/cairn/machines/bus/0").shutdown()
+    except OSError:
+        pass
+
+
+def _ask_run_on_this_box(path: str, *, sender: str, caller: str, why: str,
+                         home=None) -> dict:
+    """The run verb's reply, asked from a child whose bus is this box's own. ``home`` names
+    the scratch HOME to ask under (its bus is then the caller's to shut down); without it,
+    the one per-process HOME, shut down at exit."""
+    global _ASK_HOME
+    import atexit
+    import subprocess as _sp
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    if home is None:
+        if _ASK_HOME is None:
+            _ASK_HOME = scratch_dir("testing-ae0d88a55edb-")
+            atexit.register(_shutdown_ask_bus, _ASK_HOME)   # LIFO: runs before the scratch sweep
+        home = _ASK_HOME
+    done = _sp.run([sys.executable, str(Path(__file__).resolve()), "--ask-run",
+                    json.dumps({"path": path, "sender": sender, "caller": caller, "why": why})],
+                   env=home_env(home, PYTHONPATH=str(REPO_ROOT)),
+                   capture_output=True, text=True, timeout=240, cwd=str(REPO_ROOT))
+    assert done.returncode == 0, (
+        f"the scratch-HOME ask exited {done.returncode}: {done.stderr[-1500:]}")
+    return json.loads(done.stdout.strip().splitlines()[-1])
+
+
+def _ask_run_child(spec: str) -> int:
+    """The child half of ``_ask_run_on_this_box``: one ask, its reply on the last stdout line."""
+    from cairn.tools.bus_client.bus_client import reach
+    a = json.loads(spec)
+    reply = reach("tester").request(
+        sender=a["sender"], to="tester", verb="run", why=a["why"],
+        body={"path": a["path"], "caller": a["caller"]}, timeout=180)
+    print(json.dumps(reply))
+    return 0
+
+
+if sys.argv[1:2] == ["--ask-run"]:
+    raise SystemExit(_ask_run_child(sys.argv[2]))
+
 PROVES = {
     "feeb4c786b14": {
         "1": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
@@ -35,6 +90,11 @@ PROVES = {
     # half here: a covered ticket the sieve has nothing to say about is still no finding.
     "c5b6b128a376": {
         "4": "test_the_binding_sieve_rides_lacks_and_is_silent_where_the_build_added_nothing",
+    },
+    # ticket ae0d88a55edb (2026-11-13): the forty-teeth ask goes to a tester on this box.
+    "ae0d88a55edb": {
+        "1": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
+        "2": "test_the_scratch_bus_goes_with_its_home",
     },
 }
 
@@ -129,16 +189,13 @@ def test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail():
     the claim is about what the tester records, and a canned string would prove only that
     the parser works on strings I wrote.
     """
-    from cairn.tools.bus_client.bus_client import reach  # the tester's interface is the bus (RULE 1)
-
-    with tempfile.TemporaryDirectory() as tmp:
-        proof = Path(tmp) / "test_forty.py"
-        proof.write_text(
-            "\n".join([f'print("  ok   test_tooth_{i:02d}")' for i in range(40)])
-            + "\nraise SystemExit(0)\n", encoding="utf-8")
-        record = reach("tester").request(
-            sender="proof_coverage", to="tester", verb="run", why="the forty-teeth record",
-            body={"path": str(proof), "caller": "test_proof_coverage"}, timeout=120)["body"]["record"]
+    # The tester's interface is the bus (RULE 1), asked of a bus on this box (ae0d88a55edb):
+    # the fixture path names this box's disk, so a far tester could not read it.
+    proof = _forty_teeth_fixture()
+    reply = _ask_run_on_this_box(str(proof), sender="proof_coverage",
+                                 caller="test_proof_coverage", why="the forty-teeth record")
+    record = (reply.get("body") or {}).get("record")
+    assert isinstance(record, dict), f"the tester returned no record: {reply!r}"
 
     assert record["verdict"] == "green", record
     green = record["evidence"]["teeth_green"]
@@ -146,6 +203,33 @@ def test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail():
     assert green[0] == "test_tooth_00" and green[-1] == "test_tooth_39", green[:3] + green[-3:]
     # And the tail really is shorter, so the tooth above is not vacuously true.
     assert len(record["evidence"]["stdout_tail"].splitlines()) <= 20
+
+
+def _forty_teeth_fixture() -> Path:
+    """Forty green teeth in a scratch dir the child (and the tester it asks) can read."""
+    from cairn.tools.scratch.scratch import scratch_dir
+    proof = Path(scratch_dir("testing-ae0d88a55edb-forty-")) / "test_forty.py"
+    proof.write_text(
+        "\n".join([f'print("  ok   test_tooth_{i:02d}")' for i in range(40)])
+        + "\nraise SystemExit(0)\n", encoding="utf-8")
+    return proof
+
+
+def test_the_scratch_bus_goes_with_its_home():
+    """ae0d88a55edb clause 2: the bus a scratch-HOME ask lazy-inits answers no longer once it
+    is shut down, which is what the exit hook does to the per-process one."""
+    from cairn.tools.bus_client.remote import _answers
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("testing-ae0d-")
+    bus = Path(home) / ".cairn/devices/cairn/machines/bus/0"
+    reply = _ask_run_on_this_box(str(_forty_teeth_fixture()), sender="proof_coverage",
+                                 caller="test_proof_coverage", why="the bus tooth asks once",
+                                 home=home)
+    assert isinstance((reply.get("body") or {}).get("record"), dict), (
+        f"the ask returned no record, so no scratch bus was measured: {reply!r}")
+    assert bus.is_dir(), f"the ask lazy-inited no bus under its scratch HOME at {bus}"
+    _shutdown_ask_bus(home)
+    assert _answers(bus) is None, f"the scratch bus at {bus} still answers after shutdown"
 
 
 def test_a_red_tooth_is_never_recorded_green():

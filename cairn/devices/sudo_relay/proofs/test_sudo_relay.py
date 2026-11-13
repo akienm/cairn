@@ -54,6 +54,10 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 _NOW = datetime(2026, 7, 18, 12, 0, 0)
 
 PROVES = {
+    "3854f1aee8eb": {
+        "1": "test_record_is_permanent_and_complete",
+        "2": "test_record_is_permanent_and_complete",
+    },
     "ae25d8fae5cb": {
         "1": "test_a_leftover_result_is_never_returned",
         "2": "test_an_unanswered_request_times_out_rather_than_taking_anothers",
@@ -125,7 +129,9 @@ def test_idle_when_nothing_pending():
 def test_record_is_permanent_and_complete():
     _fresh_instance()
     big = "x" * 10000  # a record of truth keeps the whole thing (Law 7) — not a tail.
-    relay.submit(f"printf %s '{big}'")
+    # The output is made INSIDE the shell: a 10000-character argv does not fit Git bash's ~8191-character
+    # command line on Windows (ticket 3854f1aee8eb), and the record's size is what is being measured.
+    relay.submit("head -c 10000 /dev/zero | tr '\\0' x")
     record = relay.process_pending(relay.local_executor, now=_NOW)
 
     assert set(record) == set(AUDIT_FIELDS), f"exactly the six fields; got {sorted(record)}"

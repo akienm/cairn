@@ -2354,6 +2354,20 @@ def _shape_lacks(doc: dict, charter: Path) -> list[str]:
                 if not _blank(when) and not (isinstance(when, str) and _ISO_DATE.match(when[:10])):
                     lacks.append(f"measured[{i}].when {when!r} is not an ISO date")
 
+    # fixes: the proofs whose red a fixit answers (ticket 5defc13bfebe, outline 17.11.7.2) — read
+    # by the tester's rung 4 (path y) and codemother's BUILDME fixit rule, both resolving each
+    # path against the cairn root, so that is the one root here. Not required at cast: the
+    # BUILDME rule demands it of a bug at the crossing.
+    spec = shapes.get("fixes")
+    if isinstance(spec, dict) and "fixes" in doc:
+        fx = doc.get("fixes")
+        if not _paths_ok(fx) or len(fx) < int(spec.get("min_items") or 1):
+            lacks.append(f"fixes is not a non-empty list of non-blank paths: {repr(fx)[:80]}")
+        elif spec.get("resolves"):
+            here = Path(__file__).resolve().parents[3]
+            lacks.extend(f"fixes {p!r} resolves to no file" for p in fx
+                         if not (Path(p) if Path(p).is_absolute() else here / p).is_file())
+
     # chart: each stage's draft, authored on the plan (ticket cd8a1de6139c, outline 9.6) — a
     # map of chart stage -> draft packet, so a gate reading it never meets a stage it has no door
     # for, nor a draft that is not a packet.

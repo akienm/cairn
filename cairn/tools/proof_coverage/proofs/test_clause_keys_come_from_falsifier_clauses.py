@@ -8,8 +8,15 @@ would read as covering nothing.
 
   (1) a falsifier {clauses: [{n:1}, {n:2}, {n:3}]} keys ['1', '2', '3'], read as data;
   (2) a decide line 'falsifier clause (4) is added by this line' still adds '4' on such a ticket;
-  (3) over every ticket in CairnCommons/tickets/ whose falsifier carries no clauses, the keys
-      equal those at HEAD of the red-first commit (fixtures/clause_keys_at_head.json);
+  (3) over every ticket in CairnCommons/tickets/ whose falsifier carries no clauses, the keys at
+      HEAD of the red-first commit (fixtures/clause_keys_at_head.json) still lead, and any key
+      after them is one a decide line adds (clause 2's growth, not a re-keying);
+
+Clause (3) changed under ticket 24f60e45304c: it asserted equality with the snapshot, and
+measured 2026-11-12 it redded f5dbfddea8c6 for [] -> ['1', '2', '3'] on an unchanged falsifier,
+the keys its D11 decide line added. The tooth now asks whether a key was re-keyed (a snapshot
+key moved, or a new key comes from the falsifier itself), and also runs that predicate on
+synthetic tickets so it is shown to red. No tooth was removed.
   (4) the clause key the ticket's own prose cites as "(4)": an added key lands after the
       falsifier's own keys exactly once, even when the decide line repeats it.
 
@@ -31,7 +38,7 @@ PROVES = {"ab32ccdc4504": {
     "2": "test_clause_2_a_decide_line_still_adds_a_key",
     "3": "test_clause_3_standing_shapes_key_as_at_head",
     "4": "test_clause_4_an_added_key_lands_once_after_the_falsifiers",
-}}
+}, "24f60e45304c": {"1": "test_clause_3_standing_shapes_key_as_at_head"}}
 
 SNAPSHOT = Path(__file__).resolve().parent / "fixtures" / "clause_keys_at_head.json"
 
@@ -77,6 +84,15 @@ def _standing_tickets():
         yield t
 
 
+def _rekeyed(t: dict, old: list) -> bool:
+    """True when ticket ``t``'s keys no longer start with ``old``, or a key after them is one its
+    falsifier gives alone (a re-keying), not one a decide line added (ticket 24f60e45304c)."""
+    from cairn.tools.proof_coverage import proof_coverage as pc
+    now = pc.clauses(t)
+    bare = pc.clauses({**t, "decisions": []})
+    return now[:len(old)] != old or any(k in bare for k in now[len(old):])
+
+
 def take_snapshot() -> None:
     """Run once, in the red-first commit: the keys every no-clauses ticket reads at HEAD."""
     from cairn.tools.proof_coverage import proof_coverage as pc
@@ -109,12 +125,17 @@ def test_clause_3_standing_shapes_key_as_at_head() -> None:
         if not s or s["falsifier_sha"] != _fhash(t.get("falsifier")):
             continue  # cast or amended since the snapshot: nothing at HEAD to compare against
         compared += 1
-        now = pc.clauses(t)
-        if now != s["keys"]:
-            moved.append(f"{t['id']}: {s['keys']} -> {now}")
-    ok = not moved and compared >= 0.9 * len(snap) and compared > 100
+        if _rekeyed(t, s["keys"]):
+            moved.append(f"{t['id']}: {s['keys']} -> {pc.clauses(t)}")
+    grown = _ticket("(1) a holds", [_ADDS])  # keys ['1', '4']: '4' came from a decide line
+    teeth = {"growth admitted": not _rekeyed(grown, ["1"]),
+             "a moved key reds": _rekeyed(grown, ["2"]),
+             "a falsifier-born extra key reds": _rekeyed(grown, [])}
+    bad = [k for k, v in teeth.items() if not v]
+    ok = not moved and not bad and compared >= 0.9 * len(snap) and compared > 100
     check("test_clause_3_standing_shapes_key_as_at_head", ok,
-          f"{compared} of {len(snap)} snapshot tickets compared, {len(moved)} moved {moved[:5]}")
+          f"{compared} of {len(snap)} snapshot tickets compared, {len(moved)} re-keyed {moved[:5]}; "
+          f"synthetic failing: {bad}")
 
 
 def test_clause_4_an_added_key_lands_once_after_the_falsifiers() -> None:

@@ -55,6 +55,10 @@ _SAIL = _REPO_ROOT / "cairn" / "devices" / "cc" / "scripts" / "sail.py"
 _LIVE_STORE_CHARTER = _REPO_ROOT.parent / "CairnCommons" / "tickets" / "_charter+why.json"
 if not _LIVE_STORE_CHARTER.is_file():
     _LIVE_STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
+# The node classes beside the same commons: transitions' default is repo-relative, and the
+# hollow's worktree has no CairnCommons beside it (measured 2026-11-12 at PROVEME: the refusal
+# tooth reached ticket.failed -> load_class_def and found no code-seam.json there).
+_LIVE_NODE_CLASSES = _LIVE_STORE_CHARTER.parent.parent / "node_classes"
 
 
 @contextmanager
@@ -87,10 +91,14 @@ def _world():
     T.Ticket.at = classmethod(pinned)
     T.STAGE_BUDGET_S = _BUDGET_S
     tf._TICKETS = store
+    import cairn.tools.base.transitions as tr
+    saved_load = tr.load_class_def
+    tr.load_class_def = lambda node_class, *, root=_LIVE_NODE_CLASSES: saved_load(node_class, root=root)
     try:
         yield {"tmp": tmp, "store": store, "plan": plan, "roots": roots}
     finally:
         T.Ticket.at, tf._TICKETS = saved_at, saved_tickets
+        tr.load_class_def = saved_load
         if had_budget:
             T.STAGE_BUDGET_S = budget
         else:

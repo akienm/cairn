@@ -33,7 +33,15 @@ from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 CAIRN = ROOT / "bin" / "cairn"
-UNCREATABLE = "/proc/cairn-no-such-dir/venv"
+# A path that cannot be created on any host: beneath a regular file, so a mkdir is refused
+# (ticket eb1b46bed3d8; /proc is C:\proc on Windows, where it exists).
+import atexit as _atexit
+import shutil as _shutil
+import tempfile as _tempfile
+_BLOCK_DIR = _tempfile.mkdtemp(prefix="cairn-uncreatable-")
+_atexit.register(_shutil.rmtree, _BLOCK_DIR, ignore_errors=True)
+Path(_BLOCK_DIR, "blocker").write_text("a regular file", encoding="utf-8")
+UNCREATABLE = (Path(_BLOCK_DIR) / "blocker" / "venv").as_posix()
 
 PROVES = {"superclaude-bare-box": {
     "1": "test_superclaude_launches_through_a_failing_floor",

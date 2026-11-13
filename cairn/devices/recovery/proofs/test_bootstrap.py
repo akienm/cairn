@@ -40,10 +40,15 @@ REPO = Path(__file__).resolve().parents[4]
 BOOTSTRAP = REPO / "cairn" / "devices" / "recovery" / "bootstrap.sh"
 SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 
-# A path that cannot be created, so `apply` genuinely fails rather than quietly succeeding.
-# /proc is a kernel filesystem: mkdir under it is refused, which is what makes this a real
-# negative fixture and not a slow one.
-UNCREATABLE = "/proc/cairn-no-such-dir/venv"
+# A path that cannot be created on any host: beneath a regular file, so a mkdir is refused
+# (ticket 9ee014ed1f69; /proc is C:\proc on Windows, where it exists).
+import atexit as _atexit
+import shutil as _shutil
+import tempfile as _tempfile
+_BLOCK_DIR = _tempfile.mkdtemp(prefix="cairn-uncreatable-")
+_atexit.register(_shutil.rmtree, _BLOCK_DIR, ignore_errors=True)
+Path(_BLOCK_DIR, "blocker").write_text("a regular file", encoding="utf-8")
+UNCREATABLE = (Path(_BLOCK_DIR) / "blocker" / "venv").as_posix()
 
 # The other synthetic input this file feeds the seam. Named once so the containment tooth
 # below reads it from here rather than carrying its own copy to go stale (Law 1).

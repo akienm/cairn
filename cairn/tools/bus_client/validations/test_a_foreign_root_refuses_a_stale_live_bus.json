@@ -1,0 +1,77 @@
+[
+  {
+    "claim": "proof test_a_foreign_root_refuses_a_stale_live_bus.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T11:22:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_foreign_root_at_the_live_home_sends_no_shutdown\n.\n  ok   test_the_house_root_still_replaces_the_live_bus\n.\n  ok   test_a_foreign_root_at_a_scratch_home_still_replaces\n.\n  ok   test_no_resolvable_house_root_replaces_as_today\n                                                                     [100%]\n4 passed in 0.02s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_foreign_root_at_the_live_home_sends_no_shutdown",
+        "test_the_house_root_still_replaces_the_live_bus",
+        "test_a_foreign_root_at_a_scratch_home_still_replaces",
+        "test_no_resolvable_house_root_replaces_as_today"
+      ],
+      "teeth_red": [],
+      "test": "test-7b3ed05897c7",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "406cf15391f761e12a496d3984b4427aae4f3c911f034e489ec799000648b3c0",
+        "fixtures": null,
+        "interpreter": "/tmp/3e.EtLa/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/tmp/3e.EtLa/.cairn/logs/tester/0/runs/test-7b3ed05897c7",
+      "source_fingerprint": "e3ce96473bef8ce051d6659c19cd28fa1ed373154dc61fa2956b253f561d2306",
+      "fingerprint_closure": [
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/proofs/test_a_foreign_root_refuses_a_stale_live_bus.py",
+        "cairn/tools/bus_client/remote.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "858a5a00e8a47538591daaeb7f1515b18837bd8d226d3310394a97f53f5ebc04",
+        "cairn/tools/base": "30ecb8f9cb99ae26a9f5cec14a5bee5ca7f12ce8f99c3c5e11c24059c24be7d0",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-487074-6_1hk306/cairn and not in /tmp/3e.EtLa/.cairn; all 3 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 4065,
+          "disk_bytes": 4096,
+          "entries": 61,
+          "builds": 1,
+          "reuses": 7
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

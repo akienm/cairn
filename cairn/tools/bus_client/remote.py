@@ -13,7 +13,9 @@ the bus process — delivery happens THERE, and the local hook is dropped by des
 
 THE BUS SERVES THE CODE THAT ASKS (decision 4). Every request carries this file's class root;
 a bus started from another root, or one whose code changed under it, answers ``stale``, and
-``_call`` shuts it down, starts one from this root, and retries once.
+``_call`` shuts it down, starts one from this root, and retries once. NARROWED (ticket
+3deafc9e36de): at the live home, only the house root's client replaces. A client from another
+checkout (an old sha, a worktree) raises BusStale naming both roots and sends no shutdown.
 
 THE ADDRESS (ticket 5183005fa134). A home is a folder or ``host:port``. A folder is this box's
 bus: ``<home>/bus.sock`` where Python has AF_UNIX, else the loopback port and key the bus wrote
@@ -23,6 +25,7 @@ replaced from here, and never stale (it runs its own box's code).
 """
 from __future__ import annotations
 
+import importlib.metadata
 import json
 import os
 import re
@@ -314,7 +317,7 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
     home = bus_home(home)
     found = _answers(home)
     if found is not None and found.get("stale"):
-        reply = _replace(home)
+        reply = _replace(home, found.get("root"))
         found = None
         if reply and reply.get("draining"):
             # The stale bus is draining and serves on: use it. A spawn now would lose
@@ -350,11 +353,50 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
                           f"{_last_answer(home)}; log {_LOG})")
 
 
-def _replace(home: Path) -> dict | None:
+def _house_root() -> Path | None:
+    """The checkout this box's live bus belongs to (ticket 3deafc9e36de): env
+    ``CAIRN_BUS_CLIENT_HOUSE_ROOT``, else the editable install's ``direct_url.json``. None when
+    neither resolves, and the replace then proceeds as it always did."""
+    env = os.environ.get("CAIRN_BUS_CLIENT_HOUSE_ROOT")
+    if env:
+        return Path(env).expanduser().resolve()
+    try:
+        raw = importlib.metadata.distribution("cairn").read_text("direct_url.json")
+        doc = json.loads(raw or "{}")
+    except (importlib.metadata.PackageNotFoundError, OSError, ValueError):
+        return None
+    url = str(doc.get("url") or "")
+    if not (doc.get("dir_info") or {}).get("editable") or not url.startswith("file://"):
+        return None
+    return Path(url.removeprefix("file://")).resolve()
+
+
+def _refuse_a_foreign_replace(home: Path, live_root: str | None) -> None:
+    """A client from another checkout never shuts down the live home's bus (ticket
+    3deafc9e36de). Measured 2026-11-12: an old-sha or worktree run on the live HOME found the
+    house bus stale to it, replaced it, and every other client on the box was then served by
+    the throwaway checkout's code. At the live home a foreign class root raises, loudly
+    (Law 7), naming the live bus's root, the house root and its own, and the way out."""
+    house = _house_root()
+    if house is None or Path(home).expanduser().resolve() != _live_home().resolve():
+        return
+    mine = Path(_CLASS_ROOT).resolve()
+    if mine == house:
+        return
+    raise BusStale(f"the live bus at {home} serves {live_root or 'another root'} (house root "
+                   f"{house}); this client runs from {mine}, a different checkout, so it will "
+                   "not shut the house's bus down. Run it against its own bus: "
+                   "CAIRN_BUS_HOME=<scratch home>")
+
+
+def _replace(home: Path, live_root: str | None = None) -> dict | None:
     """Shut a stale bus down and wait (bounded) for its socket to stop answering. Returns the
     shutdown's reply (None when the exchange raised). A bus holding requests answers
     ``draining`` and serves on until they are answered (ticket 1029d5146152): that reply
-    returns at once, since waiting for it to stop answering would outlast the wait."""
+    returns at once, since waiting for it to stop answering would outlast the wait. At the live
+    home, a client from another checkout raises BusStale instead and sends nothing
+    (``_refuse_a_foreign_replace``)."""
+    _refuse_a_foreign_replace(home, live_root)
     try:
         reply = exchange({"op": "shutdown"}, home, timeout=30)
     except (OSError, ValueError):
@@ -395,7 +437,7 @@ class RemoteBus(DiagnosticBase):
             raise BusStale(f"the bus at {self._home} answered stale ({reply.get('root')}) — "
                            "a bus on another box is never replaced from here")
         if reply.get("stale"):
-            _replace(self._home)
+            _replace(self._home, reply.get("root"))
             ensure_bus(self._home, scratch=self._scratch)
             reply = exchange(request, self._home)
             if reply.get("stale"):

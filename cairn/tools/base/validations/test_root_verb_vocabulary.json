@@ -2,21 +2,23 @@
   {
     "claim": "proof test_root_verb_vocabulary.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-12T06:10:30",
+    "date": "2026-11-12T21:46:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_vocabulary_is_one_table_and_list_carries_it\n.\n  ok   test_every_roster_device_inherits_the_root_verbs\n.\n  ok   test_a_colliding_registration_is_refused\n.\n  ok   test_get_status_is_uniform_across_the_roster\n                                                                     [100%]\n4 passed in 5.28s",
+      "returncode": 1,
+      "stdout_tail": "home = ScratchPath('/tmp/15d6-home-scratch.4026531836-2216387-fd81o5uz')\n\n    def test_every_roster_device_inherits_the_root_verbs(home: Path) -> None:\n        from cairn.tools.base.shim import BaseShim\n        roster = _roster()\n        assert len(roster) >= 5, roster\n        for name in roster:\n            cls = _shim_class(name)\n            for attr in (\"resolve\", \"_resolve\"):\n>               assert getattr(cls, attr) is getattr(BaseShim, attr), \\\n                    f\"{name}'s shim overrides {attr} — a device opted in to its own vocabulary\"\nE               AssertionError: librarian's shim overrides _resolve — a device opted in to its own vocabulary\nE               assert <function LibrarianShim._resolve at 0x7fbc9e222560> is <function BaseShim._resolve at 0x7fbc9e35a350>\nE                +  where <function LibrarianShim._resolve at 0x7fbc9e222560> = getattr(<class 'cairn.devices.librarian.shim.LibrarianShim'>, '_resolve')\nE                +  and   <function BaseShim._resolve at 0x7fbc9e35a350> = getattr(<class 'cairn.tools.base.shim.BaseShim'>, '_resolve')\n\ntest_root_verb_vocabulary.py:226: AssertionError\n=========================== short test summary info ============================\nFAILED test_root_verb_vocabulary.py::test_every_roster_device_inherits_the_root_verbs\n1 failed, 3 passed in 4.90s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_vocabulary_is_one_table_and_list_carries_it",
-        "test_every_roster_device_inherits_the_root_verbs",
         "test_a_colliding_registration_is_refused",
         "test_get_status_is_uniform_across_the_roster"
       ],
-      "teeth_red": [],
-      "test": "test-bf9331bdeb69",
+      "teeth_red": [
+        "test_every_roster_device_inherits_the_root_verbs",
+        "test_root_verb_vocabulary"
+      ],
+      "test": "test-1a83540f4347",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,14 +45,14 @@
       },
       "killed": [
         {
-          "pid": 1247952,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-1247942-oyfgrhys/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "pid": 2216397,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/15d6-home-scratch.4026531836-2216387-fd81o5uz/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bf9331bdeb69",
-      "source_fingerprint": "76ff1ce788e2413633be0cfc37d7d97428236ff01b43cedbce48fa0ce269b3da",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1a83540f4347",
+      "source_fingerprint": "2282da66ed5a7e41ccdd442b3b9da1b71490d05849a2c29f969e0ff67d9e6414",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -66,22 +68,22 @@
       "reached": {
         "cairn/devices/cairn": "d0834a41a15a9f3944d604278cbaa25e77ea70a600376fe65d12c73f164f8427",
         "cairn/devices/cc": "38f0122c316aca6f1b5ae6be6c9f275a16fc46d216f0e5e0e80cb972193fb9de",
-        "cairn/devices/codemother": "e4f29a9e74e7b94803b2a578f08be9d8f29d116a38caeb581ecf5893e31d8fd1",
-        "cairn/devices/db_domain": "f218476b4b0c421f827d081e98cfdd0c6802c4f0b60dc712c0872098c16a5cb8",
+        "cairn/devices/codemother": "dabf76d6df55c1119240609da1a36f25300013e79ede2de40a2d44b118509e26",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
         "cairn/devices/db_domain/tools/client": "c4a64d363649a464999178482523dfad5d7d4f609e624d14519c4a96f15a1c90",
         "cairn/devices/inference_domain": "0c0b3b6f2de06c43f0695ade20e9f0c04fc28e366c5c9ec0721befe32992f0c3",
-        "cairn/devices/librarian": "63b9e881a5da9a467fb86c0cf93fac9102c0804f5adbf1bfa48da1d810ceadb8",
-        "cairn/devices/librarian/tools/trees": "2aec644f81b58c87697fb1267cdcad96027039a6ef529a3f9130a359d7b8ad57",
-        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
-        "cairn/devices/trouble": "1af8277876d63bd78e1de73a437ec5359ebfdfc72cb32c0b72da02ead3d1e25f",
-        "cairn/tools/bus_client": "a757376bf1567421ac15353f250dc536c185dde093ec0542b6a525eed4c02e85",
-        "cairn/tools/proof_coverage": "8c50adf9ed5be618471e8ec88abc289352cd7d7bd9495276a681d98fb41345dd",
+        "cairn/devices/librarian": "21dbbecf0560a72c0630d58722f254dc5562ec33d619b93ff1528857f5f77850",
+        "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/bus_client": "270bed5752d1aef017a382d4cdcdc4ebb6d89e135557b45a53569f40f066b37b",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831",
+        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1235152-u2ce2wj2/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2200385-_a1si26h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,12 +92,21 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528366904,
-          "disk_bytes": 571551744,
-          "entries": 16525,
+          "bytes": 529654882,
+          "disk_bytes": 570548224,
+          "entries": 15776,
           "builds": 1,
-          "reuses": 34
+          "reuses": 63
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "c123d446b4d2d9405af022153fae08f5e4a19c6e41db7eb33d520d80a1242223",
+        "opened": "2026-11-12T21:46:24",
+        "last_red": "2026-11-12T21:46:24",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-base-proofs-test-root-verb-vocabulary",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

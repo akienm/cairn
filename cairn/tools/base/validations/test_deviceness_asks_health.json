@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_deviceness_asks_health.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T16:09:51",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T21:44:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,25 +15,14 @@
         "test_the_clause_is_built_and_names_get_status"
       ],
       "teeth_red": [],
-      "test": "test-657f8eb678a3",
+      "test": "test-16efc1b51527",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 10,
-        "tables": [
-          "bus_proc_1828688_1552222236_delivery",
-          "bus_proc_1828688_1552222236",
-          "bus_proc_1829666_1552319073_delivery",
-          "bus_proc_1829666_1552319073",
-          "bus_proc_1830642_1552415312_delivery",
-          "bus_proc_1830642_1552415312",
-          "bus_proc_1832210_1553088332_delivery",
-          "bus_proc_1832210_1553088332",
-          "bus_proc_1833186_1553184288_delivery",
-          "bus_proc_1833186_1553184288"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "502896894aede599bf856d0e6415682a3632895fce4e81d2cafa8203ea63105a",
@@ -48,14 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-657f8eb678a3",
-      "source_fingerprint": "fb9d54417ade1fddf43797ff008184c4086661012c594ae6b738be28f6331036",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16efc1b51527",
+      "source_fingerprint": "b610109420a980fe2549940e8142f8f57b0b2e9f3b78d69adb05416136569854",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -68,7 +56,7 @@
         "cairn/tools/base/settled.py"
       ],
       "reached": {
-        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
@@ -77,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1839004-8odwndt9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2200385-ej9vjkhv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -86,37 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865401,
-          "disk_bytes": 576651264,
-          "entries": 17771,
+          "bytes": 529654882,
+          "disk_bytes": 570548224,
+          "entries": 15776,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "f78a1a09e8ff": {
-          "cairn/tools/base/deviceness.py": [
-            "test_a_live_device_is_fitted_and_answers",
-            "test_an_answer_is_exit_zero_with_data",
-            "test_the_clause_is_built_and_names_get_status"
-          ],
-          "cairn/tools/base/probes/device_claims_match_shims.py": [
-            "test_the_clause_is_built_and_names_get_status"
-          ],
-          "cairn/tools/base/proofs/test_deviceness.py": [
-            "cairn/tools/base/proofs/test_deviceness.py::test_the_unbuilt_half_is_declared_not_omitted"
-          ],
-          "cairn/tools/base/intention+why.json": {
-            "notified": "n-310242319cdf"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "f78a1a09e8ff": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "5a0923a61c31f57c69bbebdc1ccf0ff66ce7869f",
-          "anchor_first_build": "5e58932f2607b1e182dcfb5acd5613e4326b96b4",
-          "commit": "bb1f2409de923aad10791453dbccdc3b6b0f9b19"
+          "reuses": 39
         }
       }
     },

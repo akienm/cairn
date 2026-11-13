@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_view_takes_arguments.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-12T06:05:46",
+    "date": "2026-11-12T21:40:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-11-12T13:05:45.036420+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
+      "stdout_tail": "  PASS  test_get_passes_the_args  — {'exit': 0, 'text': '{\"device\": \"35b9-echo\", \"view\": \"echo\", \"cached\": false, \"timestamp\": \"2026-11-13T04:40:23.135997+00:00\", \"data\": {\"limit\": \"3\"}}', 'data': {'limit': '3'}}\n  PASS  test_show_renders_with_the_args  — {'exit': 0, 'text': '{\\n  \"limit\": \"3\"\\n}', 'data': {'limit': '3'}}\n  PASS  test_an_undeclared_key_is_refused  — {'exit': 2, 'text': 'cairn 35b9-echo: view echo takes no argument bogus — it takes: limit', 'data': None}\n  PASS  test_a_view_with_no_params_refuses_args  — {'exit': 2, 'text': 'cairn 35b9-echo: view bare takes no argument limit — it takes: (none)', 'data': None}\n  PASS  test_the_bus_get_passes_args  — {'accepted': True, 'verb': 'get', 'view': 'echo', 'device': '35b9-echo', 'data': {'limit': '3'}}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_get_passes_the_args",
@@ -17,7 +17,7 @@
         "test_the_bus_get_passes_args"
       ],
       "teeth_red": [],
-      "test": "test-aa79efb1147a",
+      "test": "test-aa8abf9f51ee",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aa79efb1147a",
-      "source_fingerprint": "387d98ebf27762026830c8061163db58abdb6e2610fdbccc4787a8c17fefbc1f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aa8abf9f51ee",
+      "source_fingerprint": "5443daf1e53f91173c86509951c24fa84f07965fcded282b78773e46bd1d980f",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -59,13 +59,13 @@
         "cairn/tools/base/testing_mark.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
         "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
         "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1235152-s8eexol5/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2200385-w88e5h9s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,11 +74,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 528366904,
-          "disk_bytes": 571551744,
-          "entries": 16525,
+          "bytes": 529654882,
+          "disk_bytes": 570548224,
+          "entries": 15776,
           "builds": 1,
-          "reuses": 8
+          "reuses": 23
         }
       }
     },

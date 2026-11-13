@@ -2,20 +2,19 @@
   {
     "claim": "proof test_clearance_proofs_reach_no_other_device.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T11:11:03",
+    "date": "2026-11-13T11:18:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_breach_has_a_file_under_clearance  — 3 breach(es) in all; under clearance: cairn/devices/codemother/machines/clearance/proofs/test_a_host_seam_crossing_clears_on_this_boxs_seal.py:79 imports cairn.devices.tester.cli\n  PASS  test_the_real_host_proof_stands_nowhere\n\nRED — 1 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_breach_has_a_file_under_clearance  — 2 breach(es) in all; under clearance: \n  PASS  test_the_real_host_proof_stands_nowhere\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
+        "test_no_breach_has_a_file_under_clearance",
         "test_the_real_host_proof_stands_nowhere"
       ],
-      "teeth_red": [
-        "test_no_breach_has_a_file_under_clearance"
-      ],
-      "test": "test-6ae283444b4d",
+      "teeth_red": [],
+      "test": "test-e6f45760bcaf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,31 +30,31 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 900,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "3db5aa5642d2"
+          "CAIRN_TESTER_CALLER_CWD": "c8d96e2c630c"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-6ae283444b4d",
+      "run_log": "/home/akien/.akien/temp/cnh/.cairn/logs/tester/0/runs/test-e6f45760bcaf",
       "source_fingerprint": "5d060cb6323c87ca381f0264a530488962df7a29f30c525e2ec8b0c867f64cad",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/clearance/proofs/test_clearance_proofs_reach_no_other_device.py"
       ],
       "reached": {
-        "cairn/devices/tester": "391fd24f365e753645ed3c9fa31f518ce1a23de7d420a8c7d2fd0004b8dcc3b5",
-        "cairn/machines/build_inspector": "b5895366b22d014b7ccfc31fa4d0a0942ff337238e80220c40583821f9a83744",
+        "cairn/devices/tester": "858a5a00e8a47538591daaeb7f1515b18837bd8d226d3310394a97f53f5ebc04",
+        "cairn/machines/build_inspector": "f079b811503bdc4b5b29995e15148d36ce8598d24c349fc2f7aa56c2428786eb",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
+        "cairn/tools/base": "30ecb8f9cb99ae26a9f5cec14a5bee5ca7f12ce8f99c3c5e11c24059c24be7d0",
         "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
         "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3324121-rs60h436/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3341419-s1pp2zj0/cairn and not in /home/akien/.akien/temp/cnh/.cairn; all 4 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,12 +63,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 39802,
+          "bytes": 42622,
           "disk_bytes": 86016,
           "entries": 102,
           "builds": 1,
-          "reuses": 6
+          "reuses": 1
         }
+      },
+      "conditions_moved": {
+        "notified": "n-66c60f14d0a2",
+        "changed": [
+          "env"
+        ]
       },
       "hollow": {
         "b546c6efabfb": {

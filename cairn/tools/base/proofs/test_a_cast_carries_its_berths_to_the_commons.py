@@ -126,6 +126,17 @@ def test_read_berth_falls_back_to_the_commons():
         assert not far.exists(), f"the far path must not exist on this box: {far}"
         got = read_berth(far)
         assert got == doc, f"read_berth over a far path returned {got!r}, not the commons copy"
+        # A berth fired on a Windows box is cited as a backslash string; on POSIX a plain Path
+        # reads it as ONE name, so the commons address came out as berths/C:\Users\...
+        # (measured 2026-11-12 on the Dell). Both spellings map to <commons>/berths/<skill>/<name>.
+        from cairn.machines.skill_block.skill_block import commons_address
+        want = c.commons / "berths" / "sorted" / name
+        win = "C:" + chr(92) + "Users" + chr(92) + "akien" + chr(92) + ".cairn" + chr(92) + "devices" + chr(92) + "skill_block" + chr(92) + "0" + chr(92) + "berths" + chr(92) + "sorted" + chr(92) + name
+        posix = "/home/akien/.cairn/devices/skill_block/0/berths/sorted/" + name
+        for spelling in (win, posix):
+            addr = commons_address(spelling)
+            assert addr == want, f"commons_address({spelling!r}) -> {addr}, not {want}"
+        assert read_berth(win) == doc, "read_berth over a backslash (Windows-written) berth path missed the commons copy"
 
 
 def test_a_none_because_intent_berth_copies_nothing():

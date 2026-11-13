@@ -36,6 +36,19 @@ def background_python(os_name: str | None = None, executable: str | None = None)
     This once returned the base interpreter named by ``pyvenv.cfg`` on the guess that a
     venv launcher's child owns a console. The guess was never measured, and running the
     base ``python.exe`` directly does not enter the venv: the bus child died at
-    ``import psycopg2`` (measured 2026-11-12, ``~/.cairn/logs/bus.log``). A console in the
-    spawned tree is tooth 2's question and stays unmeasured until it runs."""
-    return executable or sys.executable
+    ``import psycopg2`` (measured 2026-11-12, ``~/.cairn/logs/bus.log``).
+
+    A console in the spawned tree is tooth 2's question, and it was measured red on
+    2026-11-13 (ticket 96cf285e299b): the venv ``python.exe`` launcher re-spawns the base
+    interpreter without the detached flags and the base interpreter allocates a
+    ``conhost.exe``. The ``pythonw.exe`` beside the venv python does not. So on Windows,
+    where one sits beside the executable, that is the interpreter returned. Two things a
+    caller must know: the pythonw launcher exits at once while the real child runs on, so a
+    child is not tracked by ``Popen.pid`` or ``poll()``; and ``sys.stdout`` is ``None`` in a
+    pythonw child, so it logs through a file handler, not ``print``."""
+    exe = executable or sys.executable
+    if (os_name or os.name) == "nt":
+        pyw = os.path.join(os.path.dirname(exe), "pythonw.exe")
+        if os.path.isfile(pyw):
+            return pyw
+    return exe

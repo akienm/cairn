@@ -96,17 +96,34 @@ def a_spawned_child_leaves_no_console_in_its_tree():
     if "--no-spawn" in sys.argv:
         raise Unmeasured("--no-spawn: this tooth spawns a process and was not asked to")
     ws = _ws()
-    child = subprocess.Popen([ws.background_python(), "-c", "import time; time.sleep(6)"],
+    import tempfile
+    pidfile = Path(tempfile.mkdtemp()) / "child.pid"
+    # the child reports its own pid: a pythonw launcher exits at once, so Popen.pid is not
+    # the process to measure (ticket 96cf285e299b).
+    code = (f"import os, time; open({str(pidfile)!r}, 'w').write(str(os.getpid())); time.sleep(8)")
+    child = subprocess.Popen([ws.background_python(), "-c", code],
                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                              stderr=subprocess.DEVNULL, **ws.detached_kwargs())
+    real = None
     try:
-        time.sleep(2.5)
-        tree = _tree(child.pid)
+        for _ in range(40):
+            if pidfile.exists() and pidfile.read_text().strip().isdigit():
+                real = int(pidfile.read_text().strip())
+                break
+            time.sleep(0.25)
+        assert real is not None, "the spawned interpreter never reported its pid: nothing was measured"
+        time.sleep(2.0)
+        tree = _tree(real)
         consoles = [p for p in tree if p["name"].lower() in ("conhost.exe", "openconsole.exe")]
-        print(f"    tree under {child.pid}: {[(p['name'], p['pid']) for p in tree]}")
+        print(f"    tree under {real}: {[(p['name'], p['pid']) for p in tree]}")
+        assert any(p["pid"] == real for p in tree), (
+            f"the reported pid {real} is not in the process list: nothing was measured")
         assert not consoles, f"a console host sits in the spawned tree: {consoles}"
     finally:
         child.kill()
+        if real:
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(real)], capture_output=True,
+                           creationflags=0x08000000)
 
 
 HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",

@@ -330,7 +330,7 @@ def test_the_real_ticket_that_built_this_form_yields_its_clauses(root, tickets):
     normal motion into a spurious red."""
     # hollow runs this in a /tmp worktree with no CairnCommons beside it: read the live
     # ticket beside the repo, else from the home checkout (0d38d0f5a4e3 tooth 4).
-    here = Path(__file__).resolve().parents[5]
+    here = Path(__file__).resolve().parents[6]
     live = here if (here.parent / "CairnCommons" / "tickets").is_dir() else Path.home() / "dev" / "src" / "cairn"
     criteria, err = falsifier_criteria("watchme-emits-a-probe", root=str(live))
     assert err is None, err

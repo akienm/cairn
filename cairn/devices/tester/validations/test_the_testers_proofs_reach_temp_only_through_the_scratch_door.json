@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-30T19:52:19",
+    "caller": "cairn test",
+    "date": "2026-11-12T20:30:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_testers_proofs_name_no_bare_temp_reach\ngreen — every tester proof takes its temp directory through the scratch door",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_the_testers_proofs_name_no_bare_temp_reach: AssertionError: 1 tester proof line(s) reach the system temp directory bare — take the directory from cairn.tools.scratch.scratch.scratch_dir:\n  proofs/test_the_installed_hook_is_lf_on_every_box.py:50: tmp = Path(tempfile.mkdtemp(prefix=\"cairn-hook-lf-proof-\"))\nred — 1 of 1 teeth failed",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_the_testers_proofs_name_no_bare_temp_reach"
       ],
-      "teeth_red": [],
-      "test": "test-67322deba3f5",
+      "test": "test-761a5cf4ee25",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,29 +24,36 @@
       },
       "conditions": {
         "proof": "0036cefe169b6ff5b7bb6702bcf17518d001e63d08125dbb69c921a941209a4b",
-        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-67322deba3f5",
-      "source_fingerprint": "20b3eb3d71c2d1ca7eaf75e7b40696832f479debd08c10139e001f4a9716bf82",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-761a5cf4ee25",
+      "source_fingerprint": "389c9ff2a1cf8f4b6afa1275fc2b700ed8b813c45fc8170e8623dda1bc2fe2cb",
       "fingerprint_closure": [
-        "cairn/devices/tester/proofs/test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py"
+        "cairn/devices/tester/proofs/test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py",
+        "cairn/devices/tester/reach/sitecustomize.py"
       ],
+      "reached": {
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2796502-frqn4ogg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2110930-b4q6z57b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,29 +62,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114323364,
-          "disk_bytes": 144203776,
-          "entries": 11818,
+          "bytes": 530269692,
+          "disk_bytes": 578740224,
+          "entries": 18440,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "008baf08f4d8": {
-          "cairn/devices/tester/proofs/test_a_proof_does_not_inherit_the_callers_git_env.py": {
-            "approved": "plan"
-          },
-          "cairn/devices/tester/proofs/test_the_testers_proofs_reach_temp_only_through_the_scratch_door.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "008baf08f4d8": {
-          "anchor_rule": "journal",
-          "anchor_journal": "2aacde66af653545f521d267ffae32f2998bf759",
-          "anchor_first_build": null,
-          "commit": "2aacde66af653545f521d267ffae32f2998bf759"
+          "reuses": 61
         }
       }
     },

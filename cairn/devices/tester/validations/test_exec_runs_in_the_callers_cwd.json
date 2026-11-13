@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_exec_runs_in_the_callers_cwd.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-10-29T21:13:57",
+    "caller": "cairn test",
+    "date": "2026-11-12T19:40:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_proof_path_run_still_resolves_from_the_repo"
       ],
       "teeth_red": [],
-      "test": "test-65de428b73aa",
+      "test": "test-3ccd6991f1c2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,46 +26,64 @@
       },
       "conditions": {
         "proof": "38ebbbb89bf080120dc226a30fe0a6873b198a5f90737b322c98678795f6b5ef",
-        "fixtures": "85204fa29a113edee4a347c553117c09899762985f5c2bc8f737ca009a652b2e",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65de428b73aa",
-      "source_fingerprint": "05df3ec6abdd82103837dc62e43107ad0411c610fb73614a6752af7958ad636a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3ccd6991f1c2",
+      "source_fingerprint": "db2ba652dfda4e40c5235b022d3017c0141930208d8b554988071d8197a043f7",
       "fingerprint_closure": [
-        "cairn/devices/tester/proofs/test_exec_runs_in_the_callers_cwd.py"
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/cli.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_exec_runs_in_the_callers_cwd.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py"
       ],
+      "reached": {
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
+        "cairn/tools/proof_coverage": "8c50adf9ed5be618471e8ec88abc289352cd7d7bd9495276a681d98fb41345dd",
+        "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
+        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831",
+        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1994004-holxofr_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2110930-xbivq60z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261030.031356.644736.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-eb0319f72f34/stderr.txt",
-            "logs/tester/0/runs/test-eb0319f72f34/stdout.txt"
+            "logs/tester/0/20261113.024016.315393.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-dc6071b453af/stderr.txt",
+            "logs/tester/0/runs/test-dc6071b453af/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 113429562,
-          "disk_bytes": 143081472,
-          "entries": 11725,
+          "bytes": 530270287,
+          "disk_bytes": 578748416,
+          "entries": 18447,
           "builds": 1,
-          "reuses": 28
+          "reuses": 26
         }
       }
     },

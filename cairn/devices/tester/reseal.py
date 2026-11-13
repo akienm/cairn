@@ -76,6 +76,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -799,6 +800,62 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     return {"proof": rel, "outcome": "red", "rung": 3, "ran": True, "trouble": identity,
             "proof_sha256": bound, "stderr_tail": tail,
             "why": f"ran red (exit {evidence.get('returncode')}) under isolation {iso!r}"}
+
+
+# A RESEAL THAT COULD NOT RUN IS A RECORD, NOT A SCROLLED TRACEBACK. The hook never blocks on
+# what the reseal measures (Akien 2026-09-30), so it runs the reseal under `|| true`; that also
+# swallowed a crash of the run itself. Measured 2026-11-12: a full /tmp crashed it and the commit
+# landed rc 0 with no seals staged and nothing anywhere saying why. Law 7 wants the crash
+# permanent in a record, and a trouble is the record this door already raises; the commit still
+# lands. ONE key for the whole run: a crash is the run's, not any proof's.
+RUN_CRASH_IDENTITY = "tester-reseal-could-not-run"
+
+
+def run_or_record(run, *, raiser=None, standing=None) -> int:
+    """``run()``'s exit code, or 3 when it raised — after printing the traceback and raising
+    ``RUN_CRASH_IDENTITY``. A run that completes clears that trouble if it stands.
+
+    ``standing`` answers "does the crash trouble stand?"; it defaults to the trouble store's
+    published ``live()``. A holder it cannot read leaves the trouble standing (loud and wrong
+    beats quiet and wrong). KeyboardInterrupt and SystemExit pass through: a kill is
+    143e3974647b's, and the next run adopts what it left."""
+    import traceback
+    if raiser is None:
+        from cairn.tools.base.diagnostic import ModuleRaiser
+        raiser = ModuleRaiser("tester")
+    try:
+        code = run()
+    except Exception as exc:  # noqa: BLE001 — this IS the record of an unexpected failure
+        tail = traceback.format_exc()
+        print(tail, file=sys.stderr, end="")
+        print(f"reseal: COULD NOT RUN — {type(exc).__name__}: {exc}. No seal was staged; trouble "
+              f"{RUN_CRASH_IDENTITY} raised. The commit is not blocked (Akien 2026-09-30).",
+              file=sys.stderr)
+        try:
+            _raise(raiser, RUN_CRASH_IDENTITY, why=(
+                f"{CALLER} could not run: {type(exc).__name__}: {exc}. The commit it was "
+                f"attached to landed without the seals it would have staged, so the components "
+                f"it touched read red until a reseal completes."),
+                detail={"error": type(exc).__name__, "message": str(exc),
+                        "traceback_tail": tail[-4000:]})
+        except Exception:  # noqa: BLE001 — the traceback above is still on the surface
+            print(f"reseal: and the trouble could not be raised either", file=sys.stderr)
+        return 3
+    if standing is None:
+        def standing():
+            try:
+                from cairn.devices.trouble.tools.store.store import live
+                return RUN_CRASH_IDENTITY in {t.get("id") for t in live()}
+            except Exception:  # noqa: BLE001 — unreadable holder: leave it standing
+                return False
+    if standing():
+        try:
+            raiser.clear_trouble(RUN_CRASH_IDENTITY, by=CLEARS_FOR, what_changed=(
+                f"{CALLER} ran to completion again"))
+            _RAISED_THIS_RUN.discard(RUN_CRASH_IDENTITY)
+        except Exception:  # noqa: BLE001 — a lane we cannot reach leaves the trouble standing
+            pass
+    return code
 
 
 def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None,

@@ -210,6 +210,13 @@ def _hollow_run(args) -> int:
 
 
 def _reseal_run(args) -> int:
+    """``cairn test --reseal``, through the door that makes a crash a trouble (ticket
+    b0e65cf8a77e): the run's own exit code, or 3 when it could not run."""
+    from cairn.devices.tester import reseal as door
+    return door.run_or_record(lambda: _reseal_ladder(args))
+
+
+def _reseal_ladder(args) -> int:
     """``cairn test --reseal`` — the four-rung ladder over the proofs a change touched.
 
     NO TARGETS MEANS THE STAGED SET, and that is the verb's real shape: the hook calls it

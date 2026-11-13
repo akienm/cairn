@@ -2,12 +2,12 @@
   {
     "claim": "proof test_packet_index.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-10-30T12:49:38",
+    "date": "2026-11-12T21:57:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_the_index_answers_exactly_what_a_full_scan_answers\n.\n  ok   test_a_newly_berthed_packet_is_seen_on_the_VERY_NEXT_call\n.\n  ok   test_a_deleted_berth_leaves_the_answer\n.\n  ok   test_the_body_is_RE_READ_from_disk_and_never_served_from_the_index\n.\n  ok   test_the_index_is_built_ONCE_over_an_unchanged_store\n.\n  ok   test_an_unreadable_packet_is_absent_from_the_answer_not_fatal\n.\n  ok   test_a_packet_naming_NO_ticket_indexes_under_nothing\n                                                                  [100%]\n7 passed in 0.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_index_answers_exactly_what_a_full_scan_answers",
@@ -19,7 +19,7 @@
         "test_a_packet_naming_NO_ticket_indexes_under_nothing"
       ],
       "teeth_red": [],
-      "test": "test-da237f04e9e5",
+      "test": "test-e1d9ac70faae",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,6 +36,7 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
@@ -45,17 +46,25 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-da237f04e9e5",
-      "source_fingerprint": "360de53060c13f616a128401b874ca122fb63b6e9ca44320f9d6bbeb49fab132",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1d9ac70faae",
+      "source_fingerprint": "8888a1b3554ee2a3da1aaa3d3f61429f15e2a148a064ca43c19d2f8ffef20433",
       "fingerprint_closure": [
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
         "cairn/tools/chain/grammar.py",
         "cairn/tools/chain/proofs/test_packet_index.py"
       ],
+      "reached": {
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/base": "be1d915f816847a7202d1f1edfeddf3c164c11f3b0bc9772e1ff6397dbff3c1e",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+      },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2593322-1er6pxpu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2226515-d7j7cu_9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,11 +73,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 114200599,
-          "disk_bytes": 143978496,
-          "entries": 11778,
+          "bytes": 529736226,
+          "disk_bytes": 570773504,
+          "entries": 15831,
           "builds": 1,
-          "reuses": 5
+          "reuses": 6
         }
       }
     },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_criteria_come_from_falsifier_clauses.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T21:29:10",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T21:57:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "0 failing"
       ],
       "teeth_red": [],
-      "test": "test-5c8830d89752",
+      "test": "test-e13fa510bce0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,18 +33,18 @@
         "timeout": 120,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5c8830d89752",
-      "source_fingerprint": "9a308bb7ef812fadf767fa22da2df54ec7f564104db1ef83ccd5e074ebe7befc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e13fa510bce0",
+      "source_fingerprint": "1f76b5c41faead793fa08c78f1362f95a0e384786ed39556a003a7aca48123fd",
       "fingerprint_closure": [
         "cairn/tools/chain/__init__.py",
         "cairn/tools/chain/chain.py",
@@ -53,15 +53,15 @@
         "cairn/tools/chain/verdict_contract.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/tools/base": "af1709284f7378a6674de051fd47fcece98009efa5955690901c79c7025bc0c3",
+        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
+        "cairn/tools/base": "be1d915f816847a7202d1f1edfeddf3c164c11f3b0bc9772e1ff6397dbff3c1e",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/orient": "2ec33ededf94cc678610253631b169e342f1fb17c850317c4d3ec86a8a4c1f37",
-        "cairn/tools/system_word": "5c518a6df033e60eeb2bf53aae75cba5fdc119228edfb8cf4effdaeaf70f1713"
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-259211-hktwvxjm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2226515-7ilfftks/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,27 +70,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118117391,
-          "disk_bytes": 150863872,
-          "entries": 12848,
+          "bytes": 529736226,
+          "disk_bytes": 570773504,
+          "entries": 15831,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "e6cac10b0297": {
-          "cairn/tools/chain/verdict_contract.py": [
-            "test_clause_1_two_clauses_yield_two_criteria",
-            "test_clause_2_a_malformed_clause_list_is_refused_naming_the_ticket"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e6cac10b0297": {
-          "anchor_rule": "journal",
-          "anchor_journal": "51269d6852321c43cf5d8ce9971b6597ccdcbee3",
-          "anchor_first_build": "f89ad01b73d5d85a5e628fa5bcd978b0bc976994",
-          "commit": "51269d6852321c43cf5d8ce9971b6597ccdcbee3"
+          "reuses": 5
         }
       }
     },

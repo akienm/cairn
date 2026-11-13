@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_seal_records_what_it_reached.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T19:38:32",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T04:19:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_imported_component_is_reached\n.\n  ok   test_a_python_m_subprocess_is_reached\n.\n  ok   test_a_proof_that_reaches_nothing_records_an_empty_map\n.\n  ok   test_the_shadowed_sitecustomize_still_runs\n.\n  ok   test_a_meta_proof_seal_covers_the_proof_it_runs\n                                                                    [100%]\n5 passed in 10.16s",
+      "stdout_tail": ".\n  ok   test_an_imported_component_is_reached\n.\n  ok   test_a_python_m_subprocess_is_reached\n.\n  ok   test_a_proof_that_reaches_nothing_records_an_empty_map\n.\n  ok   test_the_shadowed_sitecustomize_still_runs\n.\n  ok   test_a_meta_proof_seal_covers_the_proof_it_runs\n                                                                    [100%]\n5 passed in 10.14s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_imported_component_is_reached",
@@ -17,7 +17,7 @@
         "test_a_meta_proof_seal_covers_the_proof_it_runs"
       ],
       "teeth_red": [],
-      "test": "test-0d2819d2a778",
+      "test": "test-06ad8612a7ad",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0d2819d2a778",
-      "source_fingerprint": "6cc192ccc2ff9872242a72f06842410ec0c99e744a85bbb9390209cf3eb98ae0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06ad8612a7ad",
+      "source_fingerprint": "cb29fa4eda4f8a2906ae15ccbf9bbf6cda77de40aca7a8b30eb4698a8027f026",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -57,41 +56,41 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
-        "cairn/tools/proof_coverage": "8c50adf9ed5be618471e8ec88abc289352cd7d7bd9495276a681d98fb41345dd",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831",
-        "cairn/tools/validation_store": "efd2defd53c20481505fb6364ea2b8d1e7df15df3ecf413e5a7b0fa35136795b"
+        "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2110930-0zhocces/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2768508-etu3v1ox/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261113.023824.073038.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.023826.615220.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.023829.051629.TesterDevice.run_proof.json",
-            "logs/tester/0/20261113.023831.756001.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-27f131944e9d/stderr.txt",
-            "logs/tester/0/runs/test-27f131944e9d/stdout.txt",
-            "logs/tester/0/runs/test-ca4cc58e4012/stderr.txt",
-            "logs/tester/0/runs/test-ca4cc58e4012/stdout.txt",
-            "logs/tester/0/runs/test-dd71c1b78ced/stderr.txt",
-            "logs/tester/0/runs/test-dd71c1b78ced/stdout.txt",
-            "logs/tester/0/runs/test-f7429f24e367/stderr.txt",
-            "logs/tester/0/runs/test-f7429f24e367/stdout.txt"
+            "logs/tester/0/20261113.111930.386946.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.111932.903247.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.111935.395436.TesterDevice.run_proof.json",
+            "logs/tester/0/20261113.111937.993566.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-49725135cba2/stderr.txt",
+            "logs/tester/0/runs/test-49725135cba2/stdout.txt",
+            "logs/tester/0/runs/test-5f622d34799b/stderr.txt",
+            "logs/tester/0/runs/test-5f622d34799b/stdout.txt",
+            "logs/tester/0/runs/test-d142b17044d4/stderr.txt",
+            "logs/tester/0/runs/test-d142b17044d4/stdout.txt",
+            "logs/tester/0/runs/test-e4c2b1a4f8c8/stderr.txt",
+            "logs/tester/0/runs/test-e4c2b1a4f8c8/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 530271570,
-          "disk_bytes": 578772992,
-          "entries": 18459,
+          "bytes": 530327504,
+          "disk_bytes": 572653568,
+          "entries": 16265,
           "builds": 1,
-          "reuses": 17
+          "reuses": 16
         }
       }
     },

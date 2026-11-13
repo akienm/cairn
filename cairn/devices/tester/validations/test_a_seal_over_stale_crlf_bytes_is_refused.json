@@ -1,0 +1,92 @@
+[
+  {
+    "claim": "proof test_a_seal_over_stale_crlf_bytes_is_refused.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T04:14:02",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green a_file_checked_out_crlf_before_the_pin_is_named\n  green an_lf_tree_and_a_genuine_edit_are_not_unnormalised\n  green run_proof_refuses_a_seal_over_stale_crlf_bytes\n\n3/3 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "a_file_checked_out_crlf_before_the_pin_is_named",
+        "an_lf_tree_and_a_genuine_edit_are_not_unnormalised",
+        "run_proof_refuses_a_seal_over_stale_crlf_bytes"
+      ],
+      "teeth_red": [],
+      "test": "test-597c87374ac9",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "de40c180ff388bd8a3d16f040ae24dc6ad0f3a71b7f07b629f0d4e35ccd0eada",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-597c87374ac9",
+      "source_fingerprint": "6b3c92dde393fd63bcaeee44cb56063f2cac1f466313a4ae7c7f7aa60b7f0b3c",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_a_seal_over_stale_crlf_bytes_is_refused.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py",
+        "cairn/devices/tester/working_bytes.py"
+      ],
+      "reached": {
+        "cairn/tools/base": "6ae5c6e7ce3279da128a361b779f0cf39e7a00e3c91344819a56de876b5161aa",
+        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
+        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2764469-k89e93cm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-0cbbc8ad453d/stderr.txt",
+            "logs/tester/0/runs/test-0cbbc8ad453d/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 530324223,
+          "disk_bytes": 572616704,
+          "entries": 16252,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

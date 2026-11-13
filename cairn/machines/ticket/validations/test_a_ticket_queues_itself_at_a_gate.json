@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_ticket_queues_itself_at_a_gate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T07:46:07",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-12T20:55:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_queueme_asks_codemother_with_the_fileref_and_logs_it\n.\n  ok   test_a_bounce_or_a_timeout_raises_a_trouble_and_waits\n.\n  ok   test_a_pass_crosses_and_tells_the_harbor_and_the_watchers\n.\n  ok   test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane\n.\n  ok   test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane\n.\n  ok   test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane\n.\n  ok   test_a_pass_at_the_refusing_gate_clears_the_refused_trouble\n.\n  ok   test_at_resolves_an_id_or_a_path_and_refuses_nothing\n                                                                 [100%]\n8 passed in 0.07s",
+      "stdout_tail": ".\n  ok   test_queueme_asks_codemother_with_the_fileref_and_logs_it\n.\n  ok   test_a_bounce_or_a_timeout_raises_a_trouble_and_waits\n.\n  ok   test_a_pass_crosses_and_tells_the_harbor_and_the_watchers\n.\n  ok   test_a_fail_kicks_back_to_fixme_and_waits_in_the_trouble_lane\n.\n  ok   test_a_fail_before_buildme_stays_put_and_waits_in_the_trouble_lane\n.\n  ok   test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane\n.\n  ok   test_a_pass_at_the_refusing_gate_clears_the_refused_trouble\n.\n  ok   test_at_resolves_an_id_or_a_path_and_refuses_nothing\n                                                                 [100%]\n8 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_queueme_asks_codemother_with_the_fileref_and_logs_it",
@@ -20,7 +20,7 @@
         "test_at_resolves_an_id_or_a_path_and_refuses_nothing"
       ],
       "teeth_red": [],
-      "test": "test-0352bfc7b4c5",
+      "test": "test-c8ae4157a166",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,7 +30,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "be3591faab73e95f2e203074adc179731a03b3ffbb195755c892114235343c52",
+        "proof": "8367b59e3c217071f8f827f9b0776e46e278b84a7876ef1366e4d563da259ed0",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,25 +42,24 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0352bfc7b4c5",
-      "source_fingerprint": "32f3e6fd0100d351a7a5095231324e567d4d3092a0909babed4b5283071fba83",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c8ae4157a166",
+      "source_fingerprint": "81feb06240fabe0fce8fdbbaaa389eee16e69a97bad5eae279c62f2dcffc5318",
       "fingerprint_closure": [
         "cairn/machines/ticket/__init__.py",
         "cairn/machines/ticket/proofs/test_a_ticket_queues_itself_at_a_gate.py",
         "cairn/machines/ticket/ticket.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b9b291d3ec425122825935019ca01bf03bacadea488239145f44050a2d6a98e4",
+        "cairn/devices/tester": "88de7b07244ddf1fe7eba01be9d72db0e8319d13030b0f1127a2e553458bd544",
         "cairn/machines/build_inspector": "3850a943a90ab112e3b7c894da9f1a88fe35c702fb7f6de2aa07b5cc948bd02b",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
-        "cairn/tools/base": "9757f3b9e44e8dcef1931042955999f03aa19ed34f0ecb0149306c559f6d7899",
+        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
         "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
@@ -73,39 +72,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1348706-qadbg05q/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2155285-g9878qw2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "devices/cairn/0/machines/sail/sail.json",
-            "logs/charter/0/20261112.144605.652397.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261112.144605.658680.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261113.035534.222958.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261113.035534.227671.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 528726984,
-          "disk_bytes": 572760064,
-          "entries": 16802,
+          "bytes": 529505533,
+          "disk_bytes": 570167296,
+          "entries": 15700,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "e5e05e96f0c0": {
-          "cairn/machines/ticket/ticket.py": [
-            "test_a_fail_at_fixme_stays_put_and_waits_in_the_trouble_lane"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e5e05e96f0c0": {
-          "anchor_rule": "journal",
-          "anchor_journal": "a77a6e07670afe91e3163d908a89c4eeeef67180",
-          "anchor_first_build": "d025bee5a2fb6fd9bdbecdacea121abdc4e69847",
-          "commit": "a77a6e07670afe91e3163d908a89c4eeeef67180"
+          "reuses": 36
         }
       }
     },

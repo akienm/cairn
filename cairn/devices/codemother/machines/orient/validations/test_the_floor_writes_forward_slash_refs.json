@@ -1,0 +1,89 @@
+[
+  {
+    "claim": "proof test_the_floor_writes_forward_slash_refs.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-13T09:32:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "       every_ref_exists_on_disk: []\n  ok   test_orient_on_linux_finds_none_of_those_refs_invented\n       refs: ['cairn/devices/cairn', 'cairn/devices/codemother', 'cairn/devices/codemother/intention+why.json', 'cairn/devices/codemother/machines/clearance', 'cairn/machines/learning_block', 'cairn/tools/gate']\n       domain: cairn/devices/cairn (device); cairn/devices/codemother (device); cairn/devices/codemother/machines/clearance (machine held by device codemother); cairn/machines/learning_block (machine); cairn/tools/gate (tool)\n  ok   test_the_floor_stores_forward_slash_refs_and_their_rungs\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_orient_on_linux_finds_none_of_those_refs_invented",
+        "test_the_floor_stores_forward_slash_refs_and_their_rungs"
+      ],
+      "teeth_red": [],
+      "test": "test-4b8cc88d9431",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "57c80592c953c86882449acf451285456f8c42c7910d58a8abe6eaf430e8c598",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4b8cc88d9431",
+      "source_fingerprint": "4f7faf8f6f9b759cfb906802d8d3fccd2f6ae0d0adca168fbba3e9ef7cc428d5",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/orient/__init__.py",
+        "cairn/devices/codemother/machines/orient/orient.py",
+        "cairn/devices/codemother/machines/orient/proofs/test_the_floor_writes_forward_slash_refs.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "455fd7257dc7728336abcb6b128542409d05377ea111ef94d95179a033ed4a2e",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/librarian": "aca92a33c896d20d1836154dfeb40c6568769f2616997119acc7387366b46152",
+        "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
+        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
+        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
+        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
+        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
+        "cairn/tools/tree": "4870a050a080d2a319a67f9a84953aef1182bca0ab7de561e6e74adecbe64998"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-413943-5gzpvfiv/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 1926784,
+          "disk_bytes": 2306048,
+          "entries": 344,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

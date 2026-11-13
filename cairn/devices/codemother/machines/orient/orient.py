@@ -201,6 +201,17 @@ def _repo_relative(path, root: str) -> str | None:
     return None if rel == ".." or rel.startswith(".." + os.sep) else rel
 
 
+def _posix(ref: str) -> str:
+    """AN IN-REPO REF IS SPELLED WITH FORWARD SLASHES ON EVERY BOX (ticket b12a4b97b125).
+    ``component_home`` and ``_repo_relative`` are both ``os.path.relpath``, which spells a
+    Windows path with backslashes, and a packet drafted on Windows is judged on Linux:
+    measured 2026-11-13, a9709b744bf5's orient was refused there with "refs the floor
+    cannot verify exist: cairn\\devices\\cairn, ...", and ``_rung`` (which splits on
+    "/") derived no domain. No repo path holds a literal backslash, so every one is a
+    separator. Only in-repo refs come through here; one outside the repo stays as written."""
+    return ref.replace("\\", "/")
+
+
 def _rung(ref: str) -> tuple[str, str] | None:
     """WHERE A REF SITS ON THE COMPLEXITY AXIS, read off its address and nothing else.
 
@@ -253,7 +264,7 @@ def floor_packet(request: str, root: str = CAIRN_ROOT) -> dict:
     for tok in facts["paths_found"]:
         expanded = os.path.expanduser(tok)
         rel = _repo_relative(expanded, root) if os.path.isabs(expanded) else None
-        refs.append(rel or tok)
+        refs.append(_posix(rel) if rel else tok)
     for name in facts["components_mentioned"]:
         try:
             home = component_home(name, root)
@@ -261,13 +272,13 @@ def floor_packet(request: str, root: str = CAIRN_ROOT) -> dict:
             # The homes, not the exception's sentence: that sentence is written for a
             # CALLER who can go say which, and this unknown is read by a ceiling that
             # cannot. It needs the two addresses and nothing else.
-            homes = [_repo_relative(h, root) or str(h) for h in exc.homes]
+            homes = [_posix(_repo_relative(h, root) or str(h)) for h in exc.homes]
             unknowns.append(
                 "the request names %r, which answers to more than one rung (%s) — the "
                 "floor will not guess which" % (name, ", ".join(sorted(homes))))
             continue
         if home:
-            refs.append(home)
+            refs.append(_posix(home))
     refs += ["skills/" + s for s in facts["skills_mentioned"]]
 
     for tok in facts["paths_missing"]:

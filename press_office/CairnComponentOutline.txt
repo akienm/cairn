@@ -44,15 +44,17 @@ not matter here. The code catches up to this, never the reverse.
           rank.
     1.3.7 Code that is no longer needed is deleted. Git history keeps it if we ever
           need it back.
-          [Q#99: A retired path must not be named anywhere in the repo (the
-           retirement proof, bin/proofs/test_retired_components_are_gone.py),
-           except in records of truth: history, state, validations, verdicts.
-           Measured 2026-11-13: a tester proof's measured fixture (ticket
-           c8e421aac06e) lists a historical berth's writes_to, which holds
-           skills/ruled/intention+why.json, and the retirement tooth reads that
-           as a caller. Does a measured fixture count as a record that names
-           what passed through, or must the fixture stop carrying the literal
-           path?]
+      1.3.7.1 Deleting code is about running code, not about the record of what
+              happened. A retired path that something still CALLS is the defect; a
+              retired path named by a record of what passed through (history,
+              state, validations, verdicts, a measured fixture) is not. Requirements
+              that police history are de-emphasized, because the aim is less
+              history noise in front of Claude, not hidden history (Law 5). Akien
+              2026-11-13, answering Q#99 (ticket c8e421aac06e's measured fixture
+              names skills/ruled/intention+why.json and the retirement tooth read
+              it as a caller): "we are trying to remove as much of the history as
+              we can. not hiding it, but reducing the noise you're exposed to.
+              time to de-emphasize requirements like that."
 
 2 DEVICE (BaseDevice, part of the base tool; a first class object)
   2.1 PURPOSE: A device is a top level Cairn entity.
@@ -196,16 +198,17 @@ not matter here. The code catches up to this, never the reverse.
               encapsulation. :)"
     3.3.5 Commit often. WHY: so we never wind up with stray files or incomplete
           work.
-          [Q#94: A crossing into PROVEME refuses while anything in either tree is
-          uncommitted (working_tree_clean, widened by ticket c1cca2e3dc23 on your
-          8w, F11 and 8x; unclaimed dirt refuses too, 8u). So with peers on one
-          box, one peer's ticket records (another ticket's log/state, the
-          artifact journal) block every other peer's crossing. Measured
-          2026-11-12: 3195b3b834bc's PROVEME was refused twice on the Dell, over
-          d692ef650534's records and then the orchestrator's. Do records that
-          artifact.locate claims for ANOTHER ticket stop blocking (unclaimed dirt
-          and any code dirt still refuse), or does the whole-tree rule stand and
-          peers serialise their crossings per box?]
+      3.3.5.1 More than one builder works on one box, and there will be more than
+              two, so the whole-tree rule (a PROVEME crossing refuses while anything
+              in either tree is uncommitted, working_tree_clean) is re-examined for
+              N builders on a box. One builder's work must not block another's
+              crossing. Akien 2026-11-13, answering Q#94 (measured 2026-11-12:
+              3195b3b834bc refused twice over d692ef650534's records; measured
+              2026-11-13: 46851816800f refused over ~330 paths of an unrelated
+              merge commit, with four peers idle about an hour): "then it's time
+              to reexamine that specific tooth given that you now have two
+              builders on the box. because if we keep going, there'll be more
+              than two..."
     3.3.6 More than one builder runs at a time, so work is kept apart by branches:
           each ticket's work on its own branch, named by the ticket id, merged
           locally with git, no pull request (GitHub is hosting only). WHY: "the
@@ -541,28 +544,28 @@ not matter here. The code catches up to this, never the reverse.
       5.3.5.2 Two callers waking the same part at once start only one: the part
               that binds its socket first is the only one; a second copy finds it
               taken and exits quietly (as the ground loop does, 5.6.4.3).
-              [Q#93: Ticket b38af5fd1852 says a second live copy of a host
-               singleton refuses LOUDLY; this line says it exits QUIETLY. Your
-               words, 2026-11-12: "when it's going to spin up another, the act of
-               spinning it up should either exit or close the other. what needs
-               to be a singleton per cairn? cairn itself across all boxes. maybe
-               codemother. but on an individual host, that would be the ground
-               loop, the bus, the rack, there can't be two akienasus_cc_0 on the
-               same bus! that would be akienasus_cc_1". Two choices: the second
-               copy exits (loud or quiet), or it closes the first (supersede).
-               Is the answer the same for the bus, the ground loop, the rack and
-               a device name?]
+        5.3.5.2.1 The second copy exits SILENTLY; refusing loudly has no reason
+                  behind it. A --force switch means "don't exit if another is
+                  running: kill the other and take over", for replacing a running
+                  older version with a newer one. Akien 2026-11-13, answering Q#93
+                  (ticket b38af5fd1852 says loud, this line says quiet), about the
+                  ground loop: "why? if i try and run ground loop and it's already
+                  running it should exit silently. otoh, that means we should have
+                  a switch like --force that means don't exit if another is
+                  running, --force means force it, kill the other process. useful
+                  when you're specically replacing a running older version with a
+                  newer one." CC's read, not yet his word: the same holds for every
+                  host singleton (bus, rack, a device name).
       5.3.5.3 What the waker starts outlives whoever started it (detached, or
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the
               bus it once woke.
-              [Q#92: A proof that starts Windows processes stays red until it
-               has your word (CAIRN_PROOF_MAY_SPAWN=1). Measured 2026-11-12:
-               tooth 2 of dc945eb1f072 (cairn.cmd against Git Bash) is red on
-               exactly that word, and nothing in this outline says what the
-               word is. Is it an env var each run sets, a standing flag in
-               ~/.cairn, or may a proof spawn one short hidden process without
-               asking?]
+        5.3.5.3.1 Nothing requires Akien's word for a proof to run. A proof that
+                  starts Windows processes runs without asking; no env var or
+                  standing flag gates it. Akien 2026-11-13, answering Q#92 (tooth 2
+                  of dc945eb1f072 red on CAIRN_PROOF_MAY_SPAWN=1): "NO. NOTHING
+                  REQUIRES ME TO SAY IT. I have no idea what that thicet is talking
+                  about. I'll just go ask the windows box..."
       5.3.5.4 A wake waits until the part answers, at most 60 s (5.5.3.9).
               Repeated failures back off, then file a trouble (5.8.3.2.2), so a
               crash loop cannot spin.
@@ -1093,15 +1096,17 @@ not matter here. The code catches up to this, never the reverse.
               question in those sections, becomes a question on the ticket, which
               holds its build until answered. It reads the outline as it stands
               each time, so editing the outline costs nothing.
-              [Q#96: A ticket-v2 decision line carries n, text and by on every line
-              (census 2026-09-16: 70 of 70), and by is free prose, so nothing
-              checks it. The cast door (the shaped plan) already refuses a line with
-              no writes_to or reads. Should by ride beside writes_to and reads on
-              every decision as a required field the door checks against its four
-              shapes (Akien verbatim, CC at cast, derived from, under rehearsal),
-              or does the cast door's shape replace the by-check, so by stays prose
-              and the door checks only writes_to and reads? Ticket d421051bc1f7,
-              child C; the build waits behind your answer.]
+        9.3.5.1.1 A ticket's plan carries only what a door can check. A decision
+                  line's by (free prose, census 2026-09-16: 70 of 70) is not
+                  checked and not kept: the cast door checks writes_to and reads,
+                  and by goes. Who authored a line is not tracked (Akien
+                  2026-10-28: "there is no point in tracking the 'authoring
+                  entity'", except a gate-pass certificate). CC's decision,
+                  2026-11-13, on Q#96 (ticket d421051bc1f7, child C), after Akien:
+                  "we are moving away from prose. that's why the tickets became
+                  json ... we need things we can check. and that does mean you
+                  have to create adjudications. but i'd say this one isn't
+                  working."
     9.3.6 Holds the charter tool's instance (17.6): build-quality feedback is hers.
   9.4 MACHINES:
     9.4.1 harbor_master

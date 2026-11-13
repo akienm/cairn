@@ -219,6 +219,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
     repair must still hand off, carrying its report — 'always reach Claude Code so it can
     help rebuild a broken box' (cairn/devices/recovery/intention+why.json)."""
     r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace",  # never None: the locale codec cannot decode it on Windows
                        env=_env({"CAIRN_VENV": UNCREATABLE}), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} with a broken preflight — {r.stderr!r}"
     assert "exec claude" in r.stdout, f"the launch was aborted by the preflight — {r.stdout!r}"
@@ -230,6 +231,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
 def test_a_working_preflight_adds_nothing_to_the_launch() -> None:
     """Invisible when it works — the launch line is byte-identical to the pre-preflight one."""
     r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace",  # never None: the locale codec cannot decode it on Windows
                        env=_env(), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} — {r.stderr!r}"
     assert "exec claude" in r.stdout, "no launch line"

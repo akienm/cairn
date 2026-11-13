@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -87,12 +88,19 @@ def _live_akien_pids() -> list[int]:
     return pids
 
 
-def teeth_callers() -> None:
-    print("THE CALLER — measured over real processes, never over a string the proof made up")
-    me = A.caller()
-    check("this proof's own process classifies as cc or akien (it was started by one of them)",
-          me["class"] in ("cc", "akien"), f"{me['class']} {me['cgroup']}")
+LINUX_ONLY = ("a process under a transient cairn-*.service reads as GATE",
+              "a live process in a login-session or desktop-app scope reads as AKIEN",
+              "test_the_three_caller_classes_measure_gate_cc_akien")
 
+
+def _has_linux_callers() -> bool:
+    """The caller teeth drive systemd-run and read /sys/fs/cgroup; a box without both cannot
+    measure them (ticket 2a208067d036)."""
+    return sys.platform.startswith("linux") and shutil.which("systemd-run") is not None \
+        and Path("/sys/fs/cgroup").is_dir()
+
+
+def _linux_caller_teeth(me: dict) -> None:
     tag = f"cairn-proof-artifact-{os.getpid()}"
     gate = _caller_in("systemd-run", "--user", "--wait", "--pipe", "--quiet", "--unit",
                       f"{tag}.service", "-p", f"WorkingDirectory={REPO}")
@@ -119,14 +127,29 @@ def teeth_callers() -> None:
           and bool(hits) and all(c == "akien" for _, c in hits),
           f"gate={gate and gate['class']} me={me['class']} akien={len(hits)} live pids")
 
-    r = subprocess.run([str(REPO / "bin" / "cairn"), "artifact", "caller"], capture_output=True,
-                       text=True, timeout=60)
+
+def teeth_callers() -> None:
+    print("THE CALLER — measured over real processes, never over a string the proof made up")
+    me = A.caller()
+    check("this proof's own process classifies as cc or akien (it was started by one of them)",
+          me["class"] in ("cc", "akien"), f"{me['class']} {me['cgroup']}")
+
+    if _has_linux_callers():
+        _linux_caller_teeth(me)
+    else:
+        for name in LINUX_ONLY:  # named reds: an unmeasured tooth is not green, and not a crash
+            check(name, False, "UNRAN: needs linux cgroups and systemd-run, not measurable on this box")
+
+    from cairn.tools.base.script_argv import bash_script_argv
+    r = subprocess.run([*bash_script_argv(REPO / "bin" / "cairn"), "artifact", "caller"],
+                       capture_output=True, text=True, timeout=60)
     try:
         via_cli = json.loads(r.stdout)
     except ValueError:
         via_cli = {}
     check("test_the_cli_front_door_answers_caller_with_a_measured_class",
-          r.returncode == 0 and via_cli.get("class") == me["class"] and bool(via_cli.get("cgroup")),
+          r.returncode == 0 and via_cli.get("class") == me["class"]
+          and (bool(via_cli.get("cgroup")) or not _has_linux_callers()),  # no cgroup off Linux
           f"rc={r.returncode} class={via_cli.get('class')}")
 
     print("THE CLASSIFIER — pinned over text so the rule is readable")
@@ -332,7 +355,9 @@ def teeth_hook(tmp: Path) -> None:
                             "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(commons)})})
     check("install-hook writes .git/hooks/pre-commit", r.returncode == 0 and
           (commons / ".git" / "hooks" / "pre-commit").exists(), r.stderr[-200:])
-    env = {**os.environ, "PYTHONPATH": str(REPO),
+    # CAIRN_REPO names the door: the hook's other fallbacks are a sibling or ~/dev/src/cairn,
+    # and a box whose checkout is neither would refuse every commit here for that, not for the tooth.
+    env = {**os.environ, "PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
            "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(commons)})}
     (commons / "tickets" / "sneaky.json").write_text("{}")
     _git(commons, "add", "-A")
@@ -357,9 +382,21 @@ def teeth_hook(tmp: Path) -> None:
     for rel in ("cairn/devices/tester/reseal.py", "cairn/tools/artifact/artifact.py"):
         (cairn / rel).parent.mkdir(parents=True, exist_ok=True)
         (cairn / rel).write_text("# stand-in; the real module is on PYTHONPATH\n")
+    if os.name == "nt":
+        # The hook joins PYTHONPATH with ':' and python on Windows splits it on ';', so the
+        # scratch repo (the hook's cwd) is the only entry and the stand-in package would shadow
+        # the door. The stand-in hands over to the real one: forget the stand-in, put the real
+        # code first, run the real __main__ (ticket 2a208067d036; the hooks are right on a
+        # live repo, where cwd IS the door).
+        (cairn / "cairn" / "tools" / "artifact" / "__main__.py").write_text(
+            "import runpy, sys\n"
+            f"sys.path.insert(0, {str(REPO)!r})\n"
+            "for k in [k for k in sys.modules if k == 'cairn' or k.startswith('cairn.')]:\n"
+            "    del sys.modules[k]\n"
+            "runpy.run_module('cairn.tools.artifact', run_name='__main__', alter_sys=True)\n")
     (cairn / "cairn" / "tools" / "x" / "state.json").write_text('{"hand": true}\n')
     _git(cairn, "add", "-A")
-    env_cairn = {**os.environ, "PYTHONPATH": str(REPO),
+    env_cairn = {**os.environ, "PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
                  "CAIRN_ARTIFACT_ROOTS": json.dumps({"cairn": str(cairn), "CairnCommons": str(commons)})}
     c = subprocess.run(["git", "-C", str(cairn), "commit", "-qm", "sneak a state"], capture_output=True,
                        text=True, env=env_cairn, timeout=120)

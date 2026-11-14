@@ -45,7 +45,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.scratch.scratch import scratch_dir
+from cairn.tools.scratch.scratch import home_env, scratch_dir
 
 # One clause, one declarable tooth (proof_coverage: an unnumbered falsifier is clause "all").
 PROVES = {
@@ -209,8 +209,8 @@ def tooth_i_the_entry_point_runs_once_and_records():
     # The pulse runs the real clock, and at 23:00 local the clock is sleep's base trigger
     # (ticket 4de7baf7e255), so the subprocess gets a zone whose local hour is 12 now: POSIX
     # "AAA<h>" is UTC-h, so h = utc_hour - 12. A harness pin; no assertion changes.
-    env = {**os.environ, "HOME": str(home), "PYTHONPATH": str(_REPO_ROOT),
-           "TZ": f"AAA{datetime.now(timezone.utc).hour - 12:+d}"}
+    env = home_env(home, PYTHONPATH=str(_REPO_ROOT),
+                   TZ=f"AAA{datetime.now(timezone.utc).hour - 12:+d}")
     p = subprocess.run([sys.executable, "-m", "cairn.devices.cairn", "pulse"], cwd=_REPO_ROOT,
                        env=env, capture_output=True, text=True, timeout=60)
     assert p.returncode == 0, (p.returncode, p.stdout, p.stderr)

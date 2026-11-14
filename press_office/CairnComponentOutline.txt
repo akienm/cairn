@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 104. An answered question disappears:
+      takes the next unused number, which is 108. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1420,6 +1420,30 @@ not matter here. The code catches up to this, never the reverse.
                (6.3.7.4). Node rows are the same on every box; the sync fills the
                blanks a box holds open (4.3.1.5.1.1). WHY: the local copy is fast,
                and the sync is the backup.
+        11.3.5.1.1 [Q#104: Row identity for the sync: the outline says a node's row
+                   number is a slot reserved from the home librarian (CAIRN_HOME_HOST),
+                   with blanks the sync fills; the code keys a node by a content hash
+                   (trees.node_id_for, sha256 of the content) and the per-nexus tables
+                   are the leaf trees. Which stands for the sync: hash ids (the sync is
+                   a primary-key union, no reservation) or reserved integer slots?
+                   Ticket 3ef8654a8027 holds at BUILDME on it (open-b65577fa5584);
+                   outline 11.3.5.1 / 4.3.1.5.1.1.]
+        11.3.5.1.2 [Q#105: Direction: 11.3.5.1 says the remote syncs with the home box's
+                   database and that the sync is the backup. Is the sync home to remote
+                   only, or both ways (a node only the remote holds also goes to the
+                   home)? Ticket 3ef8654a8027 holds at BUILDME on it
+                   (open-0b76c9de5da5); outline 11.3.5.1.]
+        11.3.5.1.3 [Q#106: Authority: the sync writes rows into tables that other
+                   devices own (librarian, codemother). May db_domain write for an owner
+                   by the registry's recorded owner, or must each owner opt its table in
+                   or run its own sync through the owner's gate? Ticket 3ef8654a8027
+                   holds at BUILDME on it (open-583a63c6f57a); outline 11.3.5.1 and Law
+                   6.]
+        11.3.5.1.4 [Q#107: Conflict: when both boxes hold the same node or leaf id with
+                   different contents (a tree weight that moved on one box), who wins:
+                   the home, the newest, or neither (left and reported)? Ticket
+                   3ef8654a8027 holds at BUILDME on it (open-fb6c36c5287e); outline
+                   11.3.5.1.]
     11.3.6 Who holds tables: every table of learning is a tree in the memory model
            (4.3.1.5), owned by the librarian and delegated to the devices that
            learn. A table that is not learning is an exception and names why; the

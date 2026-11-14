@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 109. An answered question disappears:
+      takes the next unused number, which is 110. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -347,6 +347,14 @@ not matter here. The code catches up to this, never the reverse.
                       embeddings and links stay separate tables addressed by row number?
                       Ticket 3ef8654a8027 holds at BUILDME on it (open-4cc69605128d);
                       outline 4.3.1.5.1.3, born of Q#104.]
+          4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
+                      held. It finds the copy by hashing the content (4.3.1.5.1.2 now
+                      forbids that as a node id). With row ids, finding the copy needs a
+                      lookup by content. Is that a keyed index tree
+                      (librarian_content_index: content hash -> row), which is a tree
+                      lookup and not a node search? Or does dedup go, so that the same
+                      content deposited twice is two rows? Ticket 06db586bedfd holds at
+                      BUILDME on it (open-29caf5836f36); outline 4.3.1.5.1.2.]
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.

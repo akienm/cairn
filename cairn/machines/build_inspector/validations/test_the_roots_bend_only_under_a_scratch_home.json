@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_the_roots_bend_only_under_a_scratch_home.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-14T01:21:56",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_scratch_home_bends_all_three_roots\n.\n  ok   test_the_account_home_keeps_the_live_roots_with_the_env_set\n                                                                       [100%]\n2 passed in 0.39s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_scratch_home_bends_all_three_roots",
+        "test_the_account_home_keeps_the_live_roots_with_the_env_set"
+      ],
+      "teeth_red": [],
+      "test": "test-60c2bc6c7499",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "3c2687542eb23b47674cf6e21e4500dc0faafe21cf6ea10f414b19ba7afcab1b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-60c2bc6c7499",
+      "source_fingerprint": "a463006de0638f56565a245854c105248eac223aa0b2eea40c04505a6f1b9751",
+      "fingerprint_closure": [
+        "cairn/machines/build_inspector/__init__.py",
+        "cairn/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "7a772bccfcf512dfc63eef5ab48c00d3e91b6e3fd7ce499fe93a896ff670aa23",
+        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-578920-64lthqt4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 534166663,
+          "disk_bytes": 580354048,
+          "entries": 17664,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

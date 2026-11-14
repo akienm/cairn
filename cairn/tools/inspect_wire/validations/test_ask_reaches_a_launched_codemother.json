@@ -1,0 +1,92 @@
+[
+  {
+    "claim": "proof test_ask_reaches_a_launched_codemother.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-14T01:22:24",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "E           File \"<string>\", line 3, in <module>\nE             names = w.ask('sieve_names')\nE           File \"/home/akien/dev/src/cairn/cairn/tools/inspect_wire/inspect_wire.py\", line 182, in ask\nE             raise InspectRefused(judge, f\"no answer from codemother over the bus: \"\nE                                         f\"{type(exc).__name__}: {exc}\") from exc\nE         cairn.tools.inspect_wire.inspect_wire.InspectRefused: inspect 'sieve_names' refused: no answer from codemother over the bus: OSError: AF_UNIX path too long\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['/home/akien/.cairn/venv/bin/python3', '-c', \"import json, os, sys\\nfrom cairn.tools.inspect_wi...ectRefused: inspect \\'sieve_names\\' refused: no answer from codemother over the bus: OSError: AF_UNIX path too long\\n').returncode\n\ntest_ask_reaches_a_launched_codemother.py:200: AssertionError\n=========================== short test summary info ============================\nFAILED test_ask_reaches_a_launched_codemother.py::test_ask_answers_as_the_direct_call\nFAILED test_ask_reaches_a_launched_codemother.py::test_a_refusal_raises_naming_the_judge\nFAILED test_ask_reaches_a_launched_codemother.py::test_two_asks_mint_one_scratch_bus\nFAILED test_ask_reaches_a_launched_codemother.py::test_every_added_name_is_answered\nFAILED test_ask_reaches_a_launched_codemother.py::test_a_launch_world_stands_behind_her_inspector_and_goes\nFAILED test_ask_reaches_a_launched_codemother.py::test_inspect_wire_is_a_plain_tool_and_the_old_address_is_gone\nFAILED test_ask_reaches_a_launched_codemother.py::test_ask_answers_from_another_process_and_never_imports_her_shim\n7 failed, 1 passed in 0.62s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_launch_names_every_root_by_environment_and_fixture_is_gone"
+      ],
+      "teeth_red": [
+        "test_ask_answers_as_the_direct_call",
+        "test_a_refusal_raises_naming_the_judge",
+        "test_two_asks_mint_one_scratch_bus",
+        "test_every_added_name_is_answered",
+        "test_a_launch_world_stands_behind_her_inspector_and_goes",
+        "test_inspect_wire_is_a_plain_tool_and_the_old_address_is_gone",
+        "test_ask_answers_from_another_process_and_never_imports_her_shim",
+        "test_ask_reaches_a_launched_codemother"
+      ],
+      "test": "test-ca31adaadfae",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "17188cad6210ecd7f781e1a340e1b1601c483f8aaf247d3880e01c82fe2566ae",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca31adaadfae",
+      "source_fingerprint": "8cbb64082c79d49d638a0d1b5bebd2ef1e0749ab9d6f9f0758f0b613546f905e",
+      "fingerprint_closure": [
+        "cairn/tools/inspect_wire/__init__.py",
+        "cairn/tools/inspect_wire/inspect_wire.py",
+        "cairn/tools/inspect_wire/proofs/test_ask_reaches_a_launched_codemother.py"
+      ],
+      "reached": {
+        "cairn/devices/cairn": "c37e0c3e9f1349facfdf6f530ceaa1ce1346a08f62e08ca5f71056fa80198294",
+        "cairn/devices/cairn/tools/scratch_bus": "50f6cfb3186d52becf1854f61ac2192debf0398f7ce995b0fc0aba18f822ffdd",
+        "cairn/devices/tester": "7a772bccfcf512dfc63eef5ab48c00d3e91b6e3fd7ce499fe93a896ff670aa23",
+        "cairn/machines/build_inspector": "148b2fcf3efb91fd4999ef67733bd24d4ffeb07c5d14602bb77002a1cedda550",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "f7832569656907d982d4903699a2351cca4cb9ce0959626597d95b5826c9153e",
+        "cairn/tools/bus_client": "4e6d4d2834c711f546e8b5874c84705c0f5c3fa9fdf98e11b3642ac6d7f57392",
+        "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-579260-i7uy8xn4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 534166663,
+          "disk_bytes": 580354048,
+          "entries": 17664,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

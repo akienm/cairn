@@ -35,6 +35,8 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
+from urllib.request import url2pathname
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 
@@ -367,7 +369,10 @@ def _house_root() -> Path | None:
     url = str(doc.get("url") or "")
     if not (doc.get("dir_info") or {}).get("editable") or not url.startswith("file://"):
         return None
-    return Path(url.removeprefix("file://")).resolve()
+    # A FILE URL IS DECODED, NOT STRIPPED (ticket 7579b542b4d4). Stripping "file://" left
+    # "/C:/automation/local/cairn" on Windows, which resolved to "C:\C:\automation\local\cairn",
+    # so no client there was ever the house's own; and a space stayed "%20" on every box.
+    return Path(url2pathname(urlparse(url).path)).resolve()
 
 
 def _refuse_a_foreign_replace(home: Path, live_root: str | None) -> None:

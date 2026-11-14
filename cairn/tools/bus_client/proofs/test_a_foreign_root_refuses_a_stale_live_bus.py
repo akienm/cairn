@@ -30,7 +30,8 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"3deafc9e36de": {
+PROVES = {"7579b542b4d4": {"3": "test_a_foreign_root_at_the_live_home_sends_no_shutdown"},
+          "3deafc9e36de": {
     "1": "test_a_foreign_root_at_the_live_home_sends_no_shutdown",
     "2": "test_the_house_root_still_replaces_the_live_bus",
     "3": "test_a_foreign_root_at_a_scratch_home_still_replaces",
@@ -92,7 +93,9 @@ def test_a_foreign_root_at_the_live_home_sends_no_shutdown(monkeypatch):
     else:
         raise AssertionError(f"a foreign root at the live home did not refuse: {sent!r}")
     assert _shutdowns(sent) == 0, f"a foreign root sent shutdown to the live bus: {sent!r}"
-    assert _FOREIGN_HOUSE in said, f"the refusal does not name the house root: {said}"
+    # the refusal names the house root as resolved: on Windows "/nonexistent/..." is
+    # "C:\nonexistent\..." (ticket 7579b542b4d4)
+    assert str(Path(_FOREIGN_HOUSE).resolve()) in said, f"the refusal does not name the house root: {said}"
     assert str(remote._CLASS_ROOT) in said, f"the refusal does not name the caller's root: {said}"
     assert _LIVE_BUS_ROOT in said, f"the refusal does not name the live bus's root: {said}"
     assert "CAIRN_BUS_HOME=" in said, f"the refusal does not say the way out: {said}"

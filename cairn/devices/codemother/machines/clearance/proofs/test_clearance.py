@@ -635,7 +635,7 @@ def test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them()
             _attempt(history_path=hp, state_path=sp)                    # one grant
             _attempt(actor=_IGOR, history_path=hp, state_path=sp)       # two refusals,
             _attempt(boat_id="no-such-boat-exists", history_path=hp, state_path=sp)  # two classes
-            q.write_text(q.read_text(encoding="utf-8") + "{not json\n", encoding="utf-8")
+            q.write_text(q.read_text(encoding="utf-8") + "{not json\n", encoding="utf-8", newline="\n")
             s = survey_the_refusals()
     assert s["asked"] == 3 and s["granted"] == 1 and s["refused"] == 2, \
         f"the reader must count what the gate answered — got {s}"
@@ -805,7 +805,7 @@ def test_a_green_seal_whose_code_has_moved_underneath_it_is_refused():
     # Now the code moves. Not the proof — a sibling module, which is the likelier drift by far
     # and the one a proof-only hash would miss entirely.
     (Path(drifting).parent.parent / "worker.py").write_text(
-        "# the code the proof proves, edited after the seal\n", encoding="utf-8")
+        "# the code the proof proves, edited after the seal\n", encoding="utf-8", newline="\n")
 
     why = _refused_for_proven_space(drifting)
     assert "HORIZON HAS CLOSED" in why, f"the refusal must name the expiry, not a vaguer lack: {why}"
@@ -1181,13 +1181,13 @@ def test_an_unresolvable_hop_refuses_by_name_and_never_defaults():
         charters = Path(tmp) / "charters"
         (charters / "thing").mkdir(parents=True)
 
-        (tickets / "no-field.json").write_text("{}", encoding="utf-8")
+        (tickets / "no-field.json").write_text("{}", encoding="utf-8", newline="\n")
         (tickets / "bad-address.json").write_text(
-            '{"owning_intention": "nowhere/at/all/intention+why.json"}', encoding="utf-8")
+            '{"owning_intention": "nowhere/at/all/intention+why.json"}', encoding="utf-8", newline="\n")
         (tickets / "no-hands.json").write_text(
-            '{"owning_intention": "thing/intention+why.json"}', encoding="utf-8")
+            '{"owning_intention": "thing/intention+why.json"}', encoding="utf-8", newline="\n")
         (charters / "thing" / "intention+why.json").write_text(
-            '{"owner": "a paragraph of prose that no gate can stand on"}', encoding="utf-8")
+            '{"owner": "a paragraph of prose that no gate can stand on"}', encoding="utf-8", newline="\n")
 
         def _why(boat):
             try:
@@ -1335,11 +1335,11 @@ def _retired_fixture(tmp, *, retired):
     (tickets / "a-boat.json").write_text(
         json.dumps({"id": "a-boat", "owning_intention": "thing/intention+why.json",
                     "state": "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME "
-                             "-> LEARNME -> PROVED"}), encoding="utf-8")
+                             "-> LEARNME -> PROVED"}), encoding="utf-8", newline="\n")
     charter = {"gated_by": ["CC"]}
     if retired is not None:
         charter["retired"] = retired
-    (charters / "thing" / "intention+why.json").write_text(json.dumps(charter), encoding="utf-8")
+    (charters / "thing" / "intention+why.json").write_text(json.dumps(charter), encoding="utf-8", newline="\n")
     return str(tickets), str(charters)
 
 
@@ -1637,7 +1637,7 @@ def _journalled(tid: str, proof: str, *, to: str = "PROVEME") -> None:
     doc["entries"].append({"ticket": tid, "to": to, "direction": "forward", "actor": _OWNER,
                            "at": f"2026-09-10T00:{n // 60:02d}:{n % 60:02d}",
                            "proven_by": proof})
-    path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(doc, indent=2), encoding="utf-8", newline="\n")
 
 
 @contextlib.contextmanager
@@ -1714,7 +1714,7 @@ def _cast(tid: str) -> None:
     """Make ``tid`` resolve for the chokepoint's existence-only named-ticket gate."""
     _FIXTURE_TICKETS.mkdir(parents=True, exist_ok=True)
     (_FIXTURE_TICKETS / f"{tid}.json").write_text(
-        json.dumps({"id": tid, "cursor": "code-seam@v1: ... [PROVEME]"}), encoding="utf-8")
+        json.dumps({"id": tid, "cursor": "code-seam@v1: ... [PROVEME]"}), encoding="utf-8", newline="\n")
 
 
 def _at_fixme(cursor: str) -> bool:
@@ -1841,7 +1841,7 @@ def test_a_seal_whose_FINGERPRINT_HAS_MOVED_is_refused_at_PROVED():
     _seal(stale)
     assert record_hollow(stale, tid, {"thing.py": [_COVERED_TOOTH]}) is True
     Path(stale).write_text(Path(stale).read_text(encoding="utf-8")
-                           + "\n# the code moved under the seal\n", encoding="utf-8")
+                           + "\n# the code moved under the seal\n", encoding="utf-8", newline="\n")
     fresh = _covering_proof("fingerprint-fresh", tid)
     _seal(fresh)
     assert record_hollow(fresh, tid, {"thing.py": [_COVERED_TOOTH]}) is True
@@ -1996,7 +1996,7 @@ def _fixme_world_ticket(tid: str) -> Path:
     (tickets / "_charter+why.json").write_bytes((live / "_charter+why.json").read_bytes())
     path = tickets / f"{tid}-a-fixture-boat-refused-at-proved.json"
     path.write_text(json.dumps({"id": tid, "workflow_and_state": _FIXME_WF, "decisions": []},
-                               indent=2) + "\n", encoding="utf-8")
+                               indent=2) + "\n", encoding="utf-8", newline="\n")
     return path
 
 
@@ -2206,7 +2206,7 @@ def test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT():
     assert tid in _hollow_now(), \
         "a re-seal of the same code dropped the hollow reading — the one-commit lifetime is back"
     Path(proof).write_text(Path(proof).read_text(encoding="utf-8") + "\n# moved\n",
-                           encoding="utf-8")
+                           encoding="utf-8", newline="\n")
     _seal(proof)                       # a re-seal AFTER the code moved
     assert tid not in _hollow_now(), \
         ("a hollow reading outlived the tree it was taken on — it must expire with the "

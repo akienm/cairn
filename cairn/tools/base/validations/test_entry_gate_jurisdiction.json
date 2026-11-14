@@ -2,13 +2,13 @@
   {
     "claim": "proof test_entry_gate_jurisdiction.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T02:11:20",
+    "date": "2026-11-14T02:33:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "  green  test_leg_a_complete_ticket_passes_at_leaving_buildme\n  green  test_leg_b_chartless_ticket_refused_at_leaving_buildme\n  green  test_leg_c_unticketed_crossing_records_not_checked\n  green  test_entry_gate_field_always_present",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_entry_gate_jurisdiction.py\", line 215, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_entry_gate_jurisdiction.py\", line 190, in test_into_buildme_still_refuses_chartless\n    transitions.emit(_AT_TICKET, \"BUILDME\",\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n                     history_path=hist, state_path=state, ticket=\"widget\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1550, in emit\n    _exempt, _rec = _require_named_ticket(\"BUILDME\", _ticket, history_path=history_path)\n                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 656, in _require_named_ticket\n    raise TicketRequiredRed(\n    ...<5 lines>...\n        _findings_of(record))\ncairn.tools.base.transitions.TicketRequiredRed: BUILDME crossing refused: named ticket 'widget' is not cast — no file matching 'widget' in /tmp/tmpt_x7a_ho/tickets. A named-but-uncast ticket is an error to fix, never an exemption (naming one is a claim to be judged, not waived by coincidence of address). Cast it via /sorted, or correct the name, then cross again. Nothing was journaled.",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_entry_gate_jurisdiction.py\", line 215, in <module>\n    t()\n    ~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_entry_gate_jurisdiction.py\", line 190, in test_into_buildme_still_refuses_chartless\n    transitions.emit(_AT_TICKET, \"BUILDME\",\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n                     history_path=hist, state_path=state, ticket=\"widget\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1550, in emit\n    _exempt, _rec = _require_named_ticket(\"BUILDME\", _ticket, history_path=history_path)\n                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 656, in _require_named_ticket\n    raise TicketRequiredRed(\n    ...<5 lines>...\n        _findings_of(record))\ncairn.tools.base.transitions.TicketRequiredRed: BUILDME crossing refused: named ticket 'widget' is not cast — no file matching 'widget' in /tmp/tmp7ycveby4/tickets. A named-but-uncast ticket is an error to fix, never an exemption (naming one is a claim to be judged, not waived by coincidence of address). Cast it via /sorted, or correct the name, then cross again. Nothing was journaled.",
       "teeth_green": [
         "test_leg_a_complete_ticket_passes_at_leaving_buildme",
         "test_leg_b_chartless_ticket_refused_at_leaving_buildme",
@@ -16,7 +16,7 @@
         "test_entry_gate_field_always_present"
       ],
       "teeth_red": [],
-      "test": "test-13819da083b0",
+      "test": "test-c7ac959ea0da",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,18 +37,18 @@
       },
       "killed": [
         {
-          "pid": 645507,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-645410-edkxt2az --scratch",
+          "pid": 679909,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-679812-lw9v1_qf --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 645539,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-645410-2g_tpmij --scratch",
+          "pid": 679941,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-679812-a6xdxv3v --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-13819da083b0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c7ac959ea0da",
       "source_fingerprint": "ce9d6cda6709830a45d156ef06682f493387dfcb4e2635a9667539cf8d43d56b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -86,47 +86,47 @@
         "cairn/devices/db_domain/tools/client": "f29f454d0d83c26a4f2e95ffe27a7911bf7ffc62221402e9474da4eeaf1802e2",
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
         "cairn/machines/build_inspector": "18d2dfe679e52132e5fa4c10a9a703e6184f68fa5f11e307f8ed51357246e4a1",
-        "cairn/machines/learning_block": "ee2a1f58ce9323488be6004e988e753c3e646967e0ee06781a442b7cb810fb9c",
+        "cairn/machines/learning_block": "584bfa93dde68d55eb445de49168a537690ece8988dbc252a78a44beb18a57b5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/machines/rehearsal": "a90a57f221e71470f5add3b34504b0e68fd342f524f740504ee828651c90e4d7",
-        "cairn/machines/skill_block": "6417a486b59bd10e6bd2ab5831e4017ad8d969a6b109416fafda1bbf3493aa0c",
+        "cairn/machines/rehearsal": "a60cbbd74e2a3c62d741fa836dc1768f10f2e46a502d19da726db5cf34202cd9",
+        "cairn/machines/skill_block": "614b5dc574aea7027895a981b5c42cee8bc2d910ad4d4527c7dcea359d8f7152",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/bus_client": "4e6d4d2834c711f546e8b5874c84705c0f5c3fa9fdf98e11b3642ac6d7f57392",
+        "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
+        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
         "cairn/tools/inspect_wire": "ce25cea1c83785cd0392be278f2a0ccb67efb328a15d16a0520620b36e08b365",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/question": "5f77fcd11c98fc4c030549e3cddc1b3bb246bb730a1b4394263471ae654d6327",
-        "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
-        "cairn/tools/scratch": "5b302a27da6d3c180613b756bc716341ade55068e6b9b91fb6c6d163371b24af",
-        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
-        "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56",
+        "cairn/tools/question": "3b953b7ff0b73e00b9a8773c0f04d0555f80bb63ad2084f86862f83db00a72b4",
+        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
+        "cairn/tools/scratch": "3cbb56aff5f9c91b6e72fc7c460b8107618695f9570d0a24827c8b367d20b178",
+        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2",
+        "cairn/tools/validation_store": "fbce83834593b555ac21a1449185a51b04235250c224b17138a010d7cae5932d",
         "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-628656-iv6jq6jm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-679742-tybm0fb9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.091117.951026.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.091118.662084.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.091118.683983.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.093355.790794.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.093356.507105.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.093356.528840.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 534540945,
-          "disk_bytes": 580890624,
-          "entries": 17730,
+          "bytes": 534637871,
+          "disk_bytes": 580993024,
+          "entries": 17735,
           "builds": 1,
-          "reuses": 39
+          "reuses": 0
         }
       }
     },

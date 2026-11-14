@@ -198,6 +198,7 @@ def _with_a_far_session_bus(fn):
 PROVES = {
     "d66f2e18fc5c": {
         "2": "test_the_seal_ignores_a_far_session_bus",
+        "3": "test_the_scratch_bus_goes_with_its_home",
     },
     "1accdc1781aa": {
         "3": "test_an_UNCOVERED_boat_is_REFUSED_at_PROVED_and_every_lack_is_named_in_one_pass",
@@ -2277,9 +2278,110 @@ def test_the_seal_ignores_a_far_session_bus():
     assert record.get("verdict") == "green", f"the far-bus seal is not green: {record!r}"
 
 
+def _scratch_system_up(home: Path, leg: str) -> None:
+    """Bring up a ground loop and a bus under the scratch ``home`` through the cairn device's
+    published start, with unit names of their own. Under the live unit name a scratch loop is
+    refused on Linux (the live loop holds the name), so nothing would be there to leak; on
+    Windows the ask's own detached loop is the one that leaked."""
+    import subprocess as _sp
+    import time
+    from cairn.tools.scratch.scratch import home_env
+    from cairn.tools.base.singleton import held
+    from cairn.tools.base.shim import loop_lock_path
+    root = Path(__file__).resolve().parents[6]
+    env = home_env(home, PYTHONPATH=str(root),
+                   CAIRN_GROUND_LOOP_UNIT=f"cairn-ground-loop-proof-d66f-{leg}-{os.getpid()}",
+                   CAIRN_BUS_UNIT=f"cairn-bus-proof-d66f-{leg}-{os.getpid()}")
+    up = _sp.run([sys.executable, str(root / "cairn/devices/cairn/bin/start")], env=env,
+                 capture_output=True, text=True, timeout=240, cwd=str(root))
+    lock = loop_lock_path(home / ".cairn/devices/cairn/0/machines/ground_loop")
+    for _ in range(60):
+        if held(lock):
+            return
+        time.sleep(1)
+    raise AssertionError(f"no scratch ground loop came up under {home}, so nothing was measured: "
+                         f"rc={up.returncode} out={up.stdout[-600:]!r} err={up.stderr[-600:]!r}")
+
+
+def _nothing_left_running(home: Path, leg: str, bus_pid) -> list[str]:
+    """What the scratch ``home`` still runs once ``_shutdown_ask_bus`` has been called on it.
+    ``bus_pid`` is the pid its bus answered with before the shutdown."""
+    import shutil
+    from cairn.tools.base.singleton import held
+    from cairn.tools.base.shim import loop_lock_path
+    from cairn.tools.bus_client.remote import _answers
+    bus = home / ".cairn/devices/cairn/machines/bus/0"
+    lock = loop_lock_path(home / ".cairn/devices/cairn/0/machines/ground_loop")
+    left = []
+    if not bus_pid:
+        left.append(f"{leg}: no bus pid was read before the shutdown, so its exit was not measured")
+    elif _pid_alive(bus_pid):
+        left.append(f"{leg}: the scratch bus process {bus_pid} is still running")
+    if _answers(bus) is not None:
+        left.append(f"{leg}: the scratch bus at {bus} still answers")
+    if held(lock):
+        left.append(f"{leg}: the scratch ground loop still holds {lock}")
+    try:
+        shutil.rmtree(home)
+    except OSError as exc:
+        left.append(f"{leg}: the scratch HOME cannot be removed ({exc})")
+    return left
+
+
+def _stop_proof_units() -> None:
+    import subprocess as _sp
+    if os.name == "nt":
+        return
+    for leg in ("green", "busdied"):
+        for unit in (f"cairn-ground-loop-proof-d66f-{leg}-{os.getpid()}",
+                     f"cairn-bus-proof-d66f-{leg}-{os.getpid()}"):
+            try:
+                _sp.run(["systemctl", "--user", "stop", unit], capture_output=True, timeout=60)
+            except (OSError, _sp.SubprocessError):
+                pass
+
+
+def test_the_scratch_bus_goes_with_its_home():
+    """d66f2e18fc5c clause 3: after ``_shutdown_ask_bus``, nothing the scratch HOME started still
+    runs. The bus does not answer, the ground loop no longer holds its run.lock, and the HOME
+    can be removed, and the bus process it answered with has exited (on Windows a bus that
+    stopped answering still held its log open, measured on akiendell). This holds on the green path (a real ask, the system up) AND when the bus
+    died at start (only the loop left). MEASURED 2026-11-13 on akienyoga9i: a scratch ask whose
+    bus died at start (5432 refused) left its loop holding run.lock, and the sweep failed with
+    WinError 32, because the shutdown addressed only the bus."""
+    from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import scratch_dir
+    left = []
+    try:
+        home = Path(scratch_dir("testing-d66f-green-"))
+        _scratch_system_up(home, "green")
+        proof = _component("busgoes", _GREEN_FIXTURE)
+        reply = _ask_run_on_this_box(str(proof), sender="codemother", caller="cc",
+                                     why="the loop tooth asks once", home=home)
+        assert isinstance((reply.get("body") or {}).get("record"), dict), (
+            f"the ask returned no record, so the green path was not measured: {reply!r}")
+        pid = _ask_bus_pid(home)
+        _shutdown_ask_bus(home)
+        left += _nothing_left_running(home, "green path", pid)
+
+        home = Path(scratch_dir("testing-d66f-busdied-"))
+        _scratch_system_up(home, "busdied")
+        pid = _ask_bus_pid(home)
+        try:
+            RemoteBus(home / ".cairn/devices/cairn/machines/bus/0").shutdown()
+        except OSError:
+            pass
+        _shutdown_ask_bus(home)
+        left += _nothing_left_running(home, "bus died at start", pid)
+    finally:
+        _stop_proof_units()
+    assert left == [], left
+
+
 def _main() -> int:
     checks = [
         test_the_seal_ignores_a_far_session_bus,
+        test_the_scratch_bus_goes_with_its_home,
         test_the_owner_may_clear_a_legal_move_and_it_is_recorded,
         test_an_unauthorized_actor_is_refused_and_nothing_is_written,
         test_clearance_is_delegable_per_operation,

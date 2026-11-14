@@ -556,6 +556,23 @@ not matter here. The code catches up to this, never the reverse.
                   when you're specically replacing a running older version with a
                   newer one." CC's read, not yet his word: the same holds for every
                   host singleton (bus, rack, a device name).
+        5.3.5.2.2 Akien 2026-11-13, said in akiendell's session, answering the
+                  same Q#93 on a second asking (verbatim): "no there's no conflict
+                  there. those are completely different kinds of things. spinning
+                  up a second ground loop should see the first, and that it's
+                  fine, and exit quietly. if we're starting a new one on purpose,
+                  like there's an older one running, we'll add --force, which
+                  means kill the old one. we change that intention. i have no
+                  recollection why it says loudly. but the naming, yes. if we had
+                  two zeros how would messages get routed? or <host>_cc_RESCUE? we
+                  DO want to be able to spin up more than one of something. many
+                  things can be singletons or not... like the embeddings
+                  generator. if we wound up with too much traffic, we might open a
+                  second on another host. but the launcher has to ask the shim to
+                  create the instance, and so it's the shim's job to say 'we've
+                  been asked to start and instance, then we've not been given a
+                  name for it, then we have a cc_0 instance, so I'll launch it
+                  with cc_1'"
       5.3.5.3 What the waker starts outlives whoever started it (detached, or
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the

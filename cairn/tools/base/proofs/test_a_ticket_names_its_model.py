@@ -51,9 +51,10 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def _doc(tmp: Path, tid: str, **over) -> dict:
     """A complete cast over scratch berths (the sorted berth agrees with the doc)."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / f"sorted-{tid}.json"
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": {
-        "workflow": WORKFLOW, "node_class": "code-seam"}}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": {
+        "workflow": WORKFLOW, "node_class": "code-seam"}}))
     doc = {
         "id": tid, "title": "model proof " + tid, "date": "2026-10-11",
         "owner": "codemother", "owning_intention": "skills/sorted/intention+why.json",
@@ -118,6 +119,7 @@ def test_4() -> None:
 
 
 def main() -> int:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     from cairn.tools.artifact import artifact as A
     live = A.journal_path(A.roots()["CairnCommons"])
     live_before = live.read_bytes() if live.exists() else b""
@@ -129,7 +131,7 @@ def main() -> int:
         declared = json.loads(LIVE_CHARTER.read_text(encoding="utf-8"))
         # 284798998ab0: a ticket is plan + state + log, so the store declares all three sets
         fields = {k: declared[k] for k in ("plan_fields", "state_fields", "log_fields", "log_kinds") if k in declared}
-        (tickets / "_charter+why.json").write_text(json.dumps(fields) + "\n")
+        write_fixture((tickets / "_charter+why.json"), json.dumps(fields) + "\n")
         A.set_diagnostic_roots({"CairnCommons": commons, "cairn": REPO})
         try:
             test_1(tmp, tickets)

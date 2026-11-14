@@ -56,12 +56,13 @@ def _examples() -> list[str]:
 
 def _fixture(tmp: Path, tid: str, example: dict) -> dict:
     """The example with only its id, title and berths swapped for fixture ones."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     doc = json.loads(json.dumps(example))
     sorted_berth = tmp / f"sorted-{tid}.json"
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": {
-        "workflow": doc.get("workflow_and_state"), "node_class": doc.get("node_class")}}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": {
+        "workflow": doc.get("workflow_and_state"), "node_class": doc.get("node_class")}}))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     doc.update(id=tid, title=f"testing shaped example {tid}", sorted_berth=str(sorted_berth),
                intent_berth=str(intent_berth))
     return doc

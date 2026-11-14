@@ -75,6 +75,7 @@ def tooth_1(store: Path) -> None:
 
 
 def tooth_2() -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     name = PROVES["63e6eb836769"]["2"]
     try:
         import os
@@ -89,12 +90,11 @@ def tooth_2() -> None:
                      "instance": home / ".cairn"}
             store = log_path("cairn", 0, roots) / "troubletickets"
             store.mkdir(parents=True)
-            (store / "a-cli-clear-proof-trouble.json").write_text(json.dumps({
+            write_fixture((store / "a-cli-clear-proof-trouble.json"), json.dumps({
                 "id": "a-cli-clear-proof-trouble", "standing": "OPEN", "why": "a proof's trouble",
                 "count": 1, "first_seen": "2026-10-18T00:00:00+00:00",
                 "last_seen": "2026-10-18T00:00:00+00:00", "occurrences": [], "notified": ["cc"],
-                "cleared_by": [], "recurred_after_clear": None, "prior_attempts": 0}),
-                encoding="utf-8")
+                "cleared_by": [], "recurred_after_clear": None, "prior_attempts": 0}))
             # THE CALLER'S ENVIRONMENT, HOME and PYTHONPATH replaced: the CLI's TroubleShim lazy-inits the
             # ground loop, and a stripped env left systemd-run --user without its manager, so the start
             # fell through to a setsid loop under the scratch HOME that outlived the run (measured

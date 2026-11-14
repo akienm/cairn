@@ -153,11 +153,12 @@ def test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead():
 
 
 def test_a_dead_name_since_buildme_is_refused():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     world = scratch_dir("dead-proof-name-since-buildme-world-")
     repo, commons = world / "repo", world / "commons"
     (repo / "fx").mkdir(parents=True)
     commons.mkdir()
-    (repo / "fx" / "history.json").write_text(json.dumps({"entries": [{
+    write_fixture((repo / "fx" / "history.json"), json.dumps({"entries": [{
         "from": "TICKETME", "to": "BUILDME", "direction": "forward", "ticket": _FIXTURE_TICKET,
         "proven_by": _GONE, "at": "2026-01-01T10:00:00", "seq": 1}]}))
     saved = crossings.ROOTS

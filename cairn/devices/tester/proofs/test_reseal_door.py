@@ -739,6 +739,7 @@ def _holder(root: Path):
             path.write_text(json.dumps(rec), encoding="utf-8")
 
         def clear_trouble(self, identity, *, by, what_changed):
+            from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
             self.cleared.append(identity)
             self.signed.append({"by": by, "what_changed": what_changed})
             path = store / f"{identity}.json"
@@ -752,7 +753,7 @@ def _holder(root: Path):
             rec["standing"] = "CLEARED"
             rec["resolution"] = {"what_changed": what_changed}
             (store / CLEARED_DIR).mkdir(exist_ok=True)
-            (store / CLEARED_DIR / f"{identity}.json").write_text(json.dumps(rec), encoding="utf-8")
+            write_fixture((store / CLEARED_DIR / f"{identity}.json"), json.dumps(rec))
             path.unlink()
 
     return store, _HolderRaiser()

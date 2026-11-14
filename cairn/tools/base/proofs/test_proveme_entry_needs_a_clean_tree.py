@@ -70,13 +70,14 @@ def _git(repo: Path, *args: str) -> str:
 
 def _world() -> tuple[Path, Path, Path]:
     """<tmp>/cairn holding comp/, and <tmp>/CairnCommons beside it — both committed clean."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     tmp = scratch_dir("proveme-entry-clean-tree-proof-")
     cairn, commons = tmp / "cairn", tmp / "CairnCommons"
     comp = cairn / "comp"
     comp.mkdir(parents=True)
-    (comp / "intention+why.json").write_text(json.dumps({"component": "comp"}) + "\n")
-    (comp / "history.json").write_text("[]\n")
-    (comp / "state.json").write_text("{}\n")
+    write_fixture((comp / "intention+why.json"), json.dumps({"component": "comp"}) + "\n")
+    write_fixture((comp / "history.json"), "[]\n")
+    write_fixture((comp / "state.json"), "{}\n")
     (cairn / "kept.txt").write_text("cairn committed\n")
     commons.mkdir()
     (commons / "ledger.txt").write_text("commons committed\n")
@@ -135,12 +136,13 @@ def test_both_trees_clean_cross_with_a_working_tree_clean_lane():
 def test_a_dir_no_repo_holds_crosses_not_checked_with_no_lane():
     """F16: a dir NO repo holds has nothing to commit into — the seat writes no lane (a pass over
     input it never read is the vacuous green 316b named) and records why it did not check."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     comp = scratch_dir("proveme-entry-no-repo-proof-") / "comp"
     comp.mkdir()
     assert not any((d / ".git").exists() for d in (comp, *comp.parents)), \
         f"the fixture must sit under no repo at all: {comp}"
-    (comp / "history.json").write_text("[]\n")
-    (comp / "state.json").write_text("{}\n")
+    write_fixture((comp / "history.json"), "[]\n")
+    write_fixture((comp / "state.json"), "{}\n")
     new = _cross(comp, "no repo")
     assert transitions.parse_workflow(new).here == "PROVEME", new
     rec = json.loads((comp / "history.json").read_text())[-1]

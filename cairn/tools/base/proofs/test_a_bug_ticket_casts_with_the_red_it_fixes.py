@@ -55,11 +55,12 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _doc(tmp: Path, tid: str, **extra) -> dict:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / f"sorted-{tid}.json"
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": {
-        "workflow": BUG_WORKFLOW, "node_class": "bug"}}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": {
+        "workflow": BUG_WORKFLOW, "node_class": "bug"}}))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     doc = {
         "id": tid, "title": f"testing a bug that names its red {tid}", "date": "2026-11-12",
         "owner": "CC", "owning_intention": "cairn/tools/base/intention+why.json",

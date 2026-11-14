@@ -69,13 +69,14 @@ def test_clearing_moves_the_file_into_cleared():
 
 
 def test_live_is_the_top_level_listing():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as d:
         tmp = Path(d)
         dev = _device(tmp)
         # A file at the top says CLEARED in its own field. Location decides, so it is live.
-        (tmp / "a-proof-trouble-placed-by-hand.json").write_text(json.dumps(
+        write_fixture((tmp / "a-proof-trouble-placed-by-hand.json"), json.dumps(
             {"id": "a-proof-trouble-placed-by-hand", "standing": "CLEARED", "why": "placed"}))
-        (tmp / "a-proof-trouble-malformed.json").write_text("{ not json")
+        write_fixture((tmp / "a-proof-trouble-malformed.json"), "{ not json")
         ids = {t.get("id") for t in dev.live()}
         assert "a-proof-trouble-placed-by-hand" in ids, ids
         assert len(dev.live()) == 2, dev.live()
@@ -137,15 +138,16 @@ def test_the_default_store_is_under_the_instance_logs():
 
 
 def test_migrate_from_moves_the_old_store_whole():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         old, new = base / "old", base / "new"
         old.mkdir()
-        (old / "a-proof-live-one.json").write_text(json.dumps(
+        write_fixture((old / "a-proof-live-one.json"), json.dumps(
             {"id": "a-proof-live-one", "standing": "LIVE", "why": "still standing"}))
-        (old / "a-proof-cleared-one.json").write_text(json.dumps(
+        write_fixture((old / "a-proof-cleared-one.json"), json.dumps(
             {"id": "a-proof-cleared-one", "standing": "CLEARED", "why": "fixed"}))
-        (old / "a-proof-unreadable-one.json").write_text("{ not json")
+        write_fixture((old / "a-proof-unreadable-one.json"), "{ not json")
         dev = _device(new)
         out = dev.migrate_from(old)
         assert sorted(p.name for p in old.glob("*.json")) == [], "the old store kept a file"

@@ -84,10 +84,11 @@ class _Corpus:
         self._tickets = tickets
 
     def __enter__(self):
+        from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
         self._td = tempfile.TemporaryDirectory()
         d = Path(self._td.name)
         for name, body in self._tickets.items():
-            (d / f"{name}.json").write_text(json.dumps(body), encoding="utf-8")
+            write_fixture((d / f"{name}.json"), json.dumps(body))
         self._saved = ticket_file._TICKETS
         ticket_file._TICKETS = d
         return d

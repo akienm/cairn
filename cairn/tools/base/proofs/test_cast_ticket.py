@@ -73,11 +73,12 @@ DOOR_FRAME = "/cairn/tools/base/transitions.py:1:cast_ticket"
 
 def _fields(tmp: Path, tid: str = "abc123def456", **over) -> dict:
     """A complete cast over scratch berths (the sorted berth agrees with the doc)."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / "sorted.json"
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": {
-        "workflow": WORKFLOW, "node_class": "code-seam"}}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": {
+        "workflow": WORKFLOW, "node_class": "code-seam"}}))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     doc = {
         "id": tid, "title": "Casting rides a door!!  Proof", "date": "2026-09-18",
         "owner": "codemother", "owning_intention": "skills/sorted/intention+why.json",
@@ -201,18 +202,19 @@ def test_a_held_id_is_refused(A, tmp: Path, commons: Path) -> None:
 
 
 def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     tickets = commons / "tickets"
     # journaled_beside: a creation through the artifact door by some other frame
     A.write(tickets / "beside000001-beside.json", json.dumps({"id": "beside000001"}, indent=2) + "\n", verb="cast",
             why="proof: beside the door")
     # pre_door: a genesis-first entry over a standing file
-    (tickets / "predoor00001-genesis.json").write_text('{"id": "predoor00001"}\n')
+    write_fixture((tickets / "predoor00001-genesis.json"), '{"id": "predoor00001"}\n')
     _plant_entry(A, commons, "tickets/predoor00001-genesis.json", "2026-09-01T00:00:00+00:00",
                  ["x.py:1:genesis"], verb="genesis")
     # unjournaled: a hand-dropped file
-    (tickets / "handdrop0001-hand.json").write_text('{"id": "handdrop0001"}\n')
+    write_fixture((tickets / "handdrop0001-hand.json"), '{"id": "handdrop0001"}\n')
     # underscore files are not tickets
-    (tickets / "_charter+why.json").write_text("{}\n")
+    write_fixture((tickets / "_charter+why.json"), "{}\n")
     s = _S.sweep_casts(commons)
     check("the sweep counts the four classes",
           s["counts"] == {"through_the_door": 2, "journaled_beside": 1, "pre_door": 1,
@@ -249,6 +251,7 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
 
 
 def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A, tmp: Path) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     P = _S.probe
     from cairn.tools.base.probe import Probe
     check("PROBE is a frozen Probe with carry and enough",
@@ -261,20 +264,20 @@ def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A,
     days = ["2026-09-10", "2026-09-11", "2026-09-12"]
     for i in range(9):
         _plant_entry(A, c2, f"tickets/{i:012d}-t.json", f"{days[0]}T0{i}:00:00+00:00", [DOOR_FRAME])
-        (c2 / "tickets" / f"{i:012d}-t.json").write_text("{}\n")
+        write_fixture((c2 / "tickets" / f"{i:012d}-t.json"), "{}\n")
     check("not enough at nine", not P.PROBE.enough(ctx()) and P.PROBE.trigger(None, ctx()))
     _plant_entry(A, c2, "tickets/000000000009-t.json", f"{days[0]}T10:00:00+00:00", [DOOR_FRAME])
-    (c2 / "tickets" / "000000000009-t.json").write_text("{}\n")
+    write_fixture((c2 / "tickets" / "000000000009-t.json"), "{}\n")
     check("not enough at ten on one day", not P.PROBE.enough(ctx()))
     check("carry names the calendar as the finding",
           "calendar days" in P.PROBE.carry(ctx())["finding"], P.PROBE.carry(ctx())["finding"])
     for i, d in ((10, days[1]), (11, days[2])):
         _plant_entry(A, c2, f"tickets/{i:012d}-t.json", f"{d}T09:00:00+00:00", [DOOR_FRAME])
-        (c2 / "tickets" / f"{i:012d}-t.json").write_text("{}\n")
+        write_fixture((c2 / "tickets" / f"{i:012d}-t.json"), "{}\n")
     check("enough at ten consecutive across three distinct days",
           P.PROBE.enough(ctx()) and not P.PROBE.trigger(None, ctx()),
           json.dumps(P.survey_the_casts(c2)))
-    (c2 / "tickets" / "hand00000000-dropped.json").write_text("{}\n")
+    write_fixture((c2 / "tickets" / "hand00000000-dropped.json"), "{}\n")
     check("one hand-dropped file takes it back down",
           not P.PROBE.enough(ctx()) and P.PROBE.trigger(None, ctx())
           and "beside" in P.PROBE.carry(ctx())["finding"])
@@ -283,7 +286,7 @@ def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A,
           and "23089d52d805" in str(P.PROBE.carry(ctx())["ticket"]))
     (c2 / "tickets" / "hand00000000-dropped.json").unlink()
     _plant_entry(A, c2, "tickets/beside000000-b.json", f"{days[2]}T10:00:00+00:00", ["scratch/castlib.py:83:cast_ticket"])
-    (c2 / "tickets" / "beside000000-b.json").write_text("{}\n")
+    write_fixture((c2 / "tickets" / "beside000000-b.json"), "{}\n")
     check("a creation through some other frame — even one named cast_ticket — takes it back down",
           not P.PROBE.enough(ctx()) and "tickets/beside000000-b.json" in P.PROBE.carry(ctx())["counts"]["journaled_beside"])
 

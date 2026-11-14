@@ -78,13 +78,13 @@ def _census() -> dict:
 
 
 def _tickets(commons: Path) -> Path:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     t = commons / "tickets"
     t.mkdir(parents=True)
     charter = json.loads(LIVE_CHARTER.read_text(encoding="utf-8"))
     c = _census()
     charter["plan_fields"], charter["state_fields"], charter["log_fields"] = c["plan"], c["state"], c["log"]
-    (t / "_charter+why.json").write_text(json.dumps(charter, indent=2, ensure_ascii=False) + "\n",
-                                          encoding="utf-8")
+    write_fixture((t / "_charter+why.json"), json.dumps(charter, indent=2, ensure_ascii=False) + "\n")
     return t
 
 
@@ -163,9 +163,10 @@ def test_plans_yields_the_plan_alone(TF, tmp: Path) -> None:
 
 
 def test_split_then_reconstruct_returns_the_doc(L, TF, t: Path) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     plan = t / "dddd4444eeee-split.json"
     doc = {**_doc("dddd4444eeee"), "an_ad_hoc_trail_field": {"said": "trail"}}
-    plan.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_fixture(plan, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
     out = L.split(plan, actor="proof", why="proof: split")
     after = json.loads(plan.read_text(encoding="utf-8"))
     state = json.loads(TF.state_path(plan).read_text(encoding="utf-8"))
@@ -205,6 +206,7 @@ PLAN = TID + "-a-split-fixture"
 
 
 def _world(tmp: Path) -> Path:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     t = _tickets(tmp / "CairnCommons")
     plan = {"id": TID, "title": "a split fixture", "owning_intention": "cairn/tools/base/intention+why.json",
             "intention": "a fixture", "why": "a proof", "traces_to": "Law 5", "how": "none",
@@ -213,13 +215,13 @@ def _world(tmp: Path) -> Path:
              "watchme": "none, because a fixture", "questions": ["open-aaaaaaaaaaa1"],
              "intent_berth": "/nowhere/intent-berth.json", "sorted_berth": "/nowhere/sorted-berth.json",
              "build_commits": ["deadbeef"]}
-    (t / (PLAN + ".json")).write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
-    (t / (PLAN + ".state.json")).write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+    write_fixture((t / (PLAN + ".json")), json.dumps(plan, indent=2) + "\n")
+    write_fixture((t / (PLAN + ".state.json")), json.dumps(state, indent=2) + "\n")
     lines = [{"kind": "field", "at": "2026-10-30T00:00:00", "actor": "proof", "field": "from_idea",
               "value": "2026-10-30-a-fixture-idea"},
              {"kind": "field", "at": "2026-10-30T00:00:00", "actor": "proof",
               "field": "measurements_since_cast", "value": [{"m": 1}]}]
-    (t / (PLAN + ".log.jsonl")).write_text("".join(json.dumps(x) + "\n" for x in lines), encoding="utf-8")
+    write_fixture((t / (PLAN + ".log.jsonl")), "".join(json.dumps(x) + "\n" for x in lines))
     return t
 
 
@@ -229,9 +231,9 @@ def _state(t: Path, **over) -> None:
 
 
 def _orphan(t: Path, doc=None, corrupt: bool = False) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     doc = {"workflow_and_state": CURSOR, "watchme": "none, because a fixture"} if doc is None else doc
-    (t / (TID2 + "-an-orphan-state.state.json")).write_text(
-        "{not json" if corrupt else json.dumps(doc) + "\n", encoding="utf-8")
+    write_fixture((t / (TID2 + "-an-orphan-state.state.json")), "{not json" if corrupt else json.dumps(doc) + "\n")
 
 
 def _raises(fn, kind: str, words: str = "") -> tuple[bool, str]:
@@ -276,9 +278,10 @@ def r_transitions(t, patch):
 
 
 def r_skill_block(t, patch):
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     i = t.parent / "ideas"
     i.mkdir()
-    (i / "2026-10-30-a-fixture-idea.json").write_text(json.dumps({"berth": "/nowhere/idea-berth.json"}))
+    write_fixture((i / "2026-10-30-a-fixture-idea.json"), json.dumps({"berth": "/nowhere/idea-berth.json"}))
     got = _mod("cairn.machines.skill_block.skill_block").berth_ticket_cursors(tickets=t, ideas=i)
     return str(Path("/nowhere/idea-berth.json").resolve()) in got, got
 
@@ -448,17 +451,19 @@ def r_clearance_gate(t, patch):
 
 
 def r_failed_run(t, patch):
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     _orphan(t)
     r = t.parent / "rehearsals"
     r.mkdir()
-    (r / "x.json").write_text(json.dumps({"ran": False, "ticket": TID2}))
+    write_fixture((r / "x.json"), json.dumps({"ran": False, "ticket": TID2}))
     got = _mod("cairn.machines.rehearsal.probes.a_failed_run_is_counted")._measure({}, commons=t.parent)["failed"]
     return got == 0, got
 
 
 def _carriers(module, key, value):
     def reader(t, patch):
-        (t / (TID2 + "-x.state.json")).write_text(json.dumps({key: value}))
+        from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
+        write_fixture((t / (TID2 + "-x.state.json")), json.dumps({key: value}))
         m = _mod(module)
         patch(m, "_TICKETS", t)
         got = m._walk()["carriers"]

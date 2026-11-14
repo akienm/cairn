@@ -101,6 +101,7 @@ def test_a_RECYCLED_pid_reads_DEAD_against_a_really_running_process():
 
 
 def test_absent_and_unreadable_records_are_DEAD_with_the_lack_NAMED():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as d:
         home = Path(d)
         absent = sail_record.read_sail(home)
@@ -108,11 +109,11 @@ def test_absent_and_unreadable_records_are_DEAD_with_the_lack_NAMED():
         assert sail_record.RECORD_NAME in absent["lack"], absent["lack"]
 
         home.mkdir(parents=True, exist_ok=True)
-        (home / sail_record.RECORD_NAME).write_text("{not json at all")
+        write_fixture((home / sail_record.RECORD_NAME), "{not json at all")
         torn = sail_record.read_sail(home)
         assert torn["verdict"] == "DEAD" and "unreadable" in torn["lack"], torn
 
-        (home / sail_record.RECORD_NAME).write_text(json.dumps({"ticket": _TICKET}))
+        write_fixture((home / sail_record.RECORD_NAME), json.dumps({"ticket": _TICKET}))
         fieldless = sail_record.read_sail(home)
         assert fieldless["verdict"] == "DEAD" and "unreadable" in fieldless["lack"], fieldless
         # three distinct lacks, so a reader can tell "never opened" from "corrupt"

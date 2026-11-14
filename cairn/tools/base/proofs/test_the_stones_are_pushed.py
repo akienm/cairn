@@ -94,6 +94,7 @@ def _repo(root: Path, name: str) -> Path:
 
 def _berths(commons: Path) -> Path:
     """The chart berths of test_transitions._exit_world's shape, answered, under the commons."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     packets = commons / "berths" / "0" / "packets"
     packets.mkdir(parents=True)
     hyp = packets / "hypothesize-20260729T000000-feed.json"
@@ -102,7 +103,7 @@ def _berths(commons: Path) -> Path:
     val = packets / "validate-20260729T000001-feed.json"
     val.write_text(json.dumps({"ticket": "widget", "hypothesize_ref": str(hyp),
                                "criteria": [{"claim": "c1", "instrument": "cmd", "covers": ["p1"]}]}))
-    (packets / "verdict-20260729T000002-feed.json").write_text(json.dumps(
+    write_fixture((packets / "verdict-20260729T000002-feed.json"), json.dumps(
         {"ticket": "widget", "validate_ref": str(val), **_ANSWERED}))
     return commons / "berths"
 
@@ -111,9 +112,10 @@ def _built_before_the_verdict(base: Path) -> dict:
     """A fixture crossing world in which 'widget' crossed BUILDME before its verdict was
     written, so the exit gate's freshness read (ticket 6ebec06794ac) is clean and the
     durability lane alone decides. Stood behind ``inspector._crossing_roots``."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     journal = base / "crossings"
     journal.mkdir()
-    (journal / "history.json").write_text(json.dumps([{
+    write_fixture((journal / "history.json"), json.dumps([{
         "ticket": "widget", "at": "2026-07-29T00:00:00", "from": "TICKETME", "to": "BUILDME",
         "direction": "forward", "by": "fixture"}]))
     return {"repo": journal, "commons": journal}
@@ -169,6 +171,7 @@ def _reading(lane: dict, **match) -> dict:
 
 
 def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     inspect = getattr(transitions, "inspect_durability", None)
     assert inspect is not None, "transitions.py carries no inspect_durability — the lane is not built"
     import contextlib
@@ -179,7 +182,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         code = _repo(base, "code")
         commons = _repo(base, "commons")
         (commons / "tickets").mkdir()
-        (commons / "tickets" / "widget.json").write_text("{}")
+        write_fixture((commons / "tickets" / "widget.json"), "{}")
         classes = _node_classes(commons)
         berths = _berths(commons)
         comp = code / "fixture_component"

@@ -52,6 +52,7 @@ def _check(name: str, ok: bool, detail: str = "") -> None:
 
 def _seed(root: Path) -> None:
     """A holder whose metrics recorder waits with a record, beside another recorder and files."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     from cairn.tools.data_recorder.data_recorder import DataRecorder
     from cairn.tools.metric import metric
     holder = root / HOLDER
@@ -61,7 +62,7 @@ def _seed(root: Path) -> None:
     DataRecorder(holder / "tools" / "data_recorder" / "other",
                  expected_read_frequency_seconds=86400).write(
         {"finding": "kept", "inspector_target": "other", "probe_source": "fixture_holder/0"})
-    (holder / "state.json").write_text('{"fixture": "kept byte-equal"}\n')
+    write_fixture((holder / "state.json"), '{"fixture": "kept byte-equal"}\n')
     (root / "logs").mkdir(parents=True, exist_ok=True)
 
 

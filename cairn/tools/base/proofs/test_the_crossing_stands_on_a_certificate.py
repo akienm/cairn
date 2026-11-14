@@ -168,6 +168,7 @@ def test_certify_outside_emit_bumps_its_nose(w: dict) -> None:
 
 
 def test_the_probe_carries_the_certificate(w: dict) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     from cairn.tools.base import gate_probes
 
     class _Bus:
@@ -181,7 +182,7 @@ def test_the_probe_carries_the_certificate(w: dict) -> None:
     roots = {"repo": w["tmp"] / "repo", "commons": w["commons"], "instance": w["tmp"] / "inst"}
     folder = gate_probes.probes_dir("ticket", roots)
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / "cc.json").write_text(json.dumps(
+    write_fixture((folder / "cc.json"), json.dumps(
         {"to": "cc", "event": "certified", "message": "{event} on {ticket}"}))
     crossing = dict(ticket=_TICKET, component="cairn/tools/example", from_="THINKME",
                     to="TICKETME", direction="forward", fingerprint="f" * 64)
@@ -204,13 +205,14 @@ def test_the_probe_carries_the_certificate(w: dict) -> None:
 
 
 def test_a_proved_crossing_without_demo_can_be_certified(w: dict) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     from cairn.tools.base import ticket_file as TF
     from cairn.tools.base import transitions as T
     from cairn.tools.base.gate_class import TransitionGate
     from cairn.tools.gate import gate
     folder = w["commons"] / "tickets"
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / f"{_TICKET}-demo-less.json").write_text(json.dumps({"id": _TICKET}))
+    write_fixture((folder / f"{_TICKET}-demo-less.json"), json.dumps({"id": _TICKET}))
     from cairn.tools.inspect_wire.inspect_wire import launch
     saved = TF._TICKETS
     TF._TICKETS = folder

@@ -344,6 +344,83 @@ def scratch_home_bypass(root: str | Path) -> list[str]:
     return out
 
 
+def write_fixture(path: str | Path, text: str, *, encoding: str = "utf-8") -> Path:
+    """Write ``text`` to ``path`` with LF line ends on every host, and return the path.
+
+    A fixture a proof writes with a bare ``write_text`` gets CRLF on Windows, and the artifact
+    door's byte round-trip (``ticket_file.ticket_shape``: "the ticket's serialisation cannot be
+    reproduced") refuses a record whose bytes it cannot reproduce. Measured 2026-11-14:
+    ``test_a_hand_kick_back_writes_the_fixme_list`` red on Windows only. The door stays strict —
+    it protects a record of truth — so the fix is at the writer: a proof writes a record fixture
+    through this door and its bytes are the same on every box (ticket: the LF writer)."""
+    p = Path(path)
+    p.write_text(text, encoding=encoding, newline="\n")
+    return p
+
+
+# The names that put a fixture into the artifact door's hands. Same-file, not direct: the door
+# is handed a ticket id or a patched store, never the path the fixture was written at, so a
+# scan that matches the written path to a door argument reads 0 even over the known case
+# (measured 2026-11-14 over origin/main: direct 0, same-file 27 files / 83 writes).
+_DOOR_NAMES = frozenset({"write_ticket", "rewrite_ticket", "write_state", "cast_ticket", "emit", "clear"})
+_RECORD_TARGET = re.compile(r"ticket|plan|state|history|journal|charter|\.json|berth|packet|record|decision|question|slate|log",
+                            re.I)
+
+
+def _reaches_the_door(call: ast.Call) -> bool:
+    f = call.func
+    if isinstance(f, ast.Name):
+        return f.id in _DOOR_NAMES
+    if isinstance(f, ast.Attribute):
+        if f.attr in _DOOR_NAMES:
+            return True
+        return f.attr == "write" and ast.unparse(f.value).split(".")[-1] in ("door", "artifact")
+    return False
+
+
+def _text_write(call: ast.Call) -> str | None:
+    """The target text of a text-mode write lacking ``newline=``, else None."""
+    if any(k.arg == "newline" for k in call.keywords):
+        return None
+    f = call.func
+    if isinstance(f, ast.Attribute) and f.attr == "write_text":
+        return ast.unparse(f.value)
+    if (isinstance(f, ast.Name) and f.id == "open" and len(call.args) >= 2
+            and isinstance(call.args[1], ast.Constant) and "w" in str(call.args[1].value)
+            and "b" not in str(call.args[1].value)):
+        return ast.unparse(call.args[0])
+    return None
+
+
+def fixture_writes_without_lf(root: str | Path) -> list[str]:
+    """Every record-looking text-mode write under ``root``'s ``proofs/test_*.py`` that lacks
+    ``newline=`` in a file that also reaches the artifact door, as
+    ``'<relpath>:<line> <target>'``.
+
+    Same stance as ``bare_temp_reach`` and ``scratch_home_bypass``: public, names no caller,
+    exempts nothing. The fix is ``write_fixture`` (or ``newline="\\n"``). A file that never
+    reaches the door is left alone, so a seal re-reds only where the CRLF bug can bite.
+    Measured 2026-11-14 over origin/main: 83 writes in 27 of 746 proof files."""
+    root = Path(root)
+    out = []
+    for py in sorted(root.rglob("proofs/test_*.py")):
+        if "__pycache__" in py.parts:
+            continue
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
+        except SyntaxError:
+            out.append(f"{py.relative_to(root).as_posix()}:0 <unparseable>")
+            continue
+        calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
+        if not any(_reaches_the_door(c) for c in calls):
+            continue
+        for c in calls:
+            target = _text_write(c)
+            if target is not None and _RECORD_TARGET.search(target):
+                out.append(f"{py.relative_to(root).as_posix()}:{c.lineno} {target}")
+    return out
+
+
 def _owner_alive(pid: int) -> bool:
     """Is ``pid`` alive as read from this namespace — copied from isolation._pid_alive, not
     imported (RULE 1). Never ``os.kill`` on Windows: there signal 0 is CTRL_C_EVENT, and the

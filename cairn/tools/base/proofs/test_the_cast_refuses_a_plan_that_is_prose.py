@@ -65,13 +65,14 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def _doc(tmp: Path, tid: str, builder_check: str = "", **over) -> dict:
     """A complete, SHAPED cast whose sorted berth agrees with it. A key given as None is dropped."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / f"sorted-{tid}.json"
     answers = {"workflow": WORKFLOW, "node_class": "code-seam"}
     if builder_check:
         answers["builder_check"] = builder_check
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": answers}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": answers}))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     doc = {
         "id": tid, "title": f"testing shaped plan fixture {tid}", "date": "2026-11-05",
         "owner": "codemother", "owning_intention": "cairn/tools/base/intention+why.json",
@@ -180,6 +181,7 @@ def tooth_4(tmp: Path, tickets: Path) -> None:
 
 
 def tooth_5(tmp: Path, tickets: Path) -> None:
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     name = PROVES["e4f02a1ceef5"]["5"]
     charter = tickets / "_charter+why.json"
     before = charter.read_bytes()
@@ -192,7 +194,7 @@ def tooth_5(tmp: Path, tickets: Path) -> None:
             shapes.pop("bounds", None)
         if isinstance(c.get("cast_requires_shaped"), list):
             c["cast_requires_shaped"] = [k for k in c["cast_requires_shaped"] if k != "bounds"]
-        charter.write_text(json.dumps(c, indent=2) + "\n", encoding="utf-8")
+        write_fixture(charter, json.dumps(c, indent=2) + "\n")
         lacks2, landed2 = _refusal(tickets, _doc(tmp, "e4f0000e0002", bounds=None))
         check(name, refused and lacks2 is None and bool(landed2),
               f"with bounds shaped: lacks={lacks}; dropped from the charter: lacks={lacks2} landed={landed2}")

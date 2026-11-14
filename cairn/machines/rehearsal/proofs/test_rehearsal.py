@@ -74,7 +74,7 @@ class _CallTime:
 
 R = _CallTime()
 from cairn.tools.artifact import artifact as door             # noqa: E402
-from cairn.tools.scratch.scratch import scratch_dir
+from cairn.tools.scratch.scratch import write_fixture, scratch_dir
 
 REPO = Path(__file__).resolve().parents[4]
 
@@ -167,7 +167,7 @@ class Stub:
 def _fixture_charter(tickets: Path) -> None:
     """A store charter in the scratch tickets dir: ticket_log reads the declared log kinds beside
     the plan, and a worktree (the hollow reading's) has no live commons beside it to fall back on."""
-    (tickets / "_charter+why.json").write_text(json.dumps({
+    write_fixture((tickets / "_charter+why.json"), json.dumps({
         "plan_fields": ["id", "title", "intention", "workflow_and_state", "decisions", "questions"],
         "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
 
@@ -182,7 +182,7 @@ class World:
         self.cairn.mkdir()
         _fixture_charter(self.commons / "tickets")
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
-        self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n")
+        write_fixture(self.ticket, json.dumps(TICKET, indent=2) + "\n")
         door.set_diagnostic_roots({"cairn": self.cairn, "CairnCommons": self.commons})
 
     def close(self):
@@ -383,7 +383,7 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
     try:
         tickets = w.dir / "gate-tickets"
         tickets.mkdir()
-        (tickets / "widget.json").write_text("{}")
+        write_fixture((tickets / "widget.json"), "{}")
         berths = w.dir / "gate-berths"
         (berths / "0" / "packets").mkdir(parents=True)
         saved = ticket_file._TICKETS
@@ -504,7 +504,7 @@ def test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_sev
                 f.unlink()
             for i in range(n_total):
                 empty = i < n_empty
-                (w.commons / "rehearsals" / f"{i:012x}-20260915T00000{i}.json").write_text(json.dumps({
+                write_fixture((w.commons / "rehearsals" / f"{i:012x}-20260915T00000{i}.json"), json.dumps({
                     "ticket": f"{i:012x}", "clean": True,
                     "divergence": {"steps_unproved": [] if empty else ["a step"], "teeth_unforeseen": [], "matched": []}}))
         seed(10, 8)

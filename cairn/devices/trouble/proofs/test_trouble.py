@@ -188,8 +188,9 @@ def test_a_trouble_without_a_why_or_an_identity_is_refused():
 
 
 def test_the_lane_does_not_go_dark_on_its_own_malformed_file():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "half-written.json").write_text("{ this is not json", encoding="utf-8")
+        write_fixture((Path(tmp) / "half-written.json"), "{ this is not json")
         live = _dev(tmp).live()
     assert len(live) == 1 and live[0]["unreadable"] is True, \
         "silence about a broken trouble file, in the lane built to end silence, is the worst case"
@@ -202,10 +203,10 @@ def test_an_off_template_record_is_never_reported_as_having_no_why():
     names the reader did not know. A presentation surface may collapse an error into a
     coherent shape; it may never MANUFACTURE one, and "nobody wrote a why" is a claim about
     the author, not about the reader's vocabulary (Law 7)."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "spine.json").write_text(json.dumps(
-            {"id": "spine", "verdict": "FALSIFIED, and not by a break", "method": "census"}),
-            encoding="utf-8")
+        write_fixture((Path(tmp) / "spine.json"), json.dumps(
+            {"id": "spine", "verdict": "FALSIFIED, and not by a break", "method": "census"}))
         got = _dev(tmp).live()
     assert len(got) == 1 and got[0].get("off_template") is True, \
         f"an off-template record must still reach the reader, flagged as one — got {got}"
@@ -223,9 +224,10 @@ def test_an_off_template_record_can_still_leave_through_the_door():
     own door could never release. The lane's tolerance must be two-sided: reachable by the
     reader AND clearable by the recipient. ``at_count`` on such a clear is honestly null
     (unknown), never 0 (a measurement nobody took)."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "spine.json").write_text(json.dumps(
-            {"id": "spine", "verdict": "FALSIFIED", "method": "census"}), encoding="utf-8")
+        write_fixture((Path(tmp) / "spine.json"), json.dumps(
+            {"id": "spine", "verdict": "FALSIFIED", "method": "census"}))
         dev = _dev(tmp)
         got = dev.clear("spine", by="cc", what_changed="the claim under test is now false")
         assert got["outcome"] == "cleared" and got["standing"] == CLEARED, \
@@ -257,6 +259,7 @@ def test_only_the_move_into_cleared_takes_a_ticket_off_the_live_list():
     ZERO troubles with an open one on disk — the silent failure the lane exists to end.
     Since ticket 4ddc9df3369e no field decides it: a file at the top is live whatever its
     standing says, CLEARED included, and only a file in ``cleared/`` is quiet."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as tmp:
         (Path(tmp) / "cleared").mkdir()
         for name, standing, where in (("prose", "OPEN — awaiting ratify", ""), ("typo", "open", ""),
@@ -265,17 +268,17 @@ def test_only_the_move_into_cleared_takes_a_ticket_off_the_live_list():
             t = {"id": name, "count": 1, "why": "x"}
             if standing is not None:
                 t["standing"] = standing
-            (Path(tmp) / where / f"{name}.json").write_text(json.dumps(t), encoding="utf-8")
+            write_fixture((Path(tmp) / where / f"{name}.json"), json.dumps(t))
         live = {t["id"] for t in _dev(tmp).live()}
     assert live == {"prose", "typo", "absent", "said-cleared"}, \
         f"only the move into cleared/ is quiet; everything at the top demands attention — got {live}"
 
 
 def test_a_near_miss_standing_increments_rather_than_being_overwritten():
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / f"{IDENT}.json").write_text(json.dumps(
-            {"id": IDENT, "standing": "OPEN — awaiting ratify", "count": 4, "why": WHY}),
-            encoding="utf-8")
+        write_fixture((Path(tmp) / f"{IDENT}.json"), json.dumps(
+            {"id": IDENT, "standing": "OPEN — awaiting ratify", "count": 4, "why": WHY}))
         out = _dev(tmp).raise_trouble(IDENT, why=WHY)
     assert out == {"outcome": "incremented", "id": IDENT, "count": 5, "notified": []}, \
         "a near-miss standing must not silently reset a real ticket's history to count 1"

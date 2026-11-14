@@ -51,11 +51,12 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def _doc(tmp: Path, tid: str, **over) -> dict:
     """A complete cast whose sorted berth agrees with it (no builder_check, so nothing is seeded)."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / f"sorted-{tid}.json"
-    sorted_berth.write_text(json.dumps({"skill": "sorted", "answers": {
-        "workflow": WORKFLOW, "node_class": "code-seam"}}), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps({"skill": "sorted", "answers": {
+        "workflow": WORKFLOW, "node_class": "code-seam"}}))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     doc = {
         "id": tid, "title": f"testing decisions fixture {tid}", "date": "2026-11-05",
         "owner": "codemother", "owning_intention": "cairn/tools/base/intention+why.json",

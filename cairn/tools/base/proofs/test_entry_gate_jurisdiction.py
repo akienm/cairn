@@ -39,15 +39,15 @@ _AT_TICKET = "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> LEARN
 
 
 def _entry_world(d: Path, *, cast=("widget",), claims=()):
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     tickets = d / "tickets"
     tickets.mkdir(exist_ok=True)
     for t in cast:
-        (tickets / f"{t}.json").write_text("{}")
+        write_fixture((tickets / f"{t}.json"), "{}")
     berths = d / "berths"
     (berths / "0" / "packets").mkdir(parents=True, exist_ok=True)
     for i, t in enumerate(claims):
-        (berths / "0" / "packets" / f"validate-20260729T00000{i}-feed.json").write_text(
-            json.dumps({"ticket": t}))
+        write_fixture((berths / "0" / "packets" / f"validate-20260729T00000{i}-feed.json"), json.dumps({"ticket": t}))
     return tickets, berths
 
 

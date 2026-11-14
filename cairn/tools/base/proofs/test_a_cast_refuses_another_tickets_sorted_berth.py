@@ -50,14 +50,15 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def _doc(tmp: Path, tid: str, title: str, berth_title: str | None) -> dict:
     """A complete cast whose sorted berth agrees on workflow and node_class, titled as given."""
+    from cairn.tools.scratch.scratch import write_fixture  # noqa: E402
     sorted_berth = tmp / f"sorted-{tid}.json"
     berth = {"skill": "sorted", "answers": {"workflow": WORKFLOW, "node_class": "code-seam"}}
     if berth_title is not None:
         berth["title"] = berth_title
         berth["answers"]["title"] = berth_title
-    sorted_berth.write_text(json.dumps(berth), encoding="utf-8")
+    write_fixture(sorted_berth, json.dumps(berth))
     intent_berth = tmp / "intent.json"
-    intent_berth.write_text(json.dumps({"skill": "intent"}), encoding="utf-8")
+    write_fixture(intent_berth, json.dumps({"skill": "intent"}))
     return {
         "id": tid, "title": title, "date": "2026-10-18",
         "owner": "codemother", "owning_intention": "cairn/tools/base/intention+why.json",

@@ -27,7 +27,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"lf-fixture-writer": {
+PROVES = {"fb42e9a6842f": {
     "1": "test_write_fixture_writes_no_carriage_return",
     "2": "test_the_sieve_names_a_record_write_beside_a_door_call_and_nothing_else",
     "3": "test_the_real_tree_names_only_the_files_an_open_ticket_owns",

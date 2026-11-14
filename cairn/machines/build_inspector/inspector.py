@@ -4929,12 +4929,14 @@ def green_seal_names_a_tooth(row: dict, comp_dir: Path) -> list[dict]:
     return findings
 
 
-_RUNNERS_FILE = Path(__file__).resolve().parent / "sieves" / "runners_leave_trails.json"
+# Beside the charter, not in sieves/: sieves/ holds exactly one record per sieve (ticket
+# 39eccfbc09aa D2), and this is a list of runner rows, not a sieve record.
+_RUNNERS_FILE = Path(__file__).resolve().parent / "runners_leave_trails.json"
 
 
 def declared_runners() -> list[dict]:
     """The runners whose failure-to-run must still leave a trail (ticket ba4166fe51c4 D19):
-    rows {runner, component, failure, trail, drive}, read from sieves/runners_leave_trails.json."""
+    rows {runner, component, failure, trail, drive}, read from runners_leave_trails.json beside the charter."""
     return json.loads(_RUNNERS_FILE.read_text())
 
 
@@ -5069,6 +5071,163 @@ def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
             for s in _iou_sites(repo_root) if s["row"] == here]
 
 
+# EVERY SIEVE CARRIES ITS OWN WHY (ticket 39eccfbc09aa, outline 17.11.6.1). Akien designed the
+# inspector tools; CC built each sieve from what it read him to mean, so a red is adjudicated
+# against the refusing sieve's own why, by CC — and that needs the why to stand in the record.
+_SIEVE_RECORDS = Path(__file__).resolve().parent / "sieves"
+# A why_source is one of three kinds, each naming what makes it checkable rather than prose.
+_WHY_KINDS = {"akien": ("quote", "at"), "law": ("law",), "cc_reading": ("of",)}
+_LAWS = frozenset({f"Law {n}" for n in range(1, 11)} | {"RULE 1"})
+_OUTLINE = "press_office/CairnComponentOutline.txt"
+
+
+def _fold_ws(s) -> str:
+    return " ".join(str(s).split())
+
+
+def _json_strings(obj) -> list:
+    if isinstance(obj, str):
+        return [obj]
+    if isinstance(obj, dict):
+        return [s for v in obj.values() for s in _json_strings(v)]
+    if isinstance(obj, list):
+        return [s for v in obj for s in _json_strings(v)]
+    return []
+
+
+def _addressed(at: str, repo_root: Path) -> Path:
+    """``CairnCommons/...`` is the sibling commons root; anything else is relative to cairn."""
+    if at.startswith("CairnCommons/"):
+        return repo_root.parent / at
+    return repo_root / at
+
+
+def _quote_stands(quote: str, at: str, repo_root: Path) -> str | None:
+    """None when the quote stands verbatim (whitespace folded) in the file named at ``at``;
+    else why not. The file must be one Akien's words are recorded in — the outline, a
+    questions/ record or a decisions/ record — never a sieve's own source, which CC wrote."""
+    if not (at == _OUTLINE or at.startswith("CairnCommons/questions/")
+            or at.startswith("CairnCommons/decisions/")):
+        return (f"at {at!r} is not where Akien's words are recorded (the outline, "
+                "CairnCommons/questions/ or CairnCommons/decisions/)")
+    f = _addressed(at, repo_root)
+    if not f.is_file():
+        return f"at {at!r} does not resolve to a file"
+    text = f.read_text(encoding="utf-8")
+    hay = [_fold_ws(text)]
+    if f.suffix == ".json":
+        try:
+            hay += [_fold_ws(x) for x in _json_strings(json.loads(text))]
+        except ValueError:
+            pass
+    q = _fold_ws(quote)
+    if not q or not any(q in h for h in hay):
+        return f"the quote does not stand verbatim in {at}"
+    return None
+
+
+def _of_resolves(of: str, repo_root: Path) -> str | None:
+    """None when ``of`` is an address: an outline section number standing in the outline,
+    an intention path that exists, or a ticket id the ticket store resolves."""
+    of = str(of).strip()
+    if re.fullmatch(r"\d+(\.\d+)*", of):
+        outline = repo_root / _OUTLINE
+        if outline.is_file() and re.search(r"^\s*" + re.escape(of) + r"\s",
+                                           outline.read_text(encoding="utf-8"), re.M):
+            return None
+        return f"outline section {of} does not stand in {_OUTLINE}"
+    if of.endswith("intention+why.json") or "intentions-not-beside-code/" in of:
+        return None if _addressed(of, repo_root).is_file() else f"intention {of} does not exist"
+    if re.fullmatch(r"[0-9a-f]{12}", of):
+        return None if _tf.find_ticket(of) is not None else f"ticket {of} does not resolve"
+    return f"{of!r} is not an outline section, an intention path or a ticket id"
+
+
+def every_sieve_carries_its_why(row: dict, comp_dir: Path, *, registry: dict | None = None,
+                                repo_root: Path | None = None) -> list[dict]:
+    """Every registered sieve's record carries a non-blank why and a why_source that checks.
+
+    Provenance: ticket 39eccfbc09aa, outline 17.11.6.1 (Akien, 2026-11-13: "we are supposed to
+    add a why to each sieve so we can help adjudicate it"). Measured that day: 43 registered
+    sieves, 36 records, none carrying a why — the whys lived only in docstrings. A why_source
+    is akien (a quote standing verbatim in the outline or a questions/decisions record), law
+    (a Law number or RULE 1), or cc_reading (of an outline section, intention or ticket). A
+    record with no registered sieve reds too: sieves/ holds exactly one record per sieve.
+    Corpus-scoped: it reads build_inspector's own sieves/, so it fires on that row only. What
+    a why SAYS is not this sieve's jurisdiction — only that it is there and its source checks."""
+    if row.get("component") != "build_inspector":
+        return []
+    registry = SIEVES if registry is None else registry
+    repo_root = _REPO_ROOT if repo_root is None else Path(repo_root)
+    records = Path(comp_dir) / "sieves"
+    findings = []
+
+    def red(name, why_not, **values):
+        findings.append(_finding("every_sieve_carries_its_why", row["component"],
+                                 f"sieve {name}: {why_not}", expected="a why that checks",
+                                 actual=why_not, sieve=name, **values))
+
+    for name in sorted(registry):
+        f = records / f"{name}.json"
+        if not f.is_file():
+            red(name, "no record in sieves/", record=str(f))
+            continue
+        try:
+            rec = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError as e:
+            red(name, f"record does not parse ({e})", record=str(f))
+            continue
+        if not isinstance(rec, dict):
+            red(name, "record is not an object", record=str(f))
+            continue
+        if rec.get("name") != name:
+            red(name, f"record names {rec.get('name')!r}", record=str(f))
+            continue
+        why = rec.get("why")
+        if not isinstance(why, str) or not why.strip():
+            red(name, "no why, or a blank one", record=str(f))
+            continue
+        src = rec.get("why_source")
+        kind = src.get("kind") if isinstance(src, dict) else None
+        if kind not in _WHY_KINDS:
+            red(name, f"why_source kind {kind!r} is not one of {sorted(_WHY_KINDS)}",
+                record=str(f))
+            continue
+        lacking = [k for k in _WHY_KINDS[kind]
+                   if not isinstance(src.get(k), str) or not src[k].strip()]
+        if lacking:
+            red(name, f"why_source ({kind}) lacks {lacking}", record=str(f))
+            continue
+        if kind == "akien":
+            why_not = _quote_stands(src["quote"], src["at"], repo_root)
+        elif kind == "law":
+            why_not = None if src["law"] in _LAWS else f"{src['law']!r} is not a Law"
+        else:
+            why_not = _of_resolves(src["of"], repo_root)
+        if why_not:
+            red(name, why_not, record=str(f))
+    if records.is_dir():
+        for f in sorted(records.glob("*.json")):
+            if f.stem not in registry:
+                red(f.stem, "a record in sieves/ with no registered sieve", record=str(f))
+    return findings
+
+
+_WHY_CACHE: dict = {}
+
+
+def sieve_why(name: str) -> str | None:
+    """The why in a sieve's own record, or None — read once per inspect()."""
+    if name not in _WHY_CACHE:
+        try:
+            rec = json.loads((_SIEVE_RECORDS / f"{name}.json").read_text(encoding="utf-8"))
+            why = rec.get("why") if isinstance(rec, dict) else None
+        except (OSError, ValueError):
+            why = None
+        _WHY_CACHE[name] = why if isinstance(why, str) and why.strip() else None
+    return _WHY_CACHE[name]
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "intention_fidelity": intention_fidelity,
@@ -5114,6 +5273,7 @@ SIEVES = {
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
     "no_iou_stands": no_iou_stands,
+    "every_sieve_carries_its_why": every_sieve_carries_its_why,
 }
 
 
@@ -5150,6 +5310,7 @@ def inspect(*, root: Path | None = None, component: str | None = None,
     _BREACH_CACHE.clear()
     _CENSUS_DIRS.clear()
     _IOU_CACHE.clear()
+    _WHY_CACHE.clear()
     census = device_census(root=root)  # refuses bad roots loudly — inherited, not re-built
     rows = census["measured"]["components"]
     if component is not None:
@@ -5187,8 +5348,13 @@ def inspect(*, root: Path | None = None, component: str | None = None,
         to its row in the gradation, which is keyed by address — one place, so a finding
         cannot disagree with the subject that produced it."""
         caught = SIEVES[name](row, root / row["dir"])
+        why = sieve_why(name)
         for f in caught:
             f["at"] = row["dir"]
+            # The refusing sieve's why rides in values, so the gate's refusal text — which
+            # renders values — carries it with no change to transitions.py (ticket 39eccfbc09aa D4).
+            if why is not None:
+                f.setdefault("values", {})["sieve_why"] = why
         return caught
 
     shaken = base_nest.shake(nest, {row["dir"]: row for row in rows}, fire)

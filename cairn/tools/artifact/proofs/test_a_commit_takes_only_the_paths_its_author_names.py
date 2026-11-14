@@ -53,8 +53,8 @@ def check(name: str, ok: bool, detail: str = "") -> bool:
     return ok
 
 
-def _run(args, cwd: Path, env: dict, stdin: str | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), env=env, capture_output=True, text=True, input=stdin)
+def _run(args, cwd: Path, env: dict) -> subprocess.CompletedProcess:
+    return subprocess.run(args, cwd=str(cwd), env=env, capture_output=True, text=True)
 
 
 def _git(root: Path, env: dict, *args: str) -> subprocess.CompletedProcess:
@@ -70,10 +70,13 @@ def _out(root: Path, env: dict, *args: str) -> str:
 
 def _door_write(root: Path, env: dict, rel: str, doc: dict) -> None:
     """A record write through the door, so the journal moves and the hook has a path to stage."""
-    r = _run([sys.executable, "-m", "cairn.tools.artifact", "write", str(root / rel), "--verb", "cast",
-              "--why", "proof fixture", "--stdin"], REPO, env, stdin=json.dumps(doc, indent=2) + "\n")
+    # bytes, never text: a text-mode pipe writes CRLF on Windows and the door reads stdin raw and refuses a non-canonical
+    # body (ticket 56009ffbea93); the door's stderr is decoded here
+    r = subprocess.run([sys.executable, "-m", "cairn.tools.artifact", "write", str(root / rel), "--verb", "cast",
+                        "--why", "proof fixture", "--stdin"], cwd=str(REPO), env=env, capture_output=True,
+                       input=(json.dumps(doc, indent=2) + "\n").encode("utf-8"))
     if r.returncode:
-        raise RuntimeError(f"door write {rel}: {r.stderr.strip()[-300:]}")
+        raise RuntimeError(f"door write {rel}: {r.stderr.decode('utf-8', 'replace').strip()[-300:]}")
 
 
 def _world(tmp: Path) -> tuple[Path, dict]:

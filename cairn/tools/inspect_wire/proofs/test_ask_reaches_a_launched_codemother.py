@@ -35,6 +35,11 @@ inspector's roots, by the inspector's own test_the_roots_bend_only_under_a_scrat
   2. ask answers from a CodeMother held by a bus process that is not the asking one, and the
      asking process never imports codemother's shim.
   3. launch names all three roots in the launch environment, and fixture is gone.
+3e08102ef35a:
+  1. launch(ticket_store=<dir>) makes crossing_named_ticket, asked over the bus, find a ticket
+     filed only in <dir>; the same ask under a launch without it says the ticket is not cast.
+     (Clause 2, the account's own HOME keeping the live store, is the inspector's own half:
+     test_the_roots_bend_only_under_a_scratch_home.)
 
     python3 cairn/tools/inspect_wire/proofs/test_ask_reaches_a_launched_codemother.py
 """
@@ -61,6 +66,9 @@ PROVES = {
         "1": "test_inspect_wire_is_a_plain_tool_and_the_old_address_is_gone",
         "2": "test_ask_answers_from_another_process_and_never_imports_her_shim",
         "3": "test_launch_names_every_root_by_environment_and_fixture_is_gone",
+    },
+    "3e08102ef35a": {
+        "1": "test_a_named_ticket_store_finds_a_ticket_filed_only_there",
     },
 }
 
@@ -221,6 +229,25 @@ def test_launch_names_every_root_by_environment_and_fixture_is_gone():
                    "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS": json.dumps({"repo": "/r", "commons": "/c"})}, env
     assert w._launch_env(None, None, None) == {}
     assert not hasattr(w, "fixture"), "fixture still stands"
+
+
+def test_a_named_ticket_store_finds_a_ticket_filed_only_there():
+    from cairn.tools.scratch.scratch import scratch_dir
+    w = _wire()
+    store = scratch_dir("inspect_ask_store_")
+    (store / f"{_TID}-a-fixture-ticket.json").write_text(json.dumps({"id": _TID}), encoding="utf-8")
+    history = str(store / "widget" / "history.json")
+
+    def cast_lane(**launch_kw):
+        with w.launch(**launch_kw):
+            record = w.ask("crossing_named_ticket", "BUILDME", _TID, history_path=history, roster=[])
+        (lane,) = [r for r in record if r["identity"] == "the_named_ticket_is_cast"]
+        return lane
+
+    named = cast_lane(ticket_store=store)
+    assert named["actual"] == named["expected"], named
+    unnamed = cast_lane()
+    assert unnamed["actual"] == f"named ticket {_TID!r} is not cast", unnamed
 
 
 if __name__ == "__main__":

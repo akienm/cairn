@@ -44,7 +44,8 @@ from cairn.tools.base import ticket_file  # noqa: E402
 from cairn.tools.base import transitions  # noqa: E402
 from cairn.tools.charter import projector  # noqa: E402
 
-PROVES = {"c2460ae6c3d1": {"all": "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"}}
+PROVES = {"c2460ae6c3d1": {"all": "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"},
+          "3e08102ef35a": {"3": "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"}}
 
 _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
 _LANE = "the_stones_are_pushed"
@@ -188,7 +189,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         roots = _built_before_the_verdict(base)
         saved = (ticket_file._TICKETS, transitions._stamp_sail, transitions._ledger_durability_refusal)
         _world = contextlib.ExitStack()
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: roots))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: roots, ticket_store=commons / 'tickets'))
         ledgered: list[dict] = []
         ticket_file._TICKETS = commons / 'tickets'
         transitions._stamp_sail = lambda _t, _s: None

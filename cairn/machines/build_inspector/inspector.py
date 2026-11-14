@@ -366,7 +366,8 @@ def crossing_fingerprints_verified(row: dict, comp_dir: Path) -> list[dict]:
 # still reads the live roots, and the d2ecdb867bc9 hole does not move into the environment.
 ROOT_ENV = {"berths": "CAIRN_BUILD_INSPECTOR_CHART_BERTHS",
             "tickets_root": "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT",
-            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS"}
+            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS",
+            "ticket_store": "CAIRN_BUILD_INSPECTOR_TICKET_STORE"}
 
 
 def _root_override(key: str) -> str | None:
@@ -2552,6 +2553,8 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
 # one patch point still holds. Imports that a proof patches stay lazy inside the bodies.
 from datetime import datetime  # noqa: E402
 from cairn.tools.base import ticket_file as _tf  # noqa: E402
+if (_bent := _root_override("ticket_store")):
+    _tf._TICKETS = Path(_bent)
 from cairn.tools.system_word import canon  # noqa: E402
 
 

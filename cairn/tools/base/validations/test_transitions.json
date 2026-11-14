@@ -2,20 +2,20 @@
   {
     "claim": "proof test_transitions.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T02:35:42",
+    "date": "2026-11-14T02:47:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "  PASS  test_a_back_edge_kickback_is_legal_and_carries_severity\n  PASS  test_a_bare_summons_cursor_is_picked_up\n  PASS  test_a_caller_may_say_it_richer_but_may_not_drop_it",
-      "stderr_tail": "  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2422, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2354, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 423, in test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict\n    new = transitions.emit(_AT_TICKET, \"BUILDME\",\n                           history_path=hist, state_path=state, ticket=\"widget\")\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1550, in emit\n    _exempt, _rec = _require_named_ticket(\"BUILDME\", _ticket, history_path=history_path)\n                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 656, in _require_named_ticket\n    raise TicketRequiredRed(\n    ...<5 lines>...\n        _findings_of(record))\ncairn.tools.base.transitions.TicketRequiredRed: BUILDME crossing refused: named ticket 'widget' is not cast — no file matching 'widget' in /tmp/tmplohwg05z/tickets. A named-but-uncast ticket is an error to fix, never an exemption (naming one is a claim to be judged, not waived by coincidence of address). Cast it via /sorted, or correct the name, then cross again. Nothing was journaled.",
+      "stderr_tail": "  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2422, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2354, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 423, in test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict\n    new = transitions.emit(_AT_TICKET, \"BUILDME\",\n                           history_path=hist, state_path=state, ticket=\"widget\")\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 1550, in emit\n    _exempt, _rec = _require_named_ticket(\"BUILDME\", _ticket, history_path=history_path)\n                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/transitions.py\", line 656, in _require_named_ticket\n    raise TicketRequiredRed(\n    ...<5 lines>...\n        _findings_of(record))\ncairn.tools.base.transitions.TicketRequiredRed: BUILDME crossing refused: named ticket 'widget' is not cast — no file matching 'widget' in /tmp/tmppmbfvsf0/tickets. A named-but-uncast ticket is an error to fix, never an exemption (naming one is a claim to be judged, not waived by coincidence of address). Cast it via /sorted, or correct the name, then cross again. Nothing was journaled.",
       "teeth_green": [
         "test_a_back_edge_kickback_is_legal_and_carries_severity",
         "test_a_bare_summons_cursor_is_picked_up",
         "test_a_caller_may_say_it_richer_but_may_not_drop_it"
       ],
       "teeth_red": [],
-      "test": "test-07c85ed4535c",
+      "test": "test-9f5d2a2b958d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,18 @@
       },
       "killed": [
         {
-          "pid": 681591,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-681585-6digvqp1 --scratch",
+          "pid": 697951,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-697945-hv7y6a0l --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 681627,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-681585-glgena8z --scratch",
+          "pid": 697987,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-697945-gy330jgd --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-07c85ed4535c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9f5d2a2b958d",
       "source_fingerprint": "9b079a9ae546ba9916b922724dc4c763257d0b58a12ad181bd786087184b9165",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -99,20 +99,20 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-681526-3gcdpcxm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-696413-kix8_ie3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.093540.234027.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.093540.307305.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.094709.322361.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.094709.368311.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 534634632,
+          "bytes": 534635300,
           "disk_bytes": 580984832,
           "entries": 17734,
           "builds": 1,

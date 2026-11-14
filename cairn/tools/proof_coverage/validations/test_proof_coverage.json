@@ -2,7 +2,7 @@
   {
     "claim": "proof test_proof_coverage.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T02:40:44",
+    "date": "2026-11-14T02:49:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
@@ -43,14 +43,17 @@
       "teeth_red": [
         "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH"
       ],
-      "test": "test-b4ce63aa621b",
+      "test": "test-c2824ed569fb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_699142_0248009462_delivery",
+          "bus_proc_699142_0248009462"
+        ]
       },
       "conditions": {
         "proof": "4cb55ca5ce9a4f994d4155bf175cb433f86b63fcf70f6ed06f0c73b235cb0aad",
@@ -64,7 +67,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b4ce63aa621b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2824ed569fb",
       "source_fingerprint": "4e65b8785c17d78303ed4e1adb798a08bad44b33fb0ec3f778777440182720b8",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
@@ -102,7 +105,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-685673-vaugtmtd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-699298-z8xqsofn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -113,7 +116,7 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 534632312,
+          "bytes": 534632979,
           "disk_bytes": 580976640,
           "entries": 17730,
           "builds": 1,

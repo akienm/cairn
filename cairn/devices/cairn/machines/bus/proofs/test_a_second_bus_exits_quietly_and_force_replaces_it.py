@@ -34,6 +34,15 @@ _HOLDER = ("import sys, time\n"
            "h = claim(Path(sys.argv[1]))\n"
            "print('WON' if h else 'LOST', flush=True)\n"
            "time.sleep(60)\n")
+# A holder that IGNORES SIGTERM (ticket ac71d984ebda FIXME 1): the disposition is inherited through exec, so a bus
+# started that way never dies to the first signal, and --force must still take the claim (SIGTERM, then SIGKILL).
+_DEAF_HOLDER = ("import signal, sys, time\n"
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                "from pathlib import Path\n"
+                "from cairn.devices.cairn.machines.bus.server import claim\n"
+                "h = claim(Path(sys.argv[1]))\n"
+                "print('WON' if h else 'LOST', flush=True)\n"
+                "time.sleep(120)\n")
 _SECOND = ("import sys\n"
            "from pathlib import Path\n"
            "from cairn.devices.cairn.machines.bus.server import serve\n"
@@ -71,6 +80,27 @@ def a_second_bus_exits_zero_silently_and_force_takes_the_claim_from_the_first() 
                 holder.wait(timeout=15)
                 assert holder.poll() is not None, "--force did not kill the old bus"
                 assert server.claim(home) is None, "the forcing process does not hold the claim"
+            finally:
+                forced.close()
+        finally:
+            holder.kill()
+            holder.wait(timeout=5)
+    _force_takes_the_claim_from_a_holder_that_ignores_sigterm()
+
+
+def _force_takes_the_claim_from_a_holder_that_ignores_sigterm() -> None:
+    from cairn.devices.cairn.machines.bus import server
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as td:
+        home = Path(td) / "0"
+        holder = subprocess.Popen([sys.executable, "-c", _DEAF_HOLDER, str(home)], stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, text=True, env=_env())
+        try:
+            assert holder.stdout.readline().strip() == "WON", "the scratch holder never took its claim"
+            forced = server.force_claim(home, wait_s=20)
+            assert forced is not None, "--force did not take the claim from a holder that ignores SIGTERM"
+            try:
+                holder.wait(timeout=20)
+                assert holder.poll() is not None, "--force did not kill the SIGTERM-ignoring holder"
             finally:
                 forced.close()
         finally:

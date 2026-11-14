@@ -852,22 +852,43 @@ def claim(home: Path):
 PID_FILE = "bus.pid"
 
 
-def force_claim(home: Path, *, wait_s: float = 5.0):
+def force_claim(home: Path, *, wait_s: float = 5.0, grace_s: float | None = None):
     """--force: kill the holder named in ``<home>/bus.pid`` and take its claim (Akien 2026-11-13, Q#93:
     "--force means force it, kill the other process", for replacing an older running version with a newer
     one; the bus is CC's read of it, outline 5.3.5.2.1). The kernel frees the lock when the holder dies, so
-    the claim is retried until it does. Returns the held file, or None when the pid cannot be read, the kill
-    is refused, or the lock is still held after ``wait_s`` — the caller says so LOUDLY."""
+    the claim is retried until it does.
+
+    SIGTERM FIRST, SIGKILL AFTER A GRACE (ticket ac71d984ebda, FIXME 1). The first version sent one SIGTERM and
+    waited, and the verdict's re-run on the Dell read ``--force did not take the claim``: a holder that ignores
+    SIGTERM (an ignored disposition is inherited through exec, so a proof or a service started that way
+    passes it on) or that stops slowly on a loaded box never released the lock. "Kill the other process" means
+    the process dies, so after ``grace_s`` (half of ``wait_s`` by default, time for a clean stop) the holder
+    gets SIGKILL where the platform has it; on Windows SIGTERM is already TerminateProcess. Returns the held
+    file, or None when the pid cannot be read, a kill is refused, or the lock is still held after
+    ``wait_s`` — the caller says so LOUDLY."""
     try:
         pid = int((home / PID_FILE).read_text(encoding="utf-8").strip())
         os.kill(pid, signal.SIGTERM)
     except (OSError, ValueError):
         return None
-    deadline = time.monotonic() + wait_s
+    started = time.monotonic()
+    deadline = started + wait_s
+    grace = wait_s / 2 if grace_s is None else grace_s
+    hard = getattr(signal, "SIGKILL", None)
+    killed = False
     while True:
         held = claim(home)
-        if held is not None or time.monotonic() >= deadline:
+        if held is not None:
             return held
+        now = time.monotonic()
+        if hard is not None and not killed and now - started >= grace:
+            try:
+                os.kill(pid, hard)
+            except OSError:
+                pass
+            killed = True
+        if now >= deadline:
+            return None
         time.sleep(0.1)
 
 

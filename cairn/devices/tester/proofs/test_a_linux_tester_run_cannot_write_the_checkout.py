@@ -84,10 +84,11 @@ _NESTED = '''\
 import subprocess, sys
 from pathlib import Path
 repo, inner, token = {repo!r}, {inner!r}, {token!r}
-done = subprocess.run([sys.executable, "-m", "cairn.devices.tester.cli", "--timeout", "120", inner],
+done = subprocess.run([sys.executable, "-m", "cairn.devices.tester.cli", "--timeout", "120",
+                       "--exec", sys.executable + " " + inner],
                       cwd=repo, capture_output=True, text=True, timeout=280,
                       env={{**__import__("os").environ, "PYTHONPATH": repo}})
-if done.returncode != 0 or "1 green" not in done.stdout:
+if done.returncode != 0 or "test_the_swap_is_writable" not in done.stdout:
     print("FAIL the nested run was not green: rc=%s %s %s" % (done.returncode, done.stdout[-1500:], done.stderr[-600:]))
     raise SystemExit(1)
 print("  ok    test_the_nested_run_is_green")
@@ -115,10 +116,23 @@ def _stand_in(prefix: str, body: str) -> Path:
 
 
 def _run_cli(proof: Path) -> subprocess.CompletedProcess:
+    """The stand-in under the tester's --exec: sealed like any proof, its stdout its own."""
     return subprocess.run(
-        [sys.executable, "-m", "cairn.devices.tester.cli", "--timeout", "240", str(proof)],
+        [sys.executable, "-m", "cairn.devices.tester.cli", "--timeout", "240",
+         "--exec", f"{sys.executable} {proof}"],
         cwd=REPO, capture_output=True, text=True, timeout=290,
         env={**os.environ, "PYTHONPATH": str(REPO)})
+
+
+def _clear(path: Path) -> bool:
+    """Remove a leaked token if it is there; True when it was. Read-only here is fine."""
+    try:
+        if path.exists():
+            path.unlink()
+            return True
+    except OSError:
+        return path.exists()
+    return False
 
 
 def _say(done: subprocess.CompletedProcess) -> str:
@@ -129,8 +143,7 @@ def test_a_stand_in_writing_the_checkout_meets_erofs_and_leaves_nothing():
     token = f"checkout-ro-probe-{uuid.uuid4().hex}"
     done = _run_cli(_stand_in("checkout-ro-1-", _STAND_IN.format(checkout=str(REPO), token=token)))
     leaked = REPO / token
-    if leaked.exists():
-        leaked.unlink()
+    if _clear(leaked):
         raise AssertionError(f"the stand-in's write landed in the checkout at {leaked}\n{_say(done)}")
     assert "test_the_checkout_is_read_only" in done.stdout and done.returncode == 0, _say(done)
 
@@ -138,7 +151,7 @@ def test_a_stand_in_writing_the_checkout_meets_erofs_and_leaves_nothing():
 def test_the_stand_in_still_writes_its_scratch_and_its_swap():
     token = f"checkout-ro-probe-{uuid.uuid4().hex}"
     done = _run_cli(_stand_in("checkout-ro-2-", _STAND_IN.format(checkout=str(REPO), token=token)))
-    (REPO / token).unlink(missing_ok=True)
+    _clear(REPO / token)
     assert "test_scratch_is_writable" in done.stdout, _say(done)
     assert "test_the_swap_is_writable" in done.stdout, _say(done)
     assert done.returncode == 0, _say(done)
@@ -150,8 +163,7 @@ def test_a_nested_run_inherits_the_read_only_checkout_and_the_swap():
     outer = _stand_in("checkout-ro-3o-", _NESTED.format(repo=str(REPO), inner=str(inner), token=token))
     done = _run_cli(outer)
     leaked = REPO / token
-    if leaked.exists():
-        leaked.unlink()
+    if _clear(leaked):
         raise AssertionError(f"the nested stand-in's write landed in the checkout\n{_say(done)}")
     assert "test_the_nested_write_is_in_the_inherited_swap" in done.stdout, _say(done)
     assert done.returncode == 0, _say(done)

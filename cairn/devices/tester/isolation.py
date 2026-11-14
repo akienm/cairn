@@ -234,6 +234,16 @@ _INSTANCE_PROBE = (
     "    print('WROTE')\n"
     "except OSError as e:\n"
     "    print(f'WRITEFAIL:{e.errno}')\n"
+    "import errno\n"
+    "for checkout in sys.argv[3:]:\n"
+    "    probe = pathlib.Path(checkout) / sys.argv[2]\n"
+    "    try:\n"
+    "        probe.write_text('checkout-seal probe')\n"
+    "    except OSError as e:\n"
+    "        print(('CHECKOUT_RO:' if e.errno == errno.EROFS else f'CHECKOUT_FAIL:{e.errno}:') + checkout)\n"
+    "    else:\n"
+    "        probe.unlink()\n"
+    "        print('CHECKOUT_WROTE:' + checkout)\n"
 )
 
 
@@ -508,14 +518,49 @@ def snapshot_instance_space() -> str:
     return str(swap)
 
 
-def instance_bind_flags(swap_root: str) -> list[str]:
-    """The bwrap flags that put ``swap_root`` where ``~/.cairn`` was, venvs bound back.
+def checkout_roots(cwd: str) -> list[str]:
+    """The repo checkouts a subject run from ``cwd`` must not write (ticket 3dec3ede2616).
 
-    Order matters and is load-bearing: the swap goes down FIRST, then each venv is bound back
-    on top of the empty directory the snapshot left for it. bwrap resolves each SRC against the
-    host root and applies mounts in sequence, so a later bind can land inside an earlier one.
+    Two starting points, because a stand-in proof can live in scratch: the checkout the tester
+    itself runs from (this file's), and the one ``cwd`` sits in, if any. For each, its git
+    toplevel and its git common dir (a worktree's ``.git`` is a file naming a common dir under
+    another checkout, and the refs and objects live there). A start that is no checkout adds
+    nothing. A common dir inside its own toplevel is already covered and is not listed twice.
     """
-    flags = ["--bind", swap_root, _INSTANCE_ROOT]
+    roots: list[str] = []
+    for start in (str(Path(__file__).resolve().parent), cwd):
+        try:
+            r = subprocess.run(["git", "-C", start, "rev-parse", "--path-format=absolute",
+                                "--show-toplevel", "--git-common-dir"],
+                               capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if r.returncode != 0:
+            continue
+        lines = [os.path.realpath(ln) for ln in r.stdout.splitlines() if ln.strip()]
+        if not lines:
+            continue
+        top, rest = lines[0], lines[1:]
+        for path in [top] + [c for c in rest if not (c + os.sep).startswith(top + os.sep)]:
+            if path not in roots:
+                roots.append(path)
+    return roots
+
+
+def instance_bind_flags(swap_root: str, checkouts=()) -> list[str]:
+    """The bwrap flags that bind each checkout read-only and put ``swap_root`` where
+    ``~/.cairn`` was, venvs bound back.
+
+    Order matters and is load-bearing: the checkouts go down FIRST (read-only, over the
+    writable ``--dev-bind / /``), then the swap, then each venv bound back on top of the empty
+    directory the snapshot left for it. bwrap resolves each SRC against the host root and
+    applies mounts in sequence, so a later bind can land inside an earlier one: a swap or venv
+    under a checkout still binds writable.
+    """
+    flags: list[str] = []
+    for checkout in checkouts:
+        flags += ["--ro-bind", checkout, checkout]
+    flags += ["--bind", swap_root, _INSTANCE_ROOT]
     for venv in venvs_under_instance_space():
         flags += ["--ro-bind", venv, venv]
     # Every sandbox carrying a swap says so, so a tester run inside it inherits (c54d744aa9ac).
@@ -524,6 +569,70 @@ def instance_bind_flags(swap_root: str) -> list[str]:
 
 
 def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
+    """Measure the instance seal and the checkout seal from inside — never assumed.
+
+    The instance half is below (``_check_bare_instance_seal``, or the inherited branch). The
+    checkout half (ticket 3dec3ede2616) rides the same probe: the subject tries a write under
+    every checkout ``checkout_roots`` names, and each must meet EROFS. A write that LANDS is
+    BREACHED, naming the checkout; inside an inherited seal the mount table is asked too, and
+    a checkout that is no read-only mount there is BREACHED as well. Every verdict's detail
+    names the checkouts and how they read, so a sealed record says what it sealed.
+    """
+    checkouts = checkout_roots(cwd)
+    heard: list[str] = []
+    if inside_an_instance_seal():
+        seal = _check_inherited_instance_seal(iso, swap_root, cwd, checkouts, heard)
+    else:
+        seal = _check_bare_instance_seal(iso, swap_root, cwd, checkouts, heard)
+    return _with_checkouts(seal, heard[0] if heard else "", checkouts,
+                           inherited=inside_an_instance_seal())
+
+
+def _mount_options() -> dict[str, set[str]]:
+    """Each mount point this process sees -> its per-mount options (field 6 of mountinfo)."""
+    try:
+        lines = Path("/proc/self/mountinfo").read_text().splitlines()
+    except OSError:
+        return {}
+    found: dict[str, set[str]] = {}
+    for ln in lines:
+        parts = ln.split()
+        if len(parts) > 5:
+            found[parts[4]] = set(parts[5].split(","))
+    return found
+
+
+def _with_checkouts(seal: Seal, out: str, checkouts: list[str], *, inherited: bool) -> Seal:
+    """Fold the checkout reading into the instance seal's verdict."""
+    if not checkouts:
+        verdict = BREACHED if seal.verdict == BREACHED else INDETERMINATE
+        return Seal(verdict, f"{seal.detail}; no repo checkout was found to bind read-only, so "
+                             f"nothing says a subject cannot write one — CP1")
+    lines = out.splitlines()
+    ro = {ln.split(":", 1)[1] for ln in lines if ln.startswith("CHECKOUT_RO:")}
+    wrote = [ln.split(":", 1)[1] for ln in lines if ln.startswith("CHECKOUT_WROTE:")]
+    failed = [ln.split(":", 1)[1] for ln in lines if ln.startswith("CHECKOUT_FAIL:")]
+    writable = list(wrote)
+    if inherited:
+        options = _mount_options()
+        writable += [c for c in checkouts
+                     if "ro" not in options.get(c, set()) and c not in writable]
+    if writable:
+        return Seal(BREACHED, f"the checkout {', '.join(writable)} is WRITABLE from inside the "
+                              f"seal — a proof can write the repo it is proving (RED); "
+                              f"instance seal: {seal.detail}")
+    unread = [c for c in checkouts if c not in ro]
+    if unread:
+        verdict = BREACHED if seal.verdict == BREACHED else INDETERMINATE
+        return Seal(verdict, f"{seal.detail}; the checkout write probe gave no EROFS for "
+                             f"{', '.join(unread)} (failed: {failed or 'no reading'}) — CP1")
+    how = "read-only mounts here, and a write met EROFS" if inherited else "a write met EROFS"
+    return Seal(seal.verdict, f"{seal.detail}; the checkout {', '.join(checkouts)} is "
+                              f"read-only ({how})")
+
+
+def _check_bare_instance_seal(iso: Isolation, swap_root: str, cwd: str, checkouts: list[str],
+                              heard: list[str]) -> Seal:
     """Measure the instance seal from inside, with a control — never assumed.
 
     THE CONTROL COSTS NO WRITE, and that is a deliberate improvement on the network probe's
@@ -541,9 +650,6 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     Anything else is INDETERMINATE — and a marker that reaches the live root is BREACHED,
     which is the one outcome this whole module exists to make impossible to miss.
     """
-    if inside_an_instance_seal():
-        return _check_inherited_instance_seal(iso, swap_root, cwd)
-
     live = Path(_INSTANCE_ROOT)
     control = sorted(p.name for p in live.iterdir()) if live.is_dir() else []
     if not control:
@@ -551,12 +657,13 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
                                    f"is nothing a seal could be shown to have swapped; CP1")
 
     marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
-    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, _INSTANCE_ROOT, marker], cwd,
-                    instance_swap=swap_root)
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, _INSTANCE_ROOT, marker, *checkouts],
+                    cwd, instance_swap=swap_root)
     try:
         out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"instance-seal probe did not run: {type(exc).__name__}")
+    heard.append(out)
 
     seen = next((ln[5:].split(",") for ln in out.splitlines() if ln.startswith("SEES:")), None)
     wrote = "WROTE" in out.splitlines()
@@ -613,7 +720,8 @@ def _mount_points() -> set[str]:
     return {ln.split()[4] for ln in lines if len(ln.split()) > 4}
 
 
-def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
+def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str,
+                                   checkouts: list[str], heard: list[str]) -> Seal:
     """The inherited branch: the swap was bound by an outer tester run — measure it anyway.
 
     The marker chooses the question; the mount table and a write answer it. A marker over a
@@ -626,13 +734,14 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
                               f"not a mount point here — the INHERITED instance seal is a claim "
                               f"with no mount under it (RED)")
     marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
-    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker], cwd,
-                    instance_swap=swap_root)
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker, *checkouts],
+                    cwd, instance_swap=swap_root)
     try:
         out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"inherited instance-seal probe did not run: "
                                    f"{type(exc).__name__}")
+    heard.append(out)
     wrote = "WROTE" in out.splitlines()
     in_swap = (Path(swap_root) / marker).exists()
     try:
@@ -754,7 +863,8 @@ class NoIsolation(Isolation):
         # case, since the tester's default is unsealed-network and every proof gets the
         # instance seal. --chdir is required here for the same reason it is under netns — the
         # subject's cwd must be its own directory inside the namespace, not the namespace root.
-        return (["bwrap", "--dev-bind", "/", "/"] + instance_bind_flags(instance_swap)
+        return (["bwrap", "--dev-bind", "/", "/"]
+                + instance_bind_flags(instance_swap, checkouts=checkout_roots(cwd))
                 + ["--chdir", cwd] + list(argv))
 
 

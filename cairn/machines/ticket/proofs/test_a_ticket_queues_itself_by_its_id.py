@@ -32,6 +32,13 @@ PROVES = {"8bb8b4729f17": {
     "2": "test_a_far_box_resolves_what_queueme_sent",
 }}
 
+# hollow runs this proof in a worktree with no CairnCommons beside it; a scratch store without
+# the store charter falls back to ticket_log's repo-relative live charter and raises there, so the
+# charter is copied in from beside the repo, else from the home checkout.
+_STORE_CHARTER = _REPO.parent / "CairnCommons" / "tickets" / "_charter+why.json"
+if not _STORE_CHARTER.is_file():
+    _STORE_CHARTER = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
+
 _TID = "testing8bb8a"
 _WF = "code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED"
 
@@ -54,6 +61,7 @@ def _store(root: Path) -> Path:
     import cairn.tools.base.ticket_file as tf
     store = root / "tickets"
     store.mkdir(parents=True)
+    shutil.copy(_STORE_CHARTER, store / "_charter+why.json")
     plan = store / f"{_TID}-a-testing-ticket.json"
     plan.write_text(json.dumps({"id": _TID, "title": "a testing ticket",
                                 "owning_intention": "cairn/machines/ticket/intention+why.json"}) + "\n")

@@ -392,6 +392,33 @@ not matter here. The code catches up to this, never the reverse.
                           ignoring testing artifacts keeps them from leaking into what
                           the system believes. This agrees with his 2026-09-28 rule:
                           test against live, marked as testing. -amm
+            4.3.1.5.1.5.2 How the TESTING database works (CC's design; Akien handed it
+                          to CC, 2026-11-14: "i suggested a test db. you took it from
+                          there. how SHOULD we make this work?"). (1) The db proxy is
+                          the seam (4.3.1.5.1.4.1.1, 11.3.7): proofs, devices and tools
+                          never choose a database; the proxy chooses by session context.
+                          (2) The test runner sets the context, never the proof:
+                          bin/cairn test and the hollow run open every db session with
+                          context=testing, so a proof can neither forget it nor pick
+                          live (Law 4). (3) In testing context, writes go only to the
+                          TESTING database: same schema, rows from a reserved address
+                          range, so a testing address never collides with a live one.
+                          (4) In testing context, reads are an overlay: testing rows
+                          first, live underneath, live pinned at the seq the run started
+                          at. A proof reads live with no fixtures (Q#112), what it wrote
+                          shadows live for that run only, and the run repeats within
+                          itself. (5) In live context the proxy never consults the
+                          TESTING database, so testing artifacts are invisible to all
+                          but the run that made them, by construction rather than by
+                          filtering. (6) Each run's testing rows carry its run id and
+                          are dropped at run end; the sleep cycle sweeps orphans. (7) A
+                          proof over live data asserts invariants, never snapshots; a
+                          tooth that needs an exact value writes its fixture into the
+                          overlay first. Until the per-box proxy exists, the same
+                          routing sits in the store door (db_domain) and moves into the
+                          proxy when it is built. WHY: a context the proof sets is a
+                          context a proof can forget; the runner is the one place every
+                          proof passes through. - akiendelllinux_orchestrator
           4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
                       approved, plus his flexible metadata field). WHY: nodes have to be
                       really fast, and row ids are fastest; a payload can be anything,

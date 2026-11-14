@@ -14,6 +14,7 @@ are recorded as digests, so no raw CAIRN_* value ever enters a validation.
 from __future__ import annotations
 
 import hashlib
+import platform
 import sys
 from pathlib import Path
 
@@ -37,6 +38,7 @@ def measure(proof_path, *, iso_name: str, seal_verdict: str, instance_seal_verdi
         "proof": hashlib.sha256(proof.read_bytes()).hexdigest(),
         "fixtures": _tree_digest(proof.parent / "fixtures"),
         "interpreter": f"{sys.executable} {sys.version.split()[0]}",
+        "platform": f"{sys.platform} {platform.machine()}",  # f9ce5ee40b13: which box measured this
         "isolation": f"{iso_name} seal={seal_verdict} instance-seal={instance_seal_verdict}",
         "timeout": timeout,
         "env": {k: hashlib.sha256(v.encode()).hexdigest()[:12]

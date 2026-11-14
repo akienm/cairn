@@ -101,8 +101,12 @@ def test_a_foreign_root_at_the_live_home_sends_no_shutdown(monkeypatch):
     else:
         raise AssertionError(f"a foreign root at the live home did not refuse: {sent!r}")
     assert _shutdowns(sent) == 0, f"a foreign root sent shutdown to the live bus: {sent!r}"
-    assert _FOREIGN_HOUSE in said, f"the refusal does not name the house root: {said}"
-    assert str(remote._CLASS_ROOT) in said, f"the refusal does not name the caller's root: {said}"
+    # Both roots are printed resolved (on Windows "/nonexistent/x" prints as C:\\nonexistent\\x);
+    # the live bus's root is the string the bus answered, printed as it came.
+    house = str(Path(_FOREIGN_HOUSE).resolve())
+    mine = str(Path(remote._CLASS_ROOT).resolve())
+    assert house in said, f"the refusal does not name the house root {house}: {said}"
+    assert mine in said, f"the refusal does not name the caller's root {mine}: {said}"
     assert _LIVE_BUS_ROOT in said, f"the refusal does not name the live bus's root: {said}"
     assert "CAIRN_BUS_HOME=" in said, f"the refusal does not say the way out: {said}"
 

@@ -13,10 +13,16 @@ WHAT COUNTS AS AN IMPORT. An AST read of every tracked ``proofs/*.py`` outside
 A path join to ``inspector.py`` that only reads its text, and the module name inside a fixture
 string that a sieve is fed, are not imports and are not counted.
 
-Two teeth:
+Three teeth:
   1. The live census answers nothing: no outside proof imports the inspector.
   2. The census catches each spelling on fixture sources, and passes the two that are not
      imports. It's what stops tooth 1 from passing because the detector sees nothing.
+  3. (clause 2) Every proof the ticket's D2 rewrote stands on a green seal over its CURRENT
+     source (validation_store.standing, the reader the reseal ladder itself asks at rung 1):
+     "reseals green under its standing PROVES keys" is read off the seals D2's
+     ``bin/cairn test --seal --ruling 149b9a1ab9c4`` writes, so it reds until that reseal has
+     run on the sealer and reds again the moment one of them moves. This proof itself is not
+     in the set it reads (a seal over itself would be circular).
 
     python3 cairn/tools/base/proofs/test_no_outside_proof_imports_build_inspector.py
 """
@@ -35,6 +41,7 @@ if str(_REPO_ROOT) not in sys.path:
 PROVES = {
     "149b9a1ab9c4": {
         "1": "test_no_outside_proof_imports_the_inspector",
+        "2": "test_every_rewritten_proof_stands_green_over_its_current_source",
     },
 }
 
@@ -94,6 +101,33 @@ def test_no_outside_proof_imports_the_inspector():
     assert not found, (f"{len(found)} proofs outside codemother import build_inspector; each "
                        f"asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\n"
                        + "\n".join(f"  {k}:{v}" for k, v in sorted(found.items())))
+
+
+def _rewritten_proofs() -> list[str]:
+    """The proofs D2 of ticket 149b9a1ab9c4 writes, repo-relative, this proof excluded."""
+    from cairn.tools.base.ticket_file import find_ticket, read_ticket
+    plan = find_ticket("149b9a1ab9c4")
+    assert plan is not None, "ticket 149b9a1ab9c4 is not in the store beside this checkout"
+    d2 = [d for d in read_ticket(plan).get("decisions") or [] if d.get("n") == 2]
+    assert d2, "ticket 149b9a1ab9c4 carries no D2"
+    me = Path(__file__).resolve().relative_to(_REPO_ROOT).as_posix()
+    return sorted(w for w in d2[0].get("writes_to") or []
+                  if "/proofs/" in "/" + w and Path(w).name.startswith("test_") and w != me)
+
+
+def test_every_rewritten_proof_stands_green_over_its_current_source():
+    from cairn.tools.validation_store.validation_store import standing
+    proofs = _rewritten_proofs()
+    assert len(proofs) > 30, f"D2 named only {len(proofs)} proofs; the ticket read is wrong"
+    unproven = {}
+    for rel in proofs:
+        got = standing(str(_REPO_ROOT / rel))
+        if not got.get("proven"):
+            unproven[rel] = got.get("why")
+    assert not unproven, (f"{len(unproven)} of {len(proofs)} proofs ticket 149b9a1ab9c4 rewrote "
+                          f"do not stand green over their current source; reseal them with "
+                          f"bin/cairn test --seal --ruling 149b9a1ab9c4:" + chr(10)
+                          + chr(10).join(f"  {k}: {v}" for k, v in sorted(unproven.items())))
 
 
 def test_the_census_sees_every_spelling():

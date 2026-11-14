@@ -48,6 +48,15 @@ class DeviceRoster(DiagnosticBase):
         shim = self._held.get(name)
         if shim is not None:
             return shim
+        from cairn.tools.base.deviceness import fitted_device_ids
+        from cairn.tools.system_word.system_word import canon
+
+        # A device name is a system word and folds case (ticket 9d4b040eb890): the folder is
+        # cairn/devices/cc and a sender written 'CC' must find it on a case-sensitive filesystem.
+        # An unmatched name passes through unchanged, so a truly unknown one still finds nothing.
+        folded = canon(name, fitted_device_ids(self._root))
+        if folded is not None and folded != name:
+            return self.shim_for(folded)
         from cairn.tools.bus_client.bus_client import _load_device_shim
 
         shim = _load_device_shim(name, self._bus)

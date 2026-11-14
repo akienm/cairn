@@ -41,6 +41,9 @@ from cairn.tools.base import transitions  # noqa: E402
 from cairn.tools.base import ticket_file  # noqa: E402
 
 PROVES = {
+    "d2a76ee449ba": {
+        "1": "test_fixme_refuses_exit_while_an_entry_is_unanswered",
+    },
     "72d2f79daf0a": {
         "1": "test_a_back_edge_lands_at_fixme_before_buildme",
         "2": "test_fixme_refuses_exit_while_an_entry_is_unanswered",
@@ -91,10 +94,18 @@ class _Corpus:
         (d / f"{_NAME}.json").write_text(json.dumps(self._body), encoding="utf-8")
         self._saved = ticket_file._TICKETS
         ticket_file._TICKETS = d
+        # the gate's judges run in a launched CodeMother (0c2c3f53c2be), so the in-process
+        # patch above never reaches them: she is launched naming the same store (3e08102ef35a)
+        from cairn.tools.inspect_wire.inspect_wire import launch
+        self._world = launch(ticket_store=d)
+        self._world.__enter__()
         return d
 
     def __exit__(self, *a):
-        ticket_file._TICKETS = self._saved
+        try:
+            self._world.__exit__(*a)
+        finally:
+            ticket_file._TICKETS = self._saved
         return False
 
 

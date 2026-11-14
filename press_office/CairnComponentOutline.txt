@@ -1315,10 +1315,47 @@ not matter here. The code catches up to this, never the reverse.
                   json ... we need things we can check. and that does mean you
                   have to create adjudications. but i'd say this one isn't
                   working."
-        9.3.5.1.2 [Q#100: Will you read one ticket written in the v2 shape (the
-                  shape ticket d421051bc1f7's D30 rule picks) and say whether it
-                  reads right to you, or what to change? Only your reading settles
-                  it; the build of d421051bc1f7 waits on it (open-91e33982f3d5).]
+        9.3.5.1.2 A ticket's plan is a plan: constraints, tasks, dependencies,
+                  resources. Q#100 answered 2026-11-14 (open-91e33982f3d5,
+                  open-7c607df497bd): "when I use microsoft project to make a
+                  plan, it has constraints, tasks, dependencies, and resources.
+                  that's a plan. a list of decisions does not look like a plan to
+                  me." Then: "we will go with this as you've described it for
+                  now ... lets go with it as you say and see how it works. i would
+                  also say that the shift from decisions to plan steps means that
+                  the first decision (on conversion) will shape some of the plan,
+                  and later steps may reshape some of those. we should check for
+                  coherence at the end. any plan that's too big probably needs to
+                  be multiple tickets. real dependencies are things like we can't
+                  test the bus envelope shape until the bus works. and will shape
+                  ticket order more than anything else. resources are preexisting
+                  machines/tools/even design patterns if we need to state them
+                  explicitly." -amm
+          9.3.5.1.2.1 The reading:
+                  - decisions becomes tasks (plan steps). Each task carries n, do,
+                    writes_to, reads, after: [n... or a ticket id], proves:
+                    [clause n].
+                  - The plan reads constraints (bounds, falsifier), then tasks
+                    with their dependencies, then resources.
+                  - after names only REAL dependencies, and may name another
+                    ticket; dependencies shape ticket order. The migration
+                    invents none: after starts empty and list order is reading
+                    order only, implying no dependency (CC inference).
+                  - proves is a trial: a task no clause proves, or a clause no
+                    task serves, shows at a glance.
+                  - resources are pre-existing machines, tools and design
+                    patterns, named only when they need stating; they map from
+                    survey holdings.
+                  - A plan too big becomes several tickets: the cast door refuses
+                    past about 7 tasks, naming children, and records each refusal
+                    so the ceiling can be tuned (the number is CC's guess).
+                  - The conversion ends with a coherence check per ticket: every
+                    step reads as current, none contradicts or supersedes another;
+                    a conflict moves to the log or is named in the report.
+                  - Display: the [?] markers go, since every by is dropped.
+                  - Tickets: aa3e9a70db47 widens to carry this; d421051bc1f7 is
+                    rebuilt first in the new shape as the worked example.
+                  - akiendelllinux_orchestrator
     9.3.6 Holds the charter tool's instance (17.6): build-quality feedback is hers.
   9.4 MACHINES:
     9.4.1 harbor_master

@@ -49,8 +49,9 @@ _FLAT = Path(".cairn/devices/learning_block")
 
 
 def _env(home: Path) -> dict:
-    env = {k: v for k, v in os.environ.items() if k != "CAIRN_LB_TRACE_ROOT"}
-    env.update(HOME=str(home), PYTHONPATH=str(_REPO_ROOT))
+    from cairn.tools.scratch.scratch import home_env
+    env = home_env(home, PYTHONPATH=str(_REPO_ROOT))
+    env.pop("CAIRN_LB_TRACE_ROOT", None)
     return env
 
 

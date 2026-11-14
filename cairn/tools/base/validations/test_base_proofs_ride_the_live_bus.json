@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_base_proofs_ride_the_live_bus.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T02:33:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T03:17:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_carry_holds_no_testing_name"
       ],
       "teeth_red": [],
-      "test": "test-39843fd75e6a",
+      "test": "test-e31f8b1fa9c3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,25 +30,23 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [
         {
-          "pid": 679329,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-679322-z_ttaifz --scratch",
+          "pid": 756754,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-756747-m8dnmp7l --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 679429,
+          "pid": 756800,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39843fd75e6a",
-      "source_fingerprint": "899906b03cdbc4a322c122f8077894a0e4ac53c52b52b004c57ea581878c74f2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e31f8b1fa9c3",
+      "source_fingerprint": "764f8afe5f9299e515a1b582112002c6a55f3ae5fcd409d5517be2060c940f82",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -97,7 +95,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-679247-h4al451h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-740221-6vugf42t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 11,
@@ -106,23 +104,23 @@
             "devices/cairn/machines/bus/0/bus.pid",
             "devices/cairn/machines/bus/0/stops.jsonl",
             "logs/bus.log",
-            "logs/bus/0/20261114.093328.019318.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261114.093328.087721.BusDevice.post.json",
-            "logs/bus/0/20261114.093328.095876.BusDevice.post.json",
-            "logs/bus/0/20261114.093328.100270.BusDevice.raise_trouble.json",
-            "logs/bus/0/20261114.093328.100434.BusDevice.delivered.json",
-            "logs/bus/0/20261114.093328.100547.BusDevice.delivered.json",
+            "logs/bus/0/20261114.101718.900718.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.101718.944752.BusDevice.post.json",
+            "logs/bus/0/20261114.101718.955655.BusDevice.post.json",
+            "logs/bus/0/20261114.101718.961316.BusDevice.raise_trouble.json",
+            "logs/bus/0/20261114.101718.961597.BusDevice.delivered.json",
+            "logs/bus/0/20261114.101718.961765.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 534638256,
-          "disk_bytes": 581001216,
-          "entries": 17738,
+          "bytes": 535210015,
+          "disk_bytes": 581636096,
+          "entries": 17770,
           "builds": 1,
-          "reuses": 0
+          "reuses": 7
         }
       }
     },

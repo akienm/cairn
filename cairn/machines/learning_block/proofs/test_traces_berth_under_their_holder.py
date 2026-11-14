@@ -42,7 +42,8 @@ PROVES = {"17d4d1899545": {
     "3": "test_no_source_spells_the_flat_address",
     "4": "test_migrate_moves_the_flat_files_to_their_holders",
     "5": "test_the_neighbouring_proofs_stay_green",
-}}
+},
+    "a9c900180061": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 _HOLDER_DIR = Path(".cairn/devices/librarian/0/machines/learning_block/traces")
 _FLAT = Path(".cairn/devices/learning_block")
@@ -190,6 +191,14 @@ def test_the_neighbouring_proofs_stay_green():
         if r.returncode != 0:
             red.append(f"{proof}: {(r.stdout + r.stderr)[-400:]}")
     assert not red, "a neighbouring proof went red:\n  " + "\n  ".join(red)
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket a9c900180061: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    assert scratch_home_bypass(here) == [], scratch_home_bypass(here)
 
 
 def main() -> int:

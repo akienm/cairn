@@ -392,11 +392,18 @@ def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
         rel = proof.resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
         return None
-    log = git("log", "--format=%H", "--", rel, cwd=root)
+    # --follow, reading each commit's blob at the path the file had in THAT commit: a proof
+    # renamed since its ladder opened holds the bounded bytes only under its old name (ticket
+    # 6eb235ee813d — test_host.py, moved and edited by f942a413f26d, was refused here)
+    log = git("log", "--follow", "--format=%x00%H", "--name-only", "--", rel, cwd=root)
     if log.returncode != 0:
         return None
-    for commit in log.stdout.split():
-        blob = git("show", f"{commit}:{rel}", cwd=root, text=False)
+    for entry in log.stdout.split("\x00")[1:]:
+        lines = [line for line in entry.splitlines() if line.strip()]
+        if not lines:
+            continue
+        commit, path = lines[0], (lines[1] if len(lines) > 1 else rel)
+        blob = git("show", f"{commit}:{path}", cwd=root, text=False)
         if blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == sha:
             return blob.stdout
     return None
@@ -587,8 +594,13 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     # proof whose closure differs from the index is held BEFORE it runs — no seal, no trouble —
     # because a run over the working tree would describe bytes this commit does not carry.
     if index_only:
+        # GIT_DIR and GIT_WORK_TREE are dropped for THIS question only (ticket ca9d380fe9d6): a commit made in a
+        # linked worktree carries GIT_DIR, under which `rev-parse --show-toplevel` answers the proofs directory and
+        # `git diff` from there lists every tracked file, so every proof was held on unmodified files. GIT_INDEX_FILE
+        # stays, so the index asked about is the commit's own.
+        _ask = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
         top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, env=_ask)
         if top.returncode == 0:
             base = Path(top.stdout.strip())
             trail = read_validations(str(proof))

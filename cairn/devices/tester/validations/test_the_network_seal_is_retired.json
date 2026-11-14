@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_network_seal_is_retired.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T00:47:53",
+    "date": "2026-11-14T01:24:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n5 passed, 5 warnings in 67.99s (0:01:07)",
+      "stdout_tail": "cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_the_hollow_measures_bare_inside_the_instance_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_netns_refuses_and_runs_nothing returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\ncairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal\n  /home/akien/.cairn/venv/lib/python3.14/site-packages/_pytest/python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but cairn/devices/tester/proofs/test_the_network_seal_is_retired.py::test_no_cairn_test_path_produces_a_refused_seal returned <class 'bool'>.\n  Did you mean to use `assert` instead of `return`?\n  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n5 passed, 5 warnings in 78.20s (0:01:18)",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_seal_over_a_sealed_record_runs_bare_and_says_why",
@@ -17,7 +17,7 @@
         "test_no_cairn_test_path_produces_a_refused_seal"
       ],
       "teeth_red": [],
-      "test": "test-bdbcfdbae6fb",
+      "test": "test-b91b77f05760",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,18 +32,26 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [
         {
-          "pid": 534132,
+          "pid": 580813,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bdbcfdbae6fb",
-      "source_fingerprint": "fde5f5fe55701870913ce6e03deff11af4c80782b07cfea3f0c0083723f94462",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b91b77f05760",
+      "source_fingerprint": "698f755cf3991cd1b572b609d932ad578d5165b6e24aa796b3cf48172f8e3446",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -94,7 +102,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-480120-qo10vxf3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-572238-1h36_vq5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 117,
@@ -106,49 +114,49 @@
             "devices/harbor_master/0/last_known.json",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261114.074654.021964.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261114.074654.047811.BusDevice.post.json",
-            "logs/bus/0/20261114.074654.874949.BusDevice.post.json",
-            "logs/bus/0/20261114.074654.896465.BusDevice.post.json",
-            "logs/bus/0/20261114.074654.912561.BusDevice.post.json",
-            "logs/bus/0/20261114.074655.946754.BusDevice.post.json",
-            "logs/bus/0/20261114.074655.947044.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074655.949277.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074700.990995.BusDevice.post.json",
-            "logs/bus/0/20261114.074701.042305.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261114.074701.060777.BusDevice.post.json",
-            "logs/bus/0/20261114.074701.067826.BusDevice.post.json",
-            "logs/bus/0/20261114.074701.073526.BusDevice.post.json",
-            "logs/bus/0/20261114.074701.073705.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074701.075322.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074747.639431.BusDevice.post.json",
-            "logs/bus/0/20261114.074748.559651.BusDevice.post.json",
-            "logs/bus/0/20261114.074748.559964.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074748.560098.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074748.576598.BusDevice.post.json",
-            "logs/bus/0/20261114.074749.436855.BusDevice.post.json",
-            "logs/bus/0/20261114.074749.437161.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074749.437292.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074749.452844.BusDevice.post.json",
-            "logs/bus/0/20261114.074750.281645.BusDevice.post.json",
-            "logs/bus/0/20261114.074750.281945.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074750.282085.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074750.298024.BusDevice.post.json",
-            "logs/bus/0/20261114.074751.173577.BusDevice.post.json",
-            "logs/bus/0/20261114.074751.173888.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074751.174037.BusDevice.delivered.json",
-            "logs/bus/0/20261114.074751.191860.BusDevice.post.json",
-            "logs/bus/0/20261114.074752.033846.BusDevice.post.json"
+            "logs/bus/0/20261114.082349.940627.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.082349.981302.BusDevice.post.json",
+            "logs/bus/0/20261114.082351.009228.BusDevice.post.json",
+            "logs/bus/0/20261114.082351.050526.BusDevice.post.json",
+            "logs/bus/0/20261114.082351.078310.BusDevice.post.json",
+            "logs/bus/0/20261114.082352.640637.BusDevice.post.json",
+            "logs/bus/0/20261114.082352.641122.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082352.645492.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082359.985531.BusDevice.post.json",
+            "logs/bus/0/20261114.082400.036792.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.082400.057100.BusDevice.post.json",
+            "logs/bus/0/20261114.082400.064648.BusDevice.post.json",
+            "logs/bus/0/20261114.082400.070000.BusDevice.post.json",
+            "logs/bus/0/20261114.082400.070148.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082400.072399.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082450.752873.BusDevice.post.json",
+            "logs/bus/0/20261114.082451.349601.BusDevice.post.json",
+            "logs/bus/0/20261114.082451.349853.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082451.349976.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082451.363116.BusDevice.post.json",
+            "logs/bus/0/20261114.082451.940964.BusDevice.post.json",
+            "logs/bus/0/20261114.082451.941219.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082451.941330.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082451.954766.BusDevice.post.json",
+            "logs/bus/0/20261114.082452.530549.BusDevice.post.json",
+            "logs/bus/0/20261114.082452.530798.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082452.530908.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082452.544414.BusDevice.post.json",
+            "logs/bus/0/20261114.082453.116266.BusDevice.post.json",
+            "logs/bus/0/20261114.082453.116724.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082453.116856.BusDevice.delivered.json",
+            "logs/bus/0/20261114.082453.132152.BusDevice.post.json",
+            "logs/bus/0/20261114.082453.713207.BusDevice.post.json"
           ],
           "elided": 77
         },
         "scratch": {
           "measured": true,
-          "bytes": 533752745,
-          "disk_bytes": 580083712,
-          "entries": 17717,
+          "bytes": 534082746,
+          "disk_bytes": 580579328,
+          "entries": 17774,
           "builds": 1,
-          "reuses": 56
+          "reuses": 21
         }
       }
     },

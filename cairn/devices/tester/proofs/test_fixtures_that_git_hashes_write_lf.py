@@ -9,6 +9,11 @@ WHY THE TOOTH IS AN AST READ. The failure shows only on Windows; this tooth reds
 because it reads the fixture's source: every ``proof.write_text(...)`` inside ``_world`` must
 pass ``newline="\\n"``. A hollow build (one call fixed, one left) fails it.
 
+The renamed-proof twin (ticket 6eb235ee813d, test_rung_4_follows_a_renamed_proof.py) binds a
+ladder to the same kind of hash, over files its ``_world`` names ``old`` and ``new``; its
+tooth reads those writes too. It declares no clause: 6eb2's falsifier holds none for line
+endings, and this only keeps its fixture from regressing to CRLF on Windows.
+
 Clause 2 (test_clearance.py's fixtures) is measured at its own component, by
 cairn/devices/codemother/machines/clearance/proofs/test_fixtures_that_git_hashes_write_lf.py
 (RULE 1: a proof measures only its own component).
@@ -52,6 +57,17 @@ def test_the_rung_4_world_writes_its_proof_lf():
     seen, bad = _unforced_writes(_HERE / "test_rung_4_follows_the_ticket_kind.py", "_world", "proof")
     assert seen >= 2, f"_world writes its proof {seen} time(s); this tooth reads the v1 and v2 writes"
     assert not bad, f"_world writes its committed proof without newline LF at line(s) {bad}"
+
+
+def test_the_renamed_proof_world_writes_its_proof_lf():
+    src = _HERE / "test_rung_4_follows_a_renamed_proof.py"
+    old_seen, old_bad = _unforced_writes(src, "_world", "old")
+    new_seen, new_bad = _unforced_writes(src, "_world", "new")
+    assert old_seen >= 1 and new_seen >= 2, (
+        f"_world writes old {old_seen} and new {new_seen} time(s); this tooth reads the v1 write"
+        " at the old name and the rename and v2 writes at the new one")
+    assert not (old_bad or new_bad), (
+        f"_world writes its committed proof without newline LF at line(s) {sorted(old_bad + new_bad)}")
 
 
 if __name__ == "__main__":

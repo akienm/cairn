@@ -4242,6 +4242,66 @@ def slate_reach(root: Path) -> list[dict]:
     )]
 
 
+_TICKET_ID_AT_LEAD = re.compile(r"\b[0-9a-f]{12}\b")
+
+
+def built_but_uncrossed(root: Path) -> list[dict]:
+    """A ticket whose build is on main has crossed BUILDME (ticket a4a3f5634e7c).
+
+    Measured 2026-11-14: 114 tickets read [TICKETME:...]; 43 are named by a code commit on
+    main, 42 of them in the subject's lead. The land and seal path moves no cursor, so a built,
+    landed, sealed ticket sat at TICKETME with nothing red. This reds it: the repo log says
+    built, the state says not yet.
+
+    A commit NAMES a ticket when the twelve-hex id stands before the subject's first colon (the
+    integrator's ``id: what`` and ``id, id: what`` forms); an id after the colon is a passing
+    mention. A commit is CODE when it changes a path outside ``press_office/`` and outside
+    ``*.md``; seal commits count, a seal on main is evidence the build landed. One ``git log``
+    over HEAD, never one per ticket. RULE 1: it reads two records (commons state files, the
+    repo's log) and imports no machine. Not a row-level sieve: it has no census row, so
+    inspect() calls it after the shake beside slate_reach.
+    """
+    import subprocess
+    commons = root.parent.parent / "CairnCommons"
+    tickets_dir = commons / "tickets"
+    if not tickets_dir.is_dir():
+        return []
+    waiting = {}
+    for sf in sorted(tickets_dir.glob("*.state.json")):
+        try:
+            state = json.loads(sf.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if _workflow_cursor(state.get("workflow_and_state")) == "TICKETME":
+            waiting[sf.name.split("-", 1)[0]] = sf.name
+    if not waiting:
+        return []
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "log", "HEAD", "--format=@@%H%x09%s", "--name-only"],
+            capture_output=True, text=True, encoding="utf-8", timeout=120)
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    if proc.returncode != 0:
+        return []
+    named: dict[str, list[str]] = {}
+    for block in proc.stdout.split("@@")[1:]:
+        lines = block.splitlines()
+        sha, _, subject = lines[0].partition("\t")
+        paths = [ln for ln in lines[1:] if ln.strip()]
+        if not any(not pth.startswith("press_office/") and not pth.endswith(".md") for pth in paths):
+            continue
+        for tid in _TICKET_ID_AT_LEAD.findall(subject.split(":", 1)[0]):
+            if tid in waiting:
+                named.setdefault(tid, []).append(sha[:9])
+    return [_finding(
+        "built_but_uncrossed", tid,
+        "a ticket named by a code commit on main has left TICKETME",
+        expected=True, actual=False,
+        state_file=waiting[tid], commits=shas)
+        for tid, shas in sorted(named.items())]
+
+
 def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
     """A charter declares durable_state outside db_domain.
 
@@ -5291,6 +5351,7 @@ def inspect(*, root: Path | None = None, component: str | None = None,
     stale_slates = []
     stale_histories = []
     uncovered_tickets = []
+    built_uncrossed = []
     outside_census = []
     opaque_sites = 0
     if component is None:
@@ -5298,6 +5359,7 @@ def inspect(*, root: Path | None = None, component: str | None = None,
         stale_slates = slate_reach(root)
         stale_histories = history_reach(root)
         uncovered_tickets = proof_covers_the_ticket(root)
+        built_uncrossed = built_but_uncrossed(root)
         # RULE 1 breaches no census row can carry: neither reacher nor target is a row.
         census_dirs = {"cairn/" + r["dir"] for r in rows}
         outside_census = [b for b in _breaches(str(Path(root).resolve().parent))
@@ -5342,6 +5404,7 @@ def inspect(*, root: Path | None = None, component: str | None = None,
         "stale_slates": stale_slates,
         "stale_histories": stale_histories,
         "uncovered_tickets": uncovered_tickets,
+        "built_uncrossed_tickets": built_uncrossed,
         "encapsulation_outside_census": outside_census,
         "encapsulation_opaque_sites": opaque_sites,
         "clean": (not shaken["findings"] and not unbuilt and not stale_slates

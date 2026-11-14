@@ -738,24 +738,22 @@ not matter here. The code catches up to this, never the reverse.
                   been asked to start and instance, then we've not been given a
                   name for it, then we have a cc_0 instance, so I'll launch it
                   with cc_1'"
-        5.3.5.2.3 [Q#102: When the shim names a new instance (cc_1), may the
-                  launch also DECLARE it, creating cairn/devices/<device>/<n>/ in
-                  the repo? Measured 2026-11-13 by akiendell: bin/cairn launches only
-                  a declared instance (5.7.3.4), and today only cc/0 is declared, so
-                  "cairn cc start --new" would be told 1 and then refused "no such
-                  instance: 1". (a) The launch declares: it creates the folder,
-                  wires it and starts it. WHY: your words above, "the launcher has
-                  to ask the shim to create the instance". COST: a command writes a
-                  tracked folder into class-space, which every box then sees, and
-                  that dirt in the house tree refuses crossings until committed.
-                  (b) Declaring stays an authored, committed act: --new launches the
-                  lowest declared instance that is not running, and refuses loudly,
-                  naming the folder to add, when none is free. WHY: class-space
-                  holds what was declared and reviewed, never what a run made.
-                  COST: a second cc needs a commit first. CC leans (b), because
-                  5.7.3.4 says the folder IS the declaration. Ticket aa05710a5124
-                  waits on this, and d13859e2ae46 and 0f7a8cada1ca change their
-                  "free" to "declared and not running" if it is (b).]
+        5.3.5.2.3 Declaring a new instance is its own explicit verb, and it
+                  rotates (Akien, Q#102, 2026-11-14: "i'd do it as cairn superclaude
+                  --new"; correcting the first reading, open-e77e0e1101ac: "no, if cc_0
+                  is already declared, it should be smart enough to rotate to cc_1").
+                  -amm
+                  Reading: `cairn superclaude --new` (superclaude is the rescue
+                  service's launcher, cairn/devices/cc/superclaude) never needs a folder
+                  prepared by hand and never refuses for want of one. If cc_0 is already
+                  declared it declares cc_1 itself (cc_2 if cc_1 exists, and so on),
+                  wires it, and launches it; "declared" is enough to rotate, running or
+                  not does not matter. The declared folder is committed through the
+                  door, so the house tree is not left dirty and crossings are not
+                  refused. A plain start of an existing declared instance stays as it is
+                  today. Tickets: aa05710a5124 reshapes to this; d13859e2ae46 and
+                  0f7a8cada1ca read "free" as "not yet declared".
+                  - akiendelllinux_orchestrator
       5.3.5.3 What the waker starts outlives whoever started it (detached, or
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the

@@ -21,6 +21,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -133,11 +134,14 @@ def _pg_tables() -> set[str]:
 
 # A SUBPROCESS, NOT os.fork (ticket 1eeeab70c59e): os.fork does not exist on Windows, so this tooth could
 # not run there and the Windows sweep (store.process_start answered None for every pid) went undetected.
-_MINTER = ("import sys, time\n"
+_MINTER = ("import os, sys, time\n"
            "from cairn.devices.db_domain.tools.client import store\n"
            "with store.scratch(sys.argv[1], sys.argv[2], {'x': 'text'}) as table:\n"
-           "    print(table, flush=True)\n"
+           "    print(table, os.getpid(), flush=True)\n"
            "    time.sleep(120)\n")
+# THE CHILD REPORTS ITS OWN PID: inside a venv on Windows sys.executable is a LAUNCHER, so Popen.pid is not the
+# interpreter that minted the table (measured 2026-11-14: 28300 vs 19232). The kill is aimed at the pid the child
+# prints; before, this tooth passed only because the launcher's death took the child with it.
 _MINTERS: dict[int, subprocess.Popen] = {}
 
 
@@ -146,17 +150,23 @@ def _fork_minter(prefix: str) -> tuple[int, str]:
     — never reaching its ``finally`` once killed. Returns (pid, table)."""
     child = subprocess.Popen([sys.executable, "-c", _MINTER, _OWNER, prefix], cwd=str(ROOT), stdout=subprocess.PIPE,
                              text=True, env={**os.environ, "PYTHONPATH": str(ROOT)})
-    table = (child.stdout.readline() or "").strip()
-    if not table:
+    reported = (child.stdout.readline() or "").split()
+    if len(reported) != 2:
         child.kill()
         child.wait()
-    assert table, "the child minted nothing"
-    _MINTERS[child.pid] = child
-    return child.pid, table
+    assert len(reported) == 2, "the child minted nothing"
+    table, real_pid = reported[0], int(reported[1])
+    _MINTERS[real_pid] = child
+    return real_pid, table
 
 
 def _kill(pid: int) -> None:
+    """Terminate the interpreter that holds the table (its own pid), then reap the launcher if there is one."""
     child = _MINTERS.pop(pid)
+    try:
+        os.kill(pid, getattr(signal, "SIGKILL", signal.SIGTERM))   # TerminateProcess on Windows
+    except OSError:
+        pass   # already gone
     child.kill()
     child.wait()
 

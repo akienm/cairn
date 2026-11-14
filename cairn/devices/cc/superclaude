@@ -2,7 +2,7 @@
 # setsid is util-linux; Git Bash has none. Where it is absent, detach with nohup (no new session).
 command -v setsid >/dev/null 2>&1 || setsid() { nohup "$@"; }
 # Windows only: a background sibling must LEAVE the console. nohup (above) detaches nothing there,
-# so a sibling that exits (the ground loop's singleton loser exits 3 at once) takes the shared
+# so a sibling that exits (the ground loop's singleton loser exits 0, quietly and at once) takes the shared
 # console's output mode back to what it saw at its start -- measured 0x7 -> 0x0 half a second
 # after launch under `cairn superclaude`, which is what drew Claude Code's ESC bytes as "<-[?25h"
 # in Windows Terminal. DETACHED_PROCESS|CREATE_NO_WINDOW is memory_sync.py's push pattern.
@@ -521,9 +521,9 @@ fi
 # SPAWN BLIND — deliberately. This does NOT check whether a loop is running first; the
 # singleton claim in cairn/devices/cairn/machines/ground_loop/guard.py is the mechanism, and a launcher that
 # re-derived the check would be a second opinion about who is running (Law 1, and the guard's
-# own docstring names this caller). A loser exits 3 after printing what it found, which lands
-# in the log below — distinct from a crash, so "refused, one is running" reads differently
-# from "broke".
+# own docstring names this caller). A loser exits 0 and says nothing (Akien 2026-11-13, Q#93, outline
+# 5.3.5.2.1: "it should exit silently"), so it leaves no line in the log below; a line there means
+# something broke.
 #
 # WHY IT WAS MISSING: the guard shipped 2026-08-09 built expressly for an entry point to call,
 # and no entry point ever called it. The loop ran exactly once, started by hand, and the
@@ -550,12 +550,12 @@ fi
 #
 # THREE THINGS THAT LOOK OPTIONAL AND ARE NOT, each measured on this host 2026-08-18:
 #
-#   SuccessExitStatus=3 — a transient unit that exits ZERO is garbage-collected and frees
-#   its name; one that exits NONZERO stays loaded in `failed` state and BLOCKS it. The
-#   singleton loser exits 3 BY DESIGN, so without this the FIRST losing launch would wedge
-#   the name and every later launch would silently start nothing — "always up" broken by the
-#   very change meant to secure it. Verified: exit 3 under this flag leaves `is-failed` rc=4
-#   and the name free.
+#   SuccessExitStatus=3 — REMOVED 2026-11-13 (ticket 15e64f9fe960). It was here because a
+#   transient unit that exits NONZERO stays loaded in `failed` state and BLOCKS its name, and the
+#   singleton loser then exited 3 (measured 2026-08-18). The loser now exits 0 (b38af5fd1852), and
+#   a unit that exits ZERO is garbage-collected and frees its name, so the flag has no job left;
+#   with it in, a loser that regressed to the loud 3 would read as a success. Without it that
+#   regression leaves a failed unit that blocks the name, which is the signal wanted.
 #
 #   reset-failed, fired blind — for the crash case the flag does not cover. Verified against
 #   a LIVE unit: rc=0, MainPID unchanged, still active, so it cannot disturb a running loop;
@@ -592,9 +592,9 @@ fi
 #   path the moment the proxy passed, so a probe that passed and a start that then failed left
 #   the launch with no loop at all.
 #
-#   reset-failed moved to the retry, where the state it clears actually exists. SuccessExitStatus=3
-#   already stops the ordinary singleton loser from wedging its name, so a wedged name means a
-#   genuine crash — rare. Paying 30ms on every launch to clear a state almost no launch is in is
+#   reset-failed moved to the retry, where the state it clears actually exists. The ordinary
+#   singleton loser exits 0 and is garbage-collected, so it cannot wedge its name; a wedged name
+#   means a genuine crash — rare. Paying 30ms on every launch to clear a state almost no launch is in is
 #   exactly the cost the common path should not carry.
 #
 # AND WHICH FAILURE IT WAS DECIDES WHAT HAPPENS NEXT — the two must not collapse into "it
@@ -633,7 +633,6 @@ _sc_loop_start() {
     --working-directory "${_sc_loop_root:-$PWD}" \
     --setenv=HOME="$HOME" \
     --setenv=PATH="$PATH" \
-    -p SuccessExitStatus=3 \
     -p StandardOutput=append:"$_sc_loop_log" \
     -p StandardError=append:"$_sc_loop_log" \
     -- python3 -m cairn.devices.cairn.machines.ground_loop 2>&1
@@ -669,7 +668,7 @@ if [[ "$dry_run" -eq 0 ]]; then
   fi
   case "$_sc_loop_path" in
     started)
-      _sc_log "ground_loop: spawn attempted as ${_sc_loop_unit}.service on the user manager (singleton guard decides; loser exits 3)"
+      _sc_log "ground_loop: spawn attempted as ${_sc_loop_unit}.service on the user manager (singleton guard decides; a loser exits 0 quietly)"
       ;;
     refused)
       # THE REFUSAL IS WRITTEN WHERE A HUMAN LOOKS, not only where systemd files it. The note
@@ -686,7 +685,7 @@ if [[ "$dry_run" -eq 0 ]]; then
             >>"$_sc_loop_log" 2>&1 </dev/null & ) >/dev/null 2>&1 || true
         disown 2>/dev/null || true
       fi
-      _sc_log "ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; loser exits 3)"
+      _sc_log "ground_loop: systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die with this window (singleton guard decides; a loser exits 0 quietly)"
       ;;
   esac
 fi

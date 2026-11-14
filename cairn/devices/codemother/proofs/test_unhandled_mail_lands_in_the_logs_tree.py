@@ -32,7 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
-from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import home_env, scratch_dir  # noqa: E402
 
 PROVES = {"d10668f76c45": {
     "1": "test_unhandled_mail_lands_in_the_logs_tree",
@@ -52,7 +52,7 @@ _RUN: dict = {}
 def _run() -> dict:
     if not _RUN:
         home = scratch_dir("cairn-proof-codemother-mail-home-")
-        env = dict(os.environ, HOME=str(home), PYTHONPATH=str(ROOT))
+        env = home_env(home, PYTHONPATH=str(ROOT))
         r = subprocess.run([sys.executable, "-c", _CALL % str(ROOT)], env=env,
                            capture_output=True, text=True, timeout=60, cwd=str(ROOT))
         assert r.returncode == 0, r.stderr[-600:]

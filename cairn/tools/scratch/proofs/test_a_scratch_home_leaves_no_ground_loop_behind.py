@@ -118,7 +118,7 @@ while not held(lock):
         break
     time.sleep(0.2)
 Path({report!r}).write_text(("" if ok else "NOLOCK ") + str(home) + " " + str(p.pid))
-print(("PASS" if ok else "FAIL") + " stand_in_brings_up_a_ground_loop", flush=True)
+print(("PASS" if ok else "FAIL") + " test_stand_in_brings_up_a_ground_loop", flush=True)
 sys.exit(0 if ok else 3)
 """
 
@@ -168,7 +168,10 @@ def test_a_plain_run_leaves_no_live_holder_of_its_scratch_homes_run_lock():
 def test_a_tester_run_leaves_no_live_holder_of_its_scratch_homes_run_lock():
     world = scratch_dir("scratch-reap-tester-world-")
     report = world / "report"
-    _left_nothing("tester", _run_tester(world, report), report)
+    run = _run_tester(world, report)
+    _left_nothing("tester", run, report)
+    assert run.returncode == 0, (f"the stand-in did not read green under bin/cairn test "
+                                 f"(rc {run.returncode}): {run.stdout[-600:]}")
 
 
 def test_the_house_loop_holds_its_run_lock_after_both_runs():

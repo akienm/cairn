@@ -128,6 +128,91 @@ def _reads(ctx: dict, repo_root: Path, rel: str, attr: str) -> bool:
     return attr in ctx["reads"][rel]
 
 
+def _functions_of(ctx: dict, repo_root: Path, rel: str) -> dict:
+    """{function name: (callee names, names it reads)} for every def in ``rel`` (methods included), plus '<module>': the names read at
+    import time (statements outside any def). Name-based on purpose: an over-approximation of the call graph that never misses a callee."""
+    cache = ctx.setdefault("fn", {})
+    if rel in cache:
+        return cache[rel]
+    out: dict[str, tuple[set, set]] = {}
+    try:
+        tree = ast.parse((Path(repo_root) / rel).read_text(encoding="utf-8"))
+    except (OSError, SyntaxError):
+        cache[rel] = out
+        return out
+
+    def loads(node):
+        names = set()
+        for x in ast.walk(node):
+            if isinstance(x, ast.Name) and isinstance(x.ctx, ast.Load):
+                names.add(x.id)
+            elif isinstance(x, ast.Attribute) and isinstance(x.ctx, ast.Load):
+                names.add(x.attr)
+        return names
+
+    def callees(node):
+        return {c.func.id if isinstance(c.func, ast.Name) else getattr(c.func, "attr", "") for c in ast.walk(node) if isinstance(c, ast.Call)}
+
+    module_reads: set[str] = set()
+    for st in tree.body:
+        if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
+        module_reads |= loads(st)
+    out["<module>"] = (set(), module_reads)
+    for fn in ast.walk(tree):
+        if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            out[fn.name] = (callees(fn), loads(fn))
+    cache[rel] = out
+    return out
+
+
+def _transitions_judges(ctx: dict, repo_root: Path, fname: str) -> set[str]:
+    """The judges the transitions.py function ``fname`` asks, directly or through the in-module functions it calls."""
+    path = Path(repo_root) / _TRANSITIONS
+    if not path.is_file():
+        return set()
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    defs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    seen, todo, found = set(), [fname], set()
+    while todo:
+        name = todo.pop()
+        if name in seen or name not in defs:
+            continue
+        seen.add(name)
+        for c in ast.walk(defs[name]):
+            if isinstance(c, ast.Call):
+                f = c.func
+                cname = f.id if isinstance(f, ast.Name) else getattr(f, "attr", "")
+                if cname in _WIRE_CALLS and c.args and isinstance(c.args[0], ast.Constant) and isinstance(c.args[0].value, str):
+                    found.add(c.args[0].value)
+                todo.append(cname)
+    return found
+
+
+def _answer_side_reader(ctx: dict, repo_root: Path, base: str, reach: dict, starts: set[str], attr: str):
+    """A file in ``reach`` that the JUDGE can actually read ``attr`` through: a function reachable (by callee name) from one of the
+    ``starts`` judges reads it, or a reached file reads it at import time. A read inside a function the judge never calls (the asker's
+    own ``enqueue_verdict``, which a judge module merely imports a sibling of) is the ASKER's read, not the judge's."""
+    files = [base] + [r for r in reach if r != base]            # the judge's own module is not in its reach (a start never reaches itself)
+    for rel in files:                                           # import-time reads run in the answerer when it imports the module
+        if attr in _functions_of(ctx, repo_root, rel).get("<module>", (set(), set()))[1]:
+            return rel
+    table = {rel: _functions_of(ctx, repo_root, rel) for rel in files}
+    todo = [(rel, name) for rel in files for name in table[rel] if name in starts]
+    seen = set(todo)
+    while todo:
+        rel, name = todo.pop()
+        callees, reads = table[rel][name]
+        if attr in reads:
+            return rel
+        for other in files:
+            for fn in table[other]:
+                if fn in callees and (other, fn) not in seen and fn != "<module>":
+                    seen.add((other, fn))
+                    todo.append((other, fn))
+    return None
+
+
 def _aliases(tree) -> dict[str, str]:
     out = {}
     for n in ast.walk(tree):
@@ -347,7 +432,8 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
             reach = _reach(ctx, module) if module else None
             if not reach or f not in reach:
                 continue
-            reader = next((r for r in reach if _reads(ctx, repo_root, r, attr)), None)
+            starts = _transitions_judges(ctx, repo_root, judge.split(".", 1)[1]) if judge.startswith("via transitions") else {judge}
+            reader = _answer_side_reader(ctx, repo_root, _file_of(ctx, module), reach, starts, attr)
             if reader:
                 findings.append({"proof": proof, "line": line, "target": f"{target}.{attr}", "attr": attr, "judge": judge,
                                  "chain": reach[f], "read_by": reader})

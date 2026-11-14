@@ -41,7 +41,10 @@ _M = U._MACHINE            # wherever the machine stands (cairn/machines/build_i
 
 _FILES = {
     f"{_M}/__init__.py": "",
-    f"{_M}/inspector.py": "from cairn.lib import reader\n\n\ndef j_reads():\n    return reader.ROOTS\n\n\ndef lane():\n    return reader.ROOTS\n",
+    f"{_M}/inspector.py": ("from cairn.lib import reader\nfrom cairn.lib import ledger\n\n\ndef j_reads():\n    return reader.ROOTS\n\n\n"
+                           "def j_peeks():\n    return ledger.peek()\n\n\ndef lane():\n    return reader.ROOTS\n"),
+    # a module the judges IMPORT, one of whose functions only the ASKER calls (enqueue) and one a judge calls (peek)
+    "cairn/lib/ledger.py": "LEDGER = {}\n\n\ndef enqueue():\n    return LEDGER\n\n\ndef peek():\n    return LEDGER\n",
     f"{_M}/run_record.py": "def j_other():\n    return 1\n",
     "cairn/lib/__init__.py": "",
     "cairn/lib/reader.py": "ROOTS = {}\nUNUSED = 1\n\n\ndef get():\n    return ROOTS\n",
@@ -81,6 +84,9 @@ NEGATIVES = {
     "a signature fake (the 0c2c shape)": (_HEAD + "from cairn.lib import remote\n\n\ndef t():\n    def spawn(h, scratch, *, via_unit=True):\n"
                                           '        return "unit"\n    remote._spawn = spawn\n    try:\n        ask("j_reads")\n    finally:\n        remote._spawn = None\n'),
     "a patch of the seam itself": ("from cairn.tools.inspect_wire import inspect_wire as iw\n\n\ndef t():\n    iw.ask = lambda *a, **k: None\n    iw.ask('j_reads')\n"),
+    # AN ASKER-SIDE READ IS NOT A JUDGE-SIDE ONE (3e08's LEDGER_PATH: enqueue_verdict runs in the asker's emit; the judges merely import
+    # its module): the judge reaches the module that reads the name, but no function the judge calls does
+    "a name only the asker's own function reads (the module is merely reached)": _HEAD + 'def t():\n    with patch("cairn.lib.ledger.LEDGER", {}):\n        ask("j_reads")\n',
     "a judge that reads nothing patched": _HEAD + 'def t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        ask("j_other")\n',
     # the 3e08 shape: the asker keeps its patch and hands the SAME binding to the launch at or after it
     "handed the same value to a launch at or after the patch": (
@@ -121,6 +127,9 @@ def a_patch_the_judge_reads_in_another_process_is_reported_with_its_target_judge
             assert f["target"] == "cairn.lib.reader.ROOTS" and f["proof"] == name, f"{name}: {f}"
             assert f["judge"].endswith("j_reads") or f["judge"].startswith("via transitions"), f"{name}: the judge is not named: {f}"
             assert f["chain"] and f["chain"][-1] == "cairn/lib/reader.py" and f["read_by"], f"{name}: no chain to the reader: {f}"
+        # and the SAME module, read by a function a judge DOES call, is reported: the answer-side rule is a call-graph read, not a blanket skip
+        peek = U.unseen_patches(_HEAD + 'def t():\n    with patch("cairn.lib.ledger.LEDGER", {}):\n        ask("j_peeks")\n', root, proof="peek")["findings"]
+        assert len(peek) == 1 and peek[0]["target"] == "cairn.lib.ledger.LEDGER", f"a judge that calls the reading function was not reported: {peek}"
     finally:
         U.clear_cache()
         shutil.rmtree(root, ignore_errors=True)

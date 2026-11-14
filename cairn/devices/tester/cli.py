@@ -59,7 +59,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cairn.devices.tester.device import GREEN, PROOF_BUDGET_ENV, TIMEOUT, SealUnavailable, TesterDevice
+from cairn.devices.tester.device import GREEN, NOTRUN, PROOF_BUDGET_ENV, TIMEOUT, SealUnavailable, TesterDevice
 from cairn.devices.tester.working_bytes import UnnormalizedClosure
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
@@ -651,6 +651,7 @@ def main(argv: list[str] | None = None) -> int:
     reds: list[tuple[Path, dict]] = []
     refused: list[tuple[Path, str]] = []
     timeouts: list[tuple[Path, dict]] = []
+    notruns: list[tuple[Path, dict]] = []
     persisted = 0
     # WHAT SEAL EACH PERSISTED RECORD ACTUALLY CARRIES (ticket 481221f45884). The count alone
     # cannot tell a record taken under a netns from one taken with the route wide open, and the
@@ -699,7 +700,7 @@ def main(argv: list[str] | None = None) -> int:
             record = tester.run_proof(proof, sink="none" if ladder else sink, caller="cairn test",
                                       timeout=args.timeout, isolation=isolation,
                                       scratch_sweep=sweep_scratch() if sink == "validations" else None)
-            if ladder and record["verdict"] != TIMEOUT:
+            if ladder and record["verdict"] not in (TIMEOUT, NOTRUN):
                 record = carry_ladder(record, proof, ladder, ruling_id=args.ruling)
         except UnnormalizedClosure as refusal:
             # A SEAL OVER BYTES NO CHECKOUT WRITES (ticket 8cc2a5752b6a): the proof ran, nothing
@@ -721,6 +722,15 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  TIMEOUT {rel}  (exceeded the {budget}s budget; nothing written — the "
                   f"standing seal is untouched)")
             timeouts.append((proof, record))
+            continue
+        # A NOT-RUN IS ITS OWN COLUMN, the timeout's shape (ticket eb27604ab267; outline 9.4.8.1): every tooth the
+        # proof named printed NOTRUN, so this box measured nothing and asks for the Linux sealer. Neither green
+        # nor red, and nothing written.
+        if record["verdict"] == NOTRUN:
+            names = record.get("evidence", {}).get("teeth_notrun") or []
+            print(f"  NOTRUN  {rel}  ({', '.join(names)}; nothing written - this box lacks what they need and "
+                  f"asks for the Linux sealer, outline 9.4.8.1)")
+            notruns.append((proof, record))
             continue
         if sink == "validations":
             persisted += 1
@@ -759,7 +769,7 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"    {line}")
 
     total, n_red = len(proofs), len(reds)
-    n_green = total - n_red - len(refused) - len(timeouts)
+    n_green = total - n_red - len(refused) - len(timeouts) - len(notruns)
     # THE ISOLATION IS A DISTRIBUTION NOW, NOT A WORD. It used to print the one hoisted value,
     # which was true only because every proof got the same one. A batch that reproduces each
     # proof's own seal genuinely runs several, so the line reports what actually happened —
@@ -768,6 +778,7 @@ def main(argv: list[str] | None = None) -> int:
     spread = " ".join(f"{k}={v}" for k, v in sorted(isolations.items()))
     print(f"\n{total} proof{'s' if total != 1 else ''} · {n_green} green · {n_red} red"
           + (f" · {len(timeouts)} timeout" if timeouts else "")
+          + (f" · {len(notruns)} not-run" if notruns else "")
           + (f" · {len(refused)} seal-refused" if refused else "")
           + (f" · isolation {spread}" if (args.netns or args.seal) and spread else ""))
     if timeouts:
@@ -825,7 +836,7 @@ def main(argv: list[str] | None = None) -> int:
               "so nothing here has changed what `standing()` says about any of this code. "
               "Re-run with --seal to land the verdicts.")
     # a sweep that could not measure part of its target has not passed (ticket 3dfceaa272ec)
-    return 1 if (reds or refused or timeouts) else 0
+    return 1 if (reds or refused or timeouts or notruns) else 0
 
 
 if __name__ == "__main__":

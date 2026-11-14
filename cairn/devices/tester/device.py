@@ -79,6 +79,12 @@ PROOF_BUDGET_ENV = "CAIRN_TESTER_PROOF_BUDGET"
 # record["verdict"] out of run_proof and is never persisted, which is why it lives here and
 # not beside GREEN and RED in the store: no validation on disk may carry it.
 TIMEOUT = "timeout"
+# THE FOURTH, AND THE SAME SHAPE (ticket eb27604ab267; outline 9.4.8.1, CC's decision on Q#98, after Akien's Q#90
+# answer, 9.4.2.3.3.1): a run whose every tooth printed NOTRUN needed what this box lacks (systemd, bubblewrap), so it
+# measured nothing about the proof here. Neither green nor red, never persisted, and the output asks for the Linux
+# sealer. It adds NO verdict to any record and no field to the seal: like TIMEOUT it rides record["verdict"] out of
+# run_proof and no validation on disk may carry it.
+NOTRUN = "not-run"
 
 # WHERE A VALIDATION GOES, named at every call site. Two values, because two are what the
 # corpus needs: seal through the store's door, or write nothing. There is deliberately no
@@ -287,6 +293,12 @@ def _text(captured) -> str:
     if captured is None:
         return ""
     return captured.decode(errors="replace") if isinstance(captured, bytes) else captured
+
+
+def _notrun(stdout: str) -> list:
+    """The teeth a proof printed on NOTRUN lines (proof_coverage.notrun_printed, ticket d845546b67b9)."""
+    from cairn.tools.proof_coverage import notrun_printed
+    return notrun_printed(stdout)
 
 
 def _teeth(stdout: str) -> dict:
@@ -737,10 +749,19 @@ class TesterDevice(BaseDevice):
                 # leaned on by a peer (Law 8: a hollow green is worse than a red). Same path
                 # as a timeout: the verdict is RED, teeth_green stays an EMPTY list, never
                 # absent, and the detail rides stderr_tail — never a ninth field.
+                notrun = _notrun(proc.stdout)
+                if notrun:
+                    teeth["teeth_notrun"] = notrun   # inside evidence, never a ninth field
                 if verdict == GREEN and not teeth["teeth_green"]:
-                    verdict = RED
-                    stderr = (stderr.rstrip("\n") + "\n" if stderr else "") + \
-                        "zero teeth printed: exit 0 with no tooth named on stdout\n"
+                    if notrun and not teeth["teeth_red"]:
+                        # EVERY TOOTH IT NAMED DID NOT RUN HERE (ticket eb27604ab267): not RED, and not sealed.
+                        verdict = NOTRUN
+                        stderr = (stderr.rstrip("\n") + "\n" if stderr else "") + \
+                            f"not-run: {', '.join(notrun)} - this box lacks what they need; the Linux sealer measures them\n"
+                    else:
+                        verdict = RED
+                        stderr = (stderr.rstrip("\n") + "\n" if stderr else "") + \
+                            "zero teeth printed: exit 0 with no tooth named on stdout\n"
                 # WHICH TEETH RAN GREEN — read from the FULL stdout, here, before it is
                 # tailed. Ticket feeb4c786b14: a green seal used to say only "exit 0", so a
                 # ticket could name any passing proof and nothing could tell whether that
@@ -881,13 +902,13 @@ class TesterDevice(BaseDevice):
         # git calls unchanged whose raw bytes are not what a checkout of its index blob writes
         # today (a CRLF copy left by a checkout taken before an eol pin) would land a fingerprint
         # no other box reproduces. Nothing persists; the refusal names the files.
-        if sink == "validations" and verdict != TIMEOUT and evidence.get("fingerprint_closure"):
+        if sink == "validations" and verdict not in (TIMEOUT, NOTRUN) and evidence.get("fingerprint_closure"):
             from cairn.devices.tester.working_bytes import UnnormalizedClosure, unnormalized
             from cairn.tools.validation_store import validation_store as _vs
             stale = unnormalized(evidence["fingerprint_closure"], _vs._REPO_ROOT)
             if stale:
                 raise UnnormalizedClosure(stale)
-        if sink == "validations" and verdict != TIMEOUT:
+        if sink == "validations" and verdict not in (TIMEOUT, NOTRUN):
             # THROUGH THE DOOR, and only through it. persist_validation decides what lands
             # and announces a changed verdict before it does; nothing here writes bytes, which
             # is what keeps the store's "one write door" true while giving run_proof a way to

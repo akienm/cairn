@@ -81,7 +81,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.conditions import compare
-from cairn.devices.tester.device import GREEN, TIMEOUT, TesterDevice
+from cairn.devices.tester.device import GREEN, NOTRUN, TIMEOUT, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.tools.base.address import component_of
@@ -699,6 +699,12 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     # is the door adding a verdict it did not earn. The trouble still fires, saying which of
     # the two things happened (Law 7: loud at a diagnostic surface).
     #   -> ticket: a-seal-record-carries-how-long-its-run-took
+    # A NOT-RUN IS NOT A RED THE DOOR MAY RECORD EITHER (ticket eb27604ab267): every tooth needed what this box
+    # lacks, so the run measured nothing; the door writes nothing and the Linux sealer's seal stands.
+    if record["verdict"] == NOTRUN:
+        return {"proof": rel, "outcome": "not-run", "rung": 3, "ran": True,
+                "why": "every tooth printed NOTRUN: this box lacks what they need; nothing was written and "
+                       "the Linux sealer measures it (outline 9.4.8.1)"}
     timed_out = record["verdict"] == TIMEOUT  # the runner says it outright (ticket 3dfceaa272ec)
     if timed_out:
         # the budget the run actually used: a proof's own PROOF_TIMEOUT_S beats --timeout

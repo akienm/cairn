@@ -1,0 +1,253 @@
+"""Each test run tickets every new red and orphaned file it finds (ticket 207c4074b3d5).
+
+Outline 9.4.2.3.7.5, Akien 2026-11-13: "every test failure, every orphaned file, HAS TO BE FIXED
+... reds don't get lost", "so each run writes any new bugs". The one entry point is
+``ticket_what_is_new(results, scan_orphans=...)``: the tester's run_proof calls it on every red
+(D5), and a whole-tree run (the tier verbs, 810fb2fc4a15 / cd40ac53f08a / 346c75c2f8b7) calls it
+once with ``scan_orphans=True``. The adjudication ticket (aa2d42b15886) adds its call here.
+
+KEYS (D1). A red is ``red:<proof repo-rel path>::<tooth>`` (``*`` when the run names no tooth);
+an orphan is ``orphan:<repo-rel path>``. The key a ticket CARRIES is its ``fixes`` entry, and
+the store's charter shapes ``fixes`` as paths that resolve to files (ticket 5defc13bfebe, read
+by reseal's rung 4 and codemother's fixit rule), so each key also names the one file a ticket
+fixes: the proof for a red, the orphaned file for (b), the orphaned seal for (a). One ticket
+per proof, not per tooth: a second tooth reding on a proof an open ticket already fixes is
+the same repair, and the keys ride the ticket's ``measured`` so none is lost.
+
+ORPHANS (D2), CC's reading of 9.4.2.3.7.5, measured from ``git ls-files`` so the tester reaches
+into no other component (RULE 1):
+  (a) ``<x>/validations/test_<stem>.json`` whose ``<x>/proofs/test_<stem>.py`` is gone;
+  (b) a tracked file under cairn/ or skills/ with no intention+why.json in its directory or any
+      parent below the repo root. A package ``__init__.py`` is import plumbing, not a file
+      anything owns (measured 2026-11-13 at 06a1e8755: 2236 tracked files, 5 such, all
+      ``__init__.py`` at the namespace roots; 1 orphaned seal).
+
+DEDUP (D3). A key is carried by a ticket not at a terminal state that lists its file in
+``fixes``, or, for a red, names the proof in ``bounds.in``.
+
+CAST (D4). Fire /sorted through skills/sorted/door.py, then cast_ticket. Either door's refusal
+raises ``RedTicketRefused`` naming it (Law 7): never swallowed, and a ticket the cast door
+refused never lands (cast_ticket writes nothing on a refusal).
+"""
+from __future__ import annotations
+
+import json
+import subprocess
+import uuid
+from datetime import date
+from pathlib import Path
+
+_REPO = Path(__file__).resolve().parents[3]
+CHARTER = "intention+why.json"
+WORKFLOW = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
+FALLBACK_OWNER = "cairn/devices/tester/intention+why.json"
+_TREES = ("cairn", "skills")
+
+# Where a cast lands. None is each door's own live default; a proof points them at scratch.
+ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "commons": None}
+
+
+class RedTicketRefused(RuntimeError):
+    """A door refused the ticket for ``key``; ``lacks`` is what it named."""
+
+    def __init__(self, key: str, door: str, lacks):
+        self.key, self.door, self.lacks = key, door, list(lacks or [])
+        super().__init__(f"red_tickets: the {door} door refused the ticket for {key}: {self.lacks}")
+
+
+def _repo(repo_root=None) -> Path:
+    return Path(repo_root or ROOTS["repo"] or _REPO).resolve()
+
+
+def _rel(path, repo: Path) -> str | None:
+    """``path`` repo-relative in posix spelling, or None when it lies outside the repo (a
+    scratch or hollow-worktree proof is never ticketed)."""
+    try:
+        return Path(path).resolve().relative_to(repo).as_posix()
+    except (ValueError, OSError):
+        return None
+
+
+def _is_red(r: dict) -> bool:
+    return str(r.get("verdict") or r.get("outcome") or "").lower() == "red"
+
+
+def red_keys(results, repo: Path) -> list[dict]:
+    """One entry per red proof inside ``repo``. Each result names its ``proof``: reseal's
+    results do ({"proof", "outcome"}), and run_proof hands its record in with the path added."""
+    out: dict[str, dict] = {}
+    for r in results or []:
+        if not isinstance(r, dict) or not _is_red(r):
+            continue
+        ev = r.get("evidence") if isinstance(r.get("evidence"), dict) else {}
+        proof = r.get("proof")
+        rel = _rel(repo / proof if proof and not Path(proof).is_absolute() else proof, repo) \
+            if proof else None
+        if rel is None:
+            continue
+        teeth = [t for t in (ev.get("teeth_red") or r.get("teeth_red") or []) if t] or ["*"]
+        e = out.setdefault(rel, {"kind": "red", "path": rel, "keys": [],
+                                 "record": r.get("record") or _record_of(repo / rel)})
+        e["keys"] += [f"red:{rel}::{t}" for t in teeth if f"red:{rel}::{t}" not in e["keys"]]
+    return list(out.values())
+
+
+def _record_of(proof: Path) -> str:
+    """The run record a red cites: the proof's seal when one stands, else the proof itself."""
+    seal = proof.parent.parent / "validations" / f"{proof.stem}.json"
+    return (seal if seal.is_file() else proof).as_posix()
+
+
+def orphan_keys(repo: Path) -> list[dict]:
+    """The two kinds of orphan (D2) among the files git tracks under cairn/ and skills/."""
+    done = subprocess.run(["git", "-C", str(repo), "ls-files", "--", *_TREES],
+                          capture_output=True, text=True, check=True)
+    files = [f for f in done.stdout.splitlines() if f.strip()]
+    owned: dict[str, bool] = {}
+
+    def has_charter(d: str) -> bool:
+        if d not in owned:
+            owned[d] = (repo / d / CHARTER).is_file() or (
+                d not in ("", ".") and has_charter(Path(d).parent.as_posix()))
+        return owned[d]
+
+    out = []
+    for f in files:
+        p = Path(f)
+        if p.parent.name == "validations" and p.suffix == ".json" and p.name.startswith("test_"):
+            if not (repo / p.parent.parent / "proofs" / f"{p.stem}.py").is_file():
+                out.append({"kind": "orphan", "path": f, "keys": [f"orphan:{f}"],
+                            "why": f"a seal whose proof {p.parent.parent.as_posix()}/proofs/"
+                                   f"{p.stem}.py is gone"})
+                continue
+        if p.name != "__init__.py" and not has_charter(p.parent.as_posix()):
+            out.append({"kind": "orphan", "path": f, "keys": [f"orphan:{f}"],
+                        "why": f"no {CHARTER} in its directory or any parent below the repo root"})
+    return out
+
+
+def carried(repo: Path, tickets_dir=None) -> tuple[set[str], set[str]]:
+    """(files open tickets fix, files open tickets bound in) — tickets at a terminal state
+    carry nothing."""
+    from cairn.tools.base import ticket_file as tf
+    from cairn.tools.base.workflow_grammar import is_terminal, parse_workflow
+    fixes, bounds = set(), set()
+    for plan in tf.plans(tickets_dir if tickets_dir is not None else ROOTS["tickets"]):
+        try:
+            doc = tf.read_ticket(plan)
+            if is_terminal(parse_workflow(str(doc.get("workflow_and_state") or "")).here):
+                continue
+        except Exception:  # noqa: BLE001 — an unreadable ticket carries nothing; others still count
+            continue
+        fixes |= {_carried_rel(x, repo) for x in (doc.get("fixes") or []) if isinstance(x, str)}
+        b = doc.get("bounds") if isinstance(doc.get("bounds"), dict) else {}
+        bounds |= {_carried_rel(x, repo) for x in (b.get("in") or []) if isinstance(x, str)}
+    return fixes, bounds
+
+
+def _carried_rel(x: str, repo: Path) -> str:
+    """A ticket's path as this repo spells it: an absolute one inside the repo folds to its
+    repo-relative form (see ``_fixes_path``)."""
+    x = x.replace("\\", "/")
+    return (_rel(x, repo) or x) if Path(x).is_absolute() else x
+
+
+def _fixes_path(rel: str, repo: Path) -> str:
+    """The ``fixes`` entry for ``rel``: repo-relative in the live repo, which is the root the
+    cast door and every fixit reader resolve against; absolute for any other repo (a proof's
+    scratch repo), since a relative path there would resolve against the live one."""
+    return rel if repo == _REPO else (repo / rel).as_posix()
+
+
+def _owner(rel: str, repo: Path) -> str:
+    d = Path(rel).parent
+    while d.as_posix() not in ("", "."):
+        if (repo / d / CHARTER).is_file():
+            return f"{d.as_posix()}/{CHARTER}"
+        d = d.parent
+    return FALLBACK_OWNER
+
+
+def _cast(item: dict, repo: Path, run_record: str | None, tickets_dir) -> Path:
+    from cairn.tools.base.transitions import CastRefused, cast_ticket
+    from cairn.machines.learning_block.learning_block import DoorRefused
+    sys_door = _sorted_door()
+    rel, keys = item["path"], item["keys"]
+    record = Path(run_record or item.get("record") or repo / rel)
+    record = (record if record.is_absolute() else repo / record).as_posix()
+    red = item["kind"] == "red"
+    title = (f"the red proof {rel} reseals green" if red
+             else f"the orphaned file {rel} belongs to a component or is gone")
+    saw = (f"{rel} ran red; teeth red: {', '.join(k.split('::', 1)[1] for k in keys)}" if red
+           else f"{rel} is orphaned: {item.get('why')}")
+    falsifier = "the proof reseals green" if red else "the path belongs to a component or is gone"
+    because = f"none, because {record} is the run that found it"
+    packet = {
+        "skill": "sorted", "title": title,
+        "assumption_check": f"Measured by the tester: {saw}. Run record: {record}.",
+        "builder_check": f"Find why {rel} {'reds' if red else 'is orphaned'} and fix it so that "
+                         f"{falsifier}. Keys: {', '.join(keys)}.",
+        "children": because, "collision_check": f"none: the tester dedups on fixes and bounds.in "
+                                                f"before casting ({', '.join(keys)})",
+        "disposition": "cast", "exit": "routed_forward",
+        "falsifier_check": f"1 clause: {falsifier}",
+        "gates_bound": "code-seam: BUILDME entry gate, PROVEME build gate, PROVED exit gate",
+        "missing_check": f"cast by the tester (ticket 207c4074b3d5) from {record}",
+        "node_class": "code-seam", "questions": because, "task_or_ticket": "ticket",
+        "watchme": because, "workflow": WORKFLOW,
+        "bullets": [{"text": f"Measured by the tester: {saw}.", "stratum": "code"}],
+    }
+    try:
+        fired = sys_door.fire(packet, berths=ROOTS["berths"], trace_root=ROOTS["trace"],
+                              repo=repo, commons=ROOTS["commons"])
+    except DoorRefused as exc:
+        raise RedTicketRefused(keys[0], "sorted", getattr(exc, "lacks", None) or [str(exc)]) from exc
+    if not fired.get("berth"):
+        raise RedTicketRefused(keys[0], "sorted", [f"no berth recorded: {fired}"])
+    doc = {
+        "id": uuid.uuid4().hex[:12], "title": title, "date": date.today().isoformat(),
+        "owner": "CC", "owning_intention": _owner(rel, repo),
+        "intention": f"{rel} {'reseals green' if red else 'belongs to a component or is gone'}, "
+                     "so the red the tester found is not lost.",
+        "why": f"Outline 9.4.2.3.7.5 (reds don't get lost): the tester measured it. {saw}.",
+        "traces_to": "Law 7 (errors are permanent in records of truth); outline 9.4.2.3.7.5",
+        "how": packet["builder_check"],
+        "falsifier": {"clauses": [{"n": 1, "claim": falsifier}]},
+        "bounds": {"in": [rel], "out": ["every other component"]},
+        "measured": [{"when": date.today().isoformat(), "saw": saw,
+                      "how": f"the tester's run, record {record}; keys {', '.join(keys)}"}],
+        "fixes": [_fixes_path(rel, repo)], "node_class": "code-seam", "workflow_and_state": WORKFLOW,
+        "watchme": because, "intent_berth": because, "sorted_berth": fired["berth"],
+    }
+    try:
+        return cast_ticket(doc, actor="tester", tickets_dir=tickets_dir)
+    except CastRefused as exc:
+        raise RedTicketRefused(keys[0], "cast", exc.lacks) from exc
+
+
+def _sorted_door():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_sorted_door", _REPO / "skills" / "sorted" / "door.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
+                       tickets_dir=None, run_record: str | None = None) -> list[Path]:
+    """Cast one ticket per red proof and per orphan no open ticket carries; return the plans
+    cast. ``results`` are run_proof records or reseal results; ``scan_orphans`` is a whole-tree
+    run's. A door's refusal raises RedTicketRefused (Law 7)."""
+    repo = _repo(repo_root)
+    tickets_dir = tickets_dir if tickets_dir is not None else ROOTS["tickets"]
+    items = red_keys(results, repo) + (orphan_keys(repo) if scan_orphans else [])
+    if not items:
+        return []
+    fixes, bounds = carried(repo, tickets_dir)
+    cast = []
+    for item in items:
+        if item["path"] in fixes or (item["kind"] == "red" and item["path"] in bounds):
+            continue
+        cast.append(_cast(item, repo, run_record, tickets_dir))
+        fixes.add(item["path"])
+    return cast

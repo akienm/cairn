@@ -902,6 +902,14 @@ class TesterDevice(BaseDevice):
             from cairn.tools.validation_store.validation_store import persist_validation
             persist_validation(record, proof_path=str(proof_path),
                                unsealing_because=NETWORK_SEAL_RETIRED)
+        # EACH RUN TICKETS ITS NEW RED (ticket 207c4074b3d5, outline 9.4.2.3.7.5: "reds don't
+        # get lost"). Every sink and caller: a red measured is a red to fix, whoever ran it. A
+        # proof outside the repo (a hollow worktree's, a fixture's in scratch) is skipped inside
+        # ticket_what_is_new, and a red an open ticket already fixes or bounds casts nothing. A
+        # door's refusal raises (Law 7), so the run exits non-zero rather than lose the red.
+        if verdict == RED:
+            from cairn.devices.tester import red_tickets
+            red_tickets.ticket_what_is_new([{**record, "proof": str(proof_path)}])
         self._proofs_run += 1
         self._last_verdict = verdict
         # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was

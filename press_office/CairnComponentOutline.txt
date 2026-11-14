@@ -329,6 +329,13 @@ not matter here. The code catches up to this, never the reverse.
                       row id is direct; a search is far too slow on the target hardware.
                       A node can be voided and its row reused; a node is never searched
                       for.
+            4.3.1.5.1.2.1 Fetch by id is never a search; it always goes directly there
+                          (Akien, 2026-11-14). WHY: the target hardware is a 10th-gen i7
+                          with 16 GB RAM and no GPU, and only a direct fetch keeps it
+                          from bogging down. The lived symptom: in the Igors, reading
+                          one word into a 3M-entry word graph took more than 1 second,
+                          and the laptop crawled. The row-id model comes from dBase II
+                          record numbers, the first database he used.
           4.3.1.5.1.3 A node is in one of three states: VOID (deleted, its row
                       available), NOTCACHED, or its data, which follows the node schema.
                       Data that does not follow the schema is a bug.
@@ -338,15 +345,46 @@ not matter here. The code catches up to this, never the reverse.
                       12 rows and is asked for row 123, the rows between are added as
                       NOTCACHED.
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
-          4.3.1.5.1.6 [Q#108: The node row schema: you said 'something like json of
-                      metadata: payload: embeddings: and links: i think'. Measured
-                      today, cairn_nodes is node_id text (sha256 hash) / content text /
-                      provenance jsonb / standing text / created; embeddings, leaves and
-                      links are separate tables keyed by hash ids. Is a node row
-                      {metadata, payload, embeddings, links} as one record, or do
-                      embeddings and links stay separate tables addressed by row number?
-                      Ticket 3ef8654a8027 holds at BUILDME on it (open-4cc69605128d);
-                      outline 4.3.1.5.1.3, born of Q#104.]
+          4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
+                      approved, plus his flexible metadata field). WHY: nodes have to be
+                      really fast, and row ids are fastest; a payload can be anything,
+                      so a node points into blobs and lists.
+            4.3.1.5.1.6.1 ADDRESS: every reference is one 64-bit integer, the top 16
+                          bits a table tag and the low 48 a row. A list of addresses can
+                          name nodes, blobs, leaves in any tree, lists and links. Every
+                          pointer is a direct row fetch, and a new kind of thing is a
+                          new tag, not a schema change.
+            4.3.1.5.1.6.2 nodes (the one long list): row, gen, state
+                          (VOID|NOTCACHED|DATA), kind (the payload type), payload
+                          (inline when small), blob (an address, when large), meta
+                          (flexible json), out (a list address), in (a list address),
+                          seq (a change counter for the sync).
+            4.3.1.5.1.6.3 lists: row, gen, state, owner, items (bigint[] of addresses),
+                          and optional weights (real[], parallel). A long list chains to
+                          a next chunk.
+            4.3.1.5.1.6.4 links: row, gen, a, b, weight, traversals. One row per link;
+                          both endpoints' lists hold its address, so a link is
+                          bidirectional and its weight has one home.
+            4.3.1.5.1.6.5 blobs: row, gen, state, kind (json|csv|text|bytes|vector...),
+                          bytes. Several blobs are a list of blob addresses.
+            4.3.1.5.1.6.6 trees: unchanged, leaf tables with weights. A leaf points at a
+                          node address, and the node's in list holds the leaf's address
+                          back.
+            4.3.1.5.1.6.7 gen: a reference carries (row, gen). After a VOID row is
+                          reused, a mismatch reads loud as gone, never as wrong data.
+            4.3.1.5.1.6.8 void: walk the node's in list, remove it from each source's
+                          out list, mark it VOID. No search.
+            4.3.1.5.1.6.9 Slots are reserved from the home librarian in blocks (eg
+                          1,000), not per row; reserved rows not yet used sit VOID.
+            4.3.1.5.1.6.10 sync: read-through fill (gap rows NOTCACHED), and the master
+                           sends the rows whose seq is past what the remote last saw.
+                           Row by row, no hashes.
+            4.3.1.5.1.6.11 confidence: the first key in meta, 0 to 1. Measured results
+                           are high; things read on the internet are lower, by source.
+                           It is treated like a why when adjudicating conflicting
+                           information. Little used now, used later.
+            4.3.1.5.1.6.12 The TESTING database (4.3.1.5.1.5) has the same schema in a
+                           separate database.
           4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
                       held. It finds the copy by hashing the content (4.3.1.5.1.2 now
                       forbids that as a node id). With row ids, finding the copy needs a

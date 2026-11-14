@@ -32,7 +32,7 @@ REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"testing-db": {
+PROVES = {"e4fd7f28faaf": {
     "1": "test_the_run_marker_picks_the_testing_database",
     "2": "test_a_test_run_scratch_table_and_sweep_never_reach_the_live_database",
     "3": "test_a_write_under_the_marker_lands_in_the_testing_database_registry_included",

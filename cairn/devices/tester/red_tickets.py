@@ -56,6 +56,12 @@ class RedTicketRefused(RuntimeError):
         super().__init__(f"red_tickets: the {door} door refused the ticket for {key}: {self.lacks}")
 
 
+class StoreUnreachable(RedTicketRefused):
+    """The ticket store is in no git tree, so no cast can commit in the same act (D7). A run
+    whose checkout has no commons beside it (a hollow or build worktree) meets this; the run
+    that measured the red goes on, and the red stays in its own record (FIXME 1)."""
+
+
 def _repo(repo_root=None) -> Path:
     return Path(repo_root or ROOTS["repo"] or _REPO).resolve()
 
@@ -246,7 +252,7 @@ def _commons_top(tickets_dir) -> Path:
     d = Path(_tf._TICKETS if tickets_dir is None else tickets_dir)
     got = _git(d, "rev-parse", "--show-toplevel")
     if got.returncode != 0:
-        raise RedTicketRefused("*", "commit", [f"the ticket store {d} is in no git tree: "
+        raise StoreUnreachable("*", "commit", [f"the ticket store {d} is in no git tree: "
                                                f"{got.stderr.strip()}"])
     return Path(got.stdout.strip())
 

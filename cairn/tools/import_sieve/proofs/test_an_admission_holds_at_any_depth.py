@@ -42,7 +42,8 @@ DIALS = ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
 # open-52b86b71a12d (web_operator, Q#74).
 INFERENCE = {"kind": "sole_path", "capability": "the inference host", "modules": DIALS,
              "only": ("inferenceproxy/", "bus_client/remote.py", "bus_client/tls.py",
-                      "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/")}
+                      "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/",
+                      "usage/")}  # Q#95, CC's decision (outline 11.4.10.1), ticket dd79ed8a1ece
 
 FAILURES: list[str] = []
 

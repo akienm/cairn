@@ -139,7 +139,9 @@ def test_sole_path_is_clean_on_the_real_corpus_for_both_domains():
                              "only": ("cairn/devices/inferenceproxy/", "cairn/tools/bus_client/remote.py",
                                       "cairn/tools/bus_client/tls.py",
                                       "cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py",
-                                      "cairn/machines/web_operator/")})
+                                      "cairn/machines/web_operator/",
+                                      # Q#95, CC's decision (outline 11.4.10.1), ticket dd79ed8a1ece
+                                      "cairn/tools/usage/")})
     assert host == [], f"a second door to the inference host: {host}"
     db = sieve.catches(g, {"kind": "sole_path", "capability": "port 5432",
                            "modules": ("psycopg2", "psycopg", "asyncpg", "pg8000", "sqlalchemy"),

@@ -31,7 +31,7 @@ PROOF_TIMEOUT_S = 300
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+from cairn.tools.base.script_argv import cairn_test_argv  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"e6b25d61abc4": {
@@ -40,7 +40,6 @@ PROVES = {"e6b25d61abc4": {
     "3": "test_explicit_limits_still_win_and_the_default_stands",
 }}
 
-_CAIRN = _REPO_ROOT / "bin" / "cairn"
 _VAR = "CAIRN_TESTER_PROOF_BUDGET"
 
 
@@ -58,12 +57,17 @@ def _cairn_test(*argv: str, budget: str | None, timeout: int = 240) -> subproces
     env = {k: v for k, v in os.environ.items() if k != _VAR}
     if budget is not None:
         env[_VAR] = budget
-    return subprocess.run([*bash_script_argv(_CAIRN), "test", *argv], capture_output=True,
-                          text=True, timeout=timeout, cwd=str(_REPO_ROOT), env=env)
+    run, extra, cwd = cairn_test_argv(*argv, cwd=_REPO_ROOT)   # bash-free on Windows (21acc004c1fa)
+    # only what the entry ADDS rides over env: its copy of os.environ still holds the bound
+    env.update({k: extra[k] for k in ("CAIRN_TESTER_CALLER_CWD", "PYTHONUTF8") if k in extra})
+    return subprocess.run(run, capture_output=True, text=True, timeout=timeout, cwd=cwd, env=env)
 
 
 def test_the_exec_exports_its_bound():
-    r = _cairn_test("--exec", f"printenv {_VAR}", "--timeout", "300", budget=None)
+    # printenv is MSYS on Windows; a python print is plain, prevent-kind, bash-free (21acc004c1fa)
+    show = (f'"{sys.executable}" -c "import os; print(os.environ.get(\'{_VAR}\'))"'
+            if os.name == "nt" else f"printenv {_VAR}")
+    r = _cairn_test("--exec", show, "--timeout", "300", budget=None)
     assert r.stdout.strip() == "300", \
         f"the exec's bound did not reach its command: exit {r.returncode}, stdout {r.stdout!r}, " \
         f"stderr {r.stderr[-300:]!r}"

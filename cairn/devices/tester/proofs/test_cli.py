@@ -74,8 +74,12 @@ def _fixture_dir(tmp: Path, **proofs: str) -> Path:
     return d
 
 
-def _run(*args: str) -> subprocess.CompletedProcess:
-    return subprocess.run([*_exe(CAIRN), "test", *args], capture_output=True, text=True, timeout=300)
+def _run(*args: str, cwd=None) -> subprocess.CompletedProcess:
+    """``cairn test *args`` through cairn_test_argv: bash-free on Windows (ticket 21acc004c1fa),
+    ``bin/cairn test`` on POSIX. Only the dispatcher tooth still runs bin/cairn itself."""
+    from cairn.tools.base.script_argv import cairn_test_argv
+    argv, env, run_cwd = cairn_test_argv(*args, cwd=cwd)
+    return subprocess.run(argv, env=env, cwd=run_cwd, capture_output=True, text=True, timeout=300)
 
 
 def check(name: str, fn) -> None:
@@ -170,8 +174,7 @@ def test_it_runs_from_a_cwd_that_is_not_the_repo() -> None:
     the repo root, because that is the only place `import cairn` resolved."""
     with tempfile.TemporaryDirectory() as t:
         d = _fixture_dir(Path(t), ok=GREEN_FIXTURE)
-        r = subprocess.run([*_exe(CAIRN), "test", str(d / "test_ok.py")],
-                           capture_output=True, text=True, cwd="/", timeout=300)
+        r = _run(str(d / "test_ok.py"), cwd=os.path.abspath("/"))
         assert r.returncode == 0, f"running from / failed: {r.stdout}{r.stderr}"
 
 

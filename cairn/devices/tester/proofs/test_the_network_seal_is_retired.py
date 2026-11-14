@@ -44,7 +44,14 @@ PROVES = {
 }
 
 _TICKET = "d80360545e91"
-CAIRN = _REPO_ROOT / "bin" / "cairn"
+
+
+def _cairn_test(*args: str, timeout: int) -> subprocess.CompletedProcess:
+    """``cairn test *args`` through cairn_test_argv: ``bin/cairn test`` on POSIX, and bash-free on
+    Windows, which cannot exec the shebang script at all (ticket 21acc004c1fa)."""
+    from cairn.tools.base.script_argv import cairn_test_argv
+    argv, env, cwd = cairn_test_argv(*args)
+    return subprocess.run(argv, env=env, cwd=cwd, capture_output=True, text=True, timeout=timeout)
 GREEN_SRC = "print('  ok   network-seal-retired fixture')\nraise SystemExit(0)\n"
 
 
@@ -263,8 +270,7 @@ def test_netns_refuses_and_runs_nothing():
     proof.write_text(f"from pathlib import Path\nPath({str(marker)!r}).write_text('ran')\n"
                      "raise SystemExit(0)\n", encoding="utf-8")
     for args in (("--netns",), ("--seal", "--netns")):
-        r = subprocess.run([str(CAIRN), "test", *args, str(proof)],
-                           capture_output=True, text=True, timeout=300)
+        r = _cairn_test(*args, str(proof), timeout=300)
         text = r.stdout + r.stderr
         assert r.returncode == 2, f"`cairn test {' '.join(args)}` exited {r.returncode}, want 2:\n{text}"
         assert _TICKET in text, f"`cairn test {' '.join(args)}` did not name {_TICKET}:\n{text}"
@@ -303,8 +309,7 @@ def test_no_cairn_test_path_produces_a_refused_seal():
             _pose_standing(proof, verdict)
 
     for args in ((), ("--seal",)):
-        r = subprocess.run([str(CAIRN), "test", *args, str(proofs)],
-                           capture_output=True, text=True, timeout=600)
+        r = _cairn_test(*args, str(proofs), timeout=600)
         text = r.stdout + r.stderr
         label = "`cairn test" + "".join(f" {a}" for a in args) + "`"
         for name in standing:

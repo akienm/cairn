@@ -288,13 +288,19 @@ LOWIL_LAUNCH_FAILED_TAG = "LOWIL-LAUNCH-FAILED:"   # lowil_launch.LAUNCH_FAILED_
 SEAL_KIND_ENV = "CAIRN_TESTER_SEAL_KIND"   # lowil_launch.KIND_ENV
 PREVENT, DETECT = "prevent", "detect"
 DETECT_BECAUSE_BASH = "subject drives bash: msys cannot start at Low IL"
-# What reads as driving bash in a subject's own source: the argv helper, a bash/sh literal (or a
-# literal path ending in bash, as bash_script_argv's repr is), or bin/cairn (a bash script). It
-# is a static first guess and safe in both directions. A false detect is still witnessed by the
-# manifest. A false prevent spawns bash at Low, which the reach channel's spawn log catches, and
-# the run reads INDETERMINATE naming bash.
-_DRIVES_BASH = re.compile(r"""bash_script_argv|["'](?:ba)?sh(?:\.exe)?["']|bash(?:\.exe)?["']|"""
-                          r"""bin(?:/|\\+)cairn\b|["']bin["']\s*/\s*["']cairn["']""", re.I)
+DETECT_BECAUSE_SHELL = "command needs a shell: msys bash cannot start at Low IL"
+DETECT_BECAUSE_MSYS = "command is an MSYS program: msys cannot start at Low IL"
+# What reads as driving bash in a subject's own source: the argv helper, or a bash/sh literal (or
+# a literal path ending in bash, as bash_script_argv's repr is). It is a static first guess and
+# safe in both directions. A false detect is still witnessed by the manifest, and its record says
+# bash_spawned false. A false prevent spawns bash at Low, which the reach channel's spawn log
+# catches, and the run reads INDETERMINATE naming bash.
+#
+# A BARE bin/cairn MENTION NO LONGER COUNTS (ticket 21acc004c1fa): a mention is not a spawn.
+# Windows cannot exec the shebang script (WinError 193), so the only argv that runs bin/cairn
+# there has bash at its head, put there by bash_script_argv or a bash literal, and both still
+# count. That keeps the "inside an argv" rule without parsing the argv.
+_DRIVES_BASH = re.compile(r"""bash_script_argv|["'](?:ba)?sh(?:\.exe)?["']|bash(?:\.exe)?["']""", re.I)
 
 
 def subject_drives_bash(source: str) -> bool:
@@ -306,6 +312,81 @@ def is_bash(argv0: str) -> bool:
     """An argv[0] that names bash or sh (any path, with or without .exe), or a .sh script."""
     name = os.path.basename(str(argv0).replace("\\", "/")).lower()
     return name in ("bash", "bash.exe", "sh", "sh.exe") or name.endswith(".sh")
+
+
+def is_msys(argv0: str) -> bool:
+    """An argv[0] that resolves to an MSYS program, meaning its directory holds msys-2.0.dll. Such a
+    program cannot start at Low: NtCreateDirectoryObject gets 0xC0000022 and the process exits
+    0xC0000142. Measured 2026-11-14 on akienyoga9i: Git's usr/bin (bash, touch, ls, printf) is MSYS;
+    git itself (mingw64), python and system32 are not."""
+    if not _WINDOWS:
+        return False
+    path = shutil.which(str(argv0)) or str(argv0)
+    try:
+        return (Path(path).resolve().parent / "msys-2.0.dll").exists()
+    except OSError:
+        return False
+
+
+# A command needs a shell when it holds any of these: pipes, lists, redirection, subshells,
+# expansion, globs, braces, tilde, a comment, or a newline. Anything else is a plain argv.
+_SHELL_META = frozenset("|&;<>()$`*?[]{}~#\n")
+
+
+def _needs_shell(command: str) -> bool:
+    """A shell metacharacter outside quotes. Inside single quotes nothing is special. Inside
+    double quotes, $ and ` still expand (as bash would), and a newline is still a newline."""
+    quote = None
+    for c in command:
+        if quote == "'":
+            quote = None if c == "'" else quote
+        elif quote == '"':
+            if c == '"':
+                quote = None
+            elif c in "$`\n":
+                return True
+        elif c in "'\"":
+            quote = c
+        elif c in _SHELL_META:
+            return True
+    return False
+
+
+def plain_argv(command: str) -> list[str] | None:
+    """``command`` as an argv when it needs no shell, else None. It is split in non-POSIX mode, so
+    a Windows path's backslashes ride intact. (bash -c eats them: measured 2026-11-14,
+    ``touch C:\\Users\\...`` became a ``C:Users...`` file in the cwd.) Outer quotes group a word and
+    are dropped. A leading NAME=value is a shell assignment, so it needs a shell too."""
+    import shlex
+    if not command or not command.strip() or _needs_shell(command):
+        return None
+    if "\\\"" in command or "\\'" in command:   # an escaped quote needs POSIX rules: the shell's
+        return None
+    try:
+        words = shlex.split(command, posix=False)
+    except ValueError:            # an unbalanced quote: let the shell say so
+        return None
+    argv = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w for w in words]
+    if not argv or "=" in argv[0]:
+        return None
+    return argv
+
+
+def exec_kind(command: str) -> tuple[str, str | None, list[str]]:
+    """``(kind, why, argv)`` for ``cairn test --exec COMMAND`` (ticket 21acc004c1fa).
+    - POSIX: prevent, under ``bash -c`` as before.
+    - Windows, plain argv: runs as itself with no bash, prevent-kind at Low. If its program is
+      MSYS it runs detect-kind instead, since it cannot start at Low.
+    - Windows, needs a shell: runs under ``bash -c``, detect-kind."""
+    shell = ["bash", "-c", command]
+    if not _WINDOWS:
+        return PREVENT, None, shell
+    argv = plain_argv(command)
+    if argv is None:
+        return DETECT, DETECT_BECAUSE_SHELL, shell
+    if is_bash(argv[0]) or is_msys(argv[0]):
+        return DETECT, DETECT_BECAUSE_MSYS, argv
+    return PREVENT, None, argv
 
 
 def seal_kind_kw(kind: str) -> dict:

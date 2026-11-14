@@ -546,7 +546,9 @@ def main(argv: list[str] | None = None) -> int:
         "--exec",
         metavar="COMMAND",
         dest="exec_command",
-        help="run COMMAND with bash -c under the instance seal (2c9eeab2da87): stdin, stdout, "
+        help="run COMMAND under the instance seal (2c9eeab2da87): bash -c on POSIX; on Windows a "
+             "plain command runs as its own argv with no bash (21acc004c1fa), and only one that "
+             "needs a shell goes through bash -c, detect-kind. stdin, stdout, "
              "stderr and the exit code are the command's own; exits 2 without running it when "
              "no seal can be confirmed",
     )

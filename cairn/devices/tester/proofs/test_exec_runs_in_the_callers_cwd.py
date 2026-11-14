@@ -19,7 +19,6 @@ Proof: exit 0 = green.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -29,8 +28,8 @@ PROOF_TIMEOUT_S = 300
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 from cairn.tools.scratch.scratch import scratch_dir
+from cairn.tools.base.script_argv import cairn_test_argv
 
-_CAIRN = _REPO_ROOT / "bin" / "cairn"
 _CARRIED = "CAIRN_TESTER_CALLER_CWD"
 _FIXTURE = "cairn/devices/tester/proofs/fixtures/green_proof.py"
 
@@ -41,9 +40,16 @@ PROVES = {"5bc3a4b1ab27": {
 }}
 
 
-def _exe(path: Path) -> list:
-    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
-    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
+# WHERE AM I, asked bash-free on Windows (ticket 21acc004c1fa). ``pwd`` there is an MSYS program
+# and answers in its own /tmp spelling. This python answers in the caller's own spelling, and runs
+# prevent-kind at Low. POSIX keeps ``pwd``.
+_PWD = (f'"{sys.executable}" -c "import os; print(os.path.realpath(os.getcwd()))"'
+        if os.name == "nt" else "pwd")
+
+
+def _cairn_test(*args: str, cwd: str) -> subprocess.CompletedProcess:
+    argv, env, run_cwd = cairn_test_argv(*args, cwd=cwd)
+    return subprocess.run(argv, env=env, cwd=run_cwd, capture_output=True, text=True, timeout=240)
 
 
 def _elsewhere(tag: str) -> str:
@@ -52,8 +58,7 @@ def _elsewhere(tag: str) -> str:
 
 def test_exec_from_another_dir_runs_there():
     here = _elsewhere("caller")
-    r = subprocess.run([*_exe(_CAIRN), "test", "--exec", "pwd"], capture_output=True, text=True,
-                       timeout=240, cwd=here)
+    r = _cairn_test("--exec", _PWD, cwd=here)
     assert r.returncode == 0, f"--exec exit {r.returncode}: {r.stderr[-400:]}"
     assert r.stdout.strip() == here, (
         f"--exec ran at {r.stdout.strip()!r}, not where the caller stood ({here!r})")
@@ -62,9 +67,9 @@ def test_exec_from_another_dir_runs_there():
 def test_an_explicit_cwd_still_wins():
     carried, explicit = _elsewhere("carried"), _elsewhere("explicit")
     code = ("import sys\nfrom cairn.devices.tester.device import TesterDevice\n"
-            "sys.exit(TesterDevice().run_exec('pwd', timeout=120, cwd=sys.argv[1]))\n")
+            "sys.exit(TesterDevice().run_exec(sys.argv[2], timeout=120, cwd=sys.argv[1]))\n")
     env = dict(os.environ, PYTHONPATH=str(_REPO_ROOT), **{_CARRIED: carried})
-    r = subprocess.run([sys.executable, "-c", code, explicit], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-c", code, explicit, _PWD], capture_output=True, text=True,
                        timeout=240, cwd=carried, env=env)
     assert r.returncode == 0, f"run_exec exit {r.returncode}: {r.stderr[-400:]}"
     assert r.stdout.strip() == explicit, (
@@ -72,8 +77,7 @@ def test_an_explicit_cwd_still_wins():
 
 
 def test_a_proof_path_run_still_resolves_from_the_repo():
-    r = subprocess.run([*_exe(_CAIRN), "test", _FIXTURE], capture_output=True, text=True,
-                       timeout=240, cwd=_elsewhere("proofpath"))
+    r = _cairn_test(_FIXTURE, cwd=_elsewhere("proofpath"))
     out = r.stdout + r.stderr
     assert "found no proofs" not in out, f"a repo-relative proof path stopped resolving: {out[-400:]}"
     assert r.returncode == 0 and "1 green" in out, (

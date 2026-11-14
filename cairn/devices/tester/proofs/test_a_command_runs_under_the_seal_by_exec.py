@@ -24,6 +24,12 @@ this process sees as ~/.cairn; tooth (2) therefore accepts a present fixture onl
 separately: with inheritance off, the argv --exec would run binds a fresh snapshot over
 ~/.cairn. Tooth (4) is what stops a hollow --exec that simply runs ``bash -c``.
 
+WINDOWS (ticket 21acc004c1fa). The proof reaches the tester through cairn_test_argv, so no bash is
+in front of it. Tooth (2)'s write is a plain python command there, so it runs prevent-kind at Low
+and the live root refuses it. ``touch`` is an MSYS program, so it would run detect-kind, and its
+live write would read BREACHED (that is the 56b61c10bdbe proof's tooth 6). The bare-host shape is
+the Low launcher over the plain argv, with no bash in it.
+
 Proof: exit 0 = green.
 """
 
@@ -40,9 +46,9 @@ PROOF_TIMEOUT_S = 300
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+from cairn.tools.base.script_argv import cairn_test_argv  # noqa: E402
 
-_CAIRN = _REPO_ROOT / "bin" / "cairn"
+_WIN = os.name == "nt"
 _CHARTER = _REPO_ROOT / "cairn" / "devices" / "tester" / "intention+why.json"
 _LIVE = Path.home() / ".cairn"
 _MARKER = "CAIRN_TESTER_INSTANCE_SEALED"
@@ -57,12 +63,22 @@ PROVES = {"2c9eeab2da87": {
 
 
 def _exec(command: str, *extra: str) -> subprocess.CompletedProcess:
-    return subprocess.run([*bash_script_argv(_CAIRN), "test", "--exec", command, *extra],
-                          capture_output=True, text=True, timeout=240, cwd=str(_REPO_ROOT))
+    argv, env, cwd = cairn_test_argv("--exec", command, *extra, cwd=_REPO_ROOT)
+    return subprocess.run(argv, env=env, cwd=cwd, capture_output=True, text=True, timeout=240)
+
+
+def _py(code: str) -> str:
+    """A plain --exec command: this python, running ``code`` (which holds no double quote)."""
+    return f'"{sys.executable}" -c "{code}"'
+
+
+# The command the bare-host tooth hands run_exec: plain on Windows (prevent-kind, no bash), and
+# the original touch on POSIX, where bash -c is still the shape.
+_BARE_CMD = _py("pass") if _WIN else "touch exec-proof-fixture"
 
 
 def test_exec_runs_the_command_with_the_seal_marker():
-    r = _exec(f'echo "${_MARKER}"')
+    r = _exec(_py(f"import os; print(os.environ.get('{_MARKER}'))") if _WIN else f'echo "${_MARKER}"')
     assert r.returncode == 0, f"--exec exit {r.returncode}: {r.stderr[-400:]}"
     assert r.stdout.strip() == "1", f"the command did not run sealed: stdout {r.stdout!r}"
 
@@ -85,27 +101,46 @@ Path(swap).mkdir()
 d.inside_an_instance_seal = lambda: False
 d.bwrap_available = lambda: (True, "fixture: bwrap present")
 d.snapshot_instance_space = lambda: swap
+d.instance_seal_available = lambda: (True, "fixture: seal available")
 d.check_instance_seal = lambda iso, root, cwd: Seal(SEALED, "fixture: measured elsewhere")
 seen = []
 def fake_run(argv, *a, **k):
     seen.append(list(argv))
     return subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
 d.subprocess.run = fake_run
-rc = d.TesterDevice().run_exec("touch exec-proof-fixture", timeout=30)
+d.run_owned = fake_run
+rc = d.TesterDevice().run_exec(sys.argv[1], timeout=30)
 print(json.dumps({"rc": rc, "argv": seen, "swap": swap}))
 '''
     # a bare host carries no outer seal marker, and wrap() reads the marker itself
     bare = {k: v for k, v in os.environ.items() if k != _MARKER}
-    r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60,
-                       cwd=str(_REPO_ROOT), env={**bare, "PYTHONPATH": str(_REPO_ROOT)})
+    r = subprocess.run([sys.executable, "-c", code, _BARE_CMD], capture_output=True, text=True,
+                       timeout=60, cwd=str(_REPO_ROOT), env={**bare, "PYTHONPATH": str(_REPO_ROOT)})
     assert r.returncode == 0, f"could not drive run_exec: {r.stderr[-600:]}"
     return json.loads(r.stdout.strip().splitlines()[-1])
+
+
+_WRITE_ONE = '''import sys
+try:
+    open(sys.argv[1], "w").close()
+    print("wrote", sys.argv[1])
+except OSError as e:
+    print("refused", type(e).__name__)
+'''
 
 
 def test_a_write_inside_exec_never_reaches_the_live_root():
     fixture = _LIVE / f"exec-seal-fixture-written-by-a-proof-{os.getpid()}"
     try:
-        r = _exec(f"touch {fixture}")
+        if _WIN:   # prevent-kind: the Low process is refused at the live root, and reports it
+            from cairn.tools.scratch.scratch import scratch_dir
+            helper = scratch_dir("exec_proof_fixture_writer_") / "write_one.py"
+            helper.write_text(_WRITE_ONE, encoding="utf-8")
+            r = _exec(f'"{sys.executable}" "{helper}" "{fixture}"')
+            assert r.stdout.strip().startswith("refused"), (
+                f"the Low command was not refused at the live root: {r.stdout!r} {r.stderr[-300:]}")
+        else:
+            r = _exec(f"touch {fixture}")
         assert r.returncode == 0, f"--exec exit {r.returncode}: {r.stderr[-400:]}"
         if fixture.exists():
             from cairn.devices.tester.isolation import _mount_points
@@ -117,6 +152,15 @@ def test_a_write_inside_exec_never_reaches_the_live_root():
         except OSError:
             pass
     got = _bare_host_argv()
+    if _WIN:   # the Low launcher over the plain argv, and no bash anywhere in it
+        runs = [a for a in got["argv"] if len(a) > 1 and a[1].endswith("lowil_launch.py")]
+        assert runs, f"run_exec never ran the command through the Low launcher: {got}"
+        argv = runs[-1]
+        assert argv[argv.index("--kind") + 1] == "prevent", f"a plain command ran {argv}"
+        assert argv[argv.index("--swap") + 1] == os.path.abspath(got["swap"]), f"not over the snapshot: {argv}"
+        assert argv[argv.index("--") + 1:] == [sys.executable, "-c", "pass"], f"the command was altered: {argv}"
+        assert not any(Path(a).name.lower() in ("bash", "bash.exe") for a in argv), f"bash in the argv: {argv}"
+        return
     runs = [a for a in got["argv"] if "bash" in a]
     assert runs, f"run_exec never ran the command through bash: {got}"
     argv = runs[-1]
@@ -135,12 +179,15 @@ def test_exit_code_and_stdout_pass_through_unchanged():
 
 
 def test_no_bwrap_and_no_inherited_seal_refuses_never_bare():
-    mark = Path(f"/tmp/exec-proof-ran-bare-{os.getpid()}")
-    code = rf'''
+    from cairn.tools.scratch.scratch import scratch_dir
+    mark = scratch_dir("exec_proof_fixture_bare_") / f"exec-proof-ran-bare-{os.getpid()}"
+    command = _py(f"open(r'{mark}', 'w').close()") if _WIN else f"touch {mark}"
+    code = f'''
 import cairn.devices.tester.device as d
 d.bwrap_available = lambda: (False, "fixture: bubblewrap (bwrap) is not installed")
+d.instance_seal_available = lambda: (False, "fixture: bubblewrap (bwrap) is not installed")
 d.inside_an_instance_seal = lambda: False
-raise SystemExit(d.TesterDevice().run_exec("touch {mark}", timeout=30))
+raise SystemExit(d.TesterDevice().run_exec({command!r}, timeout=30))
 '''
     try:
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60,

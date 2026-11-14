@@ -64,7 +64,7 @@ from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed 
 )
 from cairn.devices.tester.isolation import (
     _INSTANCE_ROOT, _WINDOWS, BREACHED, DETECT, DETECT_BECAUSE_BASH, INDETERMINATE, OPEN, PREVENT,
-    Seal, check_instance_seal, inherited_windows_kind, instance_seal_available, is_bash,
+    Seal, check_instance_seal, exec_kind, inherited_windows_kind, instance_seal_available, is_bash, is_msys,
     NETWORK_SEAL_RETIRED, get_isolation, inside_an_instance_seal,
     pristine_stats, seal_kind_kw, snapshot_instance_space, subject_drives_bash,
 )
@@ -903,16 +903,19 @@ class TesterDevice(BaseDevice):
             # BASH AT LOW IS INDETERMINATE, NAMING BASH (ruling C). A prevent-kind subject that
             # spawned bash ran it where it cannot start (0xC0000142): whatever the exit code
             # says, it is a reading of the seal, not of the proof.
+            spawned = _read_spawned(reach_out) if _WINDOWS and swap is not None else None
+            # An MSYS program (touch, ls: Git's usr/bin) cannot start at Low any more than bash
+            # can, so it reads the same way (ticket 21acc004c1fa).
+            bashes = [a for a in (spawned or []) if is_bash(a) or is_msys(a)]
             if _WINDOWS and swap is not None and kind == PREVENT and verdict != TIMEOUT:
-                bashes = [a for a in (_read_spawned(reach_out) or []) if is_bash(a)]
                 if bashes:
                     verdict = INDETERMINATE_RUN
                     evidence["indeterminate"] = (
-                        f"the subject spawned bash ({bashes[0]}{' …' if len(bashes) > 1 else ''}) "
-                        f"under a prevent-kind seal, at Low integrity, where MSYS bash cannot "
-                        f"start (it exits 0xC0000142): nothing was measured about the proof. Its "
-                        f"own source did not read as driving bash; name bash there and the run "
-                        f"is detect-kind")
+                        f"the subject spawned bash or an MSYS program ({bashes[0]}"
+                        f"{' …' if len(bashes) > 1 else ''}) under a prevent-kind seal, at Low "
+                        f"integrity, where MSYS cannot start (it exits 0xC0000142): nothing was "
+                        f"measured about the proof. Its own source did not read as driving bash; "
+                        f"name bash there and the run is detect-kind")
                     evidence["stderr_tail"] = ((evidence.get("stderr_tail") or "").rstrip("\n")
                                                + "\nINDETERMINATE: " + evidence["indeterminate"] + "\n")
             closure = _read_closure(closure_out, str(proof_path), extra=reach or ())
@@ -956,6 +959,11 @@ class TesterDevice(BaseDevice):
                 # PREVENT OR DETECT, and why when detect (ruling C): never collapsed into one.
                 "seal_kind": kind,
                 **({"seal_kind_why": kind_why} if kind_why else {}),
+                # DID A DETECT RUN ACTUALLY SPAWN BASH (ticket 21acc004c1fa)? The kind is a
+                # static guess from the source; this is the spawn log's answer, so a false
+                # detect is countable. Unset when the log was unread, never a confident False.
+                **({"bash_spawned": bool(bashes)}
+                   if kind == DETECT and spawned is not None else {}),
                 **({"live_writes": live} if live is not None else {}),
                 "wrote_to_instance": _instance_writes(swap, before),
                 # WHAT THE SEAL COST, ON EVERY SEAL. The watch on ticket 1c4ae8f053fe is this
@@ -1037,7 +1045,8 @@ class TesterDevice(BaseDevice):
     # --- the sealed exec: any command, same instance seal (ticket 2c9eeab2da87) ----------
 
     def run_exec(self, command: str, *, timeout: int = 3600, cwd: str | None = None) -> int:
-        """Run ``bash -c command`` under the instance seal; return its exit code.
+        """Run ``command`` under the instance seal; return its exit code. POSIX runs it as
+        ``bash -c command``; Windows runs a plain command as its own argv (see exec_kind).
 
         WHY A SECOND ENTRY AND NOT run_proof (ticket 2c9eeab2da87, child of dda0e72b9c67).
         run_proof takes a proof PATH and mints a record. Two hands run proofs some other way —
@@ -1060,12 +1069,14 @@ class TesterDevice(BaseDevice):
         cwd = cwd or os.getcwd()
         iso = get_isolation("none")
         made = swap = None
-        # `bash -c` IS bash, so on Windows the exec is always detect-kind (ruling C), and a Low
-        # inherited seal, which cannot rise, cannot run it at all.
-        kind = DETECT if _WINDOWS else PREVENT
-        if _WINDOWS and inside_an_instance_seal() and inherited_windows_kind(kind) != DETECT:
-            print("cairn test --exec: INDETERMINATE — this run inherits a Low-integrity seal, and "
-                  "bash cannot start at Low (0xC0000142); the command was not run",
+        # BASH-FREE ON WINDOWS (ticket 21acc004c1fa). A plain command runs as its own argv, never
+        # under `bash -c`: prevent-kind at Low, with its backslashes intact. Only a command that
+        # needs a shell, or whose program is MSYS, is detect-kind (ruling C). A Low inherited seal,
+        # which cannot rise, cannot run that one at all.
+        kind, kind_why, command_argv = exec_kind(command)
+        if _WINDOWS and kind == DETECT and inside_an_instance_seal() and inherited_windows_kind(kind) != DETECT:
+            print(f"cairn test --exec: INDETERMINATE — this run inherits a Low-integrity seal, and "
+                  f"{kind_why} (0xC0000142); the command was not run",
                   file=sys.stderr)
             return 2
         try:
@@ -1094,10 +1105,23 @@ class TesterDevice(BaseDevice):
             env[TEST_ID_ENV] = test
             if timeout is not None:
                 env[PROOF_BUDGET_ENV] = str(timeout)  # e6b25d61abc4
-            argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap, **seal_kind_kw(kind))
+            argv = iso.wrap(command_argv, cwd=cwd, instance_swap=swap, **seal_kind_kw(kind))
             live_before = _manifest(str(_live_root())) if _WINDOWS else None
+            # THE CALLER'S OWN HANDLES, NAMED (ticket 21acc004c1fa). On Windows run_owned starts the
+            # child CREATE_NO_WINDOW, and a child given no handles there gets a hidden console of its
+            # own, so its stdout went nowhere. Measured 2026-11-14 on the base: `--exec "echo hi"`
+            # printed nothing to a file or a pipe. Naming them sets STARTF_USESTDHANDLES.
+            std = {}
+            if _WINDOWS:
+                for name in ("stdin", "stdout", "stderr"):
+                    stream = getattr(sys, name, None)
+                    try:
+                        stream.flush() if name != "stdin" else None
+                        std[name] = stream.fileno()
+                    except (AttributeError, OSError, ValueError):
+                        pass
             try:
-                rc = run_owned(argv, env=env, cwd=cwd, timeout=timeout).returncode
+                rc = run_owned(argv, env=env, cwd=cwd, timeout=timeout, **std).returncode
             except subprocess.TimeoutExpired:
                 print(f"cairn test --exec: timed out after {timeout}s", file=sys.stderr)
                 rc = 124
@@ -1106,8 +1130,9 @@ class TesterDevice(BaseDevice):
             if live and live["count"]:
                 # BREACHED, LOUDLY, and never an exit 0 (ruling C: the manifest is the seal here).
                 print(f"cairn test --exec: BREACHED — {live['count']} file(s) changed in the "
-                      f"account's live root {live['root']} while the command ran (detect-kind "
-                      f"seal: {DETECT_BECAUSE_BASH}): {live['paths'][:5]}", file=sys.stderr)
+                      f"account's live root {live['root']} while the command ran ({kind}-kind "
+                      f"seal{': ' + kind_why if kind_why else ''}): {live['paths'][:5]}",
+                      file=sys.stderr)
                 return rc or 3
             return rc
         finally:

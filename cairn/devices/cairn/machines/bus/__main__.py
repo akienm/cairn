@@ -45,6 +45,7 @@ def main(argv=None) -> int:
     s.add_argument("--scratch", action="store_true")
     s.add_argument("--tcp", action="store_true")
     s.add_argument("--lan", type=int, default=None)
+    s.add_argument("--force", action="store_true", help="kill a running bus and take over")
     p = sub.add_parser("pulse")
     p.add_argument("--home")
     args = ap.parse_args(argv)
@@ -55,7 +56,7 @@ def main(argv=None) -> int:
     from cairn.devices.cairn.machines.bus.server import bus_home, serve
 
     home = bus_home(args.home)
-    opts = {"tcp": args.tcp, "lan": args.lan, "scratch": args.scratch}
+    opts = {"tcp": args.tcp, "lan": args.lan, "scratch": args.scratch, "force": args.force}
     if args.scratch:
         with BusDevice.scratch("bus_proc") as bus:
             return serve(home, bus, **opts)

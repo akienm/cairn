@@ -159,14 +159,18 @@ def test_emit_hands_the_crossing_ticket_to_both_gates(monkeypatch):
     want = "journal_extra.get('ticket')"
     assert seen.get("_build_gate") == want, f"emit's build gate call: {seen}"
     assert seen.get("_clean_tree_gate") == want, f"emit's clean-tree call: {seen}"
-    # (b) the build-gate path carries the ticket into inspect().
+    # (b) the build-gate path carries the ticket into the inspect judge. inspect_build ASKS for
+    # inspect (ticket 17d570c10390: _judge("inspect") goes through _ask_inspector to CodeMother's
+    # inspect verb, in another process), so a patch of inspector.inspect here is never reached.
+    # The seam this process owns is the ask: it is patched, and it records the judge and arguments.
     got = {}
 
-    def fake_inspect(**kw):
-        got.update(kw)
+    def fake_ask(judge, *args, **kw):
+        got.update(kw, judge=judge, args=args)
         return {"sieves_run": [], "proof_record": []}
-    monkeypatch.setattr(inspector, "inspect", fake_inspect)
+    monkeypatch.setattr(transitions, "_ask_inspector", fake_ask)
     transitions.inspect_build("/nonexistent/testing-3ba2/widget/history.json", ticket=T)
+    assert got.get("judge") == "inspect", f"inspect_build did not ask the inspect judge: {got}"
     assert got.get("ticket") == T, f"inspect_build did not pass the ticket: {got}"
     monkeypatch.undo()
     # (c) the clean-tree path, over a scratch world, excuses T's dialog and only T's.

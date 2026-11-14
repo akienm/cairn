@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_refusals_own_dialog_does_not_refuse_its_recross.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T08:57:37",
+    "date": "2026-11-14T08:57:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 2.42s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1163917-xjq487ah outlived its run under pid 1164093 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1163917-xjq487ah --scratch); ended it",
+      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 2.53s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1164789-xjeg9_g7 outlived its run under pid 1164965 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1164789-xjeg9_g7 --scratch); ended it",
       "teeth_green": [
         "test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing",
         "test_the_same_dialog_still_refuses_another_ticket_or_none",
@@ -17,7 +17,7 @@
         "test_emit_hands_the_crossing_ticket_to_both_gates"
       ],
       "teeth_red": [],
-      "test": "test-e2c4dbdfbe1c",
+      "test": "test-468412322714",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e2c4dbdfbe1c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-468412322714",
       "source_fingerprint": "fc98fd630d65d32faff00d98f2822ccda704b0a6392868b631bdb1f3946a758a",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
@@ -76,7 +76,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1163815-ztz2fy6v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1164702-_iabg768/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -87,32 +87,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 537480850,
-          "disk_bytes": 584527872,
-          "entries": 18004,
+          "bytes": 537481647,
+          "disk_bytes": 584531968,
+          "entries": 18005,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "reseal_ruling": "60b5248875b4",
-      "reseal_closed": {
-        "proof_sha256": "f742dd8111900f27a9c497e122c8b0322b4e4806637d0a80ea5d5fac4f891cf2",
-        "opened": "2026-11-14T01:24:53",
-        "last_red": "2026-11-14T07:59:09",
-        "passes": 3,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-a-refusals-own-dialog-does-not-refuse-its-recross",
-        "ruling": null,
-        "closed_at": "2026-11-14T08:57:37",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "924ada4e0e4879b47a63dd269f717b232edd05bc0347022b3841f58d24a812d6"
-      },
-      "conditions_moved": {
-        "notified": "n-9af603a19651",
-        "changed": [
-          "env",
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

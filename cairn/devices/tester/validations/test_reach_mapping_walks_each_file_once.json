@@ -2,19 +2,19 @@
   {
     "claim": "proof test_reach_mapping_walks_each_file_once.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T15:00:02",
+    "date": "2026-11-14T00:03:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_each_distinct_file_is_mapped_once\n        1200 entries, 2 distinct files: component_dirs walked 1 times (want 1: one walk for the whole map); map={'cairn/tools/base': '96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2'}\n  PASS  tooth_2_the_map_is_unchanged\n        many={'cairn/tools/base': '96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2'} once={'cairn/tools/base': '96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2'}\n\nGREEN",
+      "stdout_tail": "  PASS  tooth_1_each_distinct_file_is_mapped_once\n        1200 entries, 2 distinct files: component_dirs walked 1 times (want 1: one walk for the whole map); map={'cairn/tools/base': '11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e'}\n  PASS  tooth_2_the_map_is_unchanged\n        many={'cairn/tools/base': '11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e'} once={'cairn/tools/base': '11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e'}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_each_distinct_file_is_mapped_once",
         "tooth_2_the_map_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-c01569394959",
+      "test": "test-0bf1cc80fbc0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,20 +29,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c01569394959",
-      "source_fingerprint": "5aa81d32ace9053da3ba998c6dd56286406694172b5e9f6821bd4ce7e42027d0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0bf1cc80fbc0",
+      "source_fingerprint": "b4ee91aed6d117e26efe4b527db369427716f7bbc1377edbd53b97ce9ae192c3",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -53,14 +45,14 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
-        "cairn/tools/validation_store": "e35b3cf866d5402f4d23e18048570e75111a506e35ce3fa599bad1530d0a7e93"
+        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-ylf0ohlf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-480120-dwt9ke6e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,11 +61,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 533724207,
+          "disk_bytes": 579710976,
+          "entries": 17581,
           "builds": 1,
-          "reuses": 133
+          "reuses": 38
         }
       }
     },

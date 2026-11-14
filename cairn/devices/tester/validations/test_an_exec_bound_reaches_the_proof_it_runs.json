@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_an_exec_bound_reaches_the_proof_it_runs.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T18:49:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T23:56:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_exec_exports_its_bound\n.\n  ok   test_a_proof_under_the_bound_runs_at_it\n.\n  ok   test_explicit_limits_still_win_and_the_default_stands\n                                                                      [100%]\n3 passed in 23.48s",
+      "stdout_tail": ".\n  ok   test_the_exec_exports_its_bound\n.\n  ok   test_a_proof_under_the_bound_runs_at_it\n.\n  ok   test_explicit_limits_still_win_and_the_default_stands\n                                                                      [100%]\n3 passed in 23.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_exec_exports_its_bound",
@@ -15,7 +15,7 @@
         "test_explicit_limits_still_win_and_the_default_stands"
       ],
       "teeth_red": [],
-      "test": "test-753435843b9e",
+      "test": "test-190f66e5c07d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,14 +30,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-753435843b9e",
-      "source_fingerprint": "ac0393640c7699b1b887db29f5b59fd2c2a552bbe649c64198c16044ed736bd0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-190f66e5c07d",
+      "source_fingerprint": "203cbaefa51ffc6faddf228f854de04792c6f0b470422d2a498f26712225360b",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -51,66 +49,42 @@
         "cairn/devices/tester/working_bytes.py"
       ],
       "reached": {
-        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
         "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
-        "cairn/tools/scratch": "128a30e000a11a4219b110a23da3c234e76b63bd506bd914febe1b883e25fba8",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
         "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
         "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4035437-z8_8c__f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-480120-qv3mlk9i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
           "paths": [
-            "logs/tester/0/20261114.014902.322338.TesterDevice.run_proof.json",
-            "logs/tester/0/20261114.014908.165658.TesterDevice.run_proof.json",
-            "logs/tester/0/20261114.014915.891305.TesterDevice.run_proof.json",
-            "logs/tester/0/20261114.014919.620234.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-46199e2ab407/stderr.txt",
-            "logs/tester/0/runs/test-46199e2ab407/stdout.txt",
-            "logs/tester/0/runs/test-72c3f5ebf02f/stderr.txt",
-            "logs/tester/0/runs/test-72c3f5ebf02f/stdout.txt",
-            "logs/tester/0/runs/test-da9440321490/stderr.txt",
-            "logs/tester/0/runs/test-da9440321490/stdout.txt",
-            "logs/tester/0/runs/test-f1d35bd07cf0/stderr.txt",
-            "logs/tester/0/runs/test-f1d35bd07cf0/stdout.txt"
+            "logs/tester/0/20261114.065600.824895.TesterDevice.run_proof.json",
+            "logs/tester/0/20261114.065606.454445.TesterDevice.run_proof.json",
+            "logs/tester/0/20261114.065614.075202.TesterDevice.run_proof.json",
+            "logs/tester/0/20261114.065617.775090.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-8ec315d9e92c/stderr.txt",
+            "logs/tester/0/runs/test-8ec315d9e92c/stdout.txt",
+            "logs/tester/0/runs/test-a5cede8c6cbe/stderr.txt",
+            "logs/tester/0/runs/test-a5cede8c6cbe/stdout.txt",
+            "logs/tester/0/runs/test-dc5c6596e8ce/stderr.txt",
+            "logs/tester/0/runs/test-dc5c6596e8ce/stdout.txt",
+            "logs/tester/0/runs/test-eb616a87ab54/stderr.txt",
+            "logs/tester/0/runs/test-eb616a87ab54/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 532246012,
-          "disk_bytes": 576696320,
-          "entries": 17037,
+          "bytes": 533726034,
+          "disk_bytes": 579735552,
+          "entries": 17600,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "e6b25d61abc4": {
-          "cairn/devices/tester/device.py": [
-            "test_a_proof_under_the_bound_runs_at_it",
-            "test_explicit_limits_still_win_and_the_default_stands",
-            "test_the_exec_exports_its_bound"
-          ],
-          "cairn/devices/tester/cli.py": [
-            "test_a_proof_under_the_bound_runs_at_it",
-            "test_explicit_limits_still_win_and_the_default_stands"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "e6b25d61abc4": "ac0393640c7699b1b887db29f5b59fd2c2a552bbe649c64198c16044ed736bd0"
-      },
-      "hollow_anchor": {
-        "e6b25d61abc4": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "64db5415822c99ad021757033f9e514d53723450",
-          "anchor_first_build": "395a1c25706c88888b1b4d188b20c23271ac459e",
-          "commit": "a1c1d2fd02e62c1e284bd4b5f89969bf89d6ef46"
+          "reuses": 25
         }
       }
     },

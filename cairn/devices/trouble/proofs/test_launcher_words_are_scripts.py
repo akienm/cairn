@@ -38,7 +38,8 @@ if str(_REPO) not in sys.path:
 _BIN = _REPO / "cairn" / "devices" / "trouble" / "0" / "bin"
 WORDS = ("live", "clear", "drain")
 
-PROVES = {"285a8f3f7599": {
+PROVES = {"365f0fef8863": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
+          "285a8f3f7599": {
     "1": "clause_1_each_word_is_a_named_script",
     "2": "clause_2_live_json_prints_the_same_troubles",
     "3": "clause_3_the_launcher_has_no_arm_for_the_words",
@@ -154,10 +155,20 @@ def clause_3_the_launcher_has_no_arm_for_the_words() -> None:
     check("clause_3_the_launcher_has_no_arm_for_the_words", not lacks, "; ".join(lacks))
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 365f0fef8863: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    bad = scratch_home_bypass(here)
+    assert bad == [], bad
+
+
 def main() -> int:
     os.chdir(_REPO)
     print("285a8f3f7599 — trouble's launcher words become scripts in its bin")
-    for tooth in (clause_1_each_word_is_a_named_script, clause_2_live_json_prints_the_same_troubles,
+    for tooth in (test_every_scratch_home_child_here_gets_its_env_from_home_env, clause_1_each_word_is_a_named_script, clause_2_live_json_prints_the_same_troubles,
                   clause_3_the_launcher_has_no_arm_for_the_words):
         try:
             tooth()

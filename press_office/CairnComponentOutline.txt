@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 100. An answered question disappears:
+      takes the next unused number, which is 102. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1124,6 +1124,10 @@ not matter here. The code catches up to this, never the reverse.
                   json ... we need things we can check. and that does mean you
                   have to create adjudications. but i'd say this one isn't
                   working."
+        9.3.5.1.2 [Q#100: Will you read one ticket written in the v2 shape (the
+                  shape ticket d421051bc1f7's D30 rule picks) and say whether it
+                  reads right to you, or what to change? Only your reading settles
+                  it; the build of d421051bc1f7 waits on it (open-91e33982f3d5).]
     9.3.6 Holds the charter tool's instance (17.6): build-quality feedback is hers.
   9.4 MACHINES:
     9.4.1 harbor_master
@@ -1193,6 +1197,18 @@ not matter here. The code catches up to this, never the reverse.
       9.4.2.5 VERBS: run, notices, CodeMother's verbs reached over the bus (RULE 1).
               COMMANDS: cairn codemother test (--hollow, --seal, --exec, ...),
               shortcut cairn test; proofgate (the hook: proofs run by hand).
+        9.4.2.5.1 [Q#101: proofgate reads the text of a Bash command, so a proof
+                  run from a script file ("bash run_it.sh", whose text names no
+                  proof) is invisible to it. Measured 2026-11-13: such a proof runs
+                  bare and writes into the live HOME/.cairn. Which should seal that
+                  spelling? (a) every proof refuses to run unless it is inside the
+                  tester's seal, as one check in a shared helper or at the scratch
+                  door; (b) the hook also reads the script file a bash/sh command
+                  names; (c) a proof run from a script file is accepted as outside
+                  the rule. CC leans (a): it is the only one that covers every
+                  spelling, not just the next one found. This reopens ticket
+                  72a37498c601's WRONG INTENT clause; ticket dda0e72b9c67 clause 4
+                  waits on it (open-49fc67a40ede).]
     9.4.3 build_inspector
       9.4.3.1 PURPOSE: Python sieves run over a build; reds a component that fails
               one (no charter, no proofs, a silent device, ...). "We find a new

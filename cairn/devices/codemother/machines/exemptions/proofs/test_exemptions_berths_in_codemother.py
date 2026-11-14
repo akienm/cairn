@@ -38,7 +38,6 @@ _M, _E = "machines", "exemptions"
 OLD = f"cairn/{_M}/{_E}"
 NEW = f"cairn/devices/codemother/{_M}/{_E}"
 GATED_BY = ["codemother", "Akien", "CC"]
-# built from parts so this file does not spell what it greps for
 _SPELLINGS = [re.escape(f"cairn.{_M}.{_E}"), re.escape(OLD),
               rf"""["']cairn["']\s*[/,]\s*["']{_M}["']\s*[/,]\s*["']{_E}["']"""]
 _RECORD = re.compile(r"(^|/)(history|state)\.json$|/validations/|\.jsonl$")
@@ -67,7 +66,9 @@ def no_tracked_code_imports_or_path_joins_the_old_address() -> None:
                         "|".join(f"({s})" for s in _SPELLINGS), "--", "*.py", "*.json", "bin/"],
                        capture_output=True, text=True)
     assert r.returncode in (0, 1), f"git grep failed: {r.stderr[:200]}"
-    hits = [ln for ln in r.stdout.splitlines() if not _RECORD.search(ln.split(":", 1)[0])]
+    me = Path(__file__).resolve().relative_to(_REPO).as_posix()   # this file names what it greps for
+    hits = [ln for ln in r.stdout.splitlines()
+            if not _RECORD.search(ln.split(":", 1)[0]) and ln.split(":", 1)[0] != me]
     assert not hits, f"{len(hits)} tracked line(s) still spell the old address: {hits[:8]}"
 
 

@@ -16,8 +16,8 @@ that run in a subprocess — the BUILDME entry gate and the CLI):
   4. the Stop hooks carry no ruling hook, no skill tells CC to open a ruling, and CLAUDE.md
      names decision intake by ``cairn question``; the intake's own refusals left with its
      code (ticket 640a7a48e1c5), and its absence is measured by the retirement proof in bin;
-  5. the two sieves take an answered question id as same-act evidence and refuse an
-     unanswered one and a cite of neither.
+  5. (moved by ticket 6560fdb5b935 to exemptions' proofs,
+     test_an_answered_question_justifies.py: it measures two machines, not this tool).
 
 Ticket c62df2454322 adds one composite tooth: a measurement answers under its own name
 (``answered_by: measurement: <record>``, never Akien — Law 9), a citation of no record is
@@ -52,7 +52,6 @@ PROVES = {
         "2": "test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
         "3": "test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
         "4": "test_ruling_open_is_retired_and_no_skill_opens_one",
-        "5": "test_an_answered_question_is_same_act_evidence_for_the_sieves",
         "cli": "test_the_cli_opens_answers_and_lists",
         "charter": "test_the_charter_stands_beside_the_code_and_names_this_proof",
         "probe": "test_the_probe_is_armed_with_carry_and_enough",
@@ -172,24 +171,9 @@ def teeth_door(tmp: Path) -> None:
           f"{g_open.get('error', '')[:120]}; answered: lane={g_done['lanes'].get(lane)!r} "
           f"raised={bool(g_done['raised'])} {g_done.get('error', '')[:120]}")
 
-    # 5. the sieves: an answered question is same-act evidence; an open one and neither are not
-    os.environ["CAIRN_QUESTIONS_DIR"] = str(qdir)
-    try:
-        from cairn.machines.corrosion import citation
-        from cairn.machines.exemptions import justification
-        ok_ans, _ = citation.answered_question(qid)
-        open_q = Q.open_question(TICKET, "still open?", "unanswered — must not count", root=qdir)
-        ok_open, why_open = citation.answered_question(open_q["id"])
-        base = {"id": "x", "path": "cairn/tools/question/question.py"}
-        lack_ans = justification.justification_lack(dict(base, justification_kind="question", evidence=qid))
-        lack_open = justification.justification_lack(dict(base, justification_kind="question", evidence=open_q["id"]))
-        lack_none = justification.justification_lack(dict(base, justification_kind="none", evidence="because"))
-        check(PROVES[TICKET]["5"],
-              ok_ans and not ok_open and lack_ans == "" and lack_open != "" and lack_none != "",
-              f"answered={ok_ans} open={ok_open} ({why_open[:40]}) lacks: ans={lack_ans!r} "
-              f"open={lack_open[:40]!r} none={lack_none[:40]!r}")
-    finally:
-        os.environ.pop("CAIRN_QUESTIONS_DIR", None)
+    # 5. the sieves' tooth (an answered question is same-act evidence) measures corrosion and
+    # exemptions, so it berths with them (ticket 6560fdb5b935, RULE 1):
+    # cairn/devices/codemother/machines/exemptions/proofs/test_an_answered_question_justifies.py
 
     # cli: open / answer / list / show, exit 2 on a refusal
     print("THE CLI")

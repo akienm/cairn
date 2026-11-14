@@ -158,7 +158,7 @@ def _the_narrowing_holds_on_both_sides() -> None:
         "from x import sieve\nsieve.reaches(g, 'cairn/devices/codemother/machines/build_inspector/inspector.py')\n": 1,
     }
     mention = {
-        "want = {'cairn/machines/exemptions/exemption_set.json',\n"
+        "want = {'cairn/devices/codemother/machines/exemptions/exemption_set.json',\n"
         "        'cairn/devices/codemother/machines/build_inspector/inspector.py'}\n": 0,
         "_MOVED = ('cairn/devices/codemother/machines/build_inspector/proofs/t.py',)\n": 0,
     }

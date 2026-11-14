@@ -36,7 +36,7 @@ def _sieve_or_none(name):
 # cannot load is a standing red on every tooth that reaches for it.
 _JUSTIFICATION_GONE = None
 try:
-    from cairn.machines.exemptions.justification import justification_lack, LEGAL_KINDS
+    from cairn.devices.codemother.machines.exemptions.justification import justification_lack, LEGAL_KINDS
 except Exception as _exc:  # noqa: BLE001 — the reverted world is the case this handles
     _JUSTIFICATION_GONE = repr(_exc)
 
@@ -66,8 +66,8 @@ def SIEVE(row, comp_dir):
 PASS = 0
 FAIL = 0
 
-REPO = Path(__file__).resolve().parents[4]
-REAL_SET = REPO / "cairn" / "machines" / "exemptions" / "exemption_set.json"
+REPO = Path(__file__).resolve().parents[6]
+REAL_SET = REPO / "cairn" / "devices" / "codemother" / "machines" / "exemptions" / "exemption_set.json"
 
 # THE CLAUSE KEYS THE GATE ASKS FOR ARE DERIVED FROM THE FALSIFIER, NOT CHOSEN HERE.
 # proof_coverage.clauses() reads the ticket's falsifier for (1)(2)(3) or (a)(b)(c)
@@ -130,7 +130,7 @@ def _component(exemptions, *, write=True, raw=None):
     """A temporary repo-like tree holding an exemptions component."""
     root = scratch_dir("exemptions_")
     (root / ".git").mkdir(exist_ok=True)
-    comp = root / "cairn" / "machines" / "exemptions"
+    comp = root / "cairn" / "devices" / "codemother" / "machines" / "exemptions"
     comp.mkdir(parents=True, exist_ok=True)
     if raw is not None:
         (comp / "exemption_set.json").write_text(raw, encoding="utf-8")
@@ -141,7 +141,7 @@ def _component(exemptions, *, write=True, raw=None):
     return root, comp
 
 
-def _self_entry(comp_rel="cairn/machines/exemptions/exemption_set.json"):
+def _self_entry(comp_rel="cairn/devices/codemother/machines/exemptions/exemption_set.json"):
     return {"id": "self", "path": comp_rel, "description": "the set itself",
             "kind": "set", "justification_kind": "no-other-way",
             "evidence": "nothing discovers an exemption nobody entered",
@@ -184,7 +184,7 @@ def test_A_SET_THAT_DROPPED_ITS_OWN_ENTRY_REDS():
 
 
 def test_A_RULING_THAT_DOES_NOT_RESOLVE_REDS():
-    entry = {"id": "cites-a-ghost", "path": "cairn/machines/exemptions/exemption_set.json",
+    entry = {"id": "cites-a-ghost", "path": "cairn/devices/codemother/machines/exemptions/exemption_set.json",
              "description": "x", "kind": "sieve-scope",
              "justification_kind": "ruling",
              "evidence": "2099-01-01-a-ruling-that-was-never-made",
@@ -215,7 +215,7 @@ def test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT():
         old = os.environ.get("CAIRN_QUESTIONS_DIR")
         os.environ["CAIRN_QUESTIONS_DIR"] = str(qdir)
         try:
-            base = {"id": "q-site", "path": "cairn/machines/exemptions/exemption_set.json",
+            base = {"id": "q-site", "path": "cairn/devices/codemother/machines/exemptions/exemption_set.json",
                     "description": "x", "kind": "sieve-scope", "symbol": "exemptions"}
             answered = justification_lack(dict(base, justification_kind="question",
                                                evidence="open-aaaaaaaaaaaa"))
@@ -234,7 +234,7 @@ def test_AN_ANSWERED_QUESTION_IS_EVIDENCE_AND_AN_OPEN_ONE_IS_NOT():
 
 def test_AN_EMPTY_IMPOSSIBILITY_REDS():
     for bad in ("", "   ", None):
-        entry = {"id": "says-nothing", "path": "cairn/machines/exemptions/exemption_set.json",
+        entry = {"id": "says-nothing", "path": "cairn/devices/codemother/machines/exemptions/exemption_set.json",
                  "description": "x", "kind": "sieve-scope",
                  "justification_kind": "no-other-way", "evidence": bad,
                  "symbol": "exemptions"}
@@ -242,7 +242,7 @@ def test_AN_EMPTY_IMPOSSIBILITY_REDS():
         out = SIEVE(ROW, comp)
         _check("an empty impossibility (%r) reds" % bad,
                any("evidence is missing or empty" in n for n in _lacks(out)), out)
-    entry = {"id": "no-kind", "path": "cairn/machines/exemptions/exemption_set.json",
+    entry = {"id": "no-kind", "path": "cairn/devices/codemother/machines/exemptions/exemption_set.json",
              "description": "x", "kind": "sieve-scope",
              "justification_kind": "because I said so", "evidence": "words",
              "symbol": "exemptions"}
@@ -317,7 +317,7 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
     _check("the live set carries 20 entries — 19 measured sites plus itself",
            len(ex) == 20, len(ex))
     want = {
-        "cairn/machines/exemptions/exemption_set.json",
+        "cairn/devices/codemother/machines/exemptions/exemption_set.json",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
         "cairn/devices/inferenceproxy/proofs/test_host.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
@@ -343,8 +343,8 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
 def _charter_row() -> dict:
     """The census row shape the charter-bearing sieves read."""
     return {"component": "exemptions",
-            "dir": "cairn/machines/exemptions",
-            "charter_on_disk": (REPO / "cairn" / "machines" / "exemptions"
+            "dir": "cairn/devices/codemother/machines/exemptions",
+            "charter_on_disk": (REPO / "cairn" / "devices" / "codemother" / "machines" / "exemptions"
                                 / "intention+why.json").is_file(),
             "proofs": 1, "validations": [], "devices": [], "emit_sites": []}
 
@@ -365,13 +365,13 @@ def test_THE_COMPONENT_SAYS_WHAT_IT_IS():
     tooth claims exactly that much and no more.
     """
     import importlib
-    import cairn.machines.exemptions as E
+    import cairn.devices.codemother.machines.exemptions as E
     E = importlib.reload(E)
     _check("the package is a real package, not a namespace", E.__file__ is not None, E.__file__)
     doc = (E.__doc__ or "").strip()
     _check("and it says what an exemption is", "declines to run" in doc, doc[:80])
 
-    charter = REPO / "cairn" / "machines" / "exemptions" / "intention+why.json"
+    charter = REPO / "cairn" / "devices" / "codemother" / "machines" / "exemptions" / "intention+why.json"
     _check("the charter is on disk", charter.is_file(), charter)
     if not charter.is_file():
         return
@@ -408,7 +408,7 @@ def test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST():
 
 def test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM():
     """Akien's standing rule: nothing in an inspector or a gate may be an LLM."""
-    import cairn.machines.exemptions.justification as J
+    import cairn.devices.codemother.machines.exemptions.justification as J
     banned = ("inferenceproxy", "anthropic", "openai", "hex.local", "claude")
     for mod in (J,):
         text = Path(mod.__file__).read_text(encoding="utf-8")
@@ -434,7 +434,7 @@ def test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE():
     than a property of a predicate that cannot say anything else.
     """
     from cairn.tools.base.probe import Probe
-    import cairn.machines.exemptions.probes.\
+    import cairn.devices.codemother.machines.exemptions.probes.\
         every_exemption_cites_a_ruling_or_an_impossibility as W
 
     _check("PROBE is a frozen Probe", isinstance(W.PROBE, Probe), type(W.PROBE))

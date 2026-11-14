@@ -15,7 +15,7 @@ Teeth, one per falsifier clause:
      of the sieve's reach rather than entered;
   4. the depth proof passes.
 
-    python3 cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py
+    python3 cairn/devices/codemother/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -35,7 +35,7 @@ PROVES = {"3751ba501581": {
     "4": "the_depth_proof_passes",
 }}
 
-SET = REPO / "cairn/machines/exemptions/exemption_set.json"
+SET = REPO / "cairn/devices/codemother/machines/exemptions/exemption_set.json"
 DEPTH = "cairn/tools/import_sieve/proofs/test_an_admission_holds_at_any_depth.py"
 SIBLING = "cairn/tools/import_sieve/proofs/test_import_sieve.py"
 MEMBERS = {"bus_client/remote.py": "cairn/tools/bus_client/remote.py",

@@ -34,7 +34,7 @@ def _seed(only: str, entries: list[dict], seat: str = _SEAT) -> Path:
     (root / ".git").mkdir()
     (root / seat).parent.mkdir(parents=True, exist_ok=True)
     (root / seat).write_text('RULE = {"modules": ("socket",), "only": %s}\n' % only)
-    comp = root / "cairn" / "machines" / "exemptions"
+    comp = root / "cairn" / "devices" / "codemother" / "machines" / "exemptions"
     comp.mkdir(parents=True)
     (comp / "exemption_set.json").write_text(json.dumps({"exemptions": entries}))
     return comp

@@ -30,8 +30,8 @@ from cairn.tools.base.probe import Probe, Threshold, watch_carry
 
 _TICKET_ID = "892a0f9cd925"
 
-_REPO = Path(__file__).resolve().parents[4]
-_SET = _REPO / "cairn" / "machines" / "exemptions" / "exemption_set.json"
+_REPO = Path(__file__).resolve().parents[6]
+_SET = _REPO / "cairn" / "devices" / "codemother" / "machines" / "exemptions" / "exemption_set.json"
 
 # Exemption-shaped constructs. Coarse ON PURPOSE — a pattern narrow enough to
 # match only today's eight sites would find nothing new, which is the one thing

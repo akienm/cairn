@@ -6,7 +6,7 @@ inspector.py. Once build_inspector berths among codemother's machines, a proof A
 is hers, so each tooth moved here with its PROVES key, and the outside proof keeps a pointer:
 
   - the exemption sieve's def stands in the inspector, from
-    cairn/machines/exemptions/proofs/test_exemption_set.py (892a0f9cd925, the closure tooth);
+    cairn/devices/codemother/machines/exemptions/proofs/test_exemption_set.py (892a0f9cd925, the closure tooth);
   - the inspector defines the nine crossing_ checks and its import closure reaches neither the
     crossing nor the bus client, from cairn/tools/base/proofs/test_the_crossing_compares_what_the_inspector_found.py
     (66ee1ffc1ec7 clause 5, e41a94da3fd0 clause 5);

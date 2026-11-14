@@ -3482,7 +3482,7 @@ def every_exemption_cites_a_ruling_or_an_impossibility(row: dict, comp_dir: Path
     instrument, and therefore indistinguishable from no reason at all. (The
     inherited "187 exemptions" was a phantom; the ruling traces it.)
 
-    Reads the declared set (cairn/machines/exemptions/exemption_set.json) when
+    Reads the declared set (cairn/devices/codemother/machines/exemptions/exemption_set.json) when
     the exemptions component is inspected — the same shape, and the same
     component gate, as constraint_enforcement_holds above. The set includes
     ITSELF, so narrowing it fires the check on itself; that self-reference is
@@ -3519,7 +3519,7 @@ def every_exemption_cites_a_ruling_or_an_impossibility(row: dict, comp_dir: Path
             "every_exemption_cites_a_ruling_or_an_impossibility", row["component"],
             "exemption set non-empty", expected=True, actual=False,
         )]
-    from cairn.machines.exemptions.justification import justification_lack
+    from cairn.devices.codemother.machines.exemptions.justification import justification_lack
     findings = []
     repo_root = comp_dir
     while repo_root.name and not (repo_root / ".git").exists():
